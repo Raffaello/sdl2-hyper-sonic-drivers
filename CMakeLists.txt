@@ -3,7 +3,13 @@
 #
 cmake_minimum_required (VERSION 3.8)
 
-project ("sdl2-sonic-drivers")
+if(DEFINED ENV{VCPKG_ROOT} AND NOT DEFINED CMAKE_TOOLCHAIN_FILE)
+  set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
+endif()
 
+
+project ("sdl2-sonic-drivers" VERSION 0.1.0 DESCRIPTION "SDL2 mixer Sonic Drivers for emulatig old soundcards")
+
+include(CTest)
 # Include sub-projects.
 add_subdirectory ("sdl2-sonic-drivers")
