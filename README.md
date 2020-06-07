@@ -13,6 +13,16 @@ The majority of the core code is part of these projects:
 - Mame
 - DosBox
 	
+
+## Notes
+
+TODO
+
+- `drivers` folder is analog to `*.DRV`|`*.ADV` files. (to read them or to be hardcoded)
+- `hardware` is the soundcard/chip emulation.
+- `audio`  API interface?
+- `files` `*.ADL` `*.XMI` `*.MID`
+
 ## TODO
 
 - Adlib
