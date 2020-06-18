@@ -14,12 +14,20 @@ configure_file("version.h.in" "version.h")
 # Add source to this project's executable.
 add_executable (sdl2-sonic-drivers "sdl2-sonic-drivers.cpp")
 target_sources(sdl2-sonic-drivers PUBLIC
-    src/adl/sound_adlib.cpp
-    src/adl/format.cpp
-    src/adl/surroundopl.cpp
-    src/adl/woodyopl.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/adl/sound_adlib.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/adl/format.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/adl/surroundopl.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/adl/woodyopl.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/softsynths/PCSpeaker.cpp
 )
-target_include_directories(sdl2-sonic-drivers PUBLIC "src/adl")
+
+target_include_directories(sdl2-sonic-drivers PUBLIC 
+    #${CMAKE_CURRENT_SOURCE_DIR}/src/adl
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    #${CMAKE_CURRENT_SOURCE_DIR}/src/audio
+    #${CMAKE_CURRENT_SOURCE_DIR}/src/audio/softsynth
+)
+
 target_link_libraries(sdl2-sonic-drivers PRIVATE SDL2::SDL2 SDL2::SDL2main SDL2::SDL2_mixer)
 if(BUILD_TESTING)
     add_subdirectory("test")
