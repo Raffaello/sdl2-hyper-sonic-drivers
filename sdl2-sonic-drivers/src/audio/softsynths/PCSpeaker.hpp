@@ -29,7 +29,11 @@
  */
 
 // TODO move to hardware, pcspeaker is hardware
-//      audio/softsynths could be the generators.
+//      audio/softsynths could be the generators. OR THE INTERFACE TO USE THE HARDWARE
+//      HARDWARE SOMEHOW WILL BE THE LOW LEVEL API OR NOT REALLY ACCESSIBLE
+//      WHILE AUDIO IS THE INTERFACE HIGH LEVEL API TO MAKE SOUNDS
+//      DRIVERS IS IN BETWEEN... ALSO MIGHT CONTAIN MILES SOUND DRIVERS (AIL)
+//      AND READING FILE FORMATS LIKE ADL OR XMI
 namespace audio
 {
     namespace softsynths

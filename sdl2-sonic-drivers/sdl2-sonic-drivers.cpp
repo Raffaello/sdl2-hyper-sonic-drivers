@@ -5,6 +5,7 @@
 #include <adl/sound_adlib.h>
 #include <SDL_mixer.h>
 #include <audio/softsynths/PCSpeaker.hpp>
+#include <drivers/miles/XMidi.hpp>
 
 using namespace std;
 
@@ -329,8 +330,11 @@ int main(int argc, char* argv[])
         cout << "Driver " << i << " name: " << SDL_GetAudioDriver(i) << endl;
     }
     
-//    adl();
-    pcspkr();
+
+    drivers::miles::XMidi::readDriver("ALGDIG.ADV");
+
+    adl();
+//    pcspkr();
     //teen();
     //song();
 

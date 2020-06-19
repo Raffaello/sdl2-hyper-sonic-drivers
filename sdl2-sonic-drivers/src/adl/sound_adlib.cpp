@@ -2278,7 +2278,6 @@ SoundAdlibPC::SoundAdlibPC(SDL_RWops* rwop) : _driver(0), _trackEntries(), _soun
     memset(_trackEntries, 0, sizeof(_trackEntries));
 
     Mix_QuerySpec(&m_freq, &m_format, &m_channels);
-
     _driver = new AdlibDriver(m_freq);
     assert(_driver);
 

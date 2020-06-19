@@ -19,6 +19,7 @@ target_sources(sdl2-sonic-drivers PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/adl/surroundopl.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/adl/woodyopl.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/softsynths/PCSpeaker.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/miles/XMidi.cpp
 )
 
 target_include_directories(sdl2-sonic-drivers PUBLIC 
