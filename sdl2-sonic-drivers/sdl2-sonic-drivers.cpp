@@ -146,9 +146,9 @@ int pcspkr()
     
     cout << "Pulse" << endl;
     pcSpeaker.play(PCSpeaker::eWaveForm::PULSE, 440, 300);
-    while (pcSpeaker.isPlaying()) { SDL_Delay(100); }
+    while (pcSpeaker.isPlaying()) { SDL_Delay(10); }
     pcSpeaker.play(PCSpeaker::eWaveForm::PULSE, 440+183, 600);
-    while (pcSpeaker.isPlaying()) { SDL_Delay(100); }
+    while (pcSpeaker.isPlaying()) { SDL_Delay(10); }
     SDL_Delay(600);
 
     cout << "SQUARE" << endl;
@@ -189,6 +189,122 @@ int pcspkr()
     return 0;
 }
 
+int teen()
+{
+    using audio::softsynths::PCSpeaker;
+
+    Mix_Init(0);
+    if (Mix_OpenAudio(44100, AUDIO_S16, 2, 1024) < 0) {
+        cerr << Mix_GetError();
+        return -1;
+    }
+
+    int length = 3000;
+
+    PCSpeaker pcSpeaker(44100, 8);
+    pcSpeaker.volume = 8;
+    cout << "isPlaying: " << pcSpeaker.isPlaying() << endl
+        << "Rate: " << pcSpeaker.getRate() << endl
+        << "vol: " << (int)pcSpeaker.volume << endl;
+    
+    const int notes[] = {
+        //       A4  A4#   B4  C5   C5#  D5
+                440, 466, 494, 523, 554, 587,
+                //  D5#  E5   F5   F#5  G5   G#5  A5
+                    622, 659, 698, 740, 784, 830, 880 };
+
+
+    const int notes2[] = {
+//       A    A#   B    C    C#   D    D#   E    F    F#   G    G#   
+        220, 233, 247, 262, 277, 294, 311, 330, 349, 370, 392, 415,  // 3 - 4
+        440, 466, 494, 523, 554, 587, 622, 659, 698, 740, 784, 830,  // 4 - 5
+        880                                                          // 5
+    };
+    const int major[] = { 0, 2, 4, 5, 7, 9, 11, 12 };
+    // C5, D#5, F5, G#4, D#5-F5-D#5, C#5-C5, C5#-C5, A#5 G5#, C5-C#5-C5, G#5-G5, G#5-G5, G#5-G5, G#5-G5-G5-F5
+    // 1   1    2   4    1  0.5 0.5, 1   2   1   2    1  2
+    const int song2[]    = { 3+12, 6+12, 8+12, 11, 6+12,8+12,6+12, 4+12,3+12, 4+12,3+12, 1+12, 11, 1+12,3+12,1+12, 11,10, 11,10, 11,10, 11,10,10,8,  11,10, 11,10, 11,10, 11,10,10,8 };
+    const int songInt2[] = { 2,    4,    6,    8,  4,   4,   6,    4,   6,    4,   6,    6,    6,  4,   4,   4,    4, 6,  4, 6,  4, 6,  4, 4, 4, 8,  4, 6,  4, 6,  4, 6,  4, 4, 4, 16 };
+    
+    // TODO try with channels.
+    Mix_HookMusic(pcSpeaker.callback, &pcSpeaker);
+
+    cout << "Pulse" << endl;
+   /* for (int n = 0; n < 8; n++) {
+        cout << "note: " << notes[major[n]] << endl;
+        pcSpeaker.play(PCSpeaker::eWaveForm::PULSE, notes[major[n]], 500);
+        while (pcSpeaker.isPlaying()) { SDL_Delay(10); }
+    }*/
+    
+    SDL_Delay(500);
+    cout << "isPlaying: " << pcSpeaker.isPlaying();
+    for (int n = 0; n < 36; n++) {
+        int length = songInt2[n] * 100;
+        pcSpeaker.play(PCSpeaker::eWaveForm::PULSE, notes2[song2[n]], length);
+        while (pcSpeaker.isPlaying()) { SDL_Delay(10); }
+    }
+
+    Mix_HaltChannel(-1);
+    Mix_HaltMusic();
+    Mix_CloseAudio();
+    Mix_Quit();
+    return 0;
+}
+
+int song()
+{
+    using audio::softsynths::PCSpeaker;
+
+    Mix_Init(0);
+    if (Mix_OpenAudio(44100, AUDIO_S16, 2, 1024) < 0) {
+        cerr << Mix_GetError();
+        return -1;
+    }
+
+    int length = 3000;
+
+    PCSpeaker pcSpeaker(44100, 8);
+    pcSpeaker.volume = 8;
+    cout << "isPlaying: " << pcSpeaker.isPlaying() << endl
+        << "Rate: " << pcSpeaker.getRate() << endl
+        << "vol: " << (int)pcSpeaker.volume << endl;
+
+    const int notes[] = {
+        //       A4  A4#   B4  C5   C5#  D5
+                440, 466, 494, 523, 554, 587,
+                //  D5#  E5   F5   F#5  G5   G#5  A5
+                    622, 659, 698, 740, 784, 830, 880 };
+
+
+    const int notes2[] = {
+        //       A    A#   B    C    C#   D    D#   E    F    F#   G    G#   
+                220, 233, 247, 262, 277, 294, 311, 330, 349, 370, 392, 415,  // 3 - 4
+                440, 466, 494, 523, 554, 587, 622, 659, 698, 740, 784, 830,  // 4 - 5
+                880                                                          // 5
+    };
+    const int major[] = { 0, 2, 4, 5, 7, 9, 11, 12 };
+    // C5, D#5, F5, G#4, D#5-F5-D#5, C#5-C5, C5#-C5, A#5 G5#, C5-C#5-C5, G#5-G5, G#5-G5, G#5-G5, G#5-G5-G5-F5
+    // 1   1    2   4    1  0.5 0.5, 1   2   1   2    1  2
+    const int song2[] = { 3 + 12, 6 + 12, 8 + 12, 11, 6 + 12,8 + 12,6 + 12, 4 + 12,3 + 12, 4 + 12,3 + 12, 1 + 12, 11, 1 + 12,3 + 12,1 + 12, 11,10, 11,10, 11,10, 11,10,10,8,  11,10, 11,10, 11,10, 11,10,10,8 };
+    const int songInt2[] = { 2,    4,    6,    8,  4,   4,   6,    4,   6,    4,   6,    6,    6,  4,   4,   4,    4, 6,  4, 6,  4, 6,  4, 4, 4, 8,  4, 6,  4, 6,  4, 6,  4, 4, 4, 16 };
+
+    // TODO try with channels.
+    Mix_HookMusic(pcSpeaker.callback, &pcSpeaker);
+
+    cout << "Pulse" << endl;
+    for (int n = 0; n < 8; n++) {
+         cout << "note: " << notes[major[n]] << endl;
+         pcSpeaker.play(PCSpeaker::eWaveForm::PULSE, notes[major[n]], 500);
+         while (pcSpeaker.isPlaying()) { SDL_Delay(10); }
+     }
+
+    Mix_HaltChannel(-1);
+    Mix_HaltMusic();
+    Mix_CloseAudio();
+    Mix_Quit();
+    return 0;
+}
+
 int main(int argc, char* argv[])
 {
     SDL_Init(SDL_INIT_TIMER | SDL_INIT_AUDIO);
@@ -210,6 +326,8 @@ int main(int argc, char* argv[])
     
 //    adl();
     pcspkr();
+    //teen();
+    //song();
 
 
     //SDL_CloseAudio();

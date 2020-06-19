@@ -25,7 +25,8 @@
  *
  */
 
-
+// TODO move to hardware, pcspeaker is hardware
+//      audio/softsynths could be the generators.
 namespace audio
 {
     namespace softsynths
