@@ -133,8 +133,13 @@ int pcspkr()
     }
 
     int length = 3000;
+    int freq;
+    uint16_t fmt;
+    int chn;
+    
+    Mix_QuerySpec(&freq, &fmt, &chn);
 
-    PCSpeaker pcSpeaker(44100, 8);
+    PCSpeaker pcSpeaker(freq, chn);
     pcSpeaker.volume = 8;
     cout << "isPlaying: " << pcSpeaker.isPlaying() << endl
         << "Rate: " << pcSpeaker.getRate() << endl
