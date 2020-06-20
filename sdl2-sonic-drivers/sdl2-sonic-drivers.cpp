@@ -330,16 +330,30 @@ int main(int argc, char* argv[])
         cout << "Driver " << i << " name: " << SDL_GetAudioDriver(i) << endl;
     }
     
+   /* SDL_AudioSpec spec;
+    spec.callback = NULL;
+    spec.channels = 1;
+    spec.format = AUDIO_U8;
+    spec.freq = 22050;
+    spec.samples = 512;
+    spec.silence = 0;
+
+    SDL_OpenAudio(&spec, &spec);
+
+    cout << "channels " << (int) spec.channels << endl
+        << "freq " << spec.freq << endl
+        << "format " << (int)spec.format << endl;
+
+    SDL_CloseAudio();*/
 
     drivers::miles::XMidi::readDriver("ALGDIG.ADV");
 
-    adl();
-//    pcspkr();
+    //adl();
+    pcspkr();
     //teen();
     //song();
 
 
-    //SDL_CloseAudio();
     SDL_Quit();
     return 0;
 }

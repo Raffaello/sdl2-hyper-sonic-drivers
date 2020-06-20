@@ -20,6 +20,9 @@ target_sources(sdl2-sonic-drivers PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/adl/woodyopl.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/softsynths/PCSpeaker.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/miles/XMidi.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/File.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/IFFFile.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/XMIFile.cpp
 )
 
 target_include_directories(sdl2-sonic-drivers PUBLIC 
