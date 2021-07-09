@@ -26,10 +26,7 @@ target_sources(sdl2-sonic-drivers PUBLIC
 )
 
 target_include_directories(sdl2-sonic-drivers PUBLIC 
-    #${CMAKE_CURRENT_SOURCE_DIR}/src/adl
     ${CMAKE_CURRENT_SOURCE_DIR}/src
-    #${CMAKE_CURRENT_SOURCE_DIR}/src/audio
-    #${CMAKE_CURRENT_SOURCE_DIR}/src/audio/softsynth
 )
 
 target_link_libraries(sdl2-sonic-drivers PRIVATE SDL2::SDL2 SDL2::SDL2main SDL2::SDL2_mixer)
