@@ -1,14 +1,3 @@
-#define _USE_MATH_DEFINES
-#include "PCSpeaker.hpp"
-#include <cmath>
-#include <cassert>
-#include <cstring>
-
-template<typename T> inline T CLIP(T v, T amin, T amax)
-{
-    if (v < amin) return amin; else if (v > amax) return amax; else return v;
-}
-
 /* ScummVM - Graphic Adventure Engine
  *
  * ScummVM is the legal property of its developers, whose names
@@ -31,49 +20,84 @@ template<typename T> inline T CLIP(T v, T amin, T amax)
  *
  */
 
+// TODO: replace M_PI with c++20 std::numbers::pi
+#define _USE_MATH_DEFINES
+#include "PCSpeaker.hpp"
+#include <cmath>
+#include <cassert>
+#include <cstring>
+#include <limits>
+
+
 namespace audio
 {
-    namespace softsynths
+    namespace hardware
     {
-        typedef std::function<char(uint32_t, uint32_t)> generatorFunction;
+        // Generators
 
-        char generateSquare(uint32_t x, uint32_t oscLength)
+        constexpr double pi2 = 2.0 * M_PI;
+        constexpr double pi_coeff = static_cast<double>(std::numeric_limits<int8_t>::max());
+
+        typedef std::function<int8_t(uint32_t, uint32_t)> generatorFunction;
+
+        template<typename T> inline T CLIP(T v, T amin, T amax)
         {
-            return (x < (oscLength / 2)) ? 127 : -128;
+            if (v < amin) {
+                return amin;
+            }
+
+            if (v > amax) {
+                return amax;
+            }
+
+            return v;
         }
 
-        char generatePulse(uint32_t x, uint32_t oscLength)
+        int8_t generateSquare(const uint32_t x, const uint32_t oscLength)
         {
-            return (x < (oscLength / 2)) ? 127 : 0;
+            return (x < (oscLength / 2)) ?
+                std::numeric_limits<int8_t>::max() :
+                std::numeric_limits<int8_t>::min();
         }
 
-        char generateSine(uint32_t x, uint32_t oscLength)
+        int8_t generatePulse(const uint32_t x, const uint32_t oscLength)
+        {
+            return (x < (oscLength / 2)) ?
+                std::numeric_limits<int8_t>::max() :
+                0;
+        }
+
+        int8_t generateSine(const uint32_t x, const uint32_t oscLength)
         {
             if (oscLength == 0) {
                 return 0;
             }
-            double y = 128.0 * sin(2.0 * M_PI * x / oscLength);
-            return static_cast<char>(CLIP<int16_t>(static_cast<int16_t>(round(y)), -128, 127));
+
+            return static_cast<char>(CLIP<int16_t>(
+                static_cast<uint16_t>(round(pi_coeff * sin(pi2 * x / oscLength))),
+                std::numeric_limits<int8_t>::min(),
+                std::numeric_limits<int8_t>::max()
+                ));
         }
 
-        char generateSaw(uint32_t x, uint32_t oscLength)
+        int8_t generateSaw(const uint32_t x, const uint32_t oscLength)
         {
             if (oscLength == 0) {
                 return 0;
             }
 
-            return ((x * (65536 / oscLength)) >> 8) - 128;
+            return ((x * (std::numeric_limits<uint16_t>::max() / oscLength)) >> 8) - std::numeric_limits<int8_t>::max();
         }
 
-        char generateTriangle(uint32_t x, uint32_t oscLength)
+        int8_t generateTriangle(const int32_t x, const uint32_t oscLength)
         {
             if (oscLength == 0) {
                 return 0;
             }
 
-            int y = ((x * (65536 / (oscLength / 2))) >> 8) - 128;
+            int y = ((x * (std::numeric_limits<uint16_t>::max() / (oscLength / 2))) >> 8) - std::numeric_limits<int8_t>::max();
 
-            return (x <= (oscLength / 2)) ? y : (256 - y);
+            return (x <= (oscLength / 2)) ? y : (std::numeric_limits<uint8_t>::max() - y);
         }
 
         const generatorFunction generateWave[] = { 
@@ -83,6 +107,8 @@ namespace audio
             &generateTriangle,
             &generatePulse
         };
+
+        // END Generators
 
         void PCSpeaker::callback(void* userdata, _In_ uint8_t* audiobuf, int len)
         {
@@ -112,19 +138,14 @@ namespace audio
                 _loop = true;
             }
             else {
-                _remainingSamples = (_rate * length) / 1000;
-                _loop = false;
+                _setRemainingSamples(length);
             }
-
-            //_mixedSamples = 0;
         }
 
         void PCSpeaker::stop(const int32_t delay)
         {
             std::lock_guard lck(_mutex);
-
-            _remainingSamples = (_rate * delay) / 1000;
-            _loop = false;
+            _setRemainingSamples(delay);
         }
 
         bool PCSpeaker::isPlaying() const noexcept
@@ -135,24 +156,21 @@ namespace audio
         int PCSpeaker::readBuffer(int16_t* buffer, const int numSamples)
         {
             std::lock_guard lck(_mutex);
-            //assert(numSamples % _channels == 0);
             int i;
             for (i = 0; _remainingSamples && (i < numSamples); i++) {
                 int16_t v = generateWave[static_cast<int>(_wave)](_oscSamples, _oscLength) * volume;
-               
+
                 for (int j = 0; j < _channels; j++, i++) {
                     buffer[i] = v;
                 }
-                
+
                 if (++_oscSamples >= _oscLength) {
                     _oscSamples = 0;
                 }
-                
+
                 if (!_loop) {
                     _remainingSamples--;
                 }
-                
-                //_mixedSamples++;
             }
             
             // Clear the rest of the buffer

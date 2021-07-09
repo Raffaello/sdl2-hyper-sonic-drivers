@@ -12,3 +12,9 @@ void files::IFFFile::readChunkHeader(IFF_chunk_header_t& header) const noexcept
 	readOnce(&header, sizeof(IFF_chunk_header_t));
 	header.size = SDL_SwapBE32(header.size);
 }
+
+void files::IFFFile::readSubChunkHeader(IFF_sub_chunk_header_t& header) const noexcept
+{
+	readOnce(&header, sizeof(IFF_sub_chunk_header_t));
+	header.size = SDL_SwapBE32(header.size);
+}

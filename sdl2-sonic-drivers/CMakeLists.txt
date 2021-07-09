@@ -3,8 +3,8 @@
 #
 cmake_minimum_required (VERSION 3.8)
 
-set (CMAKE_CXX_STANDARD 17)
-set (CMAKE_DEBUG_POSTFIX d)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_DEBUG_POSTFIX d)
 
 find_package(SDL2 CONFIG REQUIRED)
 find_package(sdl2-mixer CONFIG REQUIRED)
@@ -12,13 +12,13 @@ find_package(sdl2-mixer CONFIG REQUIRED)
 configure_file("version.h.in" "version.h")
 
 # Add source to this project's executable.
-add_executable (sdl2-sonic-drivers "sdl2-sonic-drivers.cpp")
+add_executable (sdl2-sonic-drivers "sdl2-sonic-drivers.cpp"  )
 target_sources(sdl2-sonic-drivers PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/adl/sound_adlib.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/adl/format.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/adl/surroundopl.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/adl/woodyopl.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/softsynths/PCSpeaker.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/PCSpeaker.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/miles/XMidi.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/File.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/IFFFile.cpp
@@ -26,10 +26,7 @@ target_sources(sdl2-sonic-drivers PUBLIC
 )
 
 target_include_directories(sdl2-sonic-drivers PUBLIC 
-    #${CMAKE_CURRENT_SOURCE_DIR}/src/adl
     ${CMAKE_CURRENT_SOURCE_DIR}/src
-    #${CMAKE_CURRENT_SOURCE_DIR}/src/audio
-    #${CMAKE_CURRENT_SOURCE_DIR}/src/audio/softsynth
 )
 
 target_link_libraries(sdl2-sonic-drivers PRIVATE SDL2::SDL2 SDL2::SDL2main SDL2::SDL2_mixer)

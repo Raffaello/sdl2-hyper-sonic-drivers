@@ -8,7 +8,7 @@ if(DEFINED ENV{VCPKG_ROOT} AND NOT DEFINED CMAKE_TOOLCHAIN_FILE)
 endif()
 
 
-project ("sdl2-sonic-drivers" VERSION 0.1.0 DESCRIPTION "SDL2 mixer Sonic Drivers for emulatig old soundcards")
+project ("sdl2-sonic-drivers" VERSION 0.1.0 DESCRIPTION "SDL2 mixer Sonic Drivers for emulating old soundcards")
 
 include(CTest)
 # Include sub-projects.

@@ -4,7 +4,7 @@
 #include <iostream>
 #include <adl/sound_adlib.h>
 #include <SDL_mixer.h>
-#include <audio/softsynths/PCSpeaker.hpp>
+#include <hardware/PCSpeaker.hpp>
 #include <drivers/miles/XMidi.hpp>
 
 using namespace std;
@@ -125,7 +125,7 @@ int adl()
 
 int pcspkr()
 {
-    using audio::softsynths::PCSpeaker;
+    using audio::hardware::PCSpeaker;
 
     Mix_Init(0);
     if (Mix_OpenAudio(44100, AUDIO_S16, 2, 1024) < 0) {
@@ -141,7 +141,7 @@ int pcspkr()
     Mix_QuerySpec(&freq, &fmt, &chn);
 
     PCSpeaker pcSpeaker(freq, chn);
-    pcSpeaker.volume = 8;
+    //pcSpeaker.volume = 8;
     cout << "isPlaying: " << pcSpeaker.isPlaying() << endl
         << "Rate: " << pcSpeaker.getRate() << endl
         << "vol: " << (int)pcSpeaker.volume << endl;
@@ -197,7 +197,7 @@ int pcspkr()
 
 int teen()
 {
-    using audio::softsynths::PCSpeaker;
+    using audio::hardware::PCSpeaker;
 
     Mix_Init(0);
     if (Mix_OpenAudio(44100, AUDIO_S16, 2, 1024) < 0) {
@@ -259,7 +259,7 @@ int teen()
 
 int song()
 {
-    using audio::softsynths::PCSpeaker;
+    using audio::hardware::PCSpeaker;
 
     Mix_Init(0);
     if (Mix_OpenAudio(44100, AUDIO_S16, 2, 1024) < 0) {
@@ -330,7 +330,7 @@ int main(int argc, char* argv[])
         cout << "Driver " << i << " name: " << SDL_GetAudioDriver(i) << endl;
     }
     
-   /* SDL_AudioSpec spec;
+    SDL_AudioSpec spec;
     spec.callback = NULL;
     spec.channels = 1;
     spec.format = AUDIO_U8;
@@ -344,9 +344,9 @@ int main(int argc, char* argv[])
         << "freq " << spec.freq << endl
         << "format " << (int)spec.format << endl;
 
-    SDL_CloseAudio();*/
+    SDL_CloseAudio();
 
-    drivers::miles::XMidi::readDriver("ALGDIG.ADV");
+    //drivers::miles::XMidi::readDriver("ALGDIG.ADV");
 
     //adl();
     pcspkr();
