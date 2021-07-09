@@ -28,7 +28,7 @@
  *
  */
 
-// TODO move to hardware, pcspeaker is hardware
+// TODO
 //      audio/softsynths could be the generators. OR THE INTERFACE TO USE THE HARDWARE
 //      HARDWARE SOMEHOW WILL BE THE LOW LEVEL API OR NOT REALLY ACCESSIBLE
 //      WHILE AUDIO IS THE INTERFACE HIGH LEVEL API TO MAKE SOUNDS
@@ -36,11 +36,14 @@
 //      AND READING FILE FORMATS LIKE ADL OR XMI
 namespace audio
 {
-    namespace softsynths
+    namespace hardware
     {
         class PCSpeaker final
         {
         public:
+            /// <summary>
+            /// Wave From Generators
+            /// </summary>
             enum class eWaveForm
             {
                 SQUARE = 0,
@@ -50,6 +53,12 @@ namespace audio
                 PULSE
             };
 
+            /// <summary>
+            /// used for SDL_Mixer
+            /// </summary>
+            /// <param name="userdata"></param>
+            /// <param name="audiobuf"></param>
+            /// <param name="len"></param>
             static void callback(void* userdata, _In_ uint8_t* audiobuf, int len);
 
             PCSpeaker(const int rate = 44100, const int audio_channels = 2);
@@ -77,6 +86,11 @@ namespace audio
             uint32_t _oscLength = 0;
             uint32_t _oscSamples = 0;
             uint32_t _remainingSamples = 0;
+
+            inline void _setRemainingSamples(const int32_t length) noexcept {
+                _remainingSamples = (_rate * length) / 1000;
+                _loop = false;
+            }
         };
     }
 } // End of namespace Audio
