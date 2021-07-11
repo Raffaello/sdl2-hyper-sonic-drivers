@@ -28,94 +28,106 @@
 #include <cstring>
 #include <limits>
 
-
 namespace audio
 {
     namespace hardware
     {
         // Generators
-
-        constexpr double pi2 = 2.0 * M_PI;
-        constexpr double pi_coeff = static_cast<double>(std::numeric_limits<int8_t>::max());
+        // TODO: move generators to softsynths/generators namespace ?
+        template<typename T> constexpr int32_t unsigned_max = (std::numeric_limits<T>::max() - std::numeric_limits<T>::min());
+        static_assert(unsigned_max<int8_t> == std::numeric_limits<uint8_t>::max());
+        static_assert(unsigned_max<int16_t> == std::numeric_limits<uint16_t>::max());
 
         typedef std::function<int8_t(uint32_t, uint32_t)> generatorFunction;
 
-        template<typename T> inline T CLIP(T v, T amin, T amax)
+        template<typename T> inline T CLIP(T v)
         {
-            if (v < amin) {
-                return amin;
+            if (v < std::numeric_limits<T>::min()) {
+                return std::numeric_limits<T>::min();
             }
 
-            if (v > amax) {
-                return amax;
+            if (v > std::numeric_limits<T>::max()) {
+                return std::numeric_limits<T>::max();
             }
 
             return v;
         }
 
-        int8_t generateSquare(const uint32_t x, const uint32_t oscLength)
+        template<typename T> T generateSquare(const uint32_t x, const uint32_t oscLength)
         {
-            return (x < (oscLength / 2)) ?
-                std::numeric_limits<int8_t>::max() :
-                std::numeric_limits<int8_t>::min();
+            return CLIP<T> (
+                (x < (oscLength / 2)) ?
+                std::numeric_limits<T>::max() :
+                std::numeric_limits<T>::min()
+            );
         }
 
-        int8_t generatePulse(const uint32_t x, const uint32_t oscLength)
+        // TODO: this is like a Square review it.
+        template<typename T> T generatePulse(const uint32_t x, const uint32_t oscLength)
         {
             return (x < (oscLength / 2)) ?
-                std::numeric_limits<int8_t>::max() :
+                std::numeric_limits<T>::max() :
                 0;
         }
 
-        int8_t generateSine(const uint32_t x, const uint32_t oscLength)
+        template<typename T> T generateSine(const uint32_t x, const uint32_t oscLength)
         {
             if (oscLength == 0) {
                 return 0;
             }
 
-            return static_cast<char>(CLIP<int16_t>(
-                static_cast<uint16_t>(round(pi_coeff * sin(pi2 * x / oscLength))),
-                std::numeric_limits<int8_t>::min(),
-                std::numeric_limits<int8_t>::max()
-                ));
+            constexpr double pi2 = 2.0 * M_PI;
+            constexpr double pi_coeff = static_cast<double>(std::numeric_limits<T>::max());
+
+            return static_cast<T>(round(pi_coeff * sin(pi2 * x / oscLength)));
         }
-
-        int8_t generateSaw(const uint32_t x, const uint32_t oscLength)
+        //TODO: start from 0, half max, half+1 min, full 0
+        template<typename T> T generateSaw(const uint32_t x, const uint32_t oscLength)
         {
+            static_assert(std::numeric_limits<T>::is_integer);
+
             if (oscLength == 0) {
                 return 0;
             }
 
-            return ((x * (std::numeric_limits<uint16_t>::max() / oscLength)) >> 8) - std::numeric_limits<int8_t>::max();
+            return ((x * unsigned_max<T>) / oscLength) + std::numeric_limits<T>::min();
         }
-
-        int8_t generateTriangle(const int32_t x, const uint32_t oscLength)
+        //TODO: start from 0, quarter max, half 0, 3quarter min, full 0
+        template<typename T> T generateTriangle(const uint32_t x, const uint32_t oscLength)
         {
             if (oscLength == 0) {
                 return 0;
             }
 
-            int y = ((x * (std::numeric_limits<uint16_t>::max() / (oscLength / 2))) >> 8) - std::numeric_limits<int8_t>::max();
-
-            return (x <= (oscLength / 2)) ? y : (std::numeric_limits<uint8_t>::max() - y);
+            uint32_t f2 = oscLength / 2;
+            return (x < f2) ?
+                (x * unsigned_max<T>) / f2 + std::numeric_limits<T>::min() :
+                std::numeric_limits<T>::max() - ((x - f2) * unsigned_max<T> / f2);
         }
 
         const generatorFunction generateWave[] = { 
-            &generateSquare,
-            &generateSine,
-            &generateSaw,
-            &generateTriangle,
-            &generatePulse
+            &generateSquare<int8_t>,
+            &generateSine<int8_t>,
+            &generateSaw<int8_t>,
+            &generateTriangle<int8_t>,
+            &generatePulse<int8_t>
         };
 
         // END Generators
 
-        void PCSpeaker::callback(void* userdata, _In_ uint8_t* audiobuf, int len)
+        void PCSpeaker::callback16bits(void* userdata, _In_ uint8_t* audiobuf, int len)
         {
             PCSpeaker* self = reinterpret_cast<PCSpeaker*>(userdata);
             int16_t* buf = reinterpret_cast<int16_t*>(audiobuf);
             // divide by 2 because is a int16_t instead of uint8_t
             self->readBuffer(buf, len / 2);
+        }
+
+        void PCSpeaker::callback8bits(void* userdata, _In_ uint8_t* audiobuf, int len)
+        {
+            PCSpeaker* self = reinterpret_cast<PCSpeaker*>(userdata);
+            int8_t* buf = reinterpret_cast<int8_t*>(audiobuf);
+            self->readBuffer8bits(buf, len);
         }
 
         PCSpeaker::PCSpeaker(const int rate, const int channels) : _rate(rate), _channels(channels)
@@ -176,6 +188,34 @@ namespace audio
             // Clear the rest of the buffer
             if (i < numSamples) {
                 memset(buffer + i, 0, (numSamples - i) * sizeof(int16_t));
+            }
+
+            return numSamples;
+        }
+
+        int PCSpeaker::readBuffer8bits(int8_t* buffer, const int numSamples)
+        {
+            std::lock_guard lck(_mutex);
+            int i;
+            for (i = 0; _remainingSamples && (i < numSamples); i++) {
+                int8_t v = generateWave[static_cast<int>(_wave)](_oscSamples, _oscLength) * volume;
+
+                for (int j = 0; j < _channels; j++, i++) {
+                    buffer[i] = v;
+                }
+
+                if (++_oscSamples >= _oscLength) {
+                    _oscSamples = 0;
+                }
+
+                if (!_loop) {
+                    _remainingSamples--;
+                }
+            }
+
+            // Clear the rest of the buffer
+            if (i < numSamples) {
+                memset(buffer + i, 0, (numSamples - i) * sizeof(int8_t));
             }
 
             return numSamples;

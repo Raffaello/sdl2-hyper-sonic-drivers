@@ -59,7 +59,9 @@ namespace audio
             /// <param name="userdata"></param>
             /// <param name="audiobuf"></param>
             /// <param name="len"></param>
-            static void callback(void* userdata, _In_ uint8_t* audiobuf, int len);
+            static void callback16bits(void* userdata, _In_ uint8_t* audiobuf, int len);
+            
+            static void callback8bits(void* userdata, _In_ uint8_t* audiobuf, int len);
 
             PCSpeaker(const int rate = 44100, const int audio_channels = 2);
             ~PCSpeaker();
@@ -73,6 +75,7 @@ namespace audio
             void stop(const int32_t delay = 0);
             bool isPlaying() const noexcept;
             int readBuffer(int16_t* buffer, const int numSamples);
+            int readBuffer8bits(int8_t* buffer, const int numSamples);
             int getRate() const noexcept;
         private:
             std::mutex _mutex;
