@@ -1,7 +1,6 @@
 #pragma once
 #include <cstdint>
 #include <mutex>
-#include <functional>
 #ifdef __GNUC__
 #define _In_
 #endif
