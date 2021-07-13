@@ -3,77 +3,91 @@
 #include <softsynths/generators/generators.hpp>
 #include <numeric>
 
-TEST(WaveGenerators, Square)
+
+template<typename T> class WaveGeneratorTest : public ::testing::Test
 {
-    int f = 100;
-    EXPECT_EQ(softsynths::generators::generateSquare<int8_t>(0, f), std::numeric_limits<int8_t>::max());
-    EXPECT_EQ(softsynths::generators::generateSquare<int8_t>(f/2, f), std::numeric_limits<int8_t>::min());
+public:
+    const int f = 100;
+    const T max_ = std::numeric_limits<T>::max();
+    const T min_ = std::numeric_limits<T>::min();
+    const int32_t mid_ = softsynths::generators::mid<T>;
+    const std::function<T(uint32_t, uint32_t)>wave = nullptr;
+};
 
-    EXPECT_EQ(softsynths::generators::generateSquare<int16_t>(0, f), std::numeric_limits<int16_t>::max());
-    EXPECT_EQ(softsynths::generators::generateSquare<int16_t>(f/2, f), std::numeric_limits<int16_t>::min());
-
-    EXPECT_EQ(softsynths::generators::generateSquare<uint8_t>(0, f), std::numeric_limits<uint8_t>::max());
-    EXPECT_EQ(softsynths::generators::generateSquare<uint8_t>(f/2, f), std::numeric_limits<uint8_t>::min());
-
-    EXPECT_EQ(softsynths::generators::generateSquare<uint16_t>(0, f), std::numeric_limits<uint16_t>::max());
-    EXPECT_EQ(softsynths::generators::generateSquare<uint16_t>(f/2, f), std::numeric_limits<uint16_t>::min());
+template<class T> class SquareWaveGeneratorTest : public WaveGeneratorTest<T>
+{
+public:
+    const std::function<T(uint32_t, uint32_t)>wave = softsynths::generators::generateSquare<T>;
+};
+using Types = ::testing::Types<int8_t, int16_t, uint8_t, uint16_t>;
+TYPED_TEST_SUITE(SquareWaveGeneratorTest, Types);
+TYPED_TEST(SquareWaveGeneratorTest, percent_0) {
+    EXPECT_EQ(this->wave(0, this->f), this->max_);
+}
+TYPED_TEST(SquareWaveGeneratorTest, percent_50) {
+    EXPECT_EQ(this->wave(this->f * 1 / 2, this->f), this->min_);
+}
+TYPED_TEST(SquareWaveGeneratorTest, percent_100) {
+    EXPECT_EQ(this->wave(this->f, this->f), this->min_);
 }
 
-TEST(DISABLED_WaveGenerators, Pulse)
+template<class T> class SawWaveGeneratorTest : public WaveGeneratorTest<T>
 {
-    FAIL();
+public:
+    const std::function<T(uint32_t, uint32_t)>wave = softsynths::generators::generateSaw<T>;
+};
+// 0% -> min, 50% -> ~0, 99% -> ~max
+TYPED_TEST_SUITE(SawWaveGeneratorTest, Types);
+TYPED_TEST(SawWaveGeneratorTest, percent_0) {
+    EXPECT_EQ(this->wave(0, f), this->min_);
+}
+TYPED_TEST(SawWaveGeneratorTest, percent_50) {
+    EXPECT_NEAR(this->wave(f * 1 / 2, f), this->mid_, 1);
+}
+TYPED_TEST(SawWaveGeneratorTest, percent_100) {
+    EXPECT_EQ(this->wave(f, f), this->max_);
 }
 
-TEST(WaveGenerators, Saw)
+template<class T> class TriangleWaveGeneratorTest : public WaveGeneratorTest<T>
 {
-    // 0% -> min, 50% -> ~0, 99% -> ~max
-    int f = 100;
-    
-    EXPECT_EQ(softsynths::generators::generateSaw<int8_t>(0, f), std::numeric_limits<int8_t>::min());
-    EXPECT_EQ(softsynths::generators::generateSaw<int8_t>(f * 1 / 2, f), -1);
-    EXPECT_EQ(softsynths::generators::generateSaw<int8_t>(f, f), std::numeric_limits<int8_t>::max());
+public:
+    const std::function<T(uint32_t, uint32_t)>wave = softsynths::generators::generateTriangle<T>;
+};
+// 0% -> min, 25% -> -0.5, 50% -> max, 75% -> 0.5
+TYPED_TEST_SUITE(TriangleWaveGeneratorTest, Types);
+TYPED_TEST(TriangleWaveGeneratorTest, percent_0) {
+    EXPECT_EQ(this->wave(0, f), this->min_);
+    EXPECT_EQ(this->wave(0, f), this->wave(f, f));
+}
+TYPED_TEST(TriangleWaveGeneratorTest, percent_25) {
+    EXPECT_NEAR(this->wave(f * 1 / 4, f), this->mid_, 1);
+}
+TYPED_TEST(TriangleWaveGeneratorTest, percent_50) {
+    EXPECT_EQ(this->wave(f * 2 / 4, f), this->max_);
+}
+TYPED_TEST(TriangleWaveGeneratorTest, percent_75) {
+    EXPECT_NEAR(this->wave(f * 3 / 4, f), this->mid_, 1);
 }
 
-TEST(WaveGenerators, Triangle)
+template<class T> class SineWaveGeneratorTest : public WaveGeneratorTest<T>
 {
-    // 0% -> min, 25% -> -0.5, 50% -> max, 75% -> 0.5
-    int f = 100;
-
-    EXPECT_EQ(
-        softsynths::generators::generateTriangle<int8_t>(0, f),
-        std::numeric_limits<int8_t>::min()
-    );
-    EXPECT_EQ(
-        softsynths::generators::generateTriangle<int8_t>(0, f),
-        softsynths::generators::generateTriangle<int8_t>(0, 2 * f)
-    );
-    EXPECT_EQ(softsynths::generators::generateTriangle<int8_t>(f * 1 / 4, f), -1);
-
-    EXPECT_EQ(softsynths::generators::generateTriangle<int8_t>(f * 3 / 4, f), 0);
-
-    /*EXPECT_EQ(
-        softsynths::generators::generateTriangle<int8_t>(f * 1 / 4, f),
-        softsynths::generators::generateTriangle<int8_t>(f * 3 / 4, f)
-    );*/
-
-    EXPECT_EQ(softsynths::generators::generateTriangle<int8_t>(f * 2 / 4, f), std::numeric_limits<int8_t>::max());
+public:
+    const std::function<T(uint32_t, uint32_t)>wave = softsynths::generators::generateSine<T>;
+};
+// 0% -> 0, 25% -> max, 50% -> 0, 75% -> min
+TYPED_TEST_SUITE(SineWaveGeneratorTest, Types);
+TYPED_TEST(SineWaveGeneratorTest, percent_0) {
+    EXPECT_EQ(this->wave(0, f), this->mid_);
+    EXPECT_EQ(this->wave(f, f), this->mid_);
 }
-
-TEST(WaveGenerators, Sine)
-{
-    int f = 100;
-    // 0% -> 0, 25% -> max, 50% -> 0, 75% -> min
-    EXPECT_EQ(softsynths::generators::generateSine<int8_t>(0, f), 0);
-    EXPECT_EQ(softsynths::generators::generateSine<int8_t>(f * 1 / 4, f), std::numeric_limits<int8_t>::max());
-    EXPECT_EQ(softsynths::generators::generateSine<int8_t>(f * 2 / 4, f), 0);
-    //EXPECT_EQ(softsynths::generators::generateSine<int8_t>(f * 3 / 4, f), std::numeric_limits<int8_t>::min());
-    EXPECT_EQ(softsynths::generators::generateSine<int8_t>(f * 3 / 4, f), std::numeric_limits<int8_t>::min() + 1);
-
+TYPED_TEST(SineWaveGeneratorTest, percent_25) {
+    EXPECT_NEAR(this->wave(f * 1 / 4, f), this->max_, 1);
 }
-
-TEST(DISABLED_WaveGenerators, generateWave)
-{
-    //
+TYPED_TEST(SineWaveGeneratorTest, percent_50) {
+    EXPECT_EQ(this->wave(f * 2 / 4, f), this->mid_);
+}
+TYPED_TEST(SineWaveGeneratorTest, percent_75) {
+    EXPECT_NEAR(this->wave(f * 3 / 4, f), this->min_, 1);
 }
 
 int main(int argc, char** argv)
