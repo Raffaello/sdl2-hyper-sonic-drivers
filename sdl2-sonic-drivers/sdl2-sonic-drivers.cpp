@@ -150,13 +150,6 @@ int pcspkr()
     // TODO try with channels.
     Mix_HookMusic(pcSpeaker.callback16bits, &pcSpeaker);
     
-    cout << "Pulse" << endl;
-    pcSpeaker.play(PCSpeaker::eWaveForm::PULSE, 440, 300);
-    while (pcSpeaker.isPlaying()) { SDL_Delay(10); }
-    pcSpeaker.play(PCSpeaker::eWaveForm::PULSE, 440+183, 600);
-    while (pcSpeaker.isPlaying()) { SDL_Delay(10); }
-    SDL_Delay(600);
-
     cout << "SQUARE" << endl;
     pcSpeaker.play(PCSpeaker::eWaveForm::SQUARE, 440, 300);
     while (pcSpeaker.isPlaying()) { SDL_Delay(10); }
@@ -221,13 +214,6 @@ int pcspkr8()
 
     // TODO try with channels.
     Mix_HookMusic(pcSpeaker.callback8bits, &pcSpeaker);
-
-    cout << "Pulse" << endl;
-    pcSpeaker.play(PCSpeaker::eWaveForm::PULSE, 440, 300);
-    while (pcSpeaker.isPlaying()) { SDL_Delay(10); }
-    pcSpeaker.play(PCSpeaker::eWaveForm::PULSE, 440 + 183, 600);
-    while (pcSpeaker.isPlaying()) { SDL_Delay(10); }
-    SDL_Delay(600);
 
     cout << "SQUARE" << endl;
     pcSpeaker.play(PCSpeaker::eWaveForm::SQUARE, 440, 300);
@@ -318,7 +304,7 @@ int teen()
     cout << "isPlaying: " << pcSpeaker.isPlaying();
     for (int n = 0; n < 36; n++) {
         int length = songInt2[n] * 100;
-        pcSpeaker.play(PCSpeaker::eWaveForm::PULSE, notes2[song2[n]], length);
+        pcSpeaker.play(PCSpeaker::eWaveForm::SQUARE, notes2[song2[n]], length);
         while (pcSpeaker.isPlaying()) { SDL_Delay(10); }
     }
 
@@ -372,7 +358,7 @@ int song()
     cout << "Pulse" << endl;
     for (int n = 0; n < 8; n++) {
          cout << "note: " << notes[major[n]] << endl;
-         pcSpeaker.play(PCSpeaker::eWaveForm::PULSE, notes[major[n]], 500);
+         pcSpeaker.play(PCSpeaker::eWaveForm::SQUARE, notes[major[n]], 500);
          while (pcSpeaker.isPlaying()) { SDL_Delay(10); }
      }
 

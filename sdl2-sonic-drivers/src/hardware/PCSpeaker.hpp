@@ -1,4 +1,5 @@
 #pragma once
+#include <softsynths/generators/generators.hpp>
 #include <cstdint>
 #include <mutex>
 #ifdef __GNUC__
@@ -28,7 +29,6 @@
  */
 
 // TODO
-//      audio/softsynths could be the generators. OR THE INTERFACE TO USE THE HARDWARE
 //      HARDWARE SOMEHOW WILL BE THE LOW LEVEL API OR NOT REALLY ACCESSIBLE
 //      WHILE AUDIO IS THE INTERFACE HIGH LEVEL API TO MAKE SOUNDS
 //      DRIVERS IS IN BETWEEN... ALSO MIGHT CONTAIN MILES SOUND DRIVERS (AIL)
@@ -40,18 +40,7 @@ namespace audio
         class PCSpeaker final
         {
         public:
-            /// <summary>
-            /// Wave From Generators
-            /// </summary>
-            enum class eWaveForm
-            {
-                SQUARE = 0,
-                SINE,
-                SAW,
-                TRIANGLE,
-                PULSE
-            };
-
+            typedef softsynths::generators::eWaveForm eWaveForm;
             /// <summary>
             /// used for SDL_Mixer
             /// </summary>
@@ -65,11 +54,15 @@ namespace audio
             PCSpeaker(const int rate = 44100, const int audio_channels = 2);
             ~PCSpeaker();
 
-            // atomic?
-            uint8_t volume = 128;
+            std::atomic_int8_t volume = 128;
 
-            // if length == -1 then infinte playing
-            void play(const eWaveForm wave, const int freq, const int32_t length);
+            /// <summary>
+            /// Play a sound
+            /// </summary>
+            /// <param name="wave">wave form type</param>
+            /// <param name="freq">Hz frequency</param>
+            /// <param name="length">duration in ms, -1 infinite length</param>
+            void play(const eWaveForm waveForm, const int freq, const int32_t length);
             /** Stop the currently playing note after delay ms. */
             void stop(const int32_t delay = 0);
             bool isPlaying() const noexcept;
@@ -96,4 +89,3 @@ namespace audio
         };
     }
 } // End of namespace Audio
-    

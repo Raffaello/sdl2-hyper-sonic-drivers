@@ -27,7 +27,6 @@
 #include <cstring>
 #include <limits>
 #include <functional>
-#include <softsynths/generators/generators.hpp>
 
 namespace audio
 {
@@ -118,7 +117,7 @@ namespace audio
             std::lock_guard lck(_mutex);
             int i;
             for (i = 0; _remainingSamples && (i < numSamples); i++) {
-                int8_t v = generateWave<int8_t>[static_cast<int>(_wave)](_oscSamples, _oscLength) * volume;
+                int8_t v = generateWave<int8_t>[static_cast<int>(_wave)](_oscSamples, _oscLength);
 
                 for (int j = 0; j < _channels; j++, i++) {
                     buffer[i] = v;
