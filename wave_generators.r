@@ -1,5 +1,5 @@
 f <- 100
-xs <- seq(0, f) 
+xs <- seq(0, f-1) 
 amin <- -128
 amax <- 127
 umax <- amax - amin
@@ -25,9 +25,8 @@ gen_tri <- function(t, f) {
     0
   } else {
     f2 <- f/2
-    t2 <- t * umax / (f2) + amin
     if (t < f2) {
-      t * 256 / f2 + amin
+      t * umax / f2 + amin
     } else {
       amax - ((t-f2)*umax/f2)
       
