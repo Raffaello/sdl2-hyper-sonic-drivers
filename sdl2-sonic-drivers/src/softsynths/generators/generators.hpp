@@ -17,7 +17,8 @@ namespace softsynths {
         static_assert(unsigned_max<int8_t> == std::numeric_limits<uint8_t>::max());
         static_assert(unsigned_max<int16_t> == std::numeric_limits<uint16_t>::max());
 
-        typedef std::function<int8_t(uint32_t, uint32_t)> generatorFunction;
+        
+        //typedef std::function<int8_t(uint32_t, uint32_t)> generatorFunction;
 
         /*template<typename T> inline T CLIP(T v)
         {
@@ -84,8 +85,9 @@ namespace softsynths {
                 std::numeric_limits<T>::max() - ((x - f2) * unsigned_max<T> / f2);
         }
 
+        // TODO: use uint32_t for wave generators? and just rescale to the typename T
         template<typename T>
-        const generatorFunction generateWave[] = {
+        const std::function<T(uint32_t, uint32_t)> generateWave[] = {
             &generateSquare<T>,
             &generateSine<T>,
             &generateSaw<T>,
