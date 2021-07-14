@@ -16,7 +16,7 @@ add_custom_command(TARGET TestWaveGenerators POST_BUILD
 gtest_discover_tests(TestWaveGenerators)
 
 
-add_executable(TestPCSpeaker "TestPCSpeaker.cpp")
+add_executable(TestPCSpeaker "TestPCSpeaker.cpp" "../src/hardware/PCSPeaker.cpp")
 target_include_directories(TestPCSpeaker PUBLIC 
     ${CMAKE_SOURCE_DIR}/sdl2-sonic-drivers/src
 )
