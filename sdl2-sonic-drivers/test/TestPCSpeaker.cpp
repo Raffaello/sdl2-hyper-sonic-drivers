@@ -85,74 +85,6 @@ namespace hardware
         this->test_();
     }
    
-    static auto duration_values() {
-        return ::testing::Values(
-            std::make_tuple<>(11025, 1),
-            std::make_tuple<>(11025, 2),
-            std::make_tuple<>(11025, 4),
-            std::make_tuple<>(11025, 5),
-            std::make_tuple<>(11025, 6),
-            std::make_tuple<>(11025, 7),
-            std::make_tuple<>(11025, 8),
-
-            std::make_tuple<>(22050, 1),
-            std::make_tuple<>(22050, 2),
-            std::make_tuple<>(22050, 4),
-            std::make_tuple<>(22050, 5),
-            std::make_tuple<>(22050, 6),
-            std::make_tuple<>(22050, 7),
-            std::make_tuple<>(22050, 8),
-
-            std::make_tuple<>(44100, 1),
-            std::make_tuple<>(44100, 2),
-            std::make_tuple<>(44100, 4),
-            std::make_tuple<>(44100, 5),
-            std::make_tuple<>(44100, 6),
-            std::make_tuple<>(44100, 7),
-            std::make_tuple<>(44100, 8),
-
-            std::make_tuple<>(48000, 1),
-            std::make_tuple<>(48000, 2),
-            std::make_tuple<>(48000, 4),
-            std::make_tuple<>(48000, 5),
-            std::make_tuple<>(48000, 6),
-            std::make_tuple<>(48000, 7),
-            std::make_tuple<>(48000, 8),
-
-            std::make_tuple<>(88200, 1),
-            std::make_tuple<>(88200, 2),
-            std::make_tuple<>(88200, 4),
-            std::make_tuple<>(88200, 5),
-            std::make_tuple<>(88200, 6),
-            std::make_tuple<>(88200, 7),
-            std::make_tuple<>(88200, 8),
-
-            std::make_tuple<>(96000, 1),
-            std::make_tuple<>(96000, 2),
-            std::make_tuple<>(96000, 4),
-            std::make_tuple<>(96000, 5),
-            std::make_tuple<>(96000, 6),
-            std::make_tuple<>(96000, 7),
-            std::make_tuple<>(96000, 8),
-
-            std::make_tuple<>(176400, 1),
-            std::make_tuple<>(176400, 2),
-            std::make_tuple<>(176400, 4),
-            std::make_tuple<>(176400, 5),
-            std::make_tuple<>(176400, 6),
-            std::make_tuple<>(176400, 7),
-            std::make_tuple<>(176400, 8),
-
-            std::make_tuple<>(192000, 1),
-            std::make_tuple<>(192000, 2),
-            std::make_tuple<>(192000, 4),
-            std::make_tuple<>(192000, 5),
-            std::make_tuple<>(192000, 6),
-            std::make_tuple<>(192000, 7),
-            std::make_tuple<>(192000, 8)
-        );
-    };
-    
     template<typename T, std::size_t... I>
     auto values(T* t, std::index_sequence<I...>)
     {
@@ -172,14 +104,13 @@ namespace hardware
                 res[i++] = std::make_tuple<>(f, c);
             }
         }
-        
-        return values(res, std::make_index_sequence<nf* nc>{});
+
+        return values(res, std::make_index_sequence<nf * nc>{});
     }
 
     INSTANTIATE_TEST_SUITE_P(
         PCSpeaker,
         Duration8,
-        //duration_values()
         make_duration_values()
     );
     INSTANTIATE_TEST_SUITE_P(
