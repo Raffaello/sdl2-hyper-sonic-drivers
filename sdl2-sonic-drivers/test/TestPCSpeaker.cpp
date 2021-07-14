@@ -152,38 +152,40 @@ namespace hardware
             std::make_tuple<>(192000, 8)
         );
     };
-
-    //auto make_duration_values()
-    //{
-    //    const int nf = 8;
-    //    const int nc = 7;
-    //    const int freq[nf] = { 11025, 22050, 44100, 48000, 88200, 96000, 176400, 192000 };
-    //    const int channels[nc] = { 1, 2, 4, 5, 6, 7, 8 };
-    //    std::tuple<int, int> res[nf * nc];
-    //    int i = 0;
-    //    for (auto& f : freq) {
-    //        for (auto& c : channels) {
-    //            res[i] = std::make_tuple<>(f, c);
-    //        }
-    //    }
-    //    
-    //    auto a = ::testing::Values(freq);
-    //    auto b = values(res);
-    //    auto c = ::testing::Values(values(res));
-    //    //return std::make_tuple<>(44100, 1);
-    //    return c;
-    //    //   return ::testing::Values(values(res));
-    //}
+    
+    template<typename T, std::size_t... I>
+    auto values(T* t, std::index_sequence<I...>)
+    {
+        return ::testing::Values(t[I]...);
+    }
+   
+    auto make_duration_values()
+    {
+        constexpr int nf = 8;
+        constexpr int nc = 7;
+        const int freq[nf] = { 11025, 22050, 44100, 48000, 88200, 96000, 176400, 192000 };
+        const int channels[nc] = { 1, 2, 4, 5, 6, 7, 8 };
+        std::tuple<int, int> res[nf * nc];
+        int i = 0;
+        for (auto& f : freq) {
+            for (auto& c : channels) {
+                res[i++] = std::make_tuple<>(f, c);
+            }
+        }
+        
+        return values(res, std::make_index_sequence<nf* nc>{});
+    }
 
     INSTANTIATE_TEST_SUITE_P(
         PCSpeaker,
         Duration8,
-        duration_values()
+        //duration_values()
+        make_duration_values()
     );
     INSTANTIATE_TEST_SUITE_P(
         PCSpeaker,
         Duration16,
-        duration_values()
+        make_duration_values()
     );
 }
 
