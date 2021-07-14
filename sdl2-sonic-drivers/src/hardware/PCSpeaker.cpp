@@ -89,7 +89,7 @@ namespace audio
             std::lock_guard lck(_mutex);
             int i;
             for (i = 0; _remainingSamples && (i < numSamples); i++) {
-                int16_t v = generateWave<int8_t>[static_cast<int>(_wave)](_oscSamples, _oscLength) * volume;
+                int16_t v = generateWave<int8_t>(_wave, _oscSamples, _oscLength) * volume;
 
                 for (int j = 0; j < _channels; j++, i++) {
                     buffer[i] = v;
@@ -117,7 +117,8 @@ namespace audio
             std::lock_guard lck(_mutex);
             int i;
             for (i = 0; _remainingSamples && (i < numSamples); i++) {
-                int8_t v = generateWave<int8_t>[static_cast<int>(_wave)](_oscSamples, _oscLength);
+                // TODO: with volume is overflowing
+                int8_t v = generateWave<int8_t>(_wave, _oscSamples, _oscLength) * volume;
 
                 for (int j = 0; j < _channels; j++, i++) {
                     buffer[i] = v;

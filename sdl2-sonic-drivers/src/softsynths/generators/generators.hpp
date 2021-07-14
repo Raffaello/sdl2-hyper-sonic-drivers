@@ -71,30 +71,34 @@ namespace softsynths
                 std::numeric_limits<T>::max() - ((x - f2) * unsigned_max<T> / f2);
         }
 
-        template<typename T> const std::function<T(uint32_t, uint32_t)> generateWave[] = {
-            &generateSquare<T>,
-            &generateSine<T>,
-            &generateSaw<T>,
-            &generateTriangle<T>,
-        };
-
         /// <summary>
         /// Wave From Generators
         /// </summary>
-        enum class eWaveForm
+        const enum class eWaveForm
         {
             SQUARE = 0,
             SINE,
             SAW,
             TRIANGLE,
         };
-        
 
-        template<typename T> std::unordered_map<const eWaveForm, const std::function<T(uint32_t, uint32_t)>> generateWave2 {
-            {eWaveForm::SQUARE, &generateSquare<T>},
-            {eWaveForm::SINE, &generateSine<T>},
-            {eWaveForm::SAW, &generateSaw<T>},
-            {eWaveForm::TRIANGLE, &generateTriangle<T>},
-        };
+        template<typename T> T generateWave(const eWaveForm waveForm, const uint32_t x, const uint32_t oscLength)
+        {
+            static_assert(std::numeric_limits<T>::is_integer);
+            switch (waveForm)
+            {
+            case eWaveForm::SQUARE:
+                return generateSquare<T>(x, oscLength);
+            case eWaveForm::SINE:
+                return generateSine<T>(x, oscLength);
+            case eWaveForm::SAW:
+                return generateSaw<T>(x, oscLength);
+            case eWaveForm::TRIANGLE:
+                return generateTriangle<T>(x, oscLength);
+            default:
+                // error
+                return 0;
+            }
+        }
     }
 }
