@@ -1,8 +1,6 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <softsynths/generators/generators.hpp>
-#include <numeric>
-#include <memory>
 
 using softsynths::generators::eWaveForm;
 

@@ -2,7 +2,6 @@
 #include <cmath>
 #include <limits>
 #include <functional>
-//#include <unordered_map>
 
 #ifndef M_PI
 constexpr double M_PI = 3.14159265358979323846;

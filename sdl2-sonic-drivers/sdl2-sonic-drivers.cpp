@@ -148,7 +148,7 @@ int pcspkr()
     
 
     // TODO try with channels.
-    Mix_HookMusic(pcSpeaker.callback16bits, &pcSpeaker);
+    Mix_HookMusic(pcSpeaker.callback, &pcSpeaker);
     
     cout << "SQUARE" << endl;
     pcSpeaker.play(PCSpeaker::eWaveForm::SQUARE, 440, 300);
@@ -193,7 +193,7 @@ int pcspkr8()
     using audio::hardware::PCSpeaker;
 
     Mix_Init(0);
-    if (Mix_OpenAudio(44100, AUDIO_S8, 2, 1024) < 0) {
+    if (Mix_OpenAudio(22050, AUDIO_S8, 2, 1024) < 0) {
         cerr << Mix_GetError();
         return -1;
     }
@@ -205,7 +205,7 @@ int pcspkr8()
 
     Mix_QuerySpec(&freq, &fmt, &chn);
 
-    PCSpeaker pcSpeaker(freq, chn);
+    PCSpeaker pcSpeaker(freq, chn, 8);
     //pcSpeaker.volume = 8;
     cout << "isPlaying: " << pcSpeaker.isPlaying() << endl
         << "Rate: " << pcSpeaker.getRate() << endl
@@ -213,7 +213,7 @@ int pcspkr8()
 
 
     // TODO try with channels.
-    Mix_HookMusic(pcSpeaker.callback8bits, &pcSpeaker);
+    Mix_HookMusic(pcSpeaker.callback, &pcSpeaker);
 
     cout << "SQUARE" << endl;
     pcSpeaker.play(PCSpeaker::eWaveForm::SQUARE, 440, 300);
@@ -291,7 +291,7 @@ int teen()
     const int songInt2[] = { 2,    4,    6,    8,  4,   4,   6,    4,   6,    4,   6,    6,    6,  4,   4,   4,    4, 6,  4, 6,  4, 6,  4, 4, 4, 8,  4, 6,  4, 6,  4, 6,  4, 4, 4, 16 };
     
     // TODO try with channels.
-    Mix_HookMusic(pcSpeaker.callback16bits, &pcSpeaker);
+    Mix_HookMusic(pcSpeaker.callback, &pcSpeaker);
 
     cout << "Pulse" << endl;
    /* for (int n = 0; n < 8; n++) {
@@ -353,7 +353,7 @@ int song()
     const int songInt2[] = { 2,    4,    6,    8,  4,   4,   6,    4,   6,    4,   6,    6,    6,  4,   4,   4,    4, 6,  4, 6,  4, 6,  4, 4, 4, 8,  4, 6,  4, 6,  4, 6,  4, 4, 4, 16 };
 
     // TODO try with channels.
-    Mix_HookMusic(pcSpeaker.callback16bits, &pcSpeaker);
+    Mix_HookMusic(pcSpeaker.callback, &pcSpeaker);
 
     cout << "Pulse" << endl;
     for (int n = 0; n < 8; n++) {

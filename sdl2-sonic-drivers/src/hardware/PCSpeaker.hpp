@@ -2,6 +2,7 @@
 #include <softsynths/generators/generators.hpp>
 #include <cstdint>
 #include <mutex>
+#include <memory>
 #ifdef __GNUC__
 #define _In_
 #endif
@@ -41,20 +42,22 @@ namespace audio
         {
         public:
             typedef softsynths::generators::eWaveForm eWaveForm;
+
             /// <summary>
             /// used for SDL_Mixer
+            /// TODO: should be moved in the audio namespace as interface for SDL2 not here.
             /// </summary>
             /// <param name="userdata"></param>
             /// <param name="audiobuf"></param>
             /// <param name="len"></param>
-            static void callback16bits(void* userdata, _In_ uint8_t* audiobuf, int len);
-            
-            static void callback8bits(void* userdata, _In_ uint8_t* audiobuf, int len);
+            static void callback(void* userdata, _In_ uint8_t* audiobuf, int len);
 
-            PCSpeaker(const int rate = 44100, const int audio_channels = 2);
+            PCSpeaker(const int32_t rate = 44100, const int8_t audio_channels = 2, const int8_t bits = 16);
             ~PCSpeaker();
 
-            std::atomic_int8_t volume = 128;
+            // TODO: should be between 0 and 100?
+            //       not used at the moment. how it is implemented is just increasing volume;
+            std::atomic_uint8_t volume = 100;
 
             /// <summary>
             /// Play a sound
@@ -66,16 +69,18 @@ namespace audio
             /** Stop the currently playing note after delay ms. */
             void stop(const int32_t delay = 0);
             bool isPlaying() const noexcept;
-            int readBuffer(int16_t* buffer, const int numSamples);
-            int readBuffer8bits(int8_t* buffer, const int numSamples);
-            int getRate() const noexcept;
+            template<typename T> uint32_t readBuffer(T* buffer, const uint32_t numSamples);
+            uint32_t getRate() const noexcept;
+            uint8_t getChannels() const noexcept;
+            uint8_t getBits() const noexcept;
         private:
             std::mutex _mutex;
             
             eWaveForm _wave = eWaveForm::SQUARE;
             
-            const int _rate;
+            const uint32_t _rate;
             const uint8_t _channels;
+            const uint8_t _bits;
             
             bool _loop = false;
             uint32_t _oscLength = 0;
@@ -87,5 +92,34 @@ namespace audio
                 _loop = false;
             }
         };
+
+        template<typename T> uint32_t PCSpeaker::readBuffer(T* buffer, const uint32_t numSamples)
+        {
+            static_assert(std::numeric_limits<T>::is_integer);
+            std::lock_guard lck(_mutex);
+            uint32_t i;
+            for (i = 0; _remainingSamples && (i < numSamples); i++) {
+                T v = generateWave<T>(_wave, _oscSamples, _oscLength);// *volume;
+
+                for (int j = 0; j < _channels; j++, i++) {
+                    buffer[i] = v;
+                }
+
+                if (++_oscSamples >= _oscLength) {
+                    _oscSamples = 0;
+                }
+
+                if (!_loop) {
+                    _remainingSamples--;
+                }
+            }
+
+            // Clear the rest of the buffer
+            if (i < numSamples) {
+                std::memset(buffer + i, 0, (numSamples - i) * sizeof(T));
+            }
+
+            return numSamples;
+        }
     }
 } // End of namespace Audio

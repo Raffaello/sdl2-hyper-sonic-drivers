@@ -34,22 +34,25 @@ namespace audio
     {
         using softsynths::generators::generateWave;
 
-        void PCSpeaker::callback16bits(void* userdata, _In_ uint8_t* audiobuf, int len)
+        void PCSpeaker::callback(void* userdata, _In_ uint8_t* audiobuf, int len)
         {
             PCSpeaker* self = reinterpret_cast<PCSpeaker*>(userdata);
-            int16_t* buf = reinterpret_cast<int16_t*>(audiobuf);
-            // divide by 2 because is a int16_t instead of uint8_t
-            self->readBuffer(buf, len / 2);
+            switch (self->getBits())
+            {
+            case 8:
+                self->readBuffer<int8_t>(reinterpret_cast<int8_t*>(audiobuf), len);
+                break;
+            case 16:
+                self->readBuffer<int16_t>(reinterpret_cast<int16_t*>(audiobuf), len / 2);
+                break;
+            default:
+                // not implemented
+                return;
+            }
         }
 
-        void PCSpeaker::callback8bits(void* userdata, _In_ uint8_t* audiobuf, int len)
-        {
-            PCSpeaker* self = reinterpret_cast<PCSpeaker*>(userdata);
-            int8_t* buf = reinterpret_cast<int8_t*>(audiobuf);
-            self->readBuffer8bits(buf, len);
-        }
-
-        PCSpeaker::PCSpeaker(const int rate, const int channels) : _rate(rate), _channels(channels)
+        PCSpeaker::PCSpeaker(const int32_t rate, const int8_t channels, const int8_t bits) :
+            _rate(rate), _channels(channels), _bits(bits)
         {
         }
 
@@ -84,66 +87,19 @@ namespace audio
             return _remainingSamples != 0;
         }
 
-        int PCSpeaker::readBuffer(int16_t* buffer, const int numSamples)
-        {
-            std::lock_guard lck(_mutex);
-            int i;
-            for (i = 0; _remainingSamples && (i < numSamples); i++) {
-                int16_t v = generateWave<int8_t>(_wave, _oscSamples, _oscLength) * volume;
-
-                for (int j = 0; j < _channels; j++, i++) {
-                    buffer[i] = v;
-                }
-
-                if (++_oscSamples >= _oscLength) {
-                    _oscSamples = 0;
-                }
-
-                if (!_loop) {
-                    _remainingSamples--;
-                }
-            }
-            
-            // Clear the rest of the buffer
-            if (i < numSamples) {
-                memset(buffer + i, 0, (numSamples - i) * sizeof(int16_t));
-            }
-
-            return numSamples;
-        }
-
-        int PCSpeaker::readBuffer8bits(int8_t* buffer, const int numSamples)
-        {
-            std::lock_guard lck(_mutex);
-            int i;
-            for (i = 0; _remainingSamples && (i < numSamples); i++) {
-                // TODO: with volume is overflowing
-                int8_t v = generateWave<int8_t>(_wave, _oscSamples, _oscLength) * volume;
-
-                for (int j = 0; j < _channels; j++, i++) {
-                    buffer[i] = v;
-                }
-
-                if (++_oscSamples >= _oscLength) {
-                    _oscSamples = 0;
-                }
-
-                if (!_loop) {
-                    _remainingSamples--;
-                }
-            }
-
-            // Clear the rest of the buffer
-            if (i < numSamples) {
-                memset(buffer + i, 0, (numSamples - i) * sizeof(int8_t));
-            }
-
-            return numSamples;
-        }
-
-        int PCSpeaker::getRate() const noexcept
+        uint32_t PCSpeaker::getRate() const noexcept
         {
             return _rate;
+        }
+
+        uint8_t PCSpeaker::getChannels() const noexcept
+        {
+            return _channels;
+        }
+
+        uint8_t PCSpeaker::getBits() const noexcept
+        {
+            return _bits;
         }
     }
 } // End of namespace Audio
