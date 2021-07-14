@@ -30,13 +30,14 @@ namespace hardware
     void PCSpeaker::callback(void* userdata, _In_ uint8_t* audiobuf, int len)
     {
         PCSpeaker* self = reinterpret_cast<PCSpeaker*>(userdata);
+        // TODO: missing unsigned or signed type.
         switch (self->getBits())
         {
         case 8:
-            self->readBuffer<int8_t>(reinterpret_cast<int8_t*>(audiobuf), len);
+            self->readBuffer<int8_t>(reinterpret_cast<int8_t*>(audiobuf), len / self->getChannels());
             break;
         case 16:
-            self->readBuffer<int16_t>(reinterpret_cast<int16_t*>(audiobuf), len / 2);
+            self->readBuffer<int16_t>(reinterpret_cast<int16_t*>(audiobuf), len / 2 / self->getChannels());
             break;
         default:
             // not implemented
@@ -51,6 +52,7 @@ namespace hardware
 
     PCSpeaker::~PCSpeaker()
     {
+        stop();
     }
 
     void PCSpeaker::play(const eWaveForm wave, const int freq, const int32_t length)

@@ -7,27 +7,6 @@
 #define _In_
 #endif
 
-/* ScummVM - Graphic Adventure Engine
- *
- * ScummVM is the legal property of its developers, whose names
- * are too numerous to list here. Please refer to the COPYRIGHT
- * file distributed with this source distribution.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
- *
- */
 
 // TODO
 //      HARDWARE SOMEHOW WILL BE THE LOW LEVEL API OR NOT REALLY ACCESSIBLE
@@ -96,11 +75,14 @@ namespace hardware
         static_assert(std::numeric_limits<T>::is_integer);
         std::lock_guard lck(_mutex);
         uint32_t i;
-        for (i = 0; _remainingSamples && (i < numSamples); i++) {
+        uint32_t k;
+
+        for (i = 0, k = 0; (_remainingSamples > 0) && (i < numSamples); i++)
+        {
             T v = softsynths::generators::generateWave<T>(_wave, _oscSamples, _oscLength);// *volume;
 
-            for (int j = 0; j < _channels; j++, i++) {
-                buffer[i] = v;
+            for (int j = 0; j < _channels; j++) {
+                buffer[k++] = v;
             }
 
             if (++_oscSamples >= _oscLength) {
@@ -114,9 +96,9 @@ namespace hardware
 
         // Clear the rest of the buffer
         if (i < numSamples) {
-            std::memset(buffer + i, 0, (numSamples - i) * sizeof(T));
+            std::memset(buffer + k, 0, (numSamples - i) * _channels * sizeof(T) );
         }
 
-        return i;
+        return k;
     }
 } // namesapce hardware
