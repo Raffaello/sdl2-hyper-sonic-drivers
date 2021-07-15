@@ -75,7 +75,7 @@ namespace hardware
 
     template<typename T> uint32_t PCSpeaker::readBuffer(T* buffer, uint32_t numSamples)
     {
-        //static_assert(std::numeric_limits<T>::is_integer);
+        static_assert(std::numeric_limits<T>::is_integer);
         std::lock_guard lck(_mutex);
         uint32_t i = 0;
 

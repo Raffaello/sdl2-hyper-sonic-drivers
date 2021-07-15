@@ -15,6 +15,8 @@ namespace softsynths
 {
     namespace generators
     {
+        // TODO: uint8_t max value 254, min 0
+        //       int8_t max 127, -127 ?
         template<typename T> constexpr int32_t unsigned_max = (std::numeric_limits<T>::max() - std::numeric_limits<T>::min());
         static_assert(unsigned_max<int8_t> == std::numeric_limits<uint8_t>::max());
         static_assert(unsigned_max<int16_t> == std::numeric_limits<uint16_t>::max());
@@ -28,7 +30,7 @@ namespace softsynths
 
         template<typename T> T generateSquare(const uint32_t x, const uint32_t oscLength)
         {
-            //static_assert(std::numeric_limits<T>::is_integer);
+            static_assert(std::numeric_limits<T>::is_integer);
             return (x < (oscLength / 2)) ?
                 std::numeric_limits<T>::max():
                 std::numeric_limits<T>::min();
@@ -36,7 +38,7 @@ namespace softsynths
 
         template<typename T> T generateSine(const uint32_t x, const uint32_t oscLength)
         {
-            //static_assert(std::numeric_limits<T>::is_integer);
+            static_assert(std::numeric_limits<T>::is_integer);
             if (oscLength == 0) {
                 return 0;
             }
@@ -48,7 +50,7 @@ namespace softsynths
         
         template<typename T> T generateSaw(const uint32_t x, const uint32_t oscLength)
         {
-            //static_assert(std::numeric_limits<T>::is_integer);
+            static_assert(std::numeric_limits<T>::is_integer);
             if (oscLength == 0) {
                 return 0;
             }
@@ -58,7 +60,7 @@ namespace softsynths
     
         template<typename T> T generateTriangle(const uint32_t x, const uint32_t oscLength)
         {
-            //static_assert(std::numeric_limits<T>::is_integer);
+            static_assert(std::numeric_limits<T>::is_integer);
             if (oscLength == 0) {
                 return 0;
             }
@@ -83,7 +85,7 @@ namespace softsynths
 
         template<typename T> T generateWave(const eWaveForm waveForm, const uint32_t x, const uint32_t oscLength)
         {
-            //static_assert(std::numeric_limits<T>::is_integer);
+            static_assert(std::numeric_limits<T>::is_integer);
             switch (waveForm)
             {
             case eWaveForm::SQUARE:
