@@ -11,7 +11,7 @@ public:
     const T max_ = std::numeric_limits<T>::max();
     const T min_ = std::numeric_limits<T>::min();
     const int32_t mid_ = softsynths::generators::mid<T>;
-    const std::function<T(uint32_t, uint32_t)>wave = nullptr;
+    const std::function<T(uint32_t, uint32_t)> wave = nullptr;
     const std::function<T(eWaveForm, uint32_t, uint32_t)> genWave = softsynths::generators::generateWave<T>;
 };
 
@@ -23,17 +23,19 @@ public:
 //TODO: int32_t, float 32bits
 using Types = ::testing::Types<int8_t, int16_t, uint8_t, uint16_t>;
 TYPED_TEST_SUITE(SquareWaveGeneratorTest, Types);
-TYPED_TEST(SquareWaveGeneratorTest, percent_0) {
-
+TYPED_TEST(SquareWaveGeneratorTest, percent_0)
+{
     EXPECT_EQ(this->wave(0, this->f), this->max_);
     EXPECT_EQ(this->genWave(eWaveForm::SQUARE, 0, this->f), this->max_);
 
 }
-TYPED_TEST(SquareWaveGeneratorTest, percent_50) {
+TYPED_TEST(SquareWaveGeneratorTest, percent_50)
+{
     EXPECT_EQ(this->wave(this->f * 1 / 2, this->f), this->min_);
     EXPECT_EQ(this->genWave(eWaveForm::SQUARE, this->f * 1 / 2, this->f), this->min_);
 }
-TYPED_TEST(SquareWaveGeneratorTest, percent_100) {
+TYPED_TEST(SquareWaveGeneratorTest, percent_100)
+{
     EXPECT_EQ(this->wave(this->f, this->f), this->min_);
     EXPECT_EQ(this->genWave(eWaveForm::SQUARE, this->f, this->f), this->min_);
 }
@@ -45,15 +47,18 @@ public:
 };
 // 0% -> min, 50% -> ~0, 99% -> ~max
 TYPED_TEST_SUITE(SawWaveGeneratorTest, Types);
-TYPED_TEST(SawWaveGeneratorTest, percent_0) {
+TYPED_TEST(SawWaveGeneratorTest, percent_0)
+{
     EXPECT_EQ(this->wave(0, f), this->min_);
     EXPECT_EQ(this->genWave(eWaveForm::SAW, 0, f), this->min_);
 }
-TYPED_TEST(SawWaveGeneratorTest, percent_50) {
+TYPED_TEST(SawWaveGeneratorTest, percent_50)
+{
     EXPECT_NEAR(this->wave(f * 1 / 2, f), this->mid_, 1);
     EXPECT_NEAR(this->genWave(eWaveForm::SAW, f * 1 / 2, f), this->mid_, 1);
 }
-TYPED_TEST(SawWaveGeneratorTest, percent_100) {
+TYPED_TEST(SawWaveGeneratorTest, percent_100)
+{
     EXPECT_EQ(this->wave(f, f), this->max_);
     EXPECT_EQ(this->genWave(eWaveForm::SAW, f, f), this->max_);
 }
@@ -65,21 +70,24 @@ public:
 };
 // 0% -> min, 25% -> -0.5, 50% -> max, 75% -> 0.5
 TYPED_TEST_SUITE(TriangleWaveGeneratorTest, Types);
-TYPED_TEST(TriangleWaveGeneratorTest, percent_0) {
+TYPED_TEST(TriangleWaveGeneratorTest, percent_0)
+{
     EXPECT_EQ(this->wave(0, f), this->min_);
     EXPECT_EQ(this->wave(0, f), this->wave(f, f));
     EXPECT_EQ(this->genWave(eWaveForm::TRIANGLE, 0, f), this->min_);
-
 }
-TYPED_TEST(TriangleWaveGeneratorTest, percent_25) {
+TYPED_TEST(TriangleWaveGeneratorTest, percent_25)
+{
     EXPECT_NEAR(this->wave(f * 1 / 4, f), this->mid_, 1);
     EXPECT_NEAR(this->genWave(eWaveForm::TRIANGLE, f * 1 / 4, f), this->mid_, 1);
 }
-TYPED_TEST(TriangleWaveGeneratorTest, percent_50) {
+TYPED_TEST(TriangleWaveGeneratorTest, percent_50)
+{
     EXPECT_EQ(this->wave(f * 2 / 4, f), this->max_);
     EXPECT_EQ(this->genWave(eWaveForm::TRIANGLE, f * 2 / 4, f), this->max_);
 }
-TYPED_TEST(TriangleWaveGeneratorTest, percent_75) {
+TYPED_TEST(TriangleWaveGeneratorTest, percent_75)
+{
     EXPECT_NEAR(this->wave(f * 3 / 4, f), this->mid_, 1);
     EXPECT_NEAR(this->genWave(eWaveForm::TRIANGLE, f * 3 / 4, f), this->mid_, 1);
 }
@@ -91,21 +99,24 @@ public:
 };
 // 0% -> 0, 25% -> max, 50% -> 0, 75% -> min
 TYPED_TEST_SUITE(SineWaveGeneratorTest, Types);
-TYPED_TEST(SineWaveGeneratorTest, percent_0) {
+TYPED_TEST(SineWaveGeneratorTest, percent_0)
+{
     EXPECT_EQ(this->wave(0, f), this->mid_);
     EXPECT_EQ(this->wave(f, f), this->mid_);
     EXPECT_EQ(this->genWave(eWaveForm::SINE, 0, f), this->mid_);
-
 }
-TYPED_TEST(SineWaveGeneratorTest, percent_25) {
+TYPED_TEST(SineWaveGeneratorTest, percent_25)
+{
     EXPECT_NEAR(this->wave(f * 1 / 4, f), this->max_, 1);
     EXPECT_NEAR(this->genWave(eWaveForm::SINE, f * 1 / 4, f), this->max_, 1);
 }
-TYPED_TEST(SineWaveGeneratorTest, percent_50) {
+TYPED_TEST(SineWaveGeneratorTest, percent_50)
+{
     EXPECT_EQ(this->wave(f * 2 / 4, f), this->mid_);
     EXPECT_EQ(this->genWave(eWaveForm::SINE, f * 2 / 4, f), this->mid_);
 }
-TYPED_TEST(SineWaveGeneratorTest, percent_75) {
+TYPED_TEST(SineWaveGeneratorTest, percent_75)
+{
     EXPECT_NEAR(this->wave(f * 3 / 4, f), this->min_, 1);
     EXPECT_NEAR(this->genWave(eWaveForm::SINE, f * 3 / 4, f), this->min_, 1);
 }
