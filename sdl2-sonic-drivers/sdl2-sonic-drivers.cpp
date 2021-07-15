@@ -125,7 +125,6 @@ int adl()
 
 void playNotes(hardware::PCSpeaker *pcSpeaker, const hardware::PCSpeaker::eWaveForm waveForm, const int freq, const int length)
 {
-
     auto start = std::chrono::steady_clock::now();
     pcSpeaker->play(waveForm, freq, length);
     while (pcSpeaker->isPlaying()) { SDL_Delay(10); }
@@ -252,8 +251,6 @@ int teen()
         return -1;
     }
 
-    int length = 3000;
-
     PCSpeaker pcSpeaker(44100, 8);
     pcSpeaker.volume = 8;
     cout << "isPlaying: " << pcSpeaker.isPlaying() << endl
@@ -292,7 +289,7 @@ int teen()
     SDL_Delay(500);
     cout << "isPlaying: " << pcSpeaker.isPlaying();
     for (int n = 0; n < 36; n++) {
-        int length = songInt2[n] * 100;
+        int length = songInt2[n] * 25;
         pcSpeaker.play(PCSpeaker::eWaveForm::SQUARE, notes2[song2[n]], length);
         while (pcSpeaker.isPlaying()) { SDL_Delay(10); }
     }
@@ -314,7 +311,7 @@ int song()
         return -1;
     }
 
-    int length = 3000;
+    int length = 500;
 
     PCSpeaker pcSpeaker(44100, 8);
     pcSpeaker.volume = 8;
@@ -347,7 +344,7 @@ int song()
     cout << "Pulse" << endl;
     for (int n = 0; n < 8; n++) {
          cout << "note: " << notes[major[n]] << endl;
-         pcSpeaker.play(PCSpeaker::eWaveForm::SQUARE, notes[major[n]], 500);
+         pcSpeaker.play(PCSpeaker::eWaveForm::SQUARE, notes[major[n]], 250);
          while (pcSpeaker.isPlaying()) { SDL_Delay(10); }
      }
 
@@ -398,8 +395,8 @@ int main(int argc, char* argv[])
     //adl();
     pcspkr();
     pcspkr8();
-    //teen();
-    //song();
+    teen();
+    song();
 
 
     SDL_Quit();
