@@ -29,7 +29,7 @@ namespace hardware
         /// <param name="len"></param>
         static void callback(void* userdata, _In_ uint8_t* audiobuf, int len);
 
-        PCSpeaker(const int32_t rate = 44100, const int8_t audio_channels = 2, const int8_t bits = 16);
+        PCSpeaker(const int32_t rate = 44100, const int8_t audio_channels = 2, const int8_t bits = 16, const bool signed_ = true);
         ~PCSpeaker();
 
         // TODO: should be between 0 and 100?
@@ -50,6 +50,7 @@ namespace hardware
         uint32_t getRate() const noexcept;
         uint8_t getChannels() const noexcept;
         uint8_t getBits() const noexcept;
+        bool getSigned() const noexcept;
     private:
         std::mutex _mutex;
 
@@ -58,6 +59,7 @@ namespace hardware
         const uint32_t _rate;
         const uint8_t _channels;
         const uint8_t _bits;
+        const bool _signed;
 
         bool _loop = false;
         uint32_t _oscLength = 0;
@@ -95,7 +97,7 @@ namespace hardware
 
         // Clear the rest of the buffer
         if (numSamples > 0) {
-            std::memset(buffer + i, 0, numSamples * _channels * sizeof(T));
+            std::memset(buffer + i, 0, static_cast<size_t>(numSamples) * _channels * sizeof(T));
         }
 
         return i;

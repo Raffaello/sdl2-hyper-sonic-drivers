@@ -5,12 +5,27 @@
 
 namespace hardware
 {
+    TEST(PCSpeaker, cstorDefault)
+    {
+        PCSpeaker pcSpeaker;
+        EXPECT_EQ(pcSpeaker.getRate(), 44100);
+        EXPECT_EQ(pcSpeaker.getChannels(), 2);
+        EXPECT_EQ(pcSpeaker.getBits(), 16);
+        EXPECT_EQ(pcSpeaker.getSigned(), true);
+    }
+
     TEST(PCSpeaker, cstor)
     {
-        PCSpeaker pcSpeaker(1, 2, 3);
+        PCSpeaker pcSpeaker(1, 2, 3, false);
         EXPECT_EQ(pcSpeaker.getRate(), 1);
         EXPECT_EQ(pcSpeaker.getChannels(), 2);
         EXPECT_EQ(pcSpeaker.getBits(), 3);
+        EXPECT_EQ(pcSpeaker.getSigned(), false);
+    }
+
+    TEST(DISABLED_PCSpeaker, cstor_invalid_parameters)
+    {
+        FAIL();
     }
 
     TEST(PCSpeaker, isPlaying)
@@ -118,6 +133,10 @@ namespace hardware
         Duration16,
         make_duration_values()
     );
+
+    TEST(DISABLED_PCSpeaker, callback) {
+        FAIL();
+    }
 }
 
 int main(int argc, char** argv)

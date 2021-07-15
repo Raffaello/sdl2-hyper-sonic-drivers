@@ -31,23 +31,39 @@ namespace hardware
     {
         PCSpeaker* self = reinterpret_cast<PCSpeaker*>(userdata);
         uint32_t length = len / self->getChannels();
-        // TODO: missing unsigned or signed type.
-        switch (self->getBits())
-        {
-        case 8:
-            self->readBuffer<int8_t>(reinterpret_cast<int8_t*>(audiobuf), length);
-            break;
-        case 16:
-            self->readBuffer<int16_t>(reinterpret_cast<int16_t*>(audiobuf), length / 2);
-            break;
-        default:
-            // not implemented
-            return;
+        // TODO: optmize the if/switch branch code...
+        if (self->getSigned()) {
+            switch (self->getBits())
+            {
+            case 8:
+                self->readBuffer<int8_t>(reinterpret_cast<int8_t*>(audiobuf), length);
+                break;
+            case 16:
+                self->readBuffer<int16_t>(reinterpret_cast<int16_t*>(audiobuf), length / 2);
+                break;
+            default:
+                // not implemented
+                return;
+            }
+        }
+        else {
+            switch (self->getBits())
+            {
+            case 8:
+                self->readBuffer<uint8_t>(reinterpret_cast<uint8_t*>(audiobuf), length);
+                break;
+            case 16:
+                self->readBuffer<uint16_t>(reinterpret_cast<uint16_t*>(audiobuf), length / 2);
+                break;
+            default:
+                // not implemented
+                return;
+            }
         }
     }
 
-    PCSpeaker::PCSpeaker(const int32_t rate, const int8_t channels, const int8_t bits) :
-        _rate(rate), _channels(channels), _bits(bits)
+    PCSpeaker::PCSpeaker(const int32_t rate, const int8_t channels, const int8_t bits, const bool signed_) :
+        _rate(rate), _channels(channels), _bits(bits), _signed(signed_)
     {
     }
 
@@ -96,5 +112,9 @@ namespace hardware
     uint8_t PCSpeaker::getBits() const noexcept
     {
         return _bits;
+    }
+    bool PCSpeaker::getSigned() const noexcept
+    {
+        return _signed;
     }
 } // namespace hardware
