@@ -46,7 +46,7 @@ namespace hardware
         /** Stop the currently playing note after delay ms. */
         void stop(const int32_t delay = 0);
         bool isPlaying() const noexcept;
-        template<typename T> uint32_t readBuffer(T* buffer, const uint32_t numSamples);
+        template<typename T> uint32_t readBuffer(T* buffer, uint32_t numSamples);
         uint32_t getRate() const noexcept;
         uint8_t getChannels() const noexcept;
         uint8_t getBits() const noexcept;
@@ -70,21 +70,20 @@ namespace hardware
         }
     };
 
-    template<typename T> uint32_t PCSpeaker::readBuffer(T* buffer, const uint32_t numSamples)
+    template<typename T> uint32_t PCSpeaker::readBuffer(T* buffer, uint32_t numSamples)
     {
         static_assert(std::numeric_limits<T>::is_integer);
         std::lock_guard lck(_mutex);
-        uint32_t i;
-        uint32_t k;
+        uint32_t i = 0;
 
-        for (i = 0, k = 0; (_remainingSamples > 0) && (i < numSamples); i++)
+        for (; (_remainingSamples > 0) && ( numSamples > 0); numSamples--)
         {
             T v = softsynths::generators::generateWave<T>(_wave, _oscSamples, _oscLength);// *volume;
 
             for (int j = 0; j < _channels; j++) {
-                buffer[k++] = v;
+                buffer[i++] = v;
             }
-
+ 
             if (++_oscSamples >= _oscLength) {
                 _oscSamples = 0;
             }
@@ -95,10 +94,10 @@ namespace hardware
         }
 
         // Clear the rest of the buffer
-        if (i < numSamples) {
-            std::memset(buffer + k, 0, (numSamples - i) * _channels * sizeof(T) );
+        if (numSamples > 0) {
+            std::memset(buffer + i, 0, numSamples * _channels * sizeof(T));
         }
 
-        return k;
+        return i;
     }
 } // namesapce hardware
