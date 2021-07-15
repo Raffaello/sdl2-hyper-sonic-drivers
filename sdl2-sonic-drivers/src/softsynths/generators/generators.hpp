@@ -28,7 +28,7 @@ namespace softsynths
 
         template<typename T> T generateSquare(const uint32_t x, const uint32_t oscLength)
         {
-            static_assert(std::numeric_limits<T>::is_integer);
+            //static_assert(std::numeric_limits<T>::is_integer);
             return (x < (oscLength / 2)) ?
                 std::numeric_limits<T>::max():
                 std::numeric_limits<T>::min();
@@ -36,7 +36,7 @@ namespace softsynths
 
         template<typename T> T generateSine(const uint32_t x, const uint32_t oscLength)
         {
-            static_assert(std::numeric_limits<T>::is_integer);
+            //static_assert(std::numeric_limits<T>::is_integer);
             if (oscLength == 0) {
                 return 0;
             }
@@ -48,7 +48,7 @@ namespace softsynths
         
         template<typename T> T generateSaw(const uint32_t x, const uint32_t oscLength)
         {
-            static_assert(std::numeric_limits<T>::is_integer);
+            //static_assert(std::numeric_limits<T>::is_integer);
             if (oscLength == 0) {
                 return 0;
             }
@@ -58,7 +58,7 @@ namespace softsynths
     
         template<typename T> T generateTriangle(const uint32_t x, const uint32_t oscLength)
         {
-            static_assert(std::numeric_limits<T>::is_integer);
+            //static_assert(std::numeric_limits<T>::is_integer);
             if (oscLength == 0) {
                 return 0;
             }
@@ -83,7 +83,7 @@ namespace softsynths
 
         template<typename T> T generateWave(const eWaveForm waveForm, const uint32_t x, const uint32_t oscLength)
         {
-            static_assert(std::numeric_limits<T>::is_integer);
+            //static_assert(std::numeric_limits<T>::is_integer);
             switch (waveForm)
             {
             case eWaveForm::SQUARE:

@@ -20,6 +20,7 @@ template<class T> class SquareWaveGeneratorTest : public WaveGeneratorTest<T>
 public:
     const std::function<T(uint32_t, uint32_t)>wave = softsynths::generators::generateSquare<T>;
 };
+//TODO: int32_t, float 32bits
 using Types = ::testing::Types<int8_t, int16_t, uint8_t, uint16_t>;
 TYPED_TEST_SUITE(SquareWaveGeneratorTest, Types);
 TYPED_TEST(SquareWaveGeneratorTest, percent_0) {

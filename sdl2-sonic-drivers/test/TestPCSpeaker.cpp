@@ -83,22 +83,29 @@ namespace hardware
                 tsum += t;
             }
 
-            EXPECT_NEAR((double)this->time, tsum, 0.1);
+            EXPECT_NEAR((double)this->time, tsum, 0.01);
             EXPECT_EQ(dsum, this->freq * this->time * this->channels / 1000);
         }
     };
 
-    class Duration8 : public Duration<int8_t> {};
-    TEST_P(Duration8, duration_8bits)
+    class DurationS8 : public Duration<int8_t> {};
+    TEST_P(DurationS8, duration_8bits)
     {
         this->test_();
     }
     
-    class Duration16 : public Duration<int16_t> {};
-    TEST_P(Duration16, duration_16bits)
+    class DurationS16 : public Duration<int16_t> {};
+    TEST_P(DurationS16, duration_16bits)
     {
         this->test_();
     }
+
+    //TODO int32_t, float
+    /*class DurationS32 : public Duration<int32_t> {};
+    TEST_P(DurationS32, duration_32bits)
+    {
+        this->test_();
+    }*/
    
     template<typename T, std::size_t... I>
     auto values(T* t, std::index_sequence<I...>)
@@ -125,14 +132,19 @@ namespace hardware
 
     INSTANTIATE_TEST_SUITE_P(
         PCSpeaker,
-        Duration8,
+        DurationS8,
         make_duration_values()
     );
     INSTANTIATE_TEST_SUITE_P(
         PCSpeaker,
-        Duration16,
+        DurationS16,
         make_duration_values()
     );
+    /*INSTANTIATE_TEST_SUITE_P(
+        PCSpeaker,
+        DurationS32,
+        make_duration_values()
+    );*/
 
     TEST(DISABLED_PCSpeaker, callback) {
         FAIL();

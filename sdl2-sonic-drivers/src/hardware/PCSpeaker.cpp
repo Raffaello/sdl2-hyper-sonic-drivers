@@ -41,9 +41,9 @@ namespace hardware
             case 16:
                 self->readBuffer<int16_t>(reinterpret_cast<int16_t*>(audiobuf), length / 2);
                 break;
-            default:
-                // not implemented
-                return;
+            case 32:
+                //self->readBuffer<int32_t>(reinterpret_cast<int32_t*>(audiobuf), length / 4);
+                break;
             }
         }
         else {
@@ -55,9 +55,6 @@ namespace hardware
             case 16:
                 self->readBuffer<uint16_t>(reinterpret_cast<uint16_t*>(audiobuf), length / 2);
                 break;
-            default:
-                // not implemented
-                return;
             }
         }
     }

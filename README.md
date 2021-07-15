@@ -31,6 +31,6 @@ TODO
 - OPL3
 - GM
 - GUS
-- PC Speaker (8 bit and 16 bit, 32-bit processing)
+- PC Speaker (8 bit, 16 bit, 32-bit processing, todo int32 and float)
 - XMI format (xmidi)
 - render to digital wave or mp3

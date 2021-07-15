@@ -155,9 +155,14 @@ int pcspkr(const int freq, const uint16_t audio, const int channels,const int ch
     Mix_QuerySpec(&freq_, &fmt, &chn);
     switch (fmt)
     {
+    case AUDIO_S32:
+        bits = 32;
+        sig = true;
+        break;
     case AUDIO_F32:
-        std::cerr << "not yet implemented" << endl;
-        return -1;
+        bits = 32;
+        sig = false; //encoded unsiged 32 bit as float.
+        break;
     case AUDIO_S16:
         bits = 16;
         sig = true;
@@ -351,7 +356,7 @@ int main(int argc, char* argv[])
         cout << "Driver " << i << " name: " << SDL_GetAudioDriver(i) << endl;
     }
     
-    SDL_AudioSpec spec;
+    SDL_AudioSpec spec = {};
     spec.callback = NULL;
     spec.channels = 1;
     spec.format = AUDIO_U8;
@@ -371,6 +376,9 @@ int main(int argc, char* argv[])
 
     //adl();
    
+    // TODO: 32 bit audio
+    //pcspkr(44100, AUDIO_S32, 2, 1024);
+    //pcspkr(44100, AUDIO_F32, 2, 1024);
     pcspkr(44100, AUDIO_S16, 2, 1024);
     pcspkr(44100, AUDIO_S8, 2, 1024);
     pcspkr(44100, AUDIO_U16, 2, 1024);

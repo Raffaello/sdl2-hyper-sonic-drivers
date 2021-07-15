@@ -29,6 +29,7 @@ namespace hardware
         /// <param name="len"></param>
         static void callback(void* userdata, _In_ uint8_t* audiobuf, int len);
 
+        //TODO encode in 1 int the bits (union) with signed/unsiged so can be do a single if/switch?
         PCSpeaker(const int32_t rate = 44100, const int8_t audio_channels = 2, const int8_t bits = 16, const bool signed_ = true);
         ~PCSpeaker();
 
@@ -74,7 +75,7 @@ namespace hardware
 
     template<typename T> uint32_t PCSpeaker::readBuffer(T* buffer, uint32_t numSamples)
     {
-        static_assert(std::numeric_limits<T>::is_integer);
+        //static_assert(std::numeric_limits<T>::is_integer);
         std::lock_guard lck(_mutex);
         uint32_t i = 0;
 
