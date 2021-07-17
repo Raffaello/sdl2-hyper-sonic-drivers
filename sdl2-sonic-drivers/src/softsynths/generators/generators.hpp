@@ -15,21 +15,23 @@ namespace softsynths
 {
     namespace generators
     {
-        // TODO: uint8_t max value 254, min 0
-        //       int8_t max 127, -127 ?
         template<typename T> constexpr int32_t unsigned_max = (std::numeric_limits<T>::max() - std::numeric_limits<T>::min());
         static_assert(unsigned_max<int8_t> == std::numeric_limits<uint8_t>::max());
+        static_assert(unsigned_max<int8_t> % 2 == 1);
         static_assert(unsigned_max<int16_t> == std::numeric_limits<uint16_t>::max());
+        static_assert(unsigned_max<int16_t> % 2 == 1);
         static_assert(unsigned_max<uint8_t> == std::numeric_limits<uint8_t>::max());
+        static_assert(unsigned_max<uint8_t> % 2 == 1);
         static_assert(unsigned_max<uint16_t> == std::numeric_limits<uint16_t>::max());
-        
+        static_assert(unsigned_max<uint16_t> % 2 == 1);
+
         template<typename T> constexpr int32_t mid = (std::numeric_limits<T>::max() + std::numeric_limits<T>::min()) / 2;
         static_assert(mid<int8_t> == 0);
         static_assert(mid<int8_t> == mid<int16_t>);
         static_assert(mid<uint8_t> == 0x7F);
         static_assert(mid<uint16_t> == 0x7FFF);
         static_assert(mid<int32_t> == 0);
-        static_assert(mid<float> == 0.0); // int32_t ?
+        //static_assert(mid<float> == 0.0); // int32_t ?
 
         template<typename T> T generateSquare(const uint32_t x, const uint32_t oscLength)
         {
@@ -50,7 +52,7 @@ namespace softsynths
 
             return static_cast<T>(round(pi_coeff * (sin(M_2PI * x / oscLength))) + mid<T>);
         }
-        
+
         template<typename T> T generateSaw(const uint32_t x, const uint32_t oscLength)
         {
             static_assert(std::numeric_limits<T>::is_integer);
