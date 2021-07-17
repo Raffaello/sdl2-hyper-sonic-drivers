@@ -88,6 +88,17 @@ namespace softsynths
             TRIANGLE,
         };
 
+        /// <summary>
+        /// Generate one of the available Waves
+        /// NOTE: Can be done with an array, but
+        ///       In this way guarantees type safety
+        ///       The switch could still be replaced with an (internal) array
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="waveForm"></param>
+        /// <param name="x"></param>
+        /// <param name="oscLength"></param>
+        /// <returns></returns>
         template<typename T> T generateWave(const eWaveForm waveForm, const uint32_t x, const uint32_t oscLength)
         {
             static_assert(std::numeric_limits<T>::is_integer);
