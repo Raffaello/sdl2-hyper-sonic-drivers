@@ -123,66 +123,93 @@ int adl()
     return 0;
 }
 
-int pcspkr()
+void playNotes(hardware::PCSpeaker *pcSpeaker, const hardware::PCSpeaker::eWaveForm waveForm, const int freq, const int length)
 {
-    using audio::hardware::PCSpeaker;
+    auto start = std::chrono::steady_clock::now();
+    pcSpeaker->play(waveForm, freq, length);
+    while (pcSpeaker->isPlaying()) { SDL_Delay(10); }
+    pcSpeaker->play(waveForm, freq + 183, length * 2);
+    while (pcSpeaker->isPlaying()) { SDL_Delay(10); }
+    auto end = std::chrono::steady_clock::now();
+    std::chrono::duration<double> elapsed_seconds = end - start;
+    std::cout << "Elapsed Time (s) = " << elapsed_seconds.count() << " --- Expected (s) ~=" << length + length * 2 << "\n";
+}
 
+int pcspkr(const int freq, const uint16_t audio, const int channels,const int chunksize)
+{
+    using hardware::PCSpeaker;
+ 
     Mix_Init(0);
-    if (Mix_OpenAudio(44100, AUDIO_S16, 2, 1024) < 0) {
+    if (Mix_OpenAudio(freq, audio, channels, chunksize) < 0) {
         cerr << Mix_GetError();
         return -1;
     }
 
     int length = 3000;
-    int freq;
+    int freq_;
     uint16_t fmt;
     int chn;
+    int8_t bits = 0;
+    bool sig = false;
     
-    Mix_QuerySpec(&freq, &fmt, &chn);
+    Mix_QuerySpec(&freq_, &fmt, &chn);
+    switch (fmt)
+    {
+    case AUDIO_S32:
+        bits = 32;
+        sig = true;
+        break;
+    case AUDIO_F32:
+        bits = 32;
+        sig = false; //encoded unsiged 32 bit as float.
+        break;
+    case AUDIO_S16:
+        bits = 16;
+        sig = true;
+        break;
+    case AUDIO_U16:
+        bits = 16;
+        sig = false;
+        break;
+    case AUDIO_S8:
+        bits = 8;
+        sig = true;
+        break;
+    case AUDIO_U8:
+        bits = 8;
+        sig = false;
+        break;
+    default:
+        std::cerr << "not valid parameter" << endl;
+        return -1;
+    }
 
-    PCSpeaker pcSpeaker(freq, chn);
+    PCSpeaker pcSpeaker(freq_, chn, bits, sig);
     //pcSpeaker.volume = 8;
     cout << "isPlaying: " << pcSpeaker.isPlaying() << endl
-        << "Rate: " << pcSpeaker.getRate() << endl
-        << "vol: " << (int)pcSpeaker.volume << endl;
+        << "Rate (Hz) : " << (int)pcSpeaker.getRate() << endl
+        << "Channels  : " << (int)pcSpeaker.getChannels() << endl
+        << "Bits      : " << (int)pcSpeaker.getBits() << endl
+        << "Signed    : " << std::boolalpha << pcSpeaker.getSigned() << std::noboolalpha << endl;
     
 
     // TODO try with channels.
     Mix_HookMusic(pcSpeaker.callback, &pcSpeaker);
     
-    cout << "Pulse" << endl;
-    pcSpeaker.play(PCSpeaker::eWaveForm::PULSE, 440, 300);
-    while (pcSpeaker.isPlaying()) { SDL_Delay(10); }
-    pcSpeaker.play(PCSpeaker::eWaveForm::PULSE, 440+183, 600);
-    while (pcSpeaker.isPlaying()) { SDL_Delay(10); }
-    SDL_Delay(600);
-
     cout << "SQUARE" << endl;
-    pcSpeaker.play(PCSpeaker::eWaveForm::SQUARE, 440, 300);
-    while (pcSpeaker.isPlaying()) { SDL_Delay(10); }
-    pcSpeaker.play(PCSpeaker::eWaveForm::SQUARE, 440 + 183, 600);
-    while (pcSpeaker.isPlaying()) { SDL_Delay(10); }
+    playNotes(&pcSpeaker, PCSpeaker::eWaveForm::SQUARE, 440, 300);
     SDL_Delay(600);
     
     cout << "SINE" << endl;
-    pcSpeaker.play(PCSpeaker::eWaveForm::SINE, 440, 300);
-    while (pcSpeaker.isPlaying()) { SDL_Delay(10); }
-    pcSpeaker.play(PCSpeaker::eWaveForm::SINE, 440 + 183, 600);
-    while (pcSpeaker.isPlaying()) { SDL_Delay(10); }
+    playNotes(&pcSpeaker, PCSpeaker::eWaveForm::SINE, 440, 300);
     SDL_Delay(600);
     
     cout << "SAW" << endl;
-    pcSpeaker.play(PCSpeaker::eWaveForm::SAW, 440, 300);
-    while (pcSpeaker.isPlaying()) { SDL_Delay(10); }
-    pcSpeaker.play(PCSpeaker::eWaveForm::SAW, 440 + 183, 600);
-    while (pcSpeaker.isPlaying()) { SDL_Delay(10); }
+    playNotes(&pcSpeaker, PCSpeaker::eWaveForm::SAW, 440, 300);
     SDL_Delay(600);
     
     cout << "TRINAGLE" << endl;
-    pcSpeaker.play(PCSpeaker::eWaveForm::TRIANGLE, 440, 300);
-    while (pcSpeaker.isPlaying()) { SDL_Delay(10); }
-    pcSpeaker.play(PCSpeaker::eWaveForm::TRIANGLE, 440 + 183, 600);
-    while (pcSpeaker.isPlaying()) { SDL_Delay(10); }
+    playNotes(&pcSpeaker, PCSpeaker::eWaveForm::TRIANGLE, 440, 300);
     SDL_Delay(600);
     cout << "isPlaying: " << pcSpeaker.isPlaying() << endl;;
     SDL_Delay(100);
@@ -197,7 +224,7 @@ int pcspkr()
 
 int teen()
 {
-    using audio::hardware::PCSpeaker;
+    using hardware::PCSpeaker;
 
     Mix_Init(0);
     if (Mix_OpenAudio(44100, AUDIO_S16, 2, 1024) < 0) {
@@ -205,13 +232,9 @@ int teen()
         return -1;
     }
 
-    int length = 3000;
-
     PCSpeaker pcSpeaker(44100, 8);
-    pcSpeaker.volume = 8;
     cout << "isPlaying: " << pcSpeaker.isPlaying() << endl
-        << "Rate: " << pcSpeaker.getRate() << endl
-        << "vol: " << (int)pcSpeaker.volume << endl;
+        << "Rate: " << pcSpeaker.getRate() << endl;
     
     const int notes[] = {
         //       A4  A4#   B4  C5   C5#  D5
@@ -245,8 +268,8 @@ int teen()
     SDL_Delay(500);
     cout << "isPlaying: " << pcSpeaker.isPlaying();
     for (int n = 0; n < 36; n++) {
-        int length = songInt2[n] * 100;
-        pcSpeaker.play(PCSpeaker::eWaveForm::PULSE, notes2[song2[n]], length);
+        int length = songInt2[n] * 25;
+        pcSpeaker.play(PCSpeaker::eWaveForm::SQUARE, notes2[song2[n]], length);
         while (pcSpeaker.isPlaying()) { SDL_Delay(10); }
     }
 
@@ -259,7 +282,7 @@ int teen()
 
 int song()
 {
-    using audio::hardware::PCSpeaker;
+    using hardware::PCSpeaker;
 
     Mix_Init(0);
     if (Mix_OpenAudio(44100, AUDIO_S16, 2, 1024) < 0) {
@@ -267,13 +290,11 @@ int song()
         return -1;
     }
 
-    int length = 3000;
+    int length = 500;
 
     PCSpeaker pcSpeaker(44100, 8);
-    pcSpeaker.volume = 8;
     cout << "isPlaying: " << pcSpeaker.isPlaying() << endl
-        << "Rate: " << pcSpeaker.getRate() << endl
-        << "vol: " << (int)pcSpeaker.volume << endl;
+        << "Rate: " << pcSpeaker.getRate() << endl;
 
     const int notes[] = {
         //       A4  A4#   B4  C5   C5#  D5
@@ -300,7 +321,7 @@ int song()
     cout << "Pulse" << endl;
     for (int n = 0; n < 8; n++) {
          cout << "note: " << notes[major[n]] << endl;
-         pcSpeaker.play(PCSpeaker::eWaveForm::PULSE, notes[major[n]], 500);
+         pcSpeaker.play(PCSpeaker::eWaveForm::SQUARE, notes[major[n]], 250);
          while (pcSpeaker.isPlaying()) { SDL_Delay(10); }
      }
 
@@ -330,7 +351,7 @@ int main(int argc, char* argv[])
         cout << "Driver " << i << " name: " << SDL_GetAudioDriver(i) << endl;
     }
     
-    SDL_AudioSpec spec;
+    SDL_AudioSpec spec = {};
     spec.callback = NULL;
     spec.channels = 1;
     spec.format = AUDIO_U8;
@@ -349,9 +370,17 @@ int main(int argc, char* argv[])
     //drivers::miles::XMidi::readDriver("ALGDIG.ADV");
 
     //adl();
-    pcspkr();
-    //teen();
-    //song();
+   
+    // TODO: 32 bit audio
+    //pcspkr(44100, AUDIO_S32, 2, 1024);
+    //pcspkr(44100, AUDIO_F32, 2, 1024);
+    pcspkr(44100, AUDIO_S16, 2, 1024);
+    pcspkr(44100, AUDIO_S8, 2, 1024);
+    pcspkr(44100, AUDIO_U16, 2, 1024);
+    pcspkr(44100, AUDIO_U8, 2, 1024);
+
+    teen();
+    song();
 
 
     SDL_Quit();
