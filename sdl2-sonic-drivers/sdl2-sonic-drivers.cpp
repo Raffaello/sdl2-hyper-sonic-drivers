@@ -190,8 +190,7 @@ int pcspkr(const int freq, const uint16_t audio, const int channels,const int ch
         << "Rate (Hz) : " << (int)pcSpeaker.getRate() << endl
         << "Channels  : " << (int)pcSpeaker.getChannels() << endl
         << "Bits      : " << (int)pcSpeaker.getBits() << endl
-        << "Signed    : " << std::boolalpha << pcSpeaker.getSigned() << std::noboolalpha << endl
-        << "vol: " << (int)pcSpeaker.volume << endl;
+        << "Signed    : " << std::boolalpha << pcSpeaker.getSigned() << std::noboolalpha << endl;
     
 
     // TODO try with channels.
@@ -234,10 +233,8 @@ int teen()
     }
 
     PCSpeaker pcSpeaker(44100, 8);
-    pcSpeaker.volume = 8;
     cout << "isPlaying: " << pcSpeaker.isPlaying() << endl
-        << "Rate: " << pcSpeaker.getRate() << endl
-        << "vol: " << (int)pcSpeaker.volume << endl;
+        << "Rate: " << pcSpeaker.getRate() << endl;
     
     const int notes[] = {
         //       A4  A4#   B4  C5   C5#  D5
@@ -296,10 +293,8 @@ int song()
     int length = 500;
 
     PCSpeaker pcSpeaker(44100, 8);
-    pcSpeaker.volume = 8;
     cout << "isPlaying: " << pcSpeaker.isPlaying() << endl
-        << "Rate: " << pcSpeaker.getRate() << endl
-        << "vol: " << (int)pcSpeaker.volume << endl;
+        << "Rate: " << pcSpeaker.getRate() << endl;
 
     const int notes[] = {
         //       A4  A4#   B4  C5   C5#  D5

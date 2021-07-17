@@ -33,10 +33,6 @@ namespace hardware
         PCSpeaker(const int32_t rate = 44100, const int8_t audio_channels = 2, const int8_t bits = 16, const bool signed_ = true);
         ~PCSpeaker();
 
-        // TODO: should be between 0 and 100?
-        //       not used at the moment. how it is implemented is just increasing volume;
-        std::atomic_uint8_t volume = 100;
-
         /// <summary>
         /// Play a sound
         /// </summary>
@@ -81,7 +77,7 @@ namespace hardware
 
         for (; (_remainingSamples > 0) && ( numSamples > 0); numSamples--)
         {
-            T v = softsynths::generators::generateWave<T>(_wave, _oscSamples, _oscLength);// *volume;
+            T v = softsynths::generators::generateWave<T>(_wave, _oscSamples, _oscLength);
 
             for (int j = 0; j < _channels; j++) {
                 buffer[i++] = v;
