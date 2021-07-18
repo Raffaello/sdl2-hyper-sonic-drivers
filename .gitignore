@@ -2,3 +2,6 @@
 /CMakeSettings.json
 /.vs
 /build
+*.ADL
+*.ADV
+
