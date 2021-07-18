@@ -13,13 +13,24 @@ The majority of the core code is part of these projects:
 - Mame
 - DosBox
 	
+
+## Notes
+
+TODO
+
+- `drivers` folder is analog to `*.DRV`|`*.ADV` files. (to read them or to be hardcoded)
+- `hardware` is the soundcard/chip emulation.
+- `audio`  API interface? `./sdl2` for `SDL2` implementation?
+- `files` `*.ADL` `*.XMI` `*.MID`
+
 ## TODO
 
+- decouple emultation to SDL2
 - Adlib
 - OPL2
 - OPL3
 - GM
 - GUS
-- PC Speaker
+- PC Speaker (8 bit, 16 bit, 32-bit processing, todo int32 and float)
 - XMI format (xmidi)
 - render to digital wave or mp3
