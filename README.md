@@ -26,11 +26,9 @@ TODO
 ## TODO
 
 - decouple emultation to SDL2
-- Adlib
-- OPL2
-- OPL3
+- Adlib (OPL2, dualOPL2, OPL3)
 - GM
 - GUS
-- PC Speaker (8 bit, 16 bit, 32-bit processing, todo int32 and float)
+- PC Speaker (8 bit, 16 bit, 32-bit processing)
 - XMI format (xmidi)
 - render to digital wave or mp3
