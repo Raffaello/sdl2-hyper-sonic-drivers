@@ -369,18 +369,18 @@ int main(int argc, char* argv[])
 
     //drivers::miles::XMidi::readDriver("ALGDIG.ADV");
 
-    //adl();
+    adl();
    
     // TODO: 32 bit audio
     //pcspkr(44100, AUDIO_S32, 2, 1024);
     //pcspkr(44100, AUDIO_F32, 2, 1024);
-    pcspkr(44100, AUDIO_S16, 2, 1024);
-    pcspkr(44100, AUDIO_S8, 2, 1024);
-    pcspkr(44100, AUDIO_U16, 2, 1024);
-    pcspkr(44100, AUDIO_U8, 2, 1024);
+    //pcspkr(44100, AUDIO_S16, 2, 1024);
+    //pcspkr(44100, AUDIO_S8, 2, 1024);
+    //pcspkr(44100, AUDIO_U16, 2, 1024);
+    //pcspkr(44100, AUDIO_U8, 2, 1024);
 
-    teen();
-    song();
+    //teen();
+    //song();
 
 
     SDL_Quit();
