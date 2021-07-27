@@ -1,3 +1,5 @@
+#pragma once
+
 namespace hardware
 {
     /// <summary>
@@ -16,6 +18,17 @@ namespace hardware
             OPL_woodyopl      /// the only one containing hardware emulation to retro eng.
             OPL_dbopl         /// dbopl file  like woodyopl but in integer instead of float.
         };
+
+        // TODO: Config implementation
+        /*enum OplEmulator {
+            kAuto = 0,
+            kMame = 1,
+            kDOSBox = 2,
+            kALSA = 3,
+            kNuked = 4,
+            kOPL2LPT = 5,
+            kOPL3LPT = 6
+        };*/
         
         //this opl class could be moved just in hardware namespace as a general interface for opl namespace
         class opl

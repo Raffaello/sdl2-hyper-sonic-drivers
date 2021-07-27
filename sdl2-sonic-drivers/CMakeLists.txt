@@ -24,6 +24,7 @@ target_sources(sdl2-sonic-drivers PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/File.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/IFFFile.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/XMIFile.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/woodyopl.cpp
 )
 
 target_include_directories(sdl2-sonic-drivers PUBLIC 
