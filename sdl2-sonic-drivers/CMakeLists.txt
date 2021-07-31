@@ -14,17 +14,20 @@ configure_file("version.h.in" "version.h")
 # Add source to this project's executable.
 add_executable(sdl2-sonic-drivers "sdl2-sonic-drivers.cpp")
 target_sources(sdl2-sonic-drivers PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/softsynths/generators/generators.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/adl/sound_adlib.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/adl/format.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/adl/surroundopl.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/adl/woodyopl.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/PCSpeaker.cpp
+    # ---- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/miles/XMidi.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/File.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/IFFFile.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/XMIFile.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/woodyopl.cpp
+    # ---- #
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/PCSpeaker.cpp
+    # ---- #
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/woodyopl/OPLChip.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/woodyopl/WoodyEmuOpl.cpp
 )
 
 target_include_directories(sdl2-sonic-drivers PUBLIC 

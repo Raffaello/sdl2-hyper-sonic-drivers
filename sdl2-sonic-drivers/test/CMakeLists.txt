@@ -16,7 +16,7 @@ add_custom_command(TARGET TestWaveGenerators POST_BUILD
 gtest_discover_tests(TestWaveGenerators)
 
 
-add_executable(TestPCSpeaker "TestPCSpeaker.cpp" "../src/hardware/PCSPeaker.cpp")
+add_executable(TestPCSpeaker "hardware/TestPCSpeaker.cpp" "../src/hardware/PCSpeaker.cpp")
 target_include_directories(TestPCSpeaker PUBLIC 
     ${CMAKE_SOURCE_DIR}/sdl2-sonic-drivers/src
 )
@@ -27,3 +27,36 @@ add_custom_command(TARGET TestPCSpeaker POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GTest::gmock> $<TARGET_FILE_DIR:TestPCSpeaker>
 )
 gtest_discover_tests(TestPCSpeaker)
+
+add_executable(
+    TestOPLChip
+    "hardware/opl/woodyopl/TestOPLChip.cpp"
+    "../src/hardware/opl/woodyopl/OPLChip.cpp"
+)
+target_include_directories(TestOPLChip PUBLIC 
+    ${CMAKE_SOURCE_DIR}/sdl2-sonic-drivers/src
+)
+target_link_libraries(TestOPLChip PRIVATE GTest::gtest GTest::gmock)
+add_custom_command(TARGET TestOPLChip POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GTest::gtest_main> $<TARGET_FILE_DIR:TestOPLChip>
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GTest::gtest> $<TARGET_FILE_DIR:TestOPLChip>
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GTest::gmock> $<TARGET_FILE_DIR:TestOPLChip>
+)
+gtest_discover_tests(TestOPLChip)
+
+add_executable(
+    TestWoodyEmuOPL
+    "hardware/opl/woodyopl/TestWoodyEmuOPL.cpp"
+    "../src/hardware/opl/woodyopl/WoodyEmuOPL.cpp"
+    "../src/hardware/opl/woodyopl/OPLChip.cpp"
+)
+target_include_directories(TestWoodyEmuOPL PUBLIC 
+    ${CMAKE_SOURCE_DIR}/sdl2-sonic-drivers/src
+)
+target_link_libraries(TestWoodyEmuOPL PRIVATE GTest::gtest GTest::gmock)
+add_custom_command(TARGET TestWoodyEmuOPL POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GTest::gtest_main> $<TARGET_FILE_DIR:TestWoodyEmuOPL>
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GTest::gtest> $<TARGET_FILE_DIR:TestWoodyEmuOPL>
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GTest::gmock> $<TARGET_FILE_DIR:TestWoodyEmuOPL>
+)
+gtest_discover_tests(TestWoodyEmuOPL)
