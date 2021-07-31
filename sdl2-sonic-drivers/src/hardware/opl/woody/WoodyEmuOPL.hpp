@@ -7,7 +7,7 @@ namespace hardware
 {
     namespace opl
     {
-        namespace woodyopl
+        namespace woody
         {
             class WoodyEmuOPL : public OPL
             {
@@ -15,15 +15,12 @@ namespace hardware
                 WoodyEmuOPL(const int rate, const bool usestereo) noexcept;
               
                 virtual void update(int16_t* buf, const int32_t samples);
-
-                // template methods
                 virtual void write(const int reg, const int val);
-
-                virtual void init();
-
+                //virtual void init();
+                virtual int32_t getSampleRate() const noexcept;
             private:
                 bool    _stereo;
-                OPLChip opl;
+                OPLChip _opl;
             };
         }
     }

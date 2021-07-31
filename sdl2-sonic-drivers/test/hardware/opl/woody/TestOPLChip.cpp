@@ -1,16 +1,18 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include <hardware/opl/woodyopl/WoodyEmuOPL.hpp>
+#include <hardware/opl/woody/OPLChip.hpp>
 
 namespace hardware
 {
     namespace opl
     {
-        namespace woodyopl
+        namespace woody
         {
-            TEST(WoodyEmuOPL, cstorDefault)
+            TEST(OPLChip, cstorDefault)
             {
-                WoodyEmuOPL wemu(44100, false);
+                int rate = 44100;
+                OPLChip opl(rate);
+                EXPECT_EQ(opl.getSampleRate(), rate);
             }
         }
     }

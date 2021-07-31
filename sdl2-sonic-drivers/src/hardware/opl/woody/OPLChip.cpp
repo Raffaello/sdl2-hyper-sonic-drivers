@@ -78,7 +78,7 @@ namespace hardware
 {
     namespace opl
     {
-        namespace woodyopl
+        namespace woody
         {
             OPLChip* oplchip[2];
 
@@ -114,7 +114,8 @@ namespace hardware
                 8.0, 9.0, 10.0, 10.0, 12.0, 12.0, 15.0, 15.0
             };
             // calculated frequency multiplication values (depend on sampling rate)
-            static double nfrqmul[16];
+            constexpr int TOT_nfrqmul = 16;
+            static double nfrqmul[TOT_nfrqmul];
 
             // key scale levels
             static uint8_t ksl[8][16];
@@ -359,11 +360,16 @@ namespace hardware
 
 
             // ---------------------------------------------------- //
-            //OPLChip::OPLChip(const uintptr_t cnum) noexcept
-            //{
-            //    // which OPL chip are we (needed for timers)
-            //    chip_num = cnum;
-            //}
+            OPLChip::OPLChip(const int32_t samplerate) noexcept
+                : _samplerate(samplerate)
+            {
+                _adlib_init();
+            }
+
+            int32_t OPLChip::getSampleRate() const noexcept
+            {
+                return _samplerate;
+            }
 
             void OPLChip::change_attackrate(uintptr_t regbase, celltype* c)
             {
@@ -516,21 +522,16 @@ namespace hardware
                 c->cf_sel = CF_TYPE_ATT;
             }
 
-            void OPLChip::adlib_init(intptr_t samplerate)
+            void OPLChip::_adlib_init()
             {
-                intptr_t i, j, oct;
-
-                ext_samplerate = samplerate;
-                int_samplerate = samplerate;
-
-                generator_add = (double)INTFREQU / (double)int_samplerate;
-
+                generator_add = static_cast<double>(INTFREQU) / static_cast<double>(_samplerate);
 
                 memset((void*)adlibreg, 0, sizeof(adlibreg));
                 memset((void*)cell, 0, sizeof(celltype) * MAXCELLS);
                 memset((void*)wave_sel, 0, sizeof(wave_sel));
 
-                for (i = 0; i < MAXCELLS; i++) {
+                for (int i = 0; i < MAXCELLS; i++)
+                {
                     cell[i].cf_sel = CF_TYPE_OFF;
                     cell[i].amp = 0.0;
                     cell[i].step_amp = 0.0;
@@ -541,7 +542,6 @@ namespace hardware
                     cell[i].cur_wmask = wavemask[0];
                     cell[i].cur_wform = &wavtable[waveform[0]];
                     cell[i].freq_high = 0;
-
                     cell[i].generator_pos = 0.0;
                     cell[i].cur_env_step = 0;
                     cell[i].env_step_a = 0;
@@ -551,82 +551,94 @@ namespace hardware
                     cell[i].env_step_skip_a = 0;
                 }
 
-                recipsamp = FL1 / (double)int_samplerate;
-                for (i = 15; i >= 0; i--) nfrqmul[i] = (double)(frqmul[i] * INTFREQU / 512.0 * recipsamp * (WAVPREC / 2048.0));
+                recipsamp = FL1 / static_cast<double>(_samplerate);
+
+                for (int i = TOT_nfrqmul - 1; i >= 0; i--) {
+                    nfrqmul[i] = static_cast<double>(frqmul[i] * INTFREQU / 512.0 * recipsamp * (WAVPREC / 2048.0));
+                }
 
                 status = 0;
                 index = 0;
                 timer[0] = 0;
                 timer[1] = 0;
 
-
                 // create vibrato table
                 vib_table[0] = 8;
                 vib_table[1] = 4;
                 vib_table[2] = 0;
                 vib_table[3] = -4;
-                for (i = 4; i < VIBTAB_SIZE; i++) vib_table[i] = vib_table[i - 4] * -1;
+                for (int i = 4; i < VIBTAB_SIZE; i++) {
+                    vib_table[i] = vib_table[i - 4] * -1;
+                }
 
                 // vibrato at 6.1 ?? (opl3 docs say 6.1, opl4 docs say 6.0, y8950 docs say 6.4)
-                vibtab_add = (double)((double)VIBTAB_SIZE * VIB_FREQ / (double)int_samplerate);
+                //vibtab_add = (double)((double)VIBTAB_SIZE * VIB_FREQ / (double)int_samplerate);
+                vibtab_add = static_cast<double>(static_cast<double>(VIBTAB_SIZE) * VIB_FREQ / static_cast<double>(_samplerate));
                 vibtab_pos = 0.0;
 
-                for (i = 0; i < FIFOSIZE; i++) val_const[i] = 1.0;
-
+                for (int i = 0; i < FIFOSIZE; i++) {
+                    val_const[i] = 1.0;
+                }
 
                 // create tremolo table
                 int32_t trem_table_int[TREMTAB_SIZE];
-                for (i = 0; i < 14; i++)    trem_table_int[i] = i - 13;       // upwards (13 to 26 -> -0.5/6 to 0)
-                for (i = 14; i < 41; i++)   trem_table_int[i] = -i + 14;      // downwards (26 to 0 -> 0 to -1/6)
-                for (i = 41; i < 53; i++)   trem_table_int[i] = i - 40 - 26;    // upwards (1 to 12 -> -1/6 to -0.5/6)
+                for (int i = 0; i < 14; i++) {
+                    trem_table_int[i] = i - 13; // upwards (13 to 26 -> -0.5/6 to 0)
+                }
+                for (int i = 14; i < 41; i++) {
+                    trem_table_int[i] = -i + 14; // downwards (26 to 0 -> 0 to -1/6)
+                }
+                for (int i = 41; i < 53; i++) {
+                    trem_table_int[i] = i - 40 - 26; // upwards (1 to 12 -> -1/6 to -0.5/6)
+                }
 
-                for (i = 0; i < TREMTAB_SIZE; i++) {
-                    trem_table[i] = (double)(((double)trem_table_int[i]) * 4.8 / 26.0 / 6.0);               // 4.8db
-                    trem_table[TREMTAB_SIZE + i] = (double)((double)((int32_t)(trem_table_int[i] / 4)) * 1.2 / 7.5 / 6.0);   // 1.2db (?)
+                for (int i = 0; i < TREMTAB_SIZE; i++) {
+                    trem_table[i] = static_cast<double>(trem_table_int[i]) * 4.8 / 26.0 / 6.0;               // 4.8db
+                    trem_table[TREMTAB_SIZE + i] = static_cast<double>(static_cast<int32_t>(trem_table_int[i] / 4)) * 1.2 / 7.5 / 6.0;   // 1.2db (?)
             //      trem_table[i]=(double)(trem_table_int[(i)&(~3)])*1.0/13.0/6.0;                  // 1.0db
 
-                    trem_table[i] = (double)(pow(FL2, trem_table[i]));
+                    trem_table[i] = pow(FL2, trem_table[i]);
                     trem_table[TREMTAB_SIZE + i] = (double)(pow(FL2, trem_table[TREMTAB_SIZE + i]));
                 }
 
                 // tremolo at 3.7
-                tremtab_add = (double)((double)TREMTAB_SIZE * TREM_FREQ / (double)int_samplerate);
+                tremtab_add = static_cast<double>(TREMTAB_SIZE) * TREM_FREQ / static_cast<double>(_samplerate);
                 tremtab_pos = 0.0;
 
-
-                static uintptr_t initfirstime = 0;
-                if (!initfirstime) {
-                    initfirstime = 1;
-
-                    // create waveform tables
-                    for (i = 0; i < (WAVPREC >> 1); i++) {
-                        wavtable[(i << 1) + WAVPREC] = (int16_t)(16384 * sin((double)((i << 1)) * PI * 2 / WAVPREC));
-                        wavtable[(i << 1) + 1 + WAVPREC] = (int16_t)(16384 * sin((double)((i << 1) + 1) * PI * 2 / WAVPREC));
-                        wavtable[i] = wavtable[(i << 1) + WAVPREC];
-                        // table to be verified, alternative: (zero-less)
-            /*          wavtable[(i<<1)  +WAVPREC]  = (int16_t)(16384*sin((double)(((i*2+1)<<1)-1)*PI/WAVPREC));
-                        wavtable[(i<<1)+1+WAVPREC]  = (int16_t)(16384*sin((double)(((i*2+1)<<1)  )*PI/WAVPREC));
-                        wavtable[i]                 = wavtable[(i<<1)-1+WAVPREC]; */
-                    }
-                    for (i = 0; i < (WAVPREC >> 3); i++) {
-                        wavtable[i + (WAVPREC << 1)] = wavtable[i + (WAVPREC >> 3)] - 16384;
-                        wavtable[i + ((WAVPREC * 17) >> 3)] = wavtable[i + (WAVPREC >> 2)] + 16384;
-                    }
-
-                    // key scale level table verified ([table in book]*8/3)
-                    ksl[7][0] = 0;  ksl[7][1] = 24; ksl[7][2] = 32; ksl[7][3] = 37;
-                    ksl[7][4] = 40; ksl[7][5] = 43; ksl[7][6] = 45; ksl[7][7] = 47;
-                    ksl[7][8] = 48;
-                    for (i = 9; i < 16; i++) ksl[7][i] = (uint8_t)(i + 41);
-                    for (j = 6; j >= 0; j--) {
-                        for (i = 0; i < 16; i++) {
-                            oct = (intptr_t)ksl[j + 1][i] - 8;
-                            if (oct < 0) oct = 0;
-                            ksl[j][i] = (uint8_t)oct;
-                        }
-                    }
+                // create waveform tables
+                for (int i = 0; i < (WAVPREC / 2); i++) {
+                    wavtable[(i << 1) + WAVPREC] = static_cast<int16_t>(16384 * sin(static_cast<double>((i * 2)) * utils::PI2 / WAVPREC));
+                    wavtable[(i << 1) + 1 + WAVPREC] = static_cast<int16_t>(16384 * sin(static_cast<double>((i * 2) + 1) * utils::PI2 / WAVPREC));
+                    wavtable[i] = wavtable[(i << 1) + WAVPREC];
+                    // table to be verified, alternative: (zero-less)
+        /*          wavtable[(i<<1)  +WAVPREC]  = (int16_t)(16384*sin((double)(((i*2+1)<<1)-1)*PI/WAVPREC));
+                    wavtable[(i<<1)+1+WAVPREC]  = (int16_t)(16384*sin((double)(((i*2+1)<<1)  )*PI/WAVPREC));
+                    wavtable[i]                 = wavtable[(i<<1)-1+WAVPREC]; */
+                }
+                for (int i = 0; i < (WAVPREC >> 3); i++) {
+                    wavtable[i + (WAVPREC << 1)] = wavtable[i + (WAVPREC >> 3)] - 16384;
+                    wavtable[i + ((WAVPREC * 17) >> 3)] = wavtable[i + (WAVPREC >> 2)] + 16384;
                 }
 
+                // key scale level table verified ([table in book]*8/3)
+                ksl[7][0] = 0;  ksl[7][1] = 24; ksl[7][2] = 32; ksl[7][3] = 37;
+                ksl[7][4] = 40; ksl[7][5] = 43; ksl[7][6] = 45; ksl[7][7] = 47;
+                ksl[7][8] = 48;
+
+                for (int i = 9; i < 16; i++) {
+                    ksl[7][i] = (uint8_t)(i + 41);
+                }
+
+                for (int j = 6; j >= 0; j--) {
+                    for (int i = 0; i < 16; i++) {
+                        int oct = ksl[j + 1][i] - 8;
+                        if (oct < 0) {
+                            oct = 0;
+                        }
+
+                        ksl[j][i] = static_cast<uint8_t>(oct);
+                    }
+                }
             }
 
             void OPLChip::adlib_write(uintptr_t idx, uint8_t val, uintptr_t second_set) {
@@ -873,12 +885,8 @@ namespace hardware
             }
 
             // be careful with this
-// uses cptr and chanval, outputs into outbufl(/outbufr)
-// for opl3 check if opl3-mode is enabled (which uses stereo panning)
-//#undef CHANVAL_OUT
-//#define CHANVAL_OUT                                 \
-//    outbufl[i] += chanval;
-
+            // uses cptr and chanval, outputs into outbufl(/outbufr)
+            // for opl3 check if opl3-mode is enabled (which uses stereo panning)
             void OPLChip::adlib_getsample(int16_t* sndptr, intptr_t numsamples) {
                 intptr_t i, j, endsamples;
                 celltype* cptr;

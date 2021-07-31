@@ -2,13 +2,14 @@
 
 #include <cstdint>
 #include <cmath>
+#include <utils/constants.hpp>
 
 namespace hardware
 {
     namespace opl
     {
         // TODO: replace intptr_t and uintptr_t with something more specific?
-        namespace woodyopl
+        namespace woody
         {
             constexpr int NUM_CHANNELS = 9;
             constexpr int MAXCELLS = NUM_CHANNELS * 2;
@@ -19,10 +20,8 @@ namespace hardware
             constexpr double FL1 = 1.0;
             constexpr double FL2 = 2.0;
             // TODO: consider to put constexpr constant values like PI into a shared hpp file.
-#ifndef M_PI
-            constexpr double M_PI = 3.14159265358979323846;
-#endif // ! M_PI
-            constexpr double PI   = 3.141592653589793238462643;
+
+            
 
             constexpr int WAVPREC = 1024;
             constexpr double AMPVOL = 8192.0 / 2.0;
@@ -103,13 +102,15 @@ namespace hardware
 
             class OPLChip
             {
-                //TODO: default constructor need to call adlib_init
             public:
+                OPLChip(const int32_t samplerate) noexcept;
+                //OPLChip() = delete;
+
+                int32_t getSampleRate() const noexcept;
+
                 // per-chip variables
                 //uintptr_t chip_num;      /// ????
                 celltype cell[MAXCELLS];
-
-                intptr_t int_samplerate, ext_samplerate;
 
                 uint8_t status, index;
                 uint8_t adlibreg[256];    // adlib register set
@@ -121,8 +122,6 @@ namespace hardware
                 double vibtab_add;
                 double tremtab_pos;
                 double tremtab_add;
-
-                //OPLChip(const uintptr_t cnum) noexcept;
 
                 // enable a cell
                 void cellon(uintptr_t regbase, celltype* c);
@@ -140,10 +139,14 @@ namespace hardware
 
                 void change_feedback(uintptr_t chanbase, celltype* c);
 
-                // general functions
-                void adlib_init(intptr_t samplerate);
+                // general functions (only one public)
+                // TODO: review adlib_write from the original source code
                 void adlib_write(uintptr_t idx, uint8_t val, uintptr_t second_set);
+                // TODO: review adlib_getsample from the original source code
                 void adlib_getsample(int16_t* sndptr, intptr_t numsamples);
+            private:
+                void _adlib_init();
+                int32_t _samplerate;
             };
 
             extern OPLChip* oplchip[2];

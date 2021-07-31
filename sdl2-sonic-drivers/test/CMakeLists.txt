@@ -30,8 +30,8 @@ gtest_discover_tests(TestPCSpeaker)
 
 add_executable(
     TestOPLChip
-    "hardware/opl/woodyopl/TestOPLChip.cpp"
-    "../src/hardware/opl/woodyopl/OPLChip.cpp"
+    "hardware/opl/woody/TestOPLChip.cpp"
+    "../src/hardware/opl/woody/OPLChip.cpp"
 )
 target_include_directories(TestOPLChip PUBLIC 
     ${CMAKE_SOURCE_DIR}/sdl2-sonic-drivers/src
@@ -46,9 +46,10 @@ gtest_discover_tests(TestOPLChip)
 
 add_executable(
     TestWoodyEmuOPL
-    "hardware/opl/woodyopl/TestWoodyEmuOPL.cpp"
-    "../src/hardware/opl/woodyopl/WoodyEmuOPL.cpp"
-    "../src/hardware/opl/woodyopl/OPLChip.cpp"
+    "hardware/opl/woody/TestWoodyEmuOPL.cpp"
+    "../src/hardware/opl/OPL.CPP"
+    "../src/hardware/opl/woody/WoodyEmuOPL.cpp"
+    "../src/hardware/opl/woody/OPLChip.cpp"
 )
 target_include_directories(TestWoodyEmuOPL PUBLIC 
     ${CMAKE_SOURCE_DIR}/sdl2-sonic-drivers/src

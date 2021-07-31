@@ -4,38 +4,41 @@ namespace hardware
 {
     namespace opl
     {
-        namespace woodyopl
+        namespace woody
         {
             WoodyEmuOPL::WoodyEmuOPL(const int rate, const bool usestereo) noexcept
-                : _stereo(usestereo)
+                : OPL(ChipType::OPL3), _stereo(usestereo), _opl(rate)
             {
-                opl.adlib_init(rate);
-                _chip = ChipType::OPL3;
-            };
+            }
 
             void WoodyEmuOPL::update(int16_t* buf, const int32_t samples)
             {
                 //      if(use16bit) samples *= 2;
                 if (_stereo) {
-                    opl.adlib_getsample(buf, samples * 2);
+                    _opl.adlib_getsample(buf, samples * 2);
                 } else {
-                    opl.adlib_getsample(buf, samples);
+                    _opl.adlib_getsample(buf, samples);
                 }
             }
 
             // template methods
             void WoodyEmuOPL::write(const int reg, const int val)
             {
-                if (_currentChip != 0) {
-                    return;
-                }
+                //if (_currentChip != 0) {
+                //    return;
+                //}
 
-                opl.index = reg;
-                opl.adlib_write(opl.index, val, 0);
+                _opl.index = reg;
+                _opl.adlib_write(_opl.index, val, 0);
             }
 
-            void WoodyEmuOPL::init()
+            /*void WoodyEmuOPL::init()
             {
+            }*/
+
+            int32_t WoodyEmuOPL::getSampleRate() const noexcept
+            {
+                return _opl.getSampleRate();
             }
         }
     }
