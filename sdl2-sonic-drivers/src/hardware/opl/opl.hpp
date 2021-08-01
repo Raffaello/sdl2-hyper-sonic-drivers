@@ -15,7 +15,7 @@ namespace hardware
             OPL2,
             OPL2_DUAL,
             OPL3,
-            OPL2_SURROUND_OPL, /// OPL2 emulation from surroundopl code, using 2 wemu istances
+            //OPL2_SURROUND_OPL, /// OPL2 emulation from surroundopl code, using 2 wemu istances (OPL2_DUAL)
             //OPL3_WEMU,         /// OPL3 emulation from wemuopl code (using OPL_3)
             //OPL_woodyopl,      /// the only one containing hardware emulation to retro eng.
             OPL_dbopl         /// dbopl file  like woodyopl but in integer instead of float.

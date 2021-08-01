@@ -61,3 +61,22 @@ add_custom_command(TARGET TestWoodyEmuOPL POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GTest::gmock> $<TARGET_FILE_DIR:TestWoodyEmuOPL>
 )
 gtest_discover_tests(TestWoodyEmuOPL)
+
+add_executable(
+    TestSurroundOPL
+    "hardware/opl/woody/TestSurroundOPL.cpp"
+    "../src/hardware/opl/OPL.CPP"
+    "../src/hardware/opl/woody/SurroundOPL.cpp"
+    "../src/hardware/opl/woody/WoodyEmuOPL.cpp"
+    "../src/hardware/opl/woody/OPLChip.cpp"
+)
+target_include_directories(TestSurroundOPL PUBLIC 
+    ${CMAKE_SOURCE_DIR}/sdl2-sonic-drivers/src
+)
+target_link_libraries(TestSurroundOPL PRIVATE GTest::gtest GTest::gmock)
+add_custom_command(TARGET TestSurroundOPL POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GTest::gtest_main> $<TARGET_FILE_DIR:TestSurroundOPL>
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GTest::gtest> $<TARGET_FILE_DIR:TestSurroundOPL>
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GTest::gmock> $<TARGET_FILE_DIR:TestSurroundOPL>
+)
+gtest_discover_tests(TestSurroundOPL)

@@ -36,7 +36,8 @@ namespace hardware
             // The right-channel is increased in frequency by itself divided by this amount.
  // The right value should not noticeably change the pitch, but it should provide
  // a nice stereo harmonic effect.
-#define FREQ_OFFSET 128.0//96.0
+//#define FREQ_OFFSET 128.0//96.0
+            constexpr double FREQ_OFFSET = 128.0;
 
 // Number of FNums away from the upper/lower limit before switching to the next
 // block (octave.)  By rights it should be zero, but for some reason this seems
@@ -44,9 +45,10 @@ namespace hardware
 // time.  Setting it higher means it will switch blocks sooner and that seems
 // to help.  Don't set it too high or it'll get stuck in an infinite loop if
 // one block is too high and the adjacent block is too low ;-)
-#define NEWBLOCK_LIMIT  32
+//#define NEWBLOCK_LIMIT  32
+            constexpr int NEWBLOCK_LIMIT = 32;
 
-            class CSurroundopl : public OPL
+            class SurroundOPL : public OPL
             {
             private:
                 bool _use16bit;
@@ -60,16 +62,16 @@ namespace hardware
                 int8_t currChip = 0;
             public:
 
-                CSurroundopl(const int rate, const bool use16bit) noexcept;
-                ~CSurroundopl();
+                SurroundOPL(const int rate, const bool use16bit) noexcept;
+                ~SurroundOPL();
 
                 void update(short* buf, int samples);
                 void write(int reg, int val);
+                virtual int32_t getSampleRate() const noexcept ;
 
                 //void init();
                 //void setchip(int n);
             };
-
         }
     }
 }

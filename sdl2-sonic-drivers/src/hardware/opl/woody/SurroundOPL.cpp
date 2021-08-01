@@ -34,8 +34,8 @@ namespace hardware
     {
         namespace woody
         {
-            CSurroundopl::CSurroundopl(const int rate, bool use16bit) noexcept
-                : OPL(ChipType::OPL2_SURROUND_OPL), _use16bit(use16bit),
+            SurroundOPL::SurroundOPL(const int rate, bool use16bit) noexcept
+                : OPL(ChipType::OPL2_DUAL), _use16bit(use16bit),
                 bufsize(4096)
             {
                 a = new WoodyEmuOPL(rate, false);
@@ -62,7 +62,7 @@ namespace hardware
                 }
             }
 
-            CSurroundopl::~CSurroundopl()
+            SurroundOPL::~SurroundOPL()
             {
                 delete[] this->rbuf;
                 delete[] this->lbuf;
@@ -70,7 +70,7 @@ namespace hardware
                 delete b;
             }
 
-            void CSurroundopl::update(short* buf, int samples)
+            void SurroundOPL::update(short* buf, int samples)
             {
                 if (samples * 2 > this->bufsize) {
                     // Need to realloc the buffer
@@ -97,7 +97,7 @@ namespace hardware
                 }
             }
 
-            void CSurroundopl::write(int reg, int val)
+            void SurroundOPL::write(int reg, int val)
             {
                 a->write(reg, val);
 
@@ -221,7 +221,12 @@ namespace hardware
                 this->iTweakedFMReg[this->currChip][iRegister] = iValue;
             }
 
-            //void CSurroundopl::init()
+            int32_t SurroundOPL::getSampleRate() const noexcept
+            {
+                return a->getSampleRate();
+            }
+
+            //void SurroundOPL::init()
             //{
             //    //a->init();
             //    //b->init();
@@ -237,7 +242,7 @@ namespace hardware
             //    }
             //}
 
-            /*void CSurroundopl::setchip(int n)
+            /*void SurroundOPL::setchip(int n)
             {
                 a->setchip(n);
                 b->setchip(n);
