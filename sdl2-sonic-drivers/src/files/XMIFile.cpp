@@ -14,9 +14,11 @@ namespace files
         _assertValid(xdir.id.id == eIFF_ID::ID_XDIR);
 
         seek(-sizeof(xdir.size), std::fstream::_Seekcur);
+        
         IFF_chunk_header_t xdir_info;
         readChunkHeader(xdir_info);
         _assertValid(xdir_info.id.id == eIFF_ID::ID_INFO);
+        
         _songs = readLE16();
         // ---- header.size --- point here
         for (int song = 0; song < _songs; song++) {
