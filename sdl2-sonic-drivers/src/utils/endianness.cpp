@@ -39,7 +39,7 @@ namespace utils
         n.c[0] = n.c[1]; n.c[1] = c;
     }
 
-    int32_t swap32LE(const int32_t num)
+    inline int32_t swap32LE(const int32_t num)
     {
         bytes4 n = { num };
         if constexpr (is_big_endian()) {
@@ -49,7 +49,7 @@ namespace utils
         return n.i;
     }
 
-    int32_t swap32BE(const int32_t num)
+    inline int32_t swap32BE(const int32_t num)
     {
         bytes4 n = { num };
         if constexpr (!is_big_endian()) {
@@ -59,7 +59,7 @@ namespace utils
         return n.i;
     }
 
-    int16_t swap16LE(const int16_t num)
+    inline int16_t swap16LE(const int16_t num)
     {
         bytes2 n = { num };
         if constexpr (is_big_endian()) {
@@ -69,7 +69,7 @@ namespace utils
         return n.i;
     }
 
-    int16_t swap16BE(const int16_t num)
+    inline int16_t swap16BE(const int16_t num)
     {
         bytes2 n = { num };
         if constexpr (!is_big_endian()) {

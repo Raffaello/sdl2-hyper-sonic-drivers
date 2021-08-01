@@ -163,8 +163,8 @@ constexpr uint32_t MKID_BE(T1 a, T2  b, T3  c, T4  d) { return a | b << 8 | c <<
        } IFF_sub_chunk_header_t;
        static_assert(sizeof(IFF_sub_chunk_header_t) == 12);
 
-        void readChunkHeader(IFF_chunk_header_t& header) const noexcept;
-        void readSubChunkHeader(IFF_sub_chunk_header_t& header) const noexcept;
+        void readChunkHeader(IFF_chunk_header_t& header);
+        void readSubChunkHeader(IFF_sub_chunk_header_t& header);
 	private:
 	};
 }

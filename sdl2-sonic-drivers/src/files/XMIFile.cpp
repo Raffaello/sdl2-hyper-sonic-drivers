@@ -13,7 +13,7 @@ namespace files
         readChunkHeader(xdir);
         _assertValid(xdir.id.id == eIFF_ID::ID_XDIR);
 
-        seek(-sizeof(xdir.size), RW_SEEK_CUR);
+        seek(-sizeof(xdir.size), std::fstream::_Seekcur);
         IFF_chunk_header_t xdir_info;
         readChunkHeader(xdir_info);
         _assertValid(xdir_info.id.id == eIFF_ID::ID_INFO);

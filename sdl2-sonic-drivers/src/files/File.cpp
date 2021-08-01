@@ -1,86 +1,107 @@
 #include "File.hpp"
 #include <filesystem>
+#include <exception>
+#include <utils/endianness.hpp>
 
 using std::string;
+using std::fstream;
 
 File::File(const string& filename): _filename(filename)
 {
-    _file = SDL_RWFromFile(filename.c_str(), "rb");
-
-    if (_file == nullptr) {
-        std::string e = SDL_GetError();
-        throw std::invalid_argument("Cannot open file: " + filename + " -- ERROR:" + e);
+    _file.open(filename, fstream::in | fstream::binary);
+    if (!_file.is_open()) {
+        throw std::system_error(errno, std::system_category(), "Cannot open file: " + _filename);
     }
 }
 
 File::~File()
 {
-    if (_file != nullptr) {
-        SDL_RWclose(_file);
+    if (_file.is_open()) {
+        _file.close();
     }
 }
 
-uint64_t File::tell() const noexcept
+std::streampos File::tell() noexcept
 {
-    return SDL_RWtell(_getFile());
+    return _file.tellg();
 }
 
-int64_t File::size() const noexcept
+uintmax_t File::size() const noexcept
 {
-    return SDL_RWsize(_getFile());
+    return std::filesystem::file_size(_filename);
 }
 
-void File::seek(const int64_t offs, const int whence) const
+void File::seek(const std::streamoff offs, const std::fstream::_Seekdir whence)
 {
-    if (SDL_RWseek(_getFile(), offs, whence) == -1) {
-        throw std::runtime_error(SDL_GetError());
+    _file.seekg(offs, whence);
+    if(!_file.good()) {
+        throw std::system_error(errno, std::system_category(), "Cannot seek file: " + _filename);
     }
 }
 
-void File::readOnce(void* buf, size_t size) const
+void File::read(void* buf, std::streamsize size)
 {
-    _read(buf, size, 1);
+    if (!_file.read(reinterpret_cast<char*>(buf), size)) {
+        throw std::system_error(errno, std::system_category(), "Cannot read file: " + _filename);
+    }
 }
 
-std::string File::_readStringFromFile() const
+std::string File::_readStringFromFile()
 {
     string filename;
-    char c;
+    char c = -1;
 
-    do {
-        c = SDL_ReadU8(_file);
+    while (_file.good() && c != 0) {
+        c = _file.get();
         filename += c;
-    } while (c != 0);
-    filename.erase(filename.length() - 1);
+    }
 
     return filename;
 }
 
-void File::_read(void* buf, size_t size, size_t maxnum) const
+
+uint16_t File::readLE16()
 {
-    if (SDL_RWread(_getFile(), buf, size, maxnum) != maxnum) {
-        throw std::runtime_error(SDL_GetError());
+    int16_t i;
+
+    if (!_file.read(reinterpret_cast<char*>(&i), sizeof(int16_t))) {
+        throw std::system_error(errno, std::system_category(), "Cannot read file: " + _filename);
     }
+
+    return utils::swap16LE(i);
 }
 
-uint16_t File::readLE16() const
+uint32_t File::readLE32()
 {
-    return SDL_ReadLE16(_getFile());
+    int32_t i;
+
+    if (!_file.read(reinterpret_cast<char*>(&i), sizeof(int32_t))) {
+        throw std::system_error(errno, std::system_category(), "Cannot read file: " + _filename);
+    }
+
+    return utils::swap32LE(i);
 }
 
-uint32_t File::readLE32() const
+uint8_t File::readU8()
 {
-    return SDL_ReadLE32(_getFile());
+    uint8_t i;
+
+    if (!_file.read(reinterpret_cast<char*>(&i), sizeof(uint8_t))) {
+        throw std::system_error(errno, std::system_category(), "Cannot read file: " + _filename);
+    }
+
+    return i;
 }
 
-uint8_t File::readU8() const
+uint32_t File::readBE32()
 {
-    return SDL_ReadU8(_getFile());
-}
+    int32_t i;
 
-uint32_t File::readBE32() const
-{
-    return SDL_ReadBE32(_getFile());
+    if (!_file.read(reinterpret_cast<char*>(&i), sizeof(int32_t))) {
+        throw std::system_error(errno, std::system_category(), "Cannot read file: " + _filename);
+    }
+
+    return utils::swap32BE(i);
 }
 
 std::string File::_getFilename() const noexcept

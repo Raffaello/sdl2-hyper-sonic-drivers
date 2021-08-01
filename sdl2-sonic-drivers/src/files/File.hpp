@@ -1,8 +1,10 @@
 #pragma once
 
-#include <SDL2/SDL.h>
+//#include <SDL2/SDL.h>
 #include <string>
 #include <stdexcept>
+#include <fstream>
+//#include <iostream>
 
 class File
 {
@@ -10,25 +12,23 @@ public:
     File(const std::string& filename);
     virtual ~File();
 
-    int64_t size() const noexcept;
-    uint64_t tell() const noexcept;
-    void seek(const int64_t offs, const int whence = RW_SEEK_SET) const;
-    void readOnce(void* buf, size_t size) const;
+    uintmax_t size() const noexcept;
+    std::streampos tell() noexcept;
+    void seek(const std::streamoff offs, const std::fstream::_Seekdir whence = std::fstream::beg);
+    void read(void* buf, std::streamsize size);
 
 protected:
     const std::string _filename;
-    inline SDL_RWops* _getFile() const noexcept { return _file; }
-    std::string _readStringFromFile() const;
+    std::string _readStringFromFile();
     
-    void _read(void* buf, size_t size, size_t maxnum) const;
-    uint16_t readLE16() const;
-    uint32_t readLE32() const;
-    uint8_t  readU8() const;
-    uint32_t readBE32() const;
+    uint16_t readLE16();
+    uint32_t readLE32();
+    uint8_t  readU8();
+    uint32_t readBE32();
 
     std::string _getFilename() const noexcept;
     std::string _getPath() const noexcept;
     void _assertValid(const bool expr) const;
 private:
-    SDL_RWops* _file = nullptr;
+    std::fstream  _file;
 };
