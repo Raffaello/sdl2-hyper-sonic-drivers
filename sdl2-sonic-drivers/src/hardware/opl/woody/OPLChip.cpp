@@ -187,14 +187,14 @@ namespace hardware
             void processcell_sustain(celltype* ctc, const double modulator, const double vib, const double trem)
             {
                 // what is the point of using double if it cast to integer?
-                uintptr_t i = static_cast<uintptr_t>(ctc->t + modulator);
+                uint32_t i = static_cast<uint32_t>(ctc->t + modulator);
 
                 ctc->t += (ctc->tinc * vib);      // advance waveform time
                 ctc->lastval = ctc->val;
 
                 ctc->generator_pos += generator_add;
-                intptr_t num_steps_add = static_cast<intptr_t>(ctc->generator_pos);  // number of (standardized) samples
-                for (intptr_t ct = 0; ct < num_steps_add; ct++) {
+                int32_t num_steps_add = static_cast<int32_t>(ctc->generator_pos);  // number of (standardized) samples
+                for (int32_t ct = 0; ct < num_steps_add; ct++) {
                     ctc->cur_env_step++;
                 }
                 ctc->generator_pos -= num_steps_add;
@@ -217,13 +217,13 @@ namespace hardware
                     ctc->step_amp = 0.0;
                 }
 
-                uintptr_t i = static_cast<uintptr_t>(ctc->t + modulator);
+                uint32_t i = static_cast<uint32_t>(ctc->t + modulator);
                 ctc->t += (ctc->tinc * vib);      // advance waveform time
                 ctc->lastval = ctc->val;
 
                 ctc->generator_pos += generator_add;
-                intptr_t num_steps_add = static_cast<intptr_t>(ctc->generator_pos);  // number of (standardized) samples
-                for (intptr_t ct = 0; ct < num_steps_add; ct++) {
+                int32_t num_steps_add = static_cast<int32_t>(ctc->generator_pos);  // number of (standardized) samples
+                for (int32_t ct = 0; ct < num_steps_add; ct++) {
                     ctc->cur_env_step++;                        // sample counter
                     if ((ctc->cur_env_step & ctc->env_step_r) == 0) ctc->step_amp = ctc->amp;
                 }
@@ -257,13 +257,13 @@ namespace hardware
                     }
                 }
 
-                uintptr_t i = static_cast<uintptr_t>(ctc->t + modulator);
+                uint32_t i = static_cast<uint32_t>(ctc->t + modulator);
                 ctc->t += (ctc->tinc * vib);      // advance waveform time
                 ctc->lastval = ctc->val;
 
                 ctc->generator_pos += generator_add;
-                intptr_t num_steps_add = static_cast<intptr_t>(ctc->generator_pos);  // number of (standardized) samples
-                for (intptr_t ct = 0; ct < num_steps_add; ct++) {
+                int32_t num_steps_add = static_cast<int32_t>(ctc->generator_pos);  // number of (standardized) samples
+                for (int32_t ct = 0; ct < num_steps_add; ct++) {
                     ctc->cur_env_step++;
                     if ((ctc->cur_env_step & ctc->env_step_d) == 0) ctc->step_amp = ctc->amp;
                 }
@@ -285,13 +285,13 @@ namespace hardware
                     ctc->step_amp = 1.0;
                 }
 
-                uintptr_t i = static_cast<uintptr_t>(ctc->t + modulator);
+                uint32_t i = static_cast<uint32_t>(ctc->t + modulator);
                 ctc->t += (ctc->tinc * vib);      // advance waveform time
                 ctc->lastval = ctc->val;
 
                 ctc->generator_pos += generator_add;
-                intptr_t num_steps_add = static_cast<intptr_t>(ctc->generator_pos);          // determine number of std samples that have passed
-                for (intptr_t ct = 0; ct < num_steps_add; ct++) {
+                int32_t num_steps_add = static_cast<int32_t>(ctc->generator_pos);          // determine number of std samples that have passed
+                for (int32_t ct = 0; ct < num_steps_add; ct++) {
                     ctc->cur_env_step++;    // next sample
                     if ((ctc->cur_env_step & ctc->env_step_a) == 0) {       // check if next step already reached
                         ctc->step_skip_pos <<= 1;
@@ -332,7 +332,7 @@ namespace hardware
             //    }
             //}
 
-            uintptr_t adlib_reg_read(uintptr_t oplnum, uintptr_t port) {
+            uint32_t adlib_reg_read(uint32_t oplnum, uint32_t port) {
                 // opl2-detection routines require ret&6 to be 6
                 if ((port & 1) == 0) {
                     return oplchip[oplnum & 1]->status | 6;
@@ -340,8 +340,8 @@ namespace hardware
                 return 0xff;
             }
 
-            void adlib_reg_write(uintptr_t oplnum, uintptr_t port, uint8_t val) {
-                static uintptr_t is_second_set = 0;
+            void adlib_reg_write(uint32_t oplnum, uint32_t port, uint8_t val) {
+                static uint32_t is_second_set = 0;
                 if ((port & 1) == 0) {
                     // index written
                     oplchip[oplnum & 1]->index = val;
@@ -371,9 +371,9 @@ namespace hardware
                 return _samplerate;
             }
 
-            void OPLChip::change_attackrate(uintptr_t regbase, celltype* c)
+            void OPLChip::change_attackrate(const uint32_t regbase, celltype* c)
             {
-                intptr_t attackrate = adlibreg[ARC_ATTR_DECR + regbase] >> 4;
+                int32_t attackrate = adlibreg[ARC_ATTR_DECR + regbase] >> 4;
                 if (attackrate) {
                     double f = (double)(pow(FL2, (double)attackrate + (c->toff >> 2) - 1) * attackconst[c->toff & 3] * recipsamp);
                     // attack rate coefficients
@@ -382,11 +382,11 @@ namespace hardware
                     c->a2 = (double)(-17.57 * f);
                     c->a3 = (double)(7.42 * f);
 
-                    intptr_t step_skip = attackrate * 4 + c->toff;
-                    intptr_t steps = step_skip >> 2;
+                    int32_t step_skip = attackrate * 4 + c->toff;
+                    int32_t steps = step_skip >> 2;
                     c->env_step_a = (1 << (steps <= 12 ? 12 - steps : 0)) - 1;
 
-                    intptr_t step_num = (step_skip <= 48) ? (4 - (step_skip & 3)) : 0;
+                    int32_t step_num = (step_skip <= 48) ? (4 - (step_skip & 3)) : 0;
                     static uint8_t step_skip_mask[5] = { 0xff, 0xfe, 0xee, 0xba, 0xaa };
                     c->env_step_skip_a = step_skip_mask[step_num];
                 }
@@ -401,14 +401,14 @@ namespace hardware
                 }
             }
 
-            void OPLChip::change_decayrate(uintptr_t regbase, celltype* c)
+            void OPLChip::change_decayrate(const uint32_t regbase, celltype* c)
             {
-                intptr_t decayrate = adlibreg[ARC_ATTR_DECR + regbase] & 15;
+                int32_t decayrate = adlibreg[ARC_ATTR_DECR + regbase] & 15;
                 // decaymul should be 1.0 when decayrate==0
                 if (decayrate) {
                     double f = (double)(-7.4493 * decrelconst[c->toff & 3] * recipsamp);
                     c->decaymul = (double)(pow(FL2, f * pow(FL2, (double)(decayrate + (c->toff >> 2)))));
-                    intptr_t steps = (decayrate * 4 + c->toff) >> 2;
+                    int32_t steps = (decayrate * 4 + c->toff) >> 2;
                     c->env_step_d = (1 << (steps <= 12 ? 12 - steps : 0)) - 1;
                 }
                 else {
@@ -417,14 +417,14 @@ namespace hardware
                 }
             }
 
-            void OPLChip::change_releaserate(uintptr_t regbase, celltype* c)
+            void OPLChip::change_releaserate(const uint32_t regbase, celltype* c)
             {
-                intptr_t releaserate = adlibreg[ARC_SUSL_RELR + regbase] & 15;
+                int32_t releaserate = adlibreg[ARC_SUSL_RELR + regbase] & 15;
                 // releasemul should be 1.0 when releaserate==0
                 if (releaserate) {
                     double f = (double)(-7.4493 * decrelconst[c->toff & 3] * recipsamp);
                     c->releasemul = (double)(pow(FL2, f * pow(FL2, (double)(releaserate + (c->toff >> 2)))));
-                    intptr_t steps = (releaserate * 4 + c->toff) >> 2;
+                    int32_t steps = (releaserate * 4 + c->toff) >> 2;
                     c->env_step_r = (1 << (steps <= 12 ? 12 - steps : 0)) - 1;
                 }
                 else {
@@ -433,9 +433,9 @@ namespace hardware
                 }
             }
 
-            void OPLChip::change_sustainlevel(uintptr_t regbase, celltype* c)
+            void OPLChip::change_sustainlevel(const uint32_t regbase, celltype* c)
             {
-                intptr_t sustainlevel = adlibreg[ARC_SUSL_RELR + regbase] >> 4;
+                int32_t sustainlevel = adlibreg[ARC_SUSL_RELR + regbase] >> 4;
                 // sustainlevel should be 0.0 when sustainlevel==15 (max)
                 if (sustainlevel < 15) {
                     c->sustain_level = (double)(pow(FL2, (double)sustainlevel * (-FL05)));
@@ -445,7 +445,7 @@ namespace hardware
                 }
             }
 
-            void OPLChip::change_waveform(uintptr_t regbase, celltype* c)
+            void OPLChip::change_waveform(const uint32_t regbase, celltype* c)
             {
                 // waveform selection
                 c->cur_wmask = wavemask[wave_sel[regbase]];
@@ -456,7 +456,7 @@ namespace hardware
             //  c->t = wavestart[wave_sel[regbase]];
             }
 
-            void OPLChip::change_keepsustain(uintptr_t regbase, celltype* c)
+            void OPLChip::change_keepsustain(const uint32_t regbase, celltype* c)
             {
                 c->sus_keep = (adlibreg[ARC_TVS_KSR_MUL + regbase] & 0x20) > 0;
                 if (c->cf_sel == CF_TYPE_SUS) {
@@ -468,30 +468,30 @@ namespace hardware
             }
 
             // enable/disable vibrato/tremolo LFO effects
-            void OPLChip::change_vibrato(uintptr_t regbase, celltype* c)
+            void OPLChip::change_vibrato(const uint32_t regbase, celltype* c)
             {
                 c->vibrato = (adlibreg[ARC_TVS_KSR_MUL + regbase] & 0x40) != 0;
                 c->tremolo = (adlibreg[ARC_TVS_KSR_MUL + regbase] & 0x80) != 0;
             }
 
             // change amount of self-feedback
-            void OPLChip::change_feedback(uintptr_t chanbase, celltype* c)
+            void OPLChip::change_feedback(const uint32_t chanbase, celltype* c)
             {
-                intptr_t feedback = adlibreg[ARC_FEEDBACK + chanbase] & 14;
+                int32_t feedback = adlibreg[ARC_FEEDBACK + chanbase] & 14;
                 if (feedback) c->mfb = (double)(pow(FL2, (double)((feedback >> 1) + 5)) * (WAVPREC / 2048.0) * FL05);
                 else c->mfb = 0.0;
             }
 
-            void OPLChip::change_cellfreq(uintptr_t chanbase, uintptr_t regbase, celltype* c)
+            void OPLChip::change_cellfreq(uint32_t chanbase, uint32_t regbase, celltype* c)
             {
                 // frequency
-                intptr_t frn = ((((intptr_t)adlibreg[ARC_KON_BNUM + chanbase]) & 3) << 8) + (intptr_t)adlibreg[ARC_FREQ_NUM + chanbase];
+                int32_t frn = ((((int32_t)adlibreg[ARC_KON_BNUM + chanbase]) & 3) << 8) + (int32_t)adlibreg[ARC_FREQ_NUM + chanbase];
                 // block number/octave
-                intptr_t oct = ((((intptr_t)adlibreg[ARC_KON_BNUM + chanbase]) >> 2) & 7);
+                int32_t oct = ((((int32_t)adlibreg[ARC_KON_BNUM + chanbase]) >> 2) & 7);
                 c->freq_high = (frn >> 7) & 7;
 
                 // keysplit
-                intptr_t note_sel = (adlibreg[8] >> 6) & 1;
+                int32_t note_sel = (adlibreg[8] >> 6) & 1;
                 c->toff = ((frn >> 9) & (note_sel ^ 1)) | ((frn >> 8) & note_sel);
                 c->toff += (oct << 1);
 
@@ -511,9 +511,9 @@ namespace hardware
                 change_releaserate(regbase, c);
             }
 
-            void OPLChip::cellon(uintptr_t regbase, celltype* c)
+            void OPLChip::cellon(const uint32_t regbase, celltype* c)
             {
-                intptr_t wselbase = regbase;
+                int32_t wselbase = regbase;
                 if (wselbase >= ARC_SECONDSET) wselbase -= (ARC_SECONDSET - 22);    // second set starts at 22
 
                 c->t = wavestart[wave_sel[wselbase]];
@@ -641,7 +641,7 @@ namespace hardware
                 }
             }
 
-            void OPLChip::adlib_write(uintptr_t idx, uint8_t val, uintptr_t second_set) {
+            void OPLChip::adlib_write(uint32_t idx, uint8_t val, uint32_t second_set) {
                 //  if (((adlibreg[0x105]&1)==0) && (idx!=5))
                 second_set = 0;     // second_set is 0 anyways, but this fixes some warnings
 
@@ -699,11 +699,11 @@ namespace hardware
                 case ARC_TVS_KSR_MUL + 0x10: {
                     // tremolo/vibrato/sustain keeping enabled; key scale rate; frequency multiplication
                     int num = idx & 7;
-                    uintptr_t base = (idx - ARC_TVS_KSR_MUL) & 0xff;
+                    uint32_t base = (idx - ARC_TVS_KSR_MUL) & 0xff;
                     if ((num < 6) && (base < 22)) {
-                        uintptr_t modcell = regbase2modcell[second_set ? (base + 22) : base];
-                        uintptr_t regbase = base + second_set;
-                        uintptr_t chanbase = second_set ? (modcell - 18 + ARC_SECONDSET) : modcell;
+                        uint32_t modcell = regbase2modcell[second_set ? (base + 22) : base];
+                        uint32_t regbase = base + second_set;
+                        uint32_t chanbase = second_set ? (modcell - 18 + ARC_SECONDSET) : modcell;
 
                         // change tremolo/vibrato and sustain keeping of this cell
                         celltype* ccellptr = &cell[modcell + ((num < 3) ? 0 : 9)];
@@ -720,10 +720,10 @@ namespace hardware
                 case ARC_KSL_OUTLEV + 0x10: {
                     // key scale level; output rate
                     int num = idx & 7;
-                    uintptr_t base = (idx - ARC_KSL_OUTLEV) & 0xff;
+                    uint32_t base = (idx - ARC_KSL_OUTLEV) & 0xff;
                     if ((num < 6) && (base < 22)) {
-                        uintptr_t modcell = regbase2modcell[second_set ? (base + 22) : base];
-                        uintptr_t chanbase = second_set ? (modcell - 18 + ARC_SECONDSET) : modcell;
+                        uint32_t modcell = regbase2modcell[second_set ? (base + 22) : base];
+                        uint32_t chanbase = second_set ? (modcell - 18 + ARC_SECONDSET) : modcell;
 
                         // change frequency calculations of this cell as
                         // key scale level and output rate can be changed
@@ -736,10 +736,10 @@ namespace hardware
                 case ARC_ATTR_DECR + 0x10: {
                     // attack/decay rates
                     int num = idx & 7;
-                    uintptr_t base = (idx - ARC_ATTR_DECR) & 0xff;
+                    uint32_t base = (idx - ARC_ATTR_DECR) & 0xff;
                     if ((num < 6) && (base < 22)) {
-                        uintptr_t modcell = regbase2modcell[second_set ? (base + 22) : base];
-                        uintptr_t regbase = base + second_set;
+                        uint32_t modcell = regbase2modcell[second_set ? (base + 22) : base];
+                        uint32_t regbase = base + second_set;
 
                         // change attack rate and decay rate of this cell
                         celltype* ccellptr = &cell[modcell + ((num < 3) ? 0 : 9)];
@@ -752,10 +752,10 @@ namespace hardware
                 case ARC_SUSL_RELR + 0x10: {
                     // sustain level; release rate
                     int num = idx & 7;
-                    uintptr_t base = (idx - ARC_SUSL_RELR) & 0xff;
+                    uint32_t base = (idx - ARC_SUSL_RELR) & 0xff;
                     if ((num < 6) && (base < 22)) {
-                        uintptr_t modcell = regbase2modcell[second_set ? (base + 22) : base];
-                        uintptr_t regbase = base + second_set;
+                        uint32_t modcell = regbase2modcell[second_set ? (base + 22) : base];
+                        uint32_t regbase = base + second_set;
 
                         // change sustain level and release rate of this cell
                         celltype* ccellptr = &cell[modcell + ((num < 3) ? 0 : 9)];
@@ -766,13 +766,13 @@ namespace hardware
                                          break;
                 case ARC_FREQ_NUM: {
                     // 0xa0-0xa8 low8 frequency
-                    uintptr_t base = (idx - ARC_FREQ_NUM) & 0xff;
+                    uint32_t base = (idx - ARC_FREQ_NUM) & 0xff;
                     if (base < 9) {
-                        intptr_t cellbase = second_set ? (base + 18) : base;
+                        int32_t cellbase = second_set ? (base + 18) : base;
                         // regbase of modulator:
-                        intptr_t modbase = modulatorbase[base] + second_set;
+                        int32_t modbase = modulatorbase[base] + second_set;
 
-                        uintptr_t chanbase = base + second_set;
+                        uint32_t chanbase = base + second_set;
 
                         change_cellfreq(chanbase, modbase, &cell[cellbase]);
                         change_cellfreq(chanbase, modbase + 3, &cell[cellbase + 9]);
@@ -818,7 +818,7 @@ namespace hardware
                         if ((val & 1) > (old_val & 1)) {    //Hihat
                             cellon(17, &cell[7]);
                             change_cellfreq(7, 17, &cell[7]);
-                            uintptr_t hval = adlibreg[ARC_WAVE_SEL + 17] & 7;
+                            uint32_t hval = adlibreg[ARC_WAVE_SEL + 17] & 7;
                             if ((hval == 1) || (hval == 4) || (hval == 5) || (hval == 7)) cell[7].vol = 0;
                             if (hval == 6) {
                                 cell[7].cur_wmask = 0;
@@ -829,11 +829,11 @@ namespace hardware
                         break;
                     }
                     // regular 0xb0-0xb8
-                    uintptr_t base = (idx - ARC_KON_BNUM) & 0xff;
+                    uint32_t base = (idx - ARC_KON_BNUM) & 0xff;
                     if (base < 9) {
-                        intptr_t cellbase = second_set ? (base + 18) : base;
+                        int32_t cellbase = second_set ? (base + 18) : base;
                         // regbase of modulator:
-                        intptr_t modbase = modulatorbase[base] + second_set;
+                        int32_t modbase = modulatorbase[base] + second_set;
 
                         if ((val & 32) > (old_val & 32)) {
                             // key switched ON
@@ -846,7 +846,7 @@ namespace hardware
                             if (cell[cellbase + 9].cf_sel != CF_TYPE_OFF) cell[cellbase + 9].cf_sel = CF_TYPE_REL;
                         }
 
-                        uintptr_t chanbase = base + second_set;
+                        uint32_t chanbase = base + second_set;
 
                         // change frequency calculations of modulator and carrier (2op) as
                         // the frequency of the channel has changed
@@ -857,10 +857,10 @@ namespace hardware
                                  break;
                 case ARC_FEEDBACK: {
                     // 0xc0-0xc8 feedback/modulation type (AM/FM)
-                    uintptr_t base = (idx - ARC_FEEDBACK) & 0xff;
+                    uint32_t base = (idx - ARC_FEEDBACK) & 0xff;
                     if (base < 9) {
-                        intptr_t cellbase = second_set ? (base + 18) : base;
-                        uintptr_t chanbase = base + second_set;
+                        int32_t cellbase = second_set ? (base + 18) : base;
+                        uint32_t chanbase = base + second_set;
                         change_feedback(chanbase, &cell[cellbase]);
                     }
                 }
@@ -868,7 +868,7 @@ namespace hardware
                 case ARC_WAVE_SEL:
                 case ARC_WAVE_SEL + 0x10: {
                     int num = idx & 7;
-                    uintptr_t base = (idx - ARC_WAVE_SEL) & 0xff;
+                    uint32_t base = (idx - ARC_WAVE_SEL) & 0xff;
                     if ((num < 6) && (base < 22)) {
                         if (adlibreg[0x01] & 0x20) {
                             // wave selection enabled, change waveform
@@ -887,8 +887,8 @@ namespace hardware
             // be careful with this
             // uses cptr and chanval, outputs into outbufl(/outbufr)
             // for opl3 check if opl3-mode is enabled (which uses stereo panning)
-            void OPLChip::adlib_getsample(int16_t* sndptr, intptr_t numsamples) {
-                intptr_t i, j, endsamples;
+            void OPLChip::adlib_getsample(int16_t* sndptr, const int32_t numsamples) {
+                int32_t i, j, endsamples;
                 celltype* cptr;
 
                 double outbufl[FIFOSIZE];
@@ -897,11 +897,11 @@ namespace hardware
                 int32_t vib_lut[FIFOSIZE];
                 double trem_lut[FIFOSIZE];
 
-                intptr_t _snarek = 0;
+                int32_t _snarek = 0;
 
-                intptr_t samples_to_process = numsamples;
+                int32_t samples_to_process = numsamples;
 
-                for (intptr_t cursmp = 0; cursmp < samples_to_process; cursmp += endsamples) {
+                for (int32_t cursmp = 0; cursmp < samples_to_process; cursmp += endsamples) {
                     endsamples = samples_to_process - cursmp;
                     if (endsamples > FIFOSIZE) endsamples = FIFOSIZE;
 
@@ -1025,9 +1025,9 @@ namespace hardware
                             for (i = 0; i < endsamples; i++) {
                                 // rewrite/check this stuff (phase):
                                 _snarek = _snarek * 1664525 + 1013904223;
-                                intptr_t _snarek1 = _snarek & ((WAVPREC >> 1) - 1);
-                                intptr_t _snarek2 = _snarek & (WAVPREC - 1);
-                                intptr_t _snarek3 = _snarek & ((WAVPREC >> 3) - 1);
+                                int32_t _snarek1 = _snarek & ((WAVPREC >> 1) - 1);
+                                int32_t _snarek2 = _snarek & (WAVPREC - 1);
+                                int32_t _snarek3 = _snarek & ((WAVPREC >> 3) - 1);
                                 float snarek1, snarek2, snarek3;
                                 memcpy(&snarek1, &_snarek1, sizeof(float));
                                 memcpy(&snarek2, &_snarek2, sizeof(float));
@@ -1048,12 +1048,12 @@ namespace hardware
                         }
                     }
 
-                    uintptr_t max_channel = NUM_CHANNELS;
+                    uint32_t max_channel = NUM_CHANNELS;
                     for (j = max_channel - 1; j >= 0; j--) {
                         // skip percussion cells
                         if ((adlibreg[ARC_PERC_MODE] & 0x20) && (j >= 6) && (j < 9)) continue;
 
-                        uintptr_t k;
+                        uint32_t k;
                         cptr = &cell[j];
                         k = j;
 

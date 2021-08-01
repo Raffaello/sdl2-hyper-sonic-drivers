@@ -8,7 +8,6 @@ namespace hardware
 {
     namespace opl
     {
-        // TODO: replace intptr_t and uintptr_t with something more specific?
         namespace woody
         {
             constexpr int NUM_CHANNELS = 9;
@@ -80,25 +79,25 @@ namespace hardware
                 double sustain_level, mfb;      // sustain level, feedback amount
                 double a0, a1, a2, a3;          // attack rate function coefficients
                 double decaymul, releasemul;    // decay/release rate functions
-                uintptr_t cf_sel;                    // current state of cell (attack/decay/sustain/release/off)
-                intptr_t toff;
-                intptr_t freq_high;                 // highest three intptr_t of the frequency, used for vibrato calculations
+                uint32_t cf_sel;                    // current state of cell (attack/decay/sustain/release/off)
+                int32_t toff;
+                int32_t freq_high;                 // highest three intptr_t of the frequency, used for vibrato calculations
                 int16_t* cur_wform;              // start of selected waveform
-                uintptr_t cur_wmask;                 // mask for selected waveform
+                uint32_t cur_wmask;                 // mask for selected waveform
                 bool sus_keep;                  // keep sustain level when decay finished
                 bool vibrato, tremolo;           // vibrato/tremolo enable intptr_t
 
                 // variables used to provide non-continuous envelopes
                 double generator_pos;           // for non-standard sample rates we need to determine how many samples have passed
-                intptr_t cur_env_step;              // current (standardized) sample position
-                intptr_t env_step_a, env_step_d, env_step_r;  // number of std samples of one step (for attack/decay/release mode)
+                int32_t cur_env_step;              // current (standardized) sample position
+                int32_t env_step_a, env_step_d, env_step_r;  // number of std samples of one step (for attack/decay/release mode)
                 uint8_t step_skip_pos;            // position of 8-cyclic step skipping (always 2^x to check against mask)
-                intptr_t env_step_skip_a;           // bitmask that determines if a step is skipped (respective bit is zero then)
+                int32_t env_step_skip_a;           // bitmask that determines if a step is skipped (respective bit is zero then)
 
             } celltype;
 
-            uintptr_t adlib_reg_read(uintptr_t oplnum, uintptr_t port);
-            void adlib_reg_write(uintptr_t oplnum, uintptr_t port, uint8_t val);
+            uint32_t adlib_reg_read(uint32_t oplnum, uint32_t port);
+            void adlib_reg_write(uint32_t oplnum, uint32_t port, uint8_t val);
 
             class OPLChip
             {
@@ -124,26 +123,26 @@ namespace hardware
                 double tremtab_add;
 
                 // enable a cell
-                void cellon(uintptr_t regbase, celltype* c);
+                void cellon(const uint32_t regbase, celltype* c);
 
                 // functions to change parameters of a cell
-                void change_cellfreq(uintptr_t chanbase, uintptr_t regbase, celltype* c);
+                void change_cellfreq(const uint32_t chanbase, uint32_t regbase, celltype* c);
 
-                void change_attackrate(uintptr_t regbase, celltype* c);
-                void change_decayrate(uintptr_t regbase, celltype* c);
-                void change_releaserate(uintptr_t regbase, celltype* c);
-                void change_sustainlevel(uintptr_t regbase, celltype* c);
-                void change_waveform(uintptr_t regbase, celltype* c);
-                void change_keepsustain(uintptr_t regbase, celltype* c);
-                void change_vibrato(uintptr_t regbase, celltype* c);
+                void change_attackrate(const uint32_t regbase, celltype* c);
+                void change_decayrate(const uint32_t regbase, celltype* c);
+                void change_releaserate(const uint32_t regbase, celltype* c);
+                void change_sustainlevel(const uint32_t regbase, celltype* c);
+                void change_waveform(const uint32_t regbase, celltype* c);
+                void change_keepsustain(const uint32_t regbase, celltype* c);
+                void change_vibrato(const uint32_t regbase, celltype* c);
 
-                void change_feedback(uintptr_t chanbase, celltype* c);
+                void change_feedback(const uint32_t chanbase, celltype* c);
 
                 // general functions (only one public)
                 // TODO: review adlib_write from the original source code
-                void adlib_write(uintptr_t idx, uint8_t val, uintptr_t second_set);
+                void adlib_write(uint32_t idx, uint8_t val, uint32_t second_set);
                 // TODO: review adlib_getsample from the original source code
-                void adlib_getsample(int16_t* sndptr, intptr_t numsamples);
+                void adlib_getsample(int16_t* sndptr, const int32_t numsamples);
             private:
                 void _adlib_init();
                 int32_t _samplerate;
