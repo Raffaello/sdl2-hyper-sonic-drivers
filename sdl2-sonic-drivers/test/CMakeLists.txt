@@ -67,3 +67,9 @@ macro_test(
         "../src/hardware/opl/woody/WoodyEmuOPL.cpp"
         "../src/hardware/opl/woody/OPLChip.cpp"
 )
+
+macro_test(
+    EXE TestEndianness
+    FILES "utils/TestEndianness.cpp"
+        "../src/utils/endianness.cpp"
+)

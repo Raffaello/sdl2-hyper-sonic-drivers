@@ -1,0 +1,81 @@
+#include "endianness.hpp"
+
+namespace utils
+{
+    typedef union bytes2 {
+        int16_t i;
+        char c[sizeof(int16_t)];
+    };
+
+    typedef union bytes4 {
+        int32_t i;
+        char c[sizeof(int32_t)];
+    } bytes4;
+     
+    constexpr bool is_big_endian()
+    {
+#ifdef IS_BIG_ENDIAN
+        return true;
+#else
+        return false;
+#endif
+    }
+
+    
+    inline void swap4(bytes4& n) {
+        /*for (int j = 4 - 1, i = 0; i < j; i++, j--) {
+            char c = n.c[i];
+            n.c[i] = n.c[j];
+            n.c[j] = c;
+        }*/
+        char c = n.c[0];
+        n.c[0] = n.c[3]; n.c[3] = c;
+        c = n.c[1];
+        n.c[1] = n.c[2]; n.c[2] = c;
+    }
+    inline void swap2(bytes2& n)
+    {
+        char c = n.c[0];
+        n.c[0] = n.c[1]; n.c[1] = c;
+    }
+
+    int32_t swap32LE(const int32_t num)
+    {
+        bytes4 n = { num };
+        if constexpr (is_big_endian()) {
+            swap4(n);
+        }
+
+        return n.i;
+    }
+
+    int32_t swap32BE(const int32_t num)
+    {
+        bytes4 n = { num };
+        if constexpr (!is_big_endian()) {
+            swap4(n);
+        }
+
+        return n.i;
+    }
+
+    int16_t swap16LE(const int16_t num)
+    {
+        bytes2 n = { num };
+        if constexpr (is_big_endian()) {
+            swap2(n);
+        }
+
+        return n.i;
+    }
+
+    int16_t swap16BE(const int16_t num)
+    {
+        bytes2 n = { num };
+        if constexpr (!is_big_endian()) {
+            swap2(n);
+        }
+
+        return n.i;
+    }
+}
