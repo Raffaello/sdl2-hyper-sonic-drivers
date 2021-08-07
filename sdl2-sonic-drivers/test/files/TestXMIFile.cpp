@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <files/XMIFile.hpp>
-#include <string>
 
 namespace files
 {

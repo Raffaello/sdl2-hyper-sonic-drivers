@@ -25,6 +25,9 @@ target_sources(sdl2-sonic-drivers PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/File.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/IFFFile.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/XMIFile.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/ADLFile.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/MIDFile.cpp
+
     # ---- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/PCSpeaker.cpp
     # ---- #

@@ -115,3 +115,14 @@ macro_test(
         "fixtures/header.xmi"
         #"fixtures/1.xmi"
 )
+
+macro_test(
+    EXE TestADLFile
+    FILES "files/TestADLFile.cpp"
+        "../src/files/ADLFile.cpp"
+        "../src/files/File.cpp"
+        "../src/utils/endianness.cpp"
+    FIXTURES 
+        "fixtures/header.adl"
+        #"fixtures/1.xmi"
+)

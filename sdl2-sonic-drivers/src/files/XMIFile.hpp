@@ -1,6 +1,6 @@
 #pragma once
 
-#include "IFFFile.hpp"
+#include <files/IFFFile.hpp>
 #include <string>
 
 namespace files
