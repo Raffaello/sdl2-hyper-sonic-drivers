@@ -113,7 +113,7 @@ macro_test(
         "../src/utils/endianness.cpp"
     FIXTURES 
         "fixtures/header.xmi"
-        #"fixtures/1.xmi"
+        "fixtures/header_no_xdir.xmi"
 )
 
 macro_test(

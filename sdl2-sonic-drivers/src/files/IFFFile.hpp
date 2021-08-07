@@ -166,5 +166,6 @@ namespace files
 
         void readChunkHeader(IFF_chunk_header_t& header);
         void readSubChunkHeader(IFF_sub_chunk_header_t& header);
+        void readId(IFF_ID& iff_id);
 	};
 }

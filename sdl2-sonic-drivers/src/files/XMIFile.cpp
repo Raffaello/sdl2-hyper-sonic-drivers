@@ -5,11 +5,23 @@ namespace files
 {
     XMIFile::XMIFile(const std::string& filename) : IFFFile(filename)
     {
-        // TODO the FORM----XDIR section is optional
-        _readFormXdirChunk();
-
+        IFF_ID xmiId;
+        readId(xmiId);
+        seek(0, std::fstream::_Seekbeg);
+        switch (xmiId.id)
+        {
+        case eIFF_ID::ID_FORM:
+            _readFormXdirChunk();
+            break;
+        case eIFF_ID::ID_CAT:
+            _num_tracks = 1;
+            break;
+        default:
+            _assertValid(false);
+        }
+        _midi_events.resize(_num_tracks);
         // ---------------------------------------------------
-        // this chunk is required with at least 1 FORM
+        // this chunk is required with at least 1 FORM with 1 EVNT
         // CAT <len>XMID
         // {
         //     FORM<len>XMID
@@ -67,6 +79,7 @@ namespace files
     XMIFile::~XMIFile()
     {
     }
+
     int XMIFile::getNumTracks() const noexcept
     {
         return _num_tracks;
@@ -86,6 +99,7 @@ namespace files
         //         UWORD # of FORMs XMID in file, 1 - 65535
         // }  ]
         IFF_chunk_header_t form_xdir;
+        
         readChunkHeader(form_xdir);
         _assertValid(form_xdir.chunk.id.id == eIFF_ID::ID_FORM);
         _assertValid(form_xdir.chunk.size == sizeof(IFF_chunk_header_t) + sizeof(IFF_sub_chunk_header_t) + sizeof(uint16_t));
@@ -98,7 +112,6 @@ namespace files
 
         _num_tracks = readLE16();
         _assertValid(_num_tracks >= 1);
-        _midi_events.resize(_num_tracks);
     }
 
     void XMIFile::_readEvnt(const IFF_sub_chunk_header_t& IFF_evnt, const int16_t track)

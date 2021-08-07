@@ -20,3 +20,8 @@ void files::IFFFile::readSubChunkHeader(IFF_sub_chunk_header_t& header)
 	header.size = utils::swap32BE(header.size);
 }
 
+void files::IFFFile::readId(IFF_ID& iff_id)
+{
+	read(&iff_id, sizeof(IFF_ID));
+}
+

@@ -5,7 +5,7 @@
 
 namespace files
 {
-	class ADLFile : public File
+	class ADLFile final : public File
 	{
 	public:
 		ADLFile(const std::string& filename);
