@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.8)
+cmake_minimum_required (VERSION 3.15)
 
 find_package(GTest 1.11 CONFIG REQUIRED)
 include(GoogleTest)
@@ -9,15 +9,13 @@ macro(macro_test) # ${ARGN} link libraries
     set(prefix TEST)
     #set(flags DEFAULT)
     set(singleValues EXE)
-    set(multiValues FILES)
+    set(multiValues FILES FIXTURES)
     
     cmake_parse_arguments(${prefix} "${flags}" "${singleValues}" "${multiValues}" ${ARGN})
-    #message("${EXE} - ${FILES}")
     #message("EXE: ${TEST_EXE}")
     #message("FILES: ${TEST_FILES}")
-    #message("IS DEFAULT: ${TEST_DEFAULT}")
-    #message("IS SNAPSHOT: ${TEST_SNAPSHOT}")
-    #message("NEED SHARELIB: ${TEST_SHARELIB}")
+    message("FIXTURES: ${TEST_FIXTURES}")
+
     #message("LINKS: ${TEST_LINKS}")
     add_executable (${TEST_EXE} ${TEST_FILES})
     target_include_directories(${TEST_EXE} PUBLIC 
@@ -30,6 +28,23 @@ macro(macro_test) # ${ARGN} link libraries
         COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GTest::gtest> $<TARGET_FILE_DIR:${TEST_EXE}>
         COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GTest::gmock> $<TARGET_FILE_DIR:${TEST_EXE}>
     )
+
+    set(fixtures ${TEST_FIXTURES})
+    list(LENGTH fixtures num_fixtures)
+    unset(fixtures)
+    if(num_fixtures EQUAL 0)
+        message("${TEST_EXE}: No fixtures declared")
+    else()
+        message("${TEST_EXE} Fixtures: ${TEST_FIXTURES}")
+        foreach(fixture_i ${TEST_FIXTURES})
+            message("copy fixture ${fixture_i}")
+            add_custom_command(TARGET ${TEST_EXE} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                        ${CMAKE_CURRENT_SOURCE_DIR}/${fixture_i}
+                        ${CMAKE_CURRENT_BINARY_DIR}/${fixture_i}
+            )
+        endforeach()
+    endif()
 
     gtest_discover_tests(${TEST_EXE})
 endmacro()
@@ -96,4 +111,7 @@ macro_test(
         "../src/files/IFFFile.cpp"
         "../src/files/File.cpp"
         "../src/utils/endianness.cpp"
+    FIXTURES 
+        "fixtures/header.xmi"
+        #"fixtures/1.xmi"
 )

@@ -9,7 +9,8 @@ namespace files
     template<typename T1, typename T2, typename T3, typename T4>
     constexpr uint32_t MKID_BE(T1 a, T2  b, T3  c, T4  d) { return a | b << 8 | c << 16 | d << 24; }
     
-    enum class eIFF_ID : uint32_t {
+    enum class eIFF_ID : uint32_t
+    {
         /* Amiga 8 bits voice */
         ID_FORM = MKID_BE('F', 'O', 'R', 'M'),
         /* EA IFF 85 group identifier */
@@ -22,23 +23,22 @@ namespace files
         ID_END = MKID_BE('E', 'N', 'D', ' '),
         /* unofficial END-of-FORM identifier (see Amiga RKM Devices Ed.3
            page 376) */
-           ID_ILBM = MKID_BE('I', 'L', 'B', 'M'),
-           /* EA IFF 85 raster bitmap form */
-           ID_DEEP = MKID_BE('D', 'E', 'E', 'P'),
-           /* Chunky pixel image files (Used in TV Paint) */
-           ID_RGB8 = MKID_BE('R', 'G', 'B', '8'),
-           /* RGB image forms, Turbo Silver (Impulse) */
-           ID_RGBN = MKID_BE('R', 'G', 'B', 'N'),
-           /* RGB image forms, Turbo Silver (Impulse) */
-           ID_PBM = MKID_BE('P', 'B', 'M', ' '),
-           /* 256-color chunky format (DPaint 2 ?) */
-           ID_ACBM = MKID_BE('A', 'C', 'B', 'M'),
-           /* Amiga Contiguous Bitmap (AmigaBasic) */
-           ID_8SVX = MKID_BE('8', 'S', 'V', 'X'),
-           /* Amiga 8 bits voice */
+        ID_ILBM = MKID_BE('I', 'L', 'B', 'M'),
+        /* EA IFF 85 raster bitmap form */
+        ID_DEEP = MKID_BE('D', 'E', 'E', 'P'),
+        /* Chunky pixel image files (Used in TV Paint) */
+        ID_RGB8 = MKID_BE('R', 'G', 'B', '8'),
+        /* RGB image forms, Turbo Silver (Impulse) */
+        ID_RGBN = MKID_BE('R', 'G', 'B', 'N'),
+        /* RGB image forms, Turbo Silver (Impulse) */
+        ID_PBM = MKID_BE('P', 'B', 'M', ' '),
+        /* 256-color chunky format (DPaint 2 ?) */
+        ID_ACBM = MKID_BE('A', 'C', 'B', 'M'),
+        /* Amiga Contiguous Bitmap (AmigaBasic) */
+        ID_8SVX = MKID_BE('8', 'S', 'V', 'X'),
+        /* Amiga 8 bits voice */
 
        /* generic */
-
        ID_FVER = MKID_BE('F', 'V', 'E', 'R'),
        /* AmigaOS version string */
        ID_JUNK = MKID_BE('J', 'U', 'N', 'K'),
@@ -129,6 +129,8 @@ namespace files
        ID_SSET = MKID_BE('S', 'S', 'E', 'T'),
        ID_SINF = MKID_BE('S', 'I', 'N', 'F'),
        ID_TIMB = MKID_BE('T', 'I', 'M', 'B'),
+       ID_RBRN = MKID_BE('R', 'B', 'R', 'N'),
+    
        ID_XDIR = MKID_BE('X', 'D', 'I', 'R'),
        ID_XMID = MKID_BE('X', 'M', 'I', 'D'),
        ID_FILLER = MKID_BE(0, 0, 0, 0)
@@ -150,21 +152,19 @@ namespace files
 
         typedef struct
         {
-            IFF_ID   id;   // char[4]
-            uint32_t size; /* sizeof(ckData) */
-        } IFF_chunk_header_t;
-        static_assert(sizeof(IFF_chunk_header_t) == 8);
+            IFF_ID   id;
+            uint32_t size = 0;  // <! Big Endian
+        } IFF_sub_chunk_header_t;
+        static_assert(sizeof(IFF_sub_chunk_header_t) == 8);
 
-        typedef struct 
-       {
-           IFF_ID   name1;
-           IFF_ID   name2;
-           uint32_t size = 0;  // <! Big Endian
-       } IFF_sub_chunk_header_t;
-       static_assert(sizeof(IFF_sub_chunk_header_t) == 12);
+        typedef struct
+        {
+            IFF_sub_chunk_header_t chunk;
+            IFF_ID                 type; 
+        } IFF_chunk_header_t;
+        static_assert(sizeof(IFF_chunk_header_t) == 12);
 
         void readChunkHeader(IFF_chunk_header_t& header);
         void readSubChunkHeader(IFF_sub_chunk_header_t& header);
-	private:
 	};
 }

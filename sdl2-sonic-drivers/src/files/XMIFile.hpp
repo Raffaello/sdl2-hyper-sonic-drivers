@@ -11,7 +11,10 @@ namespace files
         XMIFile(const std::string& filename);
         virtual ~XMIFile();
 
+        int getNumTracks() const noexcept;
     private:
-        int _songs;
+        void _readFormXdirChunk();
+        void _readEvnt(const IFF_sub_chunk_header_t& IFF_evnt);
+        int _num_tracks;
     };
 }

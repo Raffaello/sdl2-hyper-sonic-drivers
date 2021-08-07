@@ -7,7 +7,9 @@ namespace files
 {
     TEST(XMIFile, cstorDefault)
     {
-        XMIFile f("");
+        XMIFile f("fixtures/header.xmi");
+        EXPECT_EQ(f.size(), 56);
+        EXPECT_EQ(f.getNumTracks(), 1);
     }
 
     TEST(XMIFile, file_not_valid)
