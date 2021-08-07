@@ -35,7 +35,7 @@ namespace files
         //_assertValid(cat.chunk.size == ???); // file size minus the previous form and 4 char?
         _assertValid(cat.type.id == eIFF_ID::ID_XMID);
 
-        for (int form = 0; form < _num_tracks; form++)
+        for (int track = 0; track < _num_tracks; track++)
         {
             IFF_chunk_header_t form_xmid;
             readChunkHeader(form_xmid);
@@ -54,7 +54,7 @@ namespace files
                     throw std::runtime_error("ID_RBRN: not implemented yet");
                     break;
                 case eIFF_ID::ID_EVNT:
-                    _readEvnt(chunk);
+                    _readEvnt(chunk, track);
                     break;
                 default:
                     std::string s(chunk.id.str, 4);
@@ -70,6 +70,11 @@ namespace files
     int XMIFile::getNumTracks() const noexcept
     {
         return _num_tracks;
+    }
+
+    const std::vector<uint8_t>& XMIFile::getTrack(const uint16_t track) const noexcept
+    {
+        return _midi_events[track];
     }
 
     void XMIFile::_readFormXdirChunk()
@@ -93,33 +98,17 @@ namespace files
 
         _num_tracks = readLE16();
         _assertValid(_num_tracks >= 1);
+        _midi_events.resize(_num_tracks);
     }
-    void XMIFile::_readEvnt(const IFF_sub_chunk_header_t& IFF_evnt)
+
+    void XMIFile::_readEvnt(const IFF_sub_chunk_header_t& IFF_evnt, const int16_t track)
     {
         // { UBYTE interval count(if < 128)
         //     UBYTE <MIDI event>(if > 127) } ...
-        int i = 0;
-        do
-        {
-            uint8_t value = readU8();
-            i++;
-            if (value < 128) {
-                // interval count, a.k.a delay
-                for (int j = 0; j < value; j++)
-                {
-                    // followed by interval count midi value???
-                    uint8_t midi_value = readU8();
-                }
-            }
-            else {
-                // midi event
-                uint8_t midi_value = readU8();
-                i++;
-            }
-        } while (i < IFF_evnt.size);
-
-        
-       
-        throw std::invalid_argument("IFF_EVNT: not implemented yet");
+        _assertValid(_midi_events[track].size() == 0);
+        for (int i = 0; i < IFF_evnt.size; i++) {
+            _midi_events[track].push_back(readU8());
+        }
+        _assertValid(_midi_events[track].size() == IFF_evnt.size);
     }
 }
