@@ -3,7 +3,7 @@
 #include <utils/endianness.hpp>
 
 files::IFFFile::IFFFile(const std::string& filename) : File(filename)
-{	
+{
 }
 
 files::IFFFile::~IFFFile() = default;

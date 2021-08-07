@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.8)
 
-find_package(GTest 1.10 CONFIG REQUIRED)
+find_package(GTest 1.11 CONFIG REQUIRED)
 include(GoogleTest)
 include(CMakeParseArguments)
 
@@ -71,5 +71,29 @@ macro_test(
 macro_test(
     EXE TestEndianness
     FILES "utils/TestEndianness.cpp"
+        "../src/utils/endianness.cpp"
+)
+
+macro_test(
+    EXE TestFile
+    FILES "files/TestFile.cpp"
+        "../src/files/File.cpp"
+        "../src/utils/endianness.cpp"
+)
+
+macro_test(
+    EXE TestIFFFile
+    FILES "files/TestIFFFile.cpp"
+        "../src/files/IFFFile.cpp"
+        "../src/files/File.cpp"
+        "../src/utils/endianness.cpp"
+)
+
+macro_test(
+    EXE TestXMIFile
+    FILES "files/TestXMIFile.cpp"
+        "../src/files/XMIFile.cpp"
+        "../src/files/IFFFile.cpp"
+        "../src/files/File.cpp"
         "../src/utils/endianness.cpp"
 )

@@ -1,21 +1,21 @@
 #pragma once
 
-//#include <SDL2/SDL.h>
 #include <string>
 #include <stdexcept>
 #include <fstream>
-//#include <iostream>
 
 class File
 {
 public:
     File(const std::string& filename);
+    File() = delete;
     virtual ~File();
 
     uintmax_t size() const noexcept;
     std::streampos tell() noexcept;
     void seek(const std::streamoff offs, const std::fstream::_Seekdir whence = std::fstream::beg);
     void read(void* buf, std::streamsize size);
+    void close();
 
 protected:
     const std::string _filename;

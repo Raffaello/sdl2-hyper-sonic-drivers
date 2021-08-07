@@ -6,9 +6,9 @@
 
 namespace files
 {
-template<typename T1, typename T2, typename T3, typename T4>
-constexpr uint32_t MKID_BE(T1 a, T2  b, T3  c, T4  d) { return a | b << 8 | c << 16 | d << 24; }
-
+    template<typename T1, typename T2, typename T3, typename T4>
+    constexpr uint32_t MKID_BE(T1 a, T2  b, T3  c, T4  d) { return a | b << 8 | c << 16 | d << 24; }
+    
     enum class eIFF_ID : uint32_t {
         /* Amiga 8 bits voice */
         ID_FORM = MKID_BE('F', 'O', 'R', 'M'),

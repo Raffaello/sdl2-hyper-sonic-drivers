@@ -16,9 +16,7 @@ File::File(const string& filename): _filename(filename)
 
 File::~File()
 {
-    if (_file.is_open()) {
-        _file.close();
-    }
+    this->close();
 }
 
 std::streampos File::tell() noexcept
@@ -46,6 +44,13 @@ void File::read(void* buf, std::streamsize size)
     }
 }
 
+void File::close()
+{
+    if (_file.is_open()) {
+        _file.close();
+    }
+}
+
 std::string File::_readStringFromFile()
 {
     string filename;
@@ -62,7 +67,7 @@ std::string File::_readStringFromFile()
 
 uint16_t File::readLE16()
 {
-    int16_t i;
+    int16_t i = 0;
 
     if (!_file.read(reinterpret_cast<char*>(&i), sizeof(int16_t))) {
         throw std::system_error(errno, std::system_category(), "Cannot read file: " + _filename);
@@ -73,7 +78,7 @@ uint16_t File::readLE16()
 
 uint32_t File::readLE32()
 {
-    int32_t i;
+    int32_t i = 0;
 
     if (!_file.read(reinterpret_cast<char*>(&i), sizeof(int32_t))) {
         throw std::system_error(errno, std::system_category(), "Cannot read file: " + _filename);
@@ -84,7 +89,7 @@ uint32_t File::readLE32()
 
 uint8_t File::readU8()
 {
-    uint8_t i;
+    uint8_t i = 0;
 
     if (!_file.read(reinterpret_cast<char*>(&i), sizeof(uint8_t))) {
         throw std::system_error(errno, std::system_category(), "Cannot read file: " + _filename);
@@ -95,7 +100,7 @@ uint8_t File::readU8()
 
 uint32_t File::readBE32()
 {
-    int32_t i;
+    int32_t i = 0;
 
     if (!_file.read(reinterpret_cast<char*>(&i), sizeof(int32_t))) {
         throw std::system_error(errno, std::system_category(), "Cannot read file: " + _filename);
