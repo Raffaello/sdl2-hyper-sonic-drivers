@@ -30,5 +30,5 @@ TODO
 - GM
 - GUS
 - PC Speaker (8 bit, 16 bit, 32-bit processing)
-- XMI format (xmidi)
+- XMI format (xmidi) (Westwood .PCS .C55 .TAN are XMI files)
 - render to digital wave or mp3
