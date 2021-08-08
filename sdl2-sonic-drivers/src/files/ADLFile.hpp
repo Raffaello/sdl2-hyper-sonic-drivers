@@ -9,5 +9,10 @@ namespace files
 	{
 	public:
 		ADLFile(const std::string& filename);
+		uint8_t getVersion() const noexcept;
+	private:
+		uint8_t _version = 0;
+		void _detectVersion();
+		void _validateVersion();
 	};
 }

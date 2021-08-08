@@ -4,9 +4,25 @@
 
 namespace files
 {
-    TEST(ADLFile, cstorDefault)
+    TEST(ADLFile, ADLv1)
     {
+        ADLFile f("fixtures/EOBSOUND.ADL");
+        EXPECT_EQ(f.getVersion(), 1);
        
+    }
+
+    TEST(ADLFile, ADLv2)
+    {
+        ADLFile f("fixtures/DUNE19.ADL");
+        EXPECT_EQ(f.getVersion(), 2);
+
+    }
+
+    TEST(ADLFile, ADLv3)
+    {
+        ADLFile f("fixtures/LOREINTR.ADL");
+        EXPECT_EQ(f.getVersion(), 3);
+
     }
 
     TEST(ADLFile, file_not_valid)

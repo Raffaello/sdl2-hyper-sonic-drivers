@@ -124,6 +124,8 @@ macro_test(
         "../src/files/File.cpp"
         "../src/utils/endianness.cpp"
     FIXTURES 
-        "fixtures/header.adl"
-        #"fixtures/1.xmi"
+        #"fixtures/header.adl"
+        "fixtures/EOBSOUND.ADL" # v1
+        "fixtures/DUNE19.ADL"   # v2
+        "fixtures/LOREINTR.ADL" # v3
 )
