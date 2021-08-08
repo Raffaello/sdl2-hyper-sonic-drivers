@@ -17,7 +17,12 @@ namespace files
     private:
         void _readFormXdirChunk();
         void _readEvnt(const IFF_sub_chunk_header_t& IFF_evnt, const int16_t track);
+        void _readTimb(const IFF_sub_chunk_header_t& IFF_timb, const int16_t track);
+        void _readRbrn(const IFF_sub_chunk_header_t& IFF_rbrn, const int16_t track);
         int _num_tracks;
         std::vector<std::vector<uint8_t>> _midi_events;
+        std::vector<std::vector<uint8_t>> _timbre_patch_numbers;
+        std::vector<std::vector<uint8_t>> _timbre_bank;
+        
     };
 }

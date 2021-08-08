@@ -19,7 +19,10 @@ namespace files
         default:
             _assertValid(false);
         }
+
         _midi_events.resize(_num_tracks);
+        _timbre_patch_numbers.resize(_num_tracks);
+        _timbre_bank.resize(_num_tracks);
         // ---------------------------------------------------
         // this chunk is required with at least 1 FORM with 1 EVNT
         // CAT <len>XMID
@@ -60,10 +63,10 @@ namespace files
                 switch (chunk.id.id)
                 {
                 case eIFF_ID::ID_TIMB:
-                    throw std::runtime_error("ID_TIMB: not implemented yet");
+                    _readTimb(chunk, track);
                     break;
                 case eIFF_ID::ID_RBRN:
-                    throw std::runtime_error("ID_RBRN: not implemented yet");
+                    _readRbrn(chunk, track);
                     break;
                 case eIFF_ID::ID_EVNT:
                     _readEvnt(chunk, track);
@@ -102,7 +105,7 @@ namespace files
         
         readChunkHeader(form_xdir);
         _assertValid(form_xdir.chunk.id.id == eIFF_ID::ID_FORM);
-        _assertValid(form_xdir.chunk.size == sizeof(IFF_chunk_header_t) + sizeof(IFF_sub_chunk_header_t) + sizeof(uint16_t));
+        _assertValid(form_xdir.chunk.size == sizeof(IFF_chunk_header_t) + sizeof(uint16_t));
         _assertValid(form_xdir.type.id == eIFF_ID::ID_XDIR);
 
         IFF_sub_chunk_header_t xdir_info;
@@ -123,5 +126,27 @@ namespace files
             _midi_events[track].push_back(readU8());
         }
         _assertValid(_midi_events[track].size() == IFF_evnt.size);
+    }
+    void XMIFile::_readTimb(const IFF_sub_chunk_header_t& IFF_timb, const int16_t track)
+    {
+        //             UWORD # of timbre list entries, 0 - 16384
+        //           { UBYTE patch number 0 - 127
+        //             UBYTE timbre bank 0 - 127 } ...]
+        _assertValid(_timbre_patch_numbers[track].size() == 0 && _timbre_bank[track].size() == 0);
+        const uint16_t timbre_list_entries = readLE16();
+        _assertValid(timbre_list_entries == (IFF_timb.size - sizeof(uint16_t)) / 2);
+        for (int i = 0; i < timbre_list_entries; i++)
+        {
+            _timbre_patch_numbers[track].push_back(readU8());
+            _timbre_bank[track].push_back(readU8());
+        }
+        _assertValid(timbre_list_entries == _timbre_patch_numbers.size() && timbre_list_entries == _timbre_bank.size());
+    }
+    void XMIFile::_readRbrn(const IFF_sub_chunk_header_t& IFF_rbrn, const int16_t track)
+    {
+        //             UWORD # of branch point offsets, 0 - 127
+        //           { UWORD Sequence Branch Index controller value 0 - 127
+        //             ULONG controller offset from start of EVNT chunk } ...]
+        throw std::runtime_error("ID_RBRN: not implemented yet");
     }
 }

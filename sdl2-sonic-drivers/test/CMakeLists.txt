@@ -114,6 +114,7 @@ macro_test(
     FIXTURES 
         "fixtures/header.xmi"
         "fixtures/header_no_xdir.xmi"
+        "fixtures/AIL2_14_DEMO.XMI"
 )
 
 macro_test(

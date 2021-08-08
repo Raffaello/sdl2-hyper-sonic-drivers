@@ -6,6 +6,7 @@
 #include <SDL_mixer.h>
 #include <hardware/PCSpeaker.hpp>
 #include <drivers/miles/XMidi.hpp>
+#include <files/XMIFile.hpp>
 
 using namespace std;
 
@@ -368,8 +369,8 @@ int main(int argc, char* argv[])
     SDL_CloseAudio();
 
     //drivers::miles::XMidi::readDriver("ALGDIG.ADV");
-
-    adl();
+    //files::XMIFile f("SPKRDEMO.XMI");
+    //adl();
    
     // TODO: 32 bit audio
     //pcspkr(44100, AUDIO_S32, 2, 1024);

@@ -124,7 +124,7 @@ namespace files
     void File::_assertValid(const bool expr) const
     {
         if (!expr) {
-            std::string str = std::string("Not a valid file: ") + std::string(typeid(*this).name());
+            std::string str = std::string("Not a valid file: ") + _filename + " (" + std::string(typeid(*this).name()) + ")";
             throw std::invalid_argument(str.c_str());
         }
     }

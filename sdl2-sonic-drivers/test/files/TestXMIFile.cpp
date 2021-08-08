@@ -42,6 +42,17 @@ namespace files
         EXPECT_EQ(t[0], 0xA0);
         EXPECT_EQ(t[1], 0xB0);
     }
+
+    TEST(XMIFile, AIL2_14_DEMOXmi)
+    {
+        XMIFile f("fixtures/AIL2_14_DEMO.XMI");
+        EXPECT_EQ(f.size(), 26950);
+        EXPECT_EQ(f.getNumTracks(), 3);
+    }
+
+    TEST(XMIFile, full)
+    {
+    }
 }
 
 int main(int argc, char** argv)
