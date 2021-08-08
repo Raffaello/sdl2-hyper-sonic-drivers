@@ -140,7 +140,10 @@ namespace files
             _timbre_patch_numbers[track].push_back(readU8());
             _timbre_bank[track].push_back(readU8());
         }
-        _assertValid(timbre_list_entries == _timbre_patch_numbers.size() && timbre_list_entries == _timbre_bank.size());
+        _assertValid(
+            timbre_list_entries == _timbre_patch_numbers[track].size() 
+            && timbre_list_entries == _timbre_bank[track].size()
+        );
     }
     void XMIFile::_readRbrn(const IFF_sub_chunk_header_t& IFF_rbrn, const int16_t track)
     {
