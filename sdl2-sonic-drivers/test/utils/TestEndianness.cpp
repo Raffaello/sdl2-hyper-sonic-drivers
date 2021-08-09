@@ -4,24 +4,24 @@
 
 namespace utils
 {
-    TEST(Endianness, swap16LE)
+    TEST(Endianness, read16LE)
     {
-        EXPECT_EQ(swap16LE(0x00A0), 0x00A0);
+        EXPECT_EQ(read16LE(0x00A0), 0x00A0);
     }
 
-    TEST(Endianness, swap16BE)
+    TEST(Endianness, read16BE)
     {
-        EXPECT_EQ(swap16BE(0x00A0), static_cast<int16_t>(0xA000));
+        EXPECT_EQ(read16BE(0x00A0), static_cast<int16_t>(0xA000));
     }
 
-    TEST(Endianness, swap32LE)
+    TEST(Endianness, readLE32)
     {
-        EXPECT_EQ(swap32LE(0x000000A0), 0x000000A0);
+        EXPECT_EQ(readLE32(0x000000A0), 0x000000A0);
     }
 
-    TEST(Endianness, swap32BE)
+    TEST(Endianness, read32BE)
     {
-        EXPECT_EQ(swap32BE(0x000000A0), 0xA0000000);
+        EXPECT_EQ(read32BE(0x000000A0), 0xA0000000);
     }
 }
 

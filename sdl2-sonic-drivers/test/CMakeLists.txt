@@ -14,7 +14,7 @@ macro(macro_test) # ${ARGN} link libraries
     cmake_parse_arguments(${prefix} "${flags}" "${singleValues}" "${multiValues}" ${ARGN})
     #message("EXE: ${TEST_EXE}")
     #message("FILES: ${TEST_FILES}")
-    message("FIXTURES: ${TEST_FIXTURES}")
+    #message("FIXTURES: ${TEST_FIXTURES}")
 
     #message("LINKS: ${TEST_LINKS}")
     add_executable (${TEST_EXE} ${TEST_FILES})
@@ -124,7 +124,6 @@ macro_test(
         "../src/files/File.cpp"
         "../src/utils/endianness.cpp"
     FIXTURES 
-        #"fixtures/header.adl"
         "fixtures/EOBSOUND.ADL" # v1
         "fixtures/DUNE19.ADL"   # v2
         "fixtures/LOREINTR.ADL" # v3

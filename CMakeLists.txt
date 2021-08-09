@@ -12,10 +12,10 @@ project ("sdl2-sonic-drivers" VERSION 0.1.0 DESCRIPTION "SDL2 mixer Sonic Driver
 include (TestBigEndian)
 TEST_BIG_ENDIAN(IS_BIG_ENDIAN)
 if(IS_BIG_ENDIAN)
- message(STATUS "BIG_ENDIAN")
- add_compile_definitions(-DIS_BIG_ENDIAN)
+  message(STATUS "BIG_ENDIAN")
+  add_compile_definitions(-DIS_BIG_ENDIAN)
 else()
- message(STATUS "LITTLE_ENDIAN")
+  message(STATUS "LITTLE_ENDIAN")
 endif()
 
 

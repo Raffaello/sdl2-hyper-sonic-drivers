@@ -4,13 +4,6 @@
 
 namespace files
 {
-    TEST(XMIFile, cstorDefault)
-    {
-        XMIFile f("fixtures/header.xmi");
-        EXPECT_EQ(f.size(), 56);
-        EXPECT_EQ(f.getNumTracks(), 1);
-    }
-
     TEST(XMIFile, file_not_valid)
     {
         EXPECT_THROW(XMIFile f("TestXMIFile.exe"), std::invalid_argument);
@@ -48,10 +41,6 @@ namespace files
         XMIFile f("fixtures/AIL2_14_DEMO.XMI");
         EXPECT_EQ(f.size(), 26950);
         EXPECT_EQ(f.getNumTracks(), 3);
-    }
-
-    TEST(XMIFile, full)
-    {
     }
 }
 

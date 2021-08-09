@@ -136,12 +136,12 @@ namespace files
        ID_FILLER = MKID_BE(0, 0, 0, 0)
     };
 
-	class IFFFile : public File
-	{
-	public:
-		IFFFile(const std::string& filename);
-		virtual ~IFFFile();
-	protected:
+    class IFFFile : public File
+    {
+    public:
+        IFFFile(const std::string& filename);
+        virtual ~IFFFile();
+    protected:
         typedef union
         {
             char     str[4];
@@ -167,5 +167,5 @@ namespace files
         void readChunkHeader(IFF_chunk_header_t& header);
         void readSubChunkHeader(IFF_sub_chunk_header_t& header);
         void readId(IFF_ID& iff_id);
-	};
+    };
 }

@@ -371,8 +371,8 @@ int main(int argc, char* argv[])
 
     //drivers::miles::XMidi::readDriver("ALGDIG.ADV");
     //files::XMIFile f("SPKRDEMO.XMI");
-    files::ADLFile f("EOBSOUND.ADL");
-    cout << "ADL VERSION: " << f.getVersion() << endl;
+    //files::ADLFile f("EOBSOUND.ADL");
+    //cout << "ADL VERSION: " << f.getVersion() << endl;
         
     //adl();
    
