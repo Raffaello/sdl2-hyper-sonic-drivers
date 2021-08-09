@@ -13,7 +13,7 @@ namespace files
 
     TEST(XMIFile, file_not_valid)
     {
-        EXPECT_THROW(XMIFile f("TestFile.exe"), std::invalid_argument);
+        EXPECT_THROW(XMIFile f("TestXMIFile.exe"), std::invalid_argument);
     }
 
     TEST(XMIFile, file_not_found)

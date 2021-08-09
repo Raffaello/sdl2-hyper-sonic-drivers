@@ -30,7 +30,7 @@ namespace files
 
     TEST(ADLFile, file_not_valid)
     {
-        EXPECT_THROW(ADLFile f("TestFile.exe"), std::invalid_argument);
+        EXPECT_THROW(ADLFile f("TestADLFile.exe"), std::invalid_argument);
     }
 
     TEST(ADLFile, file_not_found)

@@ -7,7 +7,7 @@ namespace files
 {
     TEST(IFFFile, cstorDefault)
     {
-        IFFFile f("TestFile.exe");
+        IFFFile f("TestIFFFile.exe");
         EXPECT_EQ(f.tell(), 0);
         f.close();
     }
