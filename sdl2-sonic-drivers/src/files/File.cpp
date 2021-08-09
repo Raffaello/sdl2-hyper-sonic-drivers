@@ -75,7 +75,7 @@ namespace files
             throw std::system_error(errno, std::system_category(), "Cannot read file: " + _filename);
         }
 
-        return utils::read16LE(i);
+        return utils::swapLE16(i);
     }
 
     uint32_t File::readLE32()
@@ -86,7 +86,7 @@ namespace files
             throw std::system_error(errno, std::system_category(), "Cannot read file: " + _filename);
         }
 
-        return utils::readLE32(i);
+        return utils::swapLE32(i);
     }
 
     uint8_t File::readU8()
@@ -108,7 +108,7 @@ namespace files
             throw std::system_error(errno, std::system_category(), "Cannot read file: " + _filename);
         }
 
-        return utils::read32BE(i);
+        return utils::swapBE32(i);
     }
 
     std::string File::_getFilename() const noexcept
