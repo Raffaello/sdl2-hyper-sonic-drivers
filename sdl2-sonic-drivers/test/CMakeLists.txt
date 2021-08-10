@@ -128,3 +128,9 @@ macro_test(
         "fixtures/DUNE19.ADL"   # v2
         "fixtures/LOREINTR.ADL" # v3
 )
+
+macro_test(
+    EXE TestADLDriver
+    FILES "drivers/westwood/TestADLDriver.cpp"
+        "../src/drivers/westwood/ADLDriver.cpp"
+)
