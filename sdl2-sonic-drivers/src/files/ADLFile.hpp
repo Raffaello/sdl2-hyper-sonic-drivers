@@ -15,6 +15,7 @@ namespace files
         uint8_t getVersion() const noexcept;
         int getNumTracks() const noexcept;
         int getNumInstruments() const noexcept;
+
     private:
         uint8_t _version = 0;
         void _detectVersion();

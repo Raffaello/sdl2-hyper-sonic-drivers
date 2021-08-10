@@ -31,6 +31,7 @@ namespace files
         std::string _getFilename() const noexcept;
         std::string _getPath() const noexcept;
         void _assertValid(const bool expr) const;
+
     private:
         std::fstream  _file;
     };

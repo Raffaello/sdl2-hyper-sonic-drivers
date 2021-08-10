@@ -23,6 +23,5 @@ namespace files
         std::vector<std::vector<uint8_t>> _midi_events;
         std::vector<std::vector<uint8_t>> _timbre_patch_numbers;
         std::vector<std::vector<uint8_t>> _timbre_bank;
-        
     };
 }
