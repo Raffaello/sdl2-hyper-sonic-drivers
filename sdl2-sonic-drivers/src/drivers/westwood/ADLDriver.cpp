@@ -49,6 +49,9 @@ namespace drivers
         void ADLDriver::setADLFile(std::shared_ptr<files::ADLFile> adl_file) noexcept
         {
             _adl_file = adl_file;
+            _soundDataSize = _adl_file->getDataSize();
+            // TODO: refactor, remove pointers.
+            _soundData = const_cast<uint8_t*>(_adl_file->getDataPtr());
         }
 
         void ADLDriver::initDriver()
@@ -985,8 +988,6 @@ namespace drivers
                 return nullptr;
             }
 
-            //TODO: move in the ADLFile
-
             // Safety check: invalid progId would crash.
             if (progId < 0 || progId >= (int32_t)_soundDataSize / 2)
                 return nullptr;
@@ -1011,9 +1012,28 @@ namespace drivers
 
         const uint8_t* ADLDriver::getInstrument(int instrumentId)
         {
-            // TODO: Move in ADLFile
+            // TODO: Refactor
 
-            return getProgram(_numPrograms + instrumentId);
+            //return getProgram(_numPrograms + instrumentId);
+            if (_adl_file == nullptr) {
+                spdlog::error("ADLDriver::getInstrument(): no ADL file loaded.");
+                return nullptr;
+            }
+
+
+            // Safety check: invalid progId would crash.
+            if (instrumentId < 0 || instrumentId >= (int32_t)_soundDataSize / 2)
+                return nullptr;
+
+            //const uint16_t offset = READ_LE_UINT16(_soundData + 2 * progId);
+            const uint16_t offset = _adl_file->getInstrument(instrumentId);
+            
+            if (offset == 0 || offset >= _soundDataSize) {
+                return nullptr;
+            }
+            else {
+                return _soundData + offset;
+            }
         }
 
         int ADLDriver::update_setRepeat(Channel& channel, const uint8_t* values)

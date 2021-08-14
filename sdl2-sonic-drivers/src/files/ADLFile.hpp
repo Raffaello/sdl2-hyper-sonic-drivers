@@ -19,6 +19,7 @@ namespace files
         uint16_t getInstrument(const int instrument) const;
         uint32_t getDataSize() const noexcept;
         std::vector<uint8_t> getData() const noexcept;
+        const uint8_t* getDataPtr() const noexcept;
 
     private:
         uint8_t _version = 0;

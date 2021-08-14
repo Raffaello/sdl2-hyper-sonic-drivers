@@ -107,6 +107,11 @@ namespace files
         return _data;
     }
 
+    const uint8_t* ADLFile::getDataPtr() const noexcept
+    {
+        return _data.data();
+    }
+
     void ADLFile::_detectVersion()
     {
         seek(0, std::fstream::beg);
