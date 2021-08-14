@@ -235,8 +235,6 @@ namespace drivers
             int _curChannel = 0;
             uint8_t _soundTrigger = 0;
 
-            
-
             uint8_t _beatDivider = 0;
             uint8_t _beatDivCnt = 0;
             uint8_t _callbackTimer = 0xFF;
@@ -280,7 +278,7 @@ namespace drivers
             int _programQueueEnd = 0;
             bool _retrySounds = false;
 
-            void adjustSfxData(uint8_t* data, int volume);
+            void adjustSfxData(uint8_t* ptr, int volume);
  
             uint8_t* _sfxPointer = nullptr;
             int _sfxPriority;

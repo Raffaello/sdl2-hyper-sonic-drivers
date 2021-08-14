@@ -8,7 +8,8 @@ set(CMAKE_DEBUG_POSTFIX d)
 
 find_package(SDL2 CONFIG REQUIRED)
 find_package(sdl2-mixer CONFIG REQUIRED)
-find_package(spdlog REQUIRED) # used in ADLDriver
+#find_package(fmt CONFIG REQUIRED)
+find_package(spdlog 1.9.0 CONFIG REQUIRED) # used in ADLDriver
 
 configure_file("version.h.in" "version.h")
 

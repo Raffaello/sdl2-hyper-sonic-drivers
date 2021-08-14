@@ -16,7 +16,6 @@ macro(macro_test) # ${ARGN} link libraries
     #message("FILES: ${TEST_FILES}")
     #message("FIXTURES: ${TEST_FIXTURES}")
     #message("LINKS_PRIVATE: ${TEST_LINKS_PRIVATE}")
-    #message("LINKS: ${TEST_LINKS}")
     add_executable (${TEST_EXE} ${TEST_FILES})
     target_include_directories(${TEST_EXE} PUBLIC 
         ${CMAKE_SOURCE_DIR}/sdl2-sonic-drivers/src
@@ -46,7 +45,7 @@ macro(macro_test) # ${ARGN} link libraries
         endforeach()
     endif()
 
-    target_link_libraries(${TEST_EXE} PRIVATE ${TEST_LINKS})
+    target_link_libraries(${TEST_EXE} PRIVATE ${TEST_LINKS_PRIVATE})
 
     gtest_discover_tests(${TEST_EXE})
 endmacro()
