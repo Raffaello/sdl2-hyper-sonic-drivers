@@ -25,7 +25,7 @@
 
 
 #include <stdint.h> // for uintxx_t
-#include <hardware/opl/woody/OPL.hpp>
+#include <hardware/opl/OPL.hpp>
 
 namespace hardware
 {

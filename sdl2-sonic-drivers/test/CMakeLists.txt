@@ -71,7 +71,7 @@ macro_test(
 macro_test(
     EXE TestWoodyEmuOPL
     FILES "hardware/opl/woody/TestWoodyEmuOPL.cpp"
-        "../src/hardware/opl/woody/OPL.CPP"
+        "../src/hardware/opl/OPL.CPP"
         "../src/hardware/opl/woody/WoodyEmuOPL.cpp"
         "../src/hardware/opl/woody/OPLChip.cpp"
 )
@@ -79,7 +79,7 @@ macro_test(
 macro_test(
     EXE TestSurroundOPL
     FILES "hardware/opl/woody/TestSurroundOPL.cpp"
-        "../src/hardware/opl/woody/OPL.CPP"
+        "../src/hardware/opl/OPL.CPP"
         "../src/hardware/opl/woody/SurroundOPL.cpp"
         "../src/hardware/opl/woody/WoodyEmuOPL.cpp"
         "../src/hardware/opl/woody/OPLChip.cpp"

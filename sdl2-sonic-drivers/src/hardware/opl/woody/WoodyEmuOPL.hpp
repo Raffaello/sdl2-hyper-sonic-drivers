@@ -1,6 +1,6 @@
 #pragma once
 
-#include <hardware/opl/woody/OPL.hpp>
+#include <hardware/opl/OPL.hpp>
 #include "OPLChip.hpp"
 
 namespace hardware
