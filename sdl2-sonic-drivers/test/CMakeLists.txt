@@ -9,13 +9,13 @@ macro(macro_test) # ${ARGN} link libraries
     set(prefix TEST)
     #set(flags DEFAULT)
     set(singleValues EXE)
-    set(multiValues FILES FIXTURES)
+    set(multiValues FILES FIXTURES LINKS_PRIVATE)
     
     cmake_parse_arguments(${prefix} "${flags}" "${singleValues}" "${multiValues}" ${ARGN})
     #message("EXE: ${TEST_EXE}")
     #message("FILES: ${TEST_FILES}")
     #message("FIXTURES: ${TEST_FIXTURES}")
-
+    #message("LINKS_PRIVATE: ${TEST_LINKS_PRIVATE}")
     #message("LINKS: ${TEST_LINKS}")
     add_executable (${TEST_EXE} ${TEST_FILES})
     target_include_directories(${TEST_EXE} PUBLIC 
@@ -45,6 +45,8 @@ macro(macro_test) # ${ARGN} link libraries
             )
         endforeach()
     endif()
+
+    target_link_libraries(${TEST_EXE} PRIVATE ${TEST_LINKS})
 
     gtest_discover_tests(${TEST_EXE})
 endmacro()
@@ -133,4 +135,5 @@ macro_test(
     EXE TestADLDriver
     FILES "drivers/westwood/TestADLDriver.cpp"
         "../src/drivers/westwood/ADLDriver.cpp"
+    LINKS_PRIVATE spdlog::spdlog
 )

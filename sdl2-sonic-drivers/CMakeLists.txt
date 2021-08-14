@@ -8,7 +8,8 @@ set(CMAKE_DEBUG_POSTFIX d)
 
 find_package(SDL2 CONFIG REQUIRED)
 find_package(sdl2-mixer CONFIG REQUIRED)
-    
+find_package(spdlog REQUIRED) # used in ADLDriver
+
 configure_file("version.h.in" "version.h")
 
 
@@ -44,6 +45,7 @@ target_include_directories(sdl2-sonic-drivers PUBLIC
 )
 
 target_link_libraries(sdl2-sonic-drivers PRIVATE SDL2::SDL2 SDL2::SDL2main SDL2::SDL2_mixer)
+target_link_libraries(sdl2-sonic-drivers PRIVATE spdlog::spdlog)
 if(BUILD_TESTING)
     add_subdirectory("test")
 endif()
