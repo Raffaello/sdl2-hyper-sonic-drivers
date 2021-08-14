@@ -1,8 +1,10 @@
 #pragma once
 
-#include<cstdint>
-#include<hardware/opl/OPL.hpp> // TODO: Replace with a generic OPL interface
+#include <cstdint>
+#include <hardware/opl/OPL.hpp> // TODO: Replace with a generic OPL interface
 #include <mutex>
+#include <files/ADLFile.hpp>
+#include <memory>
 
 namespace drivers
 {
@@ -29,7 +31,9 @@ namespace drivers
         public:
             // AdLibDriver(Audio::Mixer *mixer, int version);
             ADLDriver(hardware::opl::OPL* opl);
+            ADLDriver(hardware::opl::OPL* opl, std::shared_ptr<files::ADLFile> adl_file);
             ~ADLDriver();
+            void setADLFile(std::shared_ptr<files::ADLFile> adl_file) noexcept;
             void initDriver();
             void setSoundData(uint8_t* data, const uint32_t size); /*override*/;
             void startSound(const int track, const int volume); /*override*/;
@@ -52,6 +56,7 @@ namespace drivers
         private:
             int _numPrograms = 0;
             int _version = -0;
+            std::shared_ptr<files::ADLFile> _adl_file = nullptr;
 
             // These variables have not yet been named, but some of them are partly
             // known nevertheless:
@@ -115,8 +120,6 @@ namespace drivers
             void setupPrograms();
             void executePrograms();
 
-            
-
             void resetAdLibState();
             void writeOPL(const uint8_t reg, const uint8_t val);
             void initChannel(Channel& channel);
@@ -148,14 +151,15 @@ namespace drivers
 
             const uint8_t* checkDataOffset(const uint8_t* ptr, const long n);
 
+            // --- TODO: move in ADLFile ----------------------------------
             // The sound data has two lookup tables:
             // * One for programs, starting at offset 0.
             // * One for instruments, starting at offset 300, 500, or 1000.
 
-            // Method moved to patent class in scummvm:
+            // Method moved to parent class in scummvm:
             uint8_t* getProgram(int progId);
-
             const uint8_t* getInstrument(int instrumentId);
+            // ---- END ---------------------------------------------------
 
             struct ParserOpcode
             {

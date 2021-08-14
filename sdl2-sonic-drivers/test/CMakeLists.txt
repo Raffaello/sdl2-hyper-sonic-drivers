@@ -134,5 +134,8 @@ macro_test(
     EXE TestADLDriver
     FILES "drivers/westwood/TestADLDriver.cpp"
         "../src/drivers/westwood/ADLDriver.cpp"
+        "../src/files/File.cpp"
+        "../src/files/ADLFile.cpp"
+        "../src/utils/endianness.cpp"
     LINKS_PRIVATE spdlog::spdlog
 )

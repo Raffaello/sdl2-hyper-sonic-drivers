@@ -37,8 +37,18 @@ namespace drivers
             memset(_channels, 0, sizeof(_channels));
         }
 
+        ADLDriver::ADLDriver(hardware::opl::OPL* opl, std::shared_ptr<files::ADLFile> adl_file) : ADLDriver(opl)
+        {
+            setADLFile(adl_file);
+        }
+
         ADLDriver::~ADLDriver()
         {
+        }
+
+        void ADLDriver::setADLFile(std::shared_ptr<files::ADLFile> adl_file) noexcept
+        {
+            _adl_file = adl_file;
         }
 
         void ADLDriver::initDriver()
@@ -970,14 +980,19 @@ namespace drivers
 
         uint8_t* ADLDriver::getProgram(int progId)
         {
+            if (_adl_file == nullptr) {
+                spdlog::error("ADLDriver::getProgram(): no ADL file loaded.");
+                return nullptr;
+            }
+
             //TODO: move in the ADLFile
 
             // Safety check: invalid progId would crash.
             if (progId < 0 || progId >= (int32_t)_soundDataSize / 2)
                 return nullptr;
 
-            const uint16_t offset = READ_LE_UINT16(_soundData + 2 * progId);
-
+            //const uint16_t offset = READ_LE_UINT16(_soundData + 2 * progId);
+            const uint16_t offset = _adl_file->getTrack(progId);
             // In case an invalid offset is specified we return nullptr to
             // indicate an error. 0xFFFF seems to indicate "this is not a valid
             // program/instrument". However, 0 is also invalid because it points
