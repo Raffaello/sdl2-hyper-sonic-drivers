@@ -2,16 +2,12 @@
 
 #include<cstdint>
 #include<hardware/opl/OPL.hpp> // TODO: Replace with a generic OPL interface
+#include <mutex>
 
 namespace drivers
 {
     namespace westwood
     {
-        template <class T>
-        static inline T CLIP(const T& value, const T& min, const T& max) {
-            return value < min ? min : value > max ? max : value;
-        }
-
         /// <summary>
         /// Driver for .ADL files and OPL Chips
         /// Originally shuold be the DUNE2 ALFX.DRV file and PCSOUND.DRV
@@ -32,12 +28,12 @@ namespace drivers
         {
         public:
             // AdLibDriver(Audio::Mixer *mixer, int version);
-            ADLDriver(hardware::opl::OPL);
+            ADLDriver(hardware::opl::OPL* opl);
             ~ADLDriver();
             void initDriver();
-            void setSoundData(uint8_t* data, uint32_t size); /*override*/;
-            void startSound(int track, int volume); /*override*/;
-            bool isChannelPlaying(int channel) const; /*override*/;
+            void setSoundData(uint8_t* data, const uint32_t size); /*override*/;
+            void startSound(const int track, const int volume); /*override*/;
+            bool isChannelPlaying(const int channel); /*override*/;
             void stopAllChannels(); /*override*/;
             int getSoundTrigger() const; /*override*/ //{ return _soundTrigger; }
             void resetSoundTrigger(); /*override*/ //{ _soundTrigger = 0; }
@@ -51,12 +47,12 @@ namespace drivers
             void setSfxVolume(uint8_t volume) override;
             */
          
-            void setVersion(uint8_t v);/* { // added in AdPlug
-                _version = v;
-                _numPrograms = (_version == 1) ? 150 : ((_version == 4) ? 500 : 250);
-            }*/
+            void setVersion(const uint8_t v); // added in AdPlug
 
         private:
+            int _numPrograms = 0;
+            int _version = -0;
+
             // These variables have not yet been named, but some of them are partly
             // known nevertheless:
             //
@@ -64,7 +60,7 @@ namespace drivers
             // unk40 - Currently unused, except for updateCallback56()
 
             struct Channel {
-                //bool lock;	// New to ScummVM
+                bool lock; // New to ScummVM
                 uint8_t opExtraLevel2;
                 const uint8_t* dataptr;
                 uint8_t duration;
@@ -116,83 +112,50 @@ namespace drivers
                 uint8_t volumeModifier;
             };
 
+            void setupPrograms();
+            void executePrograms();
+
+            
+
+            void resetAdLibState();
+            void writeOPL(const uint8_t reg, const uint8_t val);
+            void initChannel(Channel& channel);
+            void noteOff(Channel& channel);
+            void initAdlibChannel(const uint8_t channel);
+
+            uint16_t _rnd;
+            uint16_t getRandomNr();
+
+            void setupDuration(const uint8_t duration, Channel& channel);
+            void setupNote(const uint8_t rawNote, Channel& channel, const bool flag = false);
+            void setupInstrument(uint8_t regOffset, const uint8_t* dataptr, Channel& channel);
+            void noteOn(Channel& channel);
+            void adjustVolume(Channel& channel);
+
             void primaryEffectSlide(Channel& channel);
             void primaryEffectVibrato(Channel& channel);
             void secondaryEffect1(Channel& channel);
-
-            void resetAdLibState();
-            void writeOPL(uint8_t reg, uint8_t val);
-            void initChannel(Channel& channel);
-            void noteOff(Channel& channel);
-            void initAdlibChannel(uint8_t num);
-
-            uint16_t getRandomNr();
-            void setupDuration(uint8_t duration, Channel& channel);
-
-            void setupNote(uint8_t rawNote, Channel& channel, bool flag = false);
-            void setupInstrument(uint8_t regOffset, const uint8_t* dataptr, Channel& channel);
-            void noteOn(Channel& channel);
-
-            void adjustVolume(Channel& channel);
-
             uint8_t calculateOpLevel1(Channel& channel);
             uint8_t calculateOpLevel2(Channel& channel);
 
-            static uint16_t checkValue(int16_t val);// { return CLIP<int16_t>(val, 0, 0x3F); }
+            static uint16_t checkValue(const int16_t val);
 
             // The driver uses timer/tempo pairs in several places. On every
             // callback, the tempo is added to the timer. This will frequently
             // cause the timer to "wrap around", which is the signal to go ahead
             // and do more stuff.
-            static bool advance(uint8_t& timer, uint8_t tempo);/* {
-                uint8_t old = timer;
-                timer += tempo;
-                return timer < old;
-            }*/
+            static bool advance(uint8_t& timer, const uint8_t tempo);
 
-            const uint8_t* checkDataOffset(const uint8_t* ptr, long n);/* {
-                if (ptr) {
-                    long offset = ptr - _soundData;
-                    if (n >= -offset && n <= (long)_soundDataSize - offset)
-                        return ptr + n;
-                }
-                return nullptr;
-            }*/
+            const uint8_t* checkDataOffset(const uint8_t* ptr, const long n);
 
             // The sound data has two lookup tables:
             // * One for programs, starting at offset 0.
             // * One for instruments, starting at offset 300, 500, or 1000.
 
             // Method moved to patent class in scummvm:
-            uint8_t* getProgram(int progId);/* {
-                // Safety check: invalid progId would crash.
-                if (progId < 0 || progId >= (int32_t)_soundDataSize / 2)
-                    return nullptr;
+            uint8_t* getProgram(int progId);
 
-                const uint16_t offset = READ_LE_UINT16(_soundData + 2 * progId);
-
-                // In case an invalid offset is specified we return nullptr to
-                // indicate an error. 0xFFFF seems to indicate "this is not a valid
-                // program/instrument". However, 0 is also invalid because it points
-                // inside the offset table itself. We also ignore any offsets outside
-                // of the actual data size.
-                // The original does not contain any safety checks and will simply
-                // read outside of the valid sound data in case an invalid offset is
-                // encountered.
-                if (offset == 0 || offset >= _soundDataSize) {
-                    return nullptr;
-                }
-                else {
-                    return _soundData + offset;
-                }
-            }*/
-
-            const uint8_t* getInstrument(int instrumentId);/* {
-                return getProgram(_numPrograms + instrumentId);
-            }*/
-
-            void setupPrograms();
-            void executePrograms();
+            const uint8_t* getInstrument(int instrumentId);
 
             struct ParserOpcode
             {
@@ -269,38 +232,38 @@ namespace drivers
             // _unkTable2_2[]  - One of the tables in _unkTable2[]
             // _unkTable2_3[]  - One of the tables in _unkTable2[]
 
-            int _curChannel;
-            uint8_t _soundTrigger;
+            int _curChannel = 0;
+            uint8_t _soundTrigger = 0;
 
-            uint16_t _rnd;
+            
 
-            uint8_t _beatDivider;
-            uint8_t _beatDivCnt;
-            uint8_t _callbackTimer;
-            uint8_t _beatCounter;
-            uint8_t _beatWaiting;
-            uint8_t _opLevelBD;
-            uint8_t _opLevelHH;
-            uint8_t _opLevelSD;
-            uint8_t _opLevelTT;
-            uint8_t _opLevelCY;
-            uint8_t _opExtraLevel1HH;
-            uint8_t _opExtraLevel2HH;
-            uint8_t _opExtraLevel1CY;
-            uint8_t _opExtraLevel2CY;
-            uint8_t _opExtraLevel2TT;
-            uint8_t _opExtraLevel1TT;
-            uint8_t _opExtraLevel1SD;
-            uint8_t _opExtraLevel2SD;
-            uint8_t _opExtraLevel1BD;
-            uint8_t _opExtraLevel2BD;
+            uint8_t _beatDivider = 0;
+            uint8_t _beatDivCnt = 0;
+            uint8_t _callbackTimer = 0xFF;
+            uint8_t _beatCounter = 0;
+            uint8_t _beatWaiting = 0;
+            uint8_t _opLevelBD = 0;
+            uint8_t _opLevelHH = 0;
+            uint8_t _opLevelSD = 0;
+            uint8_t _opLevelTT = 0;
+            uint8_t _opLevelCY = 0;
+            uint8_t _opExtraLevel1HH = 0;
+            uint8_t _opExtraLevel2HH = 0;
+            uint8_t _opExtraLevel1CY = 0;
+            uint8_t _opExtraLevel2CY = 0;
+            uint8_t _opExtraLevel2TT = 0 ;
+            uint8_t _opExtraLevel1TT = 0;
+            uint8_t _opExtraLevel1SD = 0;
+            uint8_t _opExtraLevel2SD = 0;
+            uint8_t _opExtraLevel1BD = 0;
+            uint8_t _opExtraLevel2BD = 0;
 
             // 	OPL::OPL *_adlib;
-            //Copl* _opl;		// added in AdPlug
+            //Copl* _opl; // added in AdPlug
             hardware::opl::OPL* _opl;
 
-            uint8_t* _soundData;	// moved to parent class in scummvm
-            uint32_t _soundDataSize;	// moved to parent class in scummvm
+            uint8_t* _soundData = nullptr; // moved to parent class in scummvm
+            uint32_t _soundDataSize = 0; // moved to parent class in scummvm
 
             struct QueueEntry
             {
@@ -312,26 +275,27 @@ namespace drivers
             };
 
             QueueEntry _programQueue[16];
-            int _programStartTimeout;
-            int _programQueueStart, _programQueueEnd;
-            bool _retrySounds;
+            int _programStartTimeout = 0;
+            int _programQueueStart = 0;
+            int _programQueueEnd = 0;
+            bool _retrySounds = false;
 
             void adjustSfxData(uint8_t* data, int volume);
  
-            uint8_t* _sfxPointer;
+            uint8_t* _sfxPointer = nullptr;
             int _sfxPriority;
             int _sfxVelocity;
 
             Channel _channels[10];
 
-            uint8_t _vibratoAndAMDepthBits;
-            uint8_t _rhythmSectionBits;
+            uint8_t _vibratoAndAMDepthBits = 0;
+            uint8_t _rhythmSectionBits = 0;
 
-            uint8_t _curRegOffset;
-            uint8_t _tempo;
+            uint8_t _curRegOffset = 0;
+            uint8_t _tempo = 0;
 
-            const uint8_t* _tablePtr1;
-            const uint8_t* _tablePtr2;
+            const uint8_t* _tablePtr1 = nullptr;
+            const uint8_t* _tablePtr2 = nullptr;
 
             static const uint8_t _regOffset[];
             static const uint16_t _freqTable[];
@@ -342,17 +306,16 @@ namespace drivers
             static const uint8_t _unkTable2_3[];
             static const uint8_t _pitchBendTables[][32];
 
-            uint16_t _syncJumpMask;
+            uint16_t _syncJumpMask = 0;
 
             /*
             Common::Mutex _mutex;
             Audio::Mixer *_mixer;
             */
+            std::mutex _mutex;
 
-            uint8_t _musicVolume, _sfxVolume;
-
-            int _numPrograms;
-            int _version;
+            uint8_t _musicVolume = 0xFF;
+            uint8_t _sfxVolume = 0xFF;
         };
     }
 }
