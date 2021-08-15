@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstdint>
-#include <hardware/opl/OPL.hpp> // TODO: Replace with a generic OPL interface
+#include <hardware/opl/woody/OPL.hpp> // TODO: Replace with a generic OPL interface
 #include <mutex>
 #include <files/ADLFile.hpp>
 #include <memory>

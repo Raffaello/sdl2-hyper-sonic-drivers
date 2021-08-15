@@ -11,7 +11,6 @@
 #include <files/XMIFile.hpp>
 #include <files/ADLFile.hpp>
 #include <drivers/westwood/ADLDriver.hpp>
-#include <hardware/opl/OPL.hpp>
 #include <hardware/opl/woody/SurroundOPL.hpp>
 
 using namespace std;
