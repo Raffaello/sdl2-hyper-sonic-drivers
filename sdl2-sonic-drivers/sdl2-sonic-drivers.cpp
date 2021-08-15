@@ -361,19 +361,19 @@ void ADLDRV_callback(void* userdata, Uint8* audiobuf, int len)
     //    warning("Unknown sound trigger %d", trigger);
         // TODO: At this point, we really want to clear the trigger...
     //}
-
+    
     int16_t* buf = reinterpret_cast<int16_t*>(audiobuf);
 
     
-    int samples = self->_driver->readBuffer(buf, len / 2*2); //stereo 16 bit => *2 channels, /2 16 bits 
+    int samples = _driver->readBuffer(buf, len / 2*2); //stereo 16 bit => *2 channels, /2 16 bits 
 
-    int volume = self->getVolume();
+    int volume = 128;
     for (int i = 0; i < samples; i++) {
         //printf("0x%x\n", buf[i]);
-        buf[i] = static_cast<int16_t>(buf[i] * volume / MIX_MAX_VOLUME);
+        buf[i] = static_cast<int16_t>(buf[i] );
     }
 
-    self->bJustStartedPlaying = false;
+    //self->bJustStartedPlaying = false;
 }
 
 int adl_driver()
@@ -418,7 +418,11 @@ int adl_driver()
     // TODO: missing the callback, and to redirect to Mix_ (SDL2) etc...
     // TODO: need to render the adlib sound and copy in the buffer
     //       and pass to the callback
-    adlDrv.startSound(2, 0xFF);
+    // OPL->update is the one to generate the audio bytes.
+    adlDrv.startSound(2, 128);
+    Mix_HookMusic(ADLDRV_callback, &adlDrv);
+
+
    
     /*SDL_RWops* adlFile = SDL_RWFromFile("DUNE0.ADL", "rb");
     if (nullptr == adlFile) {
@@ -429,10 +433,10 @@ int adl_driver()
     SoundAdlibPC adlib = SoundAdlibPC(adlFile);*/
     //    adlib.playTrack(2);
 //    Mix_HookMusic(adlib.callback, &adlib);
-//    do {
-//        cout << "playin music, waiting 1s..." << endl;
-//        SDL_Delay(1000);
-//    } while (adlib.isPlaying());
+   // do {
+        //cout << "playin music, waiting 1s..." << endl;
+        SDL_Delay(4000);
+ //   } while (adlDrv.isChannelPlay);
 
     SDL_Delay(3000);
     Mix_HaltChannel(-1);

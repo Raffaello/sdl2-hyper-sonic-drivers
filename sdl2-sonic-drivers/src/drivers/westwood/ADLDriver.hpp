@@ -10,6 +10,10 @@ namespace drivers
 {
     namespace westwood
     {
+        // TODO: move
+        constexpr int CALLBACKS_PER_SECOND = 72;
+
+
         /// <summary>
         /// Driver for .ADL files and OPL Chips
         /// Originally shuold be the DUNE2 ALFX.DRV file and PCSOUND.DRV
@@ -44,6 +48,34 @@ namespace drivers
 
             void callback();
 
+            // TODO: refactor /remove / replace
+            // AudioStream API
+            int readBuffer(int16_t* buffer, const int numSamples) {
+                int32_t samplesLeft = numSamples;
+                memset(buffer, 0, sizeof(int16_t) * numSamples);
+                while (samplesLeft) {
+                    if (!_samplesTillCallback) {
+                        callback();
+                        _samplesTillCallback = _samplesPerCallback;
+                        _samplesTillCallbackRemainder += _samplesPerCallbackRemainder;
+                        if (_samplesTillCallbackRemainder >= CALLBACKS_PER_SECOND) {
+                            _samplesTillCallback++;
+                            _samplesTillCallbackRemainder -= CALLBACKS_PER_SECOND;
+                        }
+                    }
+
+                    int32_t render = samplesLeft < _samplesTillCallback ? samplesLeft : _samplesTillCallback;
+                    samplesLeft -= render;
+                    _samplesTillCallback -= render;
+                    _opl->update(buffer, render);
+                    buffer += render * 2;
+                }
+
+                return numSamples;
+            }
+
+
+
             /*
             void setSyncJumpMask(uint16_t mask) override { _syncJumpMask = mask; }
 
@@ -54,8 +86,16 @@ namespace drivers
             void setVersion(const uint8_t v); // added in AdPlug
 
         private:
+            // TODO: remove/refactor
+            int32_t _samplesPerCallback;
+            int32_t _samplesPerCallbackRemainder;
+            int32_t _samplesTillCallback;
+            int32_t _samplesTillCallbackRemainder;
+
+            // TODO: redundant
             int _numPrograms = 0;
             int _version = -0;
+            // ----
             std::shared_ptr<files::ADLFile> _adl_file = nullptr;
 
             // These variables have not yet been named, but some of them are partly

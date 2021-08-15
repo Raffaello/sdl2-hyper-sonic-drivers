@@ -35,6 +35,22 @@ namespace drivers
             _opl(opl), _rnd(RANDOM_SEED)
         {
             memset(_channels, 0, sizeof(_channels));
+
+            // TODO: refactor, remove
+
+            // HACK: We use MusicSoundType here for now so we can adjust the volume in the launcher dialog.
+            // This affects SFX too, but if we want to support different volumes for SFX and music we would
+            // have to change our player implementation, currently we setup the volume for an AdLib channel
+            // in AdlibDriver::adjustVolume, so if that would be called, we would have to know if the channel
+            // is used by SFX or music, and then adjust the volume accordingly. Since Kyrandia 2 supports
+            // different volumes for SFX and music, looking at the disasm and checking how the original does it
+            // would be a good idea.
+            //_mixer->playInputStream(Audio::Mixer::kMusicSoundType, &_soundHandle, this, -1, Audio::Mixer::kMaxChannelVolume, 0, false, true);
+            
+            _samplesPerCallback = _opl->getSampleRate() / CALLBACKS_PER_SECOND;
+            _samplesPerCallbackRemainder = _opl->getSampleRate() % CALLBACKS_PER_SECOND;
+            _samplesTillCallback = 0;
+            _samplesTillCallbackRemainder = 0;
         }
 
         ADLDriver::ADLDriver(hardware::opl::OPL* opl, std::shared_ptr<files::ADLFile> adl_file) : ADLDriver(opl)
