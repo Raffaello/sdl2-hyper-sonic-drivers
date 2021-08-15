@@ -23,6 +23,7 @@ namespace drivers
         constexpr int RANDOM_SEED = 0x1234;
         constexpr int RANDOM_INC = 0x9248;
 
+        // TODO: move to utils and as a constexpr
 #define ARRAYSIZE(x) ((int)(sizeof(x) / sizeof(x[0])))
 
         // TODO: move in utils
