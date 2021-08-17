@@ -130,12 +130,12 @@ macro_test(
         "fixtures/LOREINTR.ADL" # v3
 )
 
-macro_test(
-    EXE TestADLDriver
-    FILES "drivers/westwood/TestADLDriver.cpp"
-        "../src/drivers/westwood/ADLDriver.cpp"
-        "../src/files/File.cpp"
-        "../src/files/ADLFile.cpp"
-        "../src/utils/endianness.cpp"
-    LINKS_PRIVATE spdlog::spdlog
-)
+#macro_test(
+#    EXE TestADLDriver
+#    FILES "drivers/westwood/TestADLDriver.cpp"
+#        "../src/drivers/westwood/ADLDriver.cpp"
+#        "../src/files/File.cpp"
+#        "../src/files/ADLFile.cpp"
+#        "../src/utils/endianness.cpp"
+#    LINKS_PRIVATE spdlog::spdlog
+#)

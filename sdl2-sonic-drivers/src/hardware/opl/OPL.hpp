@@ -92,8 +92,8 @@ namespace hardware
              */
             std::unique_ptr<TimerCallBack> _callback;
         private:
-            // TODO: review to allow to have multiple OPL chips instead.
-            static bool _hasInstance;
+            // moved into cpp file
+            //static bool _hasInstance;
         };
     }
 }

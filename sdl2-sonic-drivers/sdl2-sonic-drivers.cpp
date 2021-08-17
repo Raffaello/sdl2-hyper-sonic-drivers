@@ -10,7 +10,7 @@
 #include <drivers/miles/XMidi.hpp>
 #include <files/XMIFile.hpp>
 #include <files/ADLFile.hpp>
-#include <drivers/westwood/ADLDriver.hpp>
+#include <drivers/westwood/woody/ADLDriver.hpp>
 #include <hardware/opl/woody/SurroundOPL.hpp>
 
 using namespace std;
@@ -408,7 +408,7 @@ int adl_driver()
     }
 
     hardware::opl::woody::SurroundOPL sOpl(freq, true);
-    hardware::opl::OPL* opl = &sOpl;
+    hardware::opl::woody::OPL* opl = &sOpl;
 
     std::shared_ptr<files::ADLFile> adlFile = std::make_shared<files::ADLFile>("DUNE0.ADL");
     drivers::westwood::ADLDriver adlDrv(opl, adlFile);

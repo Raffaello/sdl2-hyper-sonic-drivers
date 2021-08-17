@@ -5,6 +5,9 @@ namespace hardware
 {
     namespace opl
     {
+        // TODO: review to allow to have multiple OPL chips instead.
+        static bool _hasInstance;
+
         OPL::OPL()
         {
             if (_hasInstance) {

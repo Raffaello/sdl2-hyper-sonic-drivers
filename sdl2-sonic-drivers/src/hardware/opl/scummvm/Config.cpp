@@ -9,6 +9,15 @@ namespace hardware
     {
         namespace scummvm
         {
+            // TODO: refactor / remove _drivers
+            static const EmulatorDescription _drivers[] = {
+                { "auto", "<default>", OplEmulator::AUTO, Config::OPL2 | Config::DUAL_OPL2 | Config::OPL3 },
+                { "mame", "MAME OPL emulator", OplEmulator::MAME, Config::OPL2 },
+            //  { "db", _s("DOSBox OPL emulator"), kDOSBox, kFlagOpl2 | kFlagDualOpl2 | kFlagOpl3 },
+            //  { "nuked", _s("Nuked OPL emulator"), kNuked, kFlagOpl2 | kFlagDualOpl2 | kFlagOpl3 },
+            //    { "", "", , 0}
+            };
+
             const EmulatorDescription* Config::getAvailable()
             {
                 return _drivers;

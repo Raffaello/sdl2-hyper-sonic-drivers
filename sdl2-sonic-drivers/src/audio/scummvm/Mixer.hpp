@@ -2,6 +2,8 @@
 
 #include <mutex>
 #include <audio/scummvm/Timestamp.hpp>
+#include <audio/scummvm/SoundHandle.hpp>
+#include <audio/scummvm/AudioStream.hpp>
 
 namespace audio
 {

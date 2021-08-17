@@ -42,7 +42,7 @@ namespace hardware
             class Config
             {
             public:
-                enum class OplFlags
+                enum OplFlags
                 {
                     NONE = 0,
                     OPL2 = (1 << 0),
@@ -98,7 +98,8 @@ namespace hardware
                 //static OPL* create(OplType type = OplType::OPL2);
 
             private:
-                static const EmulatorDescription _drivers[];
+                // moved in cpp file
+                //static const EmulatorDescription _drivers[];
             };
 
         }

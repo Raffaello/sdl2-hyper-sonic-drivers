@@ -23,7 +23,6 @@ target_sources(sdl2-sonic-drivers PUBLIC
     #${CMAKE_CURRENT_SOURCE_DIR}/src/adl/woodyopl.cpp
     # ---- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/miles/XMidi.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/westwood/ADLDriver.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/endianness.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/File.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/IFFFile.cpp
@@ -38,6 +37,7 @@ target_sources(sdl2-sonic-drivers PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/woody/OPLChip.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/woody/WoodyEmuOpl.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/woody/SurroundOPL.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/westwood/woody/ADLDriver.cpp
     # --- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/OPL.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/Config.cpp
