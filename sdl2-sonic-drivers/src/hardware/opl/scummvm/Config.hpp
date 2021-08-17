@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <string>
 #include <hardware/opl/OPL.hpp>
+#include <audio/scummvm/Mixer.hpp>
 
 namespace hardware
 {
@@ -10,6 +11,17 @@ namespace hardware
     {
         namespace scummvm
         {
+            enum class OplEmulator
+            {
+                AUTO = 0,
+                MAME = 1,
+                DOS_BOX = 2,
+                NUKED = 4,
+            };
+
+            // TODO: remove is redundant DriverId
+            typedef OplEmulator DriverId;
+
             typedef struct
             {
                 // TOOD: replace with std::string
@@ -19,17 +31,6 @@ namespace hardware
                 DriverId id;    // A unique ID for each driver
                 uint32_t flags; // Capabilities of this driver
             } EmulatorDescription;
-
-            enum class OplEmulator
-            {
-                AUTO = 0,
-                MAME = 1,
-                DOS_BOX = 2,
-                NUKED = 4,
-            };
-
-            // TODO: remove is redundent DriverId
-            typedef OplEmulator DriverId;
 
             /**
              * @defgroup audio_fmopl OPL emulation
@@ -88,13 +89,13 @@ namespace hardware
                 /**
                  * Creates the specific driver with a specific type setup.
                  */
-                static OPL* create(DriverId driver, OplType type);
+                static OPL* create(DriverId driver, OplType type, const std::shared_ptr<audio::scummvm::Mixer> mixer);
 
                 /**
                  * Wrapper to easily init an OPL chip, without specifing an emulator.
                  * By default it will try to initialize an OPL2 emulator, thus an AdLib card.
                  */
-                static OPL* create(OplType type = OplType::OPL2);
+                //static OPL* create(OplType type = OplType::OPL2);
 
             private:
                 static const EmulatorDescription _drivers[];

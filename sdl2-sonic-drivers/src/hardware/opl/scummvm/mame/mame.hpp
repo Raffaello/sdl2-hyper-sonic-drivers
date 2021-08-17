@@ -7,6 +7,7 @@
 
 #include <hardware/opl/scummvm/EmulatedOPL.hpp>
 #include <memory>
+#include <random>
 
 namespace hardware
 {
@@ -129,7 +130,11 @@ namespace hardware
                     OPL_UPDATEHANDLER UpdateHandler;	/* stream update handler   */
                     int UpdateParam;					/* stream update parameter */
 
-                    Common::RandomSource* rnd;
+                    // TODO: random, where is used? used to generate a random bit
+                    //Common::RandomSource* rnd;
+                    std::default_random_engine rnd;
+                    std::uniform_int_distribution<int> uni_dist;
+
                 } FM_OPL;
 
                 /* ---------- Generic interface section ---------- */

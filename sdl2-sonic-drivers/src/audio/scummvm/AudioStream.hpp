@@ -29,7 +29,7 @@ namespace audio
              *       This indicates that the stream is fully used up.
              *
              */
-            virtual int readBuffer(int16* buffer, const int numSamples) = 0;
+            virtual int readBuffer(int16_t* buffer, const int numSamples) = 0;
 
             /** Check whether this is a stereo stream. */
             virtual bool isStereo() const = 0;

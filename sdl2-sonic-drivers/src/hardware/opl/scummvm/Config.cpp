@@ -37,21 +37,22 @@ namespace hardware
                 return nullptr;
             }
 
-            OPL* Config::create(DriverId driver, OplType type)
+            OPL* Config::create(DriverId driver, OplType type, const std::shared_ptr<audio::scummvm::Mixer> mixer)
             {
                 switch (driver)
                 {
                 case OplEmulator::MAME:
                     if (type == OplType::OPL2)
-                        return new mame::OPL();
+                        return new mame::OPL(mixer);
                     else
                         spdlog::warn("MAME OPL emulator only supports OPL2 emulation");
                     break;
                 case OplEmulator::DOS_BOX:
-                    return new DOSBox::OPL(type);
+                    //TODO
+                    //return new DOSBox::OPL(type);
 
                 case OplEmulator::NUKED:
-                    return new NUKED::OPL(type);
+                    //return new NUKED::OPL(type);
                 default:
                     spdlog::warn("Unsupported OPL emulator %d", driver);
                     // TODO: Maybe we should add some dummy emulator too, which just outputs
@@ -61,10 +62,10 @@ namespace hardware
                 return nullptr;
             }
 
-            OPL* Config::create(OplType type)
-            {
-                return create(OplEmulator::MAME, type);
-            }
+            //OPL* Config::create(OplType type)
+            //{
+                //return create(OplEmulator::MAME, type);
+            //}
 
             /*
             DriverId Config::detect(OplType type)

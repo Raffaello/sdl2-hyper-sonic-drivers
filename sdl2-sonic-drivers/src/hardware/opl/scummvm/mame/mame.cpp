@@ -576,7 +576,9 @@ namespace hardware
                     // but EG_STEP = 96.0/EG_ENT, and WHITE_NOISE_db=6.0. So, that's equivalent to
                     // int(OPL->rnd.getRandomBit() * EG_ENT/16). We know that EG_ENT is 4096, or 1024,
                     // or 128, so we can safely avoid any FP ops.
-                    int whitenoise = OPL->rnd->getRandomBit() * (EG_ENT >> 4);
+                    //int whitenoise = OPL->rnd->getRandomBit() * (EG_ENT >> 4);
+                   
+                    int whitenoise = OPL->uni_dist(OPL->rnd) * (EG_ENT >> 4);
 
                     int tone8;
 
@@ -1176,7 +1178,11 @@ namespace hardware
                     // but this is probably not guaranteed.
                     // Alas, it does not seem worthwhile to bother much with this
                     // at the time, so I am leaving it as it is.
-                    OPL->rnd = new Common::RandomSource("mame");
+                    //OPL->rnd = new Common::RandomSource("mame");
+                    std::random_device r;
+                    OPL->rnd.seed(r());
+                    std::uniform_int_distribution<int>::param_type p(0, 1);
+                    OPL->uni_dist.param(p);
 
                     /* init grobal tables */
                     OPL_initalize(OPL);
@@ -1189,7 +1195,7 @@ namespace hardware
                 /* ----------  Destroy one of virtual YM3812 ----------       */
                 void OPLDestroy(FM_OPL* OPL) {
                     OPL_UnLockTable();
-                    delete OPL->rnd;
+                    //delete OPL->rnd;
                     free(OPL);
                 }
 
