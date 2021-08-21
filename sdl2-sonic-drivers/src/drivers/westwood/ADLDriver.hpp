@@ -30,6 +30,12 @@ namespace drivers
         class ADLDriver final /* : public PCSoundDriver */
         {
         public:
+            // TODO: instead of the mixer pass the OPL emulation as a per logic
+            //       1 file to 1 drv to 1 soundcard (OPLEmulation)
+            //       ADLDriver is the code to execute, when reading an ADL file to
+            //       to send to an OPL Chip.
+            //       What i miss after sent to the OPL chip is to send to the Mixer
+            //       in this case the mixer at first is just SDL2_Mixer_Hook or similar.
             ADLDriver(std::shared_ptr<audio::scummvm::Mixer> mixer);
             ADLDriver(std::shared_ptr<audio::scummvm::Mixer> mixer, std::shared_ptr<files::ADLFile> adl_file);
             ~ADLDriver(); //override;
