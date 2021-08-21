@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <files/ADLFile.hpp>
+#include <memory>
 
 namespace files
 {
@@ -48,6 +49,11 @@ namespace files
     {
         ADLFile f("fixtures/EOBSOUND.ADL");
         EXPECT_THROW(f.getInstrument(151), std::out_of_range);
+    }
+
+    TEST(ADLFile, shared_ptr)
+    {
+        std::shared_ptr<files::ADLFile> adlFile = std::make_shared<files::ADLFile>("fixtures/DUNE19.ADL");
     }
 }
 

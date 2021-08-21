@@ -131,18 +131,17 @@ macro_test(
 )
 
 #macro_test(
-#    EXE TestADLDriver
-#    FILES "drivers/westwood/TestADLDriver.cpp"
-#        "../src/drivers/westwood/ADLDriver.cpp"
+#    EXE TestADLDriver_Woody
+#    FILES "drivers/westwood/woody/TestADLDriver.cpp"
+#        "../src/drivers/westwood/woody/ADLDriver.cpp"
 #        "../src/files/File.cpp"
 #        "../src/files/ADLFile.cpp"
 #        "../src/utils/endianness.cpp"
 #    LINKS_PRIVATE spdlog::spdlog
 #)
 
-
 macro_test(
-    EXE TestMameFile
+    EXE TestMame
     FILES 
         "hardware/opl/scummvm/mame/TestMame.cpp"
         "../src/hardware/opl/scummvm/mame/mame.cpp"
@@ -150,5 +149,29 @@ macro_test(
         "../src/hardware/opl/OPL.cpp"
         "../src/audio/SDL2Mixer.cpp"
         "../src/audio/scummvm/TimeStamp.cpp"
+    LINKS_PRIVATE spdlog::spdlog
+)
+
+macro_test(
+    EXE TestSDL2Mixer
+    FILES 
+        "audio/TestSDL2Mixer.cpp"
+        "../src/audio/SDL2Mixer.cpp"
+        "../src/audio/scummvm/TimeStamp.cpp"
+)
+
+macro_test(
+    EXE TestADLDriver
+    FILES "drivers/westwood/TestADLDriver.cpp"
+        "../src/drivers/westwood/ADLDriver.cpp"
+        "../src/hardware/opl/OPL.cpp"
+        "../src/files/File.cpp"
+        "../src/files/ADLFile.cpp"
+        "../src/utils/endianness.cpp"
+        "../src/audio/SDL2Mixer.cpp"
+        "../src/audio/scummvm/TimeStamp.cpp"
+        "../src/hardware/opl/scummvm/mame/mame.cpp"
+        "../src/hardware/opl/scummvm/EmulatedOPL.cpp"
+        "../src/hardware/opl/OPL.cpp"
     LINKS_PRIVATE spdlog::spdlog
 )

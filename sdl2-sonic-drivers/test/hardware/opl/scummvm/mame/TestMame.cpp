@@ -19,6 +19,14 @@ namespace hardware
 
                     OPL mame(mixer);
                 }
+
+                TEST(OPL, share_ptrDefault)
+                {
+                    int rate = 44100;
+                    std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
+
+                    std::shared_ptr<OPL> mame = std::make_shared<OPL>(mixer);
+                }
             }
         }
     }
