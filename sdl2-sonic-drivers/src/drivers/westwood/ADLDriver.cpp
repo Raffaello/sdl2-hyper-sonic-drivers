@@ -68,7 +68,8 @@ namespace drivers
             //_adlib->start(new Common::Functor0Mem<void, ADLDriver>(this, &ADLDriver::callback), CALLBACKS_PER_SECOND);
             // TODO: this line doesn't compile
             hardware::opl::TimerCallBack cb = std::bind(&ADLDriver::callback, this);
-            _opl->start(&cb, CALLBACKS_PER_SECOND);
+            auto p = std::make_unique<hardware::opl::TimerCallBack>(cb);
+            _opl->start(p.release(), CALLBACKS_PER_SECOND);
         }
 
         ADLDriver::~ADLDriver()
