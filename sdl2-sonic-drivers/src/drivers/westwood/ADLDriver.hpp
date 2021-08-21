@@ -7,6 +7,7 @@
 #include <hardware/opl/OPL.hpp>
 #include <files/ADLFile.hpp>
 
+
 namespace drivers
 {
     namespace westwood
@@ -36,8 +37,9 @@ namespace drivers
             //       to send to an OPL Chip.
             //       What i miss after sent to the OPL chip is to send to the Mixer
             //       in this case the mixer at first is just SDL2_Mixer_Hook or similar.
-            ADLDriver(std::shared_ptr<audio::scummvm::Mixer> mixer);
-            ADLDriver(std::shared_ptr<audio::scummvm::Mixer> mixer, std::shared_ptr<files::ADLFile> adl_file);
+            //ADLDriver(std::shared_ptr<audio::scummvm::Mixer> mixer);
+            //ADLDriver(std::shared_ptr<audio::scummvm::Mixer> mixer, std::shared_ptr<files::ADLFile> adl_file);
+            ADLDriver(std::shared_ptr<hardware::opl::OPL> opl, std::shared_ptr<files::ADLFile> adl_file);
             ~ADLDriver(); //override;
             void setADLFile(const std::shared_ptr<files::ADLFile> adl_file) noexcept;
             void initDriver(); //override;
@@ -258,7 +260,7 @@ namespace drivers
             uint8_t _opExtraLevel1BD;
             uint8_t _opExtraLevel2BD;
 
-            hardware::opl::OPL* _adlib;
+            std::shared_ptr<hardware::opl::OPL> _opl;
 
             struct QueueEntry
             {
@@ -302,7 +304,7 @@ namespace drivers
             uint16_t _syncJumpMask;
 
             std::mutex _mutex;
-            std::shared_ptr<audio::scummvm::Mixer> _mixer;
+            //std::shared_ptr<audio::scummvm::Mixer> _mixer;
 
             uint8_t _musicVolume;
             uint8_t _sfxVolume;

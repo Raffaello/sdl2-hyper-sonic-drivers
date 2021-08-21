@@ -15,6 +15,7 @@
 
 #include <drivers/westwood/ADLDriver.hpp>
 #include <audio/SDL2Mixer.hpp>
+#include <hardware/opl/scummvm/mame/mame.hpp>
 
 using namespace std;
 
@@ -485,9 +486,14 @@ int adl_driver()
 
     std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
     std::shared_ptr<files::ADLFile> adlFile = std::make_shared<files::ADLFile>("DUNE0.ADL");
-    drivers::westwood::ADLDriver adlDrv(mixer, adlFile->getVersion());
-    adlDrv.initDriver();
-    adlDrv.startSound(2, 128);
+    //drivers::westwood::ADLDriver adlDrv(mixer, adlFile->getVersion
+    std::shared_ptr<hardware::opl::scummvm::mame::OPL> opl = std::make_shared<hardware::opl::scummvm::mame::OPL>(mixer);
+    
+    // TODO: the constructor crashes the program already.
+    drivers::westwood::ADLDriver adlDrv(opl, adlFile);
+    
+    //adlDrv.initDriver();
+    //adlDrv.startSound(2, 128);
     //TODO: SoundHandle ?
 
    

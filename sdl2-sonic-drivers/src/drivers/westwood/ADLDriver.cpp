@@ -22,18 +22,14 @@ namespace drivers
 {
     namespace westwood
     {
-        ADLDriver::ADLDriver(std::shared_ptr<audio::scummvm::Mixer> mixer) /* : PCSoundDriver()*/
+        ADLDriver::ADLDriver(std::shared_ptr<hardware::opl::OPL> opl, std::shared_ptr<files::ADLFile> adl_file)
         {
-            _mixer = mixer;
+            setADLFile(adl_file);
 
-            _adlib = hardware::opl::scummvm::Config::create(
-                hardware::opl::scummvm::OplEmulator::MAME,
-                hardware::opl::scummvm::Config::OplType::OPL2,
-                mixer
-            );
+            _opl = opl;
 
-            if (!_adlib || !_adlib->init()) {
-                spdlog::error("Failed to create OPL");
+            if (!_opl || !_opl->init()) {
+                spdlog::error("Failed to initialize OPL");
             }
 
             memset(_channels, 0, sizeof(_channels));
@@ -72,19 +68,12 @@ namespace drivers
             //_adlib->start(new Common::Functor0Mem<void, ADLDriver>(this, &ADLDriver::callback), CALLBACKS_PER_SECOND);
             // TODO: this line doesn't compile
             hardware::opl::TimerCallBack cb = std::bind(&ADLDriver::callback, this);
-            _adlib->start(&cb, CALLBACKS_PER_SECOND);
-        }
-
-        ADLDriver::ADLDriver(std::shared_ptr<audio::scummvm::Mixer> mixer, std::shared_ptr<files::ADLFile> adl_file)
-            : ADLDriver(mixer)
-        {
-            setADLFile(adl_file);
+            _opl->start(&cb, CALLBACKS_PER_SECOND);
         }
 
         ADLDriver::~ADLDriver()
         {
-            delete _adlib;
-            _adlib = nullptr;
+            _opl = nullptr;
         }
 
         void ADLDriver::setADLFile(const std::shared_ptr<files::ADLFile> adl_file) noexcept
@@ -563,7 +552,7 @@ namespace drivers
         }
 
         void ADLDriver::writeOPL(uint8_t reg, uint8_t val) {
-            _adlib->writeReg(reg, val);
+            _opl->writeReg(reg, val);
         }
 
         void ADLDriver::initChannel(Channel& channel) {
@@ -1027,7 +1016,6 @@ namespace drivers
             // Each channel runs its own program. There are ten channels: One for
             // each AdLib channel (0-8), plus one "control channel" (9) which is
             // the one that tells the other channels what to do.
-
             if (_syncJumpMask)
             {
                 // This is where we ensure that channels that are made to jump
