@@ -14,6 +14,7 @@
 //#include <hardware/opl/woody/SurroundOPL.hpp>
 
 #include <drivers/westwood/ADLDriver.hpp>
+#include <audio/SDL2Mixer.hpp>
 
 using namespace std;
 
@@ -482,11 +483,13 @@ int adl_driver()
     }
 
 
+    std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
     std::shared_ptr<files::ADLFile> adlFile = std::make_shared<files::ADLFile>("DUNE0.ADL");
-    // TODO implement a mixer using sdl2
-    //drivers::westwood::ADLDriver adlDrv()
-    //adlDrv.initDriver();
-
+    drivers::westwood::ADLDriver adlDrv(mixer, adlFile->getVersion());
+    adlDrv.initDriver();
+    adlDrv.startSound(2, 128);
+    //TODO: SoundHandle ?
+    //mixer->playStream(audio::scummvm::Mixer::SoundType::MUSIC, )
     // TODO: missing the callback, and to redirect to Mix_ (SDL2) etc...
     // TODO: need to render the adlib sound and copy in the buffer
     //       and pass to the callback
