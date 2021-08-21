@@ -8,6 +8,7 @@ namespace audio
     }
     void SDL2Mixer::playStream(SoundType type, scummvm::SoundHandle* handle, scummvm::AudioStream* stream, int id, uint8_t volume, int8_t balance, bool autofreeStream, bool permanent, bool reverseStereo)
     {
+        // TODO
     }
     void SDL2Mixer::stopAll()
     {
@@ -17,6 +18,16 @@ namespace audio
     }
     void SDL2Mixer::stopHandle(scummvm::SoundHandle handle)
     {
+        //TODO
+        //Common::StackLock lock(_mutex);
+
+        //// Simply ignore stop requests for handles of sounds that already terminated
+        //const int index = handle._val % NUM_CHANNELS;
+        //if (!_channels[index] || _channels[index]->getHandle()._val != handle._val)
+        //    return;
+
+        //delete _channels[index];
+        //_channels[index] = 0;
     }
     void SDL2Mixer::pauseAll(bool paused)
     {
@@ -81,6 +92,7 @@ namespace audio
     }
     unsigned int SDL2Mixer::getOutputRate() const
     {
-        return 0;
+        // TODO return samplerate, same as what sdl2 audio was inited
+        return 44100;
     }
 }

@@ -139,3 +139,16 @@ macro_test(
 #        "../src/utils/endianness.cpp"
 #    LINKS_PRIVATE spdlog::spdlog
 #)
+
+
+macro_test(
+    EXE TestMameFile
+    FILES 
+        "hardware/opl/scummvm/mame/TestMame.cpp"
+        "../src/hardware/opl/scummvm/mame/mame.cpp"
+        "../src/hardware/opl/scummvm/EmulatedOPL.cpp"
+        "../src/hardware/opl/OPL.cpp"
+        "../src/audio/SDL2Mixer.cpp"
+        "../src/audio/scummvm/TimeStamp.cpp"
+    LINKS_PRIVATE spdlog::spdlog
+)
