@@ -7,6 +7,8 @@ namespace drivers
 {
     namespace westwood
     {
+        namespace woody
+        {
         // TODO: remove
         static inline uint16_t READ_LE_UINT16(const void* ptr) {
             const uint8_t* b = (const uint8_t*)ptr;
@@ -2316,6 +2318,6 @@ namespace drivers
 
         // -------------------------------------------------------------------
 
-
+        }
     }
 }
