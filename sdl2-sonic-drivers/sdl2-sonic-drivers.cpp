@@ -492,16 +492,12 @@ int adl_driver()
     // TODO: the constructor crashes the program already.
     //       because SDL2Mixer need to be implemented
     //       implementation with init audio, channels and so on and so forth...
-
     drivers::westwood::ADLDriver adlDrv(opl, adlFile);
     
     //adlDrv.initDriver();
     //adlDrv.startSound(2, 128);
     //TODO: SoundHandle ?
 
-   
-    
-   
     //       and pass to the callback
 
 
