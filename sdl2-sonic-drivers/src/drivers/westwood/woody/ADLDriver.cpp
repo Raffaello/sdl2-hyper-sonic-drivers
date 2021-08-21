@@ -2,6 +2,8 @@
 #include <cstring>
 #include <spdlog/spdlog.h>
 #include <cassert>
+#include <utils/endianness.hpp>
+#include <utils/algorithms.hpp>
 
 namespace drivers
 {
@@ -9,30 +11,12 @@ namespace drivers
     {
         namespace woody
         {
-        // TODO: remove
-        static inline uint16_t READ_LE_UINT16(const void* ptr) {
-            const uint8_t* b = (const uint8_t*)ptr;
-            return (b[1] << 8) + b[0];
-        }
-
-        // TODO: remove
-        static inline uint16_t READ_BE_UINT16(const void* ptr) {
-            const uint8_t* b = (const uint8_t*)ptr;
-            return (b[0] << 8) + b[1];
-        }
-
         constexpr int NUM_CHANNELS = 9;
         constexpr int RANDOM_SEED = 0x1234;
         constexpr int RANDOM_INC = 0x9248;
 
         // TODO: move to utils and as a constexpr
 #define ARRAYSIZE(x) ((int)(sizeof(x) / sizeof(x[0])))
-
-        // TODO: move in utils
-        template <class T>
-        static inline T CLIP(const T& value, const T& min, const T& max) {
-            return value < min ? min : value > max ? max : value;
-        }
 
         ADLDriver::ADLDriver(hardware::opl::woody::OPL* opl) :
             _opl(opl), _rnd(RANDOM_SEED)
@@ -349,7 +333,7 @@ namespace drivers
 
                     if (opcode & 0x80)
                     {
-                        opcode = CLIP(opcode & 0x7F, 0, _parserOpcodeTableSize - 1);
+                        opcode = utils::CLIP(opcode & 0x7F, 0, _parserOpcodeTableSize - 1);
                         const ParserOpcode& op = _parserOpcodeTable[opcode];
 
                         // Safety check for end of data.
@@ -588,20 +572,20 @@ namespace drivers
             {
                 const uint8_t* table;
                 // For safety, limit the values used to index the tables.
-                uint8_t indexNote = CLIP(rawNote & 0x0F, 0, 11);
+                uint8_t indexNote = utils::CLIP(rawNote & 0x0F, 0, 11);
 
                 if (channel.pitchBend >= 0) {
                     table = _pitchBendTables[indexNote + 2];
-                    freq += table[CLIP(+channel.pitchBend, 0, 31)];
+                    freq += table[utils::CLIP(+channel.pitchBend, 0, 31)];
                 }
                 else {
                     table = _pitchBendTables[indexNote];
-                    freq -= table[CLIP(-channel.pitchBend, 0, 31)];
+                    freq -= table[utils::CLIP(-channel.pitchBend, 0, 31)];
                 }
             }
 
             // Shift octave to correct bit position and limit to valid range.
-            octave = CLIP<int8_t>(octave, 0, 7) << 2;
+            octave = utils::CLIP<int8_t>(octave, 0, 7) << 2;
 
             // Update octave & frequency, but keep on/off state.
             channel.regAx = freq & 0xFF;
@@ -681,7 +665,7 @@ namespace drivers
             // Update vibrato effect variables: vibratoStep is set to a
             // vibratoStepRange+1-bit value proportional to the note's f-number.
             // Reinitalize delay countdown; vibratoStepsCountdown reinitialization omitted.
-            int8_t shift = 9 - CLIP<int8_t>(channel.vibratoStepRange, 0, 9);
+            int8_t shift = 9 - utils::CLIP<int8_t>(channel.vibratoStepRange, 0, 9);
             uint16_t freq = ((channel.regBx << 8) | channel.regAx) & 0x3FF;
             channel.vibratoStep = (freq >> shift) & 0xFF;
             channel.vibratoDelayCountdown = channel.vibratoDelay;
@@ -741,7 +725,7 @@ namespace drivers
             uint8_t note_on = channel.regBx & 0x20;
 
             // Limit slideStep to prevent integer overflow.
-            freq += CLIP<int16_t>(channel.slideStep, -0x3FF, 0x3FF);
+            freq += utils::CLIP<int16_t>(channel.slideStep, -0x3FF, 0x3FF);
 
             if (channel.slideStep >= 0 && freq >= 734)
             {
@@ -932,7 +916,7 @@ namespace drivers
                 spdlog::debug("ADLDriver::calculateOpLevel1(): WORKAROUND - total level clipping uint/int bug encountered");
             }
 
-            value = CLIP<uint8_t>(value, 0, 0x3F);
+            value = utils::CLIP<uint8_t>(value, 0, 0x3F);
 
             if (!channel.volumeModifier) {
                 value = 0x3F;
@@ -963,7 +947,7 @@ namespace drivers
                 spdlog::debug("ADLDriver::calculateOpLevel2(): WORKAROUND - total level clipping uint/int bug encountered");
             }
 
-            value = CLIP<uint8_t>(value, 0, 0x3F);
+            value = utils::CLIP<uint8_t>(value, 0, 0x3F);
 
             if (!channel.volumeModifier) {
                 value = 0x3F;
@@ -975,7 +959,7 @@ namespace drivers
 
         uint16_t ADLDriver::checkValue(const int16_t val)
         {
-            return CLIP<int16_t>(val, 0, 0x3F);
+            return utils::CLIP<int16_t>(val, 0, 0x3F);
         }
 
         bool ADLDriver::advance(uint8_t& timer, const uint8_t tempo)
@@ -1011,7 +995,7 @@ namespace drivers
             if (progId < 0 || progId >= (int32_t)_soundDataSize / 2)
                 return nullptr;
 
-            //const uint16_t offset = READ_LE_UINT16(_soundData + 2 * progId);
+            //const uint16_t offset = utils::READ_LE_UINT16(_soundData + 2 * progId);
             const uint16_t offset = _adl_file->getTrack(progId);
             // In case an invalid offset is specified we return nullptr to
             // indicate an error. 0xFFFF seems to indicate "this is not a valid
@@ -1044,7 +1028,7 @@ namespace drivers
             if (instrumentId < 0 || instrumentId >= (int32_t)_soundDataSize / 2)
                 return nullptr;
 
-            //const uint16_t offset = READ_LE_UINT16(_soundData + 2 * progId);
+            //const uint16_t offset = utils::READ_LE_UINT16(_soundData + 2 * progId);
             const uint16_t offset = _adl_file->getInstrument(instrumentId);
             
             if (offset == 0 || offset >= _soundDataSize) {
@@ -1066,7 +1050,7 @@ namespace drivers
         {
             if (--channel.repeatCounter)
             {
-                int16_t add = READ_LE_UINT16(values);
+                int16_t add = utils::READ_LE_UINT16(values);
 
                 // Safety check: ignore jump to invalid address
                 if (!checkDataOffset(channel.dataptr, add)) {
@@ -1159,7 +1143,7 @@ namespace drivers
 
         int ADLDriver::update_jump(Channel& channel, const uint8_t* values)
         {
-            int16_t add = READ_LE_UINT16(values);
+            int16_t add = utils::READ_LE_UINT16(values);
             // Safety check: ignore jump to invalid address
             if (_version == 1) {
                 channel.dataptr = checkDataOffset(_soundData, add - 191);
@@ -1184,7 +1168,7 @@ namespace drivers
 
         int ADLDriver::update_jumpToSubroutine(Channel& channel, const uint8_t* values)
         {
-            int16_t add = READ_LE_UINT16(values);
+            int16_t add = utils::READ_LE_UINT16(values);
 
             // Safety checks: ignore jumps when stack is full or address is invalid.
             if (channel.dataptrStackPos >= ARRAYSIZE(channel.dataptrStack))
@@ -1294,7 +1278,7 @@ namespace drivers
             // since the sound data is exactly the same.
             // In DOSBox the teleporters will sound different in EOB I and II, due to different sound
             // data offsets.
-            channel.secondaryEffectData = READ_LE_UINT16(&values[3]) - 191;
+            channel.secondaryEffectData = utils::READ_LE_UINT16(&values[3]) - 191;
             channel.secondaryEffect = &ADLDriver::secondaryEffect1;
 
             // Safety check: don't enable effect when table location is invalid.
@@ -1381,7 +1365,7 @@ namespace drivers
         int ADLDriver::update_setupPrimaryEffectSlide(Channel& channel, const uint8_t* values)
         {
             channel.slideTempo = values[0];
-            channel.slideStep = READ_BE_UINT16(&values[1]);
+            channel.slideStep = utils::READ_BE_UINT16(&values[1]);
             channel.primaryEffect = &ADLDriver::primaryEffectSlide;
             channel.slideTimer = 0xFF;
 
@@ -1671,7 +1655,7 @@ namespace drivers
                 return 0;
             }
 
-            uint16_t mask = READ_BE_UINT16(values);
+            uint16_t mask = utils::READ_BE_UINT16(values);
             uint16_t note = ((channel.regBx & 0x1F) << 8) | channel.regAx;
             note += mask & getRandomNr();
             note |= ((channel.regBx & 0x20) << 8);
@@ -1719,7 +1703,7 @@ namespace drivers
 
         int ADLDriver::update_changeChannelTempo(Channel& channel, const uint8_t* values)
         {
-            channel.tempo = CLIP(channel.tempo + static_cast<int8_t>(values[0]), 1, 255);
+            channel.tempo = utils::CLIP(channel.tempo + static_cast<int8_t>(values[0]), 1, 255);
             return 0;
         }
 

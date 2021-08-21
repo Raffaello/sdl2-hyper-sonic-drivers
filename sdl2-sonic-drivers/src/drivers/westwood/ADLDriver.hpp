@@ -5,70 +5,65 @@
 #include <memory>
 #include <mutex>
 #include <hardware/opl/OPL.hpp>
+#include <files/ADLFile.hpp>
 
 namespace drivers
 {
     namespace westwood
     {
-        // TODO: move in utils
-        template <class T>
-        static inline T CLIP(const T& value, const T& min, const T& max) {
-            return value < min ? min : value > max ? max : value;
-        }
-        // TODO: remove
-        static inline uint16_t READ_LE_UINT16(const void* ptr) {
-            const uint8_t* b = (const uint8_t*)ptr;
-            return (b[1] << 8) + b[0];
-        }
-
-        class ADLDriver /* : public PCSoundDriver */
+        /// <summary>
+        /// Driver for .ADL files and OPL Chips
+        /// Originally shuold be the DUNE2 ALFX.DRV file and PCSOUND.DRV
+        /// This file was propretary for optimized Westwood .ADL files
+        /// and they were not using Miles driver for musics in OPL Chips
+        /// as those were only for .XMI files and only used for MT-32/GM
+        /// ------------------------------------------------------------
+        /// AdLib implementation of the sound output device.
+        ///
+        /// It uses a sound file format special to EoB I, II, Dune II,
+        /// Kyrandia 1 and 2, and LoL.There are slightly different
+        /// variants: EoB I uses the oldest format(version 1);
+        /// EoB II(version 2), Dune IIand Kyrandia 1 (version 3) have
+        /// the same file format(but need different offset adjustments);
+        /// Kyrandia 2 and LoL format(version 4) is different again.
+        /// </summary>
+        class ADLDriver final /* : public PCSoundDriver */
         {
         public:
-            ADLDriver(std::shared_ptr<audio::scummvm::Mixer> mixer, int version);
+            ADLDriver(std::shared_ptr<audio::scummvm::Mixer> mixer);
+            ADLDriver(std::shared_ptr<audio::scummvm::Mixer> mixer, std::shared_ptr<files::ADLFile> adl_file);
             ~ADLDriver(); //override;
-
+            void setADLFile(const std::shared_ptr<files::ADLFile> adl_file) noexcept;
             void initDriver(); //override;
             void setSoundData(uint8_t* data, uint32_t size);// override;
-            void startSound(int track, int volume);// override;
-            bool isChannelPlaying(int channel);// override;
+            void startSound(const int track, const int volume);// override;
+            bool isChannelPlaying(const int channel);// override;
             void stopAllChannels();// override;
-            int getSoundTrigger() const /*override*/ { return _soundTrigger; }
-            void resetSoundTrigger() /*override*/ { _soundTrigger = 0; }
+            int getSoundTrigger() const; /*override*/
+            void resetSoundTrigger(); /*override*/
 
             void callback();
 
-            void setSyncJumpMask(uint16_t mask) /*override*/ { _syncJumpMask = mask; }
+            void setSyncJumpMask(uint16_t mask); /*override*/
 
-            void setMusicVolume(uint8_t volume);// override;
-            void setSfxVolume(uint8_t volume);// override;
+            void setMusicVolume(const uint8_t volume);// override;
+            void setSfxVolume(const uint8_t volume);// override;
 
         private:
+            std::shared_ptr<files::ADLFile> _adl_file = nullptr;
             // From parent class
             uint8_t* _soundData;
             uint32_t _soundDataSize;
-            uint8_t* getProgram(int progId) {
-                // Safety check: invalid progId would crash.
-                if (progId < 0 || progId >= (int32_t)_soundDataSize / 2)
-                    return nullptr;
+            // --- TODO: move in ADLFile ----------------------------------
+            // The sound data has two lookup tables:
+            // * One for programs, starting at offset 0.
+            // * One for instruments, starting at offset 300, 500, or 1000.
 
-                const uint16_t offset = READ_LE_UINT16(_soundData + 2 * progId);
-
-                // In case an invalid offset is specified we return nullptr to
-                // indicate an error. 0xFFFF seems to indicate "this is not a valid
-                // program/instrument". However, 0 is also invalid because it points
-                // inside the offset table itself. We also ignore any offsets outside
-                // of the actual data size.
-                // The original does not contain any safety checks and will simply
-                // read outside of the valid sound data in case an invalid offset is
-                // encountered.
-                if (offset == 0 || offset >= _soundDataSize) {
-                    return nullptr;
-                }
-                else {
-                    return _soundData + offset;
-                }
-            }
-
+            // Method moved to parent class in scummvm:
+            //uint8_t* getProgram(const int progId);
+            uint8_t* getProgram(const int progId);
+            const uint8_t* getInstrument(const int instrumentId);
+            // ---- END ---------------------------------------------------
             // end from parent class
 
             struct Channel {
@@ -134,6 +129,7 @@ namespace drivers
             void noteOff(Channel& channel);
             void initAdlibChannel(uint8_t num);
 
+            // TODO: move in utils
             uint16_t getRandomNr();
             void setupDuration(uint8_t duration, Channel& channel);
 
@@ -146,33 +142,19 @@ namespace drivers
             uint8_t calculateOpLevel1(Channel& channel);
             uint8_t calculateOpLevel2(Channel& channel);
 
-            static uint16_t checkValue(int16_t val) { return CLIP<int16_t>(val, 0, 0x3F); }
+            static uint16_t checkValue(int16_t val);
 
             // The driver uses timer/tempo pairs in several places. On every
             // callback, the tempo is added to the timer. This will frequently
             // cause the timer to "wrap around", which is the signal to go ahead
             // and do more stuff.
-            static bool advance(uint8_t& timer, uint8_t tempo) {
-                uint8_t old = timer;
-                timer += tempo;
-                return timer < old;
-            }
-
-            const uint8_t* checkDataOffset(const uint8_t* ptr, long n) {
-                if (ptr) {
-                    long offset = ptr - _soundData;
-                    if (n >= -offset && n <= (long)_soundDataSize - offset)
-                        return ptr + n;
-                }
-                return nullptr;
-            }
+            static bool advance(uint8_t& timer, uint8_t tempo);
+            const uint8_t* checkDataOffset(const uint8_t* ptr, long n);
 
             // The sound data has two lookup tables:
             // * One for programs, starting at offset 0.
             // * One for instruments, starting at offset 300, 500, or 1000.
-            const uint8_t* getInstrument(int instrumentId) {
-                return getProgram(_numPrograms + instrumentId);
-            }
+            //const uint8_t* getInstrument(int instrumentId);
 
             void setupPrograms();
             void executePrograms();
@@ -272,7 +254,8 @@ namespace drivers
 
             hardware::opl::OPL* _adlib;
 
-            struct QueueEntry {
+            struct QueueEntry
+            {
                 QueueEntry() : data(0), id(0), volume(0) {}
                 QueueEntry(uint8_t* ptr, uint8_t track, uint8_t vol) : data(ptr), id(track), volume(vol) {}
                 uint8_t* data;
@@ -312,14 +295,15 @@ namespace drivers
 
             uint16_t _syncJumpMask;
 
-            //Common::Mutex _mutex;
             std::mutex _mutex;
             std::shared_ptr<audio::scummvm::Mixer> _mixer;
 
-            uint8_t _musicVolume, _sfxVolume;
+            uint8_t _musicVolume;
+            uint8_t _sfxVolume;
 
-            int _numPrograms;
-            int _version;
+            // TODO: review _version checking
+            // Version 1,2,3 possible values, version 3&4 merged into version 3
+            uint8_t _version = 0;
         };
     }
 }

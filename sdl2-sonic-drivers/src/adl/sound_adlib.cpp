@@ -2374,7 +2374,7 @@ bool SoundAdlibPC::isPlaying() {
     return (bJustStartedPlaying == true) || bPlaying;
 }
 
-void SoundAdlibPC::playSoundEffect(uint8 track) {
+void SoundAdlibPC::playSoundEffect(uint8_t track) {
     play(track);
 }
 

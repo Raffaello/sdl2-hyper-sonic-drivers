@@ -2,40 +2,46 @@
 #include <hardware/opl/scummvm/Config.hpp>
 #include <spdlog/spdlog.h>
 #include <functional>
+#include <utils/algorithms.hpp>
+#include <utils/endianness.hpp>
 
+using utils::CLIP;
+using utils::READ_BE_UINT16;
+using utils::READ_LE_UINT16;
 
-#define CALLBACKS_PER_SECOND 72
+constexpr int CALLBACKS_PER_SECOND = 72;
+
+constexpr int NUM_CHANNELS = 9;
+constexpr int RANDOM_SEED = 0x1234;
+constexpr int RANDOM_INC = 0x9248;
+
+// TODO: move to utils and as a constexpr
+#define ARRAYSIZE(x) ((int)(sizeof(x) / sizeof(x[0])))
 
 namespace drivers
 {
     namespace westwood
     {
-        // TODO: remove
-        static inline uint16_t READ_BE_UINT16(const void* ptr) {
-            const uint8_t* b = (const uint8_t*)ptr;
-            return (b[0] << 8) + b[1];
-        }
-
-        // TODO: move to utils and as a constexpr
-#define ARRAYSIZE(x) ((int)(sizeof(x) / sizeof(x[0])))
-
-        ADLDriver::ADLDriver(std::shared_ptr<audio::scummvm::Mixer> mixer, int version) /* : PCSoundDriver()*/
+        ADLDriver::ADLDriver(std::shared_ptr<audio::scummvm::Mixer> mixer) /* : PCSoundDriver()*/
         {
-            _version = version;
-            _numPrograms = (_version == 1) ? 150 : ((_version == 4) ? 500 : 250);
-
             _mixer = mixer;
 
-            _adlib = hardware::opl::scummvm::Config::create(hardware::opl::scummvm::OplEmulator::MAME,hardware::opl::scummvm::Config::OplType::OPL2, mixer);
+            _adlib = hardware::opl::scummvm::Config::create(
+                hardware::opl::scummvm::OplEmulator::MAME,
+                hardware::opl::scummvm::Config::OplType::OPL2,
+                mixer
+            );
+
             if (!_adlib || !_adlib->init()) {
                 spdlog::error("Failed to create OPL");
             }
+
             memset(_channels, 0, sizeof(_channels));
 
             _vibratoAndAMDepthBits = _curRegOffset = 0;
 
             _curChannel = _rhythmSectionBits = 0;
-            _rnd = 0x1234;
+            _rnd = RANDOM_SEED;
 
             _tempo = 0;
             _soundTrigger = 0;
@@ -69,12 +75,141 @@ namespace drivers
             _adlib->start(&cb, CALLBACKS_PER_SECOND);
         }
 
-        ADLDriver::~ADLDriver() {
+        ADLDriver::ADLDriver(std::shared_ptr<audio::scummvm::Mixer> mixer, std::shared_ptr<files::ADLFile> adl_file)
+            : ADLDriver(mixer)
+        {
+            setADLFile(adl_file);
+        }
+
+        ADLDriver::~ADLDriver()
+        {
             delete _adlib;
             _adlib = nullptr;
         }
 
-        void ADLDriver::setMusicVolume(uint8_t volume) {
+        void ADLDriver::setADLFile(const std::shared_ptr<files::ADLFile> adl_file) noexcept
+        {
+            _adl_file = adl_file;
+            
+            _version = _adl_file->getVersion();
+
+            _soundDataSize = _adl_file->getDataSize();
+            // TODO: refactor, remove pointers.
+            _soundData = const_cast<uint8_t*>(_adl_file->getDataPtr());
+        }
+
+        void ADLDriver::initDriver()
+        {
+            const std::lock_guard<std::mutex> lock(_mutex);
+
+            resetAdLibState();
+        }
+
+        void ADLDriver::setSoundData(uint8_t* data, uint32_t size)
+        {
+            const std::lock_guard<std::mutex> lock(_mutex);
+
+            // Drop all tracks that are still queued. These would point to the old
+            // sound data.
+            _programQueueStart = _programQueueEnd = 0;
+            for (int i = 0; i < ARRAYSIZE(_programQueue); ++i)
+                _programQueue[i] = QueueEntry();
+
+            _sfxPointer = nullptr;
+
+            _soundData = data;
+            _soundDataSize = size;
+        }
+
+        void ADLDriver::startSound(const int track, const int volume)
+        {
+            const std::lock_guard<std::mutex> lock(_mutex);
+
+            uint8_t* trackData = getProgram(track);
+            if (!trackData) {
+                return;
+            }
+
+            // We used to drop the new sound here, but that isn't the behavior of the original code.
+            // It would cause more issues than do any good. Now, we just have a debug message and
+            // then drop the oldest sound, like the original driver...
+            if (_programQueueEnd == _programQueueStart && _programQueue[_programQueueEnd].data != 0) {
+                spdlog::debug("ADLDriver: Program queue full, dropping track %d", _programQueue[_programQueueEnd].id);
+            }
+
+            _programQueue[_programQueueEnd] = QueueEntry(trackData, track, volume);
+            ++_programQueueEnd &= 15;
+        }
+
+        bool ADLDriver::isChannelPlaying(const int channel)
+        {
+            const std::lock_guard<std::mutex> lock(_mutex);
+
+            assert(channel >= 0 && channel <= NUM_CHANNELS);
+            return (_channels[channel].dataptr != 0);
+        }
+
+        void ADLDriver::stopAllChannels() {
+            const std::lock_guard<std::mutex> lock(_mutex);
+
+            for (int channel = 0; channel <= 9; ++channel) {
+                _curChannel = channel;
+
+                Channel& chan = _channels[_curChannel];
+                chan.priority = 0;
+                chan.dataptr = 0;
+
+                if (channel != NUM_CHANNELS) {
+                    noteOff(chan);
+                }
+            }
+            _retrySounds = false;
+
+            _programQueueStart = _programQueueEnd = 0;
+            _programQueue[0] = QueueEntry();
+            _programStartTimeout = 0;
+        }
+
+        int ADLDriver::getSoundTrigger() const
+        {
+            return _soundTrigger;
+        }
+
+        void ADLDriver::resetSoundTrigger()
+        {
+            _soundTrigger = 0;
+        }
+
+        // timer callback
+        //
+        // Starts and executes programs and maintains a global beat that channels
+        // can synchronize on.
+
+        void ADLDriver::callback()
+        {
+            const std::lock_guard<std::mutex> lock(_mutex);
+
+            if (_programStartTimeout)
+                --_programStartTimeout;
+            else
+                setupPrograms();
+            executePrograms();
+
+            if (advance(_callbackTimer, _tempo)) {
+                if (!(--_beatDivCnt)) {
+                    _beatDivCnt = _beatDivider;
+                    ++_beatCounter;
+                }
+            }
+        }
+
+        void ADLDriver::setSyncJumpMask(uint16_t mask)
+        {
+            _syncJumpMask = mask;
+        }
+
+        void ADLDriver::setMusicVolume(const uint8_t volume)
+        {
             const std::lock_guard<std::mutex> lock(_mutex);
 
             _musicVolume = volume;
@@ -91,10 +226,13 @@ namespace drivers
             }
 
             // For now we use the music volume for both sfx and music in Kyra1 and EoB
-            if (_version < 4) {
+            //if (_version < 4)
+            if (_version < 3)
+            {
                 _sfxVolume = volume;
 
-                for (uint8_t i = 6; i < 9; ++i) {
+                for (uint8_t i = 6; i < NUM_CHANNELS; ++i)
+                {
                     Channel& chan = _channels[i];
                     chan.volumeModifier = volume;
 
@@ -107,9 +245,9 @@ namespace drivers
             }
         }
 
-        void ADLDriver::setSfxVolume(uint8_t volume) {
+        void ADLDriver::setSfxVolume(const uint8_t volume) {
             // We only support sfx volume in version 4 games.
-            if (_version < 4)
+            if (_version < 3)
                 return;
 
             const std::lock_guard<std::mutex> lock(_mutex);
@@ -128,167 +266,240 @@ namespace drivers
             }
         }
 
-        void ADLDriver::initDriver() {
-            const std::lock_guard<std::mutex> lock(_mutex);
-            resetAdLibState();
-        }
-
-        void ADLDriver::setSoundData(uint8_t* data, uint32_t size) {
-            const std::lock_guard<std::mutex> lock(_mutex);
-
-            // Drop all tracks that are still queued. These would point to the old
-            // sound data.
-            _programQueueStart = _programQueueEnd = 0;
-            for (int i = 0; i < ARRAYSIZE(_programQueue); ++i)
-                _programQueue[i] = QueueEntry();
-
-            _sfxPointer = nullptr;
-
-            _soundData = data;
-            _soundDataSize = size;
-        }
-
-        void ADLDriver::startSound(int track, int volume) {
-            const std::lock_guard<std::mutex> lock(_mutex);
-
-            uint8_t* trackData = getProgram(track);
-            if (!trackData)
-                return;
-
-            // We used to drop the new sound here, but that isn't the behavior of the original code.
-            // It would cause more issues than do any good. Now, we just have a debug message and
-            // then drop the oldest sound, like the original driver...
-            if (_programQueueEnd == _programQueueStart && _programQueue[_programQueueEnd].data != 0) {
-                spdlog::debug("ADLDriver: Program queue full, dropping track %d", _programQueue[_programQueueEnd].id);
+        uint8_t* ADLDriver::getProgram(const int progId)
+        {
+            if (_adl_file == nullptr) {
+                spdlog::error("ADLDriver::getProgram(): no ADL file loaded.");
+                return nullptr;
             }
 
-            _programQueue[_programQueueEnd] = QueueEntry(trackData, track, volume);
-            ++_programQueueEnd &= 15;
-        }
+            // Safety check: invalid progId would crash.
+            if (progId < 0 || progId >= (int32_t)_soundDataSize / 2)
+                return nullptr;
 
-        bool ADLDriver::isChannelPlaying(int channel) {
-            const std::lock_guard<std::mutex> lock(_mutex);
-
-            assert(channel >= 0 && channel <= 9);
-            return (_channels[channel].dataptr != 0);
-        }
-
-        void ADLDriver::stopAllChannels() {
-            const std::lock_guard<std::mutex> lock(_mutex);
-
-            for (int channel = 0; channel <= 9; ++channel) {
-                _curChannel = channel;
-
-                Channel& chan = _channels[_curChannel];
-                chan.priority = 0;
-                chan.dataptr = 0;
-
-                if (channel != 9)
-                    noteOff(chan);
+            //const uint16_t offset = READ_LE_UINT16(_soundData + 2 * progId);
+            const uint16_t offset = _adl_file->getTrack(progId);
+            // In case an invalid offset is specified we return nullptr to
+            // indicate an error. 0xFFFF seems to indicate "this is not a valid
+            // program/instrument". However, 0 is also invalid because it points
+            // inside the offset table itself. We also ignore any offsets outside
+            // of the actual data size.
+            // The original does not contain any safety checks and will simply
+            // read outside of the valid sound data in case an invalid offset is
+            // encountered.
+            if (offset == 0 || offset >= _soundDataSize) {
+                return nullptr;
             }
-            _retrySounds = false;
-
-            _programQueueStart = _programQueueEnd = 0;
-            _programQueue[0] = QueueEntry();
-            _programStartTimeout = 0;
+            else {
+                return _soundData + offset;
+            }
         }
 
-        // timer callback
+        const uint8_t* ADLDriver::getInstrument(const int instrumentId)
+        {
+            // TODO: Refactor
+
+            //return getProgram(_numPrograms + instrumentId);
+            if (_adl_file == nullptr) {
+                spdlog::error("ADLDriver::getInstrument(): no ADL file loaded.");
+                return nullptr;
+            }
+
+            // Safety check: invalid progId would crash.
+            if (instrumentId < 0 || instrumentId >= (int32_t)_soundDataSize / 2)
+                return nullptr;
+
+            //const uint16_t offset = utils::READ_LE_UINT16(_soundData + 2 * progId);
+            const uint16_t offset = _adl_file->getInstrument(instrumentId);
+
+            if (offset == 0 || offset >= _soundDataSize) {
+                return nullptr;
+            }
+            else {
+                return _soundData + offset;
+            }
+        }
+
+        // This is presumably only used for some sound effects, e.g. Malcolm blowing up
+        // the trees in the intro (but not the effect where he "booby-traps" the big
+        // tree) and turning Kallak to stone. Related functions and variables:
         //
-        // Starts and executes programs and maintains a global beat that channels
-        // can synchronize on.
+        // update_setupPrimaryEffectSlide()
+        //    - Initializes slideTempo, slideStep and slideTimer
+        //    - slideTempo is not further modified
+        //    - slideStep is not further modified, except by update_removePrimaryEffectSlide()
+        //
+        // update_removePrimaryEffectSlide()
+        //    - Deinitializes slideStep
+        //
+        // slideTempo - determines how often the frequency is updated
+        // slideStep  - amount the frequency changes each update
+        // slideTimer - keeps track of time
+        void ADLDriver::primaryEffectSlide(Channel& channel)
+        {
+            spdlog::debug("Calling primaryEffectSlide (channel: %d)", _curChannel);
 
-        void ADLDriver::callback() {
-            const std::lock_guard<std::mutex> lock(_mutex);
+            if (_curChannel >= NUM_CHANNELS) {
+                return;
+            }
 
-            if (_programStartTimeout)
-                --_programStartTimeout;
-            else
-                setupPrograms();
-            executePrograms();
+            // Time for next frequency update?
+            if (!advance(channel.slideTimer, channel.slideTempo)) {
+                return;
+            }
 
-            if (advance(_callbackTimer, _tempo)) {
-                if (!(--_beatDivCnt)) {
-                    _beatDivCnt = _beatDivider;
-                    ++_beatCounter;
+            // Extract current frequency, (shifted) octave, and "note on" bit into
+            // separate variable so calculations can't overflow into other fields.
+            int16_t freq = ((channel.regBx & 0x03) << 8) | channel.regAx;
+            int8_t octave = channel.regBx & 0x1C;
+            int8_t note_on = channel.regBx & 0x20;
+
+            // Limit slideStep to prevent integer overflow.
+            freq += CLIP<int16_t>(channel.slideStep, -0x3FF, 0x3FF);
+
+            if (channel.slideStep >= 0 && freq >= 734)
+            {
+                // The new frequency is too high. Shift it down and go
+                // up one octave.
+                freq >>= 1;
+                if (!(freq & 0x3FF))
+                    ++freq;
+                octave += 4;
+            }
+            else if (channel.slideStep < 0 && freq < 388)
+            {
+                // Safety check: a negative frequency triggers undefined
+                // behavior for the left shift operator below.
+                if (freq < 0)
+                    freq = 0;
+
+                // The new frequency is too low. Shift it up and go
+                // down one octave.
+                freq <<= 1;
+                if (!(freq & 0x3FF))
+                    --freq;
+                octave -= 4;
+            }
+
+            // Set new frequency and octave.
+            channel.regAx = freq & 0xFF;
+            channel.regBx = note_on | (octave & 0x1C) | ((freq >> 8) & 0x03);
+
+            writeOPL(0xA0 + _curChannel, channel.regAx);
+            writeOPL(0xB0 + _curChannel, channel.regBx);
+        }
+
+        // This is presumably only used for some sound effects, e.g. Malcolm entering
+        // and leaving Kallak's hut. Related functions and variables:
+        //
+        // update_setupPrimaryEffectVibrato()
+        //    - Initializes vibratoTempo, vibratoStepRange, vibratoStepsCountdown,
+        //      vibratoNumSteps, and vibratoDelay
+        //    - vibratoTempo is not further modified
+        //    - vibratoStepRange is not further modified
+        //    - vibratoStepsCountdown is a countdown that gets reinitialized to
+        //      vibratoNumSteps on zero, but is initially only half as much
+        //    - vibratoNumSteps is not further modified
+        //    - vibratoDelay is not further modified
+        //
+        // noteOn()
+        //    - Plays the current note
+        //    - Sets vibratoStep depending on vibratoStepRange and the note's f-number
+        //    - Initializes vibratoDelayCountdown with vibratoDelay
+        //
+        // vibratoTempo          - determines how often the frequency is updated
+        // vibratoStepRange      - determines frequency step size depending on f-number
+        // vibratoStepsCountdown - reverses slide direction on zero
+        // vibratoNumSteps       - initializer for vibratoStepsCountdown countdown
+        // vibratoDelay          - initializer for vibratoDelayCountdown
+        // vibratoStep           - amount the frequency changes each update
+        // vibratoDelayCountdown - effect starts when it reaches zero
+        // vibratoTimer          - keeps track of time
+        //
+        // Note that vibratoTimer is never initialized. Not that it should matter much,
+        // but it is a bit sloppy. Also vibratoStepsCountdown should be reset to its
+        // initial value in noteOn() but isn't.
+        void ADLDriver::primaryEffectVibrato(Channel& channel)
+        {
+            spdlog::debug("Calling primaryEffectVibrato (channel: %d)", _curChannel);
+
+            if (_curChannel >= NUM_CHANNELS) {
+                return;
+            }
+
+            // When a new note is played the effect doesn't start immediately.
+            if (channel.vibratoDelayCountdown) {
+                --channel.vibratoDelayCountdown;
+                return;
+            }
+
+            // Time for an update?
+            if (advance(channel.vibratoTimer, channel.vibratoTempo))
+            {
+                // Reverse direction every vibratoNumSteps updates
+                if (!(--channel.vibratoStepsCountdown)) {
+                    channel.vibratoStep = -channel.vibratoStep;
+                    channel.vibratoStepsCountdown = channel.vibratoNumSteps;
                 }
+
+                // Update frequency.
+                uint16_t freq = ((channel.regBx << 8) | channel.regAx) & 0x3FF;
+                freq += channel.vibratoStep;
+
+                channel.regAx = freq & 0xFF;
+                channel.regBx = (channel.regBx & 0xFC) | (freq >> 8);
+
+                // Octave / F-Number / Key-On
+                writeOPL(0xA0 + _curChannel, channel.regAx);
+                writeOPL(0xB0 + _curChannel, channel.regBx);
             }
         }
 
-        void ADLDriver::setupPrograms() {
-            QueueEntry& entry = _programQueue[_programQueueStart];
-            uint8_t* ptr = entry.data;
+        // I don't know where this is used. An OPL register is regularly updated
+        // with data from a chunk of the _soundData[] buffer, i.e., one instrument
+        // parameter register is modulated with data from the chunk. The data is
+        // reused repeatedly starting from the end of the chunk.
+        //
+        // Since we use _curRegOffset to specify the final register, it's quite
+        // unlikely that this function is ever used to play notes. It's probably only
+        // used to modify the sound. Another thing that supports this idea is that it
+        // can be combined with any of the effects callbacks above.
+        //
+        // Related functions and variables:
+        //
+        // update_setupSecondaryEffect1()
+        //    - Initialies secondaryEffectTimer, secondaryEffectTempo,
+        //      secondaryEffectSize, secondaryEffectPos, secondaryEffectRegbase,
+        //      and secondaryEffectData
+        //    - secondaryEffectTempo is not further modified
+        //    - secondaryEffectSize is not further modified
+        //    - secondaryEffectRegbase is not further modified
+        //    - secondaryEffectData is not further modified
+        //
+        // secondaryEffectTimer   - keeps track of time
+        // secondaryEffectTempo   - determines how often the operation is performed
+        // secondaryEffectSize    - the size of the data chunk
+        // secondaryEffectPos     - the current index into the data chunk
+        // secondaryEffectRegbase - the operation to perform
+        // secondaryEffectData    - the offset of the data chunk
+        void ADLDriver::secondaryEffect1(Channel& channel) {
+            spdlog::debug("Calling secondaryEffect1 (channel: %d)", _curChannel);
 
-            // If there is no program queued, we skip this.
-            if (_programQueueStart == _programQueueEnd && !ptr)
+            if (_curChannel >= NUM_CHANNELS) {
                 return;
-
-            // The AdLib driver (in its old versions used for EOB) is not suitable for modern (fast) CPUs.
-            // The stop sound track (track 0 which has a priority of 50) will often still be busy when the
-            // next sound (with a lower priority) starts which will cause that sound to be skipped. We simply
-            // restart incoming sounds during stop sound execution.
-            // UPDATE: This still applies after introduction of the _programQueue.
-            // UPDATE: This can also happen with the HOF main menu, so I commented out the version < 3 limitation.
-            QueueEntry retrySound;
-            if (/*_version < 3 &&*/ entry.id == 0)
-                _retrySounds = true;
-            else if (_retrySounds)
-                retrySound = entry;
-
-            // Clear the queue entry
-            entry.data = nullptr;
-            ++_programQueueStart &= 15;
-
-            // Safety check: 2 bytes (channel, priority) are required for each
-            // program, plus 2 more bytes (opcode, _sfxVelocity) for sound effects.
-            // More data is needed, but executePrograms() checks for that.
-            // Also ignore request for invalid channel number.
-            if (!checkDataOffset(ptr, 2))
-                return;
-
-            const int chan = *ptr;
-            if (chan > 9 || (chan < 9 && !checkDataOffset(ptr, 4)))
-                return;
-
-            Channel& channel = _channels[chan];
-
-            // Adjust data in case we hit a sound effect.
-            adjustSfxData(ptr++, entry.volume);
-
-            const int priority = *ptr++;
-
-            // Only start this sound if its priority is higher than the one
-            // already playing.
-
-            if (priority >= channel.priority) {
-                initChannel(channel);
-                channel.priority = priority;
-                channel.dataptr = ptr;
-                channel.tempo = 0xFF;
-                channel.timer = 0xFF;
-                channel.duration = 1;
-
-                if (chan <= 5)
-                    channel.volumeModifier = _musicVolume;
-                else
-                    channel.volumeModifier = _sfxVolume;
-
-                initAdlibChannel(chan);
-
-                // We need to wait two callback calls till we can start another track.
-                // This is (probably) required to assure that the sfx are started with
-                // the correct priority and velocity.
-                _programStartTimeout = 2;
-
-                retrySound = QueueEntry();
             }
 
-            if (retrySound.data) {
-                spdlog::debug("ADLDriver::setupPrograms(): WORKAROUND - Restarting skipped sound %d)", retrySound.id);
-                startSound(retrySound.id, retrySound.volume);
+            if (advance(channel.secondaryEffectTimer, channel.secondaryEffectTempo))
+            {
+                if (--channel.secondaryEffectPos < 0) {
+                    channel.secondaryEffectPos = channel.secondaryEffectSize;
+                }
+
+                writeOPL(channel.secondaryEffectRegbase + _curRegOffset,
+                    _soundData[channel.secondaryEffectData + channel.secondaryEffectPos]);
             }
         }
-
+        
         void ADLDriver::adjustSfxData(uint8_t* ptr, int volume) {
             // Check whether we need to reset the data of an old sfx which has been
             // started.
@@ -321,143 +532,6 @@ namespace drivers
                     int newVal = ((_sfxVelocity << 2) ^ 0xFF) * volume;
                     ptr[3] = (newVal >> 10) ^ 0x3F;
                     ptr[1] = newVal >> 11;
-                }
-            }
-        }
-
-        // A few words on opcode parsing and timing:
-        //
-        // First of all, we simulate a timer callback 72 times per second. Each timeout
-        // we update each channel that has something to play.
-        //
-        // Each channel has its own individual tempo and timer. The timer is updated,
-        // and when it wraps around, we go ahead and do more stuff with that channel.
-        // Otherwise we skip straiht to the effect callbacks.
-        //
-        // Each channel also has a duration, indicating how much time is left on its
-        // current task. This duration is decreased by one. As long as it still has
-        // not reached zero, the only thing that can happen is that the note is turned
-        // off depending on manual or automatic note spacing. Once the duration reaches
-        // zero, a new set of musical opcodes are executed.
-        //
-        // An opcode is one byte, followed by a variable number of parameters.
-        // If the most significant bit of the opcode is 1, it's a function; call it.
-        // An opcode function can change control flow by updating the channel's data
-        // pointer (which is set to the next opcode before the call). The function's
-        // return value is either 0 (continue), 1 (stop) or 2 (stop, and do not run
-        // the effects callbacks).
-        //
-        // If the most significant bit of the opcode is 0, it's a note, and the first
-        // parameter is its duration. (There are cases where the duration is modified
-        // but that's an exception.) The note opcode is assumed to return 1, and is the
-        // last opcode unless its duration is zero.
-        //
-        // Finally, most of the times that the callback is called, it will invoke the
-        // effects callbacks. The final opcode in a set can prevent this, if it's a
-        // function and it returns anything other than 1.
-
-        void ADLDriver::executePrograms() {
-            // Each channel runs its own program. There are ten channels: One for
-            // each AdLib channel (0-8), plus one "control channel" (9) which is
-            // the one that tells the other channels what to do.
-
-            if (_syncJumpMask) {
-                // This is where we ensure that channels that are made to jump
-                // "in sync" do so.
-
-                for (_curChannel = 9; _curChannel >= 0; --_curChannel) {
-                    if ((_syncJumpMask & (1 << _curChannel)) && _channels[_curChannel].dataptr && !_channels[_curChannel].lock)
-                        break; // don't unlock
-                }
-
-                if (_curChannel < 0) {
-                    // force unlock
-                    for (_curChannel = 9; _curChannel >= 0; --_curChannel)
-                        if (_syncJumpMask & (1 << _curChannel))
-                            _channels[_curChannel].lock = false;
-                }
-            }
-
-            for (_curChannel = 9; _curChannel >= 0; --_curChannel) {
-                Channel& channel = _channels[_curChannel];
-                const uint8_t*& dataptr = channel.dataptr;
-
-                if (!dataptr)
-                    continue;
-
-                if (channel.lock && (_syncJumpMask & (1 << _curChannel)))
-                    continue;
-
-                if (_curChannel == 9)
-                    _curRegOffset = 0;
-                else
-                    _curRegOffset = _regOffset[_curChannel];
-
-                if (channel.tempoReset)
-                    channel.tempo = _tempo;
-
-                int result = 1;
-                if (advance(channel.timer, channel.tempo)) {
-                    if (--channel.duration) {
-                        if (channel.duration == channel.spacing2)
-                            noteOff(channel);
-                        if (channel.duration == channel.spacing1 && _curChannel != 9)
-                            noteOff(channel);
-                    }
-                    else {
-                        // Process some opcodes.
-                        result = 0;
-                    }
-                }
-
-                while (result == 0 && dataptr) {
-                    int8_t opcode = 0xFF;
-                    // Safety check to avoid illegal access.
-                    // Stop channel if not enough data.
-                    if (checkDataOffset(dataptr, 1))
-                        opcode = *dataptr++;
-
-                    if (opcode & 0x80) {
-                        opcode = CLIP<int8_t>(opcode & 0x7F, 0, _parserOpcodeTableSize - 1);
-                        const ParserOpcode& op = _parserOpcodeTable[opcode];
-
-                        // Safety check for end of data.
-                        if (!checkDataOffset(dataptr, op.values)) {
-                            result = update_stopChannel(channel, dataptr);
-                            break;
-                        }
-
-                        spdlog::debug("Calling opcode '%s' (%d) (channel: %d)", op.name, opcode, _curChannel);
-
-                        dataptr += op.values;
-                        result = (this->*(op.function))(channel, dataptr - op.values);
-                    }
-                    else {
-                        // Safety check for end of data.
-                        if (!checkDataOffset(dataptr, 1)) {
-                            result = update_stopChannel(channel, dataptr);
-                            break;
-                        }
-
-                        int8_t duration = *dataptr++;
-                        spdlog::debug("Note on opcode 0x%02X (duration: %d) (channel: %d)", opcode, duration, _curChannel);
-
-                        setupNote(opcode, channel);
-                        noteOn(channel);
-                        setupDuration(duration, channel);
-                        // We need to make sure we are always running the
-                        // effects after this. Otherwise some sounds are
-                        // wrong. Like the sfx when bumping into a wall in
-                        // LoL.
-                        result = duration != 0;
-                    }
-                }
-
-                if (result == 1) {
-                    if (channel.primaryEffect)
-                        (this->*(channel.primaryEffect))(channel);
-                    if (channel.secondaryEffect)
-                        (this->*(channel.secondaryEffect))(channel);
                 }
             }
         }
@@ -573,9 +647,9 @@ namespace drivers
         // I believe this is a random number generator. It actually does seem to
         // generate an even distribution of almost all numbers from 0 through 65535,
         // though in my tests some numbers were never generated.
-
-        uint16_t ADLDriver::getRandomNr() {
-            _rnd += 0x9248;
+        uint16_t ADLDriver::getRandomNr()
+        {
+            _rnd += RANDOM_INC;
             uint16_t lowBits = _rnd & 7;
             _rnd >>= 3;
             _rnd |= (lowBits << 13);
@@ -746,176 +820,9 @@ namespace drivers
                 writeOPL(0x40 + _regOffset[_curChannel], calculateOpLevel1(channel));
         }
 
-        // This is presumably only used for some sound effects, e.g. Malcolm blowing up
-        // the trees in the intro (but not the effect where he "booby-traps" the big
-        // tree) and turning Kallak to stone. Related functions and variables:
-        //
-        // update_setupPrimaryEffectSlide()
-        //    - Initializes slideTempo, slideStep and slideTimer
-        //    - slideTempo is not further modified
-        //    - slideStep is not further modified, except by update_removePrimaryEffectSlide()
-        //
-        // update_removePrimaryEffectSlide()
-        //    - Deinitializes slideStep
-        //
-        // slideTempo - determines how often the frequency is updated
-        // slideStep  - amount the frequency changes each update
-        // slideTimer - keeps track of time
+        
 
-        void ADLDriver::primaryEffectSlide(Channel& channel) {
-            spdlog::debug("Calling primaryEffectSlide (channel: %d)", _curChannel);
 
-            if (_curChannel >= 9)
-                return;
-
-            // Time for next frequency update?
-            if (!advance(channel.slideTimer, channel.slideTempo))
-                return;
-
-            // Extract current frequency, (shifted) octave, and "note on" bit into
-            // separate variable so calculations can't overflow into other fields.
-            int16_t freq = ((channel.regBx & 0x03) << 8) | channel.regAx;
-            int8_t octave = channel.regBx & 0x1C;
-            int8_t note_on = channel.regBx & 0x20;
-
-            // Limit slideStep to prevent integer overflow.
-            freq += CLIP<int16_t>(channel.slideStep, -0x3FF, 0x3FF);
-
-            if (channel.slideStep >= 0 && freq >= 734) {
-                // The new frequency is too high. Shift it down and go
-                // up one octave.
-                freq >>= 1;
-                if (!(freq & 0x3FF))
-                    ++freq;
-                octave += 4;
-            }
-            else if (channel.slideStep < 0 && freq < 388) {
-                // Safety check: a negative frequency triggers undefined
-                // behavior for the left shift operator below.
-                if (freq < 0)
-                    freq = 0;
-
-                // The new frequency is too low. Shift it up and go
-                // down one octave.
-                freq <<= 1;
-                if (!(freq & 0x3FF))
-                    --freq;
-                octave -= 4;
-            }
-
-            // Set new frequency and octave.
-            channel.regAx = freq & 0xFF;
-            channel.regBx = note_on | (octave & 0x1C) | ((freq >> 8) & 0x03);
-
-            writeOPL(0xA0 + _curChannel, channel.regAx);
-            writeOPL(0xB0 + _curChannel, channel.regBx);
-        }
-
-        // This is presumably only used for some sound effects, e.g. Malcolm entering
-        // and leaving Kallak's hut. Related functions and variables:
-        //
-        // update_setupPrimaryEffectVibrato()
-        //    - Initializes vibratoTempo, vibratoStepRange, vibratoStepsCountdown,
-        //      vibratoNumSteps, and vibratoDelay
-        //    - vibratoTempo is not further modified
-        //    - vibratoStepRange is not further modified
-        //    - vibratoStepsCountdown is a countdown that gets reinitialized to
-        //      vibratoNumSteps on zero, but is initially only half as much
-        //    - vibratoNumSteps is not further modified
-        //    - vibratoDelay is not further modified
-        //
-        // noteOn()
-        //    - Plays the current note
-        //    - Sets vibratoStep depending on vibratoStepRange and the note's f-number
-        //    - Initializes vibratoDelayCountdown with vibratoDelay
-        //
-        // vibratoTempo          - determines how often the frequency is updated
-        // vibratoStepRange      - determines frequency step size depending on f-number
-        // vibratoStepsCountdown - reverses slide direction on zero
-        // vibratoNumSteps       - initializer for vibratoStepsCountdown countdown
-        // vibratoDelay          - initializer for vibratoDelayCountdown
-        // vibratoStep           - amount the frequency changes each update
-        // vibratoDelayCountdown - effect starts when it reaches zero
-        // vibratoTimer          - keeps track of time
-        //
-        // Note that vibratoTimer is never initialized. Not that it should matter much,
-        // but it is a bit sloppy. Also vibratoStepsCountdown should be reset to its
-        // initial value in noteOn() but isn't.
-
-        void ADLDriver::primaryEffectVibrato(Channel& channel) {
-            spdlog::debug("Calling primaryEffectVibrato (channel: %d)", _curChannel);
-
-            if (_curChannel >= 9)
-                return;
-
-            // When a new note is played the effect doesn't start immediately.
-            if (channel.vibratoDelayCountdown) {
-                --channel.vibratoDelayCountdown;
-                return;
-            }
-
-            // Time for an update?
-            if (advance(channel.vibratoTimer, channel.vibratoTempo)) {
-                // Reverse direction every vibratoNumSteps updates
-                if (!(--channel.vibratoStepsCountdown)) {
-                    channel.vibratoStep = -channel.vibratoStep;
-                    channel.vibratoStepsCountdown = channel.vibratoNumSteps;
-                }
-
-                // Update frequency.
-                uint16_t freq = ((channel.regBx << 8) | channel.regAx) & 0x3FF;
-                freq += channel.vibratoStep;
-
-                channel.regAx = freq & 0xFF;
-                channel.regBx = (channel.regBx & 0xFC) | (freq >> 8);
-
-                // Octave / F-Number / Key-On
-                writeOPL(0xA0 + _curChannel, channel.regAx);
-                writeOPL(0xB0 + _curChannel, channel.regBx);
-            }
-        }
-
-        // I don't know where this is used. An OPL register is regularly updated
-        // with data from a chunk of the _soundData[] buffer, i.e., one instrument
-        // parameter register is modulated with data from the chunk. The data is
-        // reused repeatedly starting from the end of the chunk.
-        //
-        // Since we use _curRegOffset to specify the final register, it's quite
-        // unlikely that this function is ever used to play notes. It's probably only
-        // used to modify the sound. Another thing that supports this idea is that it
-        // can be combined with any of the effects callbacks above.
-        //
-        // Related functions and variables:
-        //
-        // update_setupSecondaryEffect1()
-        //    - Initialies secondaryEffectTimer, secondaryEffectTempo,
-        //      secondaryEffectSize, secondaryEffectPos, secondaryEffectRegbase,
-        //      and secondaryEffectData
-        //    - secondaryEffectTempo is not further modified
-        //    - secondaryEffectSize is not further modified
-        //    - secondaryEffectRegbase is not further modified
-        //    - secondaryEffectData is not further modified
-        //
-        // secondaryEffectTimer   - keeps track of time
-        // secondaryEffectTempo   - determines how often the operation is performed
-        // secondaryEffectSize    - the size of the data chunk
-        // secondaryEffectPos     - the current index into the data chunk
-        // secondaryEffectRegbase - the operation to perform
-        // secondaryEffectData    - the offset of the data chunk
-
-        void ADLDriver::secondaryEffect1(Channel& channel) {
-            spdlog::debug("Calling secondaryEffect1 (channel: %d)", _curChannel);
-
-            if (_curChannel >= 9)
-                return;
-
-            if (advance(channel.secondaryEffectTimer, channel.secondaryEffectTempo)) {
-                if (--channel.secondaryEffectPos < 0)
-                    channel.secondaryEffectPos = channel.secondaryEffectSize;
-                writeOPL(channel.secondaryEffectRegbase + _curRegOffset,
-                    _soundData[channel.secondaryEffectData + channel.secondaryEffectPos]);
-            }
-        }
 
         uint8_t ADLDriver::calculateOpLevel1(Channel& channel) {
             int8_t value = channel.opLevel1 & 0x3F;
@@ -981,6 +888,268 @@ namespace drivers
 
             // Preserve the scaling level bits from opLevel2
             return value | (channel.opLevel2 & 0xC0);
+        }
+
+        uint16_t ADLDriver::checkValue(int16_t val)
+        {
+            return CLIP<int16_t>(val, 0, 0x3F);
+        }
+
+        bool ADLDriver::advance(uint8_t& timer, uint8_t tempo)
+        {
+            uint8_t old = timer;
+            timer += tempo;
+            return timer < old;
+        }
+
+        const uint8_t* ADLDriver::checkDataOffset(const uint8_t* ptr, long n)
+        {
+            if (ptr)
+            {
+                long offset = ptr - _soundData;
+                if (n >= -offset && n <= (long)_soundDataSize - offset)
+                    return ptr + n;
+            }
+
+            return nullptr;
+        }
+
+        void ADLDriver::setupPrograms()
+        {
+            QueueEntry& entry = _programQueue[_programQueueStart];
+            uint8_t* ptr = entry.data;
+
+            // If there is no program queued, we skip this.
+            if (_programQueueStart == _programQueueEnd && !ptr)
+                return;
+
+            // The AdLib driver (in its old versions used for EOB) is not suitable for modern (fast) CPUs.
+            // The stop sound track (track 0 which has a priority of 50) will often still be busy when the
+            // next sound (with a lower priority) starts which will cause that sound to be skipped. We simply
+            // restart incoming sounds during stop sound execution.
+            // UPDATE: This still applies after introduction of the _programQueue.
+            // UPDATE: This can also happen with the HOF main menu, so I commented out the version < 3 limitation.
+            QueueEntry retrySound;
+            if (/*_version < 3 &&*/ entry.id == 0)
+                _retrySounds = true;
+            else if (_retrySounds)
+                retrySound = entry;
+
+            // Clear the queue entry
+            entry.data = nullptr;
+            ++_programQueueStart &= 15;
+
+            // Safety check: 2 bytes (channel, priority) are required for each
+            // program, plus 2 more bytes (opcode, _sfxVelocity) for sound effects.
+            // More data is needed, but executePrograms() checks for that.
+            // Also ignore request for invalid channel number.
+            if (!checkDataOffset(ptr, 2))
+                return;
+
+            const int chan = *ptr;
+            if (chan > 9 || (chan < NUM_CHANNELS && !checkDataOffset(ptr, 4))) {
+                return;
+            }
+
+            Channel& channel = _channels[chan];
+
+            // Adjust data in case we hit a sound effect.
+            adjustSfxData(ptr++, entry.volume);
+
+            const int priority = *ptr++;
+
+            // Only start this sound if its priority is higher than the one
+            // already playing.
+
+            if (priority >= channel.priority)
+            {
+                initChannel(channel);
+                channel.priority = priority;
+                channel.dataptr = ptr;
+                channel.tempo = 0xFF;
+                channel.timer = 0xFF;
+                channel.duration = 1;
+
+                if (chan <= 5)
+                    channel.volumeModifier = _musicVolume;
+                else
+                    channel.volumeModifier = _sfxVolume;
+
+                initAdlibChannel(chan);
+
+                // We need to wait two callback calls till we can start another track.
+                // This is (probably) required to assure that the sfx are started with
+                // the correct priority and velocity.
+                _programStartTimeout = 2;
+
+                retrySound = QueueEntry();
+            }
+
+            if (retrySound.data)
+            {
+                spdlog::debug("ADLDriver::setupPrograms(): WORKAROUND - Restarting skipped sound %d)", retrySound.id);
+                startSound(retrySound.id, retrySound.volume);
+            }
+        }
+
+        // A few words on opcode parsing and timing:
+        //
+        // First of all, we simulate a timer callback 72 times per second. Each timeout
+        // we update each channel that has something to play.
+        //
+        // Each channel has its own individual tempo and timer. The timer is updated,
+        // and when it wraps around, we go ahead and do more stuff with that channel.
+        // Otherwise we skip straiht to the effect callbacks.
+        //
+        // Each channel also has a duration, indicating how much time is left on its
+        // current task. This duration is decreased by one. As long as it still has
+        // not reached zero, the only thing that can happen is that the note is turned
+        // off depending on manual or automatic note spacing. Once the duration reaches
+        // zero, a new set of musical opcodes are executed.
+        //
+        // An opcode is one byte, followed by a variable number of parameters.
+        // If the most significant bit of the opcode is 1, it's a function; call it.
+        // An opcode function can change control flow by updating the channel's data
+        // pointer (which is set to the next opcode before the call). The function's
+        // return value is either 0 (continue), 1 (stop) or 2 (stop, and do not run
+        // the effects callbacks).
+        //
+        // If the most significant bit of the opcode is 0, it's a note, and the first
+        // parameter is its duration. (There are cases where the duration is modified
+        // but that's an exception.) The note opcode is assumed to return 1, and is the
+        // last opcode unless its duration is zero.
+        //
+        // Finally, most of the times that the callback is called, it will invoke the
+        // effects callbacks. The final opcode in a set can prevent this, if it's a
+        // function and it returns anything other than 1.
+        void ADLDriver::executePrograms()
+        {
+            // Each channel runs its own program. There are ten channels: One for
+            // each AdLib channel (0-8), plus one "control channel" (9) which is
+            // the one that tells the other channels what to do.
+
+            if (_syncJumpMask)
+            {
+                // This is where we ensure that channels that are made to jump
+                // "in sync" do so.
+
+                for (_curChannel = NUM_CHANNELS; _curChannel >= 0; --_curChannel)
+                {
+                    if ((_syncJumpMask & (1 << _curChannel)) && _channels[_curChannel].dataptr && !_channels[_curChannel].lock) {
+                        break; // don't unlock
+                    }
+                }
+
+                if (_curChannel < 0)
+                {
+                    // force unlock
+                    for (_curChannel = NUM_CHANNELS; _curChannel >= 0; --_curChannel)
+                    {
+                        if (_syncJumpMask & (1 << _curChannel)) {
+                            _channels[_curChannel].lock = false;
+                        }
+                    }
+                }
+            }
+
+            for (_curChannel = NUM_CHANNELS; _curChannel >= 0; --_curChannel)
+            {
+                Channel& channel = _channels[_curChannel];
+                const uint8_t*& dataptr = channel.dataptr;
+
+                if (!dataptr) {
+                    continue;
+                }
+
+                if (channel.lock && (_syncJumpMask & (1 << _curChannel))) {
+                    continue;
+                }
+
+                if (_curChannel == NUM_CHANNELS) {
+                    _curRegOffset = 0;
+                }
+                else {
+                    _curRegOffset = _regOffset[_curChannel];
+                }
+
+                if (channel.tempoReset) {
+                    channel.tempo = _tempo;
+                }
+                
+                int result = 1;
+                if (advance(channel.timer, channel.tempo))
+                {
+                    if (--channel.duration) {
+                        if (channel.duration == channel.spacing2)
+                            noteOff(channel);
+                        if (channel.duration == channel.spacing1 && _curChannel != 9)
+                            noteOff(channel);
+                    }
+                    else {
+                        // Process some opcodes.
+                        result = 0;
+                    }
+                }
+
+                while (result == 0 && dataptr)
+                {
+                    int8_t opcode = 0xFF;
+                    // Safety check to avoid illegal access.
+                    // Stop channel if not enough data.
+                    if (checkDataOffset(dataptr, 1)) {
+                        opcode = *dataptr++;
+                    }
+
+                    if (opcode & 0x80)
+                    {
+                        opcode = CLIP<int8_t>(opcode & 0x7F, 0, _parserOpcodeTableSize - 1);
+                        const ParserOpcode& op = _parserOpcodeTable[opcode];
+
+                        // Safety check for end of data.
+                        if (!checkDataOffset(dataptr, op.values))
+                        {
+                            result = update_stopChannel(channel, dataptr);
+                            break;
+                        }
+
+                        spdlog::debug("Calling opcode '%s' (%d) (channel: %d)", op.name, opcode, _curChannel);
+
+                        dataptr += op.values;
+                        result = (this->*(op.function))(channel, dataptr - op.values);
+                    }
+                    else
+                    {
+                        // Safety check for end of data.
+                        if (!checkDataOffset(dataptr, 1)) {
+                            result = update_stopChannel(channel, dataptr);
+                            break;
+                        }
+
+                        int8_t duration = *dataptr++;
+                        spdlog::debug("Note on opcode 0x%02X (duration: %d) (channel: %d)", opcode, duration, _curChannel);
+
+                        setupNote(opcode, channel);
+                        noteOn(channel);
+                        setupDuration(duration, channel);
+                        // We need to make sure we are always running the
+                        // effects after this. Otherwise some sounds are
+                        // wrong. Like the sfx when bumping into a wall in
+                        // LoL.
+                        result = duration != 0;
+                    }
+                }
+
+                if (result == 1)
+                {
+                    if (channel.primaryEffect) {
+                        (this->*(channel.primaryEffect))(channel);
+                    }
+
+                    if (channel.secondaryEffect) {
+                        (this->*(channel.secondaryEffect))(channel);
+                    }
+                }
+            }
         }
 
         // parser opcodes

@@ -1,12 +1,15 @@
 #pragma once
 
+#include <cstdint>
+
 namespace utils
 {
     /**
      * Euclidean algorithm to compute the greatest common divisor.
      */
     template<class T>
-    T gcd(T a, T b) {
+    T gcd(T a, T b)
+    {
         // Note: We check for <= instead of < to avoid spurious compiler
         // warnings if T is an unsigned type, i.e. warnings like "comparison
         // of unsigned expression < 0 is always false".
@@ -26,5 +29,11 @@ namespace utils
         }
 
         return b;
+    }
+
+    template <class T>
+    static inline T CLIP(const T& value, const T& min, const T& max)
+    {
+        return value < min ? min : value > max ? max : value;
     }
 }

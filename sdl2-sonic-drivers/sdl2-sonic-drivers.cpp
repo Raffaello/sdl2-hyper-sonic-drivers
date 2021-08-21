@@ -489,13 +489,11 @@ int adl_driver()
     adlDrv.initDriver();
     adlDrv.startSound(2, 128);
     //TODO: SoundHandle ?
-    //mixer->playStream(audio::scummvm::Mixer::SoundType::MUSIC, )
-    // TODO: missing the callback, and to redirect to Mix_ (SDL2) etc...
-    // TODO: need to render the adlib sound and copy in the buffer
+
+   
+    
+   
     //       and pass to the callback
-    // OPL->update is the one to generate the audio bytes.
-    //adlDrv.startSound(2, 128);
-    //Mix_HookMusic(ADLDRV_callback, &adlDrv);
 
 
 
