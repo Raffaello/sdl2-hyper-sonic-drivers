@@ -73,7 +73,7 @@ namespace drivers
 
         ADLDriver::~ADLDriver()
         {
-            _opl = nullptr;
+            //_opl.();
         }
 
         void ADLDriver::setADLFile(const std::shared_ptr<files::ADLFile> adl_file) noexcept

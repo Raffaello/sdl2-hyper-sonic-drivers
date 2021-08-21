@@ -68,18 +68,19 @@ namespace hardware
                 OPL::~OPL() {
                     stop();
                     OPLDestroy(_opl);
-                    _opl = 0;
+                    _opl = nullptr;
                 }
 
                 bool OPL::init() {
-                    if (_opl) {
+                    if (_opl != nullptr)
+                    {
                         stopCallbacks();
                         OPLDestroy(_opl);
                     }
 
                     _opl = makeAdLibOPL(_mixer->getOutputRate());
 
-                    return (_opl != 0);
+                    return (_opl != nullptr);
                 }
 
                 void OPL::reset() {

@@ -16,6 +16,7 @@ namespace audio
     TEST(SDL2Mixer, share_ptrDefault)
     {
         std::shared_ptr<SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
+        EXPECT_EQ(mixer.use_count(), 1);
     }
 }
 

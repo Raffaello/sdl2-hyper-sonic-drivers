@@ -11,9 +11,9 @@ namespace hardware
 
 
             EmulatedOPL::EmulatedOPL(const std::shared_ptr<audio::scummvm::Mixer> mixer) : OPL(),
-                _handle(new audio::scummvm::SoundHandle()),
                 _mixer(mixer)
             {
+                _handle = new audio::scummvm::SoundHandle();
             }
 
             EmulatedOPL::~EmulatedOPL()
