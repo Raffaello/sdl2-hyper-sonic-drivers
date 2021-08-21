@@ -490,6 +490,9 @@ int adl_driver()
     std::shared_ptr<hardware::opl::scummvm::mame::OPL> opl = std::make_shared<hardware::opl::scummvm::mame::OPL>(mixer);
     
     // TODO: the constructor crashes the program already.
+    //       because SDL2Mixer need to be implemented
+    //       implementation with init audio, channels and so on and so forth...
+
     drivers::westwood::ADLDriver adlDrv(opl, adlFile);
     
     //adlDrv.initDriver();
