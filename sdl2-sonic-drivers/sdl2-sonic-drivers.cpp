@@ -513,8 +513,8 @@ int adl_driver()
 
     */
     
-    adlDrv.initDriver();
-    adlDrv.startSound(2, 128);
+    //adlDrv.initDriver();
+    //adlDrv.startSound(2, 128);
     //TODO: SoundHandle ?
 
     //       and pass to the callback
