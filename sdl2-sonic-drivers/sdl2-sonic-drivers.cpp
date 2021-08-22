@@ -458,7 +458,7 @@ int adl_driver()
         cerr << "CHANNELS not mono or stereo!" << endl;
     }
 
-    spdlog::set_level(spdlog::level::debug);
+    //spdlog::set_level(spdlog::level::debug);
     std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
     mixer->_rate = rate;
     std::shared_ptr<files::ADLFile> adlFile = std::make_shared<files::ADLFile>("DUNE0.ADL");
@@ -485,10 +485,12 @@ int adl_driver()
     */
     
     adlDrv.initDriver();
+
+    // TODO: ADLFile get track first value should be 9, instead return 0
     adlDrv.startSound(2, 128);
     //TODO: SoundHandle ?
     Mix_HookMusic(&callback, opl.get());
-    SDL_Delay(4000);
+    SDL_Delay(20000);
     //       and pass to the callback
 
     /*SDL_RWops* adlFile = SDL_RWFromFile("DUNE0.ADL", "rb");
@@ -643,8 +645,8 @@ int main(int argc, char* argv[])
     //cout << "ADL VERSION: " << f.getVersion() << endl;
         
     //adl();
-    //adl_driver();
-    mame_opl_test();
+    adl_driver();
+    //mame_opl_test();
     // TODO: 32 bit audio
     //pcspkr(44100, AUDIO_S32, 2, 1024);
     //pcspkr(44100, AUDIO_F32, 2, 1024);

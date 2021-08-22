@@ -21,7 +21,7 @@
 #include <exception>
 #include <stdexcept>
 
-#define THROW(TException, ...) throw TException("%s:%d: %s", __FILE__, __LINE__, (__VA_ARGS__)))
+#define THROW(TException, ...) throw TException((__VA_ARGS__))
 
 class io_error : public std::runtime_error {
     using std::runtime_error::runtime_error;

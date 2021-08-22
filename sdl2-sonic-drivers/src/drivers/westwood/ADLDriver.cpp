@@ -3,6 +3,7 @@
 #include <functional>
 #include <utils/algorithms.hpp>
 #include <utils/endianness.hpp>
+#include <algorithm>
 
 using utils::CLIP;
 using utils::READ_BE_UINT16;
@@ -73,6 +74,10 @@ namespace drivers
 
         ADLDriver::~ADLDriver()
         {
+            // TODO: remove
+            if (_soundData != nullptr) {
+                delete[] _soundData;
+            }
         }
 
         void ADLDriver::setADLFile(const std::shared_ptr<files::ADLFile> adl_file) noexcept
@@ -83,7 +88,11 @@ namespace drivers
 
             _soundDataSize = _adl_file->getDataSize();
             // TODO: refactor, remove pointers.
-            _soundData = const_cast<uint8_t*>(_adl_file->getDataPtr());
+            _soundData = new uint8_t[_soundDataSize];
+            auto d = _adl_file->getData();
+            std::copy_n(d.begin(), _soundDataSize, _soundData);
+            
+            //_soundData = const_cast<uint8_t*>(_adl_file->getDataPtr());
         }
 
         void ADLDriver::initDriver()

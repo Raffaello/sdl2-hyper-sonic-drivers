@@ -290,7 +290,7 @@ private:
         //TODO: Check in LoL CD Adlib driver
         if (offset == 0xFFFF)
             return 0;
-        return _soundData + READ_LE_uint16(_soundData + 2 * progId);
+        return _soundData + offset;
     }
 
     uint8 *getInstrument(int instrumentId) {

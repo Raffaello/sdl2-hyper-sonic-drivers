@@ -224,14 +224,30 @@ namespace files
     void ADLFile::_readData()
     {
         _functor(
+            [this]() { _readDataFromFile(V1_HEADER_SIZE); },
+            [this]() { _readDataFromFile(V2_HEADER_SIZE); },
+            [this]() { _readDataFromFile(V3_HEADER_SIZE); }
+        );
+
+        // TODO : Review the soundData starts after the header,
+        //        so the tracks and instruments are pointing counting from there
+        //        to keep as it is now should patch the offsets
+        //        probably just better using as it is meant to be
+        /*_functor(
             [this]() { _readDataFromFile(V1_DATA_OFFSET); },
             [this]() { _readDataFromFile(V2_DATA_OFFSET); },
             [this]() { _readDataFromFile(V3_DATA_OFFSET); }
-        );
+        );*/
     }
 
     void ADLFile::_readDataFromFile(const int data_offsets)
     {
+        // TODO : review
+        // data_offsets now it is the header_size instead.
+        seek(data_offsets, std::fstream::beg);
+
+
+        // TODO: REVIEW IT (it was the old version)
         int size_ = size() - data_offsets;
         _assertValid(size_ > 0);
         _assertValid(tell() == data_offsets);
@@ -239,7 +255,9 @@ namespace files
         read(buf.get(), size_);
         
         _data.resize(size_);
-        _data.insert(_data.begin(), buf[0], buf[size_ - 1]);
+        for (int i = 0; i < size_; i++) {
+            _data[i] = buf[i];
+        }
     }
 
     void ADLFile::_count_tracks()
