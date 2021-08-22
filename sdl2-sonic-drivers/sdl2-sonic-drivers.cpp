@@ -79,6 +79,10 @@ using namespace std;
 //        << "samples  = " << (int) obtained.samples << endl;*/
 //
 //    auto songs = adlib.getSubsongs();
+//    //Mix_Chunk* song = adlib.getSubsong(2);
+//    //Mix_PlayChannel(-1, song, 0);
+//
+//    //delete song;
 //    //adlib.setVolume(0xFF);
 //
 //    //Mix_Volume(-1, MIX_MAX_VOLUME);
@@ -490,7 +494,7 @@ int adl_driver()
     std::shared_ptr<hardware::opl::scummvm::mame::OPL> opl = std::make_shared<hardware::opl::scummvm::mame::OPL>(mixer);
     drivers::westwood::ADLDriver adlDrv(opl, adlFile);
 
-    // TODOL do the main callback in SDL2Mixer
+    // TODO: do the main callback in SDL2Mixer
     //       also playstream implement in SDL2Mixer
     //       and that should after playing the sound
     

@@ -18,7 +18,6 @@ configure_file("version.h.in" "version.h")
 add_executable(sdl2-sonic-drivers "sdl2-sonic-drivers.cpp")
 target_sources(sdl2-sonic-drivers PUBLIC
     #${CMAKE_CURRENT_SOURCE_DIR}/src/adl/sound_adlib.cpp
-    #${CMAKE_CURRENT_SOURCE_DIR}/src/adl/format.cpp
     #${CMAKE_CURRENT_SOURCE_DIR}/src/adl/surroundopl.cpp
     #${CMAKE_CURRENT_SOURCE_DIR}/src/adl/woodyopl.cpp
     # ---- #

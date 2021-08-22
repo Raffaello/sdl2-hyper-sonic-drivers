@@ -1,4 +1,5 @@
 #include <audio/SDL2Mixer.hpp>
+#include <SDL2/SDL_mixer.h>
 
 namespace audio
 {
@@ -14,6 +15,13 @@ namespace audio
         // TODO: do the main callback in SDL2Mixer
         //       also playstream implement in SDL2Mixer
         //       and that should after playing the sound
+        Mix_Chunk chunk;
+        chunk.allocated = 0;
+        chunk.volume = 128;
+        chunk.abuf = nullptr;
+        chunk.alen = 0;
+        //Mix_HookMusic()
+        //Mix_PlayChannel(-1, &chunk, 0);
 
 
     }
