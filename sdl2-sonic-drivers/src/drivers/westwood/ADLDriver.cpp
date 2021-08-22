@@ -134,7 +134,7 @@ namespace drivers
             const std::lock_guard<std::mutex> lock(_mutex);
 
             assert(channel >= 0 && channel <= NUM_CHANNELS);
-            return (_channels[channel].dataptr != 0);
+            return (_channels[channel].dataptr != nullptr);
         }
 
         void ADLDriver::stopAllChannels()
@@ -542,7 +542,7 @@ namespace drivers
             // thus allowing us to use 9 melodic voices instead of 6.
             writeOPL(0xBD, 0x00);
 
-            initChannel(_channels[9]);
+            initChannel(_channels[NUM_CHANNELS]);
             for (int loop = 8; loop >= 0; loop--) {
                 // Silence the channel
                 writeOPL(0x40 + _regOffset[loop], 0x3F);

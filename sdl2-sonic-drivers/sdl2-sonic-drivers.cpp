@@ -460,20 +460,21 @@ int song()
 void callback(void* userdata, uint8_t* stream, int len)
 {
     // TODO
-    // Sound is played from ADLDriver not from OPL
-    // But is feeded to OPL
-    // and genereated from OPL
-    // I need the ADLDriver here ....
+    // Sound is played from ADLDriver not from OPL ?
+    // But is feeded to OPL ?
+    // and genereated from OPL ?
+    // I need the ADLDriver here ? ....
+
+    // don't understand why the buffer is simply fill of zeros....
 
     hardware::opl::scummvm::mame::OPL* opl = reinterpret_cast<hardware::opl::scummvm::mame::OPL*>(userdata);
     int16_t* buf = reinterpret_cast<int16_t*>(stream);
-
+    // / 2 because of sterio and opl is mono .... just for testing.
     opl->readBuffer(buf, len / 2);
     int count = 0;
     for (int i = 0; i < len / 2; i++) {
         if (buf[i] == 0) {
             count++;
-           // cout << "buf[" << i << "] = 0" << endl;
         }
     }
 
@@ -484,7 +485,8 @@ void callback(void* userdata, uint8_t* stream, int len)
 int adl_driver()
 {
     Mix_Init(0);
-    if (Mix_OpenAudio(44100, AUDIO_S16, 2, 1024) < 0) {
+    int rate = 22050;
+    if (Mix_OpenAudio(rate, AUDIO_S16, 2, 1024) < 0) {
         cerr << Mix_GetError();
         return -1;
     }
@@ -515,7 +517,7 @@ int adl_driver()
 
     spdlog::set_level(spdlog::level::debug);
     std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
-    mixer->_rate = 44100;
+    mixer->_rate = rate;
     std::shared_ptr<files::ADLFile> adlFile = std::make_shared<files::ADLFile>("DUNE0.ADL");
     std::shared_ptr<hardware::opl::scummvm::mame::OPL> opl = std::make_shared<hardware::opl::scummvm::mame::OPL>(mixer);
     drivers::westwood::ADLDriver adlDrv(opl, adlFile);
@@ -545,8 +547,6 @@ int adl_driver()
     Mix_HookMusic(&callback, opl.get());
     SDL_Delay(4000);
     //       and pass to the callback
-
-
 
     /*SDL_RWops* adlFile = SDL_RWFromFile("DUNE0.ADL", "rb");
     if (nullptr == adlFile) {
