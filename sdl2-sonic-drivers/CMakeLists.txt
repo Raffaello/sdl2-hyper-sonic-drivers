@@ -32,6 +32,13 @@ target_sources(sdl2-sonic-drivers PUBLIC
 
     # ---- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/PCSpeaker.cpp
+    # ---- #
+    #${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/woody/OPL.cpp
+    #${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/woody/OPLChip.cpp
+    #${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/woody/WoodyEmuOpl.cpp
+    #${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/woody/SurroundOPL.cpp
+    #${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/westwood/woody/ADLDriver.cpp
+    # --- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/OPL.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/EmulatedOPL.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/mame/mame.cpp
