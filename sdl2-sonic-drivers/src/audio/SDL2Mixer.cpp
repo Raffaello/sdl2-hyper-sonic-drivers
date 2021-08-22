@@ -93,6 +93,6 @@ namespace audio
     unsigned int SDL2Mixer::getOutputRate() const
     {
         // TODO return samplerate, same as what sdl2 audio was inited
-        return 44100;
+        return 0;
     }
 }
