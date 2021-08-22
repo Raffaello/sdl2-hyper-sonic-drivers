@@ -17,6 +17,10 @@ configure_file("version.h.in" "version.h")
 # Add source to this project's executable.
 add_executable(sdl2-sonic-drivers "sdl2-sonic-drivers.cpp")
 target_sources(sdl2-sonic-drivers PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/adl/sound_adlib.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/adl/surroundopl.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/adl/woodyopl.cpp
+    # ---- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/miles/XMidi.cpp
     
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/endianness.cpp

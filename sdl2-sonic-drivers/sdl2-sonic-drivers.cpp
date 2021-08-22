@@ -2,7 +2,7 @@
 //
 
 #include <iostream>
-//#include <adl/sound_adlib.h>
+#include <adl/sound_adlib.h>
 #include <SDL2/SDL.h>
 #include <SDL_mixer.h>
 
@@ -20,123 +20,66 @@
 
 using namespace std;
 
-//int adl()
-//{
-//    Mix_Init(0);
-//    if (Mix_OpenAudio(44100, AUDIO_S16, 2, 1024) < 0) {
-//        cerr << Mix_GetError();
-//        return -1;
-//    }
-//
-//    //MIX_CHANNELS(8);
-//    //Mix_AllocateChannels(16);
-//
-//    int freq;
-//    uint16_t fmt;
-//    int channels;
-//    if (Mix_QuerySpec(&freq, &fmt, &channels) == 0) {
-//        cerr << "query return 0" << endl;
-//    }
-//    cout << "freq: " << freq << endl
-//        << "format: " << fmt << endl
-//        << "channels: " << channels << endl;
-//    if (channels > 2) {
-//        // with 8 audio channels doesn't reproduce the right sound.
-//        // i guess is something that can be fixed
-//        // but i do not know why.
-//        // the code should be similar to scummVM or DosBox
-//        // so if it is working there, should work here.
-//        // it means this code is not really the same
-//        // need to start organizing in it properly.
-//        cerr << "CHANNELS not mono or stereo!" << endl;
-//    }
-//
-//    SDL_RWops* adlFile = SDL_RWFromFile("DUNE0.ADL", "rb");
-//    if (nullptr == adlFile) {
-//        cerr << "file not found" << endl;
-//        throw std::runtime_error("file not found");
-//    }
-//
-//    SoundAdlibPC adlib = SoundAdlibPC(adlFile);
-//
-//
-//    /*SDL_AudioSpec spec;
-//    SDL_AudioSpec obtained;
-//    spec.freq = 44100;
-//    spec.format = AUDIO_S16SYS;
-//    spec.channels = 2;
-//    spec.callback = adlib.callback;
-//    spec.userdata = &adlib;
-//    spec.samples = 1024;
-//
-//    if (SDL_OpenAudio(&spec, &obtained) != 0) {
-//        cerr << "unable to open audio" << endl;
-//    }
-//
-//    cout << "obtained AudioSpec: " << endl
-//        << "freq     = " << (int) obtained.freq << endl
-//        << "format   = " << (int) obtained.format << endl
-//        << "channels = " << (int) obtained.channels << endl
-//        << "samples  = " << (int) obtained.samples << endl;*/
-//
-//    auto songs = adlib.getSubsongs();
-//    //Mix_Chunk* song = adlib.getSubsong(2);
-//    //Mix_PlayChannel(-1, song, 0);
-//
-//    //delete song;
-//    //adlib.setVolume(0xFF);
-//
-//    //Mix_Volume(-1, MIX_MAX_VOLUME);
-//
-//    cout << "Volume: " << adlib.getVolume() << endl;
-//    cout << "num Tracks: " << songs.size() << endl;
-//
-//    adlib.playTrack(2);
-//    Mix_HookMusic(adlib.callback, &adlib);
-//    do {
-//        cout << "playin music, waiting 1s..." << endl;
-//        SDL_Delay(1000);
-//    } while (adlib.isPlaying());
-//    cout << "end";
-//    //for (auto& s : songs) {
-//    //	Mix_Chunk* chunk = adlib.getSubsong(s);
-//    //	cout << "song: " << s << endl;
-//    //	
-//    //	adlib.playTrack(s);
-//    //	Mix_HookMusic(adlib.callback, &adlib);
-//    //	cout << "channels playing: " << Mix_Playing(-1) << endl;
-//
-//    //	/*while (Mix_Playing(-1)) {
-//    //		cout << "waiting 1s ..." << endl;
-//    //		SDL_Delay(1000);
-//    //	}*/
-//    //	SDL_Delay(1000);
-//    //	Mix_FreeChunk(chunk);
-//    //}
-//
-//    //for (auto& s : songs) {
-//    //	Mix_Chunk* chunk = adlib.getSubsong(s);
-//    //	cout << "song: " << s << endl;
-//    //	int channel = Mix_PlayChannel(-1, chunk, 0);
-//    //	//Mix_HookMusic(adlib.callback, &adlib);
-//    //	cout << "channels playing: " << Mix_Playing(-1) << endl;
-//    //	
-//    //	while (Mix_Playing(-1)) { 
-//    //		cout << "waiting 1s ..." << endl;
-//    //		SDL_Delay(1000); 
-//    //	}
-//    //	SDL_Delay(1000);
-//    //	Mix_FreeChunk(chunk);
-//    //}
-//
-//    SDL_RWclose(adlFile);
-//    Mix_HaltChannel(-1);
-//    Mix_HaltMusic();
-//    Mix_CloseAudio();
-//    Mix_Quit();
-//
-//    return 0;
-//}
+int adl()
+{
+    Mix_Init(0);
+    if (Mix_OpenAudio(44100, AUDIO_S16, 2, 1024) < 0) {
+        cerr << Mix_GetError();
+        return -1;
+    }
+
+    //MIX_CHANNELS(8);
+    //Mix_AllocateChannels(16);
+
+    int freq;
+    uint16_t fmt;
+    int channels;
+    if (Mix_QuerySpec(&freq, &fmt, &channels) == 0) {
+        cerr << "query return 0" << endl;
+    }
+    cout << "freq: " << freq << endl
+        << "format: " << fmt << endl
+        << "channels: " << channels << endl;
+    if (channels > 2) {
+        // with 8 audio channels doesn't reproduce the right sound.
+        // i guess is something that can be fixed
+        // but i do not know why.
+        // the code should be similar to scummVM or DosBox
+        // so if it is working there, should work here.
+        // it means this code is not really the same
+        // need to start organizing in it properly.
+        cerr << "CHANNELS not mono or stereo!" << endl;
+    }
+
+    SDL_RWops* adlFile = SDL_RWFromFile("DUNE0.ADL", "rb");
+    if (nullptr == adlFile) {
+        cerr << "file not found" << endl;
+        throw std::runtime_error("file not found");
+    }
+
+    SoundAdlibPC adlib = SoundAdlibPC(adlFile);
+
+    auto songs = adlib.getSubsongs();
+
+    cout << "Volume: " << adlib.getVolume() << endl;
+    cout << "num Tracks: " << songs.size() << endl;
+
+    adlib.playTrack(2);
+    Mix_HookMusic(adlib.callback, &adlib);
+    do {
+        cout << "playin music, waiting 1s..." << endl;
+        SDL_Delay(1000);
+    } while (adlib.isPlaying());
+    cout << "end";
+ 
+    SDL_RWclose(adlFile);
+    Mix_HaltChannel(-1);
+    Mix_HaltMusic();
+    Mix_CloseAudio();
+    Mix_Quit();
+
+    return 0;
+}
 
 void playNotes(hardware::PCSpeaker *pcSpeaker, const hardware::PCSpeaker::eWaveForm waveForm, const int freq, const int length)
 {
@@ -471,8 +414,6 @@ void callback(void* userdata, uint8_t* stream, int len)
     //std::fstream wf("440Hz.dat", ios::out | ios::binary);
     //if (!wf) return;
 
-
-
     hardware::opl::scummvm::mame::OPL* opl = reinterpret_cast<hardware::opl::scummvm::mame::OPL*>(userdata);
     int16_t* buf = reinterpret_cast<int16_t*>(stream);
     // / 2 because of sterio and opl is mono .... just for testing.
@@ -482,7 +423,6 @@ void callback(void* userdata, uint8_t* stream, int len)
     //wf.write((char*)stream, len);
     //wf.close();
     //first = false;
-
 }
 
 int adl_driver()
