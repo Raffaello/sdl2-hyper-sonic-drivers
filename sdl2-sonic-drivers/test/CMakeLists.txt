@@ -116,7 +116,11 @@ macro_test(
         "../src/hardware/opl/OPL.cpp"
         "../src/audio/SDL2Mixer.cpp"
         "../src/audio/scummvm/TimeStamp.cpp"
+        "../src/files/File.cpp"
+        "../src/utils/endianness.cpp"
     LINKS_PRIVATE spdlog::spdlog
+    FIXTURES
+        "fixtures/mame-22050-16bit-440Hz.dat"
 )
 
 macro_test(
