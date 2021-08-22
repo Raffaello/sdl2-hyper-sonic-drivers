@@ -175,3 +175,9 @@ macro_test(
         "../src/hardware/opl/OPL.cpp"
     LINKS_PRIVATE spdlog::spdlog
 )
+
+macro_test(
+    EXE TestAlgorithms
+    FILES 
+        "utils/TestAlgorithms.cpp"
+)

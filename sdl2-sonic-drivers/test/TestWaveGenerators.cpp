@@ -2,6 +2,8 @@
 #include <gmock/gmock.h>
 #include <softsynths/generators/generators.hpp>
 
+// TODO: move somewhere else not in the root of test/ folder
+
 using softsynths::generators::eWaveForm;
 
 template<typename T> class WaveGeneratorTest : public ::testing::Test
