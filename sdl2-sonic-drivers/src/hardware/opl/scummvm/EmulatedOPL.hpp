@@ -7,7 +7,6 @@
 #include <audio/scummvm/Mixer.hpp>
 #include <memory>
 
-
 namespace hardware
 {
     namespace opl
@@ -23,6 +22,7 @@ namespace hardware
             class EmulatedOPL : public OPL, protected audio::scummvm::AudioStream
             {
             public:
+                // TODO: to be fixed
                 EmulatedOPL(const std::shared_ptr<audio::scummvm::Mixer> mixer);
                 virtual ~EmulatedOPL();
 

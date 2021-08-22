@@ -88,7 +88,7 @@ namespace audio
                 uint8_t* _soundDataPtr;
                 int _sfxPlayingSound;
 
-                Common::String _soundFileLoaded;
+                //Common::String _soundFileLoaded;
 
                 int _numSoundTriggers;
                 const int* _soundTriggers;

@@ -49,9 +49,6 @@ target_sources(sdl2-sonic-drivers PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/SDL2Mixer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/scummvm/Timestamp.cpp
     #${CMAKE_CURRENT_SOURCE_DIR}/src/audio/scummvm/SoundPC_v1.cpp
-
-
-
 )
 
 target_include_directories(sdl2-sonic-drivers PUBLIC 

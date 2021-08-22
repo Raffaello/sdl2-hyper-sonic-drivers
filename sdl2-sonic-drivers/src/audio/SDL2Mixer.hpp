@@ -10,6 +10,11 @@ namespace audio
 {
     class SDL2Mixer : public scummvm::Mixer
     {
+    public:
+        // TODO to review and query for SDL audio subsystem
+        int _rate;
+    
+    public:
         virtual bool isReady() const override;
         virtual void playStream(
             SoundType type,

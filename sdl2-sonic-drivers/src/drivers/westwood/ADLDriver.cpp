@@ -66,7 +66,7 @@ namespace drivers
 
 
             //_adlib->start(new Common::Functor0Mem<void, ADLDriver>(this, &ADLDriver::callback), CALLBACKS_PER_SECOND);
-            // TODO: this line doesn't compile
+            // TODO: this probably can be done better instead of 2 line to pass a pointer of a function...
             hardware::opl::TimerCallBack cb = std::bind(&ADLDriver::callback, this);
             auto p = std::make_unique<hardware::opl::TimerCallBack>(cb);
             _opl->start(p.release(), CALLBACKS_PER_SECOND);
@@ -74,7 +74,6 @@ namespace drivers
 
         ADLDriver::~ADLDriver()
         {
-            //_opl.();
         }
 
         void ADLDriver::setADLFile(const std::shared_ptr<files::ADLFile> adl_file) noexcept
@@ -139,7 +138,8 @@ namespace drivers
             return (_channels[channel].dataptr != 0);
         }
 
-        void ADLDriver::stopAllChannels() {
+        void ADLDriver::stopAllChannels()
+        {
             const std::lock_guard<std::mutex> lock(_mutex);
 
             for (int channel = 0; channel <= 9; ++channel) {
@@ -174,7 +174,6 @@ namespace drivers
         //
         // Starts and executes programs and maintains a global beat that channels
         // can synchronize on.
-
         void ADLDriver::callback()
         {
             const std::lock_guard<std::mutex> lock(_mutex);
@@ -235,7 +234,8 @@ namespace drivers
             }
         }
 
-        void ADLDriver::setSfxVolume(const uint8_t volume) {
+        void ADLDriver::setSfxVolume(const uint8_t volume)
+        {
             // We only support sfx volume in version 4 games.
             if (_version < 3)
                 return;

@@ -9,6 +9,13 @@ namespace audio
     void SDL2Mixer::playStream(SoundType type, scummvm::SoundHandle* handle, scummvm::AudioStream* stream, int id, uint8_t volume, int8_t balance, bool autofreeStream, bool permanent, bool reverseStereo)
     {
         // TODO
+        // here should i send to sdl2 audio? let see...
+
+        // TODO: do the main callback in SDL2Mixer
+        //       also playstream implement in SDL2Mixer
+        //       and that should after playing the sound
+
+
     }
     void SDL2Mixer::stopAll()
     {
@@ -93,6 +100,6 @@ namespace audio
     unsigned int SDL2Mixer::getOutputRate() const
     {
         // TODO return samplerate, same as what sdl2 audio was inited
-        return 0;
+        return _rate;
     }
 }

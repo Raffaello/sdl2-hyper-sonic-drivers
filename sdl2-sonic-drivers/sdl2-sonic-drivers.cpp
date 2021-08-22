@@ -485,17 +485,32 @@ int adl_driver()
 
 
     std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
+    mixer->_rate = 44100;
     std::shared_ptr<files::ADLFile> adlFile = std::make_shared<files::ADLFile>("DUNE0.ADL");
-    //drivers::westwood::ADLDriver adlDrv(mixer, adlFile->getVersion
     std::shared_ptr<hardware::opl::scummvm::mame::OPL> opl = std::make_shared<hardware::opl::scummvm::mame::OPL>(mixer);
-    
-    // TODO: the constructor crashes the program already.
-    //       because SDL2Mixer need to be implemented
-    //       implementation with init audio, channels and so on and so forth...
     drivers::westwood::ADLDriver adlDrv(opl, adlFile);
+
+    // TODOL do the main callback in SDL2Mixer
+    //       also playstream implement in SDL2Mixer
+    //       and that should after playing the sound
     
-    //adlDrv.initDriver();
-    //adlDrv.startSound(2, 128);
+    /*
+    1. ADL file
+    2. ADL DRV
+    3. OPL Emulated
+    4. Mixer
+    5. Audio Stream
+
+    ADL DRV read ADL File and send info to generate sound to OPL
+    OPL produce Audio Stream
+    Mixer run Audio Stream
+    
+    Missing Audio Stream to be executed by Mixer that is connected to Emulated OPL
+
+    */
+    
+    adlDrv.initDriver();
+    adlDrv.startSound(2, 128);
     //TODO: SoundHandle ?
 
     //       and pass to the callback

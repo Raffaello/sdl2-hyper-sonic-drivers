@@ -56,7 +56,6 @@ namespace drivers
 
             void setMusicVolume(const uint8_t volume);// override;
             void setSfxVolume(const uint8_t volume);// override;
-
         private:
             std::shared_ptr<files::ADLFile> _adl_file = nullptr;
             // From parent class
