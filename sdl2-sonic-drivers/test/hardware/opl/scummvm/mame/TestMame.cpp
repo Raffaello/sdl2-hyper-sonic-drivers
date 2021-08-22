@@ -15,20 +15,33 @@ namespace hardware
                 TEST(OPL, cstorDefault)
                 {
                     int rate = 44100;
+
                     std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
+                    //TODO: fix
+                    mixer->_rate = rate;
                     EXPECT_EQ(mixer.use_count(), 1);
+
                     OPL mame(mixer);
                     EXPECT_EQ(mixer.use_count(), 2);
+                    EXPECT_EQ(mame.getRate(), rate);
+                    EXPECT_EQ(mame.endOfData(), false);
+                    EXPECT_EQ(mame.isStereo(), false);
                 }
 
                 TEST(OPL, share_ptrDefault)
                 {
                     int rate = 44100;
                     std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
+                    //TODO: fix
+                    mixer->_rate = rate;
                     EXPECT_EQ(mixer.use_count(), 1);
+
                     std::shared_ptr<OPL> mame = std::make_shared<OPL>(mixer);
                     EXPECT_EQ(mixer.use_count(), 2);
                     EXPECT_EQ(mame.use_count(), 1);
+                    EXPECT_EQ(mame->getRate(), rate);
+                    EXPECT_EQ(mame->endOfData(), false);
+                    EXPECT_EQ(mame->isStereo(), false);
                 }
             }
         }

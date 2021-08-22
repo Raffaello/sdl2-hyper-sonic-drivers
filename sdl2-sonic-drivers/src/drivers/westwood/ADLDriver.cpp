@@ -1,5 +1,4 @@
 #include <drivers/westwood/ADLDriver.hpp>
-#include <hardware/opl/scummvm/Config.hpp>
 #include <spdlog/spdlog.h>
 #include <functional>
 #include <utils/algorithms.hpp>
@@ -937,7 +936,7 @@ namespace drivers
                 return;
 
             const int chan = *ptr;
-            if (chan > 9 || (chan < NUM_CHANNELS && !checkDataOffset(ptr, 4))) {
+            if (chan > NUM_CHANNELS || (chan < NUM_CHANNELS && !checkDataOffset(ptr, 4))) {
                 return;
             }
 

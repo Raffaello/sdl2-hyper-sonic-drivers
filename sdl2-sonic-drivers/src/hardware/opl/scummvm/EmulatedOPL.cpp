@@ -70,8 +70,7 @@ namespace hardware
 
             int EmulatedOPL::getRate() const
             {
-                // TODO
-                return 0;
+                return _mixer->getOutputRate();
             }
 
             bool EmulatedOPL::endOfData() const noexcept

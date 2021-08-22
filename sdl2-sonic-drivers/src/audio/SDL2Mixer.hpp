@@ -12,7 +12,7 @@ namespace audio
     {
     public:
         // TODO to review and query for SDL audio subsystem
-        int _rate;
+        int _rate = -1;
     
     public:
         virtual bool isReady() const override;

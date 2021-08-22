@@ -1105,6 +1105,7 @@ namespace hardware
                         /* limit check */
                         data = CLIP(outd[0], OPL_MINOUT, OPL_MAXOUT);
                         /* store to sound buffer */
+                        spdlog::debug("data = {}", data);
                         buf[i] = data >> OPL_OUTSB;
                     }
 

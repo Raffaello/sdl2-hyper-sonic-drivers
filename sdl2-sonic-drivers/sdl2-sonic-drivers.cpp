@@ -16,6 +16,7 @@
 #include <drivers/westwood/ADLDriver.hpp>
 #include <audio/SDL2Mixer.hpp>
 #include <hardware/opl/scummvm/mame/mame.hpp>
+#include <spdlog/spdlog.h>
 
 using namespace std;
 
@@ -455,6 +456,31 @@ int song()
 //
 //}
 
+
+void callback(void* userdata, uint8_t* stream, int len)
+{
+    // TODO
+    // Sound is played from ADLDriver not from OPL
+    // But is feeded to OPL
+    // and genereated from OPL
+    // I need the ADLDriver here ....
+
+    hardware::opl::scummvm::mame::OPL* opl = reinterpret_cast<hardware::opl::scummvm::mame::OPL*>(userdata);
+    int16_t* buf = reinterpret_cast<int16_t*>(stream);
+
+    opl->readBuffer(buf, len / 2);
+    int count = 0;
+    for (int i = 0; i < len / 2; i++) {
+        if (buf[i] == 0) {
+            count++;
+           // cout << "buf[" << i << "] = 0" << endl;
+        }
+    }
+
+    cout << "count=" << count << endl;
+
+}
+
 int adl_driver()
 {
     Mix_Init(0);
@@ -487,7 +513,7 @@ int adl_driver()
         cerr << "CHANNELS not mono or stereo!" << endl;
     }
 
-
+    spdlog::set_level(spdlog::level::debug);
     std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
     mixer->_rate = 44100;
     std::shared_ptr<files::ADLFile> adlFile = std::make_shared<files::ADLFile>("DUNE0.ADL");
@@ -513,10 +539,11 @@ int adl_driver()
 
     */
     
-    //adlDrv.initDriver();
-    //adlDrv.startSound(2, 128);
+    adlDrv.initDriver();
+    adlDrv.startSound(2, 128);
     //TODO: SoundHandle ?
-
+    Mix_HookMusic(&callback, opl.get());
+    SDL_Delay(4000);
     //       and pass to the callback
 
 
