@@ -122,7 +122,7 @@ namespace drivers
             // It would cause more issues than do any good. Now, we just have a debug message and
             // then drop the oldest sound, like the original driver...
             if (_programQueueEnd == _programQueueStart && _programQueue[_programQueueEnd].data != 0) {
-                spdlog::debug("ADLDriver: Program queue full, dropping track %d", _programQueue[_programQueueEnd].id);
+                spdlog::debug("ADLDriver: Program queue full, dropping track {}", _programQueue[_programQueueEnd].id);
             }
 
             _programQueue[_programQueueEnd] = QueueEntry(trackData, track, volume);
@@ -326,7 +326,7 @@ namespace drivers
         // slideTimer - keeps track of time
         void ADLDriver::primaryEffectSlide(Channel& channel)
         {
-            spdlog::debug("Calling primaryEffectSlide (channel: %d)", _curChannel);
+            spdlog::debug("Calling primaryEffectSlide (channel: {})", _curChannel);
 
             if (_curChannel >= NUM_CHANNELS) {
                 return;
@@ -410,7 +410,7 @@ namespace drivers
         // initial value in noteOn() but isn't.
         void ADLDriver::primaryEffectVibrato(Channel& channel)
         {
-            spdlog::debug("Calling primaryEffectVibrato (channel: %d)", _curChannel);
+            spdlog::debug("Calling primaryEffectVibrato (channel: {})", _curChannel);
 
             if (_curChannel >= NUM_CHANNELS) {
                 return;
@@ -472,7 +472,7 @@ namespace drivers
         // secondaryEffectRegbase - the operation to perform
         // secondaryEffectData    - the offset of the data chunk
         void ADLDriver::secondaryEffect1(Channel& channel) {
-            spdlog::debug("Calling secondaryEffect1 (channel: %d)", _curChannel);
+            spdlog::debug("Calling secondaryEffect1 (channel: {})", _curChannel);
 
             if (_curChannel >= NUM_CHANNELS) {
                 return;
@@ -556,7 +556,7 @@ namespace drivers
         }
 
         void ADLDriver::initChannel(Channel& channel) {
-            spdlog::debug("initChannel(%lu)", (long)(&channel - _channels));
+            spdlog::debug("initChannel({})", (long)(&channel - _channels));
 
             int8_t backupEL2 = channel.opExtraLevel2;
             memset(&channel, 0, sizeof(Channel));
@@ -572,7 +572,7 @@ namespace drivers
         }
 
         void ADLDriver::noteOff(Channel& channel) {
-            spdlog::debug("noteOff(%lu)", (long)(&channel - _channels));
+            spdlog::debug("noteOff({})", (long)(&channel - _channels));
 
             // The control channel has no corresponding AdLib channel
 
@@ -592,7 +592,7 @@ namespace drivers
         }
 
         void ADLDriver::initAdlibChannel(uint8_t chan) {
-            spdlog::debug("initAdlibChannel(%d)", chan);
+            spdlog::debug("initAdlibChannel({})", chan);
 
             // The control channel has no corresponding AdLib channel
 
@@ -646,7 +646,7 @@ namespace drivers
         }
 
         void ADLDriver::setupDuration(uint8_t duration, Channel& channel) {
-            spdlog::debug("setupDuration(%d, %lu)", duration, (long)(&channel - _channels));
+            spdlog::debug("setupDuration({}, {})", duration, (long)(&channel - _channels));
             if (channel.durationRandomness) {
                 channel.duration = duration + (getRandomNr() & channel.durationRandomness);
                 return;
@@ -660,7 +660,7 @@ namespace drivers
         // to noteOn(), which will always play the current note.
 
         void ADLDriver::setupNote(uint8_t rawNote, Channel& channel, bool flag) {
-            spdlog::debug("setupNote(%d, %lu)", rawNote, (long)(&channel - _channels));
+            spdlog::debug("setupNote({}, {})", rawNote, (long)(&channel - _channels));
 
             if (_curChannel >= 9)
                 return;
@@ -722,7 +722,7 @@ namespace drivers
         }
 
         void ADLDriver::setupInstrument(uint8_t regOffset, const uint8_t* dataptr, Channel& channel) {
-            spdlog::debug("setupInstrument(%d, %p, %lu)", regOffset, (const void*)dataptr, (long)(&channel - _channels));
+            spdlog::debug("setupInstrument({}, {}, {})", regOffset, (const void*)dataptr, (long)(&channel - _channels));
 
             if (_curChannel >= 9)
                 return;
@@ -777,7 +777,7 @@ namespace drivers
         // the vibrato primary effect.
 
         void ADLDriver::noteOn(Channel& channel) {
-            spdlog::debug("noteOn(%lu)", (long)(&channel - _channels));
+            spdlog::debug("noteOn({})", (long)(&channel - _channels));
 
             // The "note on" bit is set, and the current note is played.
 
@@ -797,7 +797,7 @@ namespace drivers
         }
 
         void ADLDriver::adjustVolume(Channel& channel) {
-            spdlog::debug("adjustVolume(%lu)", (long)(&channel - _channels));
+            spdlog::debug("adjustVolume({})", (long)(&channel - _channels));
 
             if (_curChannel >= 9)
                 return;
@@ -976,7 +976,7 @@ namespace drivers
 
             if (retrySound.data)
             {
-                spdlog::debug("ADLDriver::setupPrograms(): WORKAROUND - Restarting skipped sound %d)", retrySound.id);
+                spdlog::debug("ADLDriver::setupPrograms(): WORKAROUND - Restarting skipped sound {})", retrySound.id);
                 startSound(retrySound.id, retrySound.volume);
             }
         }
@@ -1100,7 +1100,7 @@ namespace drivers
                             break;
                         }
 
-                        spdlog::debug("Calling opcode '%s' (%d) (channel: %d)", op.name, opcode, _curChannel);
+                        spdlog::debug("Calling opcode '{}' ({}) (channel: {})", op.name, opcode, _curChannel);
 
                         dataptr += op.values;
                         result = (this->*(op.function))(channel, dataptr - op.values);
@@ -1114,7 +1114,7 @@ namespace drivers
                         }
 
                         int8_t duration = *dataptr++;
-                        spdlog::debug("Note on opcode 0x%02X (duration: %d) (channel: %d)", opcode, duration, _curChannel);
+                        spdlog::debug("Note on opcode {:#04x} (duration: {}) (channel: {})", opcode, duration, _curChannel);
 
                         setupNote(opcode, channel);
                         noteOn(channel);
@@ -1153,7 +1153,7 @@ namespace drivers
 
                 // Safety check: ignore jump to invalid address
                 if (!checkDataOffset(channel.dataptr, add))
-                    spdlog::warn("ADLDriver::update_checkRepeat: Ignoring invalid offset %i", add);
+                    spdlog::warn("ADLDriver::update_checkRepeat: Ignoring invalid offset {}", add);
                 else
                     channel.dataptr += add;
             }
@@ -1173,7 +1173,7 @@ namespace drivers
             // This, for example, happens in the Lands of Lore intro when Scotia gets
             // the ring in the intro.
             if (!checkDataOffset(ptr, 2)) {
-                spdlog::debug("ADLDriver::update_setupProgram: Invalid program %d specified", values[0]);
+                spdlog::debug("ADLDriver::update_setupProgram: Invalid program {} specified", values[0]);
                 return 0;
             }
 
@@ -1182,7 +1182,7 @@ namespace drivers
 
             // Safety check: ignore programs with invalid channel number.
             if (chan > 9) {
-                spdlog::warn("ADLDriver::update_setupProgram: Invalid channel %d", chan);
+                spdlog::warn("ADLDriver::update_setupProgram: Invalid channel {}", chan);
                 return 0;
             }
 
@@ -1235,7 +1235,7 @@ namespace drivers
                 channel.dataptr = checkDataOffset(channel.dataptr, add);
 
             if (!channel.dataptr) {
-                spdlog::warn("ADLDriver::update_jump: Invalid offset %i, stopping channel", add);
+                spdlog::warn("ADLDriver::update_jump: Invalid offset {}, stopping channel", add);
                 return update_stopChannel(channel, values);
             }
             if (_syncJumpMask & (1 << (&channel - _channels)))
@@ -1340,7 +1340,7 @@ namespace drivers
         int ADLDriver::update_stopOtherChannel(Channel& channel, const uint8_t* values) {
             // Safety check
             if (values[0] > 9) {
-                spdlog::warn("ADLDriver::update_stopOtherChannel: Ignoring invalid channel %d", values[0]);
+                spdlog::warn("ADLDriver::update_stopOtherChannel: Ignoring invalid channel {}", values[0]);
                 return 0;
             }
 
@@ -1362,7 +1362,7 @@ namespace drivers
             // Safety check in case an invalid program is specified. This would make
             // getProgram return a nullptr and thus cause invalid memory reads.
             if (!ptr) {
-                spdlog::debug("ADLDriver::update_waitForEndOfProgram: Invalid program %d specified", values[0]);
+                spdlog::debug("ADLDriver::update_waitForEndOfProgram: Invalid program {} specified", values[0]);
                 return 0;
             }
 
@@ -1385,7 +1385,7 @@ namespace drivers
             // potion on Zanthia to scare off the rat in the cave in the first chapter
             // of the game.
             if (!instrument) {
-                spdlog::debug("ADLDriver::update_setupInstrument: Invalid instrument %d specified", values[0]);
+                spdlog::debug("ADLDriver::update_setupInstrument: Invalid instrument {} specified", values[0]);
                 return 0;
             }
 
@@ -1521,7 +1521,7 @@ namespace drivers
         int ADLDriver::update_setExtraLevel2(Channel& channel, const uint8_t* values) {
             // Safety check
             if (values[0] > 9) {
-                spdlog::warn("ADLDriver::update_setExtraLevel2: Ignore invalid channel %d", values[0]);
+                spdlog::warn("ADLDriver::update_setExtraLevel2: Ignore invalid channel {}", values[0]);
                 return 0;
             }
 
@@ -1539,7 +1539,7 @@ namespace drivers
         int ADLDriver::update_changeExtraLevel2(Channel& channel, const uint8_t* values) {
             // Safety check
             if (values[0] > 9) {
-                spdlog::warn("ADLDriver::update_changeExtraLevel2: Ignore invalid channel %d", values[0]);
+                spdlog::warn("ADLDriver::update_changeExtraLevel2: Ignore invalid channel {}", values[0]);
                 return 0;
             }
 
@@ -1586,7 +1586,7 @@ namespace drivers
         int ADLDriver::update_clearChannel(Channel& channel, const uint8_t* values) {
             // Safety check
             if (values[0] > 9) {
-                spdlog::warn("ADLDriver::update_clearChannel: Ignore invalid channel %d", values[0]);
+                spdlog::warn("ADLDriver::update_clearChannel: Ignore invalid channel {}", values[0]);
                 return 0;
             }
 
@@ -1702,7 +1702,7 @@ namespace drivers
                 setupInstrument(_curRegOffset, instrument, channel);
             }
             else {
-                spdlog::debug("ADLDriver::update_setupRhythmSection: Invalid instrument %d for channel 6 specified", values[0]);
+                spdlog::debug("ADLDriver::update_setupRhythmSection: Invalid instrument {} for channel 6 specified", values[0]);
             }
             _opLevelBD = channel.opLevel2;
 
@@ -1714,7 +1714,7 @@ namespace drivers
                 setupInstrument(_curRegOffset, instrument, channel);
             }
             else {
-                spdlog::debug("ADLDriver::update_setupRhythmSection: Invalid instrument %d for channel 7 specified", values[1]);
+                spdlog::debug("ADLDriver::update_setupRhythmSection: Invalid instrument {} for channel 7 specified", values[1]);
             }
             _opLevelHH = channel.opLevel1;
             _opLevelSD = channel.opLevel2;
@@ -1727,7 +1727,7 @@ namespace drivers
                 setupInstrument(_curRegOffset, instrument, channel);
             }
             else {
-                spdlog::debug("ADLDriver::update_setupRhythmSection: Invalid instrument %d for channel 8 specified", values[2]);
+                spdlog::debug("ADLDriver::update_setupRhythmSection: Invalid instrument {} for channel 8 specified", values[2]);
             }
             _opLevelTT = channel.opLevel1;
             _opLevelCY = channel.opLevel2;
