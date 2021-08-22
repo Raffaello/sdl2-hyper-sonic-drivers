@@ -62,29 +62,6 @@ macro_test(
 )
 
 macro_test(
-    EXE TestOPLChip
-    FILES "hardware/opl/woody/TestOPLChip.cpp"
-        "../src/hardware/opl/woody/OPLChip.cpp"
-)
-
-macro_test(
-    EXE TestWoodyEmuOPL
-    FILES "hardware/opl/woody/TestWoodyEmuOPL.cpp"
-        "../src/hardware/opl/woody/OPL.CPP"
-        "../src/hardware/opl/woody/WoodyEmuOPL.cpp"
-        "../src/hardware/opl/woody/OPLChip.cpp"
-)
-
-macro_test(
-    EXE TestSurroundOPL
-    FILES "hardware/opl/woody/TestSurroundOPL.cpp"
-        "../src/hardware/opl/woody/OPL.CPP"
-        "../src/hardware/opl/woody/SurroundOPL.cpp"
-        "../src/hardware/opl/woody/WoodyEmuOPL.cpp"
-        "../src/hardware/opl/woody/OPLChip.cpp"
-)
-
-macro_test(
     EXE TestEndianness
     FILES "utils/TestEndianness.cpp"
         "../src/utils/endianness.cpp"
@@ -129,16 +106,6 @@ macro_test(
         "fixtures/DUNE19.ADL"   # v2
         "fixtures/LOREINTR.ADL" # v3
 )
-
-#macro_test(
-#    EXE TestADLDriver_Woody
-#    FILES "drivers/westwood/woody/TestADLDriver.cpp"
-#        "../src/drivers/westwood/woody/ADLDriver.cpp"
-#        "../src/files/File.cpp"
-#        "../src/files/ADLFile.cpp"
-#        "../src/utils/endianness.cpp"
-#    LINKS_PRIVATE spdlog::spdlog
-#)
 
 macro_test(
     EXE TestMame
