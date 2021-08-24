@@ -242,7 +242,7 @@ namespace files
 
     void ADLFile::_readDataFromFile(const int data_offsets)
     {
-        // TODO : review
+        // TODO : review, should patch the other offsets instead?
         // data_offsets now it is the header_size instead.
         seek(data_offsets, std::fstream::beg);
 
