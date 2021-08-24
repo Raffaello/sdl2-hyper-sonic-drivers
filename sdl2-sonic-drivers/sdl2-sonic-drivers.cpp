@@ -51,7 +51,7 @@ int adl()
         cerr << "CHANNELS not mono or stereo!" << endl;
     }
 
-    SDL_RWops* adlFile = SDL_RWFromFile("DUNE19.ADL", "rb");
+    SDL_RWops* adlFile = SDL_RWFromFile("DUNE0.ADL", "rb");
     if (nullptr == adlFile) {
         cerr << "file not found" << endl;
         throw std::runtime_error("file not found");
