@@ -265,27 +265,27 @@ namespace files
     void ADLFile::_count_tracks()
     {
         _functor(
-            [this]() { _num_tracks = _count_loop<uint8_t>(V1_NUM_HEADER, 0, _header); },
-            [this]() { _num_tracks = _count_loop<uint8_t>(V2_NUM_HEADER, 0, _header); },
-            [this]() { _num_tracks = _count_loop<uint8_t>(V3_NUM_HEADER, 0, _header); }
+            [this]() { _num_tracks = _count_loop<uint8_t>(0, _header); },
+            [this]() { _num_tracks = _count_loop<uint8_t>(0, _header); },
+            [this]() { _num_tracks = _count_loop<uint8_t>(0, _header); }
         );
     }
 
     void ADLFile::_count_track_offsets()
     {
         _functor(
-            [this]() { _num_track_offsets = _count_loop<uint16_t>(V1_NUM_TRACK_OFFSETS, V1_OFFSET_START, _track_offsets); },
-            [this]() { _num_track_offsets = _count_loop<uint16_t>(V2_NUM_TRACK_OFFSETS, V2_OFFSET_START, _track_offsets); },
-            [this]() { _num_track_offsets = _count_loop<uint16_t>(V3_NUM_TRACK_OFFSETS, V3_OFFSET_START, _track_offsets); }
+            [this]() { _num_track_offsets = _count_loop<uint16_t>(V1_OFFSET_START, _track_offsets); },
+            [this]() { _num_track_offsets = _count_loop<uint16_t>(V2_OFFSET_START, _track_offsets); },
+            [this]() { _num_track_offsets = _count_loop<uint16_t>(V3_OFFSET_START, _track_offsets); }
         );
     }
 
     void ADLFile::_count_instruments()
     {
         _functor(
-            [this]() { _num_instrument_offsets = _count_loop<uint16_t>(V1_NUM_INSTRUMENT_OFFSETS, V1_OFFSET_START, _instrument_offsets); },
-            [this]() { _num_instrument_offsets = _count_loop<uint16_t>(V2_NUM_INSTRUMENT_OFFSETS, V2_OFFSET_START, _instrument_offsets); },
-            [this]() { _num_instrument_offsets = _count_loop<uint16_t>(V3_NUM_INSTRUMENT_OFFSETS, V3_OFFSET_START, _instrument_offsets); }
+            [this]() { _num_instrument_offsets = _count_loop<uint16_t>(V1_OFFSET_START, _instrument_offsets); },
+            [this]() { _num_instrument_offsets = _count_loop<uint16_t>(V2_OFFSET_START, _instrument_offsets); },
+            [this]() { _num_instrument_offsets = _count_loop<uint16_t>(V3_OFFSET_START, _instrument_offsets); }
         );
     }
 

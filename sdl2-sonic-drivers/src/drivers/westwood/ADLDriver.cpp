@@ -276,7 +276,7 @@ namespace drivers
                 return nullptr;
 
             //const uint16_t offset = READ_LE_UINT16(_soundData + 2 * progId);
-            const uint16_t offset = _adl_file->getTrack(progId);
+            const uint16_t offset = _adl_file->getTrackOffset(_adl_file->getTrack(progId));
             // In case an invalid offset is specified we return nullptr to
             // indicate an error. 0xFFFF seems to indicate "this is not a valid
             // program/instrument". However, 0 is also invalid because it points
@@ -308,7 +308,7 @@ namespace drivers
                 return nullptr;
 
             //const uint16_t offset = utils::READ_LE_UINT16(_soundData + 2 * progId);
-            const uint16_t offset = _adl_file->getInstrumentOffset(instrumentId);
+            const uint16_t offset = _adl_file->getInstrumentOffset(_adl_file->getTrack(instrumentId));
 
             if (offset == 0 || offset >= _soundDataSize) {
                 return nullptr;
