@@ -460,7 +460,7 @@ int adl_driver()
 
     //spdlog::set_level(spdlog::level::debug);
     std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
-    mixer->_rate = rate;
+    //mixer->_rate = rate;
     std::shared_ptr<files::ADLFile> adlFile = std::make_shared<files::ADLFile>("DUNE0.ADL");
     std::shared_ptr<hardware::opl::scummvm::mame::OPL> opl = std::make_shared<hardware::opl::scummvm::mame::OPL>(mixer);
     drivers::westwood::ADLDriver adlDrv(opl, adlFile);
@@ -552,7 +552,7 @@ int mame_opl_test()
 
     spdlog::set_level(spdlog::level::debug);
     std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
-    mixer->_rate = rate;
+    //mixer->_rate = rate;
     std::shared_ptr<hardware::opl::scummvm::mame::OPL> opl = std::make_shared<hardware::opl::scummvm::mame::OPL>(mixer);
     opl->init();
     opl->setCallbackFrequency(72);

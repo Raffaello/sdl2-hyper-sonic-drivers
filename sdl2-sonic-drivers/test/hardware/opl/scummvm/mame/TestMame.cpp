@@ -5,6 +5,8 @@
 #include <memory>
 #include <cstdint>
 #include <files/File.hpp>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_mixer.h>
 
 namespace hardware
 {
@@ -18,9 +20,10 @@ namespace hardware
                 {
                     int rate = 44100;
 
+                    ASSERT_EQ(SDL_Init(SDL_INIT_AUDIO), 0);
+                    ASSERT_EQ(Mix_OpenAudio(rate, AUDIO_S16, 2, 1024), 0);
+
                     std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
-                    //TODO: fix
-                    mixer->_rate = rate;
                     EXPECT_EQ(mixer.use_count(), 1);
 
                     OPL mame(mixer);
@@ -28,14 +31,19 @@ namespace hardware
                     EXPECT_EQ(mame.getRate(), rate);
                     EXPECT_EQ(mame.endOfData(), false);
                     EXPECT_EQ(mame.isStereo(), false);
+
+                    Mix_Quit();
+                    SDL_Quit();
                 }
 
                 TEST(OPL, share_ptrDefault)
                 {
                     int rate = 44100;
+
+                    ASSERT_EQ(SDL_Init(SDL_INIT_AUDIO), 0);
+                    ASSERT_EQ(Mix_OpenAudio(rate, AUDIO_S16, 2, 1024), 0);
+
                     std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
-                    //TODO: fix
-                    mixer->_rate = rate;
                     EXPECT_EQ(mixer.use_count(), 1);
 
                     std::shared_ptr<OPL> mame = std::make_shared<OPL>(mixer);
@@ -44,13 +52,19 @@ namespace hardware
                     EXPECT_EQ(mame->getRate(), rate);
                     EXPECT_EQ(mame->endOfData(), false);
                     EXPECT_EQ(mame->isStereo(), false);
+
+                    Mix_Quit();
+                    SDL_Quit();
                 }
 
                 TEST(OPL, Table440Hz)
                 {
                     int rate = 22050;
+
+                    ASSERT_EQ(SDL_Init(SDL_INIT_AUDIO), 0);
+                    ASSERT_EQ(Mix_OpenAudio(rate, AUDIO_S16, 2, 1024), 0);
+
                     std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
-                    mixer->_rate = rate;
                     std::shared_ptr<hardware::opl::scummvm::mame::OPL> opl = std::make_shared<hardware::opl::scummvm::mame::OPL>(mixer);
                     opl->init();
                     opl->setCallbackFrequency(72);
@@ -100,6 +114,9 @@ namespace hardware
                     for (int i = 0; i < len / 2; i++) {
                         EXPECT_EQ(buf[i], fbuf[i]);
                     }
+
+                    Mix_Quit();
+                    SDL_Quit();
                 }
             }
         }

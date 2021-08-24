@@ -108,6 +108,18 @@ macro_test(
 )
 
 macro_test(
+    EXE TestSDL2Mixer
+    FILES 
+        "audio/TestSDL2Mixer.cpp"
+        "../src/audio/SDL2Mixer.cpp"
+        "../src/audio/scummvm/TimeStamp.cpp"
+    LINKS_PRIVATE
+        spdlog::spdlog
+        SDL2::SDL2 SDL2::SDL2_mixer
+        SDL2::SDL2main
+)
+
+macro_test(
     EXE TestMame
     FILES 
         "hardware/opl/scummvm/mame/TestMame.cpp"
@@ -118,17 +130,12 @@ macro_test(
         "../src/audio/scummvm/TimeStamp.cpp"
         "../src/files/File.cpp"
         "../src/utils/endianness.cpp"
-    LINKS_PRIVATE spdlog::spdlog
+    LINKS_PRIVATE
+        spdlog::spdlog
+        SDL2::SDL2 SDL2::SDL2_mixer
+        SDL2::SDL2main
     FIXTURES
         "fixtures/mame-22050-16bit-440Hz.dat"
-)
-
-macro_test(
-    EXE TestSDL2Mixer
-    FILES 
-        "audio/TestSDL2Mixer.cpp"
-        "../src/audio/SDL2Mixer.cpp"
-        "../src/audio/scummvm/TimeStamp.cpp"
 )
 
 macro_test(
@@ -144,7 +151,9 @@ macro_test(
         "../src/hardware/opl/scummvm/mame/mame.cpp"
         "../src/hardware/opl/scummvm/EmulatedOPL.cpp"
         "../src/hardware/opl/OPL.cpp"
-    LINKS_PRIVATE spdlog::spdlog
+    LINKS_PRIVATE
+        spdlog::spdlog
+        SDL2::SDL2 SDL2::SDL2_mixer
 )
 
 macro_test(

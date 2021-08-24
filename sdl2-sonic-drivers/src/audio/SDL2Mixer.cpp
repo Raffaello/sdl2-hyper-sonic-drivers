@@ -1,8 +1,35 @@
 #include <audio/SDL2Mixer.hpp>
 #include <SDL2/SDL_mixer.h>
+#include <SDL2/SDL.h>
+#include <spdlog/spdlog.h>
+#include <cstdint>
+#include <string>
+#include <exception>
 
 namespace audio
 {
+    SDL2Mixer::SDL2Mixer()
+    {
+        if (SDL_WasInit(SDL_INIT_AUDIO) == 0) {
+            std::string err = SDL_GetError();
+            spdlog::critical("SDL Audio subsystem not initialized: {}", err);
+            throw std::runtime_error(err);
+        }
+
+        int freq;
+        uint16_t fmt;
+        int chan;
+
+        if (Mix_QuerySpec(&freq, &fmt, &chan) == 0) {
+            std::string err = SDL_GetError();
+            spdlog::critical("Cannot Query Audio Device: {}", err);
+            throw std::runtime_error(err);
+        }
+
+        spdlog::info("Audio Device: frequency = {} --- format = {} --- channels = {}", freq, fmt, chan);
+        _rate = freq;
+    }
+
     bool SDL2Mixer::isReady() const
     {
         return false;
