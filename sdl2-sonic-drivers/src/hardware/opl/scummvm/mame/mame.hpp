@@ -130,8 +130,6 @@ namespace hardware
                     OPL_UPDATEHANDLER UpdateHandler;	/* stream update handler   */
                     int UpdateParam;					/* stream update parameter */
 
-                    // TODO: random, where is used? used to generate a random bit
-                    //Common::RandomSource* rnd;
                     std::default_random_engine rnd;
                     std::uniform_int_distribution<int> uni_dist;
 

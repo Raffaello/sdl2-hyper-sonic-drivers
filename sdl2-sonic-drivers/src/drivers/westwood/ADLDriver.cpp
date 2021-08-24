@@ -15,8 +15,9 @@ constexpr int NUM_CHANNELS = 9;
 constexpr int RANDOM_SEED = 0x1234;
 constexpr int RANDOM_INC = 0x9248;
 
-// TODO: move to utils and as a constexpr
+// TODO: review it / remove / replace / refactor
 #define ARRAYSIZE(x) ((int)(sizeof(x) / sizeof(x[0])))
+
 
 namespace drivers
 {

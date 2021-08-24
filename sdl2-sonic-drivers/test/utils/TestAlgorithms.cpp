@@ -28,6 +28,13 @@ namespace utils
             std::make_tuple<int, int, int>(100, 80, 20)
         )
     );
+
+    TEST(Algorithms, CLIP)
+    {
+        EXPECT_EQ(CLIP<int>(10, 0, 12), 10);
+        EXPECT_EQ(CLIP<int>(10, 0, 9), 9);
+        EXPECT_EQ(CLIP<int>(10, 11, 12), 11);
+    }
 }
 
 int main(int argc, char** argv)

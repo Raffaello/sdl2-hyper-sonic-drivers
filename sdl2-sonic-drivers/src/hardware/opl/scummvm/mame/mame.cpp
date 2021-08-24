@@ -37,25 +37,12 @@
 #include <audio/scummvm/Mixer.hpp>
 #include <utils/constants.hpp>
 #include <spdlog/spdlog.h>
+#include <utils/algorithms.hpp>
 
-//#include "common/system.h"
-//#include "common/textconsole.h"
-//#include "common/util.h"
+using utils::CLIP;
 
-#if defined(__SYMBIAN32__) || defined(GP2X) || defined(__MAEMO__) || defined(__DS__) || defined(__MINT__) || defined(__N64__)
-//#include "common/config-manager.h"
-#endif
-
-
-
-// TODO: refactor move to utils, duplicated code
+// TODO: refactor move to utils, duplicated code (defined in ADLDriver.cpp too)
 #define ARRAYSIZE(x) ((int)(sizeof(x) / sizeof(x[0])))
-
-template <class T>
-static inline T CLIP(const T& value, const T& min, const T& max) {
-    return value < min ? min : value > max ? max : value;
-}
-// -------------
 
 namespace hardware
 {
