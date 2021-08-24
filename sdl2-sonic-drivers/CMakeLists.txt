@@ -45,6 +45,8 @@ target_sources(sdl2-sonic-drivers PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/westwood/ADLDriver.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/SDL2Mixer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/scummvm/Timestamp.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/dosbox/dosbox.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/dosbox/dbopl/dbopl.cpp
 )
 
 target_include_directories(sdl2-sonic-drivers PUBLIC 
