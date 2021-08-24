@@ -308,7 +308,7 @@ namespace drivers
                 return nullptr;
 
             //const uint16_t offset = utils::READ_LE_UINT16(_soundData + 2 * progId);
-            const uint16_t offset = _adl_file->getInstrument(instrumentId);
+            const uint16_t offset = _adl_file->getInstrumentOffset(instrumentId);
 
             if (offset == 0 || offset >= _soundDataSize) {
                 return nullptr;

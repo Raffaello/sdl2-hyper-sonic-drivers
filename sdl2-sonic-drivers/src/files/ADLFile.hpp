@@ -4,22 +4,27 @@
 #include <string>
 #include <vector>
 #include <functional>
-#include <fstream>
+#include <limits>
 
 namespace files
 {
     class ADLFile final : public File
     {
+
+        // TODO: num tracks is from header
+        // TODO: rename track vector into program vector and get Id
+        // TODO: get Track need to look into the header vector.
     public:
         ADLFile(const std::string& filename);
         uint8_t getVersion() const noexcept;
         int getNumTracks() const noexcept;
-        int getNumInstruments() const noexcept;
-        uint16_t getTrack(const int track) const;
-        uint16_t getInstrument(const int instrument) const;
+        int getNumTrackOffsets() const noexcept;
+        int getNumInstrumentOffsets() const noexcept;
+        uint8_t getTrack(const int track) const;
+        uint16_t getTrackOffset(const int programId) const;
+        uint16_t getInstrumentOffset(const int instrument) const;
         uint32_t getDataSize() const noexcept;
-        std::vector<uint8_t> getData() const noexcept;
-        const uint8_t* getDataPtr() const noexcept;
+        const std::vector<uint8_t>& getData() const noexcept;
 
     private:
         uint8_t _version = 0;
@@ -27,7 +32,7 @@ namespace files
         void _validateVersion();
         
         void _readHeader();
-        void _readHeaderFromFile(const int header_size, std::function<uint16_t()> read);
+        void _readHeaderFromFile(const int header_size, std::function<uint8_t()> read);
         
         void _readTrackOffsets();
         void _readInstrumentOffsets();
@@ -36,18 +41,37 @@ namespace files
         void _readData();
         void _readDataFromFile(const int data_offsets);
         
-        std::vector<uint16_t> _header;
+        std::vector<uint8_t> _header;
         std::vector<uint16_t> _track_offsets;
         std::vector<uint16_t> _instrument_offsets;
         std::vector<uint8_t> _data;
         
         void _count_tracks();
+        void _count_track_offsets();
         void _count_instruments();
-        int _count_loop(const int header_size, const int num_offs, const std::vector<uint16_t>& vec);
+        template<typename T>
+        int _count_loop(const int header_size, const int num_offs, const std::vector<T>& vec);
 
         int _num_tracks = -1;
-        int _num_instruments = -1;
+        int _num_track_offsets = -1;
+        int _num_instrument_offsets = -1;
 
         void _functor(std::function<void()> funcV1, std::function<void()> funcV2, std::function<void()> funcV3);
     };
+
+    template<typename T>
+    int ADLFile::_count_loop(const int num_header, const int offs_start, const std::vector<T>& vec)
+    {
+        // TODO remove const int num_header as it should be just vec.size()
+        int tot = 0;
+        const T max_ = std::numeric_limits<T>::max();
+        for (int i = 0; i < num_header; ++i)
+        {
+            if (vec[i] >= offs_start && vec[i] < max_) {
+                ++tot;
+            }
+        }
+
+        return tot;
+    }
 }
