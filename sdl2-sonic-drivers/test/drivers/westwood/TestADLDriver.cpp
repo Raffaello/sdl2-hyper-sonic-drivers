@@ -2,7 +2,7 @@
 #include <gmock/gmock.h>
 #include <drivers/westwood/ADLDriver.hpp>
 #include <memory>
-#include <audio/SDL2Mixer.hpp>
+#include "../test/mocks/MockMixer.hpp"
 #include <files/ADLFile.hpp>
 #include <hardware/opl/scummvm/mame/mame.hpp>
 
@@ -10,9 +10,11 @@ namespace drivers
 {
     namespace westwood
     {
+        using audio::mocks::MockMixer;
         TEST(ADLDriver, cstor)
         {
-            std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
+            // TODO: Review the Mixer as it is used in the OPL just to query the frequency rate.
+            std::shared_ptr<MockMixer> mixer = std::make_shared<MockMixer>();
             EXPECT_EQ(mixer.use_count(), 1);
 
             std::shared_ptr<files::ADLFile> adlFile = std::make_shared<files::ADLFile>("fixtures/DUNE19.ADL");
@@ -29,7 +31,7 @@ namespace drivers
 
         TEST(ADLDriver, shared_ptr)
         {
-            std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
+            std::shared_ptr<MockMixer> mixer = std::make_shared<MockMixer>();
             EXPECT_EQ(mixer.use_count(), 1);
 
             std::shared_ptr<files::ADLFile> adlFile = std::make_shared<files::ADLFile>("fixtures/DUNE19.ADL");

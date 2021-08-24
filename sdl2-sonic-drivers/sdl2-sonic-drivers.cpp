@@ -644,8 +644,8 @@ int main(int argc, char* argv[])
     //files::ADLFile f("EOBSOUND.ADL");
     //cout << "ADL VERSION: " << f.getVersion() << endl;
         
-    //adl();
-    adl_driver();
+    adl();
+    //adl_driver();
     //mame_opl_test();
     // TODO: 32 bit audio
     //pcspkr(44100, AUDIO_S32, 2, 1024);
