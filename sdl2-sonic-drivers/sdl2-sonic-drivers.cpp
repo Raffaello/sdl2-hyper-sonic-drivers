@@ -512,8 +512,9 @@ int adl_driver_mame()
     adlDrv.initDriver();
 
     // TODO: ADLFile get track first value should be 9, instead return 0
-    adlDrv.startSound(1, 254);
+    adlDrv.startSound(2, 254);
     //TODO: SoundHandle ?
+    Mix_VolumeMusic(MIX_MAX_VOLUME);
     Mix_HookMusic(&callback_mame, opl.get());
     SDL_Delay(20000);
     //       and pass to the callback
