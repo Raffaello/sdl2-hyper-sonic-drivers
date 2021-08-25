@@ -6,8 +6,6 @@
 #include <cstdint>
 #include <files/File.hpp>
 
-
-
 namespace hardware
 {
     namespace opl
