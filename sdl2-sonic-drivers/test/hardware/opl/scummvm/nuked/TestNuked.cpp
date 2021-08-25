@@ -14,7 +14,7 @@ namespace hardware
         {
             namespace nuked
             {
-                // TODO: refactor these tests as they are the same of the one in mame.
+                // TODO: refactor these tests as they are the same of the one in dosbox.
 
                 using audio::mocks::MockMixer;
 

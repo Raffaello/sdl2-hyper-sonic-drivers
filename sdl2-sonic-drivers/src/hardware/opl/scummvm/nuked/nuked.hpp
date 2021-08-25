@@ -13,8 +13,10 @@
 //
 #pragma once
 
-//#include "common/scummsys.h"
-//#include "audio/fmopl.h"
+// TODO: substitute with the original nuked in C that is also stereo.
+//       and keep in a different file the object oriented interface,
+//       so it will be easier to update
+
 #include <cstdint>
 #include <hardware/opl/scummvm/EmulatedOPL.hpp>
 #include <hardware/opl/scummvm/Config.hpp>
