@@ -47,6 +47,7 @@ target_sources(sdl2-sonic-drivers PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/scummvm/Timestamp.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/dosbox/dosbox.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/dosbox/dbopl/dbopl.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/nuked/nuked.cpp
 )
 
 target_include_directories(sdl2-sonic-drivers PUBLIC 

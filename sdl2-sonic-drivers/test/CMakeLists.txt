@@ -132,8 +132,6 @@ macro_test(
         "../src/utils/endianness.cpp"
     LINKS_PRIVATE
         spdlog::spdlog
-        SDL2::SDL2 SDL2::SDL2_mixer
-        SDL2::SDL2main
     FIXTURES
         "fixtures/mame-22050-16bit-440Hz.dat"
 )
@@ -152,7 +150,6 @@ macro_test(
         "../src/hardware/opl/OPL.cpp"
     LINKS_PRIVATE
         spdlog::spdlog
-        SDL2::SDL2 SDL2::SDL2_mixer
 )
 
 macro_test(
@@ -174,8 +171,22 @@ macro_test(
         "../src/utils/endianness.cpp"
     LINKS_PRIVATE
         spdlog::spdlog
-        SDL2::SDL2 SDL2::SDL2_mixer
-        SDL2::SDL2main
+    FIXTURES
+        "fixtures/mame-22050-16bit-440Hz.dat"
+)
+
+macro_test(
+    EXE TestNuked
+    FILES 
+        "hardware/opl/scummvm/nuked/TestNuked.cpp"
+        "../src/hardware/opl/scummvm/nuked/nuked.cpp"
+        "../src/hardware/opl/scummvm/EmulatedOPL.cpp"
+        "../src/hardware/opl/OPL.cpp"
+        "../src/audio/scummvm/TimeStamp.cpp"
+        "../src/files/File.cpp"
+        "../src/utils/endianness.cpp"
+    LINKS_PRIVATE
+        spdlog::spdlog
     FIXTURES
         "fixtures/mame-22050-16bit-440Hz.dat"
 )

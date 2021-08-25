@@ -21,6 +21,8 @@
 #include <hardware/opl/scummvm/dosbox/dosbox.hpp>
 #include <hardware/opl/scummvm/Config.hpp>
 
+#include <hardware/opl/scummvm/nuked/nuked.hpp>
+
 using namespace std;
 
 int adl()
@@ -437,6 +439,28 @@ void callback_dosbox(void* userdata, uint8_t* stream, int len)
     //if (!wf) return;
 
     hardware::opl::scummvm::dosbox::OPL* opl = reinterpret_cast<hardware::opl::scummvm::dosbox::OPL*>(userdata);
+    int16_t* buf = reinterpret_cast<int16_t*>(stream);
+    // / 2 because of sterio and opl is mono .... just for testing.
+    opl->readBuffer(buf, len / 2);
+
+
+    //wf.write((char*)stream, len);
+    //wf.close();
+    //first = false;
+}
+
+void callback_nuked(void* userdata, uint8_t* stream, int len)
+{
+    // TODO: merge into 1 callback
+
+
+    // don't understand why the buffer is simply fill of zeros....
+    //static bool first = true;
+    //if (!first) return;
+    //std::fstream wf("440Hz.dat", ios::out | ios::binary);
+    //if (!wf) return;
+
+    hardware::opl::scummvm::nuked::OPL* opl = reinterpret_cast<hardware::opl::scummvm::nuked::OPL*>(userdata);
     int16_t* buf = reinterpret_cast<int16_t*>(stream);
     // / 2 because of sterio and opl is mono .... just for testing.
     opl->readBuffer(buf, len / 2);
@@ -999,6 +1023,149 @@ int dosbox_opl3_test()
     return 0;
 }
 
+int nuked_opl2_test()
+{
+    Mix_Init(0);
+    int rate = 22050;
+    if (Mix_OpenAudio(rate, AUDIO_S16, 2, 1024) < 0) {
+        cerr << Mix_GetError();
+        return -1;
+    }
+
+    //MIX_CHANNELS(8);
+    //Mix_AllocateChannels(16);
+
+    int freq;
+    uint16_t fmt;
+    int channels;
+    if (Mix_QuerySpec(&freq, &fmt, &channels) == 0) {
+        cerr << "query return 0" << endl;
+    }
+    cout << "freq: " << freq << endl
+        << "format: " << fmt << endl
+        << "channels: " << channels << endl;
+
+    if (channels > 2) {
+        // with 8 audio channels doesn't reproduce the right sound.
+        // i guess is something that can be fixed
+        // but i do not know why.
+        // the code should be similar to scummVM or DosBox
+        // so if it is working there, should work here.
+        // it means this code is not really the same
+        // need to start organizing in it properly.
+        cerr << "CHANNELS not mono or stereo!" << endl;
+    }
+
+    spdlog::set_level(spdlog::level::debug);
+    std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
+    std::shared_ptr<hardware::opl::scummvm::nuked::OPL> opl = std::make_shared<hardware::opl::scummvm::nuked::OPL>(mixer, hardware::opl::scummvm::Config::OplType::OPL2);
+    opl2_test(opl);
+    Mix_HookMusic(callback_dosbox, opl.get());
+
+    SDL_Delay(10000);
+
+    Mix_HaltChannel(-1);
+    Mix_HaltMusic();
+    Mix_CloseAudio();
+    Mix_Quit();
+
+    return 0;
+}
+
+int nuked_dual_opl2_test()
+{
+    Mix_Init(0);
+    int rate = 22050;
+    if (Mix_OpenAudio(rate, AUDIO_S16, 2, 1024) < 0) {
+        cerr << Mix_GetError();
+        return -1;
+    }
+
+    //MIX_CHANNELS(8);
+    //Mix_AllocateChannels(16);
+
+    int freq;
+    uint16_t fmt;
+    int channels;
+    if (Mix_QuerySpec(&freq, &fmt, &channels) == 0) {
+        cerr << "query return 0" << endl;
+    }
+    cout << "freq: " << freq << endl
+        << "format: " << fmt << endl
+        << "channels: " << channels << endl;
+
+    if (channels > 2) {
+        // with 8 audio channels doesn't reproduce the right sound.
+        // i guess is something that can be fixed
+        // but i do not know why.
+        // the code should be similar to scummVM or DosBox
+        // so if it is working there, should work here.
+        // it means this code is not really the same
+        // need to start organizing in it properly.
+        cerr << "CHANNELS not mono or stereo!" << endl;
+    }
+
+    spdlog::set_level(spdlog::level::debug);
+    std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
+    std::shared_ptr<hardware::opl::scummvm::nuked::OPL> opl = std::make_shared<hardware::opl::scummvm::nuked::OPL>(mixer, hardware::opl::scummvm::Config::OplType::DUAL_OPL2);
+    Mix_HookMusic(callback_dosbox, opl.get());
+    dual_opl2_test(opl);
+
+    Mix_HaltChannel(-1);
+    Mix_HaltMusic();
+    Mix_CloseAudio();
+    Mix_Quit();
+
+    return 0;
+}
+
+int nuked_opl3_test()
+{
+    Mix_Init(0);
+    int rate = 22050;
+    if (Mix_OpenAudio(rate, AUDIO_S16, 2, 1024) < 0) {
+        cerr << Mix_GetError();
+        return -1;
+    }
+
+    //MIX_CHANNELS(8);
+    //Mix_AllocateChannels(16);
+
+    int freq;
+    uint16_t fmt;
+    int channels;
+    if (Mix_QuerySpec(&freq, &fmt, &channels) == 0) {
+        cerr << "query return 0" << endl;
+    }
+    cout << "freq: " << freq << endl
+        << "format: " << fmt << endl
+        << "channels: " << channels << endl;
+
+    if (channels > 2) {
+        // with 8 audio channels doesn't reproduce the right sound.
+        // i guess is something that can be fixed
+        // but i do not know why.
+        // the code should be similar to scummVM or DosBox
+        // so if it is working there, should work here.
+        // it means this code is not really the same
+        // need to start organizing in it properly.
+        cerr << "CHANNELS not mono or stereo!" << endl;
+    }
+
+    spdlog::set_level(spdlog::level::debug);
+    std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
+    std::shared_ptr<hardware::opl::scummvm::nuked::OPL> opl = std::make_shared<hardware::opl::scummvm::nuked::OPL>(mixer, hardware::opl::scummvm::Config::OplType::OPL3);
+    Mix_HookMusic(callback_dosbox, opl.get());
+    opl3_test(opl);
+
+    Mix_HaltChannel(-1);
+    Mix_HaltMusic();
+    Mix_CloseAudio();
+    Mix_Quit();
+
+    return 0;
+}
+
 int adl_driver_dosbox()
 {
     Mix_Init(0);
@@ -1098,10 +1265,13 @@ int main(int argc, char* argv[])
         
     //adl();
     //adl_driver_mame();
-    mame_opl_test();
+    //mame_opl_test();
     //dosbox_opl2_test();
     //dosbox_dual_opl2_test();
     //dosbox_opl3_test();
+    //nuked_opl2_test();
+    //nuked_dual_opl2_test();
+    //nuked_opl3_test();
     //adl_driver_dosbox();
 
     // TODO: 32 bit audio
