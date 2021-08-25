@@ -118,11 +118,17 @@ namespace files
         return _data;
     }
 
+    const int ADLFile::getNumPrograms() const noexcept
+    {
+        return _num_programs;
+    }
+
     void ADLFile::_detectVersion()
     {
         seek(0, std::fstream::beg);
         // detect version 3
         _version = 3;
+        _num_programs = V3_NUM_TRACK_OFFSETS;
         for (int i = 0; i < V1_HEADER_SIZE; i++)
         {
             uint16_t v = readLE16();
@@ -133,6 +139,7 @@ namespace files
             {
                 //v1,2
                 _version = 2;
+                _num_programs =V2_NUM_TRACK_OFFSETS;
                 break;
             }
         }
@@ -155,6 +162,7 @@ namespace files
             if (min_w < V2_OFFSET_START)
             {
                 _version = 1;
+                _num_programs = V1_NUM_TRACK_OFFSETS;
                 _assertValid(min_w == V1_OFFSET_START);
             }
             else

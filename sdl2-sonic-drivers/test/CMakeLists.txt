@@ -104,6 +104,7 @@ macro_test(
     FIXTURES 
         "fixtures/EOBSOUND.ADL" # v1
         "fixtures/DUNE19.ADL"   # v2
+        "fixtures/DUNE0.ADL"    # v2
         "fixtures/LOREINTR.ADL" # v3
 )
 
@@ -126,7 +127,6 @@ macro_test(
         "../src/hardware/opl/scummvm/mame/mame.cpp"
         "../src/hardware/opl/scummvm/EmulatedOPL.cpp"
         "../src/hardware/opl/OPL.cpp"
-        "../src/audio/SDL2Mixer.cpp"
         "../src/audio/scummvm/TimeStamp.cpp"
         "../src/files/File.cpp"
         "../src/utils/endianness.cpp"
@@ -146,7 +146,6 @@ macro_test(
         "../src/files/File.cpp"
         "../src/files/ADLFile.cpp"
         "../src/utils/endianness.cpp"
-        "../src/audio/SDL2Mixer.cpp"
         "../src/audio/scummvm/TimeStamp.cpp"
         "../src/hardware/opl/scummvm/mame/mame.cpp"
         "../src/hardware/opl/scummvm/EmulatedOPL.cpp"
@@ -160,4 +159,23 @@ macro_test(
     EXE TestAlgorithms
     FILES 
         "utils/TestAlgorithms.cpp"
+)
+
+macro_test(
+    EXE TestDOSBox
+    FILES 
+        "hardware/opl/scummvm/dosbox/TestDOSBox.cpp"
+        "../src/hardware/opl/scummvm/dosbox/dosbox.cpp"
+        "../src/hardware/opl/scummvm/dosbox/dbopl/dbopl.cpp"
+        "../src/hardware/opl/scummvm/EmulatedOPL.cpp"
+        "../src/hardware/opl/OPL.cpp"
+        "../src/audio/scummvm/TimeStamp.cpp"
+        "../src/files/File.cpp"
+        "../src/utils/endianness.cpp"
+    LINKS_PRIVATE
+        spdlog::spdlog
+        SDL2::SDL2 SDL2::SDL2_mixer
+        SDL2::SDL2main
+    FIXTURES
+        "fixtures/mame-22050-16bit-440Hz.dat"
 )

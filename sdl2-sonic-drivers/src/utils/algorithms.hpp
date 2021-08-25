@@ -36,4 +36,15 @@ namespace utils
     {
         return value < min ? min : value > max ? max : value;
     }
+
+    /**
+     * Clear an array using the default or provided value.
+     */
+    template<typename T, size_t N> inline void ARRAYCLEAR(T(&array)[N], const T& value = T()) {
+        T* ptr = array;
+        size_t n = N;
+        while (n--) {
+            *ptr++ = value;
+        }
+    }
 }
