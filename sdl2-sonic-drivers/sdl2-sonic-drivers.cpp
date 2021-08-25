@@ -792,6 +792,7 @@ void dual_opl2_test(std::shared_ptr<hardware::opl::OPL> opl)
     spdlog::info("Right channel only\n");
     Profm2(0xB0, ((fn >> 8) & 0x3) + (block << 2) | KEYON, opl);
     SDL_Delay(1000);
+
     fm(0xb0, 0x12, opl);  /* key off */
 }
 
@@ -842,6 +843,140 @@ int dosbox_dual_opl2_test()
     return 0;
 }
 
+void opl3_test(std::shared_ptr<hardware::opl::OPL> opl)
+{
+    constexpr auto LEFT = 0x10;
+    constexpr auto RIGHT = 0x20;
+
+    opl->init();
+    opl->setCallbackFrequency(72);
+
+    fm(1, 0, opl);        /* must initialize this to zero */
+    Profm2(5, 1, opl);  /* set to OPL3 mode, necessary for stereo */
+    fm(0xC0, LEFT | RIGHT | 1, opl);     /* set both channels, parallel connection */
+
+    /***************************************
+    * Set parameters for the carrier cell *
+    ***************************************/
+
+    fm(0x23, 0x21, opl);  /* no amplitude modulation (D7=0), no vibrato (D6=0),
+                     * sustained envelope type (D5=1), KSR=0 (D4=0),
+                     * frequency multiplier=1 (D4-D0=1)
+                     */
+
+    fm(0x43, 0x0, opl);   /* no volume decrease with pitch (D7-D6=0),
+                     * no attenuation (D5-D0=0)
+                     */
+
+    fm(0x63, 0xff, opl);  /* fast attack (D7-D4=0xF) and decay (D3-D0=0xF) */
+    fm(0x83, 0x05, opl);  /* high sustain level (D7-D4=0), slow release rate (D3-D0=5) */
+
+
+    /*****************************************
+     * Set parameters for the modulator cell *
+     *****************************************/
+
+    fm(0x20, 0x20, opl);  /* sustained envelope type, frequency multiplier=0    */
+    fm(0x40, 0x3f, opl);  /* maximum attenuation, no volume decrease with pitch */
+
+    /* Since the modulator signal is attenuated as much as possible, these
+     * next two values shouldn't have any effect.
+     */
+    fm(0x60, 0x44, opl);  /* slow attack and decay */
+    fm(0x80, 0x05, opl);  /* high sustain level, slow release rate */
+
+
+    /*************************************************
+     * Generate tone from values looked up in table. *
+     *************************************************/
+
+    spdlog::info("440 Hz tone, values looked up in table.");
+    fm(0xa0, 0x41, opl);  /* 440 Hz */
+    fm(0xb0, 0x32, opl);  /* 440 Hz, block 0, key on */
+
+    SDL_Delay(1000);
+
+    fm(0xb0, 0x12, opl);  /* key off */
+
+    SDL_Delay(1000);
+    // ---------------- left / right test
+
+    // TODO: opl->isStereo();
+    // TODO: opl->getType();
+    // only opl3
+    spdlog::info("Left/Right OPL3");
+    int block = 4;        /* choose block=4 and m=1 */
+    int m = 1;		       /* m is the frequency multiple number */
+    int f = 440;          /* want f=440 Hz */
+    int b = 1 << block;
+    /* This is the equation to calculate frequency number from frequency. */
+    int fn = (long)f * 1048576 / b / m / 50000L;
+    constexpr int KEYON = 0x20;     // key-on bit in regs b0 - b8
+
+    /* This left and right channel stuff is the only part of this program
+     * that uses OPL3 mode.  Everything else is available on the OPL2.
+     */
+    fm(0xA0, (fn & 0xFF), opl);
+    fm(0xB0, ((fn >> 8) & 0x3) + (block << 2) | KEYON, opl);
+    SDL_Delay(1000);
+
+    spdlog::info("Left channel only");
+    fm(0xC0, LEFT | 1, opl);      /* set left channel only, parallel connection */
+    SDL_Delay(1000);
+    
+    spdlog::info("Right channel only");
+    fm(0xC0, RIGHT | 1, opl);     /* set right channel only, parallel connection */
+    SDL_Delay(1000);
+
+    fm(0xb0, 0x12, opl);  /* key off */
+}
+
+int dosbox_opl3_test()
+{
+    Mix_Init(0);
+    int rate = 22050;
+    if (Mix_OpenAudio(rate, AUDIO_S16, 2, 1024) < 0) {
+        cerr << Mix_GetError();
+        return -1;
+    }
+
+    //MIX_CHANNELS(8);
+    //Mix_AllocateChannels(16);
+
+    int freq;
+    uint16_t fmt;
+    int channels;
+    if (Mix_QuerySpec(&freq, &fmt, &channels) == 0) {
+        cerr << "query return 0" << endl;
+    }
+    cout << "freq: " << freq << endl
+        << "format: " << fmt << endl
+        << "channels: " << channels << endl;
+
+    if (channels > 2) {
+        // with 8 audio channels doesn't reproduce the right sound.
+        // i guess is something that can be fixed
+        // but i do not know why.
+        // the code should be similar to scummVM or DosBox
+        // so if it is working there, should work here.
+        // it means this code is not really the same
+        // need to start organizing in it properly.
+        cerr << "CHANNELS not mono or stereo!" << endl;
+    }
+
+    spdlog::set_level(spdlog::level::debug);
+    std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
+    std::shared_ptr<hardware::opl::scummvm::dosbox::OPL> opl = std::make_shared<hardware::opl::scummvm::dosbox::OPL>(mixer, hardware::opl::scummvm::Config::OplType::OPL3);
+    Mix_HookMusic(callback, opl.get());
+    opl3_test(opl);
+
+    Mix_HaltChannel(-1);
+    Mix_HaltMusic();
+    Mix_CloseAudio();
+    Mix_Quit();
+
+    return 0;
+}
 
 int main(int argc, char* argv[])
 {
@@ -887,7 +1022,10 @@ int main(int argc, char* argv[])
     //adl_driver();
     //mame_opl_test();
     //dosbox_opl2_test();
-    dosbox_dual_opl2_test();
+    //dosbox_dual_opl2_test();
+    dosbox_opl3_test();
+
+
     // TODO: 32 bit audio
     //pcspkr(44100, AUDIO_S32, 2, 1024);
     //pcspkr(44100, AUDIO_F32, 2, 1024);
