@@ -64,7 +64,6 @@ namespace hardware
                     void free();
                     void dualWrite(uint8_t index, uint8_t reg, uint8_t val);
                 public:
-                    OPL(const std::shared_ptr<audio::scummvm::Mixer> mixer) : EmulatedOPL(mixer){};
                     OPL(const std::shared_ptr<audio::scummvm::Mixer> mixer, Config::OplType type);
                     ~OPL();
 

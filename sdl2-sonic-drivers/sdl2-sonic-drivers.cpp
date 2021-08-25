@@ -520,43 +520,8 @@ int adl_driver()
 
 }
 
-int mame_opl_test()
+void opl2_test(std::shared_ptr<hardware::opl::OPL> opl)
 {
-    Mix_Init(0);
-    int rate = 22050;
-    if (Mix_OpenAudio(rate, AUDIO_S16, 2, 1024) < 0) {
-        cerr << Mix_GetError();
-        return -1;
-    }
-
-    //MIX_CHANNELS(8);
-    //Mix_AllocateChannels(16);
-
-    int freq;
-    uint16_t fmt;
-    int channels;
-    if (Mix_QuerySpec(&freq, &fmt, &channels) == 0) {
-        cerr << "query return 0" << endl;
-    }
-    cout << "freq: " << freq << endl
-        << "format: " << fmt << endl
-        << "channels: " << channels << endl;
-
-    if (channels > 2) {
-        // with 8 audio channels doesn't reproduce the right sound.
-        // i guess is something that can be fixed
-        // but i do not know why.
-        // the code should be similar to scummVM or DosBox
-        // so if it is working there, should work here.
-        // it means this code is not really the same
-        // need to start organizing in it properly.
-        cerr << "CHANNELS not mono or stereo!" << endl;
-    }
-
-    spdlog::set_level(spdlog::level::debug);
-    std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
-    //mixer->_rate = rate;
-    std::shared_ptr<hardware::opl::scummvm::mame::OPL> opl = std::make_shared<hardware::opl::scummvm::mame::OPL>(mixer);
     opl->init();
     opl->setCallbackFrequency(72);
     /****************************************
@@ -594,6 +559,47 @@ int mame_opl_test()
     spdlog::info("440 Hz tone, values looked up in table.");
     opl->writeReg(0xa0, 0x41);  /* 440 Hz */
     opl->writeReg(0xb0, 0x32);  /* 440 Hz, block 0, key on */
+
+}
+
+int mame_opl_test()
+{
+    Mix_Init(0);
+    int rate = 22050;
+    if (Mix_OpenAudio(rate, AUDIO_S16, 2, 1024) < 0) {
+        cerr << Mix_GetError();
+        return -1;
+    }
+
+    //MIX_CHANNELS(8);
+    //Mix_AllocateChannels(16);
+
+    int freq;
+    uint16_t fmt;
+    int channels;
+    if (Mix_QuerySpec(&freq, &fmt, &channels) == 0) {
+        cerr << "query return 0" << endl;
+    }
+    cout << "freq: " << freq << endl
+        << "format: " << fmt << endl
+        << "channels: " << channels << endl;
+
+    if (channels > 2) {
+        // with 8 audio channels doesn't reproduce the right sound.
+        // i guess is something that can be fixed
+        // but i do not know why.
+        // the code should be similar to scummVM or DosBox
+        // so if it is working there, should work here.
+        // it means this code is not really the same
+        // need to start organizing in it properly.
+        cerr << "CHANNELS not mono or stereo!" << endl;
+    }
+
+    spdlog::set_level(spdlog::level::debug);
+    std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
+    //mixer->_rate = rate;
+    std::shared_ptr<hardware::opl::scummvm::mame::OPL> opl = std::make_shared<hardware::opl::scummvm::mame::OPL>(mixer);
+    opl2_test(opl);
     Mix_HookMusic(callback, opl.get());
     
     SDL_Delay(10000);
@@ -643,43 +649,7 @@ int dosbox_opl2_test()
     spdlog::set_level(spdlog::level::debug);
     std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
     std::shared_ptr<hardware::opl::scummvm::dosbox::OPL> opl = std::make_shared<hardware::opl::scummvm::dosbox::OPL>(mixer, hardware::opl::scummvm::Config::OplType::OPL2);
-    opl->init();
-    opl->setCallbackFrequency(72);
-    /****************************************
-     *Set parameters for the carrier cell*
-     ***************************************/
-    opl->writeReg(0x23, 0x21); /* no amplitude modulation (D7=0), no vibrato (D6=0),
-                                * sustained envelope type (D5=1), KSR=0 (D4=0),
-                                * frequency multiplier=1 (D4-D0=1)
-                                */
-
-    opl->writeReg(0x43, 0x0);   /* no volume decrease with pitch (D7-D6=0),
-                                 * no attenuation (D5-D0=0)
-                                 */
-
-    opl->writeReg(0x63, 0xff);  /* fast attack (D7-D4=0xF) and decay (D3-D0=0xF) */
-    opl->writeReg(0x83, 0x05);  /* high sustain level (D7-D4=0), slow release rate (D3-D0=5) */
-
-    /*****************************************
-     * Set parameters for the modulator cell *
-     *****************************************/
-
-    opl->writeReg(0x20, 0x20);  /* sustained envelope type, frequency multiplier=0    */
-    opl->writeReg(0x40, 0x3f);  /* maximum attenuation, no volume decrease with pitch */
-
-    /* Since the modulator signal is attenuated as much as possible, these
-     * next two values shouldn't have any effect.
-     */
-    opl->writeReg(0x60, 0x44);  /* slow attack and decay */
-    opl->writeReg(0x80, 0x05);  /* high sustain level, slow release rate */
-
-    /*************************************************
-     * Generate tone from values looked up in table. *
-     *************************************************/
-
-    spdlog::info("440 Hz tone, values looked up in table.");
-    opl->writeReg(0xa0, 0x41);  /* 440 Hz */
-    opl->writeReg(0xb0, 0x32);  /* 440 Hz, block 0, key on */
+    opl2_test(opl);
     Mix_HookMusic(callback, opl.get());
 
     SDL_Delay(10000);

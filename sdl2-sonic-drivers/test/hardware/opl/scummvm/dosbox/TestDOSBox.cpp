@@ -1,10 +1,11 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include <hardware/opl/scummvm/mame/mame.hpp>
+#include <hardware/opl/scummvm/dosbox/dosbox.hpp>
 #include "../test/mocks/MockMixer.hpp"
 #include <memory>
 #include <cstdint>
 #include <files/File.hpp>
+
 
 
 namespace hardware
@@ -13,38 +14,58 @@ namespace hardware
     {
         namespace scummvm
         {
-            namespace mame
+            namespace dosbox
             {
+                // TODO: refactor these tests as they are the same of the one in mame.
+
                 using audio::mocks::MockMixer;
-                TEST(OPL, cstorDefault)
+
+                class OPLType : public  ::testing::TestWithParam<std::tuple<Config::OplType, bool>>
+                {
+                public:
+                    Config::OplType opl_type = std::get<0>(GetParam());
+                    bool isStereo = std::get<1>(GetParam());
+                };
+                TEST_P(OPLType, cstorDefault)
                 {
                     std::shared_ptr<MockMixer> mixer = std::make_shared<MockMixer>();
                     EXPECT_EQ(mixer.use_count(), 1);
-                    OPL mame(mixer);
+                    OPL dosbox(mixer, this->opl_type);
                     EXPECT_EQ(mixer.use_count(), 2);
-                    EXPECT_EQ(mame.getRate(), mixer->rate);
-                    EXPECT_EQ(mame.endOfData(), false);
-                    EXPECT_EQ(mame.isStereo(), false);
+                    EXPECT_EQ(dosbox.getRate(), mixer->rate);
+                    EXPECT_EQ(dosbox.endOfData(), false);
+                    EXPECT_EQ(dosbox.isStereo(), this->isStereo);
                 }
 
-                TEST(OPL, share_ptrDefault)
+                TEST_P(OPLType, share_ptrDefault)
                 {
+
                     std::shared_ptr<MockMixer> mixer = std::make_shared<MockMixer>();
                     EXPECT_EQ(mixer.use_count(), 1);
 
-                    std::shared_ptr<OPL> mame = std::make_shared<OPL>(mixer);
+                    std::shared_ptr<OPL> dosbox = std::make_shared<OPL>(mixer, this->opl_type);
                     EXPECT_EQ(mixer.use_count(), 2);
-                    EXPECT_EQ(mame.use_count(), 1);
-                    EXPECT_EQ(mame->getRate(), mixer->rate);
-                    EXPECT_EQ(mame->endOfData(), false);
-                    EXPECT_EQ(mame->isStereo(), false);
+                    EXPECT_EQ(dosbox.use_count(), 1);
+                    EXPECT_EQ(dosbox->getRate(), mixer->rate);
+                    EXPECT_EQ(dosbox->endOfData(), false);
+                    EXPECT_EQ(dosbox->isStereo(), this->isStereo);
                 }
 
-                TEST(OPL, Table440Hz)
+                INSTANTIATE_TEST_SUITE_P(
+                    OPL,
+                    OPLType,
+                    ::testing::Values(
+                        std::make_tuple<>(Config::OplType::OPL2, false),
+                        std::make_tuple<>(Config::OplType::DUAL_OPL2, true),
+                        std::make_tuple<>(Config::OplType::OPL3, true)
+                    )
+                );
+
+                TEST(DISABLED_OPL, Table440Hz)
                 {
                     std::shared_ptr<MockMixer> mixer = std::make_shared<MockMixer>();
                     mixer->rate = 22050;
-                    std::shared_ptr<hardware::opl::scummvm::mame::OPL> opl = std::make_shared<hardware::opl::scummvm::mame::OPL>(mixer);
+                    std::shared_ptr<hardware::opl::scummvm::dosbox::OPL> opl = std::make_shared<hardware::opl::scummvm::dosbox::OPL>(mixer, Config::OplType::OPL2);
                     opl->init();
                     opl->setCallbackFrequency(72);
                     /****************************************
@@ -85,8 +106,8 @@ namespace hardware
                     const int len = 4096;
                     auto buf = std::make_unique<int16_t[]>(len);
                     opl->readBuffer(buf.get(), len / 2);
-                    
-                    files::File f("fixtures/mame-22050-16bit-440Hz.dat");
+
+                    files::File f("fixtures/dosbox-22050-16bit-440Hz.dat");
                     EXPECT_EQ(f.size(), 4096);
                     auto fbuf = std::make_unique<int16_t[]>(len);
                     f.read(fbuf.get(), len);
