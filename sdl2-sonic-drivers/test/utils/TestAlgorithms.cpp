@@ -35,6 +35,14 @@ namespace utils
         EXPECT_EQ(CLIP<int>(10, 0, 9), 9);
         EXPECT_EQ(CLIP<int>(10, 11, 12), 11);
     }
+
+    TEST(Algorithms, ARRAYCLEAR)
+    {
+        const int size = 5;
+        int buf[size];
+        ARRAYCLEAR<int, size>(buf, 3);
+        EXPECT_THAT(buf, ::testing::ElementsAre(3, 3, 3, 3, 3));
+    }
 }
 
 int main(int argc, char** argv)

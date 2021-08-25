@@ -39,7 +39,6 @@ namespace files
 
     TEST(ADLFile, ADLv2DuneIntro)
     {
-        // TODO
         ADLFile f("fixtures/DUNE0.ADL");
         EXPECT_EQ(f.getVersion(), 2);
         EXPECT_EQ(f.getNumTracks(), 18);
@@ -51,7 +50,6 @@ namespace files
         EXPECT_EQ(f.getTrackOffset(f.getTrack(2)), 12622);
         EXPECT_EQ(f.getTrack(3), 2);
         EXPECT_EQ(f.getTrackOffset(f.getTrack(3)), 2282);
-
 
         int track2 = f.getTrack(2);
         EXPECT_EQ(track2, 3);
