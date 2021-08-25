@@ -21,6 +21,7 @@ namespace files
         uint16_t getInstrumentOffset(const int instrument) const;
         uint32_t getDataSize() const noexcept;
         const std::vector<uint8_t>& getData() const noexcept;
+        const int getNumPrograms() const noexcept;
 
     private:
         uint8_t _version = 0;
@@ -51,6 +52,7 @@ namespace files
         int _num_tracks = -1;
         int _num_track_offsets = -1;
         int _num_instrument_offsets = -1;
+        int _num_programs = -1;
 
         void _functor(std::function<void()> funcV1, std::function<void()> funcV2, std::function<void()> funcV3);
     };

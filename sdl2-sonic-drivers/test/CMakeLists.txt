@@ -104,6 +104,7 @@ macro_test(
     FIXTURES 
         "fixtures/EOBSOUND.ADL" # v1
         "fixtures/DUNE19.ADL"   # v2
+        "fixtures/DUNE0.ADL"    # v2
         "fixtures/LOREINTR.ADL" # v3
 )
 
