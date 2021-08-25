@@ -31,8 +31,6 @@ int adl()
         return -1;
     }
 
-    //MIX_CHANNELS(8);
-    //Mix_AllocateChannels(16);
 
     int freq;
     uint16_t fmt;
