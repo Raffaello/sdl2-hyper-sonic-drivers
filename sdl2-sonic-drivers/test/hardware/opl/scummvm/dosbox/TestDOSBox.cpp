@@ -68,6 +68,9 @@ namespace hardware
                     std::shared_ptr<hardware::opl::scummvm::dosbox::OPL> opl = std::make_shared<hardware::opl::scummvm::dosbox::OPL>(mixer, Config::OplType::OPL2);
                     opl->init();
                     opl->setCallbackFrequency(72);
+
+                    opl->writeReg(1, 0);        /* must initialize this to zero */
+                    opl->writeReg(0xC0, 1);     /* parallel connection */
                     /****************************************
                      *Set parameters for the carrier cell*
                      ***************************************/

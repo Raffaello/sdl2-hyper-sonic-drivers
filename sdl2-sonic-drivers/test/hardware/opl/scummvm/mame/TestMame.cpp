@@ -47,6 +47,9 @@ namespace hardware
                     std::shared_ptr<hardware::opl::scummvm::mame::OPL> opl = std::make_shared<hardware::opl::scummvm::mame::OPL>(mixer);
                     opl->init();
                     opl->setCallbackFrequency(72);
+
+                    opl->writeReg(1, 0);        /* must initialize this to zero */
+                    opl->writeReg(0xC0, 1);     /* parallel connection */
                     /****************************************
                      *Set parameters for the carrier cell*
                      ***************************************/
