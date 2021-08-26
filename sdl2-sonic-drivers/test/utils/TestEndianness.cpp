@@ -23,6 +23,20 @@ namespace utils
     {
         EXPECT_EQ(swapBE32(0x000000A0), 0xA0000000);
     }
+
+    TEST(Endianness, READ_LE_UINT16)
+    {
+        uint16_t i = 1;
+        const void* ptr = &i;
+        EXPECT_EQ(READ_LE_UINT16(ptr), swapLE16(i));
+    }
+
+    TEST(Endianness, READ_BE_UINT16)
+    {
+        uint16_t i = 1;
+        const void* ptr = &i;
+        EXPECT_EQ(READ_BE_UINT16(ptr), swapBE16(i));
+    }
 }
 
 int main(int argc, char** argv)

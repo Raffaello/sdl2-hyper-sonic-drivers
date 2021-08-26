@@ -78,4 +78,18 @@ namespace utils
 
         return n.i;
     }
+
+    inline uint16_t READ_LE_UINT16(const void* ptr)
+    {
+        const uint8_t* b = reinterpret_cast<const uint8_t*>(ptr);
+
+        return (b[1] << 8) + b[0];
+    }
+
+    inline uint16_t READ_BE_UINT16(const void* ptr)
+    {
+        const uint8_t* b = reinterpret_cast<const uint8_t*>(ptr);
+
+        return (b[0] << 8) + b[1];
+    }
 }

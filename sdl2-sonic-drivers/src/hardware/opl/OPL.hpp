@@ -1,52 +1,99 @@
 #pragma once
 
 #include <cstdint>
+#include <memory>
+#include <functional>
 
 namespace hardware
 {
-    /// <summary>
-    /// @see https://moddingwiki.shikadi.net/wiki/OPL_chip
-    /// </summary>
     namespace opl
     {
-        enum class ChipType
-        {
-            OPL2,
-            OPL2_DUAL,
-            OPL3,
-            //OPL2_SURROUND_OPL, /// OPL2 emulation from surroundopl code, using 2 wemu mono istances (OPL2_DUAL)
-            //OPL3_WEMU,         /// OPL3 emulation from wemuopl code, woodyopl (using OPL_3)
-            //OPL_woodyopl,      /// the only one containing hardware emulation to retro eng (OPL_3).
-            OPL_dbopl         /// dbopl file  like woodyopl but in integer instead of float.
-        };
+        constexpr int DEFAULT_CALLBACK_FREQUENCY = 250;
 
-        // TODO: Config implementation
-        /*enum OplEmulator {
-            kAuto = 0,
-            kMame = 1,
-            kDOSBox = 2,
-            kALSA = 3,
-            kNuked = 4,
-            kOPL2LPT = 5,
-            kOPL3LPT = 6
-        };*/
-        
-        //this opl class could be moved just in hardware namespace as a general interface for opl namespace
+        typedef std::function<void()> TimerCallBack;
+
+        /**
+         * A representation of a Yamaha OPL chip.
+         */
         class OPL
         {
         public:
-            OPL(const ChipType chip) noexcept;
-            ChipType getChipType() const noexcept;
+            OPL();
+            virtual ~OPL();
 
-            virtual void update(int16_t* buf, const int32_t samples) = 0;
-            virtual void write(const int reg, const int val) = 0; // combined register select + data write
-            //virtual void setchip(int n) // select OPL chip
-            //virtual void init() = 0; // reinitialize OPL chip(s)
-            virtual int32_t getSampleRate() const noexcept = 0;
+            /**
+             * Initializes the OPL emulator.
+             *
+             * @return true on success, false on failure
+             */
+            virtual bool init() = 0;
+
+            /**
+             * Reinitializes the OPL emulator
+             */
+            virtual void reset() = 0;
+
+            /**
+             * Writes a byte to the given I/O port.
+             *
+             * @param a port address
+             * @param v value, which will be written
+             */
+            virtual void write(int a, int v) = 0;
+
+            /**
+             * Reads a byte from the given I/O port.
+             *
+             * @param a port address
+             * @return value read
+             */
+            virtual uint8_t read(int a) = 0;
+
+            /**
+             * Function to directly write to a specific OPL register.
+             * This writes to *both* chips for a Dual OPL2. We allow
+             * writing to secondary OPL registers by using register
+             * values >= 0x100.
+             *
+             * @param r		hardware register number to write to
+             * @param v		value, which will be written
+             */
+            virtual void writeReg(int r, int v) = 0;
+
+            /**
+             * Start the OPL with callbacks.
+             */
+            void start(TimerCallBack* callback, int timerFrequency = DEFAULT_CALLBACK_FREQUENCY);
+
+            /**
+             * Stop the OPL
+             */
+            void stop();
+
+            /**
+             * Change the callback frequency. This must only be called from a
+             * timer proc.
+             */
+            virtual void setCallbackFrequency(int timerFrequency) = 0;
+
         protected:
-            ChipType _chip;
-            // TODO: review this variable as it is almost useless?
-            //int8_t   _currentChip;       // currently selected OPL chip number (0 or 1 actually)
+            /**
+             * Start the callbacks.
+             */
+            virtual void startCallbacks(int timerFrequency) = 0;
+
+            /**
+             * Stop the callbacks.
+             */
+            virtual void stopCallbacks() = 0;
+
+            /**
+             * The functor for callbacks.
+             */
+            std::unique_ptr<TimerCallBack> _callback;
+        private:
+            // moved into cpp file
+            //static bool _hasInstance;
         };
     }
 }

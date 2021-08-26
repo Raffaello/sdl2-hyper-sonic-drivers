@@ -66,9 +66,10 @@ namespace files
         _readData();
 
         _count_tracks();
+        _count_track_offsets();
         _count_instruments();
         
-        // Closing file 
+        // Closing file
         close();
     }
 
@@ -82,17 +83,27 @@ namespace files
         return _num_tracks;
     }
 
-    int ADLFile::getNumInstruments() const noexcept
+    int ADLFile::getNumTrackOffsets() const noexcept
     {
-        return _num_instruments;
+        return _num_track_offsets;
     }
 
-    uint16_t ADLFile::getTrack(const int track) const
+    int ADLFile::getNumInstrumentOffsets() const noexcept
     {
-        return _track_offsets.at(track);
+        return _num_instrument_offsets;
     }
 
-    uint16_t ADLFile::getInstrument(const int instrument) const
+    uint8_t ADLFile::getTrack(const int track) const
+    {
+        return _header.at(track);
+    }
+
+    uint16_t ADLFile::getTrackOffset(const int programId) const
+    {
+        return _track_offsets.at(programId);
+    }
+
+    uint16_t ADLFile::getInstrumentOffset(const int instrument) const
     {
         return _instrument_offsets.at(instrument);
     }
@@ -102,14 +113,14 @@ namespace files
         return _data.size();
     }
 
-    std::vector<uint8_t> ADLFile::getData() const noexcept
+    const std::vector<uint8_t>& ADLFile::getData() const noexcept
     {
         return _data;
     }
 
-    const uint8_t* ADLFile::getDataPtr() const noexcept
+    const int ADLFile::getNumPrograms() const noexcept
     {
-        return _data.data();
+        return _num_programs;
     }
 
     void ADLFile::_detectVersion()
@@ -117,6 +128,7 @@ namespace files
         seek(0, std::fstream::beg);
         // detect version 3
         _version = 3;
+        _num_programs = V3_NUM_TRACK_OFFSETS;
         for (int i = 0; i < V1_HEADER_SIZE; i++)
         {
             uint16_t v = readLE16();
@@ -127,6 +139,7 @@ namespace files
             {
                 //v1,2
                 _version = 2;
+                _num_programs =V2_NUM_TRACK_OFFSETS;
                 break;
             }
         }
@@ -149,6 +162,7 @@ namespace files
             if (min_w < V2_OFFSET_START)
             {
                 _version = 1;
+                _num_programs = V1_NUM_TRACK_OFFSETS;
                 _assertValid(min_w == V1_OFFSET_START);
             }
             else
@@ -182,14 +196,14 @@ namespace files
         );
     }
 
-    void ADLFile::_readHeaderFromFile(const int header_size, std::function<uint16_t()> read)
+    void ADLFile::_readHeaderFromFile(const int header_size, std::function<uint8_t()> read)
     {
         _header.resize(header_size);
         for (int i = 0; i < header_size; i++)
         {
             _header[i] = read();
-            //_assertValid(_header[i] < offset_start);
         }
+
         _assertValid(_header.size() == header_size);
     }
 
@@ -224,14 +238,26 @@ namespace files
     void ADLFile::_readData()
     {
         _functor(
+            [this]() { _readDataFromFile(V1_HEADER_SIZE); },
+            [this]() { _readDataFromFile(V2_HEADER_SIZE); },
+            [this]() { _readDataFromFile(V3_HEADER_SIZE); }
+        );
+
+        // TODO : Review the soundData starts after the header,
+        //        so the tracks and instruments are pointing counting from there
+        //        to keep as it is now should patch the offsets
+        //        probably just better using as it is meant to be
+        /*_functor(
             [this]() { _readDataFromFile(V1_DATA_OFFSET); },
             [this]() { _readDataFromFile(V2_DATA_OFFSET); },
             [this]() { _readDataFromFile(V3_DATA_OFFSET); }
-        );
+        );*/
     }
 
     void ADLFile::_readDataFromFile(const int data_offsets)
     {
+        seek(data_offsets, std::fstream::beg);
+
         int size_ = size() - data_offsets;
         _assertValid(size_ > 0);
         _assertValid(tell() == data_offsets);
@@ -239,40 +265,38 @@ namespace files
         read(buf.get(), size_);
         
         _data.resize(size_);
-        _data.insert(_data.begin(), buf[0], buf[size_ - 1]);
+        for (int i = 0; i < size_; i++) {
+            _data[i] = buf[i];
+        }
     }
 
     void ADLFile::_count_tracks()
     {
         _functor(
-            [this]() { _num_tracks = _count_loop(V1_NUM_TRACK_OFFSETS, V1_OFFSET_START, _track_offsets); },
-            [this]() { _num_tracks = _count_loop(V2_NUM_TRACK_OFFSETS, V2_OFFSET_START, _track_offsets); },
-            [this]() { _num_tracks = _count_loop(V3_NUM_TRACK_OFFSETS, V3_OFFSET_START, _track_offsets); }
+            [this]() { _num_tracks = _count_loop<uint8_t>(0, _header); },
+            [this]() { _num_tracks = _count_loop<uint8_t>(0, _header); },
+            [this]() { _num_tracks = _count_loop<uint8_t>(0, _header); }
+        );
+    }
+
+    void ADLFile::_count_track_offsets()
+    {
+        _functor(
+            [this]() { _num_track_offsets = _count_loop<uint16_t>(V1_OFFSET_START, _track_offsets); },
+            [this]() { _num_track_offsets = _count_loop<uint16_t>(V2_OFFSET_START, _track_offsets); },
+            [this]() { _num_track_offsets = _count_loop<uint16_t>(V3_OFFSET_START, _track_offsets); }
         );
     }
 
     void ADLFile::_count_instruments()
     {
         _functor(
-            [this]() { _num_instruments = _count_loop(V1_NUM_INSTRUMENT_OFFSETS, V1_OFFSET_START, _instrument_offsets); },
-            [this]() { _num_instruments = _count_loop(V2_NUM_INSTRUMENT_OFFSETS, V2_OFFSET_START, _instrument_offsets); },
-            [this]() { _num_instruments = _count_loop(V3_NUM_INSTRUMENT_OFFSETS, V3_OFFSET_START, _instrument_offsets); }
+            [this]() { _num_instrument_offsets = _count_loop<uint16_t>(V1_OFFSET_START, _instrument_offsets); },
+            [this]() { _num_instrument_offsets = _count_loop<uint16_t>(V2_OFFSET_START, _instrument_offsets); },
+            [this]() { _num_instrument_offsets = _count_loop<uint16_t>(V3_OFFSET_START, _instrument_offsets); }
         );
     }
 
-    int ADLFile::_count_loop(const int num_header, const int offs_start, const std::vector<uint16_t>& vec)
-    {
-        int tot = 0;
-        for (int i = 0; i < num_header; ++i)
-        {
-            if (vec[i] >= offs_start && vec[i] < 0xFFFF) {
-                ++tot;
-            }
-        }
-
-        return tot;
-    }
-    
     void ADLFile::_functor(std::function<void()> funcV1, std::function<void()> funcV2, std::function<void()> funcV3)
     {
         switch (_version)
