@@ -57,8 +57,8 @@ namespace drivers
 
             _syncJumpMask = 0;
 
-            _musicVolume = 0;
-            _sfxVolume = 0;
+            _musicVolume = 0x3F;
+            _sfxVolume = 0x3F;
 
             _sfxPointer = nullptr;
 

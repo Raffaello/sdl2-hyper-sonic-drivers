@@ -67,7 +67,7 @@ int adl()
     cout << "Volume: " << adlib.getVolume() << endl;
     cout << "num Tracks: " << songs.size() << endl;
 
-    adlib.playTrack(2);
+    adlib.playTrack(4);
     Mix_HookMusic(adlib.callback, &adlib);
     do {
         cout << "playin music, waiting 1s..." << endl;
@@ -1208,10 +1208,11 @@ int adl_driver_dosbox()
     adlDrv.initDriver();
 
     // TODO: ADLFile get track first value should be 9, instead return 0
-    adlDrv.startSound(2, 128);
+    adlDrv.startSound(4, 128);
     //TODO: SoundHandle ?
+    Mix_VolumeMusic(MIX_MAX_VOLUME);
     Mix_HookMusic(&callback_dosbox, opl.get());
-    SDL_Delay(20000);
+    SDL_Delay(60000);
 
 
     Mix_HaltChannel(-1);
@@ -1263,15 +1264,15 @@ int main(int argc, char* argv[])
     //files::ADLFile f("EOBSOUND.ADL");
     //cout << "ADL VERSION: " << f.getVersion() << endl;
         
-    //adl();
+    adl();
     //adl_driver_mame();
     //mame_opl_test();
     //dosbox_opl2_test();
     //dosbox_dual_opl2_test();
     //dosbox_opl3_test();
     //nuked_opl2_test();
-    nuked_dual_opl2_test();
-    nuked_opl3_test();
+    //nuked_dual_opl2_test();
+    //nuked_opl3_test();
     //adl_driver_dosbox();
 
     // TODO: 32 bit audio

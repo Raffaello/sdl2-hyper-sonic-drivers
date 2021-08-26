@@ -37,7 +37,7 @@ namespace files
         EXPECT_EQ(chan, 9);
     }
 
-    TEST(ADLFile, ADLv2DuneIntro)
+    TEST(ADLFile, Dune2LogoAndIntro)
     {
         ADLFile f("fixtures/DUNE0.ADL");
         EXPECT_EQ(f.getVersion(), 2);
@@ -48,15 +48,14 @@ namespace files
         EXPECT_EQ(f.getDataSize(), 14353);
         EXPECT_EQ(f.getTrack(2), 2);
         EXPECT_EQ(f.getTrackOffset(f.getTrack(2)), 12622);
-        EXPECT_EQ(f.getTrack(3), 2);
-        EXPECT_EQ(f.getTrackOffset(f.getTrack(3)), 2282);
-
-        int track2 = f.getTrack(2);
-        EXPECT_EQ(track2, 3);
-        int track2_offset = f.getTrackOffset(track2);
-        EXPECT_EQ(track2_offset, 2877);
-        int chan = f.getData()[track2_offset];
-        EXPECT_EQ(chan, 9);
+        EXPECT_EQ(f.getTrack(3), 0xFF);
+        //EXPECT_EQ(f.getTrackOffset(f.getTrack(3)), 2282);
+        // Logo section
+        EXPECT_EQ(f.getTrack(4), 70);
+        EXPECT_EQ(f.getTrackOffset(f.getTrack(4)), 13633);
+        
+        int chan = f.getData()[f.getTrackOffset(f.getTrack(2))];
+        EXPECT_EQ(chan , 9);
     }
 
     TEST(ADLFile, ADLv3)

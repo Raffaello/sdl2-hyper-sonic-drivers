@@ -8,7 +8,6 @@ set(CMAKE_DEBUG_POSTFIX d)
 
 find_package(SDL2 CONFIG REQUIRED)
 find_package(sdl2-mixer CONFIG REQUIRED)
-#find_package(fmt CONFIG REQUIRED)
 find_package(spdlog 1.9.0 CONFIG REQUIRED) # used in ADLDriver
 
 configure_file("version.h.in" "version.h")
@@ -17,6 +16,7 @@ configure_file("version.h.in" "version.h")
 # Add source to this project's executable.
 add_executable(sdl2-sonic-drivers "sdl2-sonic-drivers.cpp")
 target_sources(sdl2-sonic-drivers PUBLIC
+    # TODO use and replace with woody namepsace where appropriate
     ${CMAKE_CURRENT_SOURCE_DIR}/src/adl/sound_adlib.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/adl/surroundopl.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/adl/woodyopl.cpp

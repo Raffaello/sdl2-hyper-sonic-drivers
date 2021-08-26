@@ -305,8 +305,8 @@ namespace drivers
             std::mutex _mutex;
             //std::shared_ptr<audio::scummvm::Mixer> _mixer;
 
-            uint8_t _musicVolume = 128;
-            uint8_t _sfxVolume = 128;
+            uint8_t _musicVolume;
+            uint8_t _sfxVolume;
 
             // TODO: review _version checking
             // Version 1,2,3 possible values, version 3&4 merged into version 3
