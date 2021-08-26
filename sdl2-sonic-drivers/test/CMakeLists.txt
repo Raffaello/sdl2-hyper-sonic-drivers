@@ -179,7 +179,8 @@ macro_test(
     EXE TestNuked
     FILES 
         "hardware/opl/scummvm/nuked/TestNuked.cpp"
-        "../src/hardware/opl/scummvm/nuked/nuked.cpp"
+        "../src/hardware/opl/scummvm/nuked/OPL.cpp"
+        "../src/hardware/opl/scummvm/nuked/opl3.c"
         "../src/hardware/opl/scummvm/EmulatedOPL.cpp"
         "../src/hardware/opl/OPL.cpp"
         "../src/audio/scummvm/TimeStamp.cpp"

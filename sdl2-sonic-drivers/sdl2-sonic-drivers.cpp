@@ -21,7 +21,7 @@
 #include <hardware/opl/scummvm/dosbox/dosbox.hpp>
 #include <hardware/opl/scummvm/Config.hpp>
 
-#include <hardware/opl/scummvm/nuked/nuked.hpp>
+#include <hardware/opl/scummvm/nuked/OPL.hpp>
 
 using namespace std;
 
@@ -1060,7 +1060,7 @@ int nuked_opl2_test()
     std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
     std::shared_ptr<hardware::opl::scummvm::nuked::OPL> opl = std::make_shared<hardware::opl::scummvm::nuked::OPL>(mixer, hardware::opl::scummvm::Config::OplType::OPL2);
     opl2_test(opl);
-    Mix_HookMusic(callback_dosbox, opl.get());
+    Mix_HookMusic(callback_nuked, opl.get());
 
     SDL_Delay(10000);
 
@@ -1108,7 +1108,7 @@ int nuked_dual_opl2_test()
     spdlog::set_level(spdlog::level::debug);
     std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
     std::shared_ptr<hardware::opl::scummvm::nuked::OPL> opl = std::make_shared<hardware::opl::scummvm::nuked::OPL>(mixer, hardware::opl::scummvm::Config::OplType::DUAL_OPL2);
-    Mix_HookMusic(callback_dosbox, opl.get());
+    Mix_HookMusic(callback_nuked, opl.get());
     dual_opl2_test(opl);
 
     Mix_HaltChannel(-1);
@@ -1155,7 +1155,7 @@ int nuked_opl3_test()
     spdlog::set_level(spdlog::level::debug);
     std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
     std::shared_ptr<hardware::opl::scummvm::nuked::OPL> opl = std::make_shared<hardware::opl::scummvm::nuked::OPL>(mixer, hardware::opl::scummvm::Config::OplType::OPL3);
-    Mix_HookMusic(callback_dosbox, opl.get());
+    Mix_HookMusic(callback_nuked, opl.get());
     opl3_test(opl);
 
     Mix_HaltChannel(-1);
@@ -1270,8 +1270,8 @@ int main(int argc, char* argv[])
     //dosbox_dual_opl2_test();
     //dosbox_opl3_test();
     //nuked_opl2_test();
-    //nuked_dual_opl2_test();
-    //nuked_opl3_test();
+    nuked_dual_opl2_test();
+    nuked_opl3_test();
     //adl_driver_dosbox();
 
     // TODO: 32 bit audio

@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include <hardware/opl/scummvm/nuked/nuked.hpp>
+#include <hardware/opl/scummvm/nuked/OPL.hpp>
 #include "../test/mocks/MockMixer.hpp"
 #include <memory>
 #include <cstdint>
@@ -22,7 +22,7 @@ namespace hardware
                 {
                 public:
                     Config::OplType opl_type = std::get<0>(GetParam());
-                    bool isStereo = std::get<1>(GetParam());
+                    bool isStereo = true;
                 };
                 TEST_P(OPLType, cstorDefault)
                 {
