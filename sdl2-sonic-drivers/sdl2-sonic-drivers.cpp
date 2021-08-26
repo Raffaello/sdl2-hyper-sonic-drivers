@@ -10,8 +10,8 @@
 #include <drivers/miles/XMidi.hpp>
 #include <files/XMIFile.hpp>
 #include <files/ADLFile.hpp>
-//#include <drivers/westwood/woody/ADLDriver.hpp>
-//#include <hardware/opl/woody/SurroundOPL.hpp>
+#include <drivers/westwood/woody/ADLDriver.hpp>
+#include <hardware/opl/woody/SurroundOPL.hpp>
 
 #include <drivers/westwood/ADLDriver.hpp>
 #include <audio/SDL2Mixer.hpp>
@@ -293,114 +293,114 @@ int song()
     return 0;
 }
 
+void ADLDRV_callback_woody(void* userdata, Uint8* audiobuf, int len)
+{
+    //drivers::westwood::woody::ADLDriver* driver = static_cast<drivers::westwood::woody::ADLDriver*>(userdata);
+    hardware::opl::woody::SurroundOPL* sOpl = reinterpret_cast<hardware::opl::woody::SurroundOPL*>(userdata);
 
-//void ADLDRV_callback(void* userdata, Uint8* audiobuf, int len)
-//{
-//    //drivers::westwood::ADLDriver * self = static_cast<drivers::westwood::ADLDriver*>(userdata);
-//    drivers::westwood::ADLDriver* _driver = static_cast<drivers::westwood::ADLDriver*>(userdata);
-//
-//    //self->process();
-//    //uint8_t trigger = _driver->callback(11);
-//
-//    //if (trigger < _numSoundTriggers) {
-//    //    int soundId = _soundTriggers[trigger];
-//
-//     //   if (soundId)
-//     //       playTrack(soundId);
-//    //}
-//    //else if (trigger == 1) {
-//        // ignore
-//    //}
-//    //else if (trigger != 0) {
-//    //    warning("Unknown sound trigger %d", trigger);
-//        // TODO: At this point, we really want to clear the trigger...
-//    //}
-//    
-//    int16_t* buf = reinterpret_cast<int16_t*>(audiobuf);
-//
-//    
-//    int samples = _driver->readBuffer(buf, len / 2*2); //stereo 16 bit => *2 channels, /2 16 bits 
-//
-//    int volume = 128;
-//    for (int i = 0; i < samples; i++) {
-//        //printf("0x%x\n", buf[i]);
-//        buf[i] = static_cast<int16_t>(buf[i] );
-//    }
-//
-//    //self->bJustStartedPlaying = false;
-//}
+    
+    //self->process();
+    //uint8_t trigger = _driver->callback(11);
 
-//int adl_driver_woody()
-//{
-//    Mix_Init(0);
-//    if (Mix_OpenAudio(44100, AUDIO_S16, 2, 1024) < 0) {
-//        cerr << Mix_GetError();
-//        return -1;
-//    }
-//
-//    //MIX_CHANNELS(8);
-//    //Mix_AllocateChannels(16);
-//
-//    int freq;
-//    uint16_t fmt;
-//    int channels;
-//    if (Mix_QuerySpec(&freq, &fmt, &channels) == 0) {
-//        cerr << "query return 0" << endl;
-//    }
-//    cout << "freq: " << freq << endl
-//        << "format: " << fmt << endl
-//        << "channels: " << channels << endl;
-//    
-//    if (channels > 2) {
-//        // with 8 audio channels doesn't reproduce the right sound.
-//        // i guess is something that can be fixed
-//        // but i do not know why.
-//        // the code should be similar to scummVM or DosBox
-//        // so if it is working there, should work here.
-//        // it means this code is not really the same
-//        // need to start organizing in it properly.
-//        cerr << "CHANNELS not mono or stereo!" << endl;
-//    }
-//
-//    hardware::opl::woody::SurroundOPL sOpl(freq, true);
-//    hardware::opl::woody::OPL* opl = &sOpl;
-//
-//    std::shared_ptr<files::ADLFile> adlFile = std::make_shared<files::ADLFile>("DUNE0.ADL");
-//    drivers::westwood::ADLDriver adlDrv(opl, adlFile);
-//    adlDrv.initDriver();
-//
-//    // TODO: missing the callback, and to redirect to Mix_ (SDL2) etc...
-//    // TODO: need to render the adlib sound and copy in the buffer
-//    //       and pass to the callback
-//    // OPL->update is the one to generate the audio bytes.
-//    adlDrv.startSound(2, 128);
-//    Mix_HookMusic(ADLDRV_callback, &adlDrv);
-//
-//
-//   
-//    /*SDL_RWops* adlFile = SDL_RWFromFile("DUNE0.ADL", "rb");
-//    if (nullptr == adlFile) {
-//        cerr << "file not found" << endl;
-//        throw std::runtime_error("file not found");
-//    }
-//
-//    SoundAdlibPC adlib = SoundAdlibPC(adlFile);*/
-//    //    adlib.playTrack(2);
-////    Mix_HookMusic(adlib.callback, &adlib);
-//   // do {
-//        //cout << "playin music, waiting 1s..." << endl;
-//        SDL_Delay(4000);
-// //   } while (adlDrv.isChannelPlay);
-//
-//    SDL_Delay(3000);
-//    Mix_HaltChannel(-1);
-//    Mix_HaltMusic();
-//    Mix_CloseAudio();
-//    Mix_Quit();
-//
-//    return 0;
-//
-//}
+    //if (trigger < _numSoundTriggers) {
+    //    int soundId = _soundTriggers[trigger];
+
+     //   if (soundId)
+     //       playTrack(soundId);
+    //}
+    //else if (trigger == 1) {
+        // ignore
+    //}
+    //else if (trigger != 0) {
+    //    warning("Unknown sound trigger %d", trigger);
+        // TODO: At this point, we really want to clear the trigger...
+    //}
+    
+    int16_t* buf = reinterpret_cast<int16_t*>(audiobuf);
+    sOpl->update(buf, len / 2 );
+    
+    //int samples = _driver->readBuffer(buf, len / 2*2); //stereo 16 bit => *2 channels, /2 16 bits 
+
+    //int volume = 128;
+    //for (int i = 0; i < samples; i++) {
+    //    //printf("0x%x\n", buf[i]);
+    //    buf[i] = static_cast<int16_t>(buf[i] );
+    //}
+
+    //self->bJustStartedPlaying = false;
+}
+
+int adl_driver_woody()
+{
+    Mix_Init(0);
+    if (Mix_OpenAudio(44100, AUDIO_S16, 2, 1024) < 0) {
+        cerr << Mix_GetError();
+        return -1;
+    }
+
+    //MIX_CHANNELS(8);
+    //Mix_AllocateChannels(16);
+
+    int freq;
+    uint16_t fmt;
+    int channels;
+    if (Mix_QuerySpec(&freq, &fmt, &channels) == 0) {
+        cerr << "query return 0" << endl;
+    }
+    cout << "freq: " << freq << endl
+        << "format: " << fmt << endl
+        << "channels: " << channels << endl;
+    
+    if (channels > 2) {
+        // with 8 audio channels doesn't reproduce the right sound.
+        // i guess is something that can be fixed
+        // but i do not know why.
+        // the code should be similar to scummVM or DosBox
+        // so if it is working there, should work here.
+        // it means this code is not really the same
+        // need to start organizing in it properly.
+        cerr << "CHANNELS not mono or stereo!" << endl;
+    }
+
+    hardware::opl::woody::SurroundOPL sOpl(freq, true);
+    hardware::opl::woody::OPL* opl = &sOpl;
+
+    std::shared_ptr<files::ADLFile> adlFile = std::make_shared<files::ADLFile>("DUNE0.ADL");
+    drivers::westwood::woody::ADLDriver adlDrv(opl, adlFile);
+    adlDrv.initDriver();
+
+    // TODO: missing the callback, and to redirect to Mix_ (SDL2) etc...
+    // TODO: need to render the adlib sound and copy in the buffer
+    //       and pass to the callback
+    // OPL->update is the one to generate the audio bytes.
+    adlDrv.startSound(2, 128);
+    Mix_HookMusic(ADLDRV_callback_woody, &opl);
+
+
+   
+    /*SDL_RWops* adlFile = SDL_RWFromFile("DUNE0.ADL", "rb");
+    if (nullptr == adlFile) {
+        cerr << "file not found" << endl;
+        throw std::runtime_error("file not found");
+    }
+
+    SoundAdlibPC adlib = SoundAdlibPC(adlFile);*/
+    //    adlib.playTrack(2);
+//    Mix_HookMusic(adlib.callback, &adlib);
+   // do {
+        //cout << "playin music, waiting 1s..." << endl;
+        SDL_Delay(4000);
+ //   } while (adlDrv.isChannelPlay);
+
+    SDL_Delay(3000);
+    Mix_HaltChannel(-1);
+    Mix_HaltMusic();
+    Mix_CloseAudio();
+    Mix_Quit();
+
+    return 0;
+
+}
 
 void callback_mame(void* userdata, uint8_t* stream, int len)
 {
@@ -736,6 +736,7 @@ void opl3_test(std::shared_ptr<hardware::opl::OPL> opl)
     SDL_Delay(1000);
 
     fm(0xb0, 0x12, opl);  /* key off */
+    Profm2(5, 0, opl);   /* set back to OPL2 mode */
 }
 
 int adl_driver_mame()
@@ -1264,7 +1265,8 @@ int main(int argc, char* argv[])
     //files::ADLFile f("EOBSOUND.ADL");
     //cout << "ADL VERSION: " << f.getVersion() << endl;
         
-    adl();
+    //adl();
+    adl_driver_woody();
     //adl_driver_mame();
     //mame_opl_test();
     //dosbox_opl2_test();

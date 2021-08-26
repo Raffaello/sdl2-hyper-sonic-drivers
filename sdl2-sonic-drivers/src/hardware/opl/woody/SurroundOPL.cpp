@@ -25,7 +25,7 @@
 
 #include <cmath> // for pow()
 #include <cstring> // for memset()
-#include "SurroundOPL.hpp"
+#include <hardware/opl/woody/SurroundOPL.hpp>
 #include <hardware/opl/woody/WoodyEmuOPL.hpp>
 
 namespace hardware
