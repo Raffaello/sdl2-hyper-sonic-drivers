@@ -148,7 +148,7 @@ namespace hardware
                 int32_t _samplerate;
             };
 
-            extern OPLChip* oplchip[2];
+            //extern OPLChip* oplchip[2];
         }
     }
 }
