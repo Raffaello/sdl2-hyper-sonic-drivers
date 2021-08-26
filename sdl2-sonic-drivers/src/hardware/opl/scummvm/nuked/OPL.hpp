@@ -6,7 +6,6 @@
 #include <memory>
 #include <audio/scummvm/Mixer.hpp>
 #include <hardware/opl/scummvm/nuked/opl3.h>
-#include <memory>
 
 namespace hardware
 {
