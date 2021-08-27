@@ -48,6 +48,8 @@ target_sources(sdl2-sonic-drivers PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/dosbox/dbopl/dbopl.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/nuked/OPL.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/nuked/opl3.c
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/westwood/scummvm/adlib.cpp
 )
 
 target_include_directories(sdl2-sonic-drivers PUBLIC 

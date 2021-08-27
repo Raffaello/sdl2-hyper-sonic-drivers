@@ -28,6 +28,12 @@ namespace hardware
             startCallbacks(timerFrequency);
         }
 
+        void OPL::start(TimerCallback* callback, int timerFrequency)
+        {
+            //_callback.reset(callback);
+            //startCallbacks(timerFrequency);
+        }
+
         void OPL::stop()
         {
             stopCallbacks();
