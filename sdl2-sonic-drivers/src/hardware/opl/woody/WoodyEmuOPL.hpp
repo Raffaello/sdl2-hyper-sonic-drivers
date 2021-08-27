@@ -1,7 +1,10 @@
 #pragma once
 
-#include <hardware/opl/OPL.hpp>
-#include "OPLChip.hpp"
+#include <hardware/opl/scummvm/EmulatedOPL.hpp>
+#include <hardware/opl/woody/OPLChip.hpp>
+#include <audio/scummvm/Mixer.hpp>
+#include <hardware/opl/scummvm/Config.hpp>
+#include <memory>
 
 namespace hardware
 {
@@ -9,17 +12,24 @@ namespace hardware
     {
         namespace woody
         {
-            class WoodyEmuOPL : public OPL
+            class WoodyEmuOPL : public scummvm::EmulatedOPL
             {
             public:
-                WoodyEmuOPL(const int rate, const bool usestereo) noexcept;
-              
-                virtual void update(int16_t* buf, const int32_t samples);
-                virtual void write(const int reg, const int val);
-                //virtual void init();
-                virtual int32_t getSampleRate() const noexcept;
+                WoodyEmuOPL(const std::shared_ptr<audio::scummvm::Mixer> mixer, const bool stereo);
+                virtual ~WoodyEmuOPL();
+                
+                bool init() override;
+                void reset() override;
+                void write(int a, int v) override;
+                uint8_t read(int a) override;
+                void writeReg(int r, int v) override;
+                bool isStereo() const override;
+            protected:
+                void generateSamples(int16_t* buffer, int numSamples) override;
             private:
-                bool    _stereo;
+                bool _stereo;
+                // TODO move into OPL interface
+                scummvm::Config::OplType _type;
                 OPLChip _opl;
             };
         }

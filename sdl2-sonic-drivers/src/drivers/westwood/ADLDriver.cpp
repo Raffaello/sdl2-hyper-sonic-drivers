@@ -89,6 +89,10 @@ namespace drivers
 
             _soundDataSize = _adl_file->getDataSize();
             // TODO: refactor, remove pointers.
+            // TODO: remove
+            if (_soundData != nullptr) {
+                delete[] _soundData;
+            }
             _soundData = new uint8_t[_soundDataSize];
             auto d = _adl_file->getData();
             std::copy_n(d.begin(), _soundDataSize, _soundData);
