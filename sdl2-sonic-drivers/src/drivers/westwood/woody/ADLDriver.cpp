@@ -22,7 +22,7 @@ namespace drivers
         // TODO: move to utils and as a constexpr
 #define ARRAYSIZE(x) ((int)(sizeof(x) / sizeof(x[0])))
 
-        ADLDriver::ADLDriver(hardware::opl::woody::OPL* opl) :
+        ADLDriver::ADLDriver(hardware::opl::OPL* opl) :
             _opl(opl), _rnd(RANDOM_SEED)
         {
             memset(_channels, 0, sizeof(_channels));

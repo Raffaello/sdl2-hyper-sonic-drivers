@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstdint>
-#include <hardware/opl/woody/OPL.hpp> // TODO: Replace with a generic OPL interface
+#include <hardware/opl/OPL.hpp> // TODO: Replace with a generic OPL interface
 #include <mutex>
 #include <files/ADLFile.hpp>
 #include <memory>
@@ -35,9 +35,8 @@ namespace drivers
             class ADLDriver final
             {
             public:
-                // AdLibDriver(Audio::Mixer *mixer, int version);
-                ADLDriver(hardware::opl::woody::OPL* opl);
-                ADLDriver(hardware::opl::woody::OPL* opl, std::shared_ptr<files::ADLFile> adl_file);
+                ADLDriver(hardware::opl::OPL* opl);
+                ADLDriver(hardware::opl::OPL* opl, std::shared_ptr<files::ADLFile> adl_file);
                 ~ADLDriver();
                 void setADLFile(std::shared_ptr<files::ADLFile> adl_file) noexcept;
                 void initDriver();
@@ -304,7 +303,7 @@ namespace drivers
 
                 // 	OPL::OPL *_adlib;
                 //Copl* _opl; // added in AdPlug
-                hardware::opl::woody::OPL* _opl;
+                hardware::opl::OPL* _opl;
 
                 uint8_t* _soundData = nullptr; // moved to parent class in scummvm
                 uint32_t _soundDataSize = 0; // moved to parent class in scummvm

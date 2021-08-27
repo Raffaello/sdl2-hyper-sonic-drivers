@@ -59,7 +59,7 @@ namespace drivers
         private:
             std::shared_ptr<files::ADLFile> _adl_file = nullptr;
             // From parent class
-            uint8_t* _soundData;
+            uint8_t* _soundData = nullptr;
             uint32_t _soundDataSize;
             // --- TODO: move in ADLFile ----------------------------------
             // The sound data has two lookup tables:

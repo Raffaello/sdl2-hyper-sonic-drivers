@@ -6,11 +6,15 @@ namespace hardware
     {
         namespace woody
         {
-            WoodyEmuOPL::WoodyEmuOPL(const std::shared_ptr<audio::scummvm::Mixer> mixer)
+            WoodyEmuOPL::WoodyEmuOPL(const std::shared_ptr<audio::scummvm::Mixer> mixer, const bool stereo)
                 : EmulatedOPL(mixer),
                 _opl(mixer->getOutputRate()),
                 _type(scummvm::Config::OplType::OPL3),
-                _stereo(true)
+                _stereo(stereo)
+            {
+            }
+
+            WoodyEmuOPL::~WoodyEmuOPL()
             {
             }
 
@@ -21,6 +25,25 @@ namespace hardware
                 } else {
                     _opl.adlib_getsample(buffer, numSamples);
                 }
+            }
+
+            bool WoodyEmuOPL::init()
+            {
+                return true;
+            }
+
+            void WoodyEmuOPL::reset()
+            {
+            }
+
+            void WoodyEmuOPL::write(int a, int v)
+            {
+                _opl.adlib_write(_opl.index, v, 0);
+            }
+
+            uint8_t WoodyEmuOPL::read(int a)
+            {
+                return uint8_t();
             }
 
             // template methods
@@ -34,28 +57,14 @@ namespace hardware
                 _opl.adlib_write(_opl.index, val, 0);
             }
 
-            void WoodyEmuOPL::write(int a, int v)
-            {
-                _opl.adlib_write(_opl.index, v, 0);
-            }
-
-            bool WoodyEmuOPL::init()
-            {
-                return true;
-            }
-
-            void WoodyEmuOPL::reset()
-            {
-            }
-
-            uint8_t WoodyEmuOPL::read(int a)
-            {
-                return uint8_t();
-            }
-
-            int32_t WoodyEmuOPL::getSampleRate() const noexcept
+            /*int32_t WoodyEmuOPL::getSampleRate() const noexcept
             {
                 return _opl.getSampleRate();
+            }*/
+
+            bool WoodyEmuOPL::isStereo() const
+            {
+                return _stereo;
             }
         }
     }

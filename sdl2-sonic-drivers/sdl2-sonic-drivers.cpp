@@ -10,7 +10,7 @@
 #include <drivers/miles/XMidi.hpp>
 #include <files/XMIFile.hpp>
 #include <files/ADLFile.hpp>
-#include <drivers/westwood/woody/ADLDriver.hpp>
+//#include <drivers/westwood/woody/ADLDriver.hpp>
 #include <hardware/opl/woody/SurroundOPL.hpp>
 
 #include <drivers/westwood/ADLDriver.hpp>
@@ -317,7 +317,7 @@ void ADLDRV_callback_woody(void* userdata, Uint8* audiobuf, int len)
     //}
     
     int16_t* buf = reinterpret_cast<int16_t*>(audiobuf);
-    sOpl->update(buf, len / 2 );
+    sOpl->readBuffer(buf, len / 2 );
     
     //int samples = _driver->readBuffer(buf, len / 2*2); //stereo 16 bit => *2 channels, /2 16 bits 
 
@@ -362,11 +362,11 @@ int adl_driver_woody()
         cerr << "CHANNELS not mono or stereo!" << endl;
     }
 
-    hardware::opl::woody::SurroundOPL sOpl(freq, true);
-    hardware::opl::woody::OPL* opl = &sOpl;
+    std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
+    std::shared_ptr<hardware::opl::woody::SurroundOPL> opl = std::make_shared<hardware::opl::woody::SurroundOPL>(mixer);
 
     std::shared_ptr<files::ADLFile> adlFile = std::make_shared<files::ADLFile>("DUNE0.ADL");
-    drivers::westwood::woody::ADLDriver adlDrv(opl, adlFile);
+    drivers::westwood::ADLDriver adlDrv(opl, adlFile);
     adlDrv.initDriver();
 
     // TODO: missing the callback, and to redirect to Mix_ (SDL2) etc...
