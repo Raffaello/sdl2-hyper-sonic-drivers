@@ -1024,7 +1024,7 @@ int adl_driver_dosbox()
     std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
     std::shared_ptr<files::ADLFile> adlFile = std::make_shared<files::ADLFile>("DUNE0.ADL");
     std::shared_ptr<hardware::opl::scummvm::dosbox::OPL> opl = std::make_shared<hardware::opl::scummvm::dosbox::OPL>(mixer, hardware::opl::scummvm::Config::OplType::OPL2);
-    drivers::westwood::woody::ADLDriver adlDrv(opl.get(), adlFile);
+    drivers::westwood::ADLDriver adlDrv(opl, adlFile);
     
     adlDrv.play(4, 0xFF);
     //TODO: SoundHandle ?
