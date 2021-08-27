@@ -24,8 +24,6 @@ namespace drivers
     {
         ADLDriver::ADLDriver(std::shared_ptr<hardware::opl::OPL> opl, std::shared_ptr<files::ADLFile> adl_file)
         {
-            setADLFile(adl_file);
-
             _opl = opl;
 
             if (!_opl || !_opl->init()) {
@@ -70,6 +68,12 @@ namespace drivers
             hardware::opl::TimerCallBack cb = std::bind(&ADLDriver::callback, this);
             auto p = std::make_unique<hardware::opl::TimerCallBack>(cb);
             _opl->start(p.release(), CALLBACKS_PER_SECOND);
+
+            setADLFile(adl_file);
+            setSoundData(_soundData, _soundDataSize);
+            initDriver();
+            setMusicVolume(63);
+            setSfxVolume(63);
         }
 
         ADLDriver::~ADLDriver()
@@ -126,7 +130,8 @@ namespace drivers
         {
             const std::lock_guard<std::mutex> lock(_mutex);
 
-            uint8_t* trackData = getProgram(_adl_file->getTrack(4));
+            uint8_t* trackData = getProgram(track);
+            spdlog::debug("getProgma[track={}]= {d}", track, trackData);
             if (!trackData) {
                 return;
             }
@@ -266,6 +271,26 @@ namespace drivers
                 writeOPL(0x40 + regOffset, calculateOpLevel1(chan));
                 writeOPL(0x43 + regOffset, calculateOpLevel2(chan));
             }
+        }
+
+        void ADLDriver::play(const uint8_t track, const uint8_t volume)
+        {
+            uint16_t soundId = 0;
+
+            //if (_version == 3) {
+                //soundId = READ_LE_UINT16(&_trackEntries[track << 1]);
+            //    soundId = _adl_file->getTrack(track);
+            //}
+            //else {
+            //    soundId = _trackEntries[track];
+            //}
+            soundId = _adl_file->getTrack(track);
+
+            if ((soundId == 0xFFFF && _version == 3) || (soundId == 0xFF && _version < 3) || _soundData == nullptr)
+                return;
+
+            spdlog::debug("trackEntries[track = % d] = % d", track, soundId);
+            startSound(soundId, volume);
         }
 
         uint8_t* ADLDriver::getProgram(const int progId)

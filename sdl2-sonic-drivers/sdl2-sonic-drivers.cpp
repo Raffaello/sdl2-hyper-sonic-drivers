@@ -744,7 +744,7 @@ int adl_driver_mame()
     std::shared_ptr<hardware::opl::scummvm::mame::OPL> opl = std::make_shared<hardware::opl::scummvm::mame::OPL>(mixer);
     drivers::westwood::ADLDriver adlDrv(opl, adlFile);
 
-    adlDrv.startSound(2, 254);
+    adlDrv.play(4, 63);
     //TODO: SoundHandle ?
     Mix_VolumeMusic(MIX_MAX_VOLUME);
     Mix_HookMusic(&callback_mame, opl.get());
@@ -1056,12 +1056,14 @@ int adl_driver_dosbox()
     spdlog::set_level(spdlog::level::debug);
     std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
     std::shared_ptr<files::ADLFile> adlFile = std::make_shared<files::ADLFile>("DUNE0.ADL");
-    std::shared_ptr<hardware::opl::scummvm::dosbox::OPL> opl = std::make_shared<hardware::opl::scummvm::dosbox::OPL>(mixer, hardware::opl::scummvm::Config::OplType::OPL3);
+    std::shared_ptr<hardware::opl::scummvm::dosbox::OPL> opl = std::make_shared<hardware::opl::scummvm::dosbox::OPL>(mixer, hardware::opl::scummvm::Config::OplType::OPL2);
     drivers::westwood::ADLDriver adlDrv(opl, adlFile);
     
-    adlDrv.initDriver();
+    //adlDrv.initDriver();
+    //adlDrv.setMusicVolume(63);
+    //adlDrv.setSfxVolume(63);
 
-    adlDrv.startSound(4, 0x3F);
+    adlDrv.play(4, 0x3F);
     //TODO: SoundHandle ?
     Mix_VolumeMusic(MIX_MAX_VOLUME);
     Mix_HookMusic(&callback_dosbox, opl.get());

@@ -36,7 +36,7 @@ namespace drivers
             void setADLFile(const std::shared_ptr<files::ADLFile> adl_file) noexcept;
             void initDriver(); //override;
             void setSoundData(uint8_t* data, uint32_t size);// override;
-            void startSound(const int track, const int volume);// override;
+            
             bool isChannelPlaying(const int channel);// override;
             void stopAllChannels();// override;
             int getSoundTrigger() const; /*override*/
@@ -48,7 +48,9 @@ namespace drivers
 
             void setMusicVolume(const uint8_t volume);// override;
             void setSfxVolume(const uint8_t volume);// override;
+            void play(const uint8_t track, const uint8_t volume);
         private:
+            void startSound(const int track, const int volume);// override;
             std::shared_ptr<files::ADLFile> _adl_file = nullptr;
             // From parent class
             uint8_t* _soundData = nullptr;
