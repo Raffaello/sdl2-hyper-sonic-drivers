@@ -57,11 +57,6 @@ namespace hardware
                 _opl.adlib_write(_opl.index, val, 0);
             }
 
-            /*int32_t WoodyEmuOPL::getSampleRate() const noexcept
-            {
-                return _opl.getSampleRate();
-            }*/
-
             bool WoodyEmuOPL::isStereo() const
             {
                 return _stereo;

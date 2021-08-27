@@ -438,6 +438,22 @@ void callback_nuked(void* userdata, uint8_t* stream, int len)
     //first = false;
 }
 
+void callback_surround(void* userdata, uint8_t* stream, int len)
+{
+    // TODO: merge into 1 callback
+
+
+    // don't understand why the buffer is simply fill of zeros....
+    //static bool first = true;
+    //if (!first) return;
+    //std::fstream wf("440Hz.dat", ios::out | ios::binary);
+    //if (!wf) return;
+
+    hardware::opl::woody::SurroundOPL* opl = reinterpret_cast<hardware::opl::woody::SurroundOPL*>(userdata);
+    int16_t* buf = reinterpret_cast<int16_t*>(stream);
+    opl->readBuffer(buf, len / 2);
+}
+
 /* These are offsets from the base I/O address. */
 constexpr int FM = 8;       // SB (mono) ports (e.g. 228H and 229H)
 constexpr int PROFM1 = 0;   // On CT-1330, this is left OPL-2.  On CT-1600 and
@@ -1071,6 +1087,30 @@ int nuked_opl3_test()
     return 0;
 }
 
+int surround_dual_opl2_test()
+{
+    Mix_Init(0);
+    int rate = 22050;
+    if (Mix_OpenAudio(rate, AUDIO_S16, 2, 1024) < 0) {
+        cerr << Mix_GetError();
+        return -1;
+    }
+
+    spdlog::set_level(spdlog::level::debug);
+    std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
+    std::shared_ptr<hardware::opl::woody::SurroundOPL> opl = std::make_shared<hardware::opl::woody::SurroundOPL>(mixer);
+    Mix_HookMusic(callback_surround, opl.get());
+    dual_opl2_test(opl);
+
+    Mix_HaltChannel(-1);
+    Mix_HaltMusic();
+    Mix_CloseAudio();
+    Mix_Quit();
+
+    return 0;
+}
+
+
 int adl_driver_dosbox()
 {
     Mix_Init(0);
@@ -1171,7 +1211,7 @@ int main(int argc, char* argv[])
         
     //adl();
     //adl_driver_woody();
-    adl_driver_mame();
+    //adl_driver_mame();
     //mame_opl_test();
     //dosbox_opl2_test();
     //dosbox_dual_opl2_test();
@@ -1179,6 +1219,7 @@ int main(int argc, char* argv[])
     //nuked_opl2_test();
     //nuked_dual_opl2_test();
     //nuked_opl3_test();
+    surround_dual_opl2_test();
     //adl_driver_dosbox();
 
     // TODO: 32 bit audio

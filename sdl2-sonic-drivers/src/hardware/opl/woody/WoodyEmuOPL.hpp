@@ -23,7 +23,6 @@ namespace hardware
                 void write(int a, int v) override;
                 uint8_t read(int a) override;
                 void writeReg(int r, int v) override;
-                //int32_t getSampleRate() const noexcept;
                 bool isStereo() const override;
             protected:
                 void generateSamples(int16_t* buffer, int numSamples) override;
