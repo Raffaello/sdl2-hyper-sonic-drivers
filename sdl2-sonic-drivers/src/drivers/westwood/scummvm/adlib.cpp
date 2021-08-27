@@ -40,12 +40,10 @@
  // https://web.archive.org/web/20050322080425/http://www.gamedev.net/reference/articles/article446.asp
 
 #include "pc_base.h"
-#include "func.h"
 #include <hardware/opl/OPL.hpp>
 #include <audio/scummvm/Mixer.hpp>
 #include <mutex>
 #include <utils/algorithms.hpp>
-#include <hardware/opl/scummvm/dosbox/dosbox.hpp>
 #include <hardware/opl/scummvm/Config.hpp>
 #include <memory>
 #include <spdlog/spdlog.h>
@@ -205,7 +203,7 @@ AdLibDriver::AdLibDriver(std::shared_ptr<audio::scummvm::Mixer> mixer, int versi
 	_retrySounds = false;
 
 
-	_adlib->start(new Common::Functor0Mem<void, AdLibDriver>(this, &AdLibDriver::callback), CALLBACKS_PER_SECOND );
+	//_adlib->start(new Common::Functor0Mem<void, AdLibDriver>(this, &AdLibDriver::callback), CALLBACKS_PER_SECOND );
 	hardware::opl::TimerCallBack cb = std::bind(&AdLibDriver::callback, this);
 	auto p = std::make_unique<hardware::opl::TimerCallBack>(cb);
 	_adlib->start(p.release(), CALLBACKS_PER_SECOND);

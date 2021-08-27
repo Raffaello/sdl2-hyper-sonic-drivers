@@ -1023,7 +1023,8 @@ int adl_driver_dosbox()
     //spdlog::set_level(spdlog::level::debug);
     std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
     std::shared_ptr<files::ADLFile> adlFile = std::make_shared<files::ADLFile>("DUNE0.ADL");
-    std::shared_ptr<hardware::opl::scummvm::dosbox::OPL> opl = std::make_shared<hardware::opl::scummvm::dosbox::OPL>(mixer, hardware::opl::scummvm::Config::OplType::OPL2);
+    //std::shared_ptr<hardware::opl::scummvm::dosbox::OPL> opl = std::make_shared<hardware::opl::scummvm::dosbox::OPL>(mixer, hardware::opl::scummvm::Config::OplType::OPL2);
+    std::shared_ptr<hardware::opl::woody::WoodyEmuOPL> opl = std::make_shared<hardware::opl::woody::WoodyEmuOPL>(mixer, true);
     drivers::westwood::ADLDriver adlDrv(opl, adlFile);
     
     //adlDrv.initDriver();
@@ -1138,7 +1139,7 @@ int main(int argc, char* argv[])
     //nuked_dual_opl2_test();
     //nuked_opl3_test();
     //surround_dual_opl2_test();
-    //adl_driver_dosbox();
+    adl_driver_dosbox();
     
     // CALLBACK 72 per sec is not exact, but running faster? or not playing some channels?
     adl_driver_scummvm();

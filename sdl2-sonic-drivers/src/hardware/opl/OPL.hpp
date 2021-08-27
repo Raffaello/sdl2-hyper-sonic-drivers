@@ -4,8 +4,6 @@
 #include <memory>
 #include <functional>
 
-#include <drivers/westwood/scummvm/func.h>
-
 namespace hardware
 {
     namespace opl
@@ -13,7 +11,6 @@ namespace hardware
         constexpr int DEFAULT_CALLBACK_FREQUENCY = 250;
 
         typedef std::function<void()> TimerCallBack;
-        typedef Common::Functor0<void> TimerCallback;
 
         /**
          * A representation of a Yamaha OPL chip.
@@ -67,7 +64,6 @@ namespace hardware
              * Start the OPL with callbacks.
              */
             void start(TimerCallBack* callback, int timerFrequency = DEFAULT_CALLBACK_FREQUENCY);
-            void start(TimerCallback* callback, int timerFrequency = DEFAULT_CALLBACK_FREQUENCY);
 
             /**
              * Stop the OPL
@@ -95,7 +91,6 @@ namespace hardware
              * The functor for callbacks.
              */
             std::unique_ptr<TimerCallBack> _callback;
-            //std::unique_ptr<TimerCallback> _callback;
         private:
             // moved into cpp file
             //static bool _hasInstance;

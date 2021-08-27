@@ -28,6 +28,7 @@ namespace audio
 
         spdlog::info("Audio Device: frequency = {} --- format = {} --- channels = {}", freq, fmt, chan);
         _rate = freq;
+        
     }
 
     bool SDL2Mixer::isReady() const
@@ -115,7 +116,7 @@ namespace audio
     }
     uint32_t SDL2Mixer::getSoundElapsedTime(scummvm::SoundHandle handle)
     {
-        return uint32_t();
+        return getElapsedTime(handle).msecs();
     }
     scummvm::Timestamp SDL2Mixer::getElapsedTime(scummvm::SoundHandle handle)
     {
