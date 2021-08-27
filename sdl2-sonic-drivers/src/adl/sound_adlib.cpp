@@ -96,13 +96,13 @@ static inline void warning(const char *str, ...)
 
 static inline void debugC(int level, const char *str, ...)
 {
-
+/*
     va_list args;
     va_start(args, str);
     vfprintf(stderr,str,args);
     fprintf(stderr,"\n");
     va_end(args);
-
+*/
 }
 
 
