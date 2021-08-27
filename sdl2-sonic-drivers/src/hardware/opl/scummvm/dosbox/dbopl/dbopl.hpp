@@ -19,8 +19,7 @@ namespace hardware
 #define WAVE_TABLEMUL	12
 
 //Select the type of wave generator routine
-#define DBOPL_WAVE WAVE_TABLELOG
-
+#define DBOPL_WAVE WAVE_TABLEMUL
                 namespace dbopl
                 {
                     // Type aliases for the DBOPL code

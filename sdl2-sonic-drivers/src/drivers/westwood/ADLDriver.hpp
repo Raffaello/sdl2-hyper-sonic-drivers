@@ -28,17 +28,9 @@ namespace drivers
         /// the same file format(but need different offset adjustments);
         /// Kyrandia 2 and LoL format(version 4) is different again.
         /// </summary>
-        class ADLDriver final /* : public PCSoundDriver */
+        class ADLDriver /* : public PCSoundDriver */
         {
         public:
-            // TODO: instead of the mixer pass the OPL emulation as a per logic
-            //       1 file to 1 drv to 1 soundcard (OPLEmulation)
-            //       ADLDriver is the code to execute, when reading an ADL file to
-            //       to send to an OPL Chip.
-            //       What i miss after sent to the OPL chip is to send to the Mixer
-            //       in this case the mixer at first is just SDL2_Mixer_Hook or similar.
-            //ADLDriver(std::shared_ptr<audio::scummvm::Mixer> mixer);
-            //ADLDriver(std::shared_ptr<audio::scummvm::Mixer> mixer, std::shared_ptr<files::ADLFile> adl_file);
             ADLDriver(std::shared_ptr<hardware::opl::OPL> opl, std::shared_ptr<files::ADLFile> adl_file);
             ~ADLDriver(); //override;
             void setADLFile(const std::shared_ptr<files::ADLFile> adl_file) noexcept;
@@ -136,7 +128,6 @@ namespace drivers
             void noteOff(Channel& channel);
             void initAdlibChannel(uint8_t num);
 
-            // TODO: move in utils
             uint16_t getRandomNr();
             void setupDuration(uint8_t duration, Channel& channel);
 
@@ -157,11 +148,6 @@ namespace drivers
             // and do more stuff.
             static bool advance(uint8_t& timer, uint8_t tempo);
             const uint8_t* checkDataOffset(const uint8_t* ptr, long n);
-
-            // The sound data has two lookup tables:
-            // * One for programs, starting at offset 0.
-            // * One for instruments, starting at offset 300, 500, or 1000.
-            //const uint8_t* getInstrument(int instrumentId);
 
             void setupPrograms();
             void executePrograms();
@@ -303,7 +289,6 @@ namespace drivers
             uint16_t _syncJumpMask;
 
             std::mutex _mutex;
-            //std::shared_ptr<audio::scummvm::Mixer> _mixer;
 
             uint8_t _musicVolume;
             uint8_t _sfxVolume;

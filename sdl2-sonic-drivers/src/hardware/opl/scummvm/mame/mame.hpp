@@ -166,18 +166,18 @@ namespace hardware
                     OPL(const std::shared_ptr<audio::scummvm::Mixer> mixer) : EmulatedOPL(mixer), _opl(nullptr) {}
                     virtual ~OPL();
 
-                    bool init();
-                    void reset();
+                    bool init() override;
+                    void reset() override;
 
-                    void write(int a, int v);
-                    uint8_t read(int a);
+                    void write(int a, int v) override;
+                    uint8_t read(int a) override;
 
-                    void writeReg(int r, int v);
+                    void writeReg(int r, int v) override;
 
-                    bool isStereo() const { return false; }
+                    bool isStereo() const override { return false; }
 
                 protected:
-                    void generateSamples(int16_t* buffer, int length);
+                    void generateSamples(int16_t* buffer, int length) override;
                 };
             }
         }

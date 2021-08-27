@@ -15,7 +15,6 @@ namespace drivers
             // TODO: move
             constexpr int CALLBACKS_PER_SECOND = 72;
 
-
             /// <summary>
             /// Driver for .ADL files and OPL Chips
             /// Originally shuold be the DUNE2 ALFX.DRV file and PCSOUND.DRV

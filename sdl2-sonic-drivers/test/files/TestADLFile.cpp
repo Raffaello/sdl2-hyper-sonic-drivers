@@ -56,6 +56,8 @@ namespace files
         
         int chan = f.getData()[f.getTrackOffset(f.getTrack(2))];
         EXPECT_EQ(chan , 9);
+        chan = f.getData()[f.getTrackOffset(f.getTrack(4))];
+        EXPECT_EQ(chan, 9);
     }
 
     TEST(ADLFile, ADLv3)

@@ -67,18 +67,18 @@ namespace hardware
                     OPL(const std::shared_ptr<audio::scummvm::Mixer> mixer, Config::OplType type);
                     virtual ~OPL();
 
-                    bool init();
-                    void reset();
+                    bool init() override;
+                    void reset() override;
 
-                    void write(int a, int v);
-                    uint8_t read(int a);
+                    void write(int a, int v) override;
+                    uint8_t read(int a) override;
 
-                    void writeReg(int r, int v);
+                    void writeReg(int r, int v) override;
 
-                    bool isStereo() const { return _type != Config::OplType::OPL2; }
+                    bool isStereo() const override { return _type != Config::OplType::OPL2; }
 
                 protected:
-                    void generateSamples(int16_t* buffer, int length);
+                    void generateSamples(int16_t* buffer, int length) override;
                 };
             } // End of namespace DOSBox
         }

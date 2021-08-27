@@ -75,6 +75,7 @@ int adl()
     } while (adlib.isPlaying());
     cout << "end";
  
+    Mix_HookMusic(nullptr, nullptr);
     SDL_RWclose(adlFile);
     Mix_HaltChannel(-1);
     Mix_HaltMusic();
@@ -408,7 +409,12 @@ void callback_dosbox(void* userdata, uint8_t* stream, int len)
     hardware::opl::scummvm::dosbox::OPL* opl = reinterpret_cast<hardware::opl::scummvm::dosbox::OPL*>(userdata);
     int16_t* buf = reinterpret_cast<int16_t*>(stream);
     // / 2 because of sterio and opl is mono .... just for testing.
-    opl->readBuffer(buf, len / 2);
+    const int l = len / 2;
+    int samples = opl->readBuffer(buf, l);
+    // not useful
+    /*for (int i = samples; i < l; i++) {
+        buf[i] = 0;
+    }*/
 
 
     //wf.write((char*)stream, len);
@@ -810,37 +816,13 @@ int dosbox_opl2_test()
         return -1;
     }
 
-    //MIX_CHANNELS(8);
-    //Mix_AllocateChannels(16);
-
-    int freq;
-    uint16_t fmt;
-    int channels;
-    if (Mix_QuerySpec(&freq, &fmt, &channels) == 0) {
-        cerr << "query return 0" << endl;
-    }
-    cout << "freq: " << freq << endl
-        << "format: " << fmt << endl
-        << "channels: " << channels << endl;
-
-    if (channels > 2) {
-        // with 8 audio channels doesn't reproduce the right sound.
-        // i guess is something that can be fixed
-        // but i do not know why.
-        // the code should be similar to scummVM or DosBox
-        // so if it is working there, should work here.
-        // it means this code is not really the same
-        // need to start organizing in it properly.
-        cerr << "CHANNELS not mono or stereo!" << endl;
-    }
-
     spdlog::set_level(spdlog::level::debug);
     std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
     std::shared_ptr<hardware::opl::scummvm::dosbox::OPL> opl = std::make_shared<hardware::opl::scummvm::dosbox::OPL>(mixer, hardware::opl::scummvm::Config::OplType::OPL2);
-    opl2_test(opl);
     Mix_HookMusic(callback_dosbox, opl.get());
-
-    SDL_Delay(10000);
+    opl2_test(opl);
+    
+    Mix_HookMusic(nullptr, nullptr);
 
     Mix_HaltChannel(-1);
     Mix_HaltMusic();
@@ -858,37 +840,12 @@ int dosbox_dual_opl2_test()
         cerr << Mix_GetError();
         return -1;
     }
-
-    //MIX_CHANNELS(8);
-    //Mix_AllocateChannels(16);
-
-    int freq;
-    uint16_t fmt;
-    int channels;
-    if (Mix_QuerySpec(&freq, &fmt, &channels) == 0) {
-        cerr << "query return 0" << endl;
-    }
-    cout << "freq: " << freq << endl
-        << "format: " << fmt << endl
-        << "channels: " << channels << endl;
-
-    if (channels > 2) {
-        // with 8 audio channels doesn't reproduce the right sound.
-        // i guess is something that can be fixed
-        // but i do not know why.
-        // the code should be similar to scummVM or DosBox
-        // so if it is working there, should work here.
-        // it means this code is not really the same
-        // need to start organizing in it properly.
-        cerr << "CHANNELS not mono or stereo!" << endl;
-    }
-
     spdlog::set_level(spdlog::level::debug);
     std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
     std::shared_ptr<hardware::opl::scummvm::dosbox::OPL> opl = std::make_shared<hardware::opl::scummvm::dosbox::OPL>(mixer, hardware::opl::scummvm::Config::OplType::DUAL_OPL2);
     Mix_HookMusic(callback_dosbox, opl.get());
     dual_opl2_test(opl);
-   
+    Mix_HookMusic(nullptr, nullptr);
     Mix_HaltChannel(-1);
     Mix_HaltMusic();
     Mix_CloseAudio();
@@ -906,36 +863,12 @@ int dosbox_opl3_test()
         return -1;
     }
 
-    //MIX_CHANNELS(8);
-    //Mix_AllocateChannels(16);
-
-    int freq;
-    uint16_t fmt;
-    int channels;
-    if (Mix_QuerySpec(&freq, &fmt, &channels) == 0) {
-        cerr << "query return 0" << endl;
-    }
-    cout << "freq: " << freq << endl
-        << "format: " << fmt << endl
-        << "channels: " << channels << endl;
-
-    if (channels > 2) {
-        // with 8 audio channels doesn't reproduce the right sound.
-        // i guess is something that can be fixed
-        // but i do not know why.
-        // the code should be similar to scummVM or DosBox
-        // so if it is working there, should work here.
-        // it means this code is not really the same
-        // need to start organizing in it properly.
-        cerr << "CHANNELS not mono or stereo!" << endl;
-    }
-
     spdlog::set_level(spdlog::level::debug);
     std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
     std::shared_ptr<hardware::opl::scummvm::dosbox::OPL> opl = std::make_shared<hardware::opl::scummvm::dosbox::OPL>(mixer, hardware::opl::scummvm::Config::OplType::OPL3);
     Mix_HookMusic(callback_dosbox, opl.get());
     opl3_test(opl);
-
+    Mix_HookMusic(nullptr, nullptr);
     Mix_HaltChannel(-1);
     Mix_HaltMusic();
     Mix_CloseAudio();
@@ -1115,36 +1048,12 @@ int adl_driver_dosbox()
 {
     Mix_Init(0);
     int rate = 22050;
-    if (Mix_OpenAudio(rate, AUDIO_S16, 2, 1024) < 0) {
+    if (Mix_OpenAudio(rate, AUDIO_S16, 2, 4096) < 0) {
         cerr << Mix_GetError();
         return -1;
     }
 
-    //MIX_CHANNELS(8);
-    //Mix_AllocateChannels(16);
-
-    int freq;
-    uint16_t fmt;
-    int channels;
-    if (Mix_QuerySpec(&freq, &fmt, &channels) == 0) {
-        cerr << "query return 0" << endl;
-    }
-    cout << "freq: " << freq << endl
-        << "format: " << fmt << endl
-        << "channels: " << channels << endl;
-
-    if (channels > 2) {
-        // with 8 audio channels doesn't reproduce the right sound.
-        // i guess is something that can be fixed
-        // but i do not know why.
-        // the code should be similar to scummVM or DosBox
-        // so if it is working there, should work here.
-        // it means this code is not really the same
-        // need to start organizing in it properly.
-        cerr << "CHANNELS not mono or stereo!" << endl;
-    }
-
-    //spdlog::set_level(spdlog::level::debug);
+    spdlog::set_level(spdlog::level::debug);
     std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
     std::shared_ptr<files::ADLFile> adlFile = std::make_shared<files::ADLFile>("DUNE0.ADL");
     std::shared_ptr<hardware::opl::scummvm::dosbox::OPL> opl = std::make_shared<hardware::opl::scummvm::dosbox::OPL>(mixer, hardware::opl::scummvm::Config::OplType::OPL3);
@@ -1152,8 +1061,7 @@ int adl_driver_dosbox()
     
     adlDrv.initDriver();
 
-    // TODO: ADLFile get track first value should be 9, instead return 0
-    adlDrv.startSound(4, 128);
+    adlDrv.startSound(4, 0x3F);
     //TODO: SoundHandle ?
     Mix_VolumeMusic(MIX_MAX_VOLUME);
     Mix_HookMusic(&callback_dosbox, opl.get());
@@ -1219,8 +1127,8 @@ int main(int argc, char* argv[])
     //nuked_opl2_test();
     //nuked_dual_opl2_test();
     //nuked_opl3_test();
-    surround_dual_opl2_test();
-    //adl_driver_dosbox();
+    //surround_dual_opl2_test();
+    adl_driver_dosbox();
 
     // TODO: 32 bit audio
     //pcspkr(44100, AUDIO_S32, 2, 1024);

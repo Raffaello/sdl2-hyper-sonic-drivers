@@ -18,7 +18,6 @@ constexpr int RANDOM_INC = 0x9248;
 // TODO: review it / remove / replace / refactor
 #define ARRAYSIZE(x) ((int)(sizeof(x) / sizeof(x[0])))
 
-
 namespace drivers
 {
     namespace westwood
@@ -127,7 +126,7 @@ namespace drivers
         {
             const std::lock_guard<std::mutex> lock(_mutex);
 
-            uint8_t* trackData = getProgram(track);
+            uint8_t* trackData = getProgram(_adl_file->getTrack(4));
             if (!trackData) {
                 return;
             }
@@ -282,6 +281,7 @@ namespace drivers
                 return nullptr;
             
             const uint16_t offset = READ_LE_UINT16(_soundData + 2 * progId);
+            spdlog::debug("calling getProgram(prodIg={}){}", progId, offset);
             //const uint8_t progIdOffset = _adl_file->getTrack(progId);
             //const uint16_t offset = _adl_file->getTrackOffset(progIdOffset);
             //const uint16_t offset = _adl_file->getTrackOffset(progId);
@@ -303,6 +303,7 @@ namespace drivers
 
         const uint8_t* ADLDriver::getInstrument(const int instrumentId)
         {
+            spdlog::debug("calling get instrument {} ({})", instrumentId, _adl_file->getNumPrograms());
             return getProgram(_adl_file->getNumPrograms() + instrumentId);
             // TODO: Refactor
 
