@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstdint>
-#include <hardware/opl/OPL.hpp> // TODO: Replace with a generic OPL interface
+#include <hardware/opl/scummvm/EmulatedOPL.hpp> // TODO: Replace with a generic OPL interface
 #include <mutex>
 #include <files/ADLFile.hpp>
 #include <memory>
@@ -35,8 +35,8 @@ namespace drivers
             class ADLDriver final
             {
             public:
-                ADLDriver(hardware::opl::OPL* opl);
-                ADLDriver(hardware::opl::OPL* opl, std::shared_ptr<files::ADLFile> adl_file);
+                ADLDriver(hardware::opl::scummvm::EmulatedOPL* opl);
+                ADLDriver(hardware::opl::scummvm::EmulatedOPL* opl, std::shared_ptr<files::ADLFile> adl_file);
                 ~ADLDriver();
                 void setADLFile(std::shared_ptr<files::ADLFile> adl_file) noexcept;
                 void initDriver();
@@ -52,7 +52,8 @@ namespace drivers
                 // TODO: refactor /remove / replace
                 // AudioStream API
                 int readBuffer(int16_t* buffer, const int numSamples) {
-                    int32_t samplesLeft = numSamples;
+                    return _opl->readBuffer(buffer, numSamples);
+                    /*int32_t samplesLeft = numSamples;
                     memset(buffer, 0, sizeof(int16_t) * numSamples);
                     while (samplesLeft) {
                         if (!_samplesTillCallback) {
@@ -67,12 +68,12 @@ namespace drivers
 
                         int32_t render = samplesLeft < _samplesTillCallback ? samplesLeft : _samplesTillCallback;
                         samplesLeft -= render;
-                        _samplesTillCallback -= render;
-                        _opl->update(buffer, render);
-                        buffer += render * 2;
-                    }
+                        _samplesTillCallback -= render;*/
+                        //_opl->readBuffer(buffer, render);
+                       // buffer += render * 2;
+                    //}
 
-                    return numSamples;
+                   // return numSamples;
                 }
 
 
@@ -303,7 +304,7 @@ namespace drivers
 
                 // 	OPL::OPL *_adlib;
                 //Copl* _opl; // added in AdPlug
-                hardware::opl::OPL* _opl;
+                hardware::opl::scummvm::EmulatedOPL* _opl;
 
                 uint8_t* _soundData = nullptr; // moved to parent class in scummvm
                 uint32_t _soundDataSize = 0; // moved to parent class in scummvm

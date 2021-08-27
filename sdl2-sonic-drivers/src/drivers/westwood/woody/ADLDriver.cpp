@@ -22,7 +22,7 @@ namespace drivers
         // TODO: move to utils and as a constexpr
 #define ARRAYSIZE(x) ((int)(sizeof(x) / sizeof(x[0])))
 
-        ADLDriver::ADLDriver(hardware::opl::OPL* opl) :
+        ADLDriver::ADLDriver(hardware::opl::scummvm::EmulatedOPL* opl) :
             _opl(opl), _rnd(RANDOM_SEED)
         {
             memset(_channels, 0, sizeof(_channels));
@@ -38,13 +38,13 @@ namespace drivers
             // would be a good idea.
             //_mixer->playInputStream(Audio::Mixer::kMusicSoundType, &_soundHandle, this, -1, Audio::Mixer::kMaxChannelVolume, 0, false, true);
             
-            _samplesPerCallback = _opl->getSampleRate() / CALLBACKS_PER_SECOND;
-            _samplesPerCallbackRemainder = _opl->getSampleRate() % CALLBACKS_PER_SECOND;
+            _samplesPerCallback = _opl->getMixer()->getOutputRate() / CALLBACKS_PER_SECOND;
+            _samplesPerCallbackRemainder = _opl->getMixer()->getOutputRate() % CALLBACKS_PER_SECOND;
             _samplesTillCallback = 0;
             _samplesTillCallbackRemainder = 0;
         }
 
-        ADLDriver::ADLDriver(hardware::opl::woody::OPL* opl, std::shared_ptr<files::ADLFile> adl_file) : ADLDriver(opl)
+        ADLDriver::ADLDriver(hardware::opl::scummvm::EmulatedOPL* opl, std::shared_ptr<files::ADLFile> adl_file) : ADLDriver(opl)
         {
             setADLFile(adl_file);
         }

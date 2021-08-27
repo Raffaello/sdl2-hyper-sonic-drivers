@@ -32,6 +32,8 @@ namespace hardware
                 int readBuffer(int16_t* buffer, const int numSamples);
                 int getRate() const;
                 bool endOfData() const noexcept;
+                
+                const std::shared_ptr<audio::scummvm::Mixer> getMixer() { return _mixer; }
 
             protected:
                 std::shared_ptr<audio::scummvm::Mixer> _mixer;
