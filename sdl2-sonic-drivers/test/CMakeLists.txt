@@ -137,6 +137,41 @@ macro_test(
 )
 
 macro_test(
+    EXE TestWoodyEmuOPL
+    FILES 
+        "hardware/opl/woody/TestWoodyEmuOPL.cpp"
+        "../src/hardware/opl/woody/WoodyEmuOPL.cpp"
+        "../src/hardware/opl/woody/OPLChip.cpp"
+        "../src/hardware/opl/scummvm/EmulatedOPL.cpp"
+        "../src/hardware/opl/OPL.cpp"
+        "../src/audio/scummvm/TimeStamp.cpp"
+        "../src/files/File.cpp"
+        "../src/utils/endianness.cpp"
+    LINKS_PRIVATE
+        spdlog::spdlog
+    FIXTURES
+        #"fixtures/mame-22050-16bit-440Hz.dat"
+)
+
+macro_test(
+    EXE TestSurroundOPL
+    FILES 
+        "hardware/opl/woody/TestSurroundOPL.cpp"
+        "../src/hardware/opl/woody/WoodyEmuOPL.cpp"
+        "../src/hardware/opl/woody/OPLChip.cpp"
+        "../src/hardware/opl/woody/SurroundOPL.cpp"
+        "../src/hardware/opl/scummvm/EmulatedOPL.cpp"
+        "../src/hardware/opl/OPL.cpp"
+        "../src/audio/scummvm/TimeStamp.cpp"
+        "../src/files/File.cpp"
+        "../src/utils/endianness.cpp"
+    LINKS_PRIVATE
+        spdlog::spdlog
+    FIXTURES
+        #"fixtures/mame-22050-16bit-440Hz.dat"
+)
+
+macro_test(
     EXE TestADLDriver
     FILES "drivers/westwood/TestADLDriver.cpp"
         "../src/drivers/westwood/ADLDriver.cpp"
@@ -172,7 +207,7 @@ macro_test(
     LINKS_PRIVATE
         spdlog::spdlog
     FIXTURES
-        "fixtures/mame-22050-16bit-440Hz.dat"
+        #"fixtures/mame-22050-16bit-440Hz.dat"
 )
 
 macro_test(
@@ -189,5 +224,5 @@ macro_test(
     LINKS_PRIVATE
         spdlog::spdlog
     FIXTURES
-        "fixtures/mame-22050-16bit-440Hz.dat"
+        #"fixtures/mame-22050-16bit-440Hz.dat"
 )
