@@ -34,11 +34,14 @@ namespace hardware
 
             void WoodyEmuOPL::reset()
             {
+                init();
             }
 
             void WoodyEmuOPL::write(int a, int v)
             {
-                _opl.adlib_write(_opl.index, v, 0);
+                // TODO Not sure is correct
+                //_opl.adlib_write(_opl.index, v, 0);
+                writeReg(a, v);
             }
 
             uint8_t WoodyEmuOPL::read(int a)

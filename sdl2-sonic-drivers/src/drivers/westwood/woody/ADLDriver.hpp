@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstdint>
-#include <hardware/opl/scummvm/EmulatedOPL.hpp> // TODO: Replace with a generic OPL interface
+#include <hardware/opl/scummvm/EmulatedOPL.hpp>
 #include <mutex>
 #include <files/ADLFile.hpp>
 #include <memory>
