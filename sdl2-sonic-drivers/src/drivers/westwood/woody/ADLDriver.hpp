@@ -76,7 +76,7 @@ namespace drivers
                     return numSamples;
                 }
 
-
+                void ADLDriver::play(uint8_t track);
 
                 /*
                 void setSyncJumpMask(uint16_t mask) override { _syncJumpMask = mask; }
