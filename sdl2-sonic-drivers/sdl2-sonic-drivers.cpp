@@ -1023,14 +1023,9 @@ int adl_driver_dosbox()
     //spdlog::set_level(spdlog::level::debug);
     std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
     std::shared_ptr<files::ADLFile> adlFile = std::make_shared<files::ADLFile>("DUNE0.ADL");
-    //std::shared_ptr<hardware::opl::scummvm::dosbox::OPL> opl = std::make_shared<hardware::opl::scummvm::dosbox::OPL>(mixer, hardware::opl::scummvm::Config::OplType::OPL2);
-    std::shared_ptr<hardware::opl::woody::WoodyEmuOPL> opl = std::make_shared<hardware::opl::woody::WoodyEmuOPL>(mixer, true);
-    drivers::westwood::ADLDriver adlDrv(opl, adlFile);
+    std::shared_ptr<hardware::opl::scummvm::dosbox::OPL> opl = std::make_shared<hardware::opl::scummvm::dosbox::OPL>(mixer, hardware::opl::scummvm::Config::OplType::OPL2);
+    drivers::westwood::woody::ADLDriver adlDrv(opl.get(), adlFile);
     
-    //adlDrv.initDriver();
-    //adlDrv.setMusicVolume(63);
-    //adlDrv.setSfxVolume(63);
-
     adlDrv.play(4, 0xFF);
     //TODO: SoundHandle ?
     Mix_VolumeMusic(MIX_MAX_VOLUME);
@@ -1128,7 +1123,7 @@ int main(int argc, char* argv[])
     //files::ADLFile f("EOBSOUND.ADL");
     //cout << "ADL VERSION: " << f.getVersion() << endl;
         
-    adl();
+    //adl();
     //adl_driver_woody();
     //adl_driver_mame();
     //mame_opl_test();

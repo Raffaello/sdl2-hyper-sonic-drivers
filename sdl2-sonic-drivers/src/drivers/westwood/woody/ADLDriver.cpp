@@ -175,6 +175,26 @@ namespace drivers
             _numPrograms = (_version == 1) ? 150 : ((_version == 4) ? 500 : 250);
         }
 
+        void ADLDriver::play(const uint8_t track, const uint8_t volume)
+        {
+            uint16_t soundId = 0;
+
+            //if (_version == 3) {
+                //soundId = READ_LE_UINT16(&_trackEntries[track << 1]);
+            //    soundId = _adl_file->getTrack(track);
+            //}
+            //else {
+            //    soundId = _trackEntries[track];
+            //}
+            soundId = _adl_file->getTrack(track);
+
+            if ((soundId == 0xFFFF && _version == 3) || (soundId == 0xFF && _version < 3) || _soundData == nullptr)
+                return;
+
+            spdlog::debug("trackEntries[track = {}] = {}", track, soundId);
+            startSound(soundId, volume);
+        }
+
         void ADLDriver::setupPrograms()
         {
             QueueEntry& entry = _programQueue[_programQueueStart];

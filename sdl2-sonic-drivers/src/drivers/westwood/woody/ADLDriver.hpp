@@ -52,7 +52,7 @@ namespace drivers
                 // AudioStream API
                 int readBuffer(int16_t* buffer, const int numSamples) {
                     return _opl->readBuffer(buffer, numSamples);
-                    /*int32_t samplesLeft = numSamples;
+                    int32_t samplesLeft = numSamples;
                     memset(buffer, 0, sizeof(int16_t) * numSamples);
                     while (samplesLeft) {
                         if (!_samplesTillCallback) {
@@ -67,12 +67,12 @@ namespace drivers
 
                         int32_t render = samplesLeft < _samplesTillCallback ? samplesLeft : _samplesTillCallback;
                         samplesLeft -= render;
-                        _samplesTillCallback -= render;*/
-                        //_opl->readBuffer(buffer, render);
-                       // buffer += render * 2;
-                    //}
+                        _samplesTillCallback -= render;
+                        _opl->readBuffer(buffer, render);
+                        buffer += render * 2;
+                    }
 
-                   // return numSamples;
+                    return numSamples;
                 }
 
 
@@ -85,7 +85,7 @@ namespace drivers
                 */
 
                 void setVersion(const uint8_t v); // added in AdPlug
-
+                void play(const uint8_t track, const uint8_t volume);
             private:
                 // TODO: remove/refactor
                 int32_t _samplesPerCallback;
