@@ -27,6 +27,9 @@ namespace hardware
             // one block is too high and the adjacent block is too low ;-)
             constexpr int NEWBLOCK_LIMIT = 32;
 
+            // TODO: Can't work with EmulatedOPL with WoodyEmuOPL extending EmulatedOPL too.
+            //       restore as it was with its own OPL interface and then eventually extend that one
+            //       to EmulatedOPL.
             class SurroundOPL : public scummvm::EmulatedOPL
             {
                 

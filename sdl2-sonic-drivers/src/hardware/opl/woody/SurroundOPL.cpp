@@ -19,7 +19,9 @@ namespace hardware
                 bufsize(4096)
             {
                 a = new WoodyEmuOPL(mixer, false);
+                a->stop();
                 b = new WoodyEmuOPL(mixer, false);
+                b->stop();
                 //currType = TYPE_OPL2;
                 this->lbuf = new short[this->bufsize];
                 this->rbuf = new short[this->bufsize];

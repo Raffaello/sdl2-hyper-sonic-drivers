@@ -315,63 +315,6 @@ void ADLDRV_callback_woody(void* userdata, Uint8* audiobuf, int len)
     //self->bJustStartedPlaying = false;
 }
 
-int adl_driver_woody()
-{
-    Mix_Init(0);
-    if (Mix_OpenAudio(44100, AUDIO_S16, 2, 1024) < 0) {
-        cerr << Mix_GetError();
-        return -1;
-    }
-
-    //MIX_CHANNELS(8);
-    //Mix_AllocateChannels(16);
-
-    int freq;
-    uint16_t fmt;
-    int channels;
-    if (Mix_QuerySpec(&freq, &fmt, &channels) == 0) {
-        cerr << "query return 0" << endl;
-    }
-    cout << "freq: " << freq << endl
-        << "format: " << fmt << endl
-        << "channels: " << channels << endl;
-    
-    if (channels > 2) {
-        // with 8 audio channels doesn't reproduce the right sound.
-        // i guess is something that can be fixed
-        // but i do not know why.
-        // the code should be similar to scummVM or DosBox
-        // so if it is working there, should work here.
-        // it means this code is not really the same
-        // need to start organizing in it properly.
-        cerr << "CHANNELS not mono or stereo!" << endl;
-    }
-
-    std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
-    std::shared_ptr<hardware::opl::woody::SurroundOPL> opl = std::make_shared<hardware::opl::woody::SurroundOPL>(mixer);
-
-    std::shared_ptr<files::ADLFile> adlFile = std::make_shared<files::ADLFile>("DUNE0.ADL");
-    drivers::westwood::woody::ADLDriver adlDrv(opl.get(), adlFile);
-    adlDrv.initDriver();
-
-    adlDrv.startSound(2, 128);
-    Mix_HookMusic(ADLDRV_callback_woody, &adlDrv);
-//    Mix_HookMusic(adlib.callback, &adlib);
-   // do {
-        //cout << "playin music, waiting 1s..." << endl;
-        SDL_Delay(4000);
- //   } while (adlDrv.isChannelPlay);
-
-    SDL_Delay(3000);
-    Mix_HaltChannel(-1);
-    Mix_HaltMusic();
-    Mix_CloseAudio();
-    Mix_Quit();
-
-    return 0;
-
-}
-
 void callback_mame(void* userdata, uint8_t* stream, int len)
 {
     // TODO
@@ -1039,7 +982,63 @@ int adl_driver_dosbox()
     Mix_Quit();
 
     return 0;
+}
 
+int adl_driver_woody()
+{
+    Mix_Init(0);
+    if (Mix_OpenAudio(44100, AUDIO_S16, 2, 1024) < 0) {
+        cerr << Mix_GetError();
+        return -1;
+    }
+
+    //MIX_CHANNELS(8);
+    //Mix_AllocateChannels(16);
+
+    int freq;
+    uint16_t fmt;
+    int channels;
+    if (Mix_QuerySpec(&freq, &fmt, &channels) == 0) {
+        cerr << "query return 0" << endl;
+    }
+    cout << "freq: " << freq << endl
+        << "format: " << fmt << endl
+        << "channels: " << channels << endl;
+
+    if (channels > 2) {
+        // with 8 audio channels doesn't reproduce the right sound.
+        // i guess is something that can be fixed
+        // but i do not know why.
+        // the code should be similar to scummVM or DosBox
+        // so if it is working there, should work here.
+        // it means this code is not really the same
+        // need to start organizing in it properly.
+        cerr << "CHANNELS not mono or stereo!" << endl;
+    }
+
+    //spdlog::set_level(spdlog::level::debug);
+    std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
+    std::shared_ptr<hardware::opl::woody::WoodyEmuOPL> opl = std::make_shared<hardware::opl::woody::WoodyEmuOPL>(mixer, true);
+
+    std::shared_ptr<files::ADLFile> adlFile = std::make_shared<files::ADLFile>("DUNE0.ADL");
+    drivers::westwood::ADLDriver adlDrv(opl, adlFile);
+    adlDrv.initDriver();
+
+    adlDrv.play(4, 255);
+    Mix_HookMusic(callback_sdl, opl.get());
+    //    Mix_HookMusic(adlib.callback, &adlib);
+       // do {
+            //cout << "playin music, waiting 1s..." << endl;
+    SDL_Delay(4000);
+    //   } while (adlDrv.isChannelPlay);
+
+    SDL_Delay(3000);
+    Mix_HaltChannel(-1);
+    Mix_HaltMusic();
+    Mix_CloseAudio();
+    Mix_Quit();
+
+    return 0;
 }
 
 #include <drivers/westwood/scummvm/pc_base.h>
@@ -1124,7 +1123,7 @@ int main(int argc, char* argv[])
     //cout << "ADL VERSION: " << f.getVersion() << endl;
         
     //adl();
-    //adl_driver_woody();
+    adl_driver_woody();
     //adl_driver_mame();
     //mame_opl_test();
     //dosbox_opl2_test();
@@ -1134,7 +1133,7 @@ int main(int argc, char* argv[])
     //nuked_dual_opl2_test();
     //nuked_opl3_test();
     //surround_dual_opl2_test();
-    adl_driver_dosbox();
+    //adl_driver_dosbox();
     
     // CALLBACK 72 per sec is not exact, but running faster? or not playing some channels?
     adl_driver_scummvm();
