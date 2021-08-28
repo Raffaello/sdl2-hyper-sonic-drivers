@@ -2,6 +2,7 @@
 #include <SDL2/SDL.h>
 #include <spdlog/spdlog.h>
 #include <string>
+#include <memory>
 
 namespace audio
 {
@@ -17,9 +18,9 @@ namespace audio
 
         SdlMixerManager::~SdlMixerManager()
         {
-            _mixer->setReady(false);
-
             SDL_CloseAudio();
+
+            _mixer->setReady(false);
 
             SDL_QuitSubSystem(SDL_INIT_AUDIO);
         }
@@ -52,7 +53,8 @@ namespace audio
                 spdlog::warn("Could not open audio device: {}", std::string(SDL_GetError()));
 
                 // The mixer is not marked as ready
-                _mixer = new MixerImpl(desired.freq);
+                //_mixer = new MixerImpl(desired.freq);
+                _mixer = std::make_shared<MixerImpl>(desired.freq);
                 return;
             }
 
@@ -68,7 +70,8 @@ namespace audio
                     spdlog::warn("Could not open audio device: {}", std::string(SDL_GetError()));
 
                     // The mixer is not marked as ready
-                    _mixer = new MixerImpl(desired.freq);
+                    //_mixer = new MixerImpl(desired.freq);
+                    _mixer = std::make_shared<MixerImpl>(desired.freq);
                     return;
                 }
 
@@ -93,7 +96,8 @@ namespace audio
             }
 #endif
 
-            _mixer = new MixerImpl(_obtained.freq);
+            //_mixer = new MixerImpl(_obtained.freq);
+            _mixer = std::make_shared<MixerImpl>(_obtained.freq);
             assert(_mixer);
             _mixer->setReady(true);
 

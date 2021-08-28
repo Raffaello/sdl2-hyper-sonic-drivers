@@ -27,18 +27,28 @@ namespace audio
         Channel::Channel(Mixer* mixer, Mixer::SoundType type, AudioStream* stream, bool autofreeStream, bool reverseStereo, int id, bool permanent)
             : _type(type), _mixer(mixer), _id(id), _permanent(permanent), _volume(Mixer::MaxVolume::CHANNEL),
             _balance(0), _pauseLevel(0), _samplesConsumed(0), _samplesDecoded(0), _mixerTimeStamp(0),
-            _pauseStartTime(0), _pauseTime(0), _converter(0), _volL(0), _volR(0),
-            _stream(stream/*, autofreeStream*/)
+            _pauseStartTime(0), _pauseTime(0), _converter(nullptr), _volL(0), _volR(0),
+            _stream(nullptr)
         {
             assert(mixer);
             assert(stream);
 
+            _stream = stream;
+            _dispose_stream = autofreeStream;
             // Get a rate converter instance
             _converter = makeRateConverter(_stream->getRate(), mixer->getOutputRate(), _stream->isStereo(), reverseStereo);
         }
 
         Channel::~Channel() {
-            delete _converter;
+            if (_converter != nullptr) {
+                delete _converter;
+                _converter = nullptr;
+            }
+
+            if (_dispose_stream && _stream != nullptr) {
+                delete _stream;
+                _stream = nullptr;
+            }
         }
 
         void Channel::setVolume(const uint8_t volume) {

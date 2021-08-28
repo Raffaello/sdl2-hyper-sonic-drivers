@@ -137,8 +137,9 @@ namespace audio
 
             RateConverter* _converter;
             //Common::DisposablePtr<AudioStream> _stream;
-            // It should behave equivalently..
-            std::unique_ptr<AudioStream> _stream;
+            
+            AudioStream* _stream;
+            bool _dispose_stream;
         };
     }
 }

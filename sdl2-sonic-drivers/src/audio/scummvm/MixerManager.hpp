@@ -1,6 +1,7 @@
 #pragma once
 #include <audio/scummvm/Mixer.hpp>
 #include <audio/scummvm/MixerImpl.hpp>
+#include <memory>
 
 namespace audio
 {
@@ -14,8 +15,8 @@ namespace audio
         class MixerManager
         {
         public:
-            MixerManager() : _mixer(0), _audioSuspended(false) {}
-            virtual ~MixerManager() { delete _mixer; }
+            MixerManager() : _mixer(nullptr), _audioSuspended(false) {}
+            virtual ~MixerManager() {};
 
             /**
              * Initialize and setups the mixer
@@ -25,7 +26,8 @@ namespace audio
             /**
              * Get the audio mixer implementation
              */
-            Mixer* getMixer() { return (Mixer*)_mixer; }
+            //Mixer* getMixer() { return (Mixer*)_mixer.get(); }
+            std::shared_ptr<Mixer> getMixer() { return _mixer; }
 
             // Used by LinuxMoto Port
 
@@ -41,7 +43,7 @@ namespace audio
 
         protected:
             /** The mixer implementation */
-            MixerImpl* _mixer;
+            std::shared_ptr<MixerImpl> _mixer;
 
             /** State of the audio system */
             bool _audioSuspended;
