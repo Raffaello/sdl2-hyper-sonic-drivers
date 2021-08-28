@@ -83,7 +83,7 @@ namespace drivers
             uint16_t protect_timbre;
             uint16_t unprotect_timbre;
             uint16_t timbre_status;
-            int16_t  minus_one;       // hardoode 0xFF ?
+            int16_t  minus_one;       // hardcoded 0xFF ?
         } driver_index_offsets_t;
         
         class XMidi

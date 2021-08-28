@@ -20,9 +20,8 @@
 
 #include <exception>
 #include <stdexcept>
-#include "format.h"
 
-#define THROW(TException, ...) throw TException(fmt::sprintf("%s:%d: %s", __FILE__, __LINE__, fmt::sprintf(__VA_ARGS__)))
+#define THROW(TException, ...) throw TException((__VA_ARGS__))
 
 class io_error : public std::runtime_error {
     using std::runtime_error::runtime_error;

@@ -287,14 +287,16 @@ private:
 
     uint8 *getProgram(int progId) {
         uint16 offset = READ_LE_uint16(_soundData + 2 * progId);
+        debugC(1, "getProgram(progId=%d) = %d", progId, offset);
         //TODO: Check in LoL CD Adlib driver
         if (offset == 0xFFFF)
             return 0;
-        return _soundData + READ_LE_uint16(_soundData + 2 * progId);
+        return _soundData + offset;
     }
 
     uint8 *getInstrument(int instrumentId) {
         unsigned short tmp = READ_LE_uint16(_soundData + (_v2 ? 1000 : 500) + 2 * instrumentId);
+        debugC(1, "getInstrument(progId=%d) = %d", instrumentId, tmp);
         if(tmp == 0xFFFF) {
            return NULL;
         } else {
@@ -2388,18 +2390,18 @@ void SoundAdlibPC::callback(void *userdata, Uint8 *audiobuf, int len)
     int16* buf = reinterpret_cast<int16*>(audiobuf);
     int samples = self->_driver->readBuffer(buf, len / self->getsampsize());
 
-    int volume = self->getVolume();
-    for(int i = 0; i < samples; i++) {
+    //int volume = self->getVolume();
+    //for(int i = 0; i < samples; i++) {
         //printf("0x%x\n", buf[i]);
-        buf[i] = static_cast<int16>(buf[i] * volume / MIX_MAX_VOLUME);
-    }
+        //buf[i] = static_cast<int16>(buf[i] * volume / MIX_MAX_VOLUME);
+    //}
 
     self->bJustStartedPlaying = false;
 }
 
 void SoundAdlibPC::play(uint8 track) {
     uint8 soundId = _trackEntries[track];
-
+    debugC(1, "trackEntries[track=%d]= %d", track, soundId);
     if ((int8)soundId == -1 || !_soundDataPtr)
         return;
 

@@ -18,9 +18,6 @@ namespace hardware
             constexpr double FL05 = 0.5;
             constexpr double FL1 = 1.0;
             constexpr double FL2 = 2.0;
-            // TODO: consider to put constexpr constant values like PI into a shared hpp file.
-
-            
 
             constexpr int WAVPREC = 1024;
             constexpr double AMPVOL = 8192.0 / 2.0;
