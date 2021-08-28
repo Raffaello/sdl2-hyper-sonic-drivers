@@ -25,6 +25,8 @@
 
 #include <drivers/westwood/scummvm/pc_base.h>
 
+#include <audio/scummvm/SDLMixer.hpp>
+
 using namespace std;
 
 int adl()
@@ -1101,8 +1103,54 @@ int adl_driver_scummvm()
 
 }
 
+
+int sdlMixer()
+{
+    using namespace audio::scummvm;
+    using namespace hardware::opl::scummvm;
+    using namespace drivers::westwood;
+   
+    SdlMixerManager mixerManager;
+    
+    mixerManager.init();
+    
+    std::shared_ptr<Mixer> mixer;
+
+    mixer.reset(mixerManager.getMixer());
+    //spdlog::set_level(spdlog::level::debug);
+    //std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
+    //std::shared_ptr<hardware::opl::woody::SurroundOPL> opl = std::make_shared<hardware::opl::woody::SurroundOPL>(mixer->getOutputRate(), true);
+    std::shared_ptr<dosbox::OPL> opl = std::make_shared<dosbox::OPL>(mixer, Config::OplType::OPL2);
+
+    std::shared_ptr<files::ADLFile> adlFile = std::make_shared<files::ADLFile>("DUNE0.ADL");
+    
+    ADLDriver adlDrv(opl, adlFile);
+
+    adlDrv.play(4, 0xFF);
+    while (!mixer->isReady()) {
+        spdlog::info("mixer not ready");
+        SDL_Delay(100);
+    }
+    SDL_Delay(1000);
+    for (int i = 0; i < 9; i++) {
+        if (adlDrv.isChannelPlaying(i)) {
+            spdlog::info("channel {} is playing", i);
+            SDL_Delay(1000);
+            i=0;
+        }
+    }
+
+    spdlog::info("SDLMixer quit");
+    SDL_Delay(1000);
+    return 0;
+}
+
 int main(int argc, char* argv[])
 {
+    sdlMixer();
+
+
+
     SDL_Init(SDL_INIT_TIMER | SDL_INIT_AUDIO);
 
     int numAudioDevices = SDL_GetNumAudioDevices(0);
@@ -1142,7 +1190,7 @@ int main(int argc, char* argv[])
     //cout << "ADL VERSION: " << f.getVersion() << endl;
         
     //adl();
-    adl_driver_woody();
+    //adl_driver_woody();
     //adl_driver_mame();
     //mame_opl_test();
     //dosbox_opl2_test();
