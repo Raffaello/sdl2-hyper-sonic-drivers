@@ -15,7 +15,7 @@ namespace audio
     
     public:
         SDL2Mixer();
-        virtual bool isReady() const override;
+        virtual bool isReady() override;
         virtual void playStream(
             SoundType type,
             scummvm::SoundHandle* handle,

@@ -39,6 +39,12 @@ target_sources(sdl2-sonic-drivers PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/woody/SurroundOPL.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/westwood/woody/ADLDriver.cpp
     # --- #
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/scummvm/MixerImpl.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/scummvm/Channel.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/scummvm/RateConverter.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/scummvm/SDLMixer.cpp
+
+    # --- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/OPL.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/EmulatedOPL.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/mame/mame.cpp

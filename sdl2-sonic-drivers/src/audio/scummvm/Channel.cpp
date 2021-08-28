@@ -1,45 +1,76 @@
 #include <audio/scummvm/Channel.hpp>
+#include <audio/scummvm/Timestamp.hpp>
+#include <cassert>
+#include <chrono>
+
 
 namespace audio
 {
     namespace scummvm
     {
-        Channel::Channel(Mixer* mixer, Mixer::SoundType type, AudioStream* stream,
-            DisposeAfterUse::Flag autofreeStream, bool reverseStereo, int id, bool permanent)
-            : _type(type), _mixer(mixer), _id(id), _permanent(permanent), _volume(Mixer::kMaxChannelVolume),
+        //TODO: generalize the function/move to utils?
+ /*       uint32_t OSystem_SDL::getMillis(bool skipRecord) {
+           // uint32 millis = SDL_GetTicks();
+            uint32_t 
+#ifdef ENABLE_EVENTRECORDER
+            g_eventRec.processMillis(millis, skipRecord);
+#endif
+
+            return millis;
+        }
+        */
+        int32_t /*long long*/ getMillis(const bool skipRecord)
+        {
+            return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+        }
+
+        Channel::Channel(Mixer* mixer, Mixer::SoundType type, AudioStream* stream, bool autofreeStream, bool reverseStereo, int id, bool permanent)
+            : _type(type), _mixer(mixer), _id(id), _permanent(permanent), _volume(Mixer::MaxVolume::CHANNEL),
             _balance(0), _pauseLevel(0), _samplesConsumed(0), _samplesDecoded(0), _mixerTimeStamp(0),
-            _pauseStartTime(0), _pauseTime(0), _converter(0), _volL(0), _volR(0),
-            _stream(stream, autofreeStream) {
+            _pauseStartTime(0), _pauseTime(0), _converter(nullptr), _volL(0), _volR(0),
+            _stream(nullptr)
+        {
             assert(mixer);
             assert(stream);
 
+            _stream = stream;
+            _dispose_stream = autofreeStream;
             // Get a rate converter instance
             _converter = makeRateConverter(_stream->getRate(), mixer->getOutputRate(), _stream->isStereo(), reverseStereo);
         }
 
         Channel::~Channel() {
-            delete _converter;
+            if (_converter != nullptr) {
+                delete _converter;
+                _converter = nullptr;
+            }
+
+            if (_dispose_stream && _stream != nullptr) {
+                delete _stream;
+                _stream = nullptr;
+            }
         }
 
-        void Channel::setVolume(const byte volume) {
+        void Channel::setVolume(const uint8_t volume) {
             _volume = volume;
             updateChannelVolumes();
         }
 
-        byte Channel::getVolume() {
+        uint8_t Channel::getVolume() {
             return _volume;
         }
 
-        void Channel::setBalance(const int8 balance) {
+        void Channel::setBalance(const int8_t balance) {
             _balance = balance;
             updateChannelVolumes();
         }
 
-        int8 Channel::getBalance() {
+        int8_t Channel::getBalance() {
             return _balance;
         }
 
-        void Channel::updateChannelVolumes() {
+        void Channel::updateChannelVolumes()
+        {
             // From the channel balance/volume and the global volume, we compute
             // the effective volume for the left and right channel. Note the
             // slightly odd divisor: the 255 reflects the fact that the maximal
@@ -52,16 +83,16 @@ namespace audio
                 int vol = _mixer->getVolumeForSoundType(_type) * _volume;
 
                 if (_balance == 0) {
-                    _volL = vol / Mixer::kMaxChannelVolume;
-                    _volR = vol / Mixer::kMaxChannelVolume;
+                    _volL = vol / Mixer::MaxVolume::CHANNEL;
+                    _volR = vol / Mixer::MaxVolume::MIXER;
                 }
                 else if (_balance < 0) {
-                    _volL = vol / Mixer::kMaxChannelVolume;
-                    _volR = ((127 + _balance) * vol) / (Mixer::kMaxChannelVolume * 127);
+                    _volL = vol / Mixer::MaxVolume::CHANNEL;
+                    _volR = ((127 + _balance) * vol) / (Mixer::MaxVolume::CHANNEL * 127);
                 }
                 else {
-                    _volL = ((127 - _balance) * vol) / (Mixer::kMaxChannelVolume * 127);
-                    _volR = vol / Mixer::kMaxChannelVolume;
+                    _volL = ((127 - _balance) * vol) / (Mixer::MaxVolume::CHANNEL * 127);
+                    _volR = vol / Mixer::MaxVolume::CHANNEL;
                 }
             }
             else {
@@ -75,24 +106,27 @@ namespace audio
             if (paused) {
                 _pauseLevel++;
 
-                if (_pauseLevel == 1)
-                    _pauseStartTime = g_system->getMillis(true);
+                if (_pauseLevel == 1) {
+                    //_pauseStartTime = g_system->getMillis(true);
+                    _pauseStartTime = getMillis(true);
+                }
             }
             else if (_pauseLevel > 0) {
                 _pauseLevel--;
 
                 if (!_pauseLevel) {
-                    _pauseTime = (g_system->getMillis(true) - _pauseStartTime);
+                    _pauseTime = (getMillis(true) - _pauseStartTime);
                     _pauseStartTime = 0;
                 }
             }
         }
 
-        Timestamp Channel::getElapsedTime() {
-            const uint32 rate = _mixer->getOutputRate();
-            uint32 delta = 0;
+        Timestamp Channel::getElapsedTime()
+        {
+            const uint32_t rate = _mixer->getOutputRate();
+            uint32_t delta = 0;
 
-            Audio::Timestamp ts(0, rate);
+            Timestamp ts(0, rate);
 
             if (_mixerTimeStamp == 0)
                 return ts;
@@ -100,7 +134,7 @@ namespace audio
             if (isPaused())
                 delta = _pauseStartTime - _mixerTimeStamp;
             else
-                delta = g_system->getMillis(true) - _mixerTimeStamp - _pauseTime;
+                delta = getMillis(true) - _mixerTimeStamp - _pauseTime;
 
             // Convert the number of samples into a time duration.
 
@@ -116,7 +150,8 @@ namespace audio
             return ts;
         }
 
-        int Channel::mix(int16* data, uint len) {
+        int Channel::mix(int16_t* data, unsigned int len)
+        {
             assert(_stream);
 
             int res = 0;
@@ -126,7 +161,7 @@ namespace audio
             else {
                 assert(_converter);
                 _samplesConsumed = _samplesDecoded;
-                _mixerTimeStamp = g_system->getMillis(true);
+                _mixerTimeStamp = getMillis(true);
                 _pauseTime = 0;
                 res = _converter->flow(*_stream, data, len, _volL, _volR);
                 _samplesDecoded += res;
@@ -134,6 +169,5 @@ namespace audio
 
             return res;
         }
-
     }
 }
