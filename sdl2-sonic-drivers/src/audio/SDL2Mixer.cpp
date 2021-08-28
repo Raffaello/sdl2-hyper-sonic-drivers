@@ -31,7 +31,7 @@ namespace audio
         
     }
 
-    bool SDL2Mixer::isReady() const
+    bool SDL2Mixer::isReady()
     {
         return false;
     }

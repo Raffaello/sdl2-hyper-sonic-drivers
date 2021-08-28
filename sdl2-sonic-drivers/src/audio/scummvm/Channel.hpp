@@ -1,12 +1,19 @@
 #pragma once
 
+#include <audio/scummvm/Mixer.hpp>
+#include <audio/scummvm/RateConverter.hpp>
+#include <audio/scummvm/AudioStream.hpp>
+#include <cstdint>
+#include <memory>
+
 namespace audio
 {
     namespace scummvm
     {
-        class Channel {
+        class Channel
+        {
         public:
-            Channel(Mixer* mixer, Mixer::SoundType type, AudioStream* stream, DisposeAfterUse::Flag autofreeStream, bool reverseStereo, int id, bool permanent);
+            Channel(Mixer* mixer, Mixer::SoundType type, AudioStream* stream, bool autofreeStream, bool reverseStereo, int id, bool permanent);
             ~Channel();
 
             /**
@@ -18,7 +25,7 @@ namespace audio
              *             16 bits, for a total of 40 bytes.
              * @return number of sample pairs processed (which can still be silence!)
              */
-            int mix(int16* data, uint len);
+            int mix(int16_t* data, unsigned int len);
 
             /**
              * Queries whether the channel is still playing or not.
@@ -55,28 +62,28 @@ namespace audio
              *
              * @param volume new volume
              */
-            void setVolume(const byte volume);
+            void setVolume(const uint8_t volume);
 
             /**
              * Gets the channel's own volume.
              *
              * @return volume
              */
-            byte getVolume();
+            uint8_t getVolume();
 
             /**
              * Sets the channel's balance setting.
              *
              * @param balance new balance
              */
-            void setBalance(const int8 balance);
+            void setBalance(const int8_t balance);
 
             /**
              * Gets the channel's balance setting.
              *
              * @return balance
              */
-            int8 getBalance();
+            int8_t getBalance();
 
             /**
              * Notifies the channel that the global sound type
@@ -113,22 +120,25 @@ namespace audio
             int _pauseLevel;
             int _id;
 
-            byte _volume;
-            int8 _balance;
+            uint8_t _volume;
+            int8_t _balance;
 
             void updateChannelVolumes();
-            st_volume_t _volL, _volR;
+            //st_volume_t _volL, _volR;
+            uint16_t _volL, _volR;
 
             Mixer* _mixer;
 
-            uint32 _samplesConsumed;
-            uint32 _samplesDecoded;
-            uint32 _mixerTimeStamp;
-            uint32 _pauseStartTime;
-            uint32 _pauseTime;
+            uint32_t _samplesConsumed;
+            uint32_t _samplesDecoded;
+            uint32_t _mixerTimeStamp;
+            uint32_t _pauseStartTime;
+            uint32_t _pauseTime;
 
             RateConverter* _converter;
-            Common::DisposablePtr<AudioStream> _stream;
+            //Common::DisposablePtr<AudioStream> _stream;
+            // It should behave equivalently..
+            std::unique_ptr<AudioStream> _stream;
         };
     }
 }

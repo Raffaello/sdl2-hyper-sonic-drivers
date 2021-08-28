@@ -15,7 +15,7 @@ namespace audio
         class SoundHandle
         {
             friend class Channel;
-            //friend class MixerImpl;
+            friend class MixerImpl;
             uint32_t _val;
         public:
             inline SoundHandle() : _val(0xFFFFFFFF) {}

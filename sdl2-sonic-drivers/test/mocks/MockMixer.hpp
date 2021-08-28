@@ -14,7 +14,7 @@ namespace audio
         public:
             int rate = 44100;
 
-            virtual bool isReady() const override
+            virtual bool isReady() override
             {
                 return true;
             };
