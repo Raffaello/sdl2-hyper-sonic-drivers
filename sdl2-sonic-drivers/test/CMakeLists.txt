@@ -9,14 +9,13 @@ macro(macro_test) # ${ARGN} link libraries
     set(prefix TEST)
     #set(flags DEFAULT)
     set(singleValues EXE)
-    set(multiValues FILES FIXTURES)
+    set(multiValues FILES FIXTURES LINKS_PRIVATE)
     
     cmake_parse_arguments(${prefix} "${flags}" "${singleValues}" "${multiValues}" ${ARGN})
     #message("EXE: ${TEST_EXE}")
     #message("FILES: ${TEST_FILES}")
     #message("FIXTURES: ${TEST_FIXTURES}")
-
-    #message("LINKS: ${TEST_LINKS}")
+    #message("LINKS_PRIVATE: ${TEST_LINKS_PRIVATE}")
     add_executable (${TEST_EXE} ${TEST_FILES})
     target_include_directories(${TEST_EXE} PUBLIC 
         ${CMAKE_SOURCE_DIR}/sdl2-sonic-drivers/src
@@ -46,6 +45,8 @@ macro(macro_test) # ${ARGN} link libraries
         endforeach()
     endif()
 
+    target_link_libraries(${TEST_EXE} PRIVATE ${TEST_LINKS_PRIVATE})
+
     gtest_discover_tests(${TEST_EXE})
 endmacro()
 
@@ -58,29 +59,6 @@ macro_test(
     EXE TestPCSpeaker
     FILES "hardware/TestPCSpeaker.cpp"
         "../src/hardware/PCSpeaker.cpp"
-)
-
-macro_test(
-    EXE TestOPLChip
-    FILES "hardware/opl/woody/TestOPLChip.cpp"
-        "../src/hardware/opl/woody/OPLChip.cpp"
-)
-
-macro_test(
-    EXE TestWoodyEmuOPL
-    FILES "hardware/opl/woody/TestWoodyEmuOPL.cpp"
-        "../src/hardware/opl/woody/OPL.CPP"
-        "../src/hardware/opl/woody/WoodyEmuOPL.cpp"
-        "../src/hardware/opl/woody/OPLChip.cpp"
-)
-
-macro_test(
-    EXE TestSurroundOPL
-    FILES "hardware/opl/woody/TestSurroundOPL.cpp"
-        "../src/hardware/opl/woody/OPL.CPP"
-        "../src/hardware/opl/woody/SurroundOPL.cpp"
-        "../src/hardware/opl/woody/WoodyEmuOPL.cpp"
-        "../src/hardware/opl/woody/OPLChip.cpp"
 )
 
 macro_test(
@@ -126,5 +104,90 @@ macro_test(
     FIXTURES 
         "fixtures/EOBSOUND.ADL" # v1
         "fixtures/DUNE19.ADL"   # v2
+        "fixtures/DUNE0.ADL"    # v2
         "fixtures/LOREINTR.ADL" # v3
+)
+
+macro_test(
+    EXE TestSDL2Mixer
+    FILES 
+        "audio/TestSDL2Mixer.cpp"
+        "../src/audio/SDL2Mixer.cpp"
+        "../src/audio/scummvm/TimeStamp.cpp"
+    LINKS_PRIVATE
+        spdlog::spdlog
+        SDL2::SDL2 SDL2::SDL2_mixer
+        SDL2::SDL2main
+)
+
+macro_test(
+    EXE TestMame
+    FILES 
+        "hardware/opl/scummvm/mame/TestMame.cpp"
+        "../src/hardware/opl/scummvm/mame/mame.cpp"
+        "../src/hardware/opl/scummvm/EmulatedOPL.cpp"
+        "../src/hardware/opl/OPL.cpp"
+        "../src/audio/scummvm/TimeStamp.cpp"
+        "../src/files/File.cpp"
+        "../src/utils/endianness.cpp"
+    LINKS_PRIVATE
+        spdlog::spdlog
+    FIXTURES
+        "fixtures/mame-22050-16bit-440Hz.dat"
+)
+
+macro_test(
+    EXE TestADLDriver
+    FILES "drivers/westwood/TestADLDriver.cpp"
+        "../src/drivers/westwood/ADLDriver.cpp"
+        "../src/hardware/opl/OPL.cpp"
+        "../src/files/File.cpp"
+        "../src/files/ADLFile.cpp"
+        "../src/utils/endianness.cpp"
+        "../src/audio/scummvm/TimeStamp.cpp"
+        "../src/hardware/opl/scummvm/mame/mame.cpp"
+        "../src/hardware/opl/scummvm/EmulatedOPL.cpp"
+        "../src/hardware/opl/OPL.cpp"
+    LINKS_PRIVATE
+        spdlog::spdlog
+)
+
+macro_test(
+    EXE TestAlgorithms
+    FILES 
+        "utils/TestAlgorithms.cpp"
+)
+
+macro_test(
+    EXE TestDOSBox
+    FILES 
+        "hardware/opl/scummvm/dosbox/TestDOSBox.cpp"
+        "../src/hardware/opl/scummvm/dosbox/dosbox.cpp"
+        "../src/hardware/opl/scummvm/dosbox/dbopl/dbopl.cpp"
+        "../src/hardware/opl/scummvm/EmulatedOPL.cpp"
+        "../src/hardware/opl/OPL.cpp"
+        "../src/audio/scummvm/TimeStamp.cpp"
+        "../src/files/File.cpp"
+        "../src/utils/endianness.cpp"
+    LINKS_PRIVATE
+        spdlog::spdlog
+    FIXTURES
+        #"fixtures/mame-22050-16bit-440Hz.dat"
+)
+
+macro_test(
+    EXE TestNuked
+    FILES 
+        "hardware/opl/scummvm/nuked/TestNuked.cpp"
+        "../src/hardware/opl/scummvm/nuked/OPL.cpp"
+        "../src/hardware/opl/scummvm/nuked/opl3.c"
+        "../src/hardware/opl/scummvm/EmulatedOPL.cpp"
+        "../src/hardware/opl/OPL.cpp"
+        "../src/audio/scummvm/TimeStamp.cpp"
+        "../src/files/File.cpp"
+        "../src/utils/endianness.cpp"
+    LINKS_PRIVATE
+        spdlog::spdlog
+    FIXTURES
+        #"fixtures/mame-22050-16bit-440Hz.dat"
 )

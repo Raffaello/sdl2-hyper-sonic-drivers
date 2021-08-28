@@ -10,6 +10,7 @@ namespace files
 
     File::File(const string& filename) : _filename(filename)
     {
+        //_file.exceptions(fstream::eofbit | fstream::failbit | fstream::badbit);
         _file.open(filename, fstream::in | fstream::binary);
         if (!_file.is_open()) {
             throw std::system_error(errno, std::system_category(), "Cannot open file: " + _filename);
@@ -42,7 +43,7 @@ namespace files
     void File::read(void* buf, std::streamsize size)
     {
         if (!_file.read(reinterpret_cast<char*>(buf), size)) {
-            throw std::system_error(errno, std::system_category(), "Cannot read file: " + _filename);
+            throw std::system_error(errno, std::system_category(), "Cannot read file: " + _filename + " (" + strerror(errno) +")");
         }
     }
 
