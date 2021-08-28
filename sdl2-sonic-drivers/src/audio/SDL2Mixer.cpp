@@ -28,7 +28,6 @@ namespace audio
 
         spdlog::info("Audio Device: frequency = {} --- format = {} --- channels = {}", freq, fmt, chan);
         _rate = freq;
-        
     }
 
     bool SDL2Mixer::isReady()
