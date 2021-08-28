@@ -6,51 +6,23 @@ namespace hardware
     {
         namespace woody
         {
-            WoodyEmuOPL::WoodyEmuOPL(const std::shared_ptr<audio::scummvm::Mixer> mixer, const bool stereo)
-                : EmulatedOPL(mixer),
-                _opl(mixer->getOutputRate()),
-                _type(scummvm::Config::OplType::OPL3),
-                _stereo(stereo)
+            WoodyEmuOPL::WoodyEmuOPL(const int rate, const bool usestereo) noexcept
+                : OPL(ChipType::OPL3), _stereo(usestereo), _opl(rate)
             {
             }
 
-            WoodyEmuOPL::~WoodyEmuOPL()
+            void WoodyEmuOPL::update(int16_t* buf, const int32_t samples)
             {
-            }
-
-            void WoodyEmuOPL::generateSamples(int16_t* buffer, int numSamples)
-            {
+                //      if(use16bit) samples *= 2;
                 if (_stereo) {
-                    _opl.adlib_getsample(buffer, numSamples * 2);
+                    _opl.adlib_getsample(buf, samples * 2);
                 } else {
-                    _opl.adlib_getsample(buffer, numSamples);
+                    _opl.adlib_getsample(buf, samples);
                 }
             }
 
-            bool WoodyEmuOPL::init()
-            {
-                return true;
-            }
-
-            void WoodyEmuOPL::reset()
-            {
-                init();
-            }
-
-            void WoodyEmuOPL::write(int a, int v)
-            {
-                // TODO Not sure is correct
-                //_opl.adlib_write(_opl.index, v, 0);
-                writeReg(a, v);
-            }
-
-            uint8_t WoodyEmuOPL::read(int a)
-            {
-                return uint8_t();
-            }
-
             // template methods
-            void WoodyEmuOPL::writeReg(const int reg, const int val)
+            void WoodyEmuOPL::write(const int reg, const int val)
             {
                 //if (_currentChip != 0) {
                 //    return;
@@ -60,9 +32,13 @@ namespace hardware
                 _opl.adlib_write(_opl.index, val, 0);
             }
 
-            bool WoodyEmuOPL::isStereo() const
+            /*void WoodyEmuOPL::init()
             {
-                return _stereo;
+            }*/
+
+            int32_t WoodyEmuOPL::getSampleRate() const noexcept
+            {
+                return _opl.getSampleRate();
             }
         }
     }

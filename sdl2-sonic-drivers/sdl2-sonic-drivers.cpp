@@ -941,9 +941,9 @@ int surround_dual_opl2_test()
 
     spdlog::set_level(spdlog::level::debug);
     std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
-    std::shared_ptr<hardware::opl::woody::SurroundOPL> opl = std::make_shared<hardware::opl::woody::SurroundOPL>(mixer);
-    Mix_HookMusic(callback_sdl, opl.get());
-    dual_opl2_test(opl);
+    //std::shared_ptr<hardware::opl::woody::SurroundOPL> opl = std::make_shared<hardware::opl::woody::SurroundOPL>(mixer);
+    //Mix_HookMusic(callback_sdl, opl.get());
+    //dual_opl2_test(opl);
 
     Mix_HaltChannel(-1);
     Mix_HaltMusic();
@@ -1018,14 +1018,14 @@ int adl_driver_woody()
 
     //spdlog::set_level(spdlog::level::debug);
     std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
-    std::shared_ptr<hardware::opl::woody::WoodyEmuOPL> opl = std::make_shared<hardware::opl::woody::WoodyEmuOPL>(mixer, true);
+    std::shared_ptr<hardware::opl::woody::SurroundOPL> opl = std::make_shared<hardware::opl::woody::SurroundOPL>(mixer->getOutputRate(), true);
 
     std::shared_ptr<files::ADLFile> adlFile = std::make_shared<files::ADLFile>("DUNE0.ADL");
-    drivers::westwood::ADLDriver adlDrv(opl, adlFile);
-    adlDrv.initDriver();
+    drivers::westwood::woody::ADLDriver adlDrv(opl.get(), adlFile);
+    //adlDrv.initDriver();
 
-    adlDrv.play(4, 255);
-    Mix_HookMusic(callback_sdl, opl.get());
+    adlDrv.play(4);
+    Mix_HookMusic(ADLDRV_callback_woody, &adlDrv);
     //    Mix_HookMusic(adlib.callback, &adlib);
        // do {
             //cout << "playin music, waiting 1s..." << endl;

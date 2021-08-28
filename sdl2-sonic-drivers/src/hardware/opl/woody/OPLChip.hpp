@@ -96,9 +96,6 @@ namespace hardware
             uint32_t adlib_reg_read(uint32_t oplnum, uint32_t port);
             void adlib_reg_write(uint32_t oplnum, uint32_t port, uint8_t val);
 
-            /// <summary>
-            /// @see https://moddingwiki.shikadi.net/wiki/OPL_chip
-            /// </summary>
             class OPLChip
             {
             public:
@@ -148,7 +145,7 @@ namespace hardware
                 int32_t _samplerate;
             };
 
-            //extern OPLChip* oplchip[2];
+            extern OPLChip* oplchip[2];
         }
     }
 }
