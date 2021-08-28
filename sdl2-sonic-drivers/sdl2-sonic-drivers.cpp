@@ -20,8 +20,11 @@
 
 #include <hardware/opl/scummvm/dosbox/dosbox.hpp>
 #include <hardware/opl/scummvm/Config.hpp>
-
 #include <hardware/opl/scummvm/nuked/OPL.hpp>
+
+
+#include <audio/scummvm/SDLMixerManager.hpp>
+
 
 using namespace std;
 
@@ -294,80 +297,42 @@ int song()
     return 0;
 }
 
+
 void ADLDRV_callback_woody(void* userdata, Uint8* audiobuf, int len)
 {
+    //drivers::westwood::ADLDriver * self = static_cast<drivers::westwood::ADLDriver*>(userdata);
     drivers::westwood::woody::ADLDriver* _driver = static_cast<drivers::westwood::woody::ADLDriver*>(userdata);
-    //hardware::opl::woody::SurroundOPL* sOpl = reinterpret_cast<hardware::opl::woody::SurroundOPL*>(userdata);
-    
+
+    //self->process();
+    //uint8_t trigger = _driver->callback(11);
+
+    //if (trigger < _numSoundTriggers) {
+    //    int soundId = _soundTriggers[trigger];
+
+     //   if (soundId)
+     //       playTrack(soundId);
+    //}
+    //else if (trigger == 1) {
+        // ignore
+    //}
+    //else if (trigger != 0) {
+    //    warning("Unknown sound trigger %d", trigger);
+        // TODO: At this point, we really want to clear the trigger...
+    //}
+
     int16_t* buf = reinterpret_cast<int16_t*>(audiobuf);
-    //sOpl->readBuffer(buf, len / 2 );
-    
-    int samples = _driver->readBuffer(buf, len / 2*2); //stereo 16 bit => *2 channels, /2 16 bits 
+
+
+    int samples = _driver->readBuffer(buf, len / 2 / 2); //stereo 16 bit => *2 channels, /2 16 bits 
 
     //int volume = 128;
     //for (int i = 0; i < samples; i++) {
-    //    //printf("0x%x\n", buf[i]);
-    //    buf[i] = static_cast<int16_t>(buf[i] );
+        //printf("0x%x\n", buf[i]);
+        //buf[i] = static_cast<int16_t>(buf[i] );
     //}
-
-    //self->bJustStartedPlaying = false;
-}
-
-int adl_driver_woody()
-{
-    Mix_Init(0);
-    if (Mix_OpenAudio(44100, AUDIO_S16, 2, 1024) < 0) {
-        cerr << Mix_GetError();
-        return -1;
-    }
-
-    //MIX_CHANNELS(8);
-    //Mix_AllocateChannels(16);
-
-    int freq;
-    uint16_t fmt;
-    int channels;
-    if (Mix_QuerySpec(&freq, &fmt, &channels) == 0) {
-        cerr << "query return 0" << endl;
-    }
-    cout << "freq: " << freq << endl
-        << "format: " << fmt << endl
-        << "channels: " << channels << endl;
-    
-    if (channels > 2) {
-        // with 8 audio channels doesn't reproduce the right sound.
-        // i guess is something that can be fixed
-        // but i do not know why.
-        // the code should be similar to scummVM or DosBox
-        // so if it is working there, should work here.
-        // it means this code is not really the same
-        // need to start organizing in it properly.
-        cerr << "CHANNELS not mono or stereo!" << endl;
-    }
-
-    std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
-    std::shared_ptr<hardware::opl::woody::SurroundOPL> opl = std::make_shared<hardware::opl::woody::SurroundOPL>(mixer);
-
-    std::shared_ptr<files::ADLFile> adlFile = std::make_shared<files::ADLFile>("DUNE0.ADL");
-    drivers::westwood::woody::ADLDriver adlDrv(opl.get(), adlFile);
-    adlDrv.initDriver();
-
-    adlDrv.startSound(2, 128);
-    Mix_HookMusic(ADLDRV_callback_woody, &adlDrv);
-//    Mix_HookMusic(adlib.callback, &adlib);
-   // do {
-        //cout << "playin music, waiting 1s..." << endl;
-        SDL_Delay(4000);
- //   } while (adlDrv.isChannelPlay);
-
-    SDL_Delay(3000);
-    Mix_HaltChannel(-1);
-    Mix_HaltMusic();
-    Mix_CloseAudio();
-    Mix_Quit();
-
-    return 0;
-
+//
+//    //self->bJustStartedPlaying = false;
+//}
 }
 
 void callback_mame(void* userdata, uint8_t* stream, int len)
@@ -395,10 +360,10 @@ void callback_mame(void* userdata, uint8_t* stream, int len)
     //first = false;
 }
 
-void callback_dosbox(void* userdata, uint8_t* stream, int len)
+void callback_sdl(void* userdata, uint8_t* stream, int len)
 {
     // TODO: merge into 1 callback
-    
+
 
     // don't understand why the buffer is simply fill of zeros....
     //static bool first = true;
@@ -406,10 +371,11 @@ void callback_dosbox(void* userdata, uint8_t* stream, int len)
     //std::fstream wf("440Hz.dat", ios::out | ios::binary);
     //if (!wf) return;
 
-    hardware::opl::scummvm::dosbox::OPL* opl = reinterpret_cast<hardware::opl::scummvm::dosbox::OPL*>(userdata);
+    hardware::opl::scummvm::EmulatedOPL* opl = reinterpret_cast<hardware::opl::scummvm::EmulatedOPL*>(userdata);
     int16_t* buf = reinterpret_cast<int16_t*>(stream);
-    // / 2 because of sterio and opl is mono .... just for testing.
-    const int l = len / 2;
+    // / 2 because ...
+    const int l = len >> 2;
+    memset(buf, 0, len);
     int samples = opl->readBuffer(buf, l);
     // not useful
     /*for (int i = samples; i < l; i++) {
@@ -422,43 +388,7 @@ void callback_dosbox(void* userdata, uint8_t* stream, int len)
     //first = false;
 }
 
-void callback_nuked(void* userdata, uint8_t* stream, int len)
-{
-    // TODO: merge into 1 callback
 
-
-    // don't understand why the buffer is simply fill of zeros....
-    //static bool first = true;
-    //if (!first) return;
-    //std::fstream wf("440Hz.dat", ios::out | ios::binary);
-    //if (!wf) return;
-
-    hardware::opl::scummvm::nuked::OPL* opl = reinterpret_cast<hardware::opl::scummvm::nuked::OPL*>(userdata);
-    int16_t* buf = reinterpret_cast<int16_t*>(stream);
-    // / 2 because of sterio and opl is mono .... just for testing.
-    opl->readBuffer(buf, len / 2);
-
-
-    //wf.write((char*)stream, len);
-    //wf.close();
-    //first = false;
-}
-
-void callback_surround(void* userdata, uint8_t* stream, int len)
-{
-    // TODO: merge into 1 callback
-
-
-    // don't understand why the buffer is simply fill of zeros....
-    //static bool first = true;
-    //if (!first) return;
-    //std::fstream wf("440Hz.dat", ios::out | ios::binary);
-    //if (!wf) return;
-
-    hardware::opl::woody::SurroundOPL* opl = reinterpret_cast<hardware::opl::woody::SurroundOPL*>(userdata);
-    int16_t* buf = reinterpret_cast<int16_t*>(stream);
-    opl->readBuffer(buf, len / 2);
-}
 
 /* These are offsets from the base I/O address. */
 constexpr int FM = 8;       // SB (mono) ports (e.g. 228H and 229H)
@@ -819,7 +749,7 @@ int dosbox_opl2_test()
     spdlog::set_level(spdlog::level::debug);
     std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
     std::shared_ptr<hardware::opl::scummvm::dosbox::OPL> opl = std::make_shared<hardware::opl::scummvm::dosbox::OPL>(mixer, hardware::opl::scummvm::Config::OplType::OPL2);
-    Mix_HookMusic(callback_dosbox, opl.get());
+    Mix_HookMusic(callback_sdl, opl.get());
     opl2_test(opl);
     
     Mix_HookMusic(nullptr, nullptr);
@@ -843,7 +773,7 @@ int dosbox_dual_opl2_test()
     spdlog::set_level(spdlog::level::debug);
     std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
     std::shared_ptr<hardware::opl::scummvm::dosbox::OPL> opl = std::make_shared<hardware::opl::scummvm::dosbox::OPL>(mixer, hardware::opl::scummvm::Config::OplType::DUAL_OPL2);
-    Mix_HookMusic(callback_dosbox, opl.get());
+    Mix_HookMusic(callback_sdl, opl.get());
     dual_opl2_test(opl);
     Mix_HookMusic(nullptr, nullptr);
     Mix_HaltChannel(-1);
@@ -866,7 +796,7 @@ int dosbox_opl3_test()
     spdlog::set_level(spdlog::level::debug);
     std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
     std::shared_ptr<hardware::opl::scummvm::dosbox::OPL> opl = std::make_shared<hardware::opl::scummvm::dosbox::OPL>(mixer, hardware::opl::scummvm::Config::OplType::OPL3);
-    Mix_HookMusic(callback_dosbox, opl.get());
+    Mix_HookMusic(callback_sdl, opl.get());
     opl3_test(opl);
     Mix_HookMusic(nullptr, nullptr);
     Mix_HaltChannel(-1);
@@ -914,7 +844,7 @@ int nuked_opl2_test()
     std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
     std::shared_ptr<hardware::opl::scummvm::nuked::OPL> opl = std::make_shared<hardware::opl::scummvm::nuked::OPL>(mixer, hardware::opl::scummvm::Config::OplType::OPL2);
     opl2_test(opl);
-    Mix_HookMusic(callback_nuked, opl.get());
+    Mix_HookMusic(callback_sdl, opl.get());
 
     SDL_Delay(10000);
 
@@ -962,7 +892,7 @@ int nuked_dual_opl2_test()
     spdlog::set_level(spdlog::level::debug);
     std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
     std::shared_ptr<hardware::opl::scummvm::nuked::OPL> opl = std::make_shared<hardware::opl::scummvm::nuked::OPL>(mixer, hardware::opl::scummvm::Config::OplType::DUAL_OPL2);
-    Mix_HookMusic(callback_nuked, opl.get());
+    Mix_HookMusic(callback_sdl, opl.get());
     dual_opl2_test(opl);
 
     Mix_HaltChannel(-1);
@@ -1009,7 +939,7 @@ int nuked_opl3_test()
     spdlog::set_level(spdlog::level::debug);
     std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
     std::shared_ptr<hardware::opl::scummvm::nuked::OPL> opl = std::make_shared<hardware::opl::scummvm::nuked::OPL>(mixer, hardware::opl::scummvm::Config::OplType::OPL3);
-    Mix_HookMusic(callback_nuked, opl.get());
+    Mix_HookMusic(callback_sdl, opl.get());
     opl3_test(opl);
 
     Mix_HaltChannel(-1);
@@ -1031,9 +961,9 @@ int surround_dual_opl2_test()
 
     spdlog::set_level(spdlog::level::debug);
     std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
-    std::shared_ptr<hardware::opl::woody::SurroundOPL> opl = std::make_shared<hardware::opl::woody::SurroundOPL>(mixer);
-    Mix_HookMusic(callback_surround, opl.get());
-    dual_opl2_test(opl);
+    //std::shared_ptr<hardware::opl::woody::SurroundOPL> opl = std::make_shared<hardware::opl::woody::SurroundOPL>(mixer);
+    //Mix_HookMusic(callback_sdl, opl.get());
+    //dual_opl2_test(opl);
 
     Mix_HaltChannel(-1);
     Mix_HaltMusic();
@@ -1048,25 +978,21 @@ int adl_driver_dosbox()
 {
     Mix_Init(0);
     int rate = 22050;
-    if (Mix_OpenAudio(rate, AUDIO_S16, 2, 4096) < 0) {
+    if (Mix_OpenAudio(rate, AUDIO_S16, 2, 1024) < 0) {
         cerr << Mix_GetError();
         return -1;
     }
 
-    spdlog::set_level(spdlog::level::debug);
+    //spdlog::set_level(spdlog::level::debug);
     std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
     std::shared_ptr<files::ADLFile> adlFile = std::make_shared<files::ADLFile>("DUNE0.ADL");
     std::shared_ptr<hardware::opl::scummvm::dosbox::OPL> opl = std::make_shared<hardware::opl::scummvm::dosbox::OPL>(mixer, hardware::opl::scummvm::Config::OplType::OPL2);
     drivers::westwood::ADLDriver adlDrv(opl, adlFile);
     
-    //adlDrv.initDriver();
-    //adlDrv.setMusicVolume(63);
-    //adlDrv.setSfxVolume(63);
-
-    adlDrv.play(4, 0x3F);
+    adlDrv.play(4, 0xFF);
     //TODO: SoundHandle ?
     Mix_VolumeMusic(MIX_MAX_VOLUME);
-    Mix_HookMusic(&callback_dosbox, opl.get());
+    Mix_HookMusic(&callback_sdl, opl.get());
     SDL_Delay(60000);
 
 
@@ -1076,11 +1002,113 @@ int adl_driver_dosbox()
     Mix_Quit();
 
     return 0;
+}
 
+int adl_driver_woody()
+{
+    Mix_Init(0);
+    if (Mix_OpenAudio(44100, AUDIO_S16, 2, 1024) < 0) {
+        cerr << Mix_GetError();
+        return -1;
+    }
+
+    //MIX_CHANNELS(8);
+    //Mix_AllocateChannels(16);
+
+    int freq;
+    uint16_t fmt;
+    int channels;
+    if (Mix_QuerySpec(&freq, &fmt, &channels) == 0) {
+        cerr << "query return 0" << endl;
+    }
+    cout << "freq: " << freq << endl
+        << "format: " << fmt << endl
+        << "channels: " << channels << endl;
+
+    if (channels > 2) {
+        // with 8 audio channels doesn't reproduce the right sound.
+        // i guess is something that can be fixed
+        // but i do not know why.
+        // the code should be similar to scummVM or DosBox
+        // so if it is working there, should work here.
+        // it means this code is not really the same
+        // need to start organizing in it properly.
+        cerr << "CHANNELS not mono or stereo!" << endl;
+    }
+
+    //spdlog::set_level(spdlog::level::debug);
+    std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
+    std::shared_ptr<hardware::opl::woody::SurroundOPL> opl = std::make_shared<hardware::opl::woody::SurroundOPL>(mixer->getOutputRate(), true);
+
+    std::shared_ptr<files::ADLFile> adlFile = std::make_shared<files::ADLFile>("DUNE0.ADL");
+    drivers::westwood::woody::ADLDriver adlDrv(opl.get(), adlFile);
+    //adlDrv.initDriver();
+
+    adlDrv.play(4);
+    Mix_HookMusic(ADLDRV_callback_woody, &adlDrv);
+    //    Mix_HookMusic(adlib.callback, &adlib);
+       // do {
+            //cout << "playin music, waiting 1s..." << endl;
+    SDL_Delay(4000);
+    //   } while (adlDrv.isChannelPlay);
+
+    SDL_Delay(3000);
+    Mix_HaltChannel(-1);
+    Mix_HaltMusic();
+    Mix_CloseAudio();
+    Mix_Quit();
+
+    return 0;
+}
+
+
+int sdlMixer()
+{
+    using namespace audio::scummvm;
+    using namespace hardware::opl::scummvm;
+    using namespace drivers::westwood;
+   
+    SdlMixerManager mixerManager;
+    
+    mixerManager.init();
+    
+    std::shared_ptr<Mixer> mixer;
+
+    mixer = mixerManager.getMixer();
+    //spdlog::set_level(spdlog::level::debug);
+    std::shared_ptr<dosbox::OPL> opl = std::make_shared<dosbox::OPL>(mixer, Config::OplType::OPL2);
+
+    std::shared_ptr<files::ADLFile> adlFile = std::make_shared<files::ADLFile>("DUNE0.ADL");
+    
+    ADLDriver adlDrv(opl, adlFile);
+
+    adlDrv.play(4, 0xFF);
+    
+    while (!mixer->isReady()) {
+        spdlog::info("mixer not ready");
+        SDL_Delay(100);
+    }
+    SDL_Delay(1000);
+    while(adlDrv.isPlaying())
+    {
+        spdlog::info("is playing");
+        SDL_Delay(1000);
+            
+    }
+
+    spdlog::info("SDLMixer quitting...");
+    SDL_Delay(1000);
+    spdlog::info("SDLMixer quit");
+    
+    return 0;
 }
 
 int main(int argc, char* argv[])
 {
+    sdlMixer();
+    SDL_Delay(1000);
+
+
     SDL_Init(SDL_INIT_TIMER | SDL_INIT_AUDIO);
 
     int numAudioDevices = SDL_GetNumAudioDevices(0);
@@ -1120,7 +1148,7 @@ int main(int argc, char* argv[])
     //cout << "ADL VERSION: " << f.getVersion() << endl;
         
     //adl();
-    //adl_driver_woody();
+    adl_driver_woody();
     //adl_driver_mame();
     //mame_opl_test();
     //dosbox_opl2_test();
@@ -1130,8 +1158,9 @@ int main(int argc, char* argv[])
     //nuked_dual_opl2_test();
     //nuked_opl3_test();
     //surround_dual_opl2_test();
-    adl_driver_dosbox();
-
+    //adl_driver_dosbox();
+    
+    
     // TODO: 32 bit audio
     //pcspkr(44100, AUDIO_S32, 2, 1024);
     //pcspkr(44100, AUDIO_F32, 2, 1024);

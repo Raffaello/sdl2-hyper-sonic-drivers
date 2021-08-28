@@ -50,7 +50,7 @@ namespace audio
              *
              * @todo get rid of this?
              */
-            virtual bool isReady() const = 0;
+            virtual bool isReady() = 0;
 
             /**
              * Return the mixer's internal mutex so that audio players can use it.

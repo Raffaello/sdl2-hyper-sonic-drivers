@@ -33,21 +33,30 @@ target_sources(sdl2-sonic-drivers PUBLIC
     # ---- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/PCSpeaker.cpp
     # ---- #
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/woody/OPL.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/woody/OPLChip.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/woody/WoodyEmuOpl.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/woody/SurroundOPL.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/westwood/woody/ADLDriver.cpp
     # --- #
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/scummvm/MixerImpl.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/scummvm/Channel.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/scummvm/RateConverter.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/scummvm/SDLMixerManager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/scummvm/Timestamp.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/SDL2Mixer.cpp
+    # --- #
+    
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/OPL.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/EmulatedOPL.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/mame/mame.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/westwood/ADLDriver.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/SDL2Mixer.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/scummvm/Timestamp.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/dosbox/dosbox.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/dosbox/dbopl/dbopl.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/nuked/OPL.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/nuked/opl3.c
+    # --- #
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/westwood/ADLDriver.cpp
+    
 )
 
 target_include_directories(sdl2-sonic-drivers PUBLIC 

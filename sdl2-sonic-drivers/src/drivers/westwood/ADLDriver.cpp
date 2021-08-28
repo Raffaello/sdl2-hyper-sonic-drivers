@@ -54,8 +54,8 @@ namespace drivers
 
             _syncJumpMask = 0;
 
-            _musicVolume = 0x3F;
-            _sfxVolume = 0x3F;
+            _musicVolume = 0;
+            _sfxVolume = 0;
 
             _sfxPointer = nullptr;
 
@@ -69,11 +69,12 @@ namespace drivers
             auto p = std::make_unique<hardware::opl::TimerCallBack>(cb);
             _opl->start(p.release(), CALLBACKS_PER_SECOND);
 
+            stopAllChannels();
             setADLFile(adl_file);
             setSoundData(_soundData, _soundDataSize);
             initDriver();
-            setMusicVolume(63);
-            setSfxVolume(63);
+            setMusicVolume(255);
+            setSfxVolume(255);
         }
 
         ADLDriver::~ADLDriver()
@@ -289,8 +290,13 @@ namespace drivers
             if ((soundId == 0xFFFF && _version == 3) || (soundId == 0xFF && _version < 3) || _soundData == nullptr)
                 return;
 
-            spdlog::debug("trackEntries[track = % d] = % d", track, soundId);
+            spdlog::debug("trackEntries[track = {}] = {}", track, soundId);
             startSound(soundId, volume);
+        }
+
+        bool ADLDriver::isPlaying()
+        {
+            return isChannelPlaying(0);
         }
 
         uint8_t* ADLDriver::getProgram(const int progId)

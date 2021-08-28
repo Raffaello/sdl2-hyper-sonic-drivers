@@ -5,10 +5,6 @@
 #include <utils/endianness.hpp>
 #include <utils/algorithms.hpp>
 
-//using utils::CLIP;
-//using utils::READ_BE_UINT16;
-//using utils::READ_LE_UINT16;
-
 namespace drivers
 {
     namespace westwood
@@ -22,7 +18,7 @@ namespace drivers
         // TODO: move to utils and as a constexpr
 #define ARRAYSIZE(x) ((int)(sizeof(x) / sizeof(x[0])))
 
-        ADLDriver::ADLDriver(hardware::opl::scummvm::EmulatedOPL* opl) :
+        ADLDriver::ADLDriver(hardware::opl::woody::OPL* opl) :
             _opl(opl), _rnd(RANDOM_SEED)
         {
             memset(_channels, 0, sizeof(_channels));
@@ -38,15 +34,19 @@ namespace drivers
             // would be a good idea.
             //_mixer->playInputStream(Audio::Mixer::kMusicSoundType, &_soundHandle, this, -1, Audio::Mixer::kMaxChannelVolume, 0, false, true);
             
-            _samplesPerCallback = _opl->getMixer()->getOutputRate() / CALLBACKS_PER_SECOND;
-            _samplesPerCallbackRemainder = _opl->getMixer()->getOutputRate() % CALLBACKS_PER_SECOND;
+            _samplesPerCallback = _opl->getSampleRate() / CALLBACKS_PER_SECOND;
+            _samplesPerCallbackRemainder = _opl->getSampleRate() % CALLBACKS_PER_SECOND;
             _samplesTillCallback = 0;
             _samplesTillCallbackRemainder = 0;
+
+            
         }
 
-        ADLDriver::ADLDriver(hardware::opl::scummvm::EmulatedOPL* opl, std::shared_ptr<files::ADLFile> adl_file) : ADLDriver(opl)
+        ADLDriver::ADLDriver(hardware::opl::woody::OPL* opl, std::shared_ptr<files::ADLFile> adl_file) : ADLDriver(opl)
         {
             setADLFile(adl_file);
+            initDriver();
+            setSoundData(_soundData, _soundDataSize);
         }
 
         ADLDriver::~ADLDriver()
@@ -1023,28 +1023,18 @@ namespace drivers
         const uint8_t* ADLDriver::getInstrument(int instrumentId)
         {
             return getProgram(_adl_file->getNumPrograms() + instrumentId);
-            // TODO: Refactor
+        }
 
-            //return getProgram(_numPrograms + instrumentId);
-            //if (_adl_file == nullptr) {
-            //    spdlog::error("ADLDriver::getInstrument(): no ADL file loaded.");
-            //    return nullptr;
-            //}
+        void ADLDriver::play(uint8_t track) {
+            uint16_t soundId = _adl_file->getTrack(track);
 
+            _adl_file->getTrackOffset(track);
 
-            //// Safety check: invalid progId would crash.
-            //if (instrumentId < 0 || instrumentId >= (int32_t)_soundDataSize / 2)
-            //    return nullptr;
+            if ((soundId == 0xFFFF && _version == 3) || (soundId == 0xFF && _version < 3))
+                return;
 
-            ////const uint16_t offset = utils::READ_LE_UINT16(_soundData + 2 * progId);
-            //const uint16_t offset = _adl_file->getInstrument(instrumentId);
-            //
-            //if (offset == 0 || offset >= _soundDataSize) {
-            //    return nullptr;
-            //}
-            //else {
-            //    return _soundData + offset;
-            //}
+            startSound(soundId, 0xff);
+
         }
 
         int ADLDriver::update_setRepeat(Channel& channel, const uint8_t* values)

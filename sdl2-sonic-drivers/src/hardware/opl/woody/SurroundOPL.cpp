@@ -1,25 +1,45 @@
-#include <hardware/opl/woody/SurroundOPL.hpp>
-#include <hardware/opl/woody/WoodyEmuOPL.hpp>
+/*
+ * Adplug - Replayer for many OPL2/OPL3 audio file formats.
+ * Copyright (C) 1999 - 2010 Simon Peter, <dn.tlp@gmx.net>, et al.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * surroundopl.cpp - Wrapper class to provide a surround/harmonic effect
+ *   for another OPL emulator, by Adam Nielsen <malvineous@shikadi.net>
+ *
+ * Stereo harmonic algorithm by Adam Nielsen <malvineous@shikadi.net>
+ * Please give credit if you use this algorithm elsewhere :-)
+ */
 
 #include <cmath> // for pow()
 #include <cstring> // for memset()
-
+#include "SurroundOPL.hpp"
+#include <hardware/opl/woody/WoodyEmuOPL.hpp>
 
 namespace hardware
 {
     namespace opl
     {
-        using scummvm::Config;
-
         namespace woody
         {
-            SurroundOPL::SurroundOPL(const std::shared_ptr<audio::scummvm::Mixer> mixer)
-                : EmulatedOPL(mixer),
-                _type(Config::OplType::DUAL_OPL2),
+            SurroundOPL::SurroundOPL(const int rate, bool use16bit) noexcept
+                : OPL(ChipType::OPL2_DUAL), _use16bit(use16bit),
                 bufsize(4096)
             {
-                a = new WoodyEmuOPL(mixer, false);
-                b = new WoodyEmuOPL(mixer, false);
+                a = new WoodyEmuOPL(rate, false);
+                b = new WoodyEmuOPL(rate, false);
                 //currType = TYPE_OPL2;
                 this->lbuf = new short[this->bufsize];
                 this->rbuf = new short[this->bufsize];
@@ -29,7 +49,17 @@ namespace hardware
                 memset(iCurrentTweakedBlock, 0, sizeof(iCurrentTweakedBlock));
                 memset(iCurrentFNum, 0, sizeof(iCurrentFNum));
 
-                init();
+                // init
+                for (int c = 0; c < 2; c++) {
+                    for (int i = 0; i < 256; i++) {
+                        this->iFMReg[c][i] = 0;
+                        this->iTweakedFMReg[c][i] = 0;
+                    }
+                    for (int i = 0; i < 9; i++) {
+                        this->iCurrentTweakedBlock[c][i] = 0;
+                        this->iCurrentFNum[c][i] = 0;
+                    }
+                }
             }
 
             SurroundOPL::~SurroundOPL()
@@ -40,52 +70,41 @@ namespace hardware
                 delete b;
             }
 
-            uint8_t SurroundOPL::read(int a)
+            void SurroundOPL::update(short* buf, int samples)
             {
-                return uint8_t();
-            }
-
-            bool SurroundOPL::init()
-            {
-                bool res;
-
-                res = a->init();
-                res &= b->init();
-                for (int c = 0; c < 2; c++)
-                {
-                    for (int i = 0; i < 256; i++)
-                    {
-                        this->iFMReg[c][i] = 0;
-                        this->iTweakedFMReg[c][i] = 0;
-                    }
-                    for (int i = 0; i < 9; i++)
-                    {
-                        this->iCurrentTweakedBlock[c][i] = 0;
-                        this->iCurrentFNum[c][i] = 0;
-                    }
+                if (samples * 2 > this->bufsize) {
+                    // Need to realloc the buffer
+                    delete[] this->rbuf;
+                    delete[] this->lbuf;
+                    this->bufsize = samples * 2;
+                    this->lbuf = new short[this->bufsize];
+                    this->rbuf = new short[this->bufsize];
                 }
 
-                return res;
+                a->update(this->lbuf, samples);
+                b->update(this->rbuf, samples);
+
+                // Copy the two mono OPL buffers into the stereo buffer
+                for (int i = 0; i < samples; i++) {
+                    if (this->_use16bit) {
+                        buf[i * 2] = this->lbuf[i];
+                        buf[i * 2 + 1] = this->rbuf[i];
+                    }
+                    else {
+                        ((char*)buf)[i * 2] = ((char*)this->lbuf)[i];
+                        ((char*)buf)[i * 2 + 1] = ((char*)this->rbuf)[i];
+                    }
+                }
             }
 
-            void SurroundOPL::reset()
+            void SurroundOPL::write(int reg, int val)
             {
-            }
-
-            void SurroundOPL::write(int a, int v)
-            {
-                // TODO not sure is correct
-                writeReg(a, v);
-            }
-
-            void SurroundOPL::writeReg(int r, int v)
-            {
-                a->writeReg(r, v);
+                a->write(reg, val);
 
                 // Transpose the other channel to produce the harmonic effect
                 int iChannel = -1;
-                int iRegister = r; // temp
-                int iValue = v; // temp
+                int iRegister = reg; // temp
+                int iValue = val; // temp
                 if ((iRegister >> 4 == 0xA) || (iRegister >> 4 == 0xB)) iChannel = iRegister & 0x0F;
 
                 // Remember the FM state, so that the harmonic effect can access
@@ -170,7 +189,7 @@ namespace hardware
                             // Need to write out low bits
                             uint8_t iAdditionalReg = 0xA0 + iChannel;
                             uint8_t iAdditionalValue = iNewFNum & 0xFF;
-                            b->writeReg(iAdditionalReg, iAdditionalValue);
+                            b->write(iAdditionalReg, iAdditionalValue);
                             this->iTweakedFMReg[this->currChip][iAdditionalReg] = iAdditionalValue;
                         }
                     }
@@ -189,7 +208,7 @@ namespace hardware
                             //                  iChannel, iFNum, iBlock, iNewFNum, iNewBlock);
                                                 // The note is already playing, so we need to adjust the upper bits too
                             uint8_t iAdditionalReg = 0xB0 + iChannel;
-                            b->writeReg(iAdditionalReg, iNewB0Value);
+                            b->write(iAdditionalReg, iNewB0Value);
                             this->iTweakedFMReg[this->currChip][iAdditionalReg] = iNewB0Value;
                         } // else the note is not playing, the upper bits will be set when the note is next played
 
@@ -198,41 +217,36 @@ namespace hardware
                 } // if (a register we're interested in)
 
                 // Now write to the original register with a possibly modified value
-                b->writeReg(iRegister, iValue);
+                b->write(iRegister, iValue);
                 this->iTweakedFMReg[this->currChip][iRegister] = iValue;
             }
 
-            bool SurroundOPL::isStereo() const
+            int32_t SurroundOPL::getSampleRate() const noexcept
             {
-                return true;
+                return a->getSampleRate();
             }
 
-            void SurroundOPL::generateSamples(int16_t* buffer, int numSamples)
+            //void SurroundOPL::init()
+            //{
+            //    //a->init();
+            //    //b->init();
+            //    for (int c = 0; c < 2; c++) {
+            //        for (int i = 0; i < 256; i++) {
+            //            this->iFMReg[c][i] = 0;
+            //            this->iTweakedFMReg[c][i] = 0;
+            //        }
+            //        for (int i = 0; i < 9; i++) {
+            //            this->iCurrentTweakedBlock[c][i] = 0;
+            //            this->iCurrentFNum[c][i] = 0;
+            //        }
+            //    }
+            //}
+
+            /*void SurroundOPL::setchip(int n)
             {
-                if (numSamples * 2 > this->bufsize) {
-                    // Need to realloc the buffer
-                    delete[] this->rbuf;
-                    delete[] this->lbuf;
-                    this->bufsize = numSamples * 2;
-                    this->lbuf = new short[this->bufsize];
-                    this->rbuf = new short[this->bufsize];
-                }
-
-                a->readBuffer(this->lbuf, numSamples);
-                b->readBuffer(this->rbuf, numSamples);
-
-                // Copy the two mono OPL buffers into the stereo buffer
-                for (int i = 0; i < numSamples; i++) {
-                    if (this->_use16bit) {
-                        buffer[i * 2] = this->lbuf[i];
-                        buffer[i * 2 + 1] = this->rbuf[i];
-                    }
-                    else {
-                        ((char*)buffer)[i * 2] = ((char*)this->lbuf)[i];
-                        ((char*)buffer)[i * 2 + 1] = ((char*)this->rbuf)[i];
-                    }
-                }
-            }
+                a->setchip(n);
+                b->setchip(n);
+            }*/
         }
     }
 }

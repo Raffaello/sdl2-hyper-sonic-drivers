@@ -48,8 +48,9 @@ namespace hardware
 
                 do {
                     step = len;
-                    if (step > (_nextTick >> FIXP_SHIFT))
+                    if (step > (_nextTick >> FIXP_SHIFT)) {
                         step = (_nextTick >> FIXP_SHIFT);
+                    }
 
                     generateSamples(buffer, step * stereoFactor);
 
