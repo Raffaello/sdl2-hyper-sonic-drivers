@@ -294,6 +294,11 @@ namespace drivers
             startSound(soundId, volume);
         }
 
+        bool ADLDriver::isPlaying()
+        {
+            return isChannelPlaying(0);
+        }
+
         uint8_t* ADLDriver::getProgram(const int progId)
         {
             if (_adl_file == nullptr) {

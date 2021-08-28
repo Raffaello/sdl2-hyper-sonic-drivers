@@ -20,12 +20,11 @@
 
 #include <hardware/opl/scummvm/dosbox/dosbox.hpp>
 #include <hardware/opl/scummvm/Config.hpp>
-
 #include <hardware/opl/scummvm/nuked/OPL.hpp>
 
-#include <drivers/westwood/scummvm/pc_base.h>
 
-#include <audio/scummvm/SDLMixer.hpp>
+#include <audio/scummvm/SDLMixerManager.hpp>
+
 
 using namespace std;
 
@@ -1063,47 +1062,6 @@ int adl_driver_woody()
 }
 
 
-int adl_driver_scummvm()
-{
-    Mix_Init(0);
-    int rate = 22050;
-    if (Mix_OpenAudio(rate, AUDIO_S16, 2, 4096) < 0) {
-        cerr << Mix_GetError();
-        return -1;
-    }
-
-    spdlog::set_level(spdlog::level::debug);
-    std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
-    //std::shared_ptr<files::ADLFile> adlFile = std::make_shared<files::ADLFile>("DUNE0.ADL");
-    //std::shared_ptr<hardware::opl::scummvm::mame::OPL> opl = std::make_shared<hardware::opl::scummvm::mame::OPL>(mixer);
-    std::shared_ptr<hardware::opl::scummvm::dosbox::OPL> opl = std::make_shared<hardware::opl::scummvm::dosbox::OPL>(mixer, hardware::opl::scummvm::Config::OplType::OPL2);
-    Kyra::AdLibDriver adlDrv(mixer, 2, opl);
-    adlDrv.internalLoadFile("DUNE0.ADL");
-
-
-    adlDrv.initDriver();
-    adlDrv.setMusicVolume(255);
-    adlDrv.setSfxVolume(255);
-
-    adlDrv.play(4, 0xFF);
-    //TODO: SoundHandle ?
-
-    
-    Mix_VolumeMusic(MIX_MAX_VOLUME);
-    Mix_HookMusic(&callback_sdl, opl.get());
-    SDL_Delay(60000);
-
-
-    Mix_HaltChannel(-1);
-    Mix_HaltMusic();
-    Mix_CloseAudio();
-    Mix_Quit();
-
-    return 0;
-
-}
-
-
 int sdlMixer()
 {
     using namespace audio::scummvm;
@@ -1131,22 +1089,15 @@ int sdlMixer()
         SDL_Delay(100);
     }
     SDL_Delay(1000);
-    for (int i = 0; i < 9; i++) {
-        if (adlDrv.isChannelPlaying(i)) {
-            spdlog::info("channel {} is playing", i);
-            SDL_Delay(1000);
-            i=0;
-        }
+    while(adlDrv.isPlaying())
+    {
+        spdlog::info("is playing");
+        SDL_Delay(1000);
+            
     }
 
     spdlog::info("SDLMixer quitting...");
     SDL_Delay(1000);
-    spdlog::info("ADL DRiver stop all channels");
-    adlDrv.stopAllChannels();
-    spdlog::info("OPL emulation stop");
-    opl->stop();
-    mixerManager.suspendAudio();
-    mixer.reset();
     spdlog::info("SDLMixer quit");
     
     return 0;
@@ -1208,10 +1159,6 @@ int main(int argc, char* argv[])
     //nuked_opl3_test();
     //surround_dual_opl2_test();
     //adl_driver_dosbox();
-    
-    // CALLBACK 72 per sec is not exact, but running faster? or not playing some channels?
-    //adl_driver_scummvm();
-    
     
     
     // TODO: 32 bit audio

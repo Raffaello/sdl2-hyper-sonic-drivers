@@ -1,4 +1,4 @@
-#include <audio/scummvm/SDLMixer.hpp>
+#include <audio/scummvm/SDLMixerManager.hpp>
 #include <SDL2/SDL.h>
 #include <spdlog/spdlog.h>
 #include <string>
