@@ -1060,7 +1060,7 @@ int adl_driver_woody()
     return 0;
 }
 
-#include <drivers/westwood/scummvm/pc_base.h>
+
 int adl_driver_scummvm()
 {
     Mix_Init(0);
