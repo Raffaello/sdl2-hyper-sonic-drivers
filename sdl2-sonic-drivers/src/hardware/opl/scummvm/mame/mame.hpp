@@ -174,7 +174,7 @@ namespace hardware
 
                     void writeReg(int r, int v) override;
 
-                    bool isStereo() const override { return false; }
+                    bool isStereo() const override;
 
                 protected:
                     void generateSamples(int16_t* buffer, int length) override;

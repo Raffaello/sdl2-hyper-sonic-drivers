@@ -11,7 +11,10 @@
 #include <files/XMIFile.hpp>
 #include <files/ADLFile.hpp>
 #include <drivers/westwood/woody/ADLDriver.hpp>
+#include <hardware/opl/woody/WoodyEmuOPL.hpp>
 #include <hardware/opl/woody/SurroundOPL.hpp>
+#include <hardware/opl/woody/DualOPL.hpp>
+#include <hardware/opl/woody/WoodyOPL.hpp>
 
 #include <drivers/westwood/ADLDriver.hpp>
 #include <audio/SDL2Mixer.hpp>
@@ -978,6 +981,7 @@ int adl_driver_woody()
     //spdlog::set_level(spdlog::level::debug);
     std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
     std::shared_ptr<hardware::opl::woody::SurroundOPL> opl = std::make_shared<hardware::opl::woody::SurroundOPL>(mixer->getOutputRate(), true);
+    //std::shared_ptr<hardware::opl::woody::WoodyEmuOPL> opl = std::make_shared<hardware::opl::woody::WoodyEmuOPL>(mixer->getOutputRate(), true);
 
     std::shared_ptr<files::ADLFile> adlFile = std::make_shared<files::ADLFile>("DUNE0.ADL");
     drivers::westwood::woody::ADLDriver adlDrv(opl.get(), adlFile);
@@ -1005,6 +1009,8 @@ int sdlMixer()
 {
     using namespace audio::scummvm;
     using namespace hardware::opl::scummvm;
+    using  hardware::opl::woody::DualOPL;
+    using  hardware::opl::woody::WoodyOPL;
     using namespace drivers::westwood;
    
     SdlMixerManager mixerManager;
@@ -1015,7 +1021,10 @@ int sdlMixer()
 
     mixer = mixerManager.getMixer();
     //spdlog::set_level(spdlog::level::debug);
-    std::shared_ptr<dosbox::OPL> opl = std::make_shared<dosbox::OPL>(mixer, Config::OplType::OPL2);
+    //std::shared_ptr<dosbox::OPL> opl = std::make_shared<dosbox::OPL>(mixer, Config::OplType::OPL2);
+    std::shared_ptr<DualOPL> opl = std::make_shared<DualOPL>(mixer);
+    //std::shared_ptr<WoodyOPL> opl = std::make_shared<WoodyOPL>(mixer);
+    
 
     std::shared_ptr<files::ADLFile> adlFile = std::make_shared<files::ADLFile>("DUNE0.ADL");
     
@@ -1024,7 +1033,7 @@ int sdlMixer()
     adlDrv.play(4, 0xFF);
     
     while (!mixer->isReady()) {
-        spdlog::info("mixer not ready");
+        //spdlog::info("mixer not ready");
         SDL_Delay(100);
     }
     SDL_Delay(1000);

@@ -34,7 +34,7 @@ namespace hardware
                 int getRate() const;
                 bool endOfData() const noexcept;
                 
-                const std::shared_ptr<audio::scummvm::Mixer> getMixer() { return _mixer; }
+                const std::shared_ptr<audio::scummvm::Mixer> getMixer();
 
             protected:
                 std::shared_ptr<audio::scummvm::Mixer> _mixer;

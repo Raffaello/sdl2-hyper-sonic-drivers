@@ -302,6 +302,11 @@ namespace hardware
                     };
                 }
 
+                bool OPL::isStereo() const
+                {
+                    return _type != Config::OplType::OPL2;
+                }
+
                 void OPL::dualWrite(uint8_t index, uint8_t reg, uint8_t val)
                 {
                     // Make sure you don't use opl3 features

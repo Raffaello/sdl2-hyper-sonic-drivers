@@ -18,7 +18,6 @@ namespace hardware
                 OPL3
             };
 
-            //this opl class could be moved just in hardware namespace as a general interface for opl namespace
             class OPL
             {
             public:
@@ -27,9 +26,9 @@ namespace hardware
 
                 virtual void update(int16_t* buf, const int32_t samples) = 0;
                 virtual void write(const int reg, const int val) = 0; // combined register select + data write
-                //virtual void setchip(int n) // select OPL chip
-                //virtual void init() = 0; // reinitialize OPL chip(s)
+                virtual void init() = 0;
                 virtual int32_t getSampleRate() const noexcept = 0;
+                virtual bool isStereo() const = 0;
             protected:
                 ChipType _chip;
             };

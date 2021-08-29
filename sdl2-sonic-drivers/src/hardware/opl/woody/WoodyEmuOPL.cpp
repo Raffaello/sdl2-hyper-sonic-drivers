@@ -13,7 +13,6 @@ namespace hardware
 
             void WoodyEmuOPL::update(int16_t* buf, const int32_t samples)
             {
-                //      if(use16bit) samples *= 2;
                 if (_stereo) {
                     _opl.adlib_getsample(buf, samples * 2);
                 } else {
@@ -32,13 +31,17 @@ namespace hardware
                 _opl.adlib_write(_opl.index, val, 0);
             }
 
-            /*void WoodyEmuOPL::init()
+            void WoodyEmuOPL::init()
             {
-            }*/
+            }
 
             int32_t WoodyEmuOPL::getSampleRate() const noexcept
             {
                 return _opl.getSampleRate();
+            }
+            bool WoodyEmuOPL::isStereo() const
+            {
+                return _stereo;
             }
         }
     }
