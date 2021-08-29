@@ -152,50 +152,11 @@ namespace files
         return _data;
     }
 
-    /*const int ADLFile::getNumPrograms() const noexcept
-    {
-        return _num_programs;
-    }*/
-
-    //uint16_t ADLFile::getNumTrackOffset(const int progId) const noexcept
-    //{
-    //    if (progId < 0 || progId >= _num_programs) {
-    //        return 0;
-    //    }
-
-    //    //const uint16_t offset = READ_LE_UINT16(_soundData + 2 * progId);
-    //    //spdlog::debug("calling getProgram(prodIg={}){}", progId, offset);
-
-    //    uint16_t offset = getTrackOffset(progId) - _dataHeaderSize;
-
-    //    //const uint8_t progIdOffset = _adl_file->getTrack(progId);
-    //    //const uint16_t offset = _adl_file->getTrackOffset(progIdOffset);
-    //    //const uint16_t offset = _adl_file->getTrackOffset(progId);
-
-    //    // In case an invalid offset is specified we return nullptr to
-    //    // indicate an error. 0xFFFF seems to indicate "this is not a valid
-    //    // program/instrument". However, 0 is also invalid because it points
-    //    // inside the offset table itself. We also ignore any offsets outside
-    //    // of the actual data size.
-    //    // The original does not contain any safety checks and will simply
-    //    // read outside of the valid sound data in case an invalid offset is
-    //    // encountered.
-    //    if (offset == 0 || offset >= _dataSize) {
-    //        //spdlog::warn("ADLDriver::getProgram(): invalid offset read. offset={} --- _soundDataSize={}", offset, _soundDataSize);
-    //        return 0;
-    //    }
-
-    //    return offset;
-    //    
-    //    
-    //}
-
     void ADLFile::detectVersion()
     {
         seek(0, std::fstream::beg);
         // detect version 3
         _version = 3;
-        //_num_programs = V3_NUM_TRACK_OFFSETS;
         for (int i = 0; i < V1_HEADER_SIZE; i++)
         {
             uint16_t v = readLE16();
@@ -206,7 +167,6 @@ namespace files
             {
                 //v1,2
                 _version = 2;
-                //_num_programs =V2_NUM_TRACK_OFFSETS;
                 break;
             }
         }
@@ -229,7 +189,6 @@ namespace files
             if (min_w < V2_OFFSET_START)
             {
                 _version = 1;
-                //_num_programs = V1_NUM_TRACK_OFFSETS;
                 _assertValid(min_w == V1_OFFSET_START);
             }
             else
@@ -304,16 +263,6 @@ namespace files
 
     void ADLFile::readData()
     {
-        /*_functor(
-            [this]() { readDataFromFile(V1_HEADER_SIZE); },
-            [this]() { readDataFromFile(V2_HEADER_SIZE); },
-            [this]() { readDataFromFile(V3_HEADER_SIZE); }
-        );*/
-
-        // TODO : Review the soundData starts after the header,
-        //        so the tracks and instruments are pointing counting from there
-        //        to keep as it is now should patch the offsets
-        //        probably just better using as it is meant to be
         _functor(
             [this]() { readDataFromFile(V1_DATA_OFFSET, V1_DATA_HEADER_SIZE); },
             [this]() { readDataFromFile(V2_DATA_OFFSET, V2_DATA_HEADER_SIZE); },
@@ -323,8 +272,6 @@ namespace files
 
     void ADLFile::readDataFromFile(const int data_offsets, const int data_heder_size)
     {
-        //seek(data_offsets, std::fstream::beg);
-
         _dataSize = size() - data_offsets;
         _assertValid(_dataSize > 0);
         _assertValid(tell() == data_offsets);

@@ -311,7 +311,8 @@ namespace drivers
             // The original does not contain any safety checks and will simply
             // read outside of the valid sound data in case an invalid offset is
             // encountered.
-            if (offset == 0 || offset >= _soundDataSize) {
+            // offset == 0 is valid now as offset are adjusted when read.
+            if (/*offset == 0 ||*/ offset >= _soundDataSize) {
                 spdlog::warn("ADLDriver::getProgram(): invalid offset read. offset={} --- _soundDataSize={}", offset, _soundDataSize);
                 return nullptr;
             }
