@@ -9,25 +9,28 @@ namespace files
     {
         ADLFile f("fixtures/EOBSOUND.ADL");
         EXPECT_EQ(f.getVersion(), 1);
-        EXPECT_EQ(f.getNumPrograms(), 150);
         EXPECT_EQ(f.getNumTracks(), 15);
         EXPECT_EQ(f.getNumTrackOffsets(), 42);
         EXPECT_EQ(f.getNumInstrumentOffsets(), 40);
         EXPECT_EQ(f.getDataSize(), 13019 - 600);
         EXPECT_EQ(f.getData()[f.getTrackOffset(f.getTrack(2))], 9);
+        EXPECT_EQ(f.getProgramOffset(f.getTrack(2), ADLFile::PROG_TYPE::TRACK), f.getTrackOffset(f.getTrack(2)));
+        EXPECT_EQ(f.getProgramOffset(f.getTrack(2), ADLFile::PROG_TYPE::INSTRUMENT), f.getInstrumentOffset(f.getTrack(2)));
     }
 
     TEST(ADLFile, ADLv2)
     {
         ADLFile f("fixtures/DUNE19.ADL");
         EXPECT_EQ(f.getVersion(), 2);
-        EXPECT_EQ(f.getNumPrograms(), 250);
         EXPECT_EQ(f.getNumTracks(), 49);
         EXPECT_EQ(f.getNumTrackOffsets(), 72);
         EXPECT_EQ(f.getNumInstrumentOffsets(), 71);
         EXPECT_EQ(f.size(), 7257);
         EXPECT_EQ(f.getDataSize(), 7137 - 1000);
         EXPECT_EQ(f.getTrack(2), 3);
+
+        EXPECT_EQ(f.getProgramOffset(f.getTrack(2), ADLFile::PROG_TYPE::TRACK), f.getTrackOffset(f.getTrack(2)));
+        EXPECT_EQ(f.getProgramOffset(f.getTrack(2), ADLFile::PROG_TYPE::INSTRUMENT), f.getInstrumentOffset(f.getTrack(2)));
         
         int track2 = f.getTrack(2);
         EXPECT_EQ(track2, 3);
@@ -64,11 +67,14 @@ namespace files
     {
         ADLFile f("fixtures/LOREINTR.ADL");
         EXPECT_EQ(f.getVersion(), 3);
-        EXPECT_EQ(f.getNumPrograms(), 500);
+        //EXPECT_EQ(f.getNumPrograms(), 500);
         EXPECT_EQ(f.getNumTracks(), 30);
         EXPECT_EQ(f.getNumTrackOffsets(), 58);
         EXPECT_EQ(f.getNumInstrumentOffsets(), 71);
         EXPECT_EQ(f.getDataSize(), 13812 - 2000);
+
+        EXPECT_EQ(f.getProgramOffset(f.getTrack(2), ADLFile::PROG_TYPE::TRACK), f.getTrackOffset(f.getTrack(2)));
+        EXPECT_EQ(f.getProgramOffset(f.getTrack(2), ADLFile::PROG_TYPE::INSTRUMENT), f.getInstrumentOffset(f.getTrack(2)));
 
         EXPECT_EQ(f.getData()[f.getTrackOffset(f.getTrack(0))], 9);
     }

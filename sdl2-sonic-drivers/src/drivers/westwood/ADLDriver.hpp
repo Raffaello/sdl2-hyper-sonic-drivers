@@ -67,6 +67,7 @@ namespace drivers
             //uint8_t* getProgram(const int progId);
             uint8_t* getProgram(const int progId);
             const uint8_t* getInstrument(const int instrumentId);
+            uint8_t* ADLDriver::getProgram(const int progId, /*const int maxProgId,*/ const files::ADLFile::PROG_TYPE progType);
             // ---- END ---------------------------------------------------
             // end from parent class
 

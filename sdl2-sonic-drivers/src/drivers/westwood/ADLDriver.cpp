@@ -290,18 +290,17 @@ namespace drivers
             return isChannelPlaying(0);
         }
 
-        uint8_t* ADLDriver::getProgram(const int progId)
+        uint8_t* ADLDriver::getProgram(const int progId, /*const int maxProgId,*/ const files::ADLFile::PROG_TYPE progType)
         {
             if (_adl_file == nullptr) {
                 spdlog::error("ADLDriver::getProgram(): no ADL file loaded.");
                 return nullptr;
             }
 
-            // TODO: redo the safety check above using the vector instead
-            // Safety check: invalid progId would crash.
-            if (progId < 0 || progId >= (int32_t)_soundDataSize / 2)
-                return nullptr;
-            const uint16_t offset = _adl_file->getTrackOffset(progId);
+            //if (progId < 0 || progId >= _adl_file->getNumTracks())
+            //    return nullptr;
+
+            const uint16_t offset = _adl_file->getProgramOffset(progId, progType);
             spdlog::debug("calling getProgram(prodIg={}){}", progId, offset);
 
             // In case an invalid offset is specified we return nullptr to
@@ -316,41 +315,18 @@ namespace drivers
                 spdlog::warn("ADLDriver::getProgram(): invalid offset read. offset={} --- _soundDataSize={}", offset, _soundDataSize);
                 return nullptr;
             }
-            
+
             return _soundData.get() + offset;
+        }
+
+        uint8_t* ADLDriver::getProgram(const int progId)
+        {
+            return getProgram(progId, files::ADLFile::PROG_TYPE::TRACK);
         }
 
         const uint8_t* ADLDriver::getInstrument(const int instrumentId)
         {
-            //spdlog::debug("calling get instrument {} ({})", instrumentId, _adl_file->getNumPrograms());
-            //return getProgram(_adl_file->getNumPrograms() + instrumentId);
-            
-            if (_adl_file == nullptr) {
-                spdlog::error("ADLDriver::getInstrument(): no ADL file loaded.");
-                return nullptr;
-            }
-
-            // TODO: redo the safety check above using the vector instead
-            // Safety check: invalid progId would crash.
-            if (instrumentId < 0 || instrumentId >= (int32_t)_soundDataSize / 2)
-                return nullptr;
-            const uint16_t offset = _adl_file->getInstrumentOffset(instrumentId);
-            spdlog::debug("calling getProgram(prodIg={}){}", instrumentId, offset);
-
-            // In case an invalid offset is specified we return nullptr to
-            // indicate an error. 0xFFFF seems to indicate "this is not a valid
-            // program/instrument". However, 0 is also invalid because it points
-            // inside the offset table itself. We also ignore any offsets outside
-            // of the actual data size.
-            // The original does not contain any safety checks and will simply
-            // read outside of the valid sound data in case an invalid offset is
-            // encountered.
-            if (offset == 0 || offset >= _soundDataSize) {
-                spdlog::warn("ADLDriver::getProgram(): invalid offset read. offset={} --- _soundDataSize={}", offset, _soundDataSize);
-                return nullptr;
-            }
-
-            return _soundData.get() + offset;
+            return getProgram(instrumentId, files::ADLFile::PROG_TYPE::INSTRUMENT);
         }
 
         // This is presumably only used for some sound effects, e.g. Malcolm blowing up

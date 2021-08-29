@@ -13,6 +13,9 @@ namespace files
     class ADLFile final : public File
     {
     public:
+        enum class PROG_TYPE {
+            TRACK, INSTRUMENT 
+        };
         ADLFile(const std::string& filename);
         uint8_t getVersion() const noexcept;
         int getNumTracks() const noexcept;
@@ -21,9 +24,10 @@ namespace files
         uint8_t getTrack(const int track) const;
         uint16_t getTrackOffset(const int programId) const;
         uint16_t getInstrumentOffset(const int instrument) const;
+        uint16_t getProgramOffset(const int progId, const PROG_TYPE prog_type) const;
         uint32_t getDataSize() const noexcept;
         std::shared_ptr<uint8_t[]> getData() const noexcept;
-        const int getNumPrograms() const noexcept;
+        //const int getNumPrograms() const noexcept;
         //uint16_t getNumTrackOffset(const int progId) const noexcept;
 
     private:
@@ -57,7 +61,7 @@ namespace files
         int _num_tracks = -1;
         int _num_track_offsets = -1;
         int _num_instrument_offsets = -1;
-        int _num_programs = -1;
+        //int _num_programs = -1;
 
         void _functor(std::function<void()> funcV1, std::function<void()> funcV2, std::function<void()> funcV3);
     };

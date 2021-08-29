@@ -131,6 +131,17 @@ namespace files
         return _instrument_offsets.at(instrument);
     }
 
+    uint16_t ADLFile::getProgramOffset(const int progId, const PROG_TYPE prog_type) const
+    {
+        switch (prog_type)
+        {
+        case PROG_TYPE::TRACK:
+            return getTrackOffset(progId);
+        case PROG_TYPE::INSTRUMENT:
+            return getInstrumentOffset(progId);
+        }
+    }
+
     uint32_t ADLFile::getDataSize() const noexcept
     {
         return _dataSize;
@@ -141,10 +152,10 @@ namespace files
         return _data;
     }
 
-    const int ADLFile::getNumPrograms() const noexcept
+    /*const int ADLFile::getNumPrograms() const noexcept
     {
         return _num_programs;
-    }
+    }*/
 
     //uint16_t ADLFile::getNumTrackOffset(const int progId) const noexcept
     //{
@@ -184,7 +195,7 @@ namespace files
         seek(0, std::fstream::beg);
         // detect version 3
         _version = 3;
-        _num_programs = V3_NUM_TRACK_OFFSETS;
+        //_num_programs = V3_NUM_TRACK_OFFSETS;
         for (int i = 0; i < V1_HEADER_SIZE; i++)
         {
             uint16_t v = readLE16();
@@ -195,7 +206,7 @@ namespace files
             {
                 //v1,2
                 _version = 2;
-                _num_programs =V2_NUM_TRACK_OFFSETS;
+                //_num_programs =V2_NUM_TRACK_OFFSETS;
                 break;
             }
         }
@@ -218,7 +229,7 @@ namespace files
             if (min_w < V2_OFFSET_START)
             {
                 _version = 1;
-                _num_programs = V1_NUM_TRACK_OFFSETS;
+                //_num_programs = V1_NUM_TRACK_OFFSETS;
                 _assertValid(min_w == V1_OFFSET_START);
             }
             else
