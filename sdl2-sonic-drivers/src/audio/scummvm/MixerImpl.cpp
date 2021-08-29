@@ -12,10 +12,15 @@ namespace audio
         // TODO: move to utils and as a constexpr
 #define ARRAYSIZE(x) ((int)(sizeof(x) / sizeof(x[0])))
 
-        MixerImpl::MixerImpl(unsigned int sampleRate)
-            : _mutex(), _sampleRate(sampleRate), _mixerReady(false), _handleSeed(0), _soundTypeSettings()
+        MixerImpl::MixerImpl(unsigned int sampleRate, const uint8_t bitsDepth)
+            : _mutex(), _sampleRate(sampleRate), _bitsDepth(bitsDepth),
+            _mixerReady(false), _handleSeed(0), _soundTypeSettings()
         {
             assert(sampleRate > 0);
+
+            if (bitsDepth != 16) {
+                spdlog::warn("Audio {} bits not supported. Only 16 bits", bitsDepth);
+            }
 
             for (int i = 0; i != NUM_CHANNELS; i++) {
                 _channels[i] = nullptr;
@@ -322,6 +327,11 @@ namespace audio
         unsigned int MixerImpl::getOutputRate() const
         {
             return _sampleRate;
+        }
+
+        uint8_t MixerImpl::getBitsDepth() const
+        {
+            return _bitsDepth;
         }
 
         void MixerImpl::insertChannel(SoundHandle* handle, Channel* chan)

@@ -27,7 +27,6 @@
 #include <cstring> // for memset()
 #include "SurroundOPL.hpp"
 #include <hardware/opl/woody/WoodyEmuOPL.hpp>
-#include <cassert>
 
 namespace hardware
 {
@@ -76,7 +75,6 @@ namespace hardware
                 b->update(this->rbuf, samples);
 
                 // Copy the two mono OPL buffers into the stereo buffer
-                assert(samples <= bufsize);
                 for (int i = 0; i < samples; i++) {
                     if (this->_use16bit) {
                         buf[i * 2] = this->lbuf[i];

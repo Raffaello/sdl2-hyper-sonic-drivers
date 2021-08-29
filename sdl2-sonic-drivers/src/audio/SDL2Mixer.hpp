@@ -12,6 +12,7 @@ namespace audio
     {
     private:
         int _rate;
+        int8_t _bitsDepth;
     
     public:
         SDL2Mixer();
@@ -47,5 +48,6 @@ namespace audio
         virtual void setVolumeForSoundType(SoundType type, int volume) override;
         virtual int getVolumeForSoundType(SoundType type) const override;
         virtual unsigned int getOutputRate() const override;
+        virtual uint8_t getBitsDepth() const override;
     };
 }

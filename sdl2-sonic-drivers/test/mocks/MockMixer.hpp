@@ -93,6 +93,10 @@ namespace audio
             {
                 return rate;
             }
+            virtual uint8_t getBitsDepth() const override
+            {
+                return 16;
+            }
         };
     }
 }

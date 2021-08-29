@@ -28,6 +28,23 @@ namespace audio
 
         spdlog::info("Audio Device: frequency = {} --- format = {} --- channels = {}", freq, fmt, chan);
         _rate = freq;
+        switch (fmt)
+        {
+        case AUDIO_U8:
+        case AUDIO_S8:
+            _bitsDepth = 8;
+            break;
+        case AUDIO_U16LSB:
+        case AUDIO_S16LSB:
+        case AUDIO_U16MSB:
+        case AUDIO_S16MSB:
+            _bitsDepth = 16;
+            break;
+
+        default:
+            spdlog::critical("SDL FORMAT {:#04x} not implemented", fmt);
+            throw std::runtime_error("SDL FORMAT not implemented");
+        }
     }
 
     bool SDL2Mixer::isReady()
@@ -135,5 +152,9 @@ namespace audio
     unsigned int SDL2Mixer::getOutputRate() const
     {
         return _rate;
+    }
+    uint8_t SDL2Mixer::getBitsDepth() const
+    {
+        return _bitsDepth;
     }
 }

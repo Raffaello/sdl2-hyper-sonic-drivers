@@ -63,7 +63,7 @@ namespace hardware
                 case OplEmulator::NUKED:
                     //return new NUKED::OPL(type);
                 default:
-                    spdlog::warn("Unsupported OPL emulator %d", driver);
+                    spdlog::warn("Unsupported OPL emulator {0:d}", driver);
                     // TODO: Maybe we should add some dummy emulator too, which just outputs
                     // silence as sound?
                 }

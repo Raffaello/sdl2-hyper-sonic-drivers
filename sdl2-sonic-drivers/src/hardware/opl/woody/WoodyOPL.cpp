@@ -22,8 +22,7 @@ namespace hardware
                 free();
                 if (_surround)
                 {
-                    // TODO  16bit detection, put in the mixer
-                    _opl = new SurroundOPL(_mixer->getOutputRate(), true);
+                    _opl = new SurroundOPL(_mixer->getOutputRate(), _mixer->getBitsDepth() == 16);
                 }
                 else
                 {

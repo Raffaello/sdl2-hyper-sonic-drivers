@@ -885,8 +885,8 @@ int sdlMixer()
 
     mixer = mixerManager.getMixer();
     //spdlog::set_level(spdlog::level::debug);
-    std::shared_ptr<dosbox::OPL> opl = std::make_shared<dosbox::OPL>(mixer, Config::OplType::OPL2);
-    //std::shared_ptr<WoodyOPL> opl = std::make_shared<WoodyOPL>(mixer, true);
+    //std::shared_ptr<dosbox::OPL> opl = std::make_shared<dosbox::OPL>(mixer, Config::OplType::OPL2);
+    std::shared_ptr<WoodyOPL> opl = std::make_shared<WoodyOPL>(mixer, true);
     
 
     std::shared_ptr<files::ADLFile> adlFile = std::make_shared<files::ADLFile>("DUNE0.ADL");
@@ -896,7 +896,7 @@ int sdlMixer()
     adlDrv.play(4, 0xFF);
     
     while (!mixer->isReady()) {
-        //spdlog::info("mixer not ready");
+        spdlog::info("mixer not ready");
         SDL_Delay(100);
     }
     SDL_Delay(1000);
