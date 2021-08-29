@@ -191,3 +191,30 @@ macro_test(
     FIXTURES
         #"fixtures/mame-22050-16bit-440Hz.dat"
 )
+
+### TODO: ADD TestWoodEmulator with scumm
+macro_test(
+    EXE TestConfig
+    FILES 
+        "hardware/opl/scummvm/TestConfig.cpp"
+        "../src/hardware/opl/scummvm/nuked/OPL.cpp"
+        "../src/hardware/opl/scummvm/nuked/opl3.c"
+        "../src/hardware/opl/scummvm/dosbox/dosbox.cpp"
+        "../src/hardware/opl/scummvm/dosbox/dbopl/dbopl.cpp"
+        "../src/hardware/opl/scummvm/mame/mame.cpp"
+        "../src/hardware/opl/scummvm/EmulatedOPL.cpp"
+        "../src/hardware/opl/scummvm/Config.cpp"
+        "../src/hardware/opl/woody/WoodyOPL.cpp"
+        "../src/hardware/opl/woody/WoodyEmuOPL.cpp"
+        "../src/hardware/opl/woody/SurroundOPL.cpp"
+        "../src/hardware/opl/woody/OPLChip.cpp"
+        "../src/hardware/opl/woody/OPL.cpp"
+        "../src/hardware/opl/OPL.cpp"
+        "../src/audio/scummvm/TimeStamp.cpp"
+        "../src/files/File.cpp"
+        "../src/utils/endianness.cpp"
+    LINKS_PRIVATE
+        spdlog::spdlog
+    FIXTURES
+        #"fixtures/mame-22050-16bit-440Hz.dat"
+)

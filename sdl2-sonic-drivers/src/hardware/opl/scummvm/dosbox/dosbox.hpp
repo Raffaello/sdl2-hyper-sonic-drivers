@@ -51,6 +51,7 @@ namespace hardware
                 class OPL : public EmulatedOPL
                 {
                 private:
+                    // TODO consider to move to the parent
                     Config::OplType _type;
                     unsigned int _rate;
 

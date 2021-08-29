@@ -38,6 +38,7 @@ namespace hardware
 
             protected:
                 std::shared_ptr<audio::scummvm::Mixer> _mixer;
+                unsigned int _rate;
                 // OPL API
                 void startCallbacks(int timerFrequency);
                 void stopCallbacks();
