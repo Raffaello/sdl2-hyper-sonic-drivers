@@ -137,22 +137,6 @@ macro_test(
 )
 
 macro_test(
-    EXE TestADLDriver
-    FILES "drivers/westwood/TestADLDriver.cpp"
-        "../src/drivers/westwood/ADLDriver.cpp"
-        "../src/hardware/opl/OPL.cpp"
-        "../src/files/File.cpp"
-        "../src/files/ADLFile.cpp"
-        "../src/utils/endianness.cpp"
-        "../src/audio/scummvm/TimeStamp.cpp"
-        "../src/hardware/opl/scummvm/mame/mame.cpp"
-        "../src/hardware/opl/scummvm/EmulatedOPL.cpp"
-        "../src/hardware/opl/OPL.cpp"
-    LINKS_PRIVATE
-        spdlog::spdlog
-)
-
-macro_test(
     EXE TestAlgorithms
     FILES 
         "utils/TestAlgorithms.cpp"
@@ -192,7 +176,27 @@ macro_test(
         #"fixtures/mame-22050-16bit-440Hz.dat"
 )
 
-### TODO: ADD TestWoodEmulator with scumm
+macro_test(
+    EXE TestWoodyOPL
+    FILES 
+        "hardware/opl/woody/TestWoodyOPL.cpp"
+        "../src/hardware/opl/woody/WoodyOPL.cpp"
+        "../src/hardware/opl/woody/WoodyEmuOPL.cpp"
+        "../src/hardware/opl/woody/SurroundOPL.cpp"
+        "../src/hardware/opl/woody/OPLChip.cpp"
+        "../src/hardware/opl/woody/OPL.cpp"
+        "../src/hardware/opl/scummvm/EmulatedOPL.cpp"
+        "../src/hardware/opl/OPL.cpp"
+        "../src/audio/scummvm/TimeStamp.cpp"
+        "../src/files/File.cpp"
+        "../src/utils/endianness.cpp"
+    LINKS_PRIVATE
+        spdlog::spdlog
+    FIXTURES
+        #"fixtures/mame-22050-16bit-440Hz.dat"
+)
+
+
 macro_test(
     EXE TestConfig
     FILES 
@@ -215,6 +219,20 @@ macro_test(
         "../src/utils/endianness.cpp"
     LINKS_PRIVATE
         spdlog::spdlog
-    FIXTURES
-        #"fixtures/mame-22050-16bit-440Hz.dat"
+)
+
+macro_test(
+    EXE TestADLDriver
+    FILES "drivers/westwood/TestADLDriver.cpp"
+        "../src/drivers/westwood/ADLDriver.cpp"
+        "../src/hardware/opl/OPL.cpp"
+        "../src/files/File.cpp"
+        "../src/files/ADLFile.cpp"
+        "../src/utils/endianness.cpp"
+        "../src/audio/scummvm/TimeStamp.cpp"
+        "../src/hardware/opl/scummvm/mame/mame.cpp"
+        "../src/hardware/opl/scummvm/EmulatedOPL.cpp"
+        "../src/hardware/opl/OPL.cpp"
+    LINKS_PRIVATE
+        spdlog::spdlog
 )
