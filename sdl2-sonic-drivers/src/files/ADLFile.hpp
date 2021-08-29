@@ -55,7 +55,7 @@ namespace files
         void count_instruments();
         template<typename T>
         int count_loop(const int num_offs, const std::vector<T>& vec);
-
+        void adjust_offsets(std::vector<uint16_t>& vec);
         int _num_tracks = -1;
         int _num_track_offsets = -1;
         int _num_instrument_offsets = -1;

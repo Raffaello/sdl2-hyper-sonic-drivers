@@ -77,23 +77,8 @@ namespace files
         close();
 
         // Adjust Offsets
-        for (auto& v : _track_offsets)
-        {
-            if (v == 0 || v == 0xFFFF)
-                continue;
-                
-            _assertValid(v >= _dataHeaderSize);
-            v -= _dataHeaderSize;
-        }
-
-        for (auto& v : _instrument_offsets)
-        {
-            if (v == 0 || v == 0xFFFF)
-                continue;
-
-            _assertValid(v >= _dataHeaderSize);
-            v -= _dataHeaderSize;
-        }
+        adjust_offsets(_track_offsets);
+        adjust_offsets(_instrument_offsets);
     }
 
     uint8_t ADLFile::getVersion() const noexcept
@@ -278,6 +263,21 @@ namespace files
         _data.reset(new uint8_t[_dataSize]);
         read(_data.get(), _dataSize);
         _dataHeaderSize = data_heder_size;
+    }
+
+    void ADLFile::adjust_offsets(std::vector<uint16_t>& vec)
+    {
+        for (auto& v : vec)
+        {
+            if (v == 0)
+                v = 0xFFFF;
+
+            if (v == 0xFFFF)
+                continue;
+
+            _assertValid(v >= _dataHeaderSize);
+            v -= _dataHeaderSize;
+        }
     }
 
     void ADLFile::count_tracks()
