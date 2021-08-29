@@ -616,7 +616,6 @@ int adl_driver_mame()
     drivers::westwood::ADLDriver adlDrv(opl, adlFile);
 
     adlDrv.play(4, 63);
-    //TODO: SoundHandle ?
     Mix_VolumeMusic(MIX_MAX_VOLUME);
     Mix_HookMusic(&callback_sdl, opl.get());
     SDL_Delay(20000);
@@ -931,7 +930,6 @@ int adl_driver_dosbox()
     drivers::westwood::ADLDriver adlDrv(opl, adlFile);
     
     adlDrv.play(4, 0xFF);
-    //TODO: SoundHandle ?
     Mix_VolumeMusic(MIX_MAX_VOLUME);
     Mix_HookMusic(&callback_sdl, opl.get());
     SDL_Delay(60000);
