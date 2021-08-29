@@ -28,45 +28,39 @@ namespace drivers
         /// the same file format(but need different offset adjustments);
         /// Kyrandia 2 and LoL format(version 4) is different again.
         /// </summary>
-        class ADLDriver /* : public PCSoundDriver */
+        class ADLDriver
         {
         public:
             ADLDriver(std::shared_ptr<hardware::opl::OPL> opl, std::shared_ptr<files::ADLFile> adl_file);
-            ~ADLDriver(); //override;
+            ~ADLDriver();
             void setADLFile(const std::shared_ptr<files::ADLFile> adl_file) noexcept;
-            void initDriver(); //override;
-            void setSoundData(uint8_t* data, uint32_t size);// override;
             
-            bool isChannelPlaying(const int channel);// override;
-            void stopAllChannels();// override;
-            int getSoundTrigger() const; /*override*/
-            void resetSoundTrigger(); /*override*/
+            bool isChannelPlaying(const int channel);
+            void stopAllChannels();
+            int getSoundTrigger() const; 
+            void resetSoundTrigger(); 
 
             void callback();
+            void setSyncJumpMask(const uint16_t mask); 
 
-            void setSyncJumpMask(uint16_t mask); /*override*/
-
-            void setMusicVolume(const uint8_t volume);// override;
-            void setSfxVolume(const uint8_t volume);// override;
+            void setMusicVolume(const uint8_t volume);
+            void setSfxVolume(const uint8_t volume);
+            
             void play(const uint8_t track, const uint8_t volume);
             bool isPlaying();
         private:
-            void startSound(const int track, const int volume);// override;
+            void initDriver();
+            void startSound(const int track, const int volume);
+            
             std::shared_ptr<files::ADLFile> _adl_file = nullptr;
-            // From parent class
-            uint8_t* _soundData = nullptr;
+            
+            std::shared_ptr<uint8_t[]> _soundData = nullptr;
             uint32_t _soundDataSize;
-            // --- TODO: move in ADLFile ----------------------------------
+            
             // The sound data has two lookup tables:
-            // * One for programs, starting at offset 0.
-            // * One for instruments, starting at offset 300, 500, or 1000.
-
-            // Method moved to parent class in scummvm:
-            //uint8_t* getProgram(const int progId);
             uint8_t* getProgram(const int progId);
             const uint8_t* getInstrument(const int instrumentId);
-            // ---- END ---------------------------------------------------
-            // end from parent class
+            uint8_t* ADLDriver::getProgram(const int progId, const files::ADLFile::PROG_TYPE progType);
 
             struct Channel {
                 bool lock;	// New to ScummVM
@@ -296,7 +290,6 @@ namespace drivers
             uint8_t _musicVolume;
             uint8_t _sfxVolume;
 
-            // TODO: review _version checking
             // Version 1,2,3 possible values, version 3&4 merged into version 3
             uint8_t _version = 0;
         };

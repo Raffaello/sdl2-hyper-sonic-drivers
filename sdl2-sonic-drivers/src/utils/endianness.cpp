@@ -5,7 +5,7 @@ namespace utils
     typedef union bytes2 {
         int16_t i;
         char c[sizeof(int16_t)];
-    };
+    } bytes2;
 
     typedef union bytes4 {
         int32_t i;

@@ -41,7 +41,7 @@ namespace drivers
                 ~ADLDriver();
                 void setADLFile(std::shared_ptr<files::ADLFile> adl_file) noexcept;
                 void initDriver();
-                void setSoundData(uint8_t* data, const uint32_t size); /*override*/;
+                void resetSoundData(); /*override*/;
                 void startSound(const int track, const int volume); /*override*/;
                 bool isChannelPlaying(const int channel); /*override*/;
                 void stopAllChannels(); /*override*/;
@@ -306,7 +306,7 @@ namespace drivers
                 //Copl* _opl; // added in AdPlug
                 hardware::opl::woody::OPL* _opl;
 
-                uint8_t* _soundData = nullptr; // moved to parent class in scummvm
+                std::shared_ptr<uint8_t[]> _soundData = nullptr; // moved to parent class in scummvm
                 uint32_t _soundDataSize = 0; // moved to parent class in scummvm
 
                 struct QueueEntry

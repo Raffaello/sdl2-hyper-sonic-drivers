@@ -23,9 +23,8 @@ namespace drivers
     namespace westwood
     {
         ADLDriver::ADLDriver(std::shared_ptr<hardware::opl::OPL> opl, std::shared_ptr<files::ADLFile> adl_file)
+            : _opl(opl)
         {
-            _opl = opl;
-
             if (!_opl || !_opl->init()) {
                 spdlog::error("Failed to initialize OPL");
             }
@@ -45,10 +44,10 @@ namespace drivers
             _beatDivider = _beatDivCnt = _beatCounter = _beatWaiting = 0;
             _opLevelBD = _opLevelHH = _opLevelSD = _opLevelTT = _opLevelCY = 0;
             _opExtraLevel1HH = _opExtraLevel2HH =
-                _opExtraLevel1CY = _opExtraLevel2CY =
-                _opExtraLevel2TT = _opExtraLevel1TT =
-                _opExtraLevel1SD = _opExtraLevel2SD =
-                _opExtraLevel1BD = _opExtraLevel2BD = 0;
+            _opExtraLevel1CY = _opExtraLevel2CY =
+            _opExtraLevel2TT = _opExtraLevel1TT =
+            _opExtraLevel1SD = _opExtraLevel2SD =
+            _opExtraLevel1BD = _opExtraLevel2BD = 0;
 
             _tablePtr1 = _tablePtr2 = nullptr;
 
@@ -62,16 +61,12 @@ namespace drivers
             _programQueueStart = _programQueueEnd = 0;
             _retrySounds = false;
 
-
-            //_adlib->start(new Common::Functor0Mem<void, ADLDriver>(this, &ADLDriver::callback), CALLBACKS_PER_SECOND);
-            // TODO: this probably can be done better instead of 2 line to pass a pointer of a function...
             hardware::opl::TimerCallBack cb = std::bind(&ADLDriver::callback, this);
             auto p = std::make_unique<hardware::opl::TimerCallBack>(cb);
             _opl->start(p.release(), CALLBACKS_PER_SECOND);
 
             stopAllChannels();
             setADLFile(adl_file);
-            setSoundData(_soundData, _soundDataSize);
             initDriver();
             setMusicVolume(255);
             setSfxVolume(255);
@@ -83,23 +78,12 @@ namespace drivers
 
         void ADLDriver::setADLFile(const std::shared_ptr<files::ADLFile> adl_file) noexcept
         {
+            const std::lock_guard<std::mutex> lock(_mutex);
+
             _adl_file = adl_file;
             _version = _adl_file->getVersion();
             _soundDataSize = _adl_file->getDataSize();
-            // TODO: refactor, remove pointers.
-            _soundData = const_cast<uint8_t*>(_adl_file->getData().data());
-        }
-
-        void ADLDriver::initDriver()
-        {
-            const std::lock_guard<std::mutex> lock(_mutex);
-
-            resetAdLibState();
-        }
-
-        void ADLDriver::setSoundData(uint8_t* data, uint32_t size)
-        {
-            const std::lock_guard<std::mutex> lock(_mutex);
+            _soundData = _adl_file->getData();
 
             // Drop all tracks that are still queued. These would point to the old
             // sound data.
@@ -108,9 +92,13 @@ namespace drivers
                 _programQueue[i] = QueueEntry();
 
             _sfxPointer = nullptr;
+        }
 
-            _soundData = data;
-            _soundDataSize = size;
+        void ADLDriver::initDriver()
+        {
+            const std::lock_guard<std::mutex> lock(_mutex);
+
+            resetAdLibState();
         }
 
         void ADLDriver::startSound(const int track, const int volume)
@@ -196,7 +184,7 @@ namespace drivers
             }
         }
 
-        void ADLDriver::setSyncJumpMask(uint16_t mask)
+        void ADLDriver::setSyncJumpMask(const uint16_t mask)
         {
             _syncJumpMask = mask;
         }
@@ -264,13 +252,6 @@ namespace drivers
         {
             uint16_t soundId = 0;
 
-            //if (_version == 3) {
-                //soundId = READ_LE_UINT16(&_trackEntries[track << 1]);
-            //    soundId = _adl_file->getTrack(track);
-            //}
-            //else {
-            //    soundId = _trackEntries[track];
-            //}
             soundId = _adl_file->getTrack(track);
 
             if ((soundId == 0xFFFF && _version == 3) || (soundId == 0xFF && _version < 3) || _soundData == nullptr)
@@ -285,23 +266,16 @@ namespace drivers
             return isChannelPlaying(0);
         }
 
-        uint8_t* ADLDriver::getProgram(const int progId)
+        uint8_t* ADLDriver::getProgram(const int progId, const files::ADLFile::PROG_TYPE progType)
         {
             if (_adl_file == nullptr) {
                 spdlog::error("ADLDriver::getProgram(): no ADL file loaded.");
                 return nullptr;
             }
 
-            // TODO: redo the safety check above using the vector instead
-            // Safety check: invalid progId would crash.
-            if (progId < 0 || progId >= (int32_t)_soundDataSize / 2)
-                return nullptr;
-            
-            const uint16_t offset = READ_LE_UINT16(_soundData + 2 * progId);
+            const uint16_t offset = _adl_file->getProgramOffset(progId, progType);
             spdlog::debug("calling getProgram(prodIg={}){}", progId, offset);
-            //const uint8_t progIdOffset = _adl_file->getTrack(progId);
-            //const uint16_t offset = _adl_file->getTrackOffset(progIdOffset);
-            //const uint16_t offset = _adl_file->getTrackOffset(progId);
+
             // In case an invalid offset is specified we return nullptr to
             // indicate an error. 0xFFFF seems to indicate "this is not a valid
             // program/instrument". However, 0 is also invalid because it points
@@ -310,40 +284,23 @@ namespace drivers
             // The original does not contain any safety checks and will simply
             // read outside of the valid sound data in case an invalid offset is
             // encountered.
-            if (offset == 0 || offset >= _soundDataSize) {
+            // offset = 0 is valid now as offset are adjusted when read the file
+            if (offset >= _soundDataSize) {
+                spdlog::warn("ADLDriver::getProgram(): invalid offset read. offset={} --- _soundDataSize={}", offset, _soundDataSize);
                 return nullptr;
             }
-            else {
-                return _soundData + offset;
-            }
+
+            return _soundData.get() + offset;
+        }
+
+        uint8_t* ADLDriver::getProgram(const int progId)
+        {
+            return getProgram(progId, files::ADLFile::PROG_TYPE::TRACK);
         }
 
         const uint8_t* ADLDriver::getInstrument(const int instrumentId)
         {
-            spdlog::debug("calling get instrument {} ({})", instrumentId, _adl_file->getNumPrograms());
-            return getProgram(_adl_file->getNumPrograms() + instrumentId);
-            // TODO: Refactor
-
-            //return getProgram(_numPrograms + instrumentId);
-            //if (_adl_file == nullptr) {
-            //    spdlog::error("ADLDriver::getInstrument(): no ADL file loaded.");
-            //    return nullptr;
-            //}
-
-            //// Safety check: invalid progId would crash.
-            //if (instrumentId < 0 || instrumentId >= (int32_t)_soundDataSize / 2)
-            //    return nullptr;
-
-            ////const uint16_t offset = utils::READ_LE_UINT16(_soundData + 2 * progId);
-            ////const uint16_t offset = _adl_file->getInstrumentOffset(_adl_file->getTrack(instrumentId));
-            //const uint16_t offset = _adl_file->getInstrumentOffset(instrumentId);
-
-            //if (offset == 0 || offset >= _soundDataSize) {
-            //    return nullptr;
-            //}
-            //else {
-            //    return _soundData + offset;
-            //}
+            return getProgram(instrumentId, files::ADLFile::PROG_TYPE::INSTRUMENT);
         }
 
         // This is presumably only used for some sound effects, e.g. Malcolm blowing up
@@ -562,9 +519,8 @@ namespace drivers
             }
         }
 
-        //
-
-        void ADLDriver::resetAdLibState() {
+        void ADLDriver::resetAdLibState()
+        {
             spdlog::debug("resetAdLibState()");
 
             _rnd = 0x1234;
@@ -608,12 +564,13 @@ namespace drivers
             channel.lock = false;
         }
 
-        void ADLDriver::noteOff(Channel& channel) {
+        void ADLDriver::noteOff(Channel& channel)
+        {
             spdlog::debug("noteOff({})", (long)(&channel - _channels));
 
             // The control channel has no corresponding AdLib channel
 
-            if (_curChannel >= 9)
+            if (_curChannel >= NUM_CHANNELS)
                 return;
 
             // When the rhythm section is enabled, channels 6, 7 and 8 are special.
@@ -628,12 +585,13 @@ namespace drivers
             writeOPL(0xB0 + _curChannel, channel.regBx);
         }
 
-        void ADLDriver::initAdlibChannel(uint8_t chan) {
+        void ADLDriver::initAdlibChannel(uint8_t chan)
+        {
             spdlog::debug("initAdlibChannel({})", chan);
 
             // The control channel has no corresponding AdLib channel
 
-            if (chan >= 9)
+            if (chan >= NUM_CHANNELS)
                 return;
 
             // I believe this has to do with channels 6, 7, and 8 being special
@@ -682,7 +640,8 @@ namespace drivers
             return _rnd;
         }
 
-        void ADLDriver::setupDuration(uint8_t duration, Channel& channel) {
+        void ADLDriver::setupDuration(uint8_t duration, Channel& channel)
+        {
             spdlog::debug("setupDuration({}, {})", duration, (long)(&channel - _channels));
             if (channel.durationRandomness) {
                 channel.duration = duration + (getRandomNr() & channel.durationRandomness);
@@ -696,10 +655,11 @@ namespace drivers
         // This function may or may not play the note. It's usually followed by a call
         // to noteOn(), which will always play the current note.
 
-        void ADLDriver::setupNote(uint8_t rawNote, Channel& channel, bool flag) {
+        void ADLDriver::setupNote(uint8_t rawNote, Channel& channel, bool flag)
+        {
             spdlog::debug("setupNote({}, {})", rawNote, (long)(&channel - _channels));
 
-            if (_curChannel >= 9)
+            if (_curChannel >= NUM_CHANNELS)
                 return;
 
             channel.rawNote = rawNote;
@@ -758,10 +718,11 @@ namespace drivers
             writeOPL(0xB0 + _curChannel, channel.regBx);
         }
 
-        void ADLDriver::setupInstrument(uint8_t regOffset, const uint8_t* dataptr, Channel& channel) {
+        void ADLDriver::setupInstrument(uint8_t regOffset, const uint8_t* dataptr, Channel& channel)
+        {
             spdlog::debug("setupInstrument({}, {}, {})", regOffset, (const void*)dataptr, (long)(&channel - _channels));
 
-            if (_curChannel >= 9)
+            if (_curChannel >= NUM_CHANNELS)
                 return;
 
             // Safety check: need 11 bytes of data.
@@ -813,12 +774,13 @@ namespace drivers
         // Apart from playing the note, this function also updates the variables for
         // the vibrato primary effect.
 
-        void ADLDriver::noteOn(Channel& channel) {
+        void ADLDriver::noteOn(Channel& channel)
+        {
             spdlog::debug("noteOn({})", (long)(&channel - _channels));
 
             // The "note on" bit is set, and the current note is played.
 
-            if (_curChannel >= 9)
+            if (_curChannel >= NUM_CHANNELS)
                 return;
 
             channel.regBx |= 0x20;
@@ -833,10 +795,11 @@ namespace drivers
             channel.vibratoDelayCountdown = channel.vibratoDelay;
         }
 
-        void ADLDriver::adjustVolume(Channel& channel) {
+        void ADLDriver::adjustVolume(Channel& channel)
+        {
             spdlog::debug("adjustVolume({})", (long)(&channel - _channels));
 
-            if (_curChannel >= 9)
+            if (_curChannel >= NUM_CHANNELS)
                 return;
 
             // Level Key Scaling / Total Level
@@ -846,11 +809,8 @@ namespace drivers
                 writeOPL(0x40 + _regOffset[_curChannel], calculateOpLevel1(channel));
         }
 
-        
-
-
-
-        uint8_t ADLDriver::calculateOpLevel1(Channel& channel) {
+        uint8_t ADLDriver::calculateOpLevel1(Channel& channel)
+        {
             int8_t value = channel.opLevel1 & 0x3F;
 
             if (channel.twoChan) {
@@ -932,7 +892,7 @@ namespace drivers
         {
             if (ptr)
             {
-                long offset = ptr - _soundData;
+                long offset = ptr - _soundData.get();
                 if (n >= -offset && n <= (long)_soundDataSize - offset)
                     return ptr + n;
             }
@@ -986,7 +946,6 @@ namespace drivers
 
             // Only start this sound if its priority is higher than the one
             // already playing.
-
             if (priority >= channel.priority)
             {
                 initChannel(channel);
@@ -1267,7 +1226,7 @@ namespace drivers
             int16_t add = READ_LE_UINT16(values);
             // Safety check: ignore jump to invalid address
             if (_version == 1)
-                channel.dataptr = checkDataOffset(_soundData, add - 191);
+                channel.dataptr = checkDataOffset(_soundData.get(), add - 191);
             else
                 channel.dataptr = checkDataOffset(channel.dataptr, add);
 
@@ -1290,7 +1249,7 @@ namespace drivers
             }
             channel.dataptrStack[channel.dataptrStackPos++] = channel.dataptr;
             if (_version < 3)
-                channel.dataptr = checkDataOffset(_soundData, add - 191);
+                channel.dataptr = checkDataOffset(_soundData.get(), add - 191);
             else
                 channel.dataptr = checkDataOffset(channel.dataptr, add);
 
@@ -1374,9 +1333,10 @@ namespace drivers
             return 0;
         }
 
-        int ADLDriver::update_stopOtherChannel(Channel& channel, const uint8_t* values) {
+        int ADLDriver::update_stopOtherChannel(Channel& channel, const uint8_t* values)
+        {
             // Safety check
-            if (values[0] > 9) {
+            if (values[0] > NUM_CHANNELS) {
                 spdlog::warn("ADLDriver::update_stopOtherChannel: Ignoring invalid channel {}", values[0]);
                 return 0;
             }
@@ -1393,7 +1353,8 @@ namespace drivers
             return 0;
         }
 
-        int ADLDriver::update_waitForEndOfProgram(Channel& channel, const uint8_t* values) {
+        int ADLDriver::update_waitForEndOfProgram(Channel& channel, const uint8_t* values)
+        {
             const uint8_t* ptr = getProgram(values[0]);
 
             // Safety check in case an invalid program is specified. This would make
@@ -1405,7 +1366,7 @@ namespace drivers
 
             int8_t chan = *ptr;
 
-            if (chan > 9 || !_channels[chan].dataptr)
+            if (chan > NUM_CHANNELS || !_channels[chan].dataptr)
                 return 0;
 
             channel.dataptr -= 2;
@@ -1491,7 +1452,6 @@ namespace drivers
         // then the rising edge wouldn't trigger. That's probably not a big issue
         // in practice sice it can only happen for long delays (big _beatDivider and
         // waiting on one of the higher bits) but could have been prevented easily.
-
         int ADLDriver::update_setBeat(Channel& channel, const uint8_t* values) {
             _beatDivider = _beatDivCnt = values[0] >> 1;
             _callbackTimer = 0xFF;
@@ -1555,9 +1515,10 @@ namespace drivers
             return 0;
         }
 
-        int ADLDriver::update_setExtraLevel2(Channel& channel, const uint8_t* values) {
+        int ADLDriver::update_setExtraLevel2(Channel& channel, const uint8_t* values)
+        {
             // Safety check
-            if (values[0] > 9) {
+            if (values[0] > NUM_CHANNELS) {
                 spdlog::warn("ADLDriver::update_setExtraLevel2: Ignore invalid channel {}", values[0]);
                 return 0;
             }
@@ -1573,9 +1534,10 @@ namespace drivers
             return 0;
         }
 
-        int ADLDriver::update_changeExtraLevel2(Channel& channel, const uint8_t* values) {
+        int ADLDriver::update_changeExtraLevel2(Channel& channel, const uint8_t* values)
+        {
             // Safety check
-            if (values[0] > 9) {
+            if (values[0] > NUM_CHANNELS) {
                 spdlog::warn("ADLDriver::update_changeExtraLevel2: Ignore invalid channel {}", values[0]);
                 return 0;
             }
@@ -1593,7 +1555,6 @@ namespace drivers
 
         // Apart from initializing to zero, these two functions are the only ones that
         // modify _vibratoAndAMDepthBits.
-
         int ADLDriver::update_setAMDepth(Channel& channel, const uint8_t* values) {
             if (values[0] & 1)
                 _vibratoAndAMDepthBits |= 0x80;
@@ -1620,9 +1581,10 @@ namespace drivers
             return 0;
         }
 
-        int ADLDriver::update_clearChannel(Channel& channel, const uint8_t* values) {
+        int ADLDriver::update_clearChannel(Channel& channel, const uint8_t* values)
+        {
             // Safety check
-            if (values[0] > 9) {
+            if (values[0] > NUM_CHANNELS) {
                 spdlog::warn("ADLDriver::update_clearChannel: Ignore invalid channel {}", values[0]);
                 return 0;
             }
@@ -1638,7 +1600,8 @@ namespace drivers
             channel2.dataptr = 0;
             channel2.opExtraLevel2 = 0;
 
-            if (_curChannel != 9) {
+            if (_curChannel != NUM_CHANNELS)
+            {
                 // Silence channel
                 int8_t regOff = _regOffset[_curChannel];
 
@@ -1660,8 +1623,9 @@ namespace drivers
             return 0;
         }
 
-        int ADLDriver::update_changeNoteRandomly(Channel& channel, const uint8_t* values) {
-            if (_curChannel >= 9)
+        int ADLDriver::update_changeNoteRandomly(Channel& channel, const uint8_t* values)
+        {
+            if (_curChannel >= NUM_CHANNELS)
                 return 0;
 
             uint16_t mask = READ_BE_UINT16(values);
@@ -2183,78 +2147,71 @@ namespace drivers
               0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x10,
               0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x19,
               0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x20, 0x21 },
-              // 1
-              { 0x00, 0x01, 0x02, 0x03, 0x04, 0x06, 0x07, 0x09,
-                0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x10, 0x11,
-                0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x1A,
-                0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x20, 0x22, 0x24 },
-                // 2
-                { 0x00, 0x01, 0x02, 0x03, 0x04, 0x06, 0x08, 0x09,
-                  0x0A, 0x0C, 0x0D, 0x0E, 0x0F, 0x11, 0x12, 0x13,
-                  0x14, 0x15, 0x16, 0x17, 0x19, 0x1A, 0x1C, 0x1D,
-                  0x1E, 0x1F, 0x20, 0x21, 0x22, 0x24, 0x25, 0x26 },
-                  // 3
-                  { 0x00, 0x01, 0x02, 0x03, 0x04, 0x06, 0x08, 0x0A,
-                    0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x11, 0x12, 0x13,
-                    0x14, 0x15, 0x16, 0x17, 0x18, 0x1A, 0x1C, 0x1D,
-                    0x1E, 0x1F, 0x20, 0x21, 0x23, 0x25, 0x27, 0x28 },
-                    // 4
-                    { 0x00, 0x01, 0x02, 0x03, 0x04, 0x06, 0x08, 0x0A,
-                      0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x11, 0x13, 0x15,
-                      0x16, 0x17, 0x18, 0x19, 0x1B, 0x1D, 0x1F, 0x20,
-                      0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x28, 0x2A },
-                      // 5
-                      { 0x00, 0x01, 0x02, 0x03, 0x05, 0x07, 0x09, 0x0B,
-                        0x0C, 0x0D, 0x0E, 0x0F, 0x10, 0x11, 0x13, 0x15,
-                        0x16, 0x17, 0x18, 0x19, 0x1B, 0x1D, 0x1F, 0x20,
-                        0x21, 0x22, 0x23, 0x25, 0x27, 0x29, 0x2B, 0x2D },
-                        // 6
-                        { 0x00, 0x01, 0x02, 0x03, 0x05, 0x07, 0x09, 0x0B,
-                          0x0C, 0x0D, 0x0E, 0x0F, 0x10, 0x11, 0x13, 0x15,
-                          0x16, 0x17, 0x18, 0x1A, 0x1C, 0x1E, 0x21, 0x24,
-                          0x25, 0x26, 0x27, 0x29, 0x2B, 0x2D, 0x2F, 0x30 },
-                          // 7
-                          { 0x00, 0x01, 0x02, 0x04, 0x06, 0x08, 0x0A, 0x0C,
-                            0x0D, 0x0E, 0x0F, 0x10, 0x11, 0x13, 0x15, 0x18,
-                            0x19, 0x1A, 0x1C, 0x1D, 0x1F, 0x21, 0x23, 0x25,
-                            0x26, 0x27, 0x29, 0x2B, 0x2D, 0x2F, 0x30, 0x32 },
-                            // 8
-                            { 0x00, 0x01, 0x02, 0x04, 0x06, 0x08, 0x0A, 0x0D,
-                              0x0E, 0x0F, 0x10, 0x11, 0x12, 0x14, 0x17, 0x1A,
-                              0x19, 0x1A, 0x1C, 0x1E, 0x20, 0x22, 0x25, 0x28,
-                              0x29, 0x2A, 0x2B, 0x2D, 0x2F, 0x31, 0x33, 0x35 },
-                              // 9
-                              { 0x00, 0x01, 0x03, 0x05, 0x07, 0x09, 0x0B, 0x0E,
-                                0x0F, 0x10, 0x12, 0x14, 0x16, 0x18, 0x1A, 0x1B,
-                                0x1C, 0x1D, 0x1E, 0x20, 0x22, 0x24, 0x26, 0x29,
-                                0x2A, 0x2C, 0x2E, 0x30, 0x32, 0x34, 0x36, 0x39 },
-                                // 10
-                                { 0x00, 0x01, 0x03, 0x05, 0x07, 0x09, 0x0B, 0x0E,
-                                  0x0F, 0x10, 0x12, 0x14, 0x16, 0x19, 0x1B, 0x1E,
-                                  0x1F, 0x21, 0x23, 0x25, 0x27, 0x29, 0x2B, 0x2D,
-                                  0x2E, 0x2F, 0x31, 0x32, 0x34, 0x36, 0x39, 0x3C },
-                                  // 11
-                                  { 0x00, 0x01, 0x03, 0x05, 0x07, 0x0A, 0x0C, 0x0F,
-                                    0x10, 0x11, 0x13, 0x15, 0x17, 0x19, 0x1B, 0x1E,
-                                    0x1F, 0x20, 0x22, 0x24, 0x26, 0x28, 0x2B, 0x2E,
-                                    0x2F, 0x30, 0x32, 0x34, 0x36, 0x39, 0x3C, 0x3F },
-                                    // 12
-                                    { 0x00, 0x02, 0x04, 0x06, 0x08, 0x0B, 0x0D, 0x10,
-                                      0x11, 0x12, 0x14, 0x16, 0x18, 0x1B, 0x1E, 0x21,
-                                      0x22, 0x23, 0x25, 0x27, 0x29, 0x2C, 0x2F, 0x32,
-                                      0x33, 0x34, 0x36, 0x38, 0x3B, 0x34, 0x41, 0x44 },
-                                      // 13
-                                      { 0x00, 0x02, 0x04, 0x06, 0x08, 0x0B, 0x0D, 0x11,
-                                        0x12, 0x13, 0x15, 0x17, 0x1A, 0x1D, 0x20, 0x23,
-                                        0x24, 0x25, 0x27, 0x29, 0x2C, 0x2F, 0x32, 0x35,
-                                        0x36, 0x37, 0x39, 0x3B, 0x3E, 0x41, 0x44, 0x47 }
+            // 1
+            { 0x00, 0x01, 0x02, 0x03, 0x04, 0x06, 0x07, 0x09,
+              0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x10, 0x11,
+              0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x1A,
+              0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x20, 0x22, 0x24 },
+            // 2
+            { 0x00, 0x01, 0x02, 0x03, 0x04, 0x06, 0x08, 0x09,
+              0x0A, 0x0C, 0x0D, 0x0E, 0x0F, 0x11, 0x12, 0x13,
+              0x14, 0x15, 0x16, 0x17, 0x19, 0x1A, 0x1C, 0x1D,
+              0x1E, 0x1F, 0x20, 0x21, 0x22, 0x24, 0x25, 0x26 },
+            // 3
+            { 0x00, 0x01, 0x02, 0x03, 0x04, 0x06, 0x08, 0x0A,
+              0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x11, 0x12, 0x13,
+              0x14, 0x15, 0x16, 0x17, 0x18, 0x1A, 0x1C, 0x1D,
+              0x1E, 0x1F, 0x20, 0x21, 0x23, 0x25, 0x27, 0x28 },
+            // 4
+            { 0x00, 0x01, 0x02, 0x03, 0x04, 0x06, 0x08, 0x0A,
+              0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x11, 0x13, 0x15,
+              0x16, 0x17, 0x18, 0x19, 0x1B, 0x1D, 0x1F, 0x20,
+              0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x28, 0x2A },
+            // 5
+            { 0x00, 0x01, 0x02, 0x03, 0x05, 0x07, 0x09, 0x0B,
+              0x0C, 0x0D, 0x0E, 0x0F, 0x10, 0x11, 0x13, 0x15,
+              0x16, 0x17, 0x18, 0x19, 0x1B, 0x1D, 0x1F, 0x20,
+              0x21, 0x22, 0x23, 0x25, 0x27, 0x29, 0x2B, 0x2D },
+            // 6
+            { 0x00, 0x01, 0x02, 0x03, 0x05, 0x07, 0x09, 0x0B,
+              0x0C, 0x0D, 0x0E, 0x0F, 0x10, 0x11, 0x13, 0x15,
+              0x16, 0x17, 0x18, 0x1A, 0x1C, 0x1E, 0x21, 0x24,
+              0x25, 0x26, 0x27, 0x29, 0x2B, 0x2D, 0x2F, 0x30 },
+            // 7
+            { 0x00, 0x01, 0x02, 0x04, 0x06, 0x08, 0x0A, 0x0C,
+              0x0D, 0x0E, 0x0F, 0x10, 0x11, 0x13, 0x15, 0x18,
+              0x19, 0x1A, 0x1C, 0x1D, 0x1F, 0x21, 0x23, 0x25,
+              0x26, 0x27, 0x29, 0x2B, 0x2D, 0x2F, 0x30, 0x32 },
+            // 8
+            { 0x00, 0x01, 0x02, 0x04, 0x06, 0x08, 0x0A, 0x0D,
+              0x0E, 0x0F, 0x10, 0x11, 0x12, 0x14, 0x17, 0x1A,
+              0x19, 0x1A, 0x1C, 0x1E, 0x20, 0x22, 0x25, 0x28,
+              0x29, 0x2A, 0x2B, 0x2D, 0x2F, 0x31, 0x33, 0x35 },
+            // 9
+            { 0x00, 0x01, 0x03, 0x05, 0x07, 0x09, 0x0B, 0x0E,
+              0x0F, 0x10, 0x12, 0x14, 0x16, 0x18, 0x1A, 0x1B,
+              0x1C, 0x1D, 0x1E, 0x20, 0x22, 0x24, 0x26, 0x29,
+              0x2A, 0x2C, 0x2E, 0x30, 0x32, 0x34, 0x36, 0x39 },
+            // 10
+            { 0x00, 0x01, 0x03, 0x05, 0x07, 0x09, 0x0B, 0x0E,
+              0x0F, 0x10, 0x12, 0x14, 0x16, 0x19, 0x1B, 0x1E,
+              0x1F, 0x21, 0x23, 0x25, 0x27, 0x29, 0x2B, 0x2D,
+              0x2E, 0x2F, 0x31, 0x32, 0x34, 0x36, 0x39, 0x3C },
+            // 11
+            { 0x00, 0x01, 0x03, 0x05, 0x07, 0x0A, 0x0C, 0x0F,
+              0x10, 0x11, 0x13, 0x15, 0x17, 0x19, 0x1B, 0x1E,
+              0x1F, 0x20, 0x22, 0x24, 0x26, 0x28, 0x2B, 0x2E,
+              0x2F, 0x30, 0x32, 0x34, 0x36, 0x39, 0x3C, 0x3F },
+            // 12
+            { 0x00, 0x02, 0x04, 0x06, 0x08, 0x0B, 0x0D, 0x10,
+              0x11, 0x12, 0x14, 0x16, 0x18, 0x1B, 0x1E, 0x21,
+              0x22, 0x23, 0x25, 0x27, 0x29, 0x2C, 0x2F, 0x32,
+              0x33, 0x34, 0x36, 0x38, 0x3B, 0x34, 0x41, 0x44 },
+            // 13
+            { 0x00, 0x02, 0x04, 0x06, 0x08, 0x0B, 0x0D, 0x11,
+              0x12, 0x13, 0x15, 0x17, 0x1A, 0x1D, 0x20, 0x23,
+              0x24, 0x25, 0x27, 0x29, 0x2C, 0x2F, 0x32, 0x35,
+              0x36, 0x37, 0x39, 0x3B, 0x3E, 0x41, 0x44, 0x47 }
         };
-
-        /*PCSoundDriver* PCSoundDriver::createAdLib(Audio::Mixer* mixer, int version) {
-            return new ADLDriver(mixer, version);
-        }*/
-
-
-#undef CALLBACKS_PER_SECOND
     }
 }
