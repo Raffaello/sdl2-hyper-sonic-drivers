@@ -2,7 +2,7 @@
 #include <gmock/gmock.h>
 #include <drivers/westwood/ADLDriver.hpp>
 #include <memory>
-#include "../test/mocks/MockMixer.hpp"
+#include "../test/audio/mocks/MockMixer.hpp"
 #include <files/ADLFile.hpp>
 #include <hardware/opl/scummvm/mame/mame.hpp>
 
@@ -14,7 +14,6 @@ namespace drivers
         using audio::mocks::MockMixer;
         TEST(ADLDriver, cstor)
         {
-            // TODO: Review the Mixer as it is used in the OPL just to query the frequency rate.
             std::shared_ptr<MockMixer> mixer = std::make_shared<MockMixer>();
             EXPECT_EQ(mixer.use_count(), 1);
 

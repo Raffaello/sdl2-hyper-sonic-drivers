@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <hardware/opl/scummvm/dosbox/dosbox.hpp>
-#include "../test/mocks/MockMixer.hpp"
+#include "../test/audio/mocks/MockMixer.hpp"
 #include <memory>
 #include <cstdint>
 #include <files/File.hpp>
