@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <chrono>
 
 namespace utils
 {
@@ -46,5 +47,11 @@ namespace utils
         while (n--) {
             *ptr++ = value;
         }
+    }
+
+    template<typename T>
+    inline T getMillis()
+    {
+        return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     }
 }
