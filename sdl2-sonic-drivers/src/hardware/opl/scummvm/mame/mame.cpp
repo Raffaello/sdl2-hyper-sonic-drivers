@@ -86,6 +86,11 @@ namespace hardware
                     OPLWriteReg(_opl, r, v);
                 }
 
+                bool OPL::isStereo() const
+                {
+                    return false;
+                }
+
                 void OPL::generateSamples(int16_t* buffer, int length) {
                     YM3812UpdateOne(_opl, buffer, length);
                 }

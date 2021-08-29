@@ -254,6 +254,13 @@ namespace audio
              * @return The output sample rate in Hz.
              */
             virtual unsigned int getOutputRate() const = 0;
+
+            /**
+             * Return how many bits are used for one sample.
+             *
+             * @return one sample size in bits.
+             */
+            virtual uint8_t getBitsDepth() const = 0;
         };
 
     }

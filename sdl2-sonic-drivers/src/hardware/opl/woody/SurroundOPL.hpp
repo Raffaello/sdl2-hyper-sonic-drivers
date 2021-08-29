@@ -23,6 +23,7 @@
  * Please give credit if you use this algorithm elsewhere :-)
  */
 
+#pragma once
 
 #include <stdint.h> // for uintxx_t
 #include <hardware/opl/woody/OPL.hpp>
@@ -67,10 +68,10 @@ namespace hardware
 
                 void update(short* buf, int samples);
                 void write(int reg, int val);
-                virtual int32_t getSampleRate() const noexcept ;
+                virtual int32_t getSampleRate() const noexcept;
 
-                //void init();
-                //void setchip(int n);
+                virtual void init() override;
+                bool isStereo() const override;
             };
         }
     }

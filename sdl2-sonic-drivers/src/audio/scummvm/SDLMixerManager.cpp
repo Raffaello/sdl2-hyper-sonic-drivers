@@ -25,7 +25,16 @@ namespace audio
             SDL_QuitSubSystem(SDL_INIT_AUDIO);
         }
 
-        void SdlMixerManager::init() {
+        uint8_t SDL_getBitsDepth(const SDL_AudioSpec& as)
+        {
+            uint8_t bits = as.format & 0xFF;
+            spdlog::debug("Audio {} bits", bits);
+            
+            return bits;
+        }
+
+        void SdlMixerManager::init()
+        {
             // Start SDL Audio subsystem
             if (SDL_InitSubSystem(SDL_INIT_AUDIO) == -1) {
                 spdlog::error("Could not initialize SDL: {}", std::string(SDL_GetError()));
@@ -47,35 +56,38 @@ namespace audio
             // Needed as SDL_OpenAudio as of SDL-1.2.14 mutates fields in
             // "desired" if used directly.
             SDL_AudioSpec fmt = desired;
-
+            uint8_t bitsDepth = -1;
             // Start SDL audio with the desired specs
             if (SDL_OpenAudio(&fmt, &_obtained) != 0) {
                 spdlog::warn("Could not open audio device: {}", std::string(SDL_GetError()));
 
+                bitsDepth = SDL_getBitsDepth(fmt);
                 // The mixer is not marked as ready
                 //_mixer = new MixerImpl(desired.freq);
-                _mixer = std::make_shared<MixerImpl>(desired.freq);
+                _mixer = std::make_shared<MixerImpl>(desired.freq, bitsDepth);
                 return;
             }
 
+            bitsDepth = SDL_getBitsDepth(_obtained);
             // The obtained sample format is not supported by the mixer, call
             // SDL_OpenAudio again with NULL as the second argument to force
             // SDL to do resampling to the desired audio spec.
             if (_obtained.format != desired.format)
             {
-                spdlog::debug("SDL mixer sound format: {d} differs from desired: {d}", _obtained.format, desired.format);
+                spdlog::debug("SDL mixer sound format: {:#04x} differs from desired: {:#04x}", _obtained.format, desired.format);
                 SDL_CloseAudio();
 
                 if (SDL_OpenAudio(&fmt, NULL) != 0) {
                     spdlog::warn("Could not open audio device: {}", std::string(SDL_GetError()));
-
+                    
                     // The mixer is not marked as ready
                     //_mixer = new MixerImpl(desired.freq);
-                    _mixer = std::make_shared<MixerImpl>(desired.freq);
+                    _mixer = std::make_shared<MixerImpl>(desired.freq, bitsDepth);
                     return;
                 }
 
                 _obtained = desired;
+                bitsDepth = SDL_getBitsDepth(_obtained);
             }
 
             spdlog::debug("Output sample rate: {} Hz", _obtained.freq);
@@ -88,6 +100,11 @@ namespace audio
                 spdlog::warn("SDL mixer output buffer size: {} differs from desired: {}", _obtained.samples, desired.samples);
             }
 
+            spdlog::debug("Output format: {}", _obtained.format);
+            if (_obtained.format != desired.format) {
+                spdlog::warn("SDL mixer format: {} differs from desired: {}", _obtained.format, desired.format);
+            }
+
 #ifndef __SYMBIAN32__
             // The SymbianSdlMixerManager does stereo->mono downmixing,
             // but otherwise we require stereo output.
@@ -97,7 +114,7 @@ namespace audio
 #endif
 
             //_mixer = new MixerImpl(_obtained.freq);
-            _mixer = std::make_shared<MixerImpl>(_obtained.freq);
+            _mixer = std::make_shared<MixerImpl>(_obtained.freq, bitsDepth);
             assert(_mixer);
             _mixer->setReady(true);
 

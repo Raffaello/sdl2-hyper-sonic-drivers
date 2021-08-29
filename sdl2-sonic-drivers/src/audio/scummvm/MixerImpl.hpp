@@ -50,6 +50,7 @@ namespace audio
             std::mutex _mutex;
 
             const unsigned int _sampleRate;
+            uint8_t _bitsDepth;
             bool _mixerReady;
             uint32_t _handleSeed;
 
@@ -65,7 +66,7 @@ namespace audio
             Channel* _channels[NUM_CHANNELS];
         public:
 
-            MixerImpl(unsigned int sampleRate);
+            MixerImpl(unsigned int sampleRate, const uint8_t bitsDepth);
             ~MixerImpl();
 
             virtual bool isReady() override;
@@ -111,6 +112,8 @@ namespace audio
             virtual int getVolumeForSoundType(SoundType type) const override;
 
             virtual unsigned int getOutputRate() const override;
+
+            virtual uint8_t getBitsDepth() const override;
 
         protected:
             void insertChannel(SoundHandle* handle, Channel* chan);

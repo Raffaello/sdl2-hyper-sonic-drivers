@@ -106,7 +106,7 @@ namespace drivers
             const std::lock_guard<std::mutex> lock(_mutex);
 
             uint8_t* trackData = getProgram(track);
-            spdlog::debug("getProgma[track={}]= {d}", track, trackData);
+            spdlog::debug("getProgma[track={}]= {0:d}", track, trackData);
             if (!trackData) {
                 return;
             }

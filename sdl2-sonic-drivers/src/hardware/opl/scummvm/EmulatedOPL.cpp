@@ -79,6 +79,11 @@ namespace hardware
                 return false;
             }
 
+            const std::shared_ptr<audio::scummvm::Mixer> EmulatedOPL::getMixer()
+            {
+                return _mixer;
+            }
+
             void EmulatedOPL::startCallbacks(int timerFrequency)
             {
                 setCallbackFrequency(timerFrequency);

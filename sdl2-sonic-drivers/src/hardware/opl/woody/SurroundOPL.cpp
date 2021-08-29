@@ -36,7 +36,7 @@ namespace hardware
         {
             SurroundOPL::SurroundOPL(const int rate, bool use16bit) noexcept
                 : OPL(ChipType::OPL2_DUAL), _use16bit(use16bit),
-                bufsize(4096)
+                bufsize(2048)
             {
                 a = new WoodyEmuOPL(rate, false);
                 b = new WoodyEmuOPL(rate, false);
@@ -49,17 +49,7 @@ namespace hardware
                 memset(iCurrentTweakedBlock, 0, sizeof(iCurrentTweakedBlock));
                 memset(iCurrentFNum, 0, sizeof(iCurrentFNum));
 
-                // init
-                for (int c = 0; c < 2; c++) {
-                    for (int i = 0; i < 256; i++) {
-                        this->iFMReg[c][i] = 0;
-                        this->iTweakedFMReg[c][i] = 0;
-                    }
-                    for (int i = 0; i < 9; i++) {
-                        this->iCurrentTweakedBlock[c][i] = 0;
-                        this->iCurrentFNum[c][i] = 0;
-                    }
-                }
+                init();
             }
 
             SurroundOPL::~SurroundOPL()
@@ -72,7 +62,7 @@ namespace hardware
 
             void SurroundOPL::update(short* buf, int samples)
             {
-                if (samples * 2 > this->bufsize) {
+                if (samples > this->bufsize) {
                     // Need to realloc the buffer
                     delete[] this->rbuf;
                     delete[] this->lbuf;
@@ -226,27 +216,26 @@ namespace hardware
                 return a->getSampleRate();
             }
 
-            //void SurroundOPL::init()
-            //{
-            //    //a->init();
-            //    //b->init();
-            //    for (int c = 0; c < 2; c++) {
-            //        for (int i = 0; i < 256; i++) {
-            //            this->iFMReg[c][i] = 0;
-            //            this->iTweakedFMReg[c][i] = 0;
-            //        }
-            //        for (int i = 0; i < 9; i++) {
-            //            this->iCurrentTweakedBlock[c][i] = 0;
-            //            this->iCurrentFNum[c][i] = 0;
-            //        }
-            //    }
-            //}
-
-            /*void SurroundOPL::setchip(int n)
+            void SurroundOPL::init()
             {
-                a->setchip(n);
-                b->setchip(n);
-            }*/
+                a->init();
+                b->init();
+                for (int c = 0; c < 2; c++) {
+                    for (int i = 0; i < 256; i++) {
+                        this->iFMReg[c][i] = 0;
+                        this->iTweakedFMReg[c][i] = 0;
+                    }
+                    for (int i = 0; i < 9; i++) {
+                        this->iCurrentTweakedBlock[c][i] = 0;
+                        this->iCurrentFNum[c][i] = 0;
+                    }
+                }
+            }
+
+            bool SurroundOPL::isStereo() const
+            {
+                return true;
+            }
         }
     }
 }
