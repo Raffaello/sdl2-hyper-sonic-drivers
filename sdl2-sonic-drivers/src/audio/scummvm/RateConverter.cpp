@@ -296,10 +296,6 @@ namespace audio
             return (obuf - ostart) / 2;
         }
 
-
-#pragma mark -
-
-
         /**
          * Simple audio rate converter for the case that the inrate equals the outrate.
          */
@@ -360,8 +356,6 @@ namespace audio
             }
         };
 
-
-#pragma mark -
 
         template<bool stereo, bool reverseStereo>
         RateConverter* makeRateConverter(uint32_t inrate, uint32_t outrate) {

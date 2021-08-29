@@ -124,6 +124,9 @@ namespace files
             return getTrackOffset(progId);
         case PROG_TYPE::INSTRUMENT:
             return getInstrumentOffset(progId);
+        default:
+            // unreachable code
+            return 0xFFFF;
         }
     }
 
