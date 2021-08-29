@@ -47,8 +47,6 @@ namespace hardware
                 virtual int32_t getSampleRate() const noexcept = 0;
             protected:
                 ChipType _chip;
-                // TODO: review this variable as it is almost useless?
-                //int8_t   _currentChip;       // currently selected OPL chip number (0 or 1 actually)
             };
         }
     }
