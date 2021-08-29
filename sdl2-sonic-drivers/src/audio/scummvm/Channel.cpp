@@ -2,28 +2,13 @@
 #include <audio/scummvm/Timestamp.hpp>
 #include <cassert>
 #include <chrono>
+#include <utils/algorithms.hpp>
 
 
 namespace audio
 {
     namespace scummvm
     {
-        //TODO: generalize the function/move to utils?
- /*       uint32_t OSystem_SDL::getMillis(bool skipRecord) {
-           // uint32 millis = SDL_GetTicks();
-            uint32_t 
-#ifdef ENABLE_EVENTRECORDER
-            g_eventRec.processMillis(millis, skipRecord);
-#endif
-
-            return millis;
-        }
-        */
-        int32_t /*long long*/ getMillis(const bool skipRecord)
-        {
-            return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-        }
-
         Channel::Channel(Mixer* mixer, Mixer::SoundType type, AudioStream* stream, bool autofreeStream, bool reverseStereo, int id, bool permanent)
             : _type(type), _mixer(mixer), _id(id), _permanent(permanent), _volume(Mixer::MaxVolume::CHANNEL),
             _balance(0), _pauseLevel(0), _samplesConsumed(0), _samplesDecoded(0), _mixerTimeStamp(0),
@@ -108,14 +93,14 @@ namespace audio
 
                 if (_pauseLevel == 1) {
                     //_pauseStartTime = g_system->getMillis(true);
-                    _pauseStartTime = getMillis(true);
+                    _pauseStartTime = utils::getMillis<int32_t>();
                 }
             }
             else if (_pauseLevel > 0) {
                 _pauseLevel--;
 
                 if (!_pauseLevel) {
-                    _pauseTime = (getMillis(true) - _pauseStartTime);
+                    _pauseTime = (utils::getMillis<int32_t>() - _pauseStartTime);
                     _pauseStartTime = 0;
                 }
             }
@@ -134,7 +119,7 @@ namespace audio
             if (isPaused())
                 delta = _pauseStartTime - _mixerTimeStamp;
             else
-                delta = getMillis(true) - _mixerTimeStamp - _pauseTime;
+                delta = utils::getMillis<int32_t>() - _mixerTimeStamp - _pauseTime;
 
             // Convert the number of samples into a time duration.
 
@@ -161,7 +146,7 @@ namespace audio
             else {
                 assert(_converter);
                 _samplesConsumed = _samplesDecoded;
-                _mixerTimeStamp = getMillis(true);
+                _mixerTimeStamp = utils::getMillis<int32_t>();
                 _pauseTime = 0;
                 res = _converter->flow(*_stream, data, len, _volL, _volR);
                 _samplesDecoded += res;

@@ -14,12 +14,6 @@ namespace hardware
         {
             namespace dosbox
             {
-                // TODO: consider to move as a general utility function.
-                long long getMillis()
-                {
-                    return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-                }
-
                 Timer::Timer()
                 {
                     masked = false;
@@ -80,7 +74,7 @@ namespace hardware
                     case 0x04:
                     {
                         //double time = g_system->getMillis() / 1000.0;
-                        double time = getMillis() / 1000.0;
+                        double time = utils::getMillis<uint32_t>() / 1000.0;
 
                         if (val & 0x80) {
                             timer[0].reset(time);
@@ -120,7 +114,7 @@ namespace hardware
 
                 uint8_t Chip::read()
                 {
-                    double time = getMillis() / 1000.0;
+                    double time = utils::getMillis<uint32_t>() / 1000.0;
 
                     timer[0].update(time);
                     timer[1].update(time);
