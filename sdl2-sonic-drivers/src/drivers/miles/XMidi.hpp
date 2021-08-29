@@ -27,7 +27,7 @@ namespace drivers
         {
             uint16_t id;     // eg describe_driver = 100 etc...
             uint16_t offset; // need to add +2 [ +1 => -1 of the extra '\0' in header magic + 2]
-        };
+        } driver_function_t;
 
         enum class eDriverFunction {
             DESCRIBE_DRIVER = 100,

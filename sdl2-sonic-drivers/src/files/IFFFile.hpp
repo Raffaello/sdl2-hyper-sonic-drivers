@@ -150,14 +150,14 @@ namespace files
         } IFF_ID;
         static_assert(sizeof(IFF_ID) == sizeof(uint32_t));
 
-        typedef struct
+        typedef struct IFF_sub_chunk_header_t
         {
             IFF_ID   id;
             uint32_t size = 0;  // <! Big Endian
         } IFF_sub_chunk_header_t;
         static_assert(sizeof(IFF_sub_chunk_header_t) == 8);
 
-        typedef struct
+        typedef struct IFF_chunk_header_t
         {
             IFF_sub_chunk_header_t chunk;
             IFF_ID                 type; 

@@ -46,7 +46,7 @@ namespace drivers
         {
             setADLFile(adl_file);
             initDriver();
-            setSoundData(_soundData, _soundDataSize);
+            resetSoundData();
         }
 
         ADLDriver::~ADLDriver()
@@ -57,8 +57,7 @@ namespace drivers
         {
             _adl_file = adl_file;
             _soundDataSize = _adl_file->getDataSize();
-            // TODO: refactor, remove pointers.
-            _soundData = const_cast<uint8_t*>(_adl_file->getData().data());
+            _soundData = _adl_file->getData();
         }
 
         void ADLDriver::initDriver()
@@ -67,7 +66,7 @@ namespace drivers
             resetAdLibState();
         }
 
-        void ADLDriver::setSoundData(uint8_t* data, const uint32_t size)
+        void ADLDriver::resetSoundData()
         {
             const std::lock_guard<std::mutex> lock(_mutex);
 
@@ -78,8 +77,8 @@ namespace drivers
 
             _sfxPointer = nullptr;
 
-            _soundData = data;
-            _soundDataSize = size;
+            //_soundData = data;
+            //_soundDataSize = size;
         }
 
         void ADLDriver::startSound(const int track, const int volume)
@@ -978,7 +977,7 @@ namespace drivers
         {
             if (ptr)
             {
-                long offset = ptr - _soundData;
+                long offset = ptr - _soundData.get();
 
                 if (n >= -offset && n <= (long)_soundDataSize - offset) {
                     return ptr + n;
@@ -999,11 +998,9 @@ namespace drivers
             // Safety check: invalid progId would crash.
             if (progId < 0 || progId >= (int32_t)_soundDataSize / 2)
                 return nullptr;
+            const uint16_t offset = _adl_file->getTrackOffset(progId);
+            spdlog::debug("calling getProgram(prodIg={}){}", progId, offset);
 
-            const uint16_t offset = utils::READ_LE_UINT16(_soundData + 2 * progId);
-            //const uint8_t progIdOffset = _adl_file->getTrack(progId);
-            //const uint16_t offset = _adl_file->getTrackOffset(progIdOffset);
-            //const uint16_t offset = _adl_file->getTrackOffset(progId);
             // In case an invalid offset is specified we return nullptr to
             // indicate an error. 0xFFFF seems to indicate "this is not a valid
             // program/instrument". However, 0 is also invalid because it points
@@ -1013,16 +1010,41 @@ namespace drivers
             // read outside of the valid sound data in case an invalid offset is
             // encountered.
             if (offset == 0 || offset >= _soundDataSize) {
+                spdlog::warn("ADLDriver::getProgram(): invalid offset read. offset={} --- _soundDataSize={}", offset, _soundDataSize);
                 return nullptr;
             }
-            else {
-                return _soundData + offset;
-            }
+
+            return _soundData.get() + offset;
         }
 
         const uint8_t* ADLDriver::getInstrument(int instrumentId)
         {
-            return getProgram(_adl_file->getNumPrograms() + instrumentId);
+            if (_adl_file == nullptr) {
+                spdlog::error("ADLDriver::getInstrument(): no ADL file loaded.");
+                return nullptr;
+            }
+
+            // TODO: redo the safety check above using the vector instead
+            // Safety check: invalid progId would crash.
+            if (instrumentId < 0 || instrumentId >= (int32_t)_soundDataSize / 2)
+                return nullptr;
+            const uint16_t offset = _adl_file->getInstrumentOffset(instrumentId);
+            spdlog::debug("calling getProgram(prodIg={}){}", instrumentId, offset);
+
+            // In case an invalid offset is specified we return nullptr to
+            // indicate an error. 0xFFFF seems to indicate "this is not a valid
+            // program/instrument". However, 0 is also invalid because it points
+            // inside the offset table itself. We also ignore any offsets outside
+            // of the actual data size.
+            // The original does not contain any safety checks and will simply
+            // read outside of the valid sound data in case an invalid offset is
+            // encountered.
+            if (offset == 0 || offset >= _soundDataSize) {
+                spdlog::warn("ADLDriver::getProgram(): invalid offset read. offset={} --- _soundDataSize={}", offset, _soundDataSize);
+                return nullptr;
+            }
+
+            return _soundData.get() + offset;
         }
 
         void ADLDriver::play(uint8_t track) {
@@ -1144,7 +1166,7 @@ namespace drivers
             int16_t add = utils::READ_LE_UINT16(values);
             // Safety check: ignore jump to invalid address
             if (_version == 1) {
-                channel.dataptr = checkDataOffset(_soundData, add - 191);
+                channel.dataptr = checkDataOffset(_soundData.get(), add - 191);
             }
             else {
                 channel.dataptr = checkDataOffset(channel.dataptr, add);
@@ -1180,7 +1202,7 @@ namespace drivers
             channel.dataptrStack[channel.dataptrStackPos++] = channel.dataptr;
 
             if (_version < 3) {
-                channel.dataptr = checkDataOffset(_soundData, add - 191);
+                channel.dataptr = checkDataOffset(_soundData.get(), add - 191);
             }
             else {
                 channel.dataptr = checkDataOffset(channel.dataptr, add);
