@@ -9,7 +9,9 @@ namespace hardware
     {
         namespace woody
         {
-            // This is a wrapper of SurroundOPL for EmulatedOPL
+            /// <summary>
+            /// Wrapper Class to be used with scummvm opl emulation
+            /// </summary>
             class WoodyOPL : public scummvm::EmulatedOPL
             {
             public:

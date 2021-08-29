@@ -2,7 +2,6 @@
 //
 
 #include <iostream>
-#include <adl/sound_adlib.h>
 #include <SDL2/SDL.h>
 #include <SDL_mixer.h>
 
@@ -10,7 +9,6 @@
 #include <drivers/miles/XMidi.hpp>
 #include <files/XMIFile.hpp>
 #include <files/ADLFile.hpp>
-#include <drivers/westwood/woody/ADLDriver.hpp>
 #include <hardware/opl/woody/WoodyEmuOPL.hpp>
 #include <hardware/opl/woody/SurroundOPL.hpp>
 #include <hardware/opl/woody/WoodyOPL.hpp>
@@ -24,71 +22,9 @@
 #include <hardware/opl/scummvm/Config.hpp>
 #include <hardware/opl/scummvm/nuked/OPL.hpp>
 
-
 #include <audio/scummvm/SDLMixerManager.hpp>
 
-
 using namespace std;
-
-int adl()
-{
-    Mix_Init(0);
-    if (Mix_OpenAudio(44100, AUDIO_S16, 2, 1024) < 0) {
-        cerr << Mix_GetError();
-        return -1;
-    }
-
-
-    int freq;
-    uint16_t fmt;
-    int channels;
-    if (Mix_QuerySpec(&freq, &fmt, &channels) == 0) {
-        cerr << "query return 0" << endl;
-    }
-    cout << "freq: " << freq << endl
-        << "format: " << fmt << endl
-        << "channels: " << channels << endl;
-    if (channels > 2) {
-        // with 8 audio channels doesn't reproduce the right sound.
-        // i guess is something that can be fixed
-        // but i do not know why.
-        // the code should be similar to scummVM or DosBox
-        // so if it is working there, should work here.
-        // it means this code is not really the same
-        // need to start organizing in it properly.
-        cerr << "CHANNELS not mono or stereo!" << endl;
-    }
-
-    SDL_RWops* adlFile = SDL_RWFromFile("DUNE0.ADL", "rb");
-    if (nullptr == adlFile) {
-        cerr << "file not found" << endl;
-        throw std::runtime_error("file not found");
-    }
-
-    SoundAdlibPC adlib = SoundAdlibPC(adlFile);
-
-    auto songs = adlib.getSubsongs();
-
-    cout << "Volume: " << adlib.getVolume() << endl;
-    cout << "num Tracks: " << songs.size() << endl;
-
-    adlib.playTrack(4);
-    Mix_HookMusic(adlib.callback, &adlib);
-    do {
-        cout << "playin music, waiting 1s..." << endl;
-        SDL_Delay(1000);
-    } while (adlib.isPlaying());
-    cout << "end";
- 
-    Mix_HookMusic(nullptr, nullptr);
-    SDL_RWclose(adlFile);
-    Mix_HaltChannel(-1);
-    Mix_HaltMusic();
-    Mix_CloseAudio();
-    Mix_Quit();
-
-    return 0;
-}
 
 void playNotes(hardware::PCSpeaker *pcSpeaker, const hardware::PCSpeaker::eWaveForm waveForm, const int freq, const int length)
 {
@@ -297,16 +233,6 @@ int song()
     Mix_CloseAudio();
     Mix_Quit();
     return 0;
-}
-
-
-void ADLDRV_callback_woody(void* userdata, Uint8* audiobuf, int len)
-{
-    drivers::westwood::woody::ADLDriver* _driver = static_cast<drivers::westwood::woody::ADLDriver*>(userdata);
-
-    int16_t* buf = reinterpret_cast<int16_t*>(audiobuf);
-
-    int samples = _driver->readBuffer(buf, len / 2 / 2); //stereo 16 bit => *2 channels, /2 16 bits 
 }
 
 void callback_sdl(void* userdata, uint8_t* stream, int len)
@@ -915,7 +841,6 @@ int surround_dual_opl2_test()
     return 0;
 }
 
-
 int adl_driver_dosbox()
 {
     Mix_Init(0);
@@ -945,65 +870,6 @@ int adl_driver_dosbox()
     return 0;
 }
 
-int adl_driver_woody()
-{
-    Mix_Init(0);
-    if (Mix_OpenAudio(44100, AUDIO_S16, 2, 1024) < 0) {
-        cerr << Mix_GetError();
-        return -1;
-    }
-
-    //MIX_CHANNELS(8);
-    //Mix_AllocateChannels(16);
-
-    int freq;
-    uint16_t fmt;
-    int channels;
-    if (Mix_QuerySpec(&freq, &fmt, &channels) == 0) {
-        cerr << "query return 0" << endl;
-    }
-    cout << "freq: " << freq << endl
-        << "format: " << fmt << endl
-        << "channels: " << channels << endl;
-
-    if (channels > 2) {
-        // with 8 audio channels doesn't reproduce the right sound.
-        // i guess is something that can be fixed
-        // but i do not know why.
-        // the code should be similar to scummVM or DosBox
-        // so if it is working there, should work here.
-        // it means this code is not really the same
-        // need to start organizing in it properly.
-        cerr << "CHANNELS not mono or stereo!" << endl;
-    }
-
-    //spdlog::set_level(spdlog::level::debug);
-    std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
-    std::shared_ptr<hardware::opl::woody::SurroundOPL> opl = std::make_shared<hardware::opl::woody::SurroundOPL>(mixer->getOutputRate(), true);
-    //std::shared_ptr<hardware::opl::woody::WoodyEmuOPL> opl = std::make_shared<hardware::opl::woody::WoodyEmuOPL>(mixer->getOutputRate(), true);
-
-    std::shared_ptr<files::ADLFile> adlFile = std::make_shared<files::ADLFile>("DUNE0.ADL");
-    drivers::westwood::woody::ADLDriver adlDrv(opl.get(), adlFile);
-    //adlDrv.initDriver();
-
-    adlDrv.play(4);
-    Mix_HookMusic(ADLDRV_callback_woody, &adlDrv);
-    //    Mix_HookMusic(adlib.callback, &adlib);
-       // do {
-            //cout << "playin music, waiting 1s..." << endl;
-    SDL_Delay(4000);
-    //   } while (adlDrv.isChannelPlay);
-
-    SDL_Delay(3000);
-    Mix_HaltChannel(-1);
-    Mix_HaltMusic();
-    Mix_CloseAudio();
-    Mix_Quit();
-
-    return 0;
-}
-
-
 int sdlMixer()
 {
     using namespace audio::scummvm;
@@ -1019,8 +885,8 @@ int sdlMixer()
 
     mixer = mixerManager.getMixer();
     //spdlog::set_level(spdlog::level::debug);
-    //std::shared_ptr<dosbox::OPL> opl = std::make_shared<dosbox::OPL>(mixer, Config::OplType::OPL2);
-    std::shared_ptr<WoodyOPL> opl = std::make_shared<WoodyOPL>(mixer, true);
+    std::shared_ptr<dosbox::OPL> opl = std::make_shared<dosbox::OPL>(mixer, Config::OplType::OPL2);
+    //std::shared_ptr<WoodyOPL> opl = std::make_shared<WoodyOPL>(mixer, true);
     
 
     std::shared_ptr<files::ADLFile> adlFile = std::make_shared<files::ADLFile>("DUNE0.ADL");
@@ -1093,7 +959,6 @@ int main(int argc, char* argv[])
     //cout << "ADL VERSION: " << f.getVersion() << endl;
         
     //adl();
-    adl_driver_woody();
     //adl_driver_mame();
     //mame_opl_test();
     //dosbox_opl2_test();
