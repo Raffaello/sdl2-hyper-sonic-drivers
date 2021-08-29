@@ -23,9 +23,8 @@ namespace drivers
     namespace westwood
     {
         ADLDriver::ADLDriver(std::shared_ptr<hardware::opl::OPL> opl, std::shared_ptr<files::ADLFile> adl_file)
+            : _opl(opl)
         {
-            _opl = opl;
-
             if (!_opl || !_opl->init()) {
                 spdlog::error("Failed to initialize OPL");
             }
@@ -45,10 +44,10 @@ namespace drivers
             _beatDivider = _beatDivCnt = _beatCounter = _beatWaiting = 0;
             _opLevelBD = _opLevelHH = _opLevelSD = _opLevelTT = _opLevelCY = 0;
             _opExtraLevel1HH = _opExtraLevel2HH =
-                _opExtraLevel1CY = _opExtraLevel2CY =
-                _opExtraLevel2TT = _opExtraLevel1TT =
-                _opExtraLevel1SD = _opExtraLevel2SD =
-                _opExtraLevel1BD = _opExtraLevel2BD = 0;
+            _opExtraLevel1CY = _opExtraLevel2CY =
+            _opExtraLevel2TT = _opExtraLevel1TT =
+            _opExtraLevel1SD = _opExtraLevel2SD =
+            _opExtraLevel1BD = _opExtraLevel2BD = 0;
 
             _tablePtr1 = _tablePtr2 = nullptr;
 
@@ -62,9 +61,7 @@ namespace drivers
             _programQueueStart = _programQueueEnd = 0;
             _retrySounds = false;
 
-
             //_adlib->start(new Common::Functor0Mem<void, ADLDriver>(this, &ADLDriver::callback), CALLBACKS_PER_SECOND);
-            // TODO: this probably can be done better instead of 2 line to pass a pointer of a function...
             hardware::opl::TimerCallBack cb = std::bind(&ADLDriver::callback, this);
             auto p = std::make_unique<hardware::opl::TimerCallBack>(cb);
             _opl->start(p.release(), CALLBACKS_PER_SECOND);
