@@ -52,7 +52,6 @@ namespace files
         EXPECT_EQ(f.getTrack(2), 2);
         EXPECT_EQ(f.getTrackOffset(f.getTrack(2)), 12622 - 1000);
         EXPECT_EQ(f.getTrack(3), 0xFF);
-        //EXPECT_EQ(f.getTrackOffset(f.getTrack(3)), 2282);
         // Logo section
         EXPECT_EQ(f.getTrack(4), 70);
         EXPECT_EQ(f.getTrackOffset(f.getTrack(4)), 13633 - 1000);
@@ -67,7 +66,6 @@ namespace files
     {
         ADLFile f("fixtures/LOREINTR.ADL");
         EXPECT_EQ(f.getVersion(), 3);
-        //EXPECT_EQ(f.getNumPrograms(), 500);
         EXPECT_EQ(f.getNumTracks(), 30);
         EXPECT_EQ(f.getNumTrackOffsets(), 58);
         EXPECT_EQ(f.getNumInstrumentOffsets(), 71);

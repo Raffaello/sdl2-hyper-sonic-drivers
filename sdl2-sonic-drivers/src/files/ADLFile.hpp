@@ -27,8 +27,6 @@ namespace files
         uint16_t getProgramOffset(const int progId, const PROG_TYPE prog_type) const;
         uint32_t getDataSize() const noexcept;
         std::shared_ptr<uint8_t[]> getData() const noexcept;
-        //const int getNumPrograms() const noexcept;
-        //uint16_t getNumTrackOffset(const int progId) const noexcept;
 
     private:
         uint8_t _version = 0;
