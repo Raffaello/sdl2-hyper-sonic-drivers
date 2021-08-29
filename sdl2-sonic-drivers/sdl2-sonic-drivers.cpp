@@ -300,72 +300,15 @@ int song()
 
 void ADLDRV_callback_woody(void* userdata, Uint8* audiobuf, int len)
 {
-    //drivers::westwood::ADLDriver * self = static_cast<drivers::westwood::ADLDriver*>(userdata);
     drivers::westwood::woody::ADLDriver* _driver = static_cast<drivers::westwood::woody::ADLDriver*>(userdata);
-
-    //self->process();
-    //uint8_t trigger = _driver->callback(11);
-
-    //if (trigger < _numSoundTriggers) {
-    //    int soundId = _soundTriggers[trigger];
-
-     //   if (soundId)
-     //       playTrack(soundId);
-    //}
-    //else if (trigger == 1) {
-        // ignore
-    //}
-    //else if (trigger != 0) {
-    //    warning("Unknown sound trigger %d", trigger);
-        // TODO: At this point, we really want to clear the trigger...
-    //}
 
     int16_t* buf = reinterpret_cast<int16_t*>(audiobuf);
 
-
     int samples = _driver->readBuffer(buf, len / 2 / 2); //stereo 16 bit => *2 channels, /2 16 bits 
-
-    //int volume = 128;
-    //for (int i = 0; i < samples; i++) {
-        //printf("0x%x\n", buf[i]);
-        //buf[i] = static_cast<int16_t>(buf[i] );
-    //}
-//
-//    //self->bJustStartedPlaying = false;
-//}
-}
-
-void callback_mame(void* userdata, uint8_t* stream, int len)
-{
-    // TODO
-    // Sound is played from ADLDriver not from OPL ?
-    // But is feeded to OPL ?
-    // and genereated from OPL ?
-    // I need the ADLDriver here ? ....
-
-    // don't understand why the buffer is simply fill of zeros....
-    //static bool first = true;
-    //if (!first) return;
-    //std::fstream wf("440Hz.dat", ios::out | ios::binary);
-    //if (!wf) return;
-
-    hardware::opl::scummvm::mame::OPL* opl = reinterpret_cast<hardware::opl::scummvm::mame::OPL*>(userdata);
-    int16_t* buf = reinterpret_cast<int16_t*>(stream);
-    // / 2 because of sterio and opl is mono .... just for testing.
-    opl->readBuffer(buf, len / 2 / 2);
-    
-    
-    //wf.write((char*)stream, len);
-    //wf.close();
-    //first = false;
 }
 
 void callback_sdl(void* userdata, uint8_t* stream, int len)
 {
-    // TODO: merge into 1 callback
-
-
-    // don't understand why the buffer is simply fill of zeros....
     //static bool first = true;
     //if (!first) return;
     //std::fstream wf("440Hz.dat", ios::out | ios::binary);
@@ -387,8 +330,6 @@ void callback_sdl(void* userdata, uint8_t* stream, int len)
     //wf.close();
     //first = false;
 }
-
-
 
 /* These are offsets from the base I/O address. */
 constexpr int FM = 8;       // SB (mono) ports (e.g. 228H and 229H)
@@ -675,9 +616,8 @@ int adl_driver_mame()
     drivers::westwood::ADLDriver adlDrv(opl, adlFile);
 
     adlDrv.play(4, 63);
-    //TODO: SoundHandle ?
     Mix_VolumeMusic(MIX_MAX_VOLUME);
-    Mix_HookMusic(&callback_mame, opl.get());
+    Mix_HookMusic(&callback_sdl, opl.get());
     SDL_Delay(20000);
 
     Mix_HaltChannel(-1);
@@ -725,7 +665,7 @@ int mame_opl_test()
     std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
     //mixer->_rate = rate;
     std::shared_ptr<hardware::opl::scummvm::mame::OPL> opl = std::make_shared<hardware::opl::scummvm::mame::OPL>(mixer);
-    Mix_HookMusic(callback_mame, opl.get());
+    Mix_HookMusic(callback_sdl, opl.get());
     opl2_test(opl);
     
     Mix_HaltChannel(-1);
@@ -990,7 +930,6 @@ int adl_driver_dosbox()
     drivers::westwood::ADLDriver adlDrv(opl, adlFile);
     
     adlDrv.play(4, 0xFF);
-    //TODO: SoundHandle ?
     Mix_VolumeMusic(MIX_MAX_VOLUME);
     Mix_HookMusic(&callback_sdl, opl.get());
     SDL_Delay(60000);

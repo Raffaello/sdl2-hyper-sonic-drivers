@@ -79,29 +79,15 @@ namespace drivers
 
         ADLDriver::~ADLDriver()
         {
-            // TODO: remove
-            if (_soundData != nullptr) {
-                delete[] _soundData;
-            }
         }
 
         void ADLDriver::setADLFile(const std::shared_ptr<files::ADLFile> adl_file) noexcept
         {
             _adl_file = adl_file;
-            
             _version = _adl_file->getVersion();
-
             _soundDataSize = _adl_file->getDataSize();
             // TODO: refactor, remove pointers.
-            // TODO: remove
-            if (_soundData != nullptr) {
-                delete[] _soundData;
-            }
-            _soundData = new uint8_t[_soundDataSize];
-            auto d = _adl_file->getData();
-            std::copy_n(d.begin(), _soundDataSize, _soundData);
-            
-            //_soundData = const_cast<uint8_t*>(_adl_file->getDataPtr());
+            _soundData = const_cast<uint8_t*>(_adl_file->getData().data());
         }
 
         void ADLDriver::initDriver()
