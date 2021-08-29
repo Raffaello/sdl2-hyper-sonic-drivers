@@ -1,4 +1,6 @@
 #include <hardware/opl/woody/WoodyOPL.hpp>
+#include <hardware/opl/woody/WoodyEmuOPL.hpp>
+#include <hardware/opl/woody/SurroundOPL.hpp>
 
 namespace hardware
 {
@@ -6,23 +8,28 @@ namespace hardware
     {
         namespace woody
         {
-            WoodyOPL::WoodyOPL(const std::shared_ptr<audio::scummvm::Mixer> mixer)
-                : EmulatedOPL(mixer), _opl(nullptr)
+            WoodyOPL::WoodyOPL(const std::shared_ptr<audio::scummvm::Mixer> mixer, const bool surround)
+                : EmulatedOPL(mixer), _opl(nullptr), _surround(surround)
             {
-                // TODO add to the mixer the depth in bits (8 bits or 16 bits)
-
             }
 
             WoodyOPL::~WoodyOPL()
             {
                 free();
             }
-
             bool WoodyOPL::init()
             {
                 free();
+                if (_surround)
+                {
+                    // TODO  16bit detection, put in the mixer
+                    _opl = new SurroundOPL(_mixer->getOutputRate(), true);
+                }
+                else
+                {
+                    _opl = new WoodyEmuOPL(_mixer->getOutputRate(), false);
+                }
 
-                _opl = new WoodyEmuOPL(_mixer->getOutputRate(), true);
                 if (_opl == nullptr)
                     return false;
 
@@ -30,7 +37,6 @@ namespace hardware
 
                 return true;
             }
-
             void WoodyOPL::reset()
             {
                 init();
@@ -39,12 +45,10 @@ namespace hardware
             {
                 //opl->write(a, v);
             }
-
             uint8_t WoodyOPL::read(int a)
             {
                 return 0;
             }
-
             void WoodyOPL::writeReg(int r, int v)
             {
                 _opl->write(r, v);
@@ -52,7 +56,7 @@ namespace hardware
 
             bool WoodyOPL::isStereo() const
             {
-                return true;
+                return _surround;
             }
 
             void WoodyOPL::generateSamples(int16_t* buffer, int numSamples)
@@ -72,4 +76,3 @@ namespace hardware
         }
     }
 }
-

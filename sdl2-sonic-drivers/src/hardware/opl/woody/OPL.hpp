@@ -15,7 +15,7 @@ namespace hardware
             {
                 OPL2,
                 OPL2_DUAL,
-                OPL3
+                //OPL3
             };
 
             class OPL

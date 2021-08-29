@@ -13,7 +13,6 @@
 #include <drivers/westwood/woody/ADLDriver.hpp>
 #include <hardware/opl/woody/WoodyEmuOPL.hpp>
 #include <hardware/opl/woody/SurroundOPL.hpp>
-#include <hardware/opl/woody/DualOPL.hpp>
 #include <hardware/opl/woody/WoodyOPL.hpp>
 
 #include <drivers/westwood/ADLDriver.hpp>
@@ -1009,7 +1008,6 @@ int sdlMixer()
 {
     using namespace audio::scummvm;
     using namespace hardware::opl::scummvm;
-    using  hardware::opl::woody::DualOPL;
     using  hardware::opl::woody::WoodyOPL;
     using namespace drivers::westwood;
    
@@ -1022,8 +1020,7 @@ int sdlMixer()
     mixer = mixerManager.getMixer();
     //spdlog::set_level(spdlog::level::debug);
     //std::shared_ptr<dosbox::OPL> opl = std::make_shared<dosbox::OPL>(mixer, Config::OplType::OPL2);
-    std::shared_ptr<DualOPL> opl = std::make_shared<DualOPL>(mixer);
-    //std::shared_ptr<WoodyOPL> opl = std::make_shared<WoodyOPL>(mixer);
+    std::shared_ptr<WoodyOPL> opl = std::make_shared<WoodyOPL>(mixer, true);
     
 
     std::shared_ptr<files::ADLFile> adlFile = std::make_shared<files::ADLFile>("DUNE0.ADL");
