@@ -5,6 +5,7 @@
 #include <audio/scummvm/SoundHandle.hpp>
 #include <audio/scummvm/Timestamp.hpp>
 #include <audio/scummvm/AudioStream.hpp>
+#include <SDL2/SDL_audio.h>
 
 namespace audio
 {
@@ -16,6 +17,7 @@ namespace audio
     
     public:
         SDL2Mixer();
+        SDL2Mixer(const SDL_AudioSpec& obtained);
         virtual bool isReady() override;
         virtual void playStream(
             SoundType type,

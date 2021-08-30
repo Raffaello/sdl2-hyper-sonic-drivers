@@ -143,9 +143,6 @@ macro_test(
     LINKS_PRIVATE sonic-drivers-static
 )
 
-
-
-
 ##### future tests ###
 macro_test(
     EXE TestIFFFile

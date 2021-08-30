@@ -1,3 +1,4 @@
+#include "SDL2Mixer.hpp"
 #include <audio/SDL2Mixer.hpp>
 #include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL.h>
@@ -19,7 +20,9 @@ namespace audio
         int freq;
         uint16_t fmt;
         int chan;
-
+        
+        
+        // TODO remove sdl2_mixer dependency
         if (Mix_QuerySpec(&freq, &fmt, &chan) == 0) {
             std::string err = SDL_GetError();
             spdlog::critical("Cannot Query Audio Device: {}", err);
@@ -28,23 +31,16 @@ namespace audio
 
         spdlog::info("Audio Device: frequency = {} --- format = {} --- channels = {}", freq, fmt, chan);
         _rate = freq;
-        switch (fmt)
-        {
-        case AUDIO_U8:
-        case AUDIO_S8:
-            _bitsDepth = 8;
-            break;
-        case AUDIO_U16LSB:
-        case AUDIO_S16LSB:
-        case AUDIO_U16MSB:
-        case AUDIO_S16MSB:
-            _bitsDepth = 16;
-            break;
+        uint8_t _bitsDepth = fmt & 0xFF;
+        spdlog::debug("Audio {} bits", _bitsDepth);
+        
+    }
 
-        default:
-            spdlog::critical("SDL FORMAT {:#04x} not implemented", fmt);
-            throw std::runtime_error("SDL FORMAT not implemented");
-        }
+    SDL2Mixer::SDL2Mixer(const SDL_AudioSpec& obtained)
+    {
+        _rate = obtained.freq;
+        _bitsDepth = obtained.format & 0xFF;
+        spdlog::debug("Audio {} bits", _bitsDepth);
     }
 
     bool SDL2Mixer::isReady()

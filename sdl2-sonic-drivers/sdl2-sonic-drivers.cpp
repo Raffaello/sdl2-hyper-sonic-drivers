@@ -244,10 +244,10 @@ void callback_sdl(void* userdata, uint8_t* stream, int len)
 
     hardware::opl::scummvm::EmulatedOPL* opl = reinterpret_cast<hardware::opl::scummvm::EmulatedOPL*>(userdata);
     int16_t* buf = reinterpret_cast<int16_t*>(stream);
-    // / 2 because ...
-    const int l = len >> 2;
+
     memset(buf, 0, len);
-    int samples = opl->readBuffer(buf, l);
+    // /2 if stereo and /2 if 16bits
+    int samples = opl->readBuffer(buf, len >> 1);
     // not useful
     /*for (int i = samples; i < l; i++) {
         buf[i] = 0;
@@ -565,9 +565,6 @@ int mame_opl_test()
         return -1;
     }
 
-    //MIX_CHANNELS(8);
-    //Mix_AllocateChannels(16);
-
     int freq;
     uint16_t fmt;
     int channels;
@@ -579,19 +576,11 @@ int mame_opl_test()
         << "channels: " << channels << endl;
 
     if (channels > 2) {
-        // with 8 audio channels doesn't reproduce the right sound.
-        // i guess is something that can be fixed
-        // but i do not know why.
-        // the code should be similar to scummVM or DosBox
-        // so if it is working there, should work here.
-        // it means this code is not really the same
-        // need to start organizing in it properly.
         cerr << "CHANNELS not mono or stereo!" << endl;
     }
 
     spdlog::set_level(spdlog::level::debug);
     std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
-    //mixer->_rate = rate;
     std::shared_ptr<hardware::opl::scummvm::mame::OPL> opl = std::make_shared<hardware::opl::scummvm::mame::OPL>(mixer);
     Mix_HookMusic(callback_sdl, opl.get());
     opl2_test(opl);
@@ -916,8 +905,8 @@ int sdlMixer()
 
 int main(int argc, char* argv[])
 {
-    sdlMixer();
-    SDL_Delay(1000);
+    //sdlMixer();
+    SDL_Delay(100);
 
 
     SDL_Init(SDL_INIT_TIMER | SDL_INIT_AUDIO);
@@ -960,7 +949,7 @@ int main(int argc, char* argv[])
         
     //adl();
     //adl_driver_mame();
-    //mame_opl_test();
+    mame_opl_test();
     //dosbox_opl2_test();
     //dosbox_dual_opl2_test();
     //dosbox_opl3_test();

@@ -43,7 +43,3 @@ option(BUILD_EXAMPLES "build examples" ON)
 
 # Include sub-projects.
 add_subdirectory ("sdl2-sonic-drivers")
-
-if (BUILD_EXAMPLES)
-	add_subdirectory("examples")
-endif()

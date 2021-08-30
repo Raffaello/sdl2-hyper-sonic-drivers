@@ -43,6 +43,7 @@ install(FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/mame/mame.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/nuked/OPL.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/Config.hpp
+    #${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/EmulatedOPL.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/woody/WoodyOPL.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/PCSPeaker.hpp
     DESTINATION static/include
@@ -130,6 +131,11 @@ target_sources(sdl2-sonic-drivers PUBLIC
 
 target_link_libraries(sdl2-sonic-drivers PRIVATE ${LIB_SDL2main} SDL2::SDL2_mixer)
 target_link_libraries(sdl2-sonic-drivers PRIVATE sonic-drivers-static)
+
 if(BUILD_TESTING)
     add_subdirectory("test")
+endif()
+
+if (BUILD_EXAMPLES)
+    add_subdirectory("examples")
 endif()
