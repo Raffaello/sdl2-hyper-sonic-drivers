@@ -52,55 +52,36 @@ endmacro()
 
 macro_test(
     EXE TestWaveGenerators
-    FILES "TestWaveGenerators.cpp" "../src/softsynths/generators/generators.hpp"
+    FILES "TestWaveGenerators.cpp"
+)
+
+macro_test(
+    EXE TestAlgorithms
+    FILES "utils/TestAlgorithms.cpp"
 )
 
 macro_test(
     EXE TestPCSpeaker
     FILES "hardware/TestPCSpeaker.cpp"
-        "../src/hardware/PCSpeaker.cpp"
+    LINKS_PRIVATE sonic-drivers-static
 )
 
 macro_test(
     EXE TestEndianness
     FILES "utils/TestEndianness.cpp"
-        "../src/utils/endianness.cpp"
+    LINKS_PRIVATE sonic-drivers-static
 )
 
 macro_test(
     EXE TestFile
     FILES "files/TestFile.cpp"
-        "../src/files/File.cpp"
-        "../src/utils/endianness.cpp"
-)
-
-macro_test(
-    EXE TestIFFFile
-    FILES "files/TestIFFFile.cpp"
-        "../src/files/IFFFile.cpp"
-        "../src/files/File.cpp"
-        "../src/utils/endianness.cpp"
-)
-
-macro_test(
-    EXE TestXMIFile
-    FILES "files/TestXMIFile.cpp"
-        "../src/files/XMIFile.cpp"
-        "../src/files/IFFFile.cpp"
-        "../src/files/File.cpp"
-        "../src/utils/endianness.cpp"
-    FIXTURES 
-        "fixtures/header.xmi"
-        "fixtures/header_no_xdir.xmi"
-        "fixtures/AIL2_14_DEMO.XMI"
+    LINKS_PRIVATE sonic-drivers-static
 )
 
 macro_test(
     EXE TestADLFile
     FILES "files/TestADLFile.cpp"
-        "../src/files/ADLFile.cpp"
-        "../src/files/File.cpp"
-        "../src/utils/endianness.cpp"
+    LINKS_PRIVATE sonic-drivers-static
     FIXTURES 
         "fixtures/EOBSOUND.ADL" # v1
         "fixtures/DUNE19.ADL"   # v2
@@ -110,129 +91,81 @@ macro_test(
 
 macro_test(
     EXE TestSDL2Mixer
-    FILES 
-        "audio/TestSDL2Mixer.cpp"
-        "../src/audio/SDL2Mixer.cpp"
-        "../src/audio/scummvm/TimeStamp.cpp"
-    LINKS_PRIVATE
-        spdlog::spdlog
-        SDL2::SDL2 SDL2::SDL2_mixer
-        SDL2::SDL2main
+    FILES "audio/TestSDL2Mixer.cpp"
+    LINKS_PRIVATE 
+        sonic-drivers-static
+        SDL2::SDL2_mixer
+        ${LIB_SDL2} 
+        ${LIB_SDL2main}
 )
 
 macro_test(
     EXE TestMame
-    FILES 
-        "hardware/opl/scummvm/mame/TestMame.cpp"
-        "../src/hardware/opl/scummvm/mame/mame.cpp"
-        "../src/hardware/opl/scummvm/EmulatedOPL.cpp"
-        "../src/hardware/opl/OPL.cpp"
-        "../src/audio/scummvm/TimeStamp.cpp"
-        "../src/files/File.cpp"
-        "../src/utils/endianness.cpp"
-    LINKS_PRIVATE
-        spdlog::spdlog
-    FIXTURES
-        "fixtures/mame-22050-16bit-440Hz.dat"
-)
-
-macro_test(
-    EXE TestAlgorithms
-    FILES 
-        "utils/TestAlgorithms.cpp"
+    FILES "hardware/opl/scummvm/mame/TestMame.cpp"
+    LINKS_PRIVATE sonic-drivers-static
+    FIXTURES "fixtures/mame-22050-16bit-440Hz.dat"
 )
 
 macro_test(
     EXE TestDOSBox
-    FILES 
-        "hardware/opl/scummvm/dosbox/TestDOSBox.cpp"
-        "../src/hardware/opl/scummvm/dosbox/dosbox.cpp"
-        "../src/hardware/opl/scummvm/dosbox/dbopl/dbopl.cpp"
-        "../src/hardware/opl/scummvm/EmulatedOPL.cpp"
-        "../src/hardware/opl/OPL.cpp"
-        "../src/audio/scummvm/TimeStamp.cpp"
-        "../src/files/File.cpp"
-        "../src/utils/endianness.cpp"
-    LINKS_PRIVATE
-        spdlog::spdlog
+    FILES "hardware/opl/scummvm/dosbox/TestDOSBox.cpp"
+    LINKS_PRIVATE sonic-drivers-static
     FIXTURES
         #"fixtures/mame-22050-16bit-440Hz.dat"
 )
 
 macro_test(
     EXE TestNuked
-    FILES 
-        "hardware/opl/scummvm/nuked/TestNuked.cpp"
-        "../src/hardware/opl/scummvm/nuked/OPL.cpp"
-        "../src/hardware/opl/scummvm/nuked/opl3.c"
-        "../src/hardware/opl/scummvm/EmulatedOPL.cpp"
-        "../src/hardware/opl/OPL.cpp"
-        "../src/audio/scummvm/TimeStamp.cpp"
-        "../src/files/File.cpp"
-        "../src/utils/endianness.cpp"
-    LINKS_PRIVATE
-        spdlog::spdlog
+    FILES "hardware/opl/scummvm/nuked/TestNuked.cpp"
+    LINKS_PRIVATE sonic-drivers-static
     FIXTURES
         #"fixtures/mame-22050-16bit-440Hz.dat"
 )
 
 macro_test(
     EXE TestWoodyOPL
-    FILES 
-        "hardware/opl/woody/TestWoodyOPL.cpp"
-        "../src/hardware/opl/woody/WoodyOPL.cpp"
-        "../src/hardware/opl/woody/WoodyEmuOPL.cpp"
-        "../src/hardware/opl/woody/SurroundOPL.cpp"
-        "../src/hardware/opl/woody/OPLChip.cpp"
-        "../src/hardware/opl/woody/OPL.cpp"
-        "../src/hardware/opl/scummvm/EmulatedOPL.cpp"
-        "../src/hardware/opl/OPL.cpp"
-        "../src/audio/scummvm/TimeStamp.cpp"
-        "../src/files/File.cpp"
-        "../src/utils/endianness.cpp"
-    LINKS_PRIVATE
-        spdlog::spdlog
+    FILES "hardware/opl/woody/TestWoodyOPL.cpp"
+    LINKS_PRIVATE sonic-drivers-static
     FIXTURES
         #"fixtures/mame-22050-16bit-440Hz.dat"
 )
-
 
 macro_test(
     EXE TestConfig
     FILES 
         "hardware/opl/scummvm/TestConfig.cpp"
-        "../src/hardware/opl/scummvm/nuked/OPL.cpp"
-        "../src/hardware/opl/scummvm/nuked/opl3.c"
-        "../src/hardware/opl/scummvm/dosbox/dosbox.cpp"
-        "../src/hardware/opl/scummvm/dosbox/dbopl/dbopl.cpp"
-        "../src/hardware/opl/scummvm/mame/mame.cpp"
-        "../src/hardware/opl/scummvm/EmulatedOPL.cpp"
-        "../src/hardware/opl/scummvm/Config.cpp"
-        "../src/hardware/opl/woody/WoodyOPL.cpp"
-        "../src/hardware/opl/woody/WoodyEmuOPL.cpp"
-        "../src/hardware/opl/woody/SurroundOPL.cpp"
-        "../src/hardware/opl/woody/OPLChip.cpp"
-        "../src/hardware/opl/woody/OPL.cpp"
-        "../src/hardware/opl/OPL.cpp"
-        "../src/audio/scummvm/TimeStamp.cpp"
-        "../src/files/File.cpp"
-        "../src/utils/endianness.cpp"
-    LINKS_PRIVATE
-        spdlog::spdlog
+    LINKS_PRIVATE sonic-drivers-static
 )
 
 macro_test(
     EXE TestADLDriver
     FILES "drivers/westwood/TestADLDriver.cpp"
-        "../src/drivers/westwood/ADLDriver.cpp"
-        "../src/hardware/opl/OPL.cpp"
+    LINKS_PRIVATE sonic-drivers-static
+)
+
+
+
+
+##### future tests ###
+macro_test(
+    EXE TestIFFFile
+    FILES "files/TestIFFFile.cpp"
+        "../src/files/IFFFile.cpp"
         "../src/files/File.cpp"
-        "../src/files/ADLFile.cpp"
         "../src/utils/endianness.cpp"
-        "../src/audio/scummvm/TimeStamp.cpp"
-        "../src/hardware/opl/scummvm/mame/mame.cpp"
-        "../src/hardware/opl/scummvm/EmulatedOPL.cpp"
-        "../src/hardware/opl/OPL.cpp"
-    LINKS_PRIVATE
-        spdlog::spdlog
+    #LINKS_PRIVATE sonic-drivers-static
+)
+
+macro_test(
+    EXE TestXMIFile
+    FILES "files/TestXMIFile.cpp"
+        "../src/files/XMIFile.cpp"
+        "../src/files/IFFFile.cpp"
+        "../src/files/File.cpp"
+        "../src/utils/endianness.cpp"
+    #LINKS_PRIVATE sonic-drivers-static
+    FIXTURES 
+        "fixtures/header.xmi"
+        "fixtures/header_no_xdir.xmi"
+        "fixtures/AIL2_14_DEMO.XMI"
 )
