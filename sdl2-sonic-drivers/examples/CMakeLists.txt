@@ -40,3 +40,11 @@ macro_example(
     LINKS ${LIB_SDL2main} sonic-drivers-static
     NONE
 )
+
+macro_example(
+    EXE ADLExample
+    FILE "adl-example.cpp"
+    DEPS sonic-drivers-static
+    LINKS ${LIB_SDL2main} sonic-drivers-static
+    NONE
+)
