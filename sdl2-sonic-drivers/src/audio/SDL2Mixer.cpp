@@ -1,4 +1,3 @@
-#include "SDL2Mixer.hpp"
 #include <audio/SDL2Mixer.hpp>
 #include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL.h>
