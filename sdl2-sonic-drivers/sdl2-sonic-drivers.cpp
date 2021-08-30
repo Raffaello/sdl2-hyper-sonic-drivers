@@ -6,23 +6,12 @@
 #include <SDL_mixer.h>
 
 #include <hardware/PCSpeaker.hpp>
+#include <hardware/opl/scummvm/EmulatedOPL.hpp>
 #include <drivers/miles/XMidi.hpp>
 #include <files/XMIFile.hpp>
-#include <files/ADLFile.hpp>
-#include <hardware/opl/woody/WoodyEmuOPL.hpp>
-#include <hardware/opl/woody/SurroundOPL.hpp>
-#include <hardware/opl/woody/WoodyOPL.hpp>
 
-#include <drivers/westwood/ADLDriver.hpp>
-#include <audio/SDL2Mixer.hpp>
-#include <hardware/opl/scummvm/mame/mame.hpp>
 #include <spdlog/spdlog.h>
 
-#include <hardware/opl/scummvm/dosbox/dosbox.hpp>
-#include <hardware/opl/scummvm/Config.hpp>
-#include <hardware/opl/scummvm/nuked/OPL.hpp>
-
-#include <audio/scummvm/SDLMixerManager.hpp>
 
 using namespace std;
 
@@ -259,114 +248,8 @@ void callback_sdl(void* userdata, uint8_t* stream, int len)
     //first = false;
 }
 
-int adl_driver_mame()
-{
-    Mix_Init(0);
-    int rate = 22050;
-    if (Mix_OpenAudio(rate, AUDIO_S16, 2, 1024) < 0) {
-        cerr << Mix_GetError();
-        return -1;
-    }
-
-    //spdlog::set_level(spdlog::level::debug);
-    std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
-    //mixer->_rate = rate;
-    std::shared_ptr<files::ADLFile> adlFile = std::make_shared<files::ADLFile>("DUNE0.ADL");
-    std::shared_ptr<hardware::opl::scummvm::mame::OPL> opl = std::make_shared<hardware::opl::scummvm::mame::OPL>(mixer);
-    drivers::westwood::ADLDriver adlDrv(opl, adlFile);
-
-    adlDrv.play(4, 63);
-    Mix_VolumeMusic(MIX_MAX_VOLUME);
-    Mix_HookMusic(&callback_sdl, opl.get());
-    SDL_Delay(20000);
-
-    Mix_HaltChannel(-1);
-    Mix_HaltMusic();
-    Mix_CloseAudio();
-    Mix_Quit();
-
-    return 0;
-}
-
-int adl_driver_dosbox()
-{
-    Mix_Init(0);
-    int rate = 22050;
-    if (Mix_OpenAudio(rate, AUDIO_S16, 2, 1024) < 0) {
-        cerr << Mix_GetError();
-        return -1;
-    }
-
-    //spdlog::set_level(spdlog::level::debug);
-    std::shared_ptr<audio::SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
-    std::shared_ptr<files::ADLFile> adlFile = std::make_shared<files::ADLFile>("DUNE0.ADL");
-    std::shared_ptr<hardware::opl::scummvm::dosbox::OPL> opl = std::make_shared<hardware::opl::scummvm::dosbox::OPL>(mixer, hardware::opl::scummvm::Config::OplType::OPL2);
-    drivers::westwood::ADLDriver adlDrv(opl, adlFile);
-    
-    adlDrv.play(4, 0xFF);
-    Mix_VolumeMusic(MIX_MAX_VOLUME);
-    Mix_HookMusic(&callback_sdl, opl.get());
-    SDL_Delay(60000);
-
-
-    Mix_HaltChannel(-1);
-    Mix_HaltMusic();
-    Mix_CloseAudio();
-    Mix_Quit();
-
-    return 0;
-}
-
-int sdlMixer()
-{
-    using namespace audio::scummvm;
-    using namespace hardware::opl::scummvm;
-    using  hardware::opl::woody::WoodyOPL;
-    using namespace drivers::westwood;
-   
-    SdlMixerManager mixerManager;
-    
-    mixerManager.init();
-    
-    std::shared_ptr<Mixer> mixer;
-
-    mixer = mixerManager.getMixer();
-    //spdlog::set_level(spdlog::level::debug);
-    std::shared_ptr<dosbox::OPL> opl = std::make_shared<dosbox::OPL>(mixer, Config::OplType::OPL2);
-    //std::shared_ptr<WoodyOPL> opl = std::make_shared<WoodyOPL>(mixer, true);
-    
-
-    std::shared_ptr<files::ADLFile> adlFile = std::make_shared<files::ADLFile>("DUNE0.ADL");
-    
-    ADLDriver adlDrv(opl, adlFile);
-
-    adlDrv.play(4, 0xFF);
-    
-    while (!mixer->isReady()) {
-        spdlog::info("mixer not ready");
-        SDL_Delay(100);
-    }
-    SDL_Delay(1000);
-    while(adlDrv.isPlaying())
-    {
-        spdlog::info("is playing");
-        SDL_Delay(1000);
-            
-    }
-
-    spdlog::info("SDLMixer quitting...");
-    SDL_Delay(1000);
-    spdlog::info("SDLMixer quit");
-    
-    return 0;
-}
-
 int main(int argc, char* argv[])
 {
-    sdlMixer();
-    SDL_Delay(100);
-
-
     SDL_Init(SDL_INIT_TIMER | SDL_INIT_AUDIO);
 
     int numAudioDevices = SDL_GetNumAudioDevices(0);
@@ -405,10 +288,6 @@ int main(int argc, char* argv[])
     //files::ADLFile f("EOBSOUND.ADL");
     //cout << "ADL VERSION: " << f.getVersion() << endl;
         
-    //adl();
-    //adl_driver_mame();
-    //adl_driver_dosbox();
-    
     
     // TODO: 32 bit audio
     //pcspkr(44100, AUDIO_S32, 2, 1024);
