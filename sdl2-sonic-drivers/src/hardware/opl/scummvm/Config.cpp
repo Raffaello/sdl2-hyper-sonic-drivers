@@ -27,6 +27,10 @@ namespace hardware
                 case OplEmulator::DOS_BOX:
                     return std::make_shared<dosbox::OPL>(mixer, type);
                 case OplEmulator::NUKED:
+                    if (type != OplType::OPL3) {
+                        spdlog::warn("Nuke OPL emulator only supports OPL3 emulation");
+                        return nullptr;
+                    }
                     return std::make_shared<nuked::OPL>(mixer, type);
                 case OplEmulator::WOODY:
                     return std::make_shared<woody::WoodyOPL>(mixer, type == OplType::OPL2 ? false : true);
