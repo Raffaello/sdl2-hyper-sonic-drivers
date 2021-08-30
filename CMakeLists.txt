@@ -8,7 +8,7 @@ if(DEFINED ENV{VCPKG_ROOT} AND NOT DEFINED CMAKE_TOOLCHAIN_FILE)
 endif()
 
 
-project ("sdl2-sonic-drivers" VERSION 0.1.0 DESCRIPTION "SDL2 mixer Sonic Drivers for emulating old soundcards")
+project ("sdl2-sonic-drivers" VERSION 0.1.0 DESCRIPTION "SDL2 Sonic Drivers for emulating old soundcards")
 include (TestBigEndian)
 TEST_BIG_ENDIAN(IS_BIG_ENDIAN)
 if(IS_BIG_ENDIAN)
@@ -37,6 +37,7 @@ include(CPack)
 ################################# Options ####################################
 option(WITH_SDL2_STATIC "linking STATIC LIB with SDL2 STATIC" OFF)
 include(CTest)
+option(BUILD_EXAMPLES "build examples" ON)
 
 ##############################################################################
 

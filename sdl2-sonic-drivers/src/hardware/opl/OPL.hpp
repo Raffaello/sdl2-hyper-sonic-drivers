@@ -63,7 +63,7 @@ namespace hardware
             /**
              * Start the OPL with callbacks.
              */
-            void start(TimerCallBack* callback, int timerFrequency = DEFAULT_CALLBACK_FREQUENCY);
+            void start(std::shared_ptr<TimerCallBack> callback, int timerFrequency = DEFAULT_CALLBACK_FREQUENCY);
 
             /**
              * Stop the OPL
@@ -90,7 +90,7 @@ namespace hardware
             /**
              * The functor for callbacks.
              */
-            std::unique_ptr<TimerCallBack> _callback;
+            std::shared_ptr<TimerCallBack> _callback;
         private:
             // moved into cpp file
             //static bool _hasInstance;

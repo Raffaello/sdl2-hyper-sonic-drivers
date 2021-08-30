@@ -62,8 +62,8 @@ namespace drivers
             _retrySounds = false;
 
             hardware::opl::TimerCallBack cb = std::bind(&ADLDriver::callback, this);
-            auto p = std::make_unique<hardware::opl::TimerCallBack>(cb);
-            _opl->start(p.release(), CALLBACKS_PER_SECOND);
+            auto p = std::make_shared<hardware::opl::TimerCallBack>(cb);
+            _opl->start(p, CALLBACKS_PER_SECOND);
 
             stopAllChannels();
             setADLFile(adl_file);
