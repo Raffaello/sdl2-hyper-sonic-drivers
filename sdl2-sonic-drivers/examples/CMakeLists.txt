@@ -37,6 +37,6 @@ macro_example(
     EXE OPLExample
     FILE "opl-example.cpp"
     DEPS sonic-drivers-static
-    LINKS ${LIB_SDL2main} sonic-drivers-static SDL2::SDL2_mixer
+    LINKS ${LIB_SDL2main} sonic-drivers-static
     NONE
 )

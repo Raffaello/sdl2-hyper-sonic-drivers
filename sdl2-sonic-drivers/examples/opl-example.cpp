@@ -1,5 +1,4 @@
 #include <hardware/opl/OPL.hpp>
-#include <hardware/opl/scummvm/EmulatedOPL.hpp>
 #include <hardware/opl/scummvm/Config.hpp>
 #include <utils/algorithms.hpp>
 #include <audio/scummvm/SDLMixerManager.hpp>
@@ -13,11 +12,10 @@
 #include <string>
 
 
-#include <SDL2/SDL.h> // TODO: do a delay utils
-
 using audio::scummvm::SdlMixerManager;
 using hardware::opl::scummvm::Config;
 using hardware::opl::scummvm::OplEmulator;
+using utils::delayMillis;
 
 
 /* These are offsets from the base I/O address. */
@@ -136,7 +134,7 @@ void opl_test(const OplEmulator emu, const Config::OplType type, std::shared_ptr
     fm(0xa0, 0x41, opl);  /* 440 Hz */
     fm(0xb0, 0x32, opl);  /* 440 Hz, block 0, key on */
 
-    SDL_Delay(1000);
+    delayMillis(1000);
 
     fm(0xb0, 0x12, opl);  /* key off */
 
@@ -160,7 +158,7 @@ void opl_test(const OplEmulator emu, const Config::OplType type, std::shared_ptr
     fm(0xA0, (fn & 0xFF), opl);
     fm(0xB0, ((fn >> 8) & 0x3) + (block << 2) | KEYON, opl);
 
-    SDL_Delay(1000);
+    delayMillis(1000);
 
 
     /*********************************************************
@@ -171,7 +169,7 @@ void opl_test(const OplEmulator emu, const Config::OplType type, std::shared_ptr
     for (block = 0; block <= 7; block++) {
         spdlog::info("f={:5d} Hz", (long)440 * (1 << block) / 16);
         fm(0xB0, ((fn >> 8) & 0x3) + (block << 2) | KEYON, opl);
-        SDL_Delay(500);
+        delayMillis(500);
     }
 
 
@@ -184,10 +182,10 @@ void opl_test(const OplEmulator emu, const Config::OplType type, std::shared_ptr
     for (fn = 0; fn < 1024; fn++) {
         fm(0xA0, (fn & 0xFF), opl);
         fm(0xB0, ((fn >> 8) & 0x3) + (block << 2) | KEYON, opl);
-        SDL_Delay(1);
+        delayMillis(1);
     }
 
-    SDL_Delay(1000);
+    delayMillis(1000);
     /********************************************************************
      * Single tone again.  Both channels, then if on stereo board,      *
      * play tone in just the left channel, then just the right channel. *
@@ -198,7 +196,7 @@ void opl_test(const OplEmulator emu, const Config::OplType type, std::shared_ptr
     fn = 577;                /* This number makes 440 Hz when block=4 and m=1 */
     fm(0xA0, (fn & 0xFF), opl);
     fm(0xB0, ((fn >> 8) & 0x3) + (block << 2) | KEYON, opl);
-    SDL_Delay(1000);
+    delayMillis(1000);
 
     if (type != Config::OplType::OPL2)
     {
@@ -209,28 +207,28 @@ void opl_test(const OplEmulator emu, const Config::OplType type, std::shared_ptr
              */
             spdlog::info("Left channel only");
             fm(0xC0, LEFT | 1, opl);      /* set left channel only, parallel connection */
-            SDL_Delay(1000);
+            delayMillis(1000);
             
             spdlog::info("Right channel only");
             fm(0xC0, RIGHT | 1, opl);     /* set right channel only, parallel connection */
-            SDL_Delay(1000);
+            delayMillis(1000);
         }
         else
         {
 
             fm(0xB0, ((fn >> 8) & 0x3) + (block << 2), opl);       // key off
-            SDL_Delay(1000);
+            delayMillis(1000);
 
             spdlog::info("Left channel only");
             Profm1(0xB0, ((fn >> 8) & 0x3) + (block << 2) | KEYON, opl);
-            SDL_Delay(1000);
+            delayMillis(1000);
             
             Profm1(0xB0, ((fn >> 8) & 0x3) + (block << 2), opl);   // key off
-            SDL_Delay(1000);
+            delayMillis(1000);
 
             spdlog::info("Right channel only");
             Profm2(0xB0, ((fn >> 8) & 0x3) + (block << 2) | KEYON, opl);
-            SDL_Delay(1000);
+            delayMillis(1000);
         }
     }
 
@@ -238,13 +236,13 @@ void opl_test(const OplEmulator emu, const Config::OplType type, std::shared_ptr
      * Attenuate the signal by 3 dB. *
      *********************************/
 
-    SDL_Delay(1000);
+    delayMillis(1000);
     fm(0xB0, ((fn >> 8) & 0x3) + (block << 2) | KEYON, opl);
     spdlog::info("Attenuated by 3 dB.");
     fm(0x43, 4, opl);     /* attenuate by 3 dB */
-    SDL_Delay(1000);
+    delayMillis(1000);
     fm(0xB0, ((fn >> 8) & 0x3) + (block << 2), opl);
-    SDL_Delay(1000);
+    delayMillis(1000);
 
     if (type == Config::OplType::OPL3)
     {
