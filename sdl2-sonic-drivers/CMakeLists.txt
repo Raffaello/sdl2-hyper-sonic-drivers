@@ -1,14 +1,11 @@
-﻿# CMakeList.txt : CMake project for sdl2-sonic-drivers, include source and define
-# project specific logic here.
-#
-cmake_minimum_required (VERSION 3.15)
+﻿cmake_minimum_required (VERSION 3.15)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_DEBUG_POSTFIX d)
 
 find_package(SDL2 CONFIG REQUIRED)
 find_package(sdl2-mixer CONFIG REQUIRED)
-find_package(spdlog 1.9.0 CONFIG REQUIRED) # used in ADLDriver
+find_package(spdlog 1.9.0 CONFIG REQUIRED)
 
 configure_file("version.h.in" "version.h")
 
@@ -64,7 +61,7 @@ export(TARGETS ${LIB_NAME}
 
 install(EXPORT ${LIB_CONF}
     DESTINATION static/cmake
-    #NAMESPACE VgaTerminal::
+    #NAMESPACE sonic::
 )
 install(FILES
     ${CMAKE_CURRENT_BINARY_DIR}/${LIB_VER}.cmake
@@ -119,53 +116,16 @@ endif()
 unset(LIB_NAME)
 unset(LIB_CONF)
 unset(LIB_VER)
-
-
-
-
-
-
-
+##############################################################################
 
 # Add source to this project's executable.
 add_executable(sdl2-sonic-drivers "sdl2-sonic-drivers.cpp")
 target_sources(sdl2-sonic-drivers PUBLIC
     #${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/miles/XMidi.cpp
-    
-    #${CMAKE_CURRENT_SOURCE_DIR}/src/utils/endianness.cpp
-    #${CMAKE_CURRENT_SOURCE_DIR}/src/files/File.cpp
+    # --- #
     #${CMAKE_CURRENT_SOURCE_DIR}/src/files/IFFFile.cpp
     #${CMAKE_CURRENT_SOURCE_DIR}/src/files/XMIFile.cpp
-    #${CMAKE_CURRENT_SOURCE_DIR}/src/files/ADLFile.cpp
     #${CMAKE_CURRENT_SOURCE_DIR}/src/files/MIDFile.cpp
-
-    # ---- #
-    #${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/PCSpeaker.cpp
-    # ---- #
-    #${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/woody/OPL.cpp
-    #${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/woody/OPLChip.cpp
-    #${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/woody/WoodyEmuOpl.cpp
-    #${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/woody/SurroundOPL.cpp
-    #${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/woody/WoodyOPL.cpp
-    # --- #
-    #${CMAKE_CURRENT_SOURCE_DIR}/src/audio/scummvm/MixerImpl.cpp
-    #${CMAKE_CURRENT_SOURCE_DIR}/src/audio/scummvm/Channel.cpp
-    #${CMAKE_CURRENT_SOURCE_DIR}/src/audio/scummvm/RateConverter.cpp
-    #${CMAKE_CURRENT_SOURCE_DIR}/src/audio/scummvm/SDLMixerManager.cpp
-    #${CMAKE_CURRENT_SOURCE_DIR}/src/audio/scummvm/Timestamp.cpp
-    #${CMAKE_CURRENT_SOURCE_DIR}/src/audio/SDL2Mixer.cpp
-    # --- #
-    
-    #${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/OPL.cpp
-    #${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/EmulatedOPL.cpp
-    #${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/mame/mame.cpp
-    #${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/dosbox/dosbox.cpp
-    #${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/dosbox/dbopl/dbopl.cpp
-    #${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/nuked/OPL.cpp
-    #${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/nuked/opl3.c
-    # --- #
-    #${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/westwood/ADLDriver.cpp
-    
 )
 
 target_link_libraries(sdl2-sonic-drivers PRIVATE ${LIB_SDL2main} SDL2::SDL2_mixer)
