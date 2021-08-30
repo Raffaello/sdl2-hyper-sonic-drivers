@@ -26,10 +26,7 @@ namespace audio
             /**
              * Get the audio mixer implementation
              */
-            //Mixer* getMixer() { return (Mixer*)_mixer.get(); }
             std::shared_ptr<Mixer> getMixer() { return _mixer; }
-
-            // Used by LinuxMoto Port
 
             /**
              * Pauses the audio system

@@ -17,8 +17,10 @@ namespace hardware
                 switch (oplEmulator)
                 {
                 case OplEmulator::MAME:
-                    if (type != OplType::OPL2)
+                    if (type != OplType::OPL2) {
                         spdlog::warn("MAME OPL emulator only supports OPL2 emulation");
+                        return nullptr;
+                    }
                     
                     return std::make_shared<mame::OPL>(mixer);
                 case OplEmulator::AUTO:
