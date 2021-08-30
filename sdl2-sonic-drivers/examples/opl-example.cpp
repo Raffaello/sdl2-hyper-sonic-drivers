@@ -259,7 +259,7 @@ void opl_test(const OplEmulator emu, const Config::OplType type, std::shared_ptr
     opl->stop();
 }
 
-int sdlMM()
+int main(int argc, char* argv[])
 {
     SdlMixerManager mixerManager;
 
@@ -289,15 +289,10 @@ int sdlMM()
                              fmt::color::lime_green,  fmt::color::blue_violet, fmt::color::indian_red }) {
                 spdlog::info(fmt::format(fg(c), m, emu.second, type.second));
             }
-            
+
             opl_test(emu.first, type.first, mixer);
         }
     }
 
     return 0;
-}
-
-int main(int argc, char* argv[])
-{
-    return sdlMM();
 }
