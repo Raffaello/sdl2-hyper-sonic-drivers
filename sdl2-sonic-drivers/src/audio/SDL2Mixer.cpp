@@ -29,9 +29,8 @@ namespace audio
 
         spdlog::info("Audio Device: frequency = {} --- format = {} --- channels = {}", freq, fmt, chan);
         _rate = freq;
-        uint8_t _bitsDepth = fmt & 0xFF;
+        _bitsDepth = fmt & 0xFF;
         spdlog::debug("Audio {} bits", _bitsDepth);
-        
     }
 
     bool SDL2Mixer::isReady()
