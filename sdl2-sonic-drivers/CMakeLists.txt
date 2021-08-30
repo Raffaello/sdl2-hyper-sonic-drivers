@@ -30,8 +30,8 @@ set_target_properties(${LIB_NAME} PROPERTIES POSITION_INDEPENDENT_CODE ON)
 install(
     TARGETS ${LIB_NAME}
     EXPORT ${LIB_CONF}
-    DESTINATION static/lib
-    PUBLIC_HEADER DESTINATION static/include
+    DESTINATION "static/lib"
+    PUBLIC_HEADER DESTINATION "static/include"
 )
 install(FILES 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/scummvm/SDLMixerManager.hpp
@@ -46,7 +46,7 @@ install(FILES
     #${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/EmulatedOPL.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/woody/WoodyOPL.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/PCSPeaker.hpp
-    DESTINATION static/include
+    DESTINATION "static/include"
 )
 
 write_basic_package_version_file(
@@ -66,12 +66,13 @@ install(EXPORT ${LIB_CONF}
 )
 install(FILES
     ${CMAKE_CURRENT_BINARY_DIR}/${LIB_VER}.cmake
-    DESTINATION static/cmake
+    DESTINATION "static/cmake"
 )
+
 target_include_directories(${LIB_NAME} PUBLIC 
     $<BUILD_INTERFACE:$<TARGET_FILE_DIR:${LIB_NAME}>>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
-    $<INSTALL_INTERFACE:static/include>
+    $<INSTALL_INTERFACE:"static/include">
 )
 target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/SDL2Mixer.cpp
