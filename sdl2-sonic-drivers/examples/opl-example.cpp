@@ -389,11 +389,6 @@ int mix()
 }
 */
 
-void nullcallback()
-{
-
-}
-
 int sdlMM()
 {
     SdlMixerManager mixerManager;
@@ -403,11 +398,10 @@ int sdlMM()
     auto mixer = mixerManager.getMixer();
 
     auto opl = Config::create(OplEmulator::DOS_BOX, Config::OplType::OPL2, mixer);
-    auto cb = std::make_shared<hardware::opl::TimerCallBack>(nullcallback);
 
-    opl->start(cb);
+    opl->start(nullptr);
     opl2_test(opl);
-    opl->stop();
+    
     return 0;
 }
 
