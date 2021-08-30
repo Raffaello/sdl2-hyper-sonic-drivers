@@ -21,7 +21,6 @@ namespace audio
         uint16_t fmt;
         int chan;
         
-        
         // TODO remove sdl2_mixer dependency
         if (Mix_QuerySpec(&freq, &fmt, &chan) == 0) {
             std::string err = SDL_GetError();

@@ -5,7 +5,6 @@
 #include <audio/scummvm/SoundHandle.hpp>
 #include <audio/scummvm/Timestamp.hpp>
 #include <audio/scummvm/AudioStream.hpp>
-#include <SDL2/SDL_audio.h>
 
 namespace audio
 {
