@@ -17,7 +17,7 @@ macro(macro_example) # ${ARGN} link libraries
     #message("FILE: ${EXAMPLE_FILE}")
     #message("DEP: ${EXAMPLE_DEPS}")
     #message("LINKS: ${EXAMPLE_LINKS}")
-    message("FIXTURES: ${EXAMPLE_FIXTURES}")
+    #message("FIXTURES: ${EXAMPLE_FIXTURES}")
     add_executable (${EXAMPLE_EXE} ${EXAMPLE_FILE})
     add_dependencies(${EXAMPLE_EXE} ${EXAMPLE_DEPS}) 
     target_link_libraries(${EXAMPLE_EXE} ${EXAMPLE_LINKS})
