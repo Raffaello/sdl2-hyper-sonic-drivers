@@ -25,8 +25,9 @@ constexpr int PROFM1 = 0;   // On CT-1330, this is left OPL-2.  On CT-1600 and
 constexpr int PROFM2 = 2;   // On CT-1330, this is right OPL-2.  On CT-1600 and
                             // later cards, it's OPL-3 bank 1.
 
-void FMoutput(unsigned port, int reg, int val, std::shared_ptr<hardware::opl::OPL> opl)
 /* This outputs a value to a specified FM register at a specified FM port. */
+void FMoutput(unsigned port, int reg, int val, std::shared_ptr<hardware::opl::OPL> opl)
+
 {
     opl->write(port, reg);
     //should wait 8 microsec, but its virtual so no need to;
@@ -34,6 +35,9 @@ void FMoutput(unsigned port, int reg, int val, std::shared_ptr<hardware::opl::OP
     //should wait 55 microsec, but its virtual so no need to;
 }
 
+/* This function outputs a value to a specified FM register at the Sound
+ * Blaster (mono) port address.
+ */
 void fm(int reg, int val, std::shared_ptr<hardware::opl::OPL> opl)
 /* This function outputs a value to a specified FM register at the Sound
  * Blaster (mono) port address.
@@ -42,18 +46,18 @@ void fm(int reg, int val, std::shared_ptr<hardware::opl::OPL> opl)
     FMoutput(FM, reg, val, opl);
 }
 
-void Profm1(int reg, int val, std::shared_ptr<hardware::opl::OPL> opl)
 /* This function outputs a value to a specified FM register at the Sound
  * Blaster Pro left FM port address (or OPL-3 bank 0).
  */
+void Profm1(int reg, int val, std::shared_ptr<hardware::opl::OPL> opl)
 {
     FMoutput(PROFM1, reg, val, opl);
 }
 
-void Profm2(int reg, int val, std::shared_ptr<hardware::opl::OPL> opl)
 /* This function outputs a value to a specified FM register at the Sound
  * Blaster Pro right FM port address (or OPL-3 bank 1).
  */
+void Profm2(int reg, int val, std::shared_ptr<hardware::opl::OPL> opl)
 {
     FMoutput(PROFM2, reg, val, opl);
 }
@@ -159,7 +163,6 @@ void opl_test(const OplEmulator emu, const Config::OplType type, std::shared_ptr
     fm(0xB0, ((fn >> 8) & 0x3) + (block << 2) | KEYON, opl);
 
     delayMillis(1000);
-
 
     /*********************************************************
      * Generate a range of octaves by changing block number. *
@@ -287,7 +290,6 @@ int sdlMM()
                 spdlog::info(fmt::format(fg(c), m, emu.second, type.second));
             }
             
-            //fmt::print(s);
             opl_test(emu.first, type.first, mixer);
         }
     }

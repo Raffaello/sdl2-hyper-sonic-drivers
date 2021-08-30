@@ -36,13 +36,6 @@ namespace audio
         
     }
 
-    SDL2Mixer::SDL2Mixer(const SDL_AudioSpec& obtained)
-    {
-        _rate = obtained.freq;
-        _bitsDepth = obtained.format & 0xFF;
-        spdlog::debug("Audio {} bits", _bitsDepth);
-    }
-
     bool SDL2Mixer::isReady()
     {
         return false;

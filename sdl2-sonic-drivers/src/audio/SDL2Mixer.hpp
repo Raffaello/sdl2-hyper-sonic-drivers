@@ -17,7 +17,6 @@ namespace audio
     
     public:
         SDL2Mixer();
-        SDL2Mixer(const SDL_AudioSpec& obtained);
         virtual bool isReady() override;
         virtual void playStream(
             SoundType type,
