@@ -2,16 +2,19 @@
 //
 
 #include <iostream>
-#include <SDL2/SDL.h>
-#include <SDL_mixer.h>
 
-#include <hardware/PCSpeaker.hpp>
-#include <hardware/opl/scummvm/EmulatedOPL.hpp>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_mixer.h>
+
+#include <audio/scummvm/SDLMixerManager.hpp>
 #include <drivers/miles/XMidi.hpp>
+#include <drivers/westwood/ADLDriver.hpp>
 #include <files/XMIFile.hpp>
+#include <files/ADLFile.hpp>
+#include <hardware/PCSpeaker.hpp>
+#include <hardware/opl/scummvm/Config.hpp>
 
 #include <spdlog/spdlog.h>
-
 
 using namespace std;
 
@@ -224,32 +227,50 @@ int song()
     return 0;
 }
 
-void callback_sdl(void* userdata, uint8_t* stream, int len)
+int sdlMixer()
 {
-    //static bool first = true;
-    //if (!first) return;
-    //std::fstream wf("440Hz.dat", ios::out | ios::binary);
-    //if (!wf) return;
+    using namespace audio::scummvm;
+    using namespace hardware::opl::scummvm;
+    using namespace drivers::westwood;
+   
+    SdlMixerManager mixerManager;
+    mixerManager.init();
+    
+    std::shared_ptr<Mixer> mixer = mixerManager.getMixer();
 
-    hardware::opl::scummvm::EmulatedOPL* opl = reinterpret_cast<hardware::opl::scummvm::EmulatedOPL*>(userdata);
-    int16_t* buf = reinterpret_cast<int16_t*>(stream);
+    //spdlog::set_level(spdlog::level::debug);
+    // DOS_BOX FIX: opl3emulator 0 with opl3 and -1 with dual opl
+    auto opl = Config::create(OplEmulator::DOS_BOX, Config::OplType::OPL3, mixer);
+    std::shared_ptr<files::ADLFile> adlFile = std::make_shared<files::ADLFile>("test/fixtures/DUNE0.ADL");
+    
+    ADLDriver adlDrv(opl, adlFile);
+    adlDrv.play(4, 0xFF);
+    
+    while (!mixer->isReady()) {
+        spdlog::info("mixer not ready");
+        SDL_Delay(100);
+    }
 
-    memset(buf, 0, len);
-    // /2 if stereo and /2 if 16bits
-    int samples = opl->readBuffer(buf, len >> 1);
-    // not useful
-    /*for (int i = samples; i < l; i++) {
-        buf[i] = 0;
-    }*/
+    SDL_Delay(1000);
+    while(adlDrv.isPlaying())
+    {
+        spdlog::info("is playing");
+        SDL_Delay(1000);
+            
+    }
 
-
-    //wf.write((char*)stream, len);
-    //wf.close();
-    //first = false;
+    spdlog::info("SDLMixer quitting...");
+    SDL_Delay(1000);
+    spdlog::info("SDLMixer quit");
+    
+    return 0;
 }
 
 int main(int argc, char* argv[])
 {
+    sdlMixer();
+    SDL_Delay(100);
+
     SDL_Init(SDL_INIT_TIMER | SDL_INIT_AUDIO);
 
     int numAudioDevices = SDL_GetNumAudioDevices(0);
