@@ -18,7 +18,27 @@ else()
   message(STATUS "LITTLE_ENDIAN")
 endif()
 
+################################ Packages ####################################
+set (CPACK_SYSTEM_NAME ${CMAKE_SYSTEM_NAME})
+if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+  if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+    set(CPACK_SYSTEM_NAME win64)
+  else()
+    set(CPACK_SYSTEM_NAME win32)
+  endif()
+endif()
+set(CPACK_PACKAGE_FILE_NAME ${CMAKE_PROJECT_NAME}-${CMAKE_PROJECT_VERSION}-${CPACK_SYSTEM_NAME}-${CMAKE_BUILD_TYPE})
+set(CPACK_SOURCE_GENERATOR "ZIP")
+set(CPACK_GENERATOR "ZIP")
+set(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/README.md")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY ${CMAKE_PROJECT_DESCRIPTION})
+include(CPack)
 
+################################# Options ####################################
+option(WITH_SDL2_STATIC "linking STATIC LIB with SDL2 STATIC" OFF)
 include(CTest)
+
+##############################################################################
+
 # Include sub-projects.
 add_subdirectory ("sdl2-sonic-drivers")
