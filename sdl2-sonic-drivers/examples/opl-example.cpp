@@ -311,9 +311,13 @@ bool detect_opl3(const OplEmulator emu, const Config::OplType type, std::shared_
 
     opl->init();
 
-    fm(4, 0x60, opl);
-    fm(4, 0x80, opl);
+    //fm(4, 0x60, opl);
+    //fm(4, 0x80, opl);
     // Read status register: read port base+0.
+    for (int i = 0; i < 130; i++) {
+        opl->read(0);
+        utils::delayMicro(100);
+    }
     uint8_t status1 = opl->read(0) & 0xE0;
     
     // AND the result with 06h.
@@ -353,7 +357,7 @@ int main(int argc, char* argv[])
             }
             spdlog::info("opl2: {}", detect_opl2(emu.first, type.first, mixer));
             spdlog::info("opl3: {}", detect_opl3(emu.first, type.first, mixer));
-            opl_test(emu.first, type.first, mixer);
+            //opl_test(emu.first, type.first, mixer);
 
         }
     }
