@@ -33,6 +33,7 @@ namespace audio
             if (_dispose_stream && _stream != nullptr) {
                 delete _stream;
                 _stream = nullptr;
+                _dispose_stream = false;
             }
         }
 
@@ -69,7 +70,7 @@ namespace audio
 
                 if (_balance == 0) {
                     _volL = vol / Mixer::MaxVolume::CHANNEL;
-                    _volR = vol / Mixer::MaxVolume::MIXER;
+                    _volR = vol / Mixer::MaxVolume::CHANNEL;
                 }
                 else if (_balance < 0) {
                     _volL = vol / Mixer::MaxVolume::CHANNEL;

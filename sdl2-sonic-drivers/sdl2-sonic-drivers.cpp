@@ -239,7 +239,6 @@ int sdlMixer()
     std::shared_ptr<Mixer> mixer = mixerManager.getMixer();
 
     //spdlog::set_level(spdlog::level::debug);
-    // DOS_BOX FIX: opl3emulator 0 with opl3 and -1 with dual opl
     auto opl = Config::create(OplEmulator::DOS_BOX, Config::OplType::OPL3, mixer);
     std::shared_ptr<files::ADLFile> adlFile = std::make_shared<files::ADLFile>("test/fixtures/DUNE0.ADL");
     

@@ -330,7 +330,7 @@ namespace hardware
                 {
                     // For stereo OPL cards, we divide the sample count by 2,
                     // to match stereo AudioStream behavior.
-                    if (_type != Config::OplType::OPL2 && _emulator->opl3Active) {
+                    if (_type != Config::OplType::OPL2) {
                         length >>= 1;
                     }
 

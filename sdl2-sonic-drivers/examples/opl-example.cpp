@@ -172,7 +172,7 @@ void opl_test(const OplEmulator emu, const Config::OplType type, std::shared_ptr
     for (block = 0; block <= 7; block++) {
         spdlog::info("f={:5d} Hz", (long)440 * (1 << block) / 16);
         fm(0xB0, ((fn >> 8) & 0x3) + (block << 2) | KEYON, opl);
-        delayMillis(500);
+        delayMillis(200);
     }
 
 
@@ -238,7 +238,7 @@ void opl_test(const OplEmulator emu, const Config::OplType type, std::shared_ptr
     /*********************************
      * Attenuate the signal by 3 dB. *
      *********************************/
-
+    fm(0xb0, 0x12, opl);  /* key off */
     delayMillis(1000);
     fm(0xB0, ((fn >> 8) & 0x3) + (block << 2) | KEYON, opl);
     spdlog::info("Attenuated by 3 dB.");
@@ -269,13 +269,13 @@ int main(int argc, char* argv[])
 
     std::map<OplEmulator, std::string> emus = {
         { OplEmulator::DOS_BOX, "DOS_BOX" },
-        { OplEmulator::MAME, "MAME" },
-        { OplEmulator::NUKED, "NUKED" },
-        { OplEmulator::WOODY, "WOODY" },
+       // { OplEmulator::MAME, "MAME" },
+       // { OplEmulator::NUKED, "NUKED" },
+       // { OplEmulator::WOODY, "WOODY" },
     };
 
     std::map<Config::OplType, std::string> types = {
-        {Config::OplType::OPL2, "OPL2"},
+        //{Config::OplType::OPL2, "OPL2"},
         {Config::OplType::DUAL_OPL2, "DUAL_OPL2"},
         {Config::OplType::OPL3, "OPL3"},
     };
