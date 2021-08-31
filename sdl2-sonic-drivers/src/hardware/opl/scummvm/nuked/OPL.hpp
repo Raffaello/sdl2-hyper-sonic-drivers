@@ -15,7 +15,6 @@ namespace hardware
         {
             namespace nuked
             {
-                // TODO make it only OPL3, or fix DUAL_OPL2
                 class OPL : public EmulatedOPL
                 {
                 private:
