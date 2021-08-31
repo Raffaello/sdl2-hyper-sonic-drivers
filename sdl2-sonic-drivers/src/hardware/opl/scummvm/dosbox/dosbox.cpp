@@ -326,11 +326,13 @@ namespace hardware
                     _emulator->WriteReg(fullReg, val);
                 }
 
-                void OPL::generateSamples(int16_t* buffer, int length) {
+                void OPL::generateSamples(int16_t* buffer, int length)
+                {
                     // For stereo OPL cards, we divide the sample count by 2,
                     // to match stereo AudioStream behavior.
-                    if (_type != Config::OplType::OPL2)
+                    if (_type != Config::OplType::OPL2 && _emulator->opl3Active) {
                         length >>= 1;
+                    }
 
                     const unsigned int bufferLength = 512;
                     int32_t tempBuffer[bufferLength * 2];
