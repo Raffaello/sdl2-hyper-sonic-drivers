@@ -269,13 +269,13 @@ int main(int argc, char* argv[])
 
     std::map<OplEmulator, std::string> emus = {
         { OplEmulator::DOS_BOX, "DOS_BOX" },
-       // { OplEmulator::MAME, "MAME" },
-       // { OplEmulator::NUKED, "NUKED" },
-       // { OplEmulator::WOODY, "WOODY" },
+        { OplEmulator::MAME, "MAME" },
+        { OplEmulator::NUKED, "NUKED" },
+        { OplEmulator::WOODY, "WOODY" },
     };
 
     std::map<Config::OplType, std::string> types = {
-        //{Config::OplType::OPL2, "OPL2"},
+        {Config::OplType::OPL2, "OPL2"},
         {Config::OplType::DUAL_OPL2, "DUAL_OPL2"},
         {Config::OplType::OPL3, "OPL3"},
     };
