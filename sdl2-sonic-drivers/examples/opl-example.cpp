@@ -240,7 +240,6 @@ void opl_test(const OplEmulator emu, const Config::OplType type, std::shared_ptr
     /*********************************
      * Attenuate the signal by 3 dB. *
      *********************************/
-    fm(0xb0, 0x12, opl);  /* key off */
     delayMillis(1000);
     fm(0xB0, ((fn >> 8) & 0x3) + (block << 2) | KEYON, opl);
     spdlog::info("Attenuated by 3 dB.");
