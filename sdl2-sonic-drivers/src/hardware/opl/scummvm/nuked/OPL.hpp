@@ -36,7 +36,7 @@ namespace hardware
 
                     void writeReg(int r, int v) override;
 
-                    bool isStereo() const override { return true;/*_type != Config::OplType::OPL2;*/ }
+                    bool isStereo() const override { return true; }
 
                 protected:
                     void generateSamples(int16_t* buffer, int length);
