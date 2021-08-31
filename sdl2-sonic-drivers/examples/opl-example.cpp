@@ -30,9 +30,11 @@ void FMoutput(unsigned port, int reg, int val, std::shared_ptr<hardware::opl::OP
 
 {
     opl->write(port, reg);
-    //should wait 8 microsec, but its virtual so no need to;
+    //wait 8 microsec;
+    utils::delayMicro(8);
     opl->write(port + 1, val);
-    //should wait 55 microsec, but its virtual so no need to;
+    //wait 55 microsec
+    utils::delayMicro(55);
 }
 
 /* This function outputs a value to a specified FM register at the Sound
@@ -259,6 +261,66 @@ void opl_test(const OplEmulator emu, const Config::OplType type, std::shared_ptr
     opl->stop();
 }
 
+bool detect_opl2(const OplEmulator emu, const Config::OplType type, std::shared_ptr<audio::scummvm::Mixer> mixer)
+{
+    auto opl = Config::create(emu, type, mixer);
+    if (opl == nullptr)
+        return false;
+
+    opl->init();
+    //opl->start(nullptr);
+    utils::delayMillis(100);
+
+    // Note: Steps 1 and 2 can't be combined together.
+    // Reset Timer 1 and Timer 2: write 60h to register 4.
+    fm(4, 0x60, opl);
+    // Reset the IRQ: write 80h to register 4.
+    fm(4, 0x80, opl);
+    // Read status register: read port base+0 (388h). Save the result.
+    uint8_t status1 = opl->read(0) & 0xE0;
+    // Set Timer 1 to FFh: write FFh to register 2.
+    fm(2, 0xFF, opl);
+    // Unmask and start Timer 1: write 21h to register 4.
+    fm(4, 0x21, opl);
+    // Wait in a delay loop for at least 80 usec.
+    for (int i = 0; i < 130; i++) {
+        opl->read(0);
+        utils::delayMicro(100);
+    }
+    // Read status register: read port base+0 (388h). Save the result.
+    uint8_t status2 = opl->read(0) & 0xE0;
+    // Reset Timer 1, Timer 2 and IRQ as in steps 1 and 2.
+    fm(4, 0x60, opl);
+    fm(4, 0x80, opl);
+
+    opl->stop();
+    // Test the results of the two reads: the first should be 0, the second should be C0h. If either is incorrect, then the OPL2 is not present.
+    return status1 == 0 && status2 == 0xC0;
+
+}
+
+bool detect_opl3(const OplEmulator emu, const Config::OplType type, std::shared_ptr<audio::scummvm::Mixer> mixer)
+{
+    // Detect OPL2. If present, continue.
+    if (!detect_opl2(emu, type, mixer))
+        return false;
+
+    auto opl = Config::create(emu, type, mixer);
+    if (opl == nullptr)
+        return false;
+
+    opl->init();
+
+    //fm(4, 0x60, opl);
+    //fm(4, 0x80, opl);
+    // Read status register: read port base+0. ?
+    uint8_t status1 = opl->read(0) & 0xE0;
+    
+    // AND the result with 06h.
+    // If the result is zero, you have OPL3, otherwise OPL2.
+    return (status1 & 0x6) == 0;
+}
+
 int main(int argc, char* argv[])
 {
     SdlMixerManager mixerManager;
@@ -289,8 +351,10 @@ int main(int argc, char* argv[])
                              fmt::color::lime_green,  fmt::color::blue_violet, fmt::color::indian_red }) {
                 spdlog::info(fmt::format(fg(c), m, emu.second, type.second));
             }
-
+            //spdlog::info("opl2: {}", detect_opl2(emu.first, type.first, mixer));
+            //spdlog::info("opl3: {}", detect_opl3(emu.first, type.first, mixer));
             opl_test(emu.first, type.first, mixer);
+
         }
     }
 
