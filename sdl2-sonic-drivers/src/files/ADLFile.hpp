@@ -38,7 +38,7 @@ namespace files
             uint16_t num_instrument_offsets;
             uint16_t offset_start;
             uint16_t data_header_size;
-        };
+        } meta_version_t;
     private:
         uint8_t _version = 0;
         meta_version_t _meta_version;
