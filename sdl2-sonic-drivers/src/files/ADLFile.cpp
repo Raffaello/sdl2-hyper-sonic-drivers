@@ -58,16 +58,6 @@ namespace files
 
     constexpr int FILE_SIZE_MIN = V1_DATA_OFFSET;
 
-    /*
-    * int8_t  num_headers;
-            int16_t header_size;
-            int16_t data_offset;
-            int16_t num_track_offsets;
-            int16_t track_offsets_size;
-            int16_t num_instrument_offsets;
-            int16_t offset_start;
-            uint16_t data_header_size;
-    */
     const ADLFile::meta_version_t mv1 = {
         V1_NUM_HEADER,
         V1_HEADER_SIZE,
@@ -101,8 +91,7 @@ namespace files
         V3_DATA_HEADER_SIZE
     };
 
-    ADLFile::ADLFile(const std::string& filename) : File(filename),
-        _meta_version(mv3), _version(3)
+    ADLFile::ADLFile(const std::string& filename) : File(filename)
     {
         _assertValid(size() >= FILE_SIZE_MIN);
         detectVersion();
@@ -201,7 +190,6 @@ namespace files
     {
         seek(0, std::fstream::beg);
         // detect version 3
-        _version = 3;
         _meta_version = mv3; 
         _read = std::bind(&ADLFile::readLE16, this);
         for (int i = 0; i < V1_HEADER_SIZE; i++)
