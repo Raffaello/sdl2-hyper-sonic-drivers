@@ -109,14 +109,10 @@ namespace files
             _meta_version.track_offsets_size + _meta_version.header_size
         );
 
-        // read Data
         readDataFromFile(_meta_version.data_offset, _meta_version.data_header_size);
 
-        // count tracks
         _num_tracks = count_loop<uint8_t>(0, _header);
-        // count track offsets
         _num_track_offsets = count_loop<uint16_t>(_meta_version.offset_start, _track_offsets);
-        // count instruments
         _num_instrument_offsets = count_loop<uint16_t>(_meta_version.offset_start, _instrument_offsets);
         
         // Closing file
