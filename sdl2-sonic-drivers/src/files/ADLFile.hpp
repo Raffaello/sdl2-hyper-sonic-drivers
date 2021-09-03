@@ -28,19 +28,26 @@ namespace files
         uint32_t getDataSize() const noexcept;
         std::shared_ptr<uint8_t[]> getData() const noexcept;
 
+        typedef struct meta_version_t
+        {
+            uint8_t  num_headers;
+            uint16_t header_size;
+            uint16_t data_offset;
+            uint16_t num_track_offsets;
+            uint16_t track_offsets_size;
+            uint16_t num_instrument_offsets;
+            uint16_t offset_start;
+            uint16_t data_header_size;
+        };
     private:
         uint8_t _version = 0;
-        void detectVersion();
-        void validateVersion();
-        
-        void readHeader();
-        void readHeaderFromFile(const int header_size, std::function<uint8_t()> read);
-        
-        void readTrackOffsets();
-        void readInstrumentOffsets();
-        void readOffsetsFromFile(const int num_offsets, std::vector<uint16_t>& vec, const int offset_start);
+        meta_version_t _meta_version;
+        std::function<uint16_t()> _read;
 
-        void readData();
+        void detectVersion();
+        
+        void readHeaderFromFile(const int header_size, std::function<uint16_t()> read);
+        void readOffsetsFromFile(const int num_offsets, std::vector<uint16_t>& vec, const int offset_start);
         void readDataFromFile(const int data_offsets, const int data_heder_size);
         
         std::vector<uint8_t> _header;
@@ -50,18 +57,12 @@ namespace files
         uint32_t _dataSize = 0;
         int _dataHeaderSize = 0;
         
-        void count_tracks();
-        void count_track_offsets();
-        void count_instruments();
         template<typename T>
         int count_loop(const int num_offs, const std::vector<T>& vec);
         void adjust_offsets(std::vector<uint16_t>& vec);
         int _num_tracks = -1;
         int _num_track_offsets = -1;
         int _num_instrument_offsets = -1;
-        //int _num_programs = -1;
-
-        void _functor(std::function<void()> funcV1, std::function<void()> funcV2, std::function<void()> funcV3);
     };
 
     template<typename T>
