@@ -190,6 +190,7 @@ namespace files
     {
         seek(0, std::fstream::beg);
         // detect version 3
+        _version = 3;
         _meta_version = mv3; 
         _read = std::bind(&ADLFile::readLE16, this);
         for (int i = 0; i < V1_HEADER_SIZE; i++)
