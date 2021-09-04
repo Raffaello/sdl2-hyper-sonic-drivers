@@ -70,46 +70,27 @@ namespace files
 
     uint16_t File::readLE16()
     {
-        int16_t i = 0;
-
-        if (!_file.read(reinterpret_cast<char*>(&i), sizeof(int16_t))) {
-            throw std::system_error(errno, std::system_category(), "Cannot read file: " + _filename);
-        }
-
-        return utils::swapLE16(i);
+        return utils::swapLE16(read<int16_t>());
     }
 
     uint32_t File::readLE32()
     {
-        int32_t i = 0;
-
-        if (!_file.read(reinterpret_cast<char*>(&i), sizeof(int32_t))) {
-            throw std::system_error(errno, std::system_category(), "Cannot read file: " + _filename);
-        }
-
-        return utils::swapLE32(i);
+        return utils::swapLE32(read<int32_t>());
     }
 
     uint8_t File::readU8()
     {
-        uint8_t i = 0;
-
-        if (!_file.read(reinterpret_cast<char*>(&i), sizeof(uint8_t))) {
-            throw std::system_error(errno, std::system_category(), "Cannot read file: " + _filename);
-        }
-
-        return i;
+        return read<uint8_t>();
     }
 
     uint32_t File::readBE32()
     {
-        int32_t i = 0;
+        return utils::swapBE32(read<int32_t>());
+    }
 
-        if (!_file.read(reinterpret_cast<char*>(&i), sizeof(int32_t))) {
-            throw std::system_error(errno, std::system_category(), "Cannot read file: " + _filename);
-        }
-
-        return utils::swapBE32(i);
+    uint32_t File::readBE16()
+    {
+        return utils::swapBE16(read<int16_t>());
     }
 
     std::string File::_getFilename() const noexcept

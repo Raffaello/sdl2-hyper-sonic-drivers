@@ -90,6 +90,13 @@ macro_test(
 )
 
 macro_test(
+    EXE TestMIDFile
+    FILES "files/TestMIDFile.cpp"
+    LINKS_PRIVATE sonic-drivers-static
+    FIXTURES "fixtures/MI_intro.mid"
+)
+
+macro_test(
     EXE TestSDL2Mixer
     FILES "audio/TestSDL2Mixer.cpp"
     LINKS_PRIVATE 
