@@ -35,5 +35,18 @@ namespace files
 
     private:
         std::fstream  _file;
+
+        template<typename T> T read();
     };
+
+    template<typename T> T File::read()
+    {
+        T i;
+
+        if (!_file.read(reinterpret_cast<char*>(&i), sizeof(T))) {
+            throw std::system_error(errno, std::system_category(), "Cannot read file: " + _filename);
+        }
+
+        return i;
+    }
 }
