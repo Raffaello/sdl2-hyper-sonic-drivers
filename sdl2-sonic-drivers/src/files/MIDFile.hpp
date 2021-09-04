@@ -6,6 +6,14 @@
 
 namespace files
 {
+    // TODO this file should just read the file, check is valid and return MIDI tracks.
+    //      the content of midi tracks and midi events should be interpreted by the
+    //      sequencer
+    //      this file should return just tracks?
+    //      with a sequence of raw events inside each track? (not interpreted)
+    //      
+    //      so decouple into a MIDI sequencer to stream the events into it?
+    //      
     class MIDFile : public File
     {
     public:
@@ -20,8 +28,8 @@ namespace files
         {
             uint8_t val;
             struct {
-                uint8_t high : 4;
                 uint8_t low : 4;
+                uint8_t high : 4;
             };
         } MIDI_EVENT_type_u;
 
@@ -45,16 +53,16 @@ namespace files
             SEQUENCER_SPECIFIC = 0x7F
         };
 
-        typedef struct MIDI_event_t
+        typedef struct MIDI_track_event_t
         {
+            uint32_t delta_time;
             MIDI_EVENT_type_u type;
-            std::vector<uint8_t> values;
+            std::vector<uint8_t> event_;
         } MIDI_event_t;
 
         typedef struct MIDI_track_t
         {
-            uint32_t delta_time;
-            std::vector<MIDI_event_t> events;
+            std::vector<MIDI_track_event_t> events;
         } MIDI_track_t;
 
 
@@ -67,6 +75,7 @@ namespace files
         /// <param name="out_value">the resulting decoded value</param>
         /// <returns>byte reads</returns>
         static int decode_VLQ(const uint8_t buf[], uint32_t& out_value);
+        int decode_VLQ(uint32_t& out_value);
 
     private:
         typedef struct midi_chunk_t
@@ -108,6 +117,8 @@ namespace files
         * and represents the number of frames per second
         */
         int16_t _division = 0;
+
+
 
         /**
         * This tempo is in microseconds per minute, default 120BPM = 500000

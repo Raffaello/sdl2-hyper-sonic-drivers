@@ -28,7 +28,7 @@ namespace files
 
         // Read Tracks
         _tracks.clear();
-        _tracks.resize(_nTracks);
+        _tracks.reserve(_nTracks);
         for (int i = 0; i < _nTracks; i++)
         {
             MIDI_track_t track;
@@ -37,22 +37,19 @@ namespace files
             // Read Track
             midi_chunk_t chunk = read_chunk();
             _assertValid(MIDI_TRACK.compare(chunk.id));
-            auto buf = std::make_unique<uint8_t[]>(chunk.length);
-            // TODO: this could be not ok as it is reported in the spec that could be ignored.
-            // BODY: so read the track event by event until reach the end of track event.
-            read(buf.get(), chunk.length);
-
+            
             // events
             int offs = 0;
             track.events.clear();
-            while (!endTrack && offs < chunk.length)
+            while (!endTrack)
             {
                 // MTrck Event:
-                MIDI_event_t e;
-                
+                MIDI_track_event_t e;
+                int debug = 0;
                 // delta time encoded in VRQ
-                offs += decode_VLQ(buf.get(), track.delta_time);
-                e.type.val = buf[offs++];
+                offs += decode_VLQ(e.delta_time);
+                e.type.val = readU8();
+                offs++;
                 switch (e.type.high)
                 {
                 case 0xF:
@@ -61,19 +58,33 @@ namespace files
                     {
                     case 0x0:
                         // sys-event
+                    {int a = 0; }
                         break;
                     case 0x7:
                         // sys-event
+                    {int a = 0; }
                         break;
                     case 0xF:
                     {
                         // meta-event
-                        uint8_t type = buf[offs++];
+                        uint8_t type = readU8();
+                        offs++;
                         _assertValid(type < 128);
                         uint32_t length = 0;
-                        offs += decode_VLQ(&buf[offs], length);
-                        e.values.resize(length + 1);
-                        e.values.push_back(type);
+                        offs += decode_VLQ(length);
+                        e.event_.reserve(length + 1);
+                        e.event_.push_back(type);
+                        for (int j = 0; j < length; j++) {
+                            e.event_.push_back(readU8());
+                            offs++;
+                        }
+
+                        if (MIDI_META_EVENT::END_OF_TRACK == static_cast<MIDI_META_EVENT>(type)) {
+                            endTrack = true;
+                        }
+                        break;
+                        // MOve to the sequencer/parser
+                        /*
                         switch (static_cast<MIDI_META_EVENT>(type))
                         {
                         case MIDI_META_EVENT::SEQUENCE_NUMBER:
@@ -131,37 +142,48 @@ namespace files
                             break;
                         }
                         break;
+                        */
                     }
+                    default:
+                        spdlog::critical("MIDFile sub-event {:#04x} not recognized", e.type.val);
+                        throw std::runtime_error("");
+
                     }
-                    break;
-                case 0x8:
-                    break;
-                case 0x9:
-                    break;
-                case 0xA:
-                    break;
-                case 0xB:
                     break;
                 case 0xC:
-                    break;
                 case 0xD:
+                    e.event_.reserve(1);
+                    e.event_.push_back(readU8());
+                    offs++;
                     break;
+                case 0x8:
+                case 0x9:
+                case 0xA:
+                case 0xB:
                 case 0xE:
+                    e.event_.reserve(2);
+                    e.event_.push_back(readU8());
+                    e.event_.push_back(readU8());
+                    offs += 2;
                     break;
                 default:
-                    spdlog::critical("MIDFile: midi event {:#04x} not recognized.", e.type.val);
+                    spdlog::critical("MIDFile: midi event {:#04x} not recognized {:#03x}.", e.type.val, (uint8_t)e.type.high);
                     throw std::runtime_error("MIDFile: midi event type not recognized.");
                 }
 
+                e.event_.resize(e.event_.size());
                 track.events.push_back(e);
             }
 
             // sanity check
             if (offs != chunk.length) {
-                spdlog::critical("out of sync reading MIDFile");
-                throw std::runtime_error("MIDFile: review the buf[offs] logic");
+                spdlog::warn("MIDFile: FIleanme '{}' track {} length mismatch real length {}", _filename, chunk.length, offs);
             }
+
+            _tracks.push_back(track);
         }
+
+        _assertValid(_tracks.size() == _nTracks);
     }
 
     MIDFile::~MIDFile()
@@ -175,7 +197,7 @@ namespace files
         do
         {
             if (i >= 4) {
-                throw std::runtime_error("MIDFile: more than 32bits VLQ input");
+                throw std::runtime_error("decode_VLQ: more than 32bits VLQ input");
             }
 
             byte = buf[i++];
@@ -183,6 +205,18 @@ namespace files
         } while (byte & 0x80);
 
         return i;
+    }
+
+    int MIDFile::decode_VLQ(uint32_t& out_value)
+    {
+        uint8_t buf[4] = { 0, 0, 0, 0 };
+        uint8_t i = 0;
+        uint8_t v = 0;
+        do {
+            buf[i++] = v = readU8();
+        } while (v & 0x80);
+        
+        return decode_VLQ(buf, out_value);
     }
 
     MIDFile::midi_chunk_t MIDFile::read_chunk()
