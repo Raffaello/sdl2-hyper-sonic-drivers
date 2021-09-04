@@ -4,6 +4,7 @@
 #include <string>
 #include <cstdint>
 #include <vector>
+#include <spdlog/spdlog.h>
 
 namespace files
 {
@@ -41,6 +42,7 @@ namespace files
 
     TEST(MIDFile, cstorDefault)
     {
+        //spdlog::set_level(spdlog::level::debug);
         EXPECT_NO_THROW(MIDFile f("fixtures/MI_intro.mid"));
     }
 

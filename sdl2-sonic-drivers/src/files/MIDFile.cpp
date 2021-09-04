@@ -3,7 +3,7 @@
 #include <utils/endianness.hpp>
 #include <memory>
 #include <spdlog/spdlog.h>
-
+#include <cstring>
 
 
 namespace files
@@ -12,17 +12,13 @@ namespace files
 
     // TODO consider to "join" with IFFFile / or put common functions altogheter
     //      as it is similar to just the sub_header_chunk of IFF file.
-    constexpr const char* _MIDI_HEADER = "MThd";
-    constexpr const char* _MIDI_TRACK = "MTrk";
-    const std::string MIDI_HEADER = std::string(_MIDI_HEADER);
-    const std::string MIDI_TRACK = std::string(_MIDI_TRACK);
+    constexpr const char* MIDI_HEADER = "MThd";
+    constexpr const char* MIDI_TRACK = "MTrk";
 
     constexpr int MICROSECONDS_PER_MINUTE = 60000000;
 
     MIDFile::MIDFile(const std::string& filename) : File(filename)
     {
-        // TODO VLQ
-
         read_header();
         check_format();
 
@@ -33,10 +29,10 @@ namespace files
         {
             MIDI_track_t track;
             bool endTrack = false;
-
+            MIDI_EVENT_type_u lastStatus = { 0 };
             // Read Track
             midi_chunk_t chunk = read_chunk();
-            _assertValid(MIDI_TRACK.compare(chunk.id));
+            _assertValid(strncmp(chunk.id, MIDI_TRACK, sizeof(chunk.id)) == 0);
             
             // events
             int offs = 0;
@@ -49,7 +45,15 @@ namespace files
                 // delta time encoded in VRQ
                 offs += decode_VLQ(e.delta_time);
                 e.type.val = readU8();
-                offs++;
+                
+                if (e.type.high < 0x8)
+                {
+                    e.type = lastStatus;
+                    seek(-1, std::fstream::cur);
+                }
+                else
+                    offs++;
+
                 switch (e.type.high)
                 {
                 case 0xF:
@@ -167,12 +171,17 @@ namespace files
                     offs += 2;
                     break;
                 default:
-                    spdlog::critical("MIDFile: midi event {:#04x} not recognized {:#03x}.", e.type.val, (uint8_t)e.type.high);
-                    throw std::runtime_error("MIDFile: midi event type not recognized.");
+                    // using previous status
+                    if (lastStatus.val == 0) {
+
+                        spdlog::critical("MIDFile: midi event {:#04x} not recognized {:#03x} - last status = {} (pos={}).", e.type.val, (uint8_t)e.type.high, lastStatus.val, tell());
+                        throw std::runtime_error("MIDFile: midi event type not recognized.");
+                    }
                 }
 
                 e.event_.resize(e.event_.size());
                 track.events.push_back(e);
+                lastStatus = e.type;
             }
 
             // sanity check
@@ -212,8 +221,10 @@ namespace files
         uint8_t buf[4] = { 0, 0, 0, 0 };
         uint8_t i = 0;
         uint8_t v = 0;
+        
         do {
             buf[i++] = v = readU8();
+            _assertValid(i < 4);
         } while (v & 0x80);
         
         return decode_VLQ(buf, out_value);
@@ -232,7 +243,7 @@ namespace files
     void MIDFile::read_header()
     {
         midi_chunk_t header = read_chunk();
-        _assertValid(MIDI_HEADER.compare(header.id));
+        _assertValid(strncmp(header.id, MIDI_HEADER, sizeof(header.id)) == 0);
         _assertValid(header.length == 6);
 
         _format = readBE16();

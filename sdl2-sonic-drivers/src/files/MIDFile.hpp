@@ -125,25 +125,25 @@ namespace files
         * MICROSECONDS_PER_MINUTE / _temp = Beats per minute. 
         * MICROSECONDS_PER_MINUTE / BMP = _temp
         */
-        uint32_t _tempo = 500000;
+        //uint32_t _tempo = 500000;
 
-        uint8_t _numerator;
+        //uint8_t _numerator;
         /// <summary>
         /// negative power of 2 (2 = 1/4, 3 = 1/8, ...)
         /// </summary>
-        uint8_t _denominator;
-        uint8_t _midi_clocks_per_metronome_click;
-        uint8_t _bb; // notated 32nd notes in what MIDI thinks of a quarter note???
+        //uint8_t _denominator;
+        //uint8_t _midi_clocks_per_metronome_click;
+        //uint8_t _bb; // notated 32nd notes in what MIDI thinks of a quarter note???
         /// <summary>
         /// A positive value for the key specifies the number of sharps and a
         /// negative value specifies the number of flats.
         /// </summary>
-        uint8_t _key;
+        //uint8_t _key;
         /// <summary>
         /// A value of 0 for the scale specifies a major key and a value of 1
         /// specifies a minor key.
         /// </summary>
-        uint8_t _scale;
+        //uint8_t _scale;
 
         midi_chunk_t read_chunk();
         void read_header();
