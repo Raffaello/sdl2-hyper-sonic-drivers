@@ -79,10 +79,12 @@ namespace files
         static int decode_VLQ(const uint8_t buf[], uint32_t& out_value);
         int decode_VLQ(uint32_t& out_value);
 
-        int16_t getFormat() const noexcept;
-        int16_t getNumTracks() const noexcept;
-        int16_t getDivision() const noexcept;
+        uint16_t getFormat() const noexcept;
+        uint16_t getNumTracks() const noexcept;
+        uint16_t getDivision() const noexcept;
+        const MIDI_track_t& getTrack(const uint16_t track) const;
         const std::vector<MIDI_track_t>& getTracks() const noexcept;
+        int getTotalTime() const noexcept;
 
     private:
         typedef struct midi_chunk_t
@@ -101,12 +103,12 @@ namespace files
         *   single-track patterns
         * @see eFormat
         */
-        int16_t _format = 0;
+        uint16_t _format = 0;
         /**
         * The number of track chunks in the file.
         * It will always be 1 for a format 0 file.
         */
-        int16_t _nTracks = 0;
+        uint16_t _nTracks = 0;
         /**
         * Specifies the meaning of the delta-times. It has two formats,
         * one for metrical time, and one for time-code-based time:
@@ -123,7 +125,7 @@ namespace files
         * (-29 corresponds to 30 drop frame),
         * and represents the number of frames per second
         */
-        int16_t _division = 0;
+        uint16_t _division = 0;
 
 
 

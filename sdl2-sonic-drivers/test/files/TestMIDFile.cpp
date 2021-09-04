@@ -48,12 +48,13 @@ namespace files
         EXPECT_EQ(f.getNumTracks(), 15);
         EXPECT_EQ(f.getDivision(), 192);
 
-        auto track0 = f.getTracks()[0];
+        auto track0 = f.getTrack(0);
         EXPECT_EQ(track0.events.size(), 4);
         EXPECT_EQ(track0.events[3].type.val, 0xFF);
         EXPECT_EQ(track0.events[3].events.size(), 1);
         EXPECT_EQ(track0.events[3].events[0], (int)MIDFile::MIDI_META_EVENT::END_OF_TRACK);
         EXPECT_EQ(track0.events[3].delta_time, 0);
+        //EXPECT_EQ(f.getTotalTime(), 180);
     }
 
     TEST(MIDFile, file_not_found)

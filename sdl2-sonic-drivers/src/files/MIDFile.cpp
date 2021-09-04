@@ -230,24 +230,34 @@ namespace files
         return decode_VLQ(buf, out_value);
     }
 
-    int16_t MIDFile::getFormat() const noexcept
+    uint16_t MIDFile::getFormat() const noexcept
     {
         return _format;
     }
 
-    int16_t MIDFile::getNumTracks() const noexcept
+    uint16_t MIDFile::getNumTracks() const noexcept
     {
         return _nTracks;
     }
 
-    int16_t MIDFile::getDivision() const noexcept
+    uint16_t MIDFile::getDivision() const noexcept
     {
         return _division;
+    }
+
+    const MIDFile::MIDI_track_t& MIDFile::getTrack(const uint16_t track) const
+    {
+        return _tracks.at(track);
     }
 
     const std::vector<MIDFile::MIDI_track_t>& MIDFile::getTracks() const noexcept
     {
         return _tracks;
+    }
+
+    int MIDFile::getTotalTime() const noexcept
+    {
+        return -1;//_tracks.back().events.back().delta_time;
     }
 
     MIDFile::midi_chunk_t MIDFile::read_chunk()
