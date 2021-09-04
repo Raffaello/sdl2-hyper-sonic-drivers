@@ -112,6 +112,17 @@ namespace files
         return utils::swapBE32(i);
     }
 
+    uint32_t File::readBE16()
+    {
+        int32_t i = 0;
+
+        if (!_file.read(reinterpret_cast<char*>(&i), sizeof(int16_t))) {
+            throw std::system_error(errno, std::system_category(), "Cannot read file: " + _filename);
+        }
+
+        return utils::swapBE16(i);
+    }
+
     std::string File::_getFilename() const noexcept
     {
         return std::filesystem::path(_filename).filename().string();

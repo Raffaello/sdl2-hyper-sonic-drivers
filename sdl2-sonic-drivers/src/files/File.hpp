@@ -27,6 +27,7 @@ namespace files
         uint32_t readLE32();
         uint8_t  readU8();
         uint32_t readBE32();
+        uint32_t readBE16();
 
         std::string _getFilename() const noexcept;
         std::string _getPath() const noexcept;
