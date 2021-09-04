@@ -42,8 +42,18 @@ namespace files
 
     TEST(MIDFile, cstorDefault)
     {
-        //spdlog::set_level(spdlog::level::debug);
-        EXPECT_NO_THROW(MIDFile f("fixtures/MI_intro.mid"));
+        MIDFile f("fixtures/MI_intro.mid");
+
+        EXPECT_EQ(f.getFormat(), 1);
+        EXPECT_EQ(f.getNumTracks(), 15);
+        EXPECT_EQ(f.getDivision(), 192);
+
+        auto track0 = f.getTracks()[0];
+        EXPECT_EQ(track0.events.size(), 4);
+        EXPECT_EQ(track0.events[3].type.val, 0xFF);
+        EXPECT_EQ(track0.events[3].event_.size(), 1);
+        EXPECT_EQ(track0.events[3].event_[0], (int)MIDFile::MIDI_META_EVENT::END_OF_TRACK);
+        EXPECT_EQ(track0.events[3].delta_time, 0);
     }
 
     TEST(MIDFile, file_not_found)

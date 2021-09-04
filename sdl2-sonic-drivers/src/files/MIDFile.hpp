@@ -77,6 +77,11 @@ namespace files
         static int decode_VLQ(const uint8_t buf[], uint32_t& out_value);
         int decode_VLQ(uint32_t& out_value);
 
+        int16_t getFormat() const noexcept;
+        int16_t getNumTracks() const noexcept;
+        int16_t getDivision() const noexcept;
+        const std::vector<MIDI_track_t>& getTracks() const noexcept;
+
     private:
         typedef struct midi_chunk_t
         {

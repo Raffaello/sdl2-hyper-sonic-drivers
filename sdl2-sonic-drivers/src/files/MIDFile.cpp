@@ -46,13 +46,13 @@ namespace files
                 offs += decode_VLQ(e.delta_time);
                 e.type.val = readU8();
                 
-                if (e.type.high < 0x8)
-                {
+                if (e.type.high < 0x8) {
                     e.type = lastStatus;
                     seek(-1, std::fstream::cur);
                 }
-                else
+                else {
                     offs++;
+                }
 
                 switch (e.type.high)
                 {
@@ -228,6 +228,26 @@ namespace files
         } while (v & 0x80);
         
         return decode_VLQ(buf, out_value);
+    }
+
+    int16_t MIDFile::getFormat() const noexcept
+    {
+        return _format;
+    }
+
+    int16_t MIDFile::getNumTracks() const noexcept
+    {
+        return _nTracks;
+    }
+
+    int16_t MIDFile::getDivision() const noexcept
+    {
+        return _division;
+    }
+
+    const std::vector<MIDFile::MIDI_track_t>& MIDFile::getTracks() const noexcept
+    {
+        return _tracks;
     }
 
     MIDFile::midi_chunk_t MIDFile::read_chunk()
