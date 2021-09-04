@@ -76,10 +76,10 @@ namespace files
                         _assertValid(type < 128);
                         uint32_t length = 0;
                         offs += decode_VLQ(length);
-                        e.event_.reserve(length + 1);
-                        e.event_.push_back(type);
+                        e.events.reserve(length + 1);
+                        e.events.push_back(type);
                         for (int j = 0; j < length; j++) {
-                            e.event_.push_back(readU8());
+                            e.events.push_back(readU8());
                             offs++;
                         }
 
@@ -156,8 +156,8 @@ namespace files
                     break;
                 case 0xC:
                 case 0xD:
-                    e.event_.reserve(1);
-                    e.event_.push_back(readU8());
+                    e.events.reserve(1);
+                    e.events.push_back(readU8());
                     offs++;
                     break;
                 case 0x8:
@@ -165,9 +165,9 @@ namespace files
                 case 0xA:
                 case 0xB:
                 case 0xE:
-                    e.event_.reserve(2);
-                    e.event_.push_back(readU8());
-                    e.event_.push_back(readU8());
+                    e.events.reserve(2);
+                    e.events.push_back(readU8());
+                    e.events.push_back(readU8());
                     offs += 2;
                     break;
                 default:
@@ -179,7 +179,7 @@ namespace files
                     }
                 }
 
-                e.event_.resize(e.event_.size());
+                e.events.resize(e.events.size());
                 track.events.push_back(e);
                 lastStatus = e.type;
             }
@@ -279,8 +279,6 @@ namespace files
             _assertValid(_nTracks == 1);
             break;
         case MIDI_FORMAT::SIMULTANEOUS_TRACK:
-            _assertValid(_nTracks >= 1);
-            break;
         case MIDI_FORMAT::MULTI_TRACK:
             _assertValid(_nTracks >= 1);
             break;

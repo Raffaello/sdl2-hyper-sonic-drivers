@@ -3,6 +3,7 @@
 #include <files/File.hpp>
 #include <cstdint>
 #include <vector>
+#include <string>
 
 namespace files
 {
@@ -57,7 +58,7 @@ namespace files
         {
             uint32_t delta_time;
             MIDI_EVENT_type_u type;
-            std::vector<uint8_t> event_;
+            std::vector<uint8_t> events;
         } MIDI_event_t;
 
         typedef struct MIDI_track_t
@@ -74,6 +75,7 @@ namespace files
         /// <param name="buf">the max 4 bytes array to decode</param>
         /// <param name="out_value">the resulting decoded value</param>
         /// <returns>byte reads</returns>
+        /// TODO: move to utils the static version
         static int decode_VLQ(const uint8_t buf[], uint32_t& out_value);
         int decode_VLQ(uint32_t& out_value);
 
