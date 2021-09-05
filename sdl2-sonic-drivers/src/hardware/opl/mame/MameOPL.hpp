@@ -1,7 +1,8 @@
 #pragma once
 
 #include <hardware/opl/scummvm/EmulatedOPL.hpp>
-#include <hardware/opl/mame/ymfm/ymfm_opl.h>
+//#include <hardware/opl/mame/ymfm/ymfm_opl.h>
+#include <hardware/opl/mame/opl3/ymf262.h>
 
 namespace hardware
 {
@@ -13,8 +14,9 @@ namespace hardware
             {
             private:
                 // OPL3
-                ymfm::ymf262* _opl;
-                ymfm::ymfm_interface _ymfm;
+                //ymfm::ymf262* _opl;
+                //ymfm::ymfm_interface _ymfm;
+                void* _opl;
             public:
                 MameOPL(const std::shared_ptr<audio::scummvm::Mixer> mixer);
                 virtual ~MameOPL();
