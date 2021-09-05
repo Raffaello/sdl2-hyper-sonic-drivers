@@ -14,16 +14,22 @@ namespace hardware
 
 
             MameOPL::MameOPL(const std::shared_ptr<audio::scummvm::Mixer> mixer) : EmulatedOPL(mixer),
-                _opl(nullptr)
+                _chip(nullptr), _opl(nullptr)
             {}
 
             MameOPL::~MameOPL()
             {
-                if (_opl != nullptr)
+                if (_chip != nullptr)
                 {
                     stopCallbacks();
                     //delete _opl;
-                    ymf262_shutdown(_opl);
+                    ymf262_shutdown(_chip);
+                }
+
+                if (_opl != nullptr)
+                {
+                    stopCallbacks();
+                    delete _opl;
                 }
             }
             bool MameOPL::init()
@@ -32,40 +38,44 @@ namespace hardware
                     return true;
                 }
 
-                //_opl = new ymfm::ymf262(_ymfm);
-                //_opl->sample_rate(_mixer->getOutputRate());
-                //_opl->reset();
+                _opl = new ymfm::ymf262(_ymfm);
 
-                _opl = ymf262_init(0, OPL3_INTERNAL_FREQ, _mixer->getOutputRate());
+                auto rate = _opl->sample_rate(OPL3_INTERNAL_FREQ);
+                //_opl->sample_rate(_mixer->getOutputRate());
+                
+
+                _chip = ymf262_init(0, OPL3_INTERNAL_FREQ, _mixer->getOutputRate());
 
                 return _opl != nullptr;
             }
             void MameOPL::reset()
             {
-                //_opl->reset();
-                ymf262_reset_chip(_opl);
+                _opl->reset();
+                ymf262_reset_chip(_chip);
             }
             void MameOPL::write(int a, int v)
             {
                 // ???
                 //_opl->write_address(a);
                 //_opl->write_data(v);
-                //_opl->write(a, v);
+                _opl->write(a, v);
 
-                ymf262_write(_opl, a, v);
+                ymf262_write(_chip, a, v);
             }
             uint8_t MameOPL::read(int a)
             {
-                //return _opl->read(a);
+                return _opl->read(a);
 
-                return ymf262_read(_opl, a);
+                //return ymf262_read(_chip, a);
             }
 
             void MameOPL::writeReg(int r, int v)
             {
-                //_opl->write(r, v);
-                ymf262_write(_opl, 0, r);
-                ymf262_write(_opl, 1, v);
+                _opl->write(0, r);
+                _opl->write(1, v);
+
+                ymf262_write(_chip, 0, r);
+                ymf262_write(_chip, 1, v);
             }
 
             bool MameOPL::isStereo() const
@@ -76,28 +86,33 @@ namespace hardware
             void MameOPL::generateSamples(int16_t* buffer, int length)
             {
                 constexpr int MAX_SIZE = 512;
-                //ymfm::ymf262::output_data b[MAX_SIZE];
-                //b = new ymfm::ymf262::output_data[1024];
-                //int remaining = length * 2 / _opl->OUTPUTS;
+                ymfm::ymf262::output_data b[MAX_SIZE];
+                int remaining = length * 2 / _opl->OUTPUTS;
                 
-                int remaining = length / 2;
+                //int remaining = length / 2;
                 int16_t buf[4][1024];
-                //int16_t result[1024][2];
                 int16_t* buffers[4] = { buf[0], buf[1], buf[2], buf[3] };
 
                 while (remaining > 0)
                 {
                     const int numSamples = std::min(remaining, MAX_SIZE);
 
-                    //_opl->generate(b, numSamples);
+                    _opl->generate(b, numSamples);
 
-                    ymf262_update_one(_opl, buffers, numSamples);
+                    ymf262_update_one(_chip, buffers, numSamples);
                     //Interleave the samples before mixing
                     for (int i = 0; i < numSamples; i++) {
-                        //result[i][0] = buf[0][i];
-                        //result[i][1] = buf[1][i];
-                        buffer[i * 2] = buf[0][i];
-                        buffer[i * 2 + 1] = buf[2][i];
+                        //buffer[i * 2] = (buf[0][i] + buf[2][i])  / 2;
+                        //buffer[i * 2 + 1] = (buf[1][i] + buf[3][i]) / 2;
+
+                        buffer[i * 2] = b[i].data[0];
+                        buffer[i * 2 + 1] = b[i].data[1];
+
+                        auto a = buf[0][i] - b[i].data[0];
+                        auto z = buf[1][i] - b[i].data[1];
+                        auto c = buf[2][i] - b[i].data[2];
+                        auto d = buf[3][i] - b[i].data[3];
+                        int e = 0;
                     }
                     
                     

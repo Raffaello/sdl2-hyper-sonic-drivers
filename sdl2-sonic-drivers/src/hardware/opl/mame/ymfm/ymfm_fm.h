@@ -398,7 +398,7 @@ namespace hardware
 
                     // compute sample rate
                     uint32_t sample_rate(uint32_t baseclock) const { return baseclock / (m_clock_prescale * OPERATORS); }
-
+                    
                     // return the owning device
                     ymfm_interface& intf() const { return m_intf; }
 
