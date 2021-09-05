@@ -102,6 +102,7 @@ target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/mame/ymfm/ymfm_fm.ipp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/mame/ymfm/ymfm_opl.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/mame/ymfm/ymfm_pcm.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/mame/MameOPL.cpp
     # --- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/woody/WoodyOPL.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/woody/OPL.cpp

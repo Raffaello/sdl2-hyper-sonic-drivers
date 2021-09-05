@@ -28,12 +28,10 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef YMFM_ADPCM_H
-#define YMFM_ADPCM_H
-
 #pragma once
 
 #include "ymfm.h"
+
 namespace hardware
 {
     namespace opl
@@ -42,7 +40,6 @@ namespace hardware
         {
             namespace ymfm
             {
-
                 //*********************************************************
                 //  INTERFACE CLASSES
                 //*********************************************************
@@ -415,4 +412,3 @@ namespace hardware
         }
     }
 }
-#endif // YMFM_ADPCM_H

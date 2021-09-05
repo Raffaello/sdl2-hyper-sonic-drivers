@@ -28,9 +28,6 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef YMFM_FM_H
-#define YMFM_FM_H
-
 #pragma once
 
 namespace hardware
@@ -41,7 +38,6 @@ namespace hardware
         {
             namespace ymfm
             {
-
                 //*********************************************************
                 //  GLOBAL ENUMERATORS
                 //*********************************************************
@@ -53,7 +49,6 @@ namespace hardware
                     KEYON_RHYTHM = 1,
                     KEYON_CSM = 2
                 };
-
 
 
                 //*********************************************************
@@ -454,5 +449,3 @@ namespace hardware
         }
     }
 }
-
-#endif // YMFM_FM_H

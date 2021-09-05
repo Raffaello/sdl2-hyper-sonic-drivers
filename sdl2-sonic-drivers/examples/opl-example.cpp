@@ -1,5 +1,8 @@
 #include <hardware/opl/OPL.hpp>
 #include <hardware/opl/scummvm/Config.hpp>
+
+#include <hardware/opl/mame/MameOPL.hpp>
+
 #include <utils/algorithms.hpp>
 #include <audio/scummvm/SDLMixerManager.hpp>
 
@@ -329,15 +332,15 @@ int main(int argc, char* argv[])
     auto mixer = mixerManager.getMixer();
 
     std::map<OplEmulator, std::string> emus = {
-        { OplEmulator::DOS_BOX, "DOS_BOX" },
+        //{ OplEmulator::DOS_BOX, "DOS_BOX" },
         { OplEmulator::MAME, "MAME" },
-        { OplEmulator::NUKED, "NUKED" },
-        { OplEmulator::WOODY, "WOODY" },
+        //{ OplEmulator::NUKED, "NUKED" },
+        //{ OplEmulator::WOODY, "WOODY" },
     };
 
     std::map<Config::OplType, std::string> types = {
-        {Config::OplType::OPL2, "OPL2"},
-        {Config::OplType::DUAL_OPL2, "DUAL_OPL2"},
+        //{Config::OplType::OPL2, "OPL2"},
+        //{Config::OplType::DUAL_OPL2, "DUAL_OPL2"},
         {Config::OplType::OPL3, "OPL3"},
     };
 

@@ -50,11 +50,9 @@ namespace hardware
         {
             namespace ymfm
             {
-
                 //*********************************************************
                 //  DEBUGGING
                 //*********************************************************
-
                 class debug
                 {
                 public:
@@ -79,7 +77,6 @@ namespace hardware
                 };
 
 
-
                 //*********************************************************
                 //  GLOBAL HELPERS
                 //*********************************************************
@@ -100,7 +97,6 @@ namespace hardware
                 //  clamp - clamp between the minimum and maximum
                 //  values provided
                 //-------------------------------------------------
-
                 inline int32_t clamp(int32_t value, int32_t minval, int32_t maxval)
                 {
                     if (value < minval)
@@ -114,7 +110,6 @@ namespace hardware
                 //-------------------------------------------------
                 //  array_size - return the size of an array
                 //-------------------------------------------------
-
                 template<typename ArrayType, int ArraySize>
                 constexpr uint32_t array_size(ArrayType(&array)[ArraySize])
                 {
@@ -189,7 +184,6 @@ namespace hardware
                 //  convert it to a signed 3.10 floating-point
                 //  value
                 //-------------------------------------------------
-
                 inline int16_t encode_fp(int32_t value)
                 {
                     // handle overflows first
@@ -220,7 +214,6 @@ namespace hardware
                 //  decode_fp - given a 3.10 floating-point value,
                 //  convert it to a signed 16-bit value
                 //-------------------------------------------------
-
                 inline int16_t decode_fp(int16_t value)
                 {
                     // invert the sign and the exponent
@@ -235,7 +228,6 @@ namespace hardware
                 //  roundtrip_fp - compute the result of a round
                 //  trip through the encode/decode process above
                 //-------------------------------------------------
-
                 inline int16_t roundtrip_fp(int32_t value)
                 {
                     // handle overflows first
