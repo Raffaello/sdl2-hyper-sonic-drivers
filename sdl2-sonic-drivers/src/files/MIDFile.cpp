@@ -257,7 +257,24 @@ namespace files
 
     int MIDFile::getTotalTime() const noexcept
     {
-        return -1;//_tracks.back().events.back().delta_time;
+        // TODO: format 2 won't be right.
+        int max = 0;
+        for (auto& t : _tracks)
+        {
+            int sum = 0;
+            for (auto& e : t.events)
+            {
+                sum += e.delta_time;
+            }
+
+            if (sum > max) {
+                max = sum;
+            }
+        }
+
+        // max / (_tempo / _division) (with _divsion bit 15 = 0)
+
+        return -1;
     }
 
     MIDFile::midi_chunk_t MIDFile::read_chunk()
