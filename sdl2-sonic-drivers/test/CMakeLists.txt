@@ -154,22 +154,27 @@ macro_test(
 macro_test(
     EXE TestIFFFile
     FILES "files/TestIFFFile.cpp"
-        "../src/files/IFFFile.cpp"
-        "../src/files/File.cpp"
-        "../src/utils/endianness.cpp"
-    #LINKS_PRIVATE sonic-drivers-static
+    #    "../src/files/IFFFile.cpp"
+    #    "../src/files/File.cpp"
+    #    "../src/utils/endianness.cpp"
+    LINKS_PRIVATE sonic-drivers-static
 )
 
 macro_test(
     EXE TestXMIFile
     FILES "files/TestXMIFile.cpp"
-        "../src/files/XMIFile.cpp"
-        "../src/files/IFFFile.cpp"
-        "../src/files/File.cpp"
-        "../src/utils/endianness.cpp"
-    #LINKS_PRIVATE sonic-drivers-static
+    LINKS_PRIVATE sonic-drivers-static
     FIXTURES 
         "fixtures/header.xmi"
         "fixtures/header_no_xdir.xmi"
         "fixtures/AIL2_14_DEMO.XMI"
+)
+
+
+macro_test(
+    EXE TestXMidi
+    FILES "drivers/miles/TestXMidi.cpp"
+    LINKS_PRIVATE sonic-drivers-static
+    FIXTURES 
+        "fixtures/ADLIB.ADV"
 )

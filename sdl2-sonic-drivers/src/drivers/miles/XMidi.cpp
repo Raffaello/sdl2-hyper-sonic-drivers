@@ -16,24 +16,24 @@ namespace drivers
             }
 
             driver_header_t header;
-            header.index_offset = SDL_ReadLE16(f);
+            header.dirver_index_offset = SDL_ReadLE16(f);
             SDL_RWread(f, header.magic, DRIVER_MAGIC_SIZE, 1);
             if (strncmp(DRIVER_MAGIC, header.magic, DRIVER_MAGIC_SIZE) != 0) {
                 throw std::invalid_argument("");
             }
 
-            /*if (tell != header.index_offset) {
+            if (SDL_RWtell(f) != header.dirver_index_offset) {
                 throw std::invalid_argument("");
-            }*/
+            }
 
             //driver_index_offsets_t offsets;
-            //// - 1 is because there is 1 extra char '\0' in the magic, +2 is the padding 0x00 0x00
+            // - 1 is because there is 1 extra char '\0' in the magic, +2 is the padding 0x00 0x00
             //offsets.describe_driver = SDL_ReadLE16(f);
             //offsets.detect_device = SDL_ReadLE16(f) + sizeof(driver_header_t) + 1;
             //offsets.init_driver = SDL_ReadLE16(f) + sizeof(driver_header_t) + 1;
             //offsets.serve_driver = SDL_ReadLE16(f) + sizeof(driver_header_t) + 1;
             //offsets.shutdown_driver = SDL_ReadLE16(f) + sizeof(driver_header_t) + 1;
-            //
+            
             //offsets.get_state_size = SDL_ReadLE16(f) + sizeof(driver_header_t) + 1;
             //offsets.install_callback = SDL_ReadLE16(f) + sizeof(driver_header_t) + 1;
             //offsets.cancel_callback = SDL_ReadLE16(f) + sizeof(driver_header_t) + 1;
@@ -77,8 +77,8 @@ namespace drivers
             //    throw std::invalid_argument("");
             //}
 
-            driver_function_t funcs[NUM_DRIVER_FUNCTIONS];
-            SDL_RWread(f, funcs, sizeof(driver_function_t), NUM_DRIVER_FUNCTIONS);
+            driver_index_t funcs[NUM_DRIVER_FUNCTIONS];
+            SDL_RWread(f, funcs, sizeof(driver_index_t), NUM_DRIVER_FUNCTIONS);
             int16_t minusOne = SDL_ReadLE16(f);
 
             int64_t tell = SDL_RWtell(f);
