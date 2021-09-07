@@ -5,7 +5,7 @@
 
 namespace files
 {
-    constexpr const int NUM_CHAN = 16; // of MIDI channels
+    
 
     constexpr char DRIVER_MAGIC[AILDriverFile::DRIVER_MAGIC_SIZE + 1] = "Copyright (C) 1991,1992 Miles Design, Inc.\x1a";
     
@@ -152,9 +152,7 @@ namespace files
 
     void AILDriverFile::readDriverDescriptorTable()
     {
-        //int t = tell();
         int res = callFunction(eDriverFunction::AIL_DESC_DRVR);
-        //_assertValid(t == res);
         seek(res, std::fstream::beg);
 
         read(&_ddt, sizeof(driver_descriptor_table_t));
@@ -167,5 +165,45 @@ namespace files
             seek(_ddt.offset_devname_s, std::fstream::beg);
             _deviceName_s = _readStringFromFile();
         }
+
+        _assertValid(readU8() == 0); // 0 extra padding
+
+        // setStereo()
+        _isStereo = strncmp(_ddt.data_suffix, "OPL", 4) == 0;
+
+        read(_freq_table, FREQ_TABLE_SIZE * sizeof(int16_t));
+        read(_note_octave, NOTE_TABLE_SIZE * sizeof(int8_t));
+        read(_note_halftone, NOTE_TABLE_SIZE * sizeof(int8_t));
+        read(_array0_init, ARRAY_INIT_SIZE * sizeof(uint8_t));
+        read(_array1_init, ARRAY_INIT_SIZE * sizeof(uint8_t));
+        read(_vel_graph, NUM_CHAN * sizeof(uint8_t));
+        
+        if (_isStereo) {
+            read(_pan_graph, PAN_GRAPH_SIZE * sizeof(uint8_t));
+        }
+
+        read(_op_0, NUM_VOICES * sizeof(uint8_t));
+        read(_op_1, NUM_VOICES * sizeof(uint8_t));
+        read(_op_index, NUM_VOICES * 2 * sizeof(uint8_t));
+        read(_op_array, NUM_VOICES * 2 * sizeof(uint8_t));
+
+        read(_voice_num, NUM_VOICES * sizeof(uint8_t));
+        read(_voice_array, NUM_VOICES * sizeof(uint8_t));
+        read(_op4_base, NUM_VOICES * sizeof(uint8_t));
+        read(_alt_voice, NUM_VOICES * sizeof(uint8_t));
+
+        if (_isStereo) {
+            // could be DUAL_OPL2 instead of OPL3
+            // but i coded that is only OPL3 here...
+            read(_alt_op_0, NUM_VOICES * sizeof(uint8_t));
+            read(_alt_op_1, NUM_VOICES * sizeof(uint8_t));
+            read(_conn_sel, NUM_VOICES * sizeof(uint8_t));
+            read(_op4_voice, NUM_VOICES * sizeof(uint8_t));
+            read(_carrier_01, 4 * sizeof(uint8_t));
+            read(_carrier_23, 4 * sizeof(uint8_t));
+        }
+
+
+        int i = 0;
     }
 }

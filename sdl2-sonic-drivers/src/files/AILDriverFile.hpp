@@ -17,11 +17,30 @@ namespace files
     /// and the driver ADLIB.ADV(YAMAHA.INC) should be the
     /// implementation with specific paramters.
     /// </summary>
+    /// TODO: this is working for only YAMAHA file
+    /// should be proably be specialized.
     class AILDriverFile : public File
     {
     public:
+        /*
+        IFDEF YM3812
+            NUM_VOICES      equ 9; # of physical voices available
+            NUM_SLOTS       equ 16; # of virtual voices available
+            ELSEIFDEF YMF262
+            NUM_VOICES      equ 18; # of physical voices available
+            NUM_4OP_VOICES  equ 6
+            NUM_SLOTS       equ 20; # of virtual voices available
+        ENDIF
+        */
         static const int DRIVER_MAGIC_SIZE = 43;
         static const int NUM_DRIVER_FUNCTIONS = 38;
+        static const int FREQ_TABLE_SIZE = 192;
+        static const int NOTE_TABLE_SIZE = 12 * 8;
+        static const int ARRAY_INIT_SIZE = 245;
+        static const int NUM_CHAN = 16; // of MIDI channels
+        static const int PAN_GRAPH_SIZE = NUM_CHAN * 8;
+        static const int NUM_VOICES = 18; // OPL3 (OPL2 is half)
+        static const int NUM_4OP_VOICES = 6;
 
         typedef struct driver_header_t
         {
@@ -96,11 +115,19 @@ namespace files
             AIL_TRUE_SEQ_CHAN = 194
         };
 
+        // used for driver_descriptor_table_t.driver_type
+        enum class eDriverType
+        {
+            XMIDI_EMULATION = 3
+        };
+
         typedef struct driver_descriptor_table_t
         {
             int16_t min_api_version;
             int16_t driver_type;
-            char    data_suffix[4]; // OPL2 = 'AD\0\0', OPL3='OPL\0' terminated by zero
+            // Global Timbre file extension
+            // OPL2 = 'AD\0\0', OPL3='OPL\0' backward compatible with 'AD'.
+            char    data_suffix[4]; 
             int16_t offset_devname_o; // offset to a string
             int16_t offset_devname_s;
             int16_t default_io;
@@ -110,6 +137,40 @@ namespace files
             int16_t service_rate;
             int16_t display_size;
         } driver_descriptor_table_t;
+
+
+        typedef struct BNK_style_timbre_definition_t
+        {
+            uint16_t length;
+            uint8_t  transpose;
+            uint8_t  mod_AVEKM; // op_0 = FM modulator
+            uint8_t  mod_KSLTL;
+            uint8_t  mod_AD;
+            uint8_t  mod_SR;
+            uint8_t  mod_WS;
+            uint8_t  fb_c;
+            uint8_t  car_AVEKM; // op_1 = FM carrier
+            uint8_t  car_KSLTL;
+            uint8_t  car_AD;
+            uint8_t  car_SR;
+            uint8_t  car_WS;
+        } BNK_style_timbre_definition_t;
+
+        typedef struct OPL3_BNK_style_timbre_definition_t
+        {
+            BNK_style_timbre_definition_t opl2;
+            uint8_t O_mod_AVEKM; // op_2
+            uint8_t O_mod_KSLTL;
+            uint8_t O_mod_AD;
+            uint8_t O_mod_SR;
+            uint8_t O_mod_WS;
+            uint8_t O_fb_c;
+            uint8_t O_car_AVEKM; // op_3
+            uint8_t O_car_KSLTL;
+            uint8_t O_car_AD;
+            uint8_t O_car_SR;
+            uint8_t O_car_WS;
+        } OPL3_BNK_style_timbre_defintion_t;
 
         AILDriverFile(const std::string& filename);
         virtual ~AILDriverFile();
@@ -129,6 +190,32 @@ namespace files
         driver_descriptor_table_t _ddt;
         std::string _deviceName_o;
         std::string _deviceName_s;
+        bool _isStereo; // control flag
+
+        uint16_t _freq_table[FREQ_TABLE_SIZE];
+        uint8_t _note_octave[NOTE_TABLE_SIZE];
+        uint8_t _note_halftone[NOTE_TABLE_SIZE];
+        uint8_t _array0_init[ARRAY_INIT_SIZE];
+        uint8_t _array1_init[ARRAY_INIT_SIZE];
+        uint8_t _vel_graph[NUM_CHAN];
+        uint8_t _pan_graph[PAN_GRAPH_SIZE]; // only if stereo...
+        uint8_t _op_0[NUM_VOICES];
+        uint8_t _op_1[NUM_VOICES];
+        uint8_t _op_index[NUM_VOICES * 2];
+        uint8_t _op_array[NUM_VOICES * 2];
+        uint8_t _voice_num[NUM_VOICES];
+        uint8_t _voice_array[NUM_VOICES];
+        uint8_t _op4_base[NUM_VOICES];
+        uint8_t _alt_voice[NUM_VOICES];
+        
+        // only if YM262 (OPL3)
+        uint8_t _alt_op_0[NUM_VOICES];
+        uint8_t _alt_op_1[NUM_VOICES];
+        uint8_t _conn_sel[NUM_VOICES];
+        uint8_t _op4_voice[NUM_4OP_VOICES];
+        uint8_t _carrier_01[4];
+        uint8_t _carrier_23[4];
+        // end only if
 
         int findFunctionIndex(const eDriverFunction func) const noexcept;
         int callFunction(const eDriverFunction func);
