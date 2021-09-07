@@ -83,6 +83,8 @@ target_include_directories(${LIB_NAME} PUBLIC
 )
 target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/SDL2Mixer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/DiskRendererMixerManager.cpp
+    # --- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/scummvm/SDLMixerManager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/scummvm/Channel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/scummvm/MixerImpl.cpp

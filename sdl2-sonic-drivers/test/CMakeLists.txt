@@ -58,6 +58,7 @@ macro_test(
 macro_test(
     EXE TestAlgorithms
     FILES "utils/TestAlgorithms.cpp"
+    LINKS_PRIVATE sonic-drivers-static
 )
 
 macro_test(

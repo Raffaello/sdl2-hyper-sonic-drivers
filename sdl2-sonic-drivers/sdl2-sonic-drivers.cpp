@@ -16,6 +16,10 @@
 
 #include <hardware/opl/mame/MameOPL.hpp>
 
+#include <audio/DiskRendererMixerManager.hpp>
+
+#include <utils/algorithms.hpp>
+
 #include <spdlog/spdlog.h>
 
 using namespace std;
@@ -268,10 +272,49 @@ int sdlMixer()
     return 0;
 }
 
+int renderMixer()
+{
+    using namespace audio::scummvm;
+    using namespace hardware::opl::scummvm;
+    using namespace drivers::westwood;
+
+    audio::DiskRendererMixerManager mixerManager(44100);
+    mixerManager.init();
+    mixerManager.startRecording("test.dat");
+
+    std::shared_ptr<Mixer> mixer = mixerManager.getMixer();
+
+    //spdlog::set_level(spdlog::level::debug);
+    //auto opl = Config::create(OplEmulator::NUKED, Config::OplType::OPL3, mixer);
+    auto opl = std::make_shared<hardware::opl::mame::MameOPL>(mixer);
+    std::shared_ptr<files::ADLFile> adlFile = std::make_shared<files::ADLFile>("test/fixtures/DUNE0.ADL");
+
+    ADLDriver adlDrv(opl, adlFile);
+    adlDrv.play(4, 0xFF);
+
+    while (!mixer->isReady()) {
+        spdlog::info("mixer not ready");
+        SDL_Delay(100);
+    }
+
+    utils::delayMillis(1000);
+    while (adlDrv.isPlaying())
+    {
+        spdlog::info("is playing");
+        utils::delayMillis(100);
+
+    }
+
+    spdlog::info("renderer quitting...");
+
+    return 0;
+}
+
 int main(int argc, char* argv[])
 {
     sdlMixer();
     SDL_Delay(100);
+    //renderMixer();
 
     SDL_Init(SDL_INIT_TIMER | SDL_INIT_AUDIO);
 
