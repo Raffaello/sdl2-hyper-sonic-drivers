@@ -16,13 +16,13 @@ namespace drivers
             }
 
             driver_header_t header;
-            header.dirver_index_offset = SDL_ReadLE16(f);
+            header.driver_index_offset = SDL_ReadLE16(f);
             SDL_RWread(f, header.magic, DRIVER_MAGIC_SIZE, 1);
             if (strncmp(DRIVER_MAGIC, header.magic, DRIVER_MAGIC_SIZE) != 0) {
                 throw std::invalid_argument("");
             }
 
-            if (SDL_RWtell(f) != header.dirver_index_offset) {
+            if (SDL_RWtell(f) != header.driver_index_offset) {
                 throw std::invalid_argument("");
             }
 
@@ -80,23 +80,50 @@ namespace drivers
             driver_index_t funcs[NUM_DRIVER_FUNCTIONS];
             SDL_RWread(f, funcs, sizeof(driver_index_t), NUM_DRIVER_FUNCTIONS);
             int16_t minusOne = SDL_ReadLE16(f);
+            if (minusOne != -1) {
+                throw std::runtime_error("something not ok");
+            }
 
             int64_t tell = SDL_RWtell(f);
-            int zero = SDL_ReadLE16(f);
-            /*if (zero != 0) {
-                throw std::invalid_argument("");
-            }*/
-
-             tell = SDL_RWtell(f);
-             
-            SDL_RWseek(f, funcs[0].offset, RW_SEEK_SET);
-            constexpr char ADLIB[33] = "Ad Lib(R) Music Synthesizer Card";
-            char desc[33];
-            SDL_RWread(f, desc, 33, 1);
-            if (strncmp(ADLIB, desc, 33) != 0) {
-                int i = 0;
+            
+            if (funcs[0].id != (int)eDriverFunction::AIL_DESC_DRVR) {
+                throw std::runtime_error("something not ok");
             }
             
+            
+            driver_descriptor_table_t ddt;
+            SDL_RWread(f, &ddt, sizeof(ddt), 1);
+
+            int device_name_offset = ddt.offset_devname_o;
+            tell = SDL_RWtell(f);
+            SDL_RWseek(f, device_name_offset, RW_SEEK_SET);
+            // read string 0 terminating
+            std::string deviceName;
+            char c;
+            do
+            {
+                c = SDL_ReadU8(f);
+                deviceName += c;
+
+            } while (c != 0);
+
+            constexpr char ADLIB[33] = "Ad Lib(R) Music Synthesizer Card";
+            if (strncmp(ADLIB, deviceName.c_str(), 33) != 0) {
+                int i = 0;
+            }
+            // good until here!
+
+            tell = SDL_RWtell(f);
+
+
+            // those functions offset for what??? assembler routine, not useful.
+            if (SDL_RWseek(f, funcs[0].offset, RW_SEEK_SET) == -1) {
+                throw std::runtime_error("something not ok");
+            }
+
+            tell = SDL_RWtell(f);
+
+
             SDL_RWclose(f);
         }
     }
