@@ -36,10 +36,14 @@ install(
 install(FILES 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/scummvm/SDLMixerManager.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/SDL2Mixer.hpp
+    
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/westwood/ADLDriver.hpp
+    
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/ADLFile.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/MIDFile.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/XMIFile.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/AILDriverFile.hpp
+    
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/OPL.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/dosbox/dosbox.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/mame/mame.hpp
@@ -47,6 +51,7 @@ install(FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/Config.hpp
     #${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/EmulatedOPL.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/woody/WoodyOPL.hpp
+    
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/PCSPeaker.hpp
     DESTINATION "static/include"
 )
@@ -92,6 +97,7 @@ target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/File.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/IFFFile.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/XMIFile.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/AILDriverFile.cpp
     # --- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/OPL.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/dosbox/dosbox.cpp

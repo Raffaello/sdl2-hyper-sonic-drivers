@@ -175,6 +175,14 @@ macro_test(
     EXE TestXMidi
     FILES "drivers/miles/TestXMidi.cpp"
     LINKS_PRIVATE sonic-drivers-static
+#    FIXTURES 
+#        "fixtures/ADLIB.ADV"
+)
+
+macro_test(
+    EXE TestAILFileDriver
+    FILES "files/TestAILDriverFile.cpp"
+    LINKS_PRIVATE sonic-drivers-static
     FIXTURES 
         "fixtures/ADLIB.ADV"
 )
