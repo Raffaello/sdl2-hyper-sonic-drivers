@@ -64,6 +64,9 @@ namespace files
             filename += c;
         }
 
+        // removing the last c==0 inserted before stop the loop.
+        filename.pop_back();
+
         return filename;
     }
 

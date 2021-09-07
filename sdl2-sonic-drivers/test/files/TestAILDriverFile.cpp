@@ -4,9 +4,15 @@
 
 namespace files
 {
-    TEST(AILDriverFile, ADLIB)
+    TEST(AILDriverFile, ADLIB_ADV)
     {
         AILDriverFile drv("fixtures/ADLIB.ADV");
+        EXPECT_EQ(drv.getMinimumApiVersion(), 200);
+        EXPECT_EQ(drv.getDriverType(), 3);
+        EXPECT_STRCASEEQ(drv.getDataSuffix(), "AD");
+        EXPECT_EQ(drv.getDeviceName_o(), "Ad Lib(R) Music Synthesizer Card");
+        EXPECT_EQ(drv.getDeviceName_s(), "");
+        EXPECT_EQ(drv.getServiceRate(), 120);
     }
 }
 
