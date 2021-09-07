@@ -245,8 +245,8 @@ int sdlMixer()
     std::shared_ptr<Mixer> mixer = mixerManager.getMixer();
 
     //spdlog::set_level(spdlog::level::debug);
-    //auto opl = Config::create(OplEmulator::NUKED, Config::OplType::OPL3, mixer);
-    auto opl = std::make_shared<hardware::opl::mame::MameOPL>(mixer);
+    auto opl = Config::create(OplEmulator::NUKED, Config::OplType::OPL3, mixer);
+    //auto opl = std::make_shared<hardware::opl::mame::MameOPL>(mixer);
     std::shared_ptr<files::ADLFile> adlFile = std::make_shared<files::ADLFile>("test/fixtures/DUNE0.ADL");
     
     ADLDriver adlDrv(opl, adlFile);
@@ -285,16 +285,33 @@ int renderMixer()
     std::shared_ptr<Mixer> mixer = mixerManager.getMixer();
 
     //spdlog::set_level(spdlog::level::debug);
-    //auto opl = Config::create(OplEmulator::NUKED, Config::OplType::OPL3, mixer);
-    auto opl = std::make_shared<hardware::opl::mame::MameOPL>(mixer);
+    auto opl = Config::create(OplEmulator::NUKED, Config::OplType::OPL3, mixer);
+    auto pOpl = dynamic_cast<EmulatedOPL*>( opl.get());
+    //auto opl = std::make_shared<hardware::opl::mame::MameOPL>(mixer);
     std::shared_ptr<files::ADLFile> adlFile = std::make_shared<files::ADLFile>("test/fixtures/DUNE0.ADL");
 
     ADLDriver adlDrv(opl, adlFile);
     adlDrv.play(4, 0xFF);
+    int samples = -1;
+    int totSamples = 0;
+    bool isPlaying = adlDrv.isPlaying();
+    do
+    {
+        // TODO review, but is dumping the data
+        int16_t buf[1024];
+
+        samples = pOpl->readBuffer(buf, 1024);
+        mixerManager.callbackHandler((uint8_t*)buf, samples * 2);
+        totSamples += samples;
+        isPlaying = adlDrv.isPlaying();
+        //spdlog::info("isPlaying? {}", isPlaying);
+    } while (isPlaying);
+
+    spdlog::info("TotSamples={} --- space require={} ({}KB) [{}MB]", totSamples, totSamples * sizeof(int16_t), totSamples * sizeof(int16_t) / 1024, totSamples * sizeof(int16_t) / 1024 / 1024);
 
     while (!mixer->isReady()) {
         spdlog::info("mixer not ready");
-        SDL_Delay(100);
+        utils::delayMillis(100);
     }
 
     utils::delayMillis(1000);
@@ -312,9 +329,9 @@ int renderMixer()
 
 int main(int argc, char* argv[])
 {
-    sdlMixer();
-    SDL_Delay(100);
-    //renderMixer();
+    //sdlMixer();
+    //SDL_Delay(100);
+    renderMixer();
 
     SDL_Init(SDL_INIT_TIMER | SDL_INIT_AUDIO);
 

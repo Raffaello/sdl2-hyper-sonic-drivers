@@ -9,11 +9,6 @@ namespace audio
     DiskRendererMixerManager::DiskRendererMixerManager(const int rate, const uint8_t bits, const uint8_t channels) :
         _rate(rate), _bits(bits), _channels(channels)
     {
-        // TODO: remove the hardcoded values
-        // BODY: need to fix the mixerImpl->mixCallback function
-        // BODY: as it is expecting 16 bits stereo audio stream.
-        _bits = 16;
-        _channels = 2;
     }
 
     DiskRendererMixerManager::DiskRendererMixerManager(const int rate) : DiskRendererMixerManager(rate, 16, 2)
@@ -53,7 +48,7 @@ namespace audio
     void DiskRendererMixerManager::callbackHandler(uint8_t* samples, int len)
     {
         // this force to have stereo 16 bits...
-        _mixer->mixCallback(samples, len);
+        //_mixer->mixCallback(samples, len);
         //write samples to disk
         if (_file.is_open()) {
             _file.write(reinterpret_cast<const char*>(samples), len);
@@ -61,8 +56,6 @@ namespace audio
         else {
             spdlog::warn("File not open");
         }
-
-
     }
     void DiskRendererMixerManager::rendererCallback(void* this_, uint8_t* samples, int len)
     {

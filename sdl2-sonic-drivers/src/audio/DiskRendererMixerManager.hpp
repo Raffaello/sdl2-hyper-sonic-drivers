@@ -7,6 +7,7 @@
 
 namespace audio
 {
+    // TODO requires to have a timer callback to set up
     class DiskRendererMixerManager : public scummvm::MixerManager
     {
     public:
@@ -18,7 +19,7 @@ namespace audio
         virtual void suspendAudio();
         virtual int resumeAudio();
         void startRecording(std::string filename);
-    protected:
+    //protected:
         //virtual void startAudio();
         virtual void callbackHandler(uint8_t* samples, int len);
         static void rendererCallback(void* this_, uint8_t* samples, int len);
