@@ -124,6 +124,7 @@ target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/PCSPeaker.cpp
     # --- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/endianness.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/algorithms.cpp
 )
 
 target_link_libraries(${LIB_NAME} PUBLIC ${LIB_SDL2} spdlog::spdlog)

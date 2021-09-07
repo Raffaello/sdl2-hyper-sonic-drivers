@@ -76,7 +76,7 @@ namespace files
         /// <param name="out_value">the resulting decoded value</param>
         /// <returns>byte reads</returns>
         /// TODO: move to utils the static version
-        static int decode_VLQ(const uint8_t buf[], uint32_t& out_value);
+        //static int decode_VLQ(const uint8_t buf[], uint32_t& out_value);
         int decode_VLQ(uint32_t& out_value);
 
         uint16_t getFormat() const noexcept;
@@ -157,6 +157,7 @@ namespace files
         midi_chunk_t read_chunk();
         void read_header();
         void check_format();
+        void read_track();
 
         std::vector<MIDI_track_t> _tracks;
     };

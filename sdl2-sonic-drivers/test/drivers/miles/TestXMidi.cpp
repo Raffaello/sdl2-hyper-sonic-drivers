@@ -8,7 +8,7 @@ namespace drivers
     {
         TEST(XMidi, test)
         {
-            XMidi xmidi;
+            //XMidi xmidi;
 
         }
     }

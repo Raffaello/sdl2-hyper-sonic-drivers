@@ -4,6 +4,7 @@
 #include <chrono>
 #include <thread>
 
+
 namespace utils
 {
     /**
@@ -65,4 +66,12 @@ namespace utils
     {
         std::this_thread::sleep_for(std::chrono::microseconds(delaytime));
     }
+
+    /// <summary>
+    /// Variable length quantity decoding algorithm
+    /// </summary>
+    /// <param name="buf">the max 4 bytes array to decode</param>
+    /// <param name="out_value">the resulting decoded value</param>
+    /// <returns>byte reads</returns>
+    int decode_VLQ(const uint8_t buf[], uint32_t& out_value);
 }
