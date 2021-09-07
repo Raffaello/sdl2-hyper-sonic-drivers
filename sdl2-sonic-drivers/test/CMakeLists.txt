@@ -175,8 +175,6 @@ macro_test(
     EXE TestXMidi
     FILES "drivers/miles/TestXMidi.cpp"
     LINKS_PRIVATE sonic-drivers-static
-#    FIXTURES 
-#        "fixtures/ADLIB.ADV"
 )
 
 macro_test(
@@ -185,4 +183,17 @@ macro_test(
     LINKS_PRIVATE sonic-drivers-static
     FIXTURES 
         "fixtures/ADLIB.ADV"
+        "fixutres/ADLIBG.ADV"
+        #"fixutres/ALGDIG.ADV"
+        "fixutres/MT32MPU.ADV"
+        #"fixutres/PASDIG.ADV"
+        #"fixutres/PASFM.ADV"
+        #"fixutres/PASOPL.ADV"
+        "fixutres/PCSPKR.ADV"
+        #"fixutres/SBDIG.ADV"
+        "fixutres/SBFM.ADV"
+        "fixutres/SBP1FM.ADV"
+        "fixutres/SBP2FM.ADV"
+        #"fixutres/SBPDIG.ADV"
+        "fixutres/TANDY.ADV"
 )

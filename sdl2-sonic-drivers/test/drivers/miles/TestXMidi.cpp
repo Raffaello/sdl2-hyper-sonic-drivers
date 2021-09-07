@@ -10,7 +10,6 @@ namespace drivers
         {
             XMidi xmidi;
 
-            xmidi.readDriver("fixtures/ADLIB.ADV");
         }
     }
 }

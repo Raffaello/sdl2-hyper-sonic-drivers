@@ -90,7 +90,7 @@ target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/scummvm/Timestamp.cpp
     # --- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/westwood/ADLDriver.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/miles/XMidi.cpp
+    #${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/miles/XMidi.cpp
     # --- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/ADLFile.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/MIDFile.cpp
