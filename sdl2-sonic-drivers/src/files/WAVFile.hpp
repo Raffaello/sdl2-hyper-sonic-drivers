@@ -18,7 +18,8 @@ namespace files
             WAVE_FORMAT_IEEE_FLOAT = 0x0003,
             WAVE_FORMAT_ALAW = 0x0006,
             WAVE_FORMAT_MULAW = 0x007,
-            WAVE_FORMAT_EXTENSIBLE = 0xFFFE
+            WAVE_FORMAT_EXTENSIBLE = 0xFFFE,
+            WAVE_FORMAT_CREATIVE_ADPCM = 0x0200
         };
 
         // TODO: consider remove eFormat field or make it adaptable
