@@ -22,8 +22,6 @@ namespace files
         EXPECT_EQ(f.getData()[0], 0);
         EXPECT_EQ(f.getData()[size-1], 0);
         EXPECT_EQ(f.getData()[size/2], 0x6D);
-
-
     }
 
     TEST(WAVFile, file_not_found)
