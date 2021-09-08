@@ -1,17 +1,18 @@
 #include <files/WAVFile.hpp>
 #include <stdexcept>
+#include <string>
 
 namespace files
 {
     WAVFile::WAVFile(const std::string& filename) : RIFFFile(filename),
-        _expDataChunk(false)
+        _expDataChunk(false), _dataSize(0)
     {
-        RIFF_chunk_header_t header;
+        std::memset(&_fmt_chunk, 0, sizeof(format_t));
 
+        RIFF_chunk_header_t header;
         readChunkHeader(header);
         _assertValid(header.chunk.id.id == eRIFF_ID::ID_RIFF);
         _assertValid(header.type.id == eRIFF_ID::ID_WAVE);
-        
         _assertValid(header.chunk.length == size() - sizeof(RIFF_sub_chunk_header_t));
         
         // TODO read the optional chunks?
@@ -39,7 +40,6 @@ namespace files
                 seek(data.length, std::fstream::cur);
             }
         } while (data.id.id != eRIFF_ID::ID_DATA);
-        
         read_data_sub_chunk(data);
     }
 
@@ -47,10 +47,24 @@ namespace files
     {
     }
 
+    const WAVFile::format_t& WAVFile::getFormat() const noexcept
+    {
+        return _fmt_chunk;
+    }
+
+    const uint32_t WAVFile::getDataSize() const noexcept
+    {
+        return _dataSize;
+    }
+
+    const std::shared_ptr<uint8_t[]> WAVFile::getData() const noexcept
+    {
+        return _data;
+    }
+
     bool WAVFile::read_fmt_sub_chunk(const RIFF_sub_chunk_header_t& chunk)
     {
         _assertValid(chunk.id.id == eRIFF_ID::ID_FMT);
-        _assertValid(chunk.length == sizeof(format_t) - sizeof(eFormat));
         
         // <common-fields> 
         _fmt_chunk.format = static_cast<eFormat>(readLE16());
@@ -71,7 +85,6 @@ namespace files
         case eFormat::IBM_FORMAT_ADPCM:
             //break;
         default:
-            
             throw std::invalid_argument("WAVFile: unknown or unsupported format " + std::to_string(static_cast<int>(_fmt_chunk.format)) + " of file: " + _filename);
         }
 

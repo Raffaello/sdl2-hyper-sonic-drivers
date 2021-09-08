@@ -50,8 +50,6 @@ namespace files
     class RIFFFile : public File
     {
     public:
-        
-
         RIFFFile(const std::string& filename);
         virtual ~RIFFFile();
     protected:

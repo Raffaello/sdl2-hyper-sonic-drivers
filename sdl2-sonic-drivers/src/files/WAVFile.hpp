@@ -21,13 +21,17 @@ namespace files
             WAVE_FORMAT_EXTENSIBLE = 0xFFFE
         };
 
-        // TODO: consider remove eFormat field.
+        // TODO: consider remove eFormat field or make it adaptable
         // BODY: can be read at once otherwise...
         // BODY: could have a private format_1 struct
         // BODY: to copy over....
+        // BODY: (PCM fmt size 16 bytes, non-PCM 18 bytes, float 40 bytes)
+        // BODY: can be splitted in format_common struct
+        // BODY: and in the specific format structures.
+        // BODY: dynamically allocated
         typedef struct format_t
         {
-            eFormat  format;        // must be WAVE_FORMAT_PCM
+            eFormat  format;         // must be WAVE_FORMAT_PCM 
             uint16_t channels;
             uint32_t samplesPerSec;
             uint32_t avgBytesPerSec;
@@ -38,22 +42,22 @@ namespace files
 
         WAVFile(const std::string& filename);
         virtual ~WAVFile();
+
+        const format_t&                  getFormat()   const noexcept;
+        const uint32_t                   getDataSize() const noexcept;
+        const std::shared_ptr<uint8_t[]> getData()     const noexcept;
+        
         static bool save(const int rate, const int bits, const int channels, const uint8_t* buffer, const int length);
         static bool render(const uint8_t* buffer, int length);
 
-    private:
-        //eFormat  _format;
-        //uint16_t _channels;
-        //uint32_t _samplesPerSec;
-        //uint32_t _avgBytesPerSec;
-        //uint16_t _blockAlign;
-        //uint16_t _bitsPerSample; // format 1 (PCM)
-        format_t _fmt_chunk;
 
+    private:
+        format_t _fmt_chunk;
         uint32_t _dataSize;
         std::shared_ptr<uint8_t[]> _data;
 
         bool _expDataChunk = false;
+        
         /// <summary>
         /// read the 'fmt ' subchunks, file need to positioned
         /// just after the sub chunk heder and pass it as
