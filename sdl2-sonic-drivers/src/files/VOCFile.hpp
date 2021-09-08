@@ -3,6 +3,8 @@
 #include <files/File.hpp>
 #include <string>
 #include <cstdint>
+#include <vector>
+#include <memory>
 
 namespace files
 {
@@ -15,25 +17,28 @@ namespace files
         const std::string getVersion() const noexcept;
 
     private:
-        uint16_t _version;
-
-        static const int MAGIC_SIZE = 19;
+        static const int MAGIC_SIZE = 19 + 1;
         typedef struct voc_header_t
         {
             char magic[MAGIC_SIZE];
-            uint16_t data_block_offset;
-            uint16_t version;
-            uint16_t validation_code; // complement(version) + 0x1234
+            uint16_t data_block_offset; // 0x1A
+            uint16_t version;          
+            uint16_t validation_code;   // complement(version) + 0x1234
         } voc_header_t;
+        static_assert(sizeof(voc_header_t) == MAGIC_SIZE + 2 + 2 + 2);
 
-        typedef struct data_block_header_t
+        typedef struct sub_data_block_t
         {
             uint8_t type;
-            uint8_t length[3]; // 24 bit length, convert after reading
-        } data_block_header_t;
+            std::shared_ptr<uint8_t[]> data;
+        } sub_data_block_t;
+
+        uint16_t _version;
+        std::vector<sub_data_block_t> _data_blocks;
 
         bool readHeader();
-        bool validate_header(const voc_header_t& header) noexcept;
         bool readDataBlockHeader();
+        sub_data_block_t readSubDataBlock(const uint32_t data_block_size, const uint8_t type);
+        //void timeConstant();
     };
 }

@@ -43,7 +43,7 @@ namespace files
     void File::read(void* buf, std::streamsize size)
     {
         if (!_file.read(reinterpret_cast<char*>(buf), size)) {
-            throw std::system_error(errno, std::system_category(), "Cannot read file: " + _filename + " (" + strerror(errno) +")");
+            throw std::system_error(errno, std::system_category(), "Cannot read file: " + _filename + " (" + strerror(errno) + ")");
         }
     }
 
@@ -112,10 +112,5 @@ namespace files
             std::string str = std::string("Not a valid file: ") + _filename + " (" + std::string(typeid(*this).name()) + ")";
             throw std::invalid_argument(str.c_str());
         }
-    }
-
-    bool File::eof() const noexcept
-    {
-        return _file.eof();
     }
 }
