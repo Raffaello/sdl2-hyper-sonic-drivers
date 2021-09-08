@@ -3,7 +3,8 @@
 
 namespace files
 {
-    WAVFile::WAVFile(const std::string& filename) : RIFFFile(filename)
+    WAVFile::WAVFile(const std::string& filename) : RIFFFile(filename),
+        _expDataChunk(false)
     {
         RIFF_chunk_header_t header;
 
@@ -20,7 +21,6 @@ namespace files
         // BODY Associated Data Chunk             <assoc-data-list>
 
 
-        // TODO: do it in a fmt_chunk function
         // fmt always before data chunk
         RIFF_sub_chunk_header_t fmt;
         do {
@@ -29,30 +29,9 @@ namespace files
                 seek(fmt.length, std::fstream::cur);
             }
         } while (fmt.id.id != eRIFF_ID::ID_FMT);
-        // <common-fields>
-        _format = static_cast<eFormat>(readLE16());
-        _channels = readLE16();
-        _samplesPerSec = readLE32();
-        _avgBytesPerSec = readLE32();
-        _blockAlign = readLE16();
-        // <format-specific-fields>
-        switch (_format)
-        {
-        case eFormat::WAVE_FORMAT_PCM:
-            _bitsPerSample = readLE16(); // Sample size
-            break;
-        case eFormat::IBM_FORMAT_MULAW:
-            //break;
-        case eFormat::IBM_FORMAT_ALAW:
-            //break;
-        case eFormat::IBM_FORMAT_ADPCM:
-            //break;
-        default:
-            throw std::invalid_argument("WAVFile: unknown or unsupported format " + std::to_string(static_cast<int>(_format)) + " of file: " + _filename);
-        }
+        read_fmt_sub_chunk(fmt);
 
 
-        // TODO: do it in a data chunk function
         RIFF_sub_chunk_header_t data;
         do {
             readSubChunkHeader(data);
@@ -61,14 +40,58 @@ namespace files
             }
         } while (data.id.id != eRIFF_ID::ID_DATA);
         
-        _dataSize = data.length;
-        uint8_t *buf = new uint8_t[_dataSize];
-        read(buf, _dataSize);
-        _data.reset(buf);
+        read_data_sub_chunk(data);
     }
-
 
     WAVFile::~WAVFile()
     {
     }
+
+    bool WAVFile::read_fmt_sub_chunk(const RIFF_sub_chunk_header_t& chunk)
+    {
+        _assertValid(chunk.id.id == eRIFF_ID::ID_FMT);
+        _assertValid(chunk.length == sizeof(format_t) - sizeof(eFormat));
+        
+        // <common-fields> 
+        _fmt_chunk.format = static_cast<eFormat>(readLE16());
+        _fmt_chunk.channels = readLE16();
+        _fmt_chunk.samplesPerSec = readLE32();
+        _fmt_chunk.avgBytesPerSec = readLE32();
+        _fmt_chunk.blockAlign = readLE16();
+        // <format-specific-fields>
+        switch (_fmt_chunk.format)
+        {
+        case eFormat::WAVE_FORMAT_PCM:
+            _fmt_chunk.bitsPerSample = readLE16(); // Sample size
+            break;
+        case eFormat::IBM_FORMAT_MULAW:
+            //break;
+        case eFormat::IBM_FORMAT_ALAW:
+            //break;
+        case eFormat::IBM_FORMAT_ADPCM:
+            //break;
+        default:
+            
+            throw std::invalid_argument("WAVFile: unknown or unsupported format " + std::to_string(static_cast<int>(_fmt_chunk.format)) + " of file: " + _filename);
+        }
+
+        // fmt always before data chunk
+        _expDataChunk = true;
+
+        return true;
+    }
+
+    bool WAVFile::read_data_sub_chunk(const RIFF_sub_chunk_header_t& chunk)
+    {
+        _assertValid(_expDataChunk);
+        _assertValid(chunk.id.id == eRIFF_ID::ID_DATA);
+
+        _dataSize = chunk.length;
+        uint8_t* buf = new uint8_t[_dataSize];
+        read(buf, _dataSize);
+        _data.reset(buf);
+
+        return true;
+    }
+
 }

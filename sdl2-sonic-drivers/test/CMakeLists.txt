@@ -204,5 +204,5 @@ macro_test(
     FILES "files/TestWAVFile.cpp"
     LINKS_PRIVATE sonic-drivers-static
     FIXTURES
-        "fixtures/Wav_868kb.wav"
+        "fixtures/Wav_868kb.wav" # format 1
 )
