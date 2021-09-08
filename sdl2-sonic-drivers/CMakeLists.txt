@@ -38,6 +38,7 @@ install(FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/SDL2Mixer.hpp
     
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/westwood/ADLDriver.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/VOCDriver.hpp
     
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/ADLFile.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/MIDFile.hpp
@@ -94,6 +95,7 @@ target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/scummvm/Timestamp.cpp
     # --- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/westwood/ADLDriver.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/VOCDriver.cpp
     #${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/miles/XMidi.cpp
     # --- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/ADLFile.cpp

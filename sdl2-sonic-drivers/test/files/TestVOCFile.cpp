@@ -10,6 +10,10 @@ namespace files
         VOCFile f("fixtures/VSCREAM1.VOC");
 
         EXPECT_STRCASEEQ(f.getVersion().c_str(), "1.10");
+        EXPECT_EQ(f.getChannels(), 1);
+        EXPECT_EQ(f.getSampleRate(), 8000);
+        EXPECT_EQ(f.getDataSize(), 5817);
+        EXPECT_EQ(f.getData()[0], 0x80);
     }
 
     TEST(VOCFile, file_not_found)

@@ -33,7 +33,7 @@ namespace drivers
         {
         public:
             ADLDriver(std::shared_ptr<hardware::opl::OPL> opl, std::shared_ptr<files::ADLFile> adl_file);
-            ~ADLDriver();
+            virtual ~ADLDriver();
             void setADLFile(const std::shared_ptr<files::ADLFile> adl_file) noexcept;
             
             bool isChannelPlaying(const int channel);
