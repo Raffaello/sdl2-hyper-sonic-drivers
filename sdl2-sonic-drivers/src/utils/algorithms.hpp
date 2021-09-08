@@ -7,6 +7,9 @@
 
 namespace utils
 {
+    template<typename T1, typename T2, typename T3, typename T4>
+    constexpr uint32_t MKID_BE(T1 a, T2  b, T3  c, T4  d) { return a | b << 8 | c << 16 | d << 24; }
+
     /**
      * Euclidean algorithm to compute the greatest common divisor.
      */

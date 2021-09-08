@@ -43,6 +43,7 @@ install(FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/MIDFile.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/XMIFile.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/AILDriverFile.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/WAVFile.hpp
     
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/OPL.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/dosbox/dosbox.hpp
@@ -100,6 +101,8 @@ target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/IFFFile.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/XMIFile.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/AILDriverFile.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/WAVFile.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/RIFFFile.cpp
     # --- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/OPL.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/dosbox/dosbox.cpp

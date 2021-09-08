@@ -1,10 +1,6 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <files/MIDFile.hpp>
-#include <string>
-#include <cstdint>
-#include <vector>
-#include <spdlog/spdlog.h>
 
 namespace files
 {
