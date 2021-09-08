@@ -37,7 +37,6 @@ namespace files
         return res;
     }
 
-
     bool VOCFile::readDataBlockHeader()
     {
         while (true)
@@ -64,7 +63,10 @@ namespace files
                 sub_data_block_t db = readSubDataBlock(data_block_size, data_header.type);
                 
                 // time constant
-                //auto res = 0xFFFF - (256000000 / (channels * sampleRate);
+                // channels default = 1
+                // timeConstant = 65536 - (256000000 / (channels * sampleRate);
+                // sampleRate = 256000000 / ((65536 - (timeConstant<<8))*channels)
+                
 
                 // pack Method
                 switch (packMethod)
