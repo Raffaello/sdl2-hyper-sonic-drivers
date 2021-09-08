@@ -11,15 +11,17 @@ namespace files
     public:
         enum class eFormat
         {
-            WAVE_FORMAT_PCM  = 0x0001,
-            IBM_FORMAT_MULAW = 0x0101,
-            IBM_FORMAT_ALAW  = 0x0102,
-            IBM_FORMAT_ADPCM = 0x0103,
-            WAVE_FORMAT_IEEE_FLOAT = 0x0003,
-            WAVE_FORMAT_ALAW = 0x0006,
-            WAVE_FORMAT_MULAW = 0x007,
-            WAVE_FORMAT_EXTENSIBLE = 0xFFFE,
-            WAVE_FORMAT_CREATIVE_ADPCM = 0x0200
+            WAVE_FORMAT_PCM            = 0x0001,
+            WAVE_FORMAT_IEEE_FLOAT     = 0x0003,
+            WAVE_FORMAT_ALAW           = 0x0006,
+            WAVE_FORMAT_MULAW          = 0x0007,
+            IBM_FORMAT_MULAW           = 0x0101,
+            IBM_FORMAT_ALAW            = 0x0102,
+            IBM_FORMAT_ADPCM           = 0x0103,
+            WAVE_FORMAT_CREATIVE_ADPCM = 0x0200,
+            WAVE_FORMAT_EXTENSIBLE     = 0xFFFE,
+            WAVE_FORMAT_DRM = 0,
+            WAVE_FORMAT_ADPCM = 0
         };
 
         // TODO: consider remove eFormat field or make it adaptable
