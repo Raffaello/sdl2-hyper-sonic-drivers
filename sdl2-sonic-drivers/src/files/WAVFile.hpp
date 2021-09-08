@@ -60,7 +60,7 @@ namespace files
         
         /// <summary>
         /// read the 'fmt ' subchunks, file need to positioned
-        /// just after the sub chunk heder and pass it as
+        /// just after the sub chunk header and pass it as
         /// parameter.
         /// </summary>
         bool read_fmt_sub_chunk(const RIFF_sub_chunk_header_t& chunk);
