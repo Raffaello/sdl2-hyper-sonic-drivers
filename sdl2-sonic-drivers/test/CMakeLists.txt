@@ -206,3 +206,11 @@ macro_test(
     FIXTURES
         "fixtures/Wav_868kb.wav" # format 1
 )
+
+macro_test(
+    EXE TestVOCFile
+    FILES "files/TestVOCFile.cpp"
+    LINKS_PRIVATE sonic-drivers-static
+    FIXTURES
+        #"fixtures/Wav_868kb.wav"
+)
