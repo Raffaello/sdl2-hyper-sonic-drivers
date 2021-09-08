@@ -113,4 +113,9 @@ namespace files
             throw std::invalid_argument(str.c_str());
         }
     }
+
+    bool File::eof() const noexcept
+    {
+        return _file.eof();
+    }
 }

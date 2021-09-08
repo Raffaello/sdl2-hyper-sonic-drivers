@@ -212,5 +212,5 @@ macro_test(
     FILES "files/TestVOCFile.cpp"
     LINKS_PRIVATE sonic-drivers-static
     FIXTURES
-        #"fixtures/Wav_868kb.wav"
+        "fixtures/VSCREAM1.VOC"
 )

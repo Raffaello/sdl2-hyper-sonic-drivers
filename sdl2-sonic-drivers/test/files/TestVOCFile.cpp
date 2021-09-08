@@ -7,7 +7,9 @@ namespace files
 {
     TEST(VOCFile, cstorDefault)
     {
+        VOCFile f("fixtures/VSCREAM1.VOC");
 
+        EXPECT_STRCASEEQ(f.getVersion().c_str(), "1.10");
     }
 
     TEST(VOCFile, file_not_found)
