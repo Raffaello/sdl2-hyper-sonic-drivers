@@ -29,9 +29,15 @@ namespace drivers
         std::shared_ptr<audio::scummvm::Mixer> _mixer;
         std::shared_ptr<files::VOCFile> _voc_file;
 
+        bool _stereo;
+        int _sampleRate;
+        int _dataSize;
+        int _curPos;
+        std::shared_ptr<uint8_t[]> _data;
+
         //std::vector<std::unique_ptr<audio::scummvm::SoundHandle>> _handles;
         audio::scummvm::SoundHandle* _handle;
         //audio::scummvm::AudioStream* _stream;
-        int _block_index;
+        //int _block_index;
     };
 }
