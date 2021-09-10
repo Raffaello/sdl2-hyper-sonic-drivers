@@ -108,7 +108,8 @@ namespace files
                 // timeConstant = 65536 - (256000000 / (channels * sampleRate);
                 // sampleRate = 256000000 / ((65536 - (timeConstant<<8))*channels)
                 _sampleRate = 256000000L / ((65536 - (timeConstant << 8)) * _channels);
-
+                //_sampleRate = 1000000 / (256 - timeConstant);
+                _assertValid(_sampleRate == (1000000 / (256 - timeConstant)));
                 // pack Method
                 switch (packMethod)
                 {

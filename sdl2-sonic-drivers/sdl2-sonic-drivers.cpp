@@ -332,7 +332,6 @@ int renderMixer()
 
 int vocdriver()
 {
-
     using namespace audio::scummvm;
     using  drivers::VOCDriver;
 
@@ -342,17 +341,19 @@ int vocdriver()
     std::shared_ptr<Mixer> mixer = mixerManager.getMixer();
 
     //spdlog::set_level(spdlog::level::debug);
-    std::shared_ptr<files::VOCFile> vocFile = std::make_shared<files::VOCFile>("test/fixtures/VSCREAM1.VOC");
+    std::shared_ptr<files::VOCFile> vocFile = std::make_shared<files::VOCFile>("test/fixtures/DUNE.VOC");
 
     VOCDriver voc(mixer, vocFile);
-    voc.play();
+    voc.play(2.0f);
 
     while (!mixer->isReady()) {
         spdlog::info("mixer not ready");
         SDL_Delay(100);
     }
-
-    SDL_Delay(1000);
+    /*while (SDL_GetAudioStatus() == SDL_AUDIO_PLAYING) {
+        spdlog::info("sdl playing...");
+        SDL_Delay(100);
+    }*/
     /*while (adlDrv.isPlaying())
     {
         spdlog::info("is playing");
@@ -360,6 +361,7 @@ int vocdriver()
 
     }*/
 
+    SDL_Delay(2000);
     spdlog::info("SDLMixer quitting...");
     SDL_Delay(1000);
     spdlog::info("SDLMixer quit");

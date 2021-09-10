@@ -24,6 +24,8 @@ namespace drivers
 
 
         void play();
+        void play(float speed);
+        void play(int rate);
 
     private:
         std::shared_ptr<audio::scummvm::Mixer> _mixer;

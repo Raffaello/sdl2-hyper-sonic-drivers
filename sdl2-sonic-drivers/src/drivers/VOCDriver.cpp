@@ -27,6 +27,20 @@ namespace drivers
 
     int VOCDriver::readBuffer(int16_t* buffer, const int numSamples)
     {
+        // TODO review, only mone played twice the sample rate is ok.
+        //test only mono
+        int len = numSamples / 2;
+        int rest = (_dataSize - _curPos);
+        int remaining = std::min(len, rest);
+        
+        for (int i = 0; i < remaining; i += 2) {
+            float f = ((float)_data[_curPos++] - 128.0) / 255.0;
+            buffer[i] = buffer[i + 1] = (int16_t)(f * 32767);
+        }
+
+        return remaining;
+
+        /*
         // TODO convert PCM 8 bit to 16 bit
         int monoFactor = _stereo ? 1 : 2;
         int len = numSamples / monoFactor; // mixer is stereo
@@ -35,6 +49,7 @@ namespace drivers
         
         // if voc is stereo.
         if (_stereo) {
+            // TODO test
             for (int i = 0; i < remaining; i++) {
                 buffer[i] = _data[_curPos + i];
             }
@@ -44,7 +59,8 @@ namespace drivers
         else {
             // mono VO
             for (int i = 0; i < remaining * 2; i += 2) {
-                buffer[i] = buffer[i + 1] = _data[_curPos++];
+                float f = ((float)_data[_curPos++] - 128.0) / 255.0;
+                buffer[i] = buffer[i + 1] = (int16_t)(f*32767) ;
             }
         }
 
@@ -54,6 +70,7 @@ namespace drivers
         }
 
         return remaining;
+        */
     }
 
     bool VOCDriver::isStereo() const
@@ -65,8 +82,6 @@ namespace drivers
     {
         return _sampleRate;
     }
-
-     
 
     bool VOCDriver::endOfData() const
     {
@@ -87,5 +102,19 @@ namespace drivers
             0,
             false
         );
+    }
+
+    void VOCDriver::play(float speed)
+    {
+        // TODO
+        _sampleRate *= speed;
+        play();
+    }
+
+    void VOCDriver::play(int rate)
+    {
+        // TODO
+        _sampleRate = rate;
+        play();
     }
 }

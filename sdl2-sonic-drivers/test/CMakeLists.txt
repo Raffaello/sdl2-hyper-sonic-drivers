@@ -213,4 +213,5 @@ macro_test(
     LINKS_PRIVATE sonic-drivers-static
     FIXTURES
         "fixtures/VSCREAM1.VOC"
+        "fixtures/DUNE.VOC"
 )
