@@ -99,6 +99,7 @@ namespace files
             {
             case 0: // End of Data block
                 _assertValid(db.data[0] == 0 && db.size == 1);
+                break;
             case 1: // sound block
             {
                 uint8_t timeConstant = db.data[0];
@@ -127,8 +128,6 @@ namespace files
                 default:
                     spdlog::warn("VOCFile: unknown packMethod={}", packMethod);
                 }
-
-                
             }
             break;
             case 2: // continue sound block

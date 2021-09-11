@@ -37,8 +37,9 @@ namespace drivers
         for (int i = 0; i < remaining; i ++) {
             // TODO generalize and do it better.
             // 8 bit  unsigend to 16 bit signed conversion
-            float f = ((float)_data[_curPos++] - 128.0) / 256.0;
-            buffer[i] = (int16_t)(f * 32767);
+            //float f = ((float)_data[_curPos++] - 128.0) / 256.0;
+            //buffer[i] = (int16_t)(f * 32767);
+            buffer[i] = (int16_t)((_data[_curPos++] - 128) * 128);
         }
 
         return remaining;
