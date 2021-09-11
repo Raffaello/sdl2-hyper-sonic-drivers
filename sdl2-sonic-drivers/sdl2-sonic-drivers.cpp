@@ -344,7 +344,7 @@ int vocdriver()
     std::shared_ptr<files::VOCFile> vocFile = std::make_shared<files::VOCFile>("test/fixtures/DUNE.VOC");
 
     VOCDriver voc(mixer, vocFile);
-    voc.play(2.0f);
+    voc.play();
 
     while (!mixer->isReady()) {
         spdlog::info("mixer not ready");

@@ -28,49 +28,20 @@ namespace drivers
     int VOCDriver::readBuffer(int16_t* buffer, const int numSamples)
     {
         // TODO review, only mone played twice the sample rate is ok.
+        // it should be a clash with mono stereo?
         //test only mono
-        int len = numSamples / 2;
+        int len = numSamples;
         int rest = (_dataSize - _curPos);
         int remaining = std::min(len, rest);
         
-        for (int i = 0; i < remaining; i += 2) {
-            float f = ((float)_data[_curPos++] - 128.0) / 255.0;
-            buffer[i] = buffer[i + 1] = (int16_t)(f * 32767);
+        for (int i = 0; i < remaining; i ++) {
+            // TODO generalize and do it better.
+            // 8 bit  unsigend to 16 bit signed conversion
+            float f = ((float)_data[_curPos++] - 128.0) / 256.0;
+            buffer[i] = (int16_t)(f * 32767);
         }
 
         return remaining;
-
-        /*
-        // TODO convert PCM 8 bit to 16 bit
-        int monoFactor = _stereo ? 1 : 2;
-        int len = numSamples / monoFactor; // mixer is stereo
-        int rest = (_dataSize - _curPos);
-        int remaining = std::min(len, rest);
-        
-        // if voc is stereo.
-        if (_stereo) {
-            // TODO test
-            for (int i = 0; i < remaining; i++) {
-                buffer[i] = _data[_curPos + i];
-            }
-
-            _curPos += remaining;
-        }
-        else {
-            // mono VO
-            for (int i = 0; i < remaining * 2; i += 2) {
-                float f = ((float)_data[_curPos++] - 128.0) / 255.0;
-                buffer[i] = buffer[i + 1] = (int16_t)(f*32767) ;
-            }
-        }
-
-
-        if (rest < len) {
-           // std::memset(&buffer[_curPos], 0, (len - rest)*monoFactor);
-        }
-
-        return remaining;
-        */
     }
 
     bool VOCDriver::isStereo() const
