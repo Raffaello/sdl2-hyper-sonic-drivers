@@ -1,11 +1,13 @@
 #include <drivers/VOCDriver.hpp>
 #include <cassert>
+#include <utils/endianness.hpp>
 
 namespace drivers
 {
     using audio::scummvm::Mixer;
     using audio::scummvm::SoundHandle;
     using audio::scummvm::AudioStream;
+    using utils::READ_LE_UINT16;
 
     VOCDriver::VOCDriver(std::shared_ptr<audio::scummvm::Mixer> mixer, std::shared_ptr<files::VOCFile> voc_file) :
         _mixer(mixer), _voc_file(voc_file)
@@ -31,7 +33,7 @@ namespace drivers
         // it should be a clash with mono stereo?
         //test only mono
         int len = numSamples;
-        int rest = (_dataSize - _curPos);
+        int rest = (_dataSize - _curPos) / _bitsFactor;
         int remaining = std::min(len, rest);
         
         for (int i = 0; i < remaining; i ++) {
@@ -39,7 +41,13 @@ namespace drivers
             // 8 bit  unsigend to 16 bit signed conversion
             //float f = ((float)_data[_curPos++] - 128.0) / 256.0;
             //buffer[i] = (int16_t)(f * 32767);
-            buffer[i] = (int16_t)((_data[_curPos++] - 128) * 128);
+            if (_bitsDepth == 8) {
+                buffer[i] = (int16_t)((_data[_curPos++] - 128) * 128);
+            }
+            else {
+                buffer[i] = READ_LE_UINT16(&_data[_curPos]);
+                _curPos += 2;
+            }
         }
 
         return remaining;
@@ -65,6 +73,8 @@ namespace drivers
     {
         // TODO review, could be speech instead of SFX
         _curPos = 0;
+        _bitsDepth = _voc_file->getBitDepth();
+        _bitsFactor = _bitsDepth == 16 ? 2 : 1;
         _mixer->playStream(
             Mixer::SoundType::SFX,
             _handle,

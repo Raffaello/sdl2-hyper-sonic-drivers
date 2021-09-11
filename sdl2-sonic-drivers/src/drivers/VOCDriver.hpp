@@ -35,6 +35,8 @@ namespace drivers
         int _sampleRate;
         int _dataSize;
         int _curPos;
+        uint8_t _bitsDepth;
+        int _bitsFactor;
         std::shared_ptr<uint8_t[]> _data;
 
         //std::vector<std::unique_ptr<audio::scummvm::SoundHandle>> _handles;

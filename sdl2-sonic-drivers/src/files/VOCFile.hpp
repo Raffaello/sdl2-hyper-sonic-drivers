@@ -3,18 +3,12 @@
 #include <files/File.hpp>
 #include <string>
 #include <cstdint>
-#include <vector>
 #include <memory>
-
-namespace drivers {
-    class VOCDriver;
-}
 
 namespace files
 {
     class VOCFile : public File
     {
-        friend drivers::VOCDriver;
     public:
         VOCFile(const std::string& filename);
         virtual ~VOCFile();
@@ -22,6 +16,7 @@ namespace files
         const std::string getVersion() const noexcept;
         const int getChannels() const noexcept;
         const int getSampleRate() const noexcept;
+        const int getBitDepth() const noexcept;
         const int getDataSize() const noexcept;
         const std::shared_ptr<uint8_t[]> getData() const noexcept;
 
@@ -44,17 +39,15 @@ namespace files
         } sub_data_block_t;
 
         uint16_t _version;
-        std::vector<sub_data_block_t> _data_blocks;
         // VOC to PCM info
-        int  _channels;
-        int  _sampleRate;
-        int  _dataSize;
+        int       _channels;
+        uint32_t  _sampleRate;
+        int       _dataSize;
+        uint8_t   _bitsDepth;
         std::shared_ptr<uint8_t[]> _data;
 
         bool readHeader();
         bool readDataBlockHeader();
         sub_data_block_t readSubDataBlock(const uint32_t data_block_size, const uint8_t type);
-        void processDataBlock();
-        //void timeConstant();
     };
 }
