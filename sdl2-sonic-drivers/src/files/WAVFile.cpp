@@ -32,7 +32,6 @@ namespace files
         } while (fmt.id.id != eRIFF_ID::ID_FMT);
         read_fmt_sub_chunk(fmt);
 
-
         RIFF_sub_chunk_header_t data;
         do {
             readSubChunkHeader(data);
