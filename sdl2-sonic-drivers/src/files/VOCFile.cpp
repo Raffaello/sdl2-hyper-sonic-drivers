@@ -1,6 +1,6 @@
 #include <files/VOCFile.hpp>
 #include <cstring>
-#include <memory>
+#include <vector>
 #include <spdlog/spdlog.h>
 
 namespace files
@@ -9,7 +9,7 @@ namespace files
     constexpr const uint16_t VALIDATION_MAGIC = 0x1234;
 
     VOCFile::VOCFile(const std::string& filename) : File(filename),
-        _version(0)
+        _version(0), _channels(1), _bitsDepth(8)
     {
         _assertValid(readHeader());
         _assertValid(readDataBlockHeader());
@@ -21,6 +21,31 @@ namespace files
     const std::string VOCFile::getVersion() const noexcept
     {
         return std::to_string(_version >> 8) + '.' + std::to_string(_version & 0xFF);
+    }
+
+    const int VOCFile::getChannels() const noexcept
+    {
+        return _channels;
+    }
+
+    const int VOCFile::getSampleRate() const noexcept
+    {
+        return _sampleRate;
+    }
+
+    const int VOCFile::getBitsDepth() const noexcept
+    {
+        return _bitsDepth;
+    }
+
+    const int VOCFile::getDataSize() const noexcept
+    {
+        return _dataSize;
+    }
+
+    const std::shared_ptr<uint8_t[]> VOCFile::getData() const noexcept
+    {
+        return _data;
     }
 
     bool VOCFile::readHeader()
@@ -39,94 +64,163 @@ namespace files
 
     bool VOCFile::readDataBlockHeader()
     {
+        std::vector<uint8_t> buf;
+        uint8_t lastType;
+
         while (true)
         {
             uint8_t type = readU8();
             if (type == 0) {
-                return true;
+                break;
             }
 
             uint32_t data_block_size = readU8() + (readU8() << 8) + (readU8() << 16);
             sub_data_block_t db = readSubDataBlock(data_block_size, type);
-            _data_blocks.push_back(db);
 
-            /*
-            switch (data_header.type)
+            // TODO add streaming capability from the file later on
+            switch (db.type)
             {
             case 0: // End of Data block
-                return  readU8() == 0 && data_block_size == 1;
+                _assertValid(db.data[0] == 0 && db.size == 1);
+                break;
             case 1: // sound block
             {
-                uint8_t timeConstant = readU8();
-                uint8_t packMethod = readU8();
-                data_block_size -= 2;
-                sub_data_block_t db = readSubDataBlock(data_block_size, data_header.type);
-                
+                uint8_t timeConstant = db.data[0];
+                uint8_t packMethod = db.data[1];
                 // time constant
                 // channels default = 1
                 // timeConstant = 65536 - (256000000 / (channels * sampleRate);
                 // sampleRate = 256000000 / ((65536 - (timeConstant<<8))*channels)
-                
-
+                _sampleRate = 256000000L / ((65536 - (timeConstant << 8)) * _channels);
+                //_sampleRate = 1000000 / (256 - timeConstant);
+                _assertValid(_sampleRate == (1000000 / (256 - timeConstant)));
                 // pack Method
                 switch (packMethod)
                 {
                 case 0: // 8-bit PCM
+                    for (int i = 2; i < db.size; i++) {
+                        buf.push_back(db.data[i]);
+                    }
                     break;
                 case 1: // 8-bit 4-bit ADPCM
-                    break;
+                    //break;
                 case 2: // 8-bit 3-bit ADPCM
-                    break;
+                    //break;
                 case 3:// 8-bit 2-bit ADPCM
-                    break;
+                    //break;
                 default:
-                    spdlog::warn("VOCFile: unknown packMethod={}", packMethod);
+                    spdlog::warn("VOCFile: unknown/not-implemented packMethod={}", packMethod);
                 }
-
-                _data_blocks.push_back(db);
             }
-                break;
+            break;
             case 2: // continue sound block
             {
-                _data_blocks.push_back(readSubDataBlock(data_block_size, data_header.type));
+                for (int i = 0; i < db.size; i++) {
+                    buf.push_back(db.data[i]);
+                }
             }
-                break;
+            break;
             case 3: // pause block
             {
                 // TODO
-                uint16_t pausePeriod = readLE16(); // pause in sample + 1
-                uint8_t  timeConstant = readU8(); // same as block 1
+                //uint16_t pausePeriod = readLE16(); // pause in sample + 1
+                //uint8_t  timeConstant = readU8(); // same as block 1
+                spdlog::warn("VOCFile: pause block not-implemented");
             }
-                break;
+            break;
             case 4: // Marker block
-                uint16_t marker = readLE16();
+                //uint16_t marker = readLE16();
+                spdlog::warn("VOCFile: marker block not-implemented");
                 break;
             case 5: // null-terminating string block
                 // TODO
                 //std::string string = _readStringFromFile();
-                char* string = new char[data_block_size];
-                read(string, data_block_size);
-                delete string;
+                //char* string = new char[data_block_size];
+                //read(string, data_block_size);
+                //delete string;
+                spdlog::warn("VOCFile: string block not-implemented");
                 break;
             case 6: // loop block
                 // TODO
-                uint16_t repeatTimes = readLE16();
+                //uint16_t repeatTimes = readLE16();
+                spdlog::warn("VOCFile: start loop block not-implemented");
                 break;
             case 7:
+                spdlog::warn("VOCFile: end loop block not-implemented");
                 break;
             case 8:
+                spdlog::warn("VOCFile: special block 8 not-implemented");
                 break;
             case 9:
+            {
+                _assertValid(_version >= 0x0114);
+                _sampleRate = db.data[0] + (db.data[1] << 8) + (db.data[2] << 16) + (db.data[3] << 24);
+                _bitsDepth = db.data[4];
+                _channels = db.data[5];
+                uint16_t format = db.data[6] + (db.data[7] << 8);
+                for (int i = 0; i < 4; i++)
+                    _assertValid(db.data[i + 7] == 0);
+                // TODO is a super set of case 1, 4 first cases.
+                // BODY: create a function to process format.
+                switch (format)
+                {
+                case 0: // 8-bit unsigned PCM
+                case 4: // 16-bit signed PCM
+                    for (int i = 2; i < db.size; i++) {
+                        buf.push_back(db.data[i]);
+                    }
+                    break;
+                case 1: // 8-bit 4-bit ADPCM
+                    //break;
+                case 2: // 8-bit 3-bit ADPCM
+                    //break;
+                case 3:// 8-bit 2-bit ADPCM
+                    //break;
+                case 6: // CCITT a-Law
+                    //break;
+                case 7: // CCITT mu-Law
+                    //break;
+                case 0x0200: // 16-bit to 4-bit ADPCM
+                    //break;
+                default:
+                    spdlog::warn("VOCFile: unknown/not-implemented format={}", format);
+                }
+            }
                 break;
             default:
-                return false;
+                //return false;
+                spdlog::warn("VOCFile: unknown data block type {}", db.type);
             }
 
-            lastType = data_header.type;
-            */
+            lastType = db.type; // ?
         }
 
-        return false;
+        // copy vector buf to _data
+        _dataSize = buf.size();
+        // sanity check
+        int divisor = 1;
+        if (_bitsDepth == 16) {
+            divisor *= 2;
+        }
+        if (_channels == 2) {
+            divisor *= 2;
+        }
+
+        //_assertValid(_dataSize % divisor == 0);
+        _dataSize = buf.size() + (buf.size() % divisor);
+        uint8_t* b = new uint8_t[_dataSize];
+        for (int i = 0; i < buf.size(); i++) {
+            b[i] = buf[i];
+        }
+
+        for (int i = buf.size(); i < _dataSize; i++) {
+            b[i] = 0;
+        }
+
+        _data.reset(b);
+        buf.clear();
+
+        return true;
     }
 
     VOCFile::sub_data_block_t VOCFile::readSubDataBlock(const uint32_t data_block_size, const uint8_t type)
@@ -135,6 +229,7 @@ namespace files
         read(buf.get(), data_block_size);
         sub_data_block_t db;
         db.type = type;
+        db.size = data_block_size;
         db.data = buf;
 
         return db;

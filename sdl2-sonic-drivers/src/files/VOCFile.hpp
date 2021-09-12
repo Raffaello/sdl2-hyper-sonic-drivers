@@ -3,7 +3,6 @@
 #include <files/File.hpp>
 #include <string>
 #include <cstdint>
-#include <vector>
 #include <memory>
 
 namespace files
@@ -15,6 +14,11 @@ namespace files
         virtual ~VOCFile();
 
         const std::string getVersion() const noexcept;
+        const int getChannels() const noexcept;
+        const int getSampleRate() const noexcept;
+        const int getBitsDepth() const noexcept;
+        const int getDataSize() const noexcept;
+        const std::shared_ptr<uint8_t[]> getData() const noexcept;
 
     private:
         static const int MAGIC_SIZE = 19 + 1;
@@ -30,15 +34,22 @@ namespace files
         typedef struct sub_data_block_t
         {
             uint8_t type;
+            uint32_t size;
             std::shared_ptr<uint8_t[]> data;
         } sub_data_block_t;
 
         uint16_t _version;
-        std::vector<sub_data_block_t> _data_blocks;
+        // VOC to PCM info
+        // TODO create a class Sound and substitue these values
+        int       _channels;
+        uint32_t  _sampleRate;
+        int       _dataSize;
+        uint8_t   _bitsDepth;
+        std::shared_ptr<uint8_t[]> _data;
+        // ---
 
         bool readHeader();
         bool readDataBlockHeader();
         sub_data_block_t readSubDataBlock(const uint32_t data_block_size, const uint8_t type);
-        //void timeConstant();
     };
 }
