@@ -19,6 +19,7 @@
 #include <audio/DiskRendererMixerManager.hpp>
 
 #include <drivers/VOCDriver.hpp>
+#include <drivers/WAVDriver.hpp>
 
 #include <utils/algorithms.hpp>
 
@@ -371,13 +372,54 @@ int vocdriver()
 
 }
 
+int wavdriver()
+{
+    using namespace audio::scummvm;
+    using  drivers::WAVDriver;
+
+    SdlMixerManager mixerManager;
+    mixerManager.init();
+
+    std::shared_ptr<Mixer> mixer = mixerManager.getMixer();
+
+    //spdlog::set_level(spdlog::level::debug);
+    std::shared_ptr<files::WAVFile> vocFile = std::make_shared<files::WAVFile>("test/fixtures/Wav_868kb.wav");
+
+    WAVDriver wav(mixer, vocFile);
+    wav.play();
+
+    while (!mixer->isReady()) {
+        spdlog::info("mixer not ready");
+        SDL_Delay(100);
+    }
+    /*while (SDL_GetAudioStatus() == SDL_AUDIO_PLAYING) {
+        spdlog::info("sdl playing...");
+        SDL_Delay(100);
+    }*/
+    while (wav.isPlaying())
+    {
+        spdlog::info("is playing");
+        SDL_Delay(1000);
+
+    }
+
+    //SDL_Delay(2000);
+    spdlog::info("SDLMixer quitting...");
+    SDL_Delay(1000);
+    spdlog::info("SDLMixer quit");
+
+    return 0;
+
+}
+
 int main(int argc, char* argv[])
 {
     //sdlMixer();
     //SDL_Delay(100);
     //renderMixer();
 
-    vocdriver();
+    //vocdriver();
+    wavdriver();
 
     SDL_Init(SDL_INIT_TIMER | SDL_INIT_AUDIO);
 
