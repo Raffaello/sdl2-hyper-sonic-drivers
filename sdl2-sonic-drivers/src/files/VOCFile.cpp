@@ -196,9 +196,24 @@ namespace files
 
         // copy vector buf to _data
         _dataSize = buf.size();
+        // sanity check
+        int divisor = 1;
+        if (_bitsDepth == 16) {
+            divisor *= 2;
+        }
+        if (_channels == 2) {
+            divisor *= 2;
+        }
+
+        //_assertValid(_dataSize % divisor == 0);
+        _dataSize = buf.size() + buf.size() % divisor;
         uint8_t* b = new uint8_t[_dataSize];
-        for (int i = 0; i < _dataSize; i++) {
+        for (int i = 0; i < buf.size(); i++) {
             b[i] = buf[i];
+        }
+
+        for (int i = buf.size(); i < _dataSize; i++) {
+            b[i] = 0;
         }
 
         _data.reset(b);

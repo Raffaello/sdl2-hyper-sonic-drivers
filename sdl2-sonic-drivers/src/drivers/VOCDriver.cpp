@@ -41,6 +41,8 @@ namespace drivers
             // 8 bit  unsigend to 16 bit signed conversion
             //float f = ((float)_data[_curPos++] - 128.0) / 256.0;
             //buffer[i] = (int16_t)(f * 32767);
+
+            // TODO convert Audio stream before playback?
             if (_bitsDepth == 8) {
                 buffer[i] = (int16_t)((_data[_curPos++] - 128) * 128);
             }
@@ -48,6 +50,10 @@ namespace drivers
                 buffer[i] = READ_LE_UINT16(&_data[_curPos]);
                 _curPos += 2;
             }
+        }
+
+        if (rest < len) {
+            std::memset(&buffer[rest], 0, len - rest);
         }
 
         return remaining;
@@ -66,6 +72,12 @@ namespace drivers
     bool VOCDriver::endOfData() const
     {
         return _curPos == _dataSize;
+    }
+
+    bool VOCDriver::isPlaying() const noexcept
+    {
+
+        return _mixer->isSoundHandleActive(*_handle);
     }
 
 

@@ -21,7 +21,8 @@ namespace drivers
         virtual bool isStereo() const;
         virtual int getRate() const;
         virtual bool endOfData() const;
-
+        
+        bool isPlaying() const noexcept;
 
         void play();
         void play(float speed);

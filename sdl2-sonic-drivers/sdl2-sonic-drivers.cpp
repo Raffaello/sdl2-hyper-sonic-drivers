@@ -355,12 +355,12 @@ int vocdriver()
         spdlog::info("sdl playing...");
         SDL_Delay(100);
     }*/
-    /*while (adlDrv.isPlaying())
+    while (voc.isPlaying())
     {
         spdlog::info("is playing");
         SDL_Delay(1000);
 
-    }*/
+    }
 
     SDL_Delay(2000);
     spdlog::info("SDLMixer quitting...");
