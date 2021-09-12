@@ -14,7 +14,8 @@ namespace drivers
     {
         /// <summary>
         /// Driver for .ADL files and OPL Chips
-        /// Originally shuold be the DUNE2 ALFX.DRV file and PCSOUND.DRV
+        /// Originally it shuold be the DUNE2 ALFX.DRV file
+        /// (and PCSOUND.DRV instead for fx)
         /// This file was propretary for optimized Westwood .ADL files
         /// and they were not using Miles driver for musics in OPL Chips
         /// as those were only for .XMI files and only used for MT-32/GM
@@ -32,7 +33,7 @@ namespace drivers
         {
         public:
             ADLDriver(std::shared_ptr<hardware::opl::OPL> opl, std::shared_ptr<files::ADLFile> adl_file);
-            ~ADLDriver();
+            virtual ~ADLDriver();
             void setADLFile(const std::shared_ptr<files::ADLFile> adl_file) noexcept;
             
             bool isChannelPlaying(const int channel);

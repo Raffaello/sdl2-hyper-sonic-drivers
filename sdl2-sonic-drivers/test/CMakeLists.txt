@@ -184,17 +184,34 @@ macro_test(
     LINKS_PRIVATE sonic-drivers-static
     FIXTURES 
         "fixtures/ADLIB.ADV"
-        "fixutres/ADLIBG.ADV"
+        "fixtures/ADLIBG.ADV"
         #"fixutres/ALGDIG.ADV"
-        "fixutres/MT32MPU.ADV"
+        "fixtures/MT32MPU.ADV"
         #"fixutres/PASDIG.ADV"
         #"fixutres/PASFM.ADV"
         #"fixutres/PASOPL.ADV"
-        "fixutres/PCSPKR.ADV"
+        "fixtures/PCSPKR.ADV"
         #"fixutres/SBDIG.ADV"
-        "fixutres/SBFM.ADV"
-        "fixutres/SBP1FM.ADV"
-        "fixutres/SBP2FM.ADV"
+        "fixtures/SBFM.ADV"
+        "fixtures/SBP1FM.ADV"
+        "fixtures/SBP2FM.ADV"
         #"fixutres/SBPDIG.ADV"
-        "fixutres/TANDY.ADV"
+        "fixtures/TANDY.ADV"
+)
+
+macro_test(
+    EXE TestWAVFile
+    FILES "files/TestWAVFile.cpp"
+    LINKS_PRIVATE sonic-drivers-static
+    FIXTURES
+        "fixtures/Wav_868kb.wav" # format 1
+)
+
+macro_test(
+    EXE TestVOCFile
+    FILES "files/TestVOCFile.cpp"
+    LINKS_PRIVATE sonic-drivers-static
+    FIXTURES
+        "fixtures/VSCREAM1.VOC"
+        "fixtures/DUNE.VOC"
 )

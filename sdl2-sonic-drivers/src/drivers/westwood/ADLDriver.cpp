@@ -2140,7 +2140,6 @@ namespace drivers
         // note value and the pitch bend value. In theory, we could very well try to
         // access memory outside this table, but in reality that probably won't happen.
         //
-
         const uint8_t ADLDriver::_pitchBendTables[][32] = {
             // 0
             { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x08,
