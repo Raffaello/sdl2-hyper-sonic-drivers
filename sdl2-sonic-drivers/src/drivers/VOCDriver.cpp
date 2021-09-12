@@ -52,10 +52,6 @@ namespace drivers
             }
         }
 
-        if (rest < len) {
-            std::memset(&buffer[rest], 0, len - rest);
-        }
-
         return remaining;
     }
 
@@ -83,7 +79,7 @@ namespace drivers
 
     void VOCDriver::play()
     {
-        // TODO review, could be speech instead of SFX
+        // TODO review, could be speech instead of SFX or other
         _curPos = 0;
         _bitsDepth = _voc_file->getBitDepth();
         _bitsFactor = _bitsDepth == 16 ? 2 : 1;

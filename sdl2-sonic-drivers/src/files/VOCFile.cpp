@@ -206,7 +206,7 @@ namespace files
         }
 
         //_assertValid(_dataSize % divisor == 0);
-        _dataSize = buf.size() + buf.size() % divisor;
+        _dataSize = buf.size() + (buf.size() % divisor);
         uint8_t* b = new uint8_t[_dataSize];
         for (int i = 0; i < buf.size(); i++) {
             b[i] = buf[i];

@@ -341,8 +341,8 @@ int vocdriver()
     std::shared_ptr<Mixer> mixer = mixerManager.getMixer();
 
     //spdlog::set_level(spdlog::level::debug);
-    //std::shared_ptr<files::VOCFile> vocFile = std::make_shared<files::VOCFile>("test/fixtures/DUNE.VOC");
-    std::shared_ptr<files::VOCFile> vocFile = std::make_shared<files::VOCFile>("test/fixtures/sample1.voc");
+    std::shared_ptr<files::VOCFile> vocFile = std::make_shared<files::VOCFile>("test/fixtures/DUNE.VOC");
+    //std::shared_ptr<files::VOCFile> vocFile = std::make_shared<files::VOCFile>("test/fixtures/sample1.voc");
 
     VOCDriver voc(mixer, vocFile);
     voc.play();
@@ -362,7 +362,7 @@ int vocdriver()
 
     }
 
-    SDL_Delay(2000);
+    //SDL_Delay(2000);
     spdlog::info("SDLMixer quitting...");
     SDL_Delay(1000);
     spdlog::info("SDLMixer quit");
