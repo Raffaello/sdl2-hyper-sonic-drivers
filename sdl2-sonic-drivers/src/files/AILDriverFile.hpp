@@ -6,19 +6,15 @@
 
 namespace files
 {
-    
-
-
-
     /// <summary>
     /// AIL XMIDI Driver Interface File parsing
     /// ported from XMIDI.ASM (YAMAHA.INC)
-    /// This should be an abstract class
+    /// </summary>
+    /// TODO: this is working for only YAMAHAINC file.
+    /// proably should be specialized.
+    /// BODY: This should be an abstract class
     /// and the driver ADLIB.ADV(YAMAHA.INC) should be the
     /// implementation with specific paramters.
-    /// </summary>
-    /// TODO: this is working for only YAMAHA file
-    /// should be proably be specialized.
     class AILDriverFile : public File
     {
     public:

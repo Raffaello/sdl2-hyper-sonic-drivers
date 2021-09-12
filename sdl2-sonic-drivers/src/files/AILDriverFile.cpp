@@ -5,8 +5,6 @@
 
 namespace files
 {
-    
-
     constexpr char DRIVER_MAGIC[AILDriverFile::DRIVER_MAGIC_SIZE + 1] = "Copyright (C) 1991,1992 Miles Design, Inc.\x1a";
     
     constexpr int FUNCTION_BEGIN_SIZE = 8;
