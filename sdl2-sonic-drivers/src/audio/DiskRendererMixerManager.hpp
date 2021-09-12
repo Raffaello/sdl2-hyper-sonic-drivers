@@ -8,6 +8,7 @@
 namespace audio
 {
     // TODO requires to have a timer callback to set up
+    // BIDY at the actual status is just experimental.
     class DiskRendererMixerManager : public scummvm::MixerManager
     {
     public:

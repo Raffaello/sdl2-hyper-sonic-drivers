@@ -1,5 +1,3 @@
-#include "RIFFFile.hpp"
-#include "RIFFFile.hpp"
 #include <files/RIFFFile.hpp>
 
 namespace files

@@ -155,9 +155,6 @@ macro_test(
 macro_test(
     EXE TestIFFFile
     FILES "files/TestIFFFile.cpp"
-    #    "../src/files/IFFFile.cpp"
-    #    "../src/files/File.cpp"
-    #    "../src/utils/endianness.cpp"
     LINKS_PRIVATE sonic-drivers-static
 )
 
