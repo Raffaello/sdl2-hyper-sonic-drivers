@@ -8,6 +8,8 @@
 
 namespace drivers
 {
+    // TODO generalize in PCMDriver class both for WAV and VOC
+    // BODY: this class is basicaly a copy of VOCDriver
     class WAVDriver : protected audio::scummvm::AudioStream
     {
     public:
