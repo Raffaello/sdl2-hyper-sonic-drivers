@@ -71,3 +71,13 @@ macro_example(
       #"../test/fixtures/LOREINTR.ADL"
     NONE
 )
+
+macro_example(
+    EXE VOCExample
+    FILE "voc-example.cpp"
+    DEPS sonic-drivers-static
+    LINKS ${LIB_SDL2main} sonic-drivers-static
+    FIXTURES 
+      "../test/fixtures/DUNE.VOC"
+    NONE
+)

@@ -66,7 +66,6 @@ namespace drivers
         return _mixer->isSoundHandleActive(*_handle);
     }
 
-
     void VOCDriver::play()
     {
         // TODO review, could be speech instead of SFX or other
