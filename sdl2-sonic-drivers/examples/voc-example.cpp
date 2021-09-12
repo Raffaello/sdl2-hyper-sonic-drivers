@@ -32,9 +32,8 @@ int main(int argc, char* argv[])
 
     }
 
-    spdlog::info("SDLMixer quitting...");
+    spdlog::info("quitting...");
     SDL_Delay(1000);
-    spdlog::info("SDLMixer quit");
 
     return 0;
 }
