@@ -43,7 +43,7 @@ namespace files
     void File::read(void* buf, std::streamsize size)
     {
         if (!_file.read(reinterpret_cast<char*>(buf), size)) {
-            throw std::system_error(errno, std::system_category(), "Cannot read file: " + _filename + " (" + strerror(errno) +")");
+            throw std::system_error(errno, std::system_category(), "Cannot read file: " + _filename + " (" + strerror(errno) + ")");
         }
     }
 
