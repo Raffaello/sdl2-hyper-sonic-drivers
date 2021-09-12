@@ -17,6 +17,8 @@ namespace drivers
         _sampleRate = voc_file->getSampleRate();
         _dataSize = voc_file->getDataSize();
         _data = voc_file->getData();
+        _bitsDepth = _voc_file->getBitsDepth();
+        _bitsFactor = _bitsDepth == 16 ? 2 : 1;
     }
 
     VOCDriver::~VOCDriver()
@@ -69,8 +71,6 @@ namespace drivers
     {
         // TODO review, could be speech instead of SFX or other
         _curPos = 0;
-        _bitsDepth = _voc_file->getBitsDepth();
-        _bitsFactor = _bitsDepth == 16 ? 2 : 1;
         _mixer->playStream(
             Mixer::SoundType::SFX,
             _handle,
