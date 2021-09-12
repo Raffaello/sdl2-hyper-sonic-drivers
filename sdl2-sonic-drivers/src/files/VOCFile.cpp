@@ -33,7 +33,7 @@ namespace files
         return _sampleRate;
     }
 
-    const int VOCFile::getBitDepth() const noexcept
+    const int VOCFile::getBitsDepth() const noexcept
     {
         return _bitsDepth;
     }
@@ -77,6 +77,7 @@ namespace files
             uint32_t data_block_size = readU8() + (readU8() << 8) + (readU8() << 16);
             sub_data_block_t db = readSubDataBlock(data_block_size, type);
 
+            // TODO add streaming capability from the file later on
             switch (db.type)
             {
             case 0: // End of Data block

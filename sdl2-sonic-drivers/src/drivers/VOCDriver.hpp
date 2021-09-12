@@ -5,7 +5,6 @@
 #include <audio/scummvm/AudioStream.hpp>
 #include <files/VOCFile.hpp>
 #include <memory>
-#include <vector>
 
 namespace drivers
 {
@@ -23,11 +22,7 @@ namespace drivers
         virtual bool endOfData() const;
         
         bool isPlaying() const noexcept;
-
         void play();
-        void play(float speed);
-        void play(int rate);
-
     private:
         std::shared_ptr<audio::scummvm::Mixer> _mixer;
         std::shared_ptr<files::VOCFile> _voc_file;
@@ -39,10 +34,6 @@ namespace drivers
         uint8_t _bitsDepth;
         int _bitsFactor;
         std::shared_ptr<uint8_t[]> _data;
-
-        //std::vector<std::unique_ptr<audio::scummvm::SoundHandle>> _handles;
         audio::scummvm::SoundHandle* _handle;
-        //audio::scummvm::AudioStream* _stream;
-        //int _block_index;
     };
 }

@@ -17,7 +17,7 @@ namespace files
         EXPECT_STRCASEEQ(f.getVersion().c_str(), "1.10");
         EXPECT_EQ(f.getChannels(), 1);
         EXPECT_EQ(f.getSampleRate(), 8000);
-        EXPECT_EQ(f.getBitDepth(), 8);
+        EXPECT_EQ(f.getBitsDepth(), 8);
         EXPECT_EQ(f.getDataSize(), 5817);
         EXPECT_EQ(f.getData()[0], 0x80);
     }
@@ -29,7 +29,7 @@ namespace files
         EXPECT_STRCASEEQ(f.getVersion().c_str(), "1.10");
         EXPECT_EQ(f.getChannels(), 1);
         EXPECT_EQ(f.getSampleRate(), 14705);
-        EXPECT_EQ(f.getBitDepth(), 8);
+        EXPECT_EQ(f.getBitsDepth(), 8);
         EXPECT_EQ(f.getDataSize(), 15233);
         EXPECT_EQ(f.getData()[0], 0x83);
     }

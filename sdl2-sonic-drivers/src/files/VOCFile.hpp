@@ -16,7 +16,7 @@ namespace files
         const std::string getVersion() const noexcept;
         const int getChannels() const noexcept;
         const int getSampleRate() const noexcept;
-        const int getBitDepth() const noexcept;
+        const int getBitsDepth() const noexcept;
         const int getDataSize() const noexcept;
         const std::shared_ptr<uint8_t[]> getData() const noexcept;
 
@@ -40,11 +40,13 @@ namespace files
 
         uint16_t _version;
         // VOC to PCM info
+        // TODO create a class Sound and substitue these values
         int       _channels;
         uint32_t  _sampleRate;
         int       _dataSize;
         uint8_t   _bitsDepth;
         std::shared_ptr<uint8_t[]> _data;
+        // ---
 
         bool readHeader();
         bool readDataBlockHeader();
