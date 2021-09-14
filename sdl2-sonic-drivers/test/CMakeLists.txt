@@ -160,7 +160,7 @@ macro_test(
 
 macro_test(
     EXE TestXMIFile
-    FILES "files/TestXMIFile.cpp"
+    FILES "files/miles/TestXMIFile.cpp"
     LINKS_PRIVATE sonic-drivers-static
     FIXTURES 
         "fixtures/header.xmi"
@@ -177,7 +177,7 @@ macro_test(
 
 macro_test(
     EXE TestAILFileDriver
-    FILES "files/TestAILDriverFile.cpp"
+    FILES "files/miles/TestAILDriverFile.cpp"
     LINKS_PRIVATE sonic-drivers-static
     FIXTURES 
         "fixtures/ADLIB.ADV"

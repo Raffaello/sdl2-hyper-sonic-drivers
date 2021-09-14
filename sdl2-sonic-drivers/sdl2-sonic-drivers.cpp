@@ -9,7 +9,7 @@
 #include <audio/scummvm/SDLMixerManager.hpp>
 #include <drivers/miles/XMidi.hpp>
 #include <drivers/westwood/ADLDriver.hpp>
-#include <files/XMIFile.hpp>
+#include <files/miles/XMIFile.hpp>
 #include <files/westwood/ADLFile.hpp>
 #include <hardware/PCSpeaker.hpp>
 #include <hardware/opl/scummvm/Config.hpp>

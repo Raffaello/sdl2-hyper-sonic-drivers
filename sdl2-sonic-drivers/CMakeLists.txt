@@ -43,8 +43,8 @@ install(FILES
     
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/westwood/ADLFile.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/MIDFile.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/XMIFile.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/AILDriverFile.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/miles/XMIFile.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/miles/AILDriverFile.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/WAVFile.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/VOCFile.hpp
     
@@ -104,8 +104,8 @@ target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/MIDFile.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/File.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/IFFFile.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/XMIFile.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/AILDriverFile.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/miles/XMIFile.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/miles/AILDriverFile.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/WAVFile.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/RIFFFile.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/VOCFile.cpp
