@@ -4,12 +4,15 @@
 #include <utils/algorithms.hpp>
 #include <string>
 #include <cstdint>
+#include <chrono>
+#include <fmt/chrono.h>
 
 namespace drivers
 {
     using files::MIDFile;
     using utils::decode_VLQ;
     using utils::powerOf2;
+    using utils::delayMicro;
 
 
     std::string midi_event_to_string(const std::vector<uint8_t>& e)
@@ -29,9 +32,13 @@ namespace drivers
     void MIDParser::display()
     {
         if (_mid_file->getFormat() == 2) {
-            spdlog::info("MIDI format 2 not supported");
+            spdlog::info("MIDI format 2 not supported yet");
             return;
         }
+
+
+        // TODO: consider to use a priority queue by delta_ticks
+        // BODY: to enqueue the parsed events as midi messages
 
         int num_tracks = _mid_file->getNumTracks();
         int division = _mid_file->getDivision();
@@ -58,9 +65,14 @@ namespace drivers
         }
 
         std::vector<MIDFile::MIDI_track_t> tracks = _mid_file->getTracks();
+        uint32_t tempo = 500000; //120 BPM;
+
+        
+        auto start_time = std::chrono::system_clock::now();
 
         for (int i = 0; i < num_tracks; i++)
         {
+            int cur_time = 0;
             MIDFile::MIDI_track_t track = tracks[i];
             for (auto& e : track.events)
             {
@@ -73,13 +85,8 @@ namespace drivers
                     case 0xF: // meta-event
                     {
                         uint8_t type = e.data[0]; // must be < 128
-                        uint32_t length = e.data.size() - 1; // previously decoded, but don't know how many bytes to skip!
-                        // sanity check
-                        //uint32_t out_length;
-                        //int skip = decode_VLQ(&e.data[1], out_length) + 1; // +1 because of the [0] index = type
-                        //if (length != out_length) {
-                        //    spdlog::error("Meta-Event length error: expected {} but is {}", length, out_length);
-                        //}
+                        uint32_t length = e.data.size() - 1; // previously decoded
+                        
                         int skip = 1;
 
                         switch (static_cast<MIDFile::MIDI_META_EVENT>(type))
@@ -124,7 +131,7 @@ namespace drivers
                             break;
                         case MIDFile::MIDI_META_EVENT::SET_TEMPO:
                         {
-                            uint32_t tempo = (e.data[skip] << 16) + (e.data[skip + 1] << 8) + (e.data[skip + 2]);
+                            tempo = (e.data[skip] << 16) + (e.data[skip + 1] << 8) + (e.data[skip + 2]);
                             spdlog::info("Tempo {}, ({} bps)", tempo, 60000000 / tempo);
                             break;
                         }
@@ -145,8 +152,6 @@ namespace drivers
                             spdlog::error("MetaEvent not know");
                             return;
                         }
-
-                    
                     }
                     break;
                     case 0x0:
@@ -182,7 +187,18 @@ namespace drivers
                     spdlog::critical("event type={:#04x} parsing not implemented", (int)e.type.low, e.type.val);
                     return;
                 }
+
+                cur_time += e.delta_time;
+                unsigned int delta_delay = e.delta_time * (tempo / division);
+                spdlog::info("cur_time={}, delta_delay={}", cur_time, delta_delay/1000.0);
+                delayMicro(delta_delay);
+
             }
         }
+
+        unsigned int exp_time_seconds = _mid_file->getTotalTime() / division * (tempo / 1000000.0);
+        auto end_time = std::chrono::system_clock::now();
+        auto tot_time = end_time - start_time;
+        spdlog::info("Total Running Time: {:%M:%S}, expected={}:{}", tot_time, exp_time_seconds / 60, exp_time_seconds % 60);
     }
 }

@@ -94,8 +94,7 @@ namespace files
         }
 
         // max / (_tempo / _division) (with _divsion bit 15 = 0)
-
-        return -1;
+        return max;
     }
 
     MIDFile::midi_chunk_t MIDFile::read_chunk()
