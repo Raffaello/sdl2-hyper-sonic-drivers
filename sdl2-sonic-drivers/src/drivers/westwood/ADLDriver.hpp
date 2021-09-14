@@ -5,7 +5,7 @@
 #include <memory>
 #include <mutex>
 #include <hardware/opl/OPL.hpp>
-#include <files/ADLFile.hpp>
+#include <files/westwood/ADLFile.hpp>
 
 
 namespace drivers
@@ -32,9 +32,9 @@ namespace drivers
         class ADLDriver
         {
         public:
-            ADLDriver(std::shared_ptr<hardware::opl::OPL> opl, std::shared_ptr<files::ADLFile> adl_file);
+            ADLDriver(std::shared_ptr<hardware::opl::OPL> opl, std::shared_ptr<files::westwood::ADLFile> adl_file);
             virtual ~ADLDriver();
-            void setADLFile(const std::shared_ptr<files::ADLFile> adl_file) noexcept;
+            void setADLFile(const std::shared_ptr<files::westwood::ADLFile> adl_file) noexcept;
             
             bool isChannelPlaying(const int channel);
             void stopAllChannels();
@@ -53,7 +53,7 @@ namespace drivers
             void initDriver();
             void startSound(const int track, const int volume);
             
-            std::shared_ptr<files::ADLFile> _adl_file = nullptr;
+            std::shared_ptr<files::westwood::ADLFile> _adl_file = nullptr;
             
             std::shared_ptr<uint8_t[]> _soundData = nullptr;
             uint32_t _soundDataSize;
@@ -61,7 +61,7 @@ namespace drivers
             // The sound data has two lookup tables:
             uint8_t* getProgram(const int progId);
             const uint8_t* getInstrument(const int instrumentId);
-            uint8_t* ADLDriver::getProgram(const int progId, const files::ADLFile::PROG_TYPE progType);
+            uint8_t* ADLDriver::getProgram(const int progId, const files::westwood::ADLFile::PROG_TYPE progType);
 
             struct Channel {
                 bool lock;	// New to ScummVM

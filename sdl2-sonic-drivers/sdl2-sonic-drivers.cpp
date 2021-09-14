@@ -9,8 +9,8 @@
 #include <audio/scummvm/SDLMixerManager.hpp>
 #include <drivers/miles/XMidi.hpp>
 #include <drivers/westwood/ADLDriver.hpp>
-#include <files/XMIFile.hpp>
-#include <files/ADLFile.hpp>
+#include <files/miles/XMIFile.hpp>
+#include <files/westwood/ADLFile.hpp>
 #include <hardware/PCSpeaker.hpp>
 #include <hardware/opl/scummvm/Config.hpp>
 
@@ -250,7 +250,7 @@ int sdlMixer()
     //spdlog::set_level(spdlog::level::debug);
     auto opl = Config::create(OplEmulator::NUKED, Config::OplType::OPL3, mixer);
     //auto opl = std::make_shared<hardware::opl::mame::MameOPL>(mixer);
-    std::shared_ptr<files::ADLFile> adlFile = std::make_shared<files::ADLFile>("test/fixtures/DUNE0.ADL");
+    std::shared_ptr<files::westwood::ADLFile> adlFile = std::make_shared<files::westwood::ADLFile>("test/fixtures/DUNE0.ADL");
     
     ADLDriver adlDrv(opl, adlFile);
     adlDrv.play(4, 0xFF);
@@ -291,7 +291,7 @@ int renderMixer()
     auto opl = Config::create(OplEmulator::NUKED, Config::OplType::OPL3, mixer);
     auto pOpl = dynamic_cast<EmulatedOPL*>( opl.get());
     //auto opl = std::make_shared<hardware::opl::mame::MameOPL>(mixer);
-    std::shared_ptr<files::ADLFile> adlFile = std::make_shared<files::ADLFile>("test/fixtures/DUNE0.ADL");
+    std::shared_ptr<files::westwood::ADLFile> adlFile = std::make_shared<files::westwood::ADLFile>("test/fixtures/DUNE0.ADL");
 
     ADLDriver adlDrv(opl, adlFile);
     adlDrv.play(4, 0xFF);
@@ -342,8 +342,8 @@ int vocdriver()
     std::shared_ptr<Mixer> mixer = mixerManager.getMixer();
 
     //spdlog::set_level(spdlog::level::debug);
-    std::shared_ptr<files::VOCFile> vocFile = std::make_shared<files::VOCFile>("test/fixtures/DUNE.VOC");
-    //std::shared_ptr<files::VOCFile> vocFile = std::make_shared<files::VOCFile>("test/fixtures/sample1.voc");
+    //std::shared_ptr<files::VOCFile> vocFile = std::make_shared<files::VOCFile>("test/fixtures/DUNE.VOC");
+    std::shared_ptr<files::VOCFile> vocFile = std::make_shared<files::VOCFile>("test/fixtures/sample1.voc");
 
     VOCDriver voc(mixer, vocFile);
     voc.play();
@@ -418,8 +418,8 @@ int main(int argc, char* argv[])
     //SDL_Delay(100);
     //renderMixer();
 
-    //vocdriver();
-    wavdriver();
+    vocdriver();
+    //wavdriver();
 
     SDL_Init(SDL_INIT_TIMER | SDL_INIT_AUDIO);
 

@@ -159,14 +159,14 @@ namespace files
                 _channels = db.data[5];
                 uint16_t format = db.data[6] + (db.data[7] << 8);
                 for (int i = 0; i < 4; i++)
-                    _assertValid(db.data[i + 7] == 0);
+                    _assertValid(db.data[i + 8] == 0);
                 // TODO is a super set of case 1, 4 first cases.
                 // BODY: create a function to process format.
                 switch (format)
                 {
                 case 0: // 8-bit unsigned PCM
                 case 4: // 16-bit signed PCM
-                    for (int i = 2; i < db.size; i++) {
+                    for (int i = 12; i < db.size; i++) {
                         buf.push_back(db.data[i]);
                     }
                     break;
