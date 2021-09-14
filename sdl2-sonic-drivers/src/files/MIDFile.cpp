@@ -186,10 +186,10 @@ namespace files
                     _assertValid(type < 128);
                     uint32_t length = 0;
                     offs += decode_VLQ(length);
-                    e.events.reserve(length + 1);
-                    e.events.push_back(type);
+                    e.data.reserve(length + 1);
+                    e.data.push_back(type);
                     for (int j = 0; j < length; j++) {
-                        e.events.push_back(readU8());
+                        e.data.push_back(readU8());
                         offs++;
                     }
 
@@ -266,8 +266,8 @@ namespace files
                 break;
             case 0xC:
             case 0xD:
-                e.events.reserve(1);
-                e.events.push_back(readU8());
+                e.data.reserve(1);
+                e.data.push_back(readU8());
                 offs++;
                 break;
             case 0x8:
@@ -275,9 +275,9 @@ namespace files
             case 0xA:
             case 0xB:
             case 0xE:
-                e.events.reserve(2);
-                e.events.push_back(readU8());
-                e.events.push_back(readU8());
+                e.data.reserve(2);
+                e.data.push_back(readU8());
+                e.data.push_back(readU8());
                 offs += 2;
                 break;
             default:
@@ -289,7 +289,7 @@ namespace files
                 }
             }
 
-            e.events.resize(e.events.size());
+            e.data.resize(e.data.size());
             track.events.push_back(e);
             lastStatus = e.type;
         }

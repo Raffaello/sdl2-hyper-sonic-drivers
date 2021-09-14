@@ -15,8 +15,8 @@ namespace files
         MIDFile::MIDI_track_t track0 = f.getTrack(0);
         EXPECT_EQ(track0.events.size(), 4);
         EXPECT_EQ(track0.events[3].type.val, 0xFF);
-        EXPECT_EQ(track0.events[3].events.size(), 1);
-        EXPECT_EQ(track0.events[3].events[0], (int)MIDFile::MIDI_META_EVENT::END_OF_TRACK);
+        EXPECT_EQ(track0.events[3].data.size(), 1);
+        EXPECT_EQ(track0.events[3].data[0], (int)MIDFile::MIDI_META_EVENT::END_OF_TRACK);
         EXPECT_EQ(track0.events[3].delta_time, 0);
         //EXPECT_EQ(f.getTotalTime(), 180);
     }

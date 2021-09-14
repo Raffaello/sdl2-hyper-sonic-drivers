@@ -58,7 +58,7 @@ namespace files
         {
             uint32_t delta_time;
             MIDI_EVENT_type_u type;
-            std::vector<uint8_t> events;
+            std::vector<uint8_t> data;
         } MIDI_event_t;
 
         typedef struct MIDI_track_t

@@ -21,6 +21,8 @@
 #include <drivers/VOCDriver.hpp>
 #include <drivers/WAVDriver.hpp>
 
+#include <drivers/MIDParser.hpp>
+
 #include <utils/algorithms.hpp>
 
 #include <spdlog/spdlog.h>
@@ -330,7 +332,6 @@ int renderMixer()
     return 0;
 }
 
-
 int vocdriver()
 {
     using namespace audio::scummvm;
@@ -412,14 +413,42 @@ int wavdriver()
 
 }
 
+int mid_parser()
+{
+    using namespace audio::scummvm;
+    using  drivers::MIDParser;
+
+    SdlMixerManager mixerManager;
+    mixerManager.init();
+
+    std::shared_ptr<Mixer> mixer = mixerManager.getMixer();
+
+    //spdlog::set_level(spdlog::level::debug);
+    std::shared_ptr<files::MIDFile> midFile = std::make_shared<files::MIDFile>("test/fixtures/MI_intro.mid");
+
+    MIDParser midParser(midFile, mixer);
+    midParser.display();
+
+    
+
+    spdlog::info("SDLMixer quitting...");
+    SDL_Delay(1000);
+    spdlog::info("SDLMixer quit");
+
+    return 0;
+
+}
+
 int main(int argc, char* argv[])
 {
     //sdlMixer();
     //SDL_Delay(100);
     //renderMixer();
 
-    vocdriver();
+    //
+    // vocdriver();
     //wavdriver();
+    mid_parser();
 
     SDL_Init(SDL_INIT_TIMER | SDL_INIT_AUDIO);
 

@@ -78,4 +78,11 @@ namespace utils
     /// <param name="out_value">the resulting decoded value</param>
     /// <returns>byte reads</returns>
     int decode_VLQ(const uint8_t buf[], uint32_t& out_value);
+
+    /// <summary>
+    /// return the value of 2^coeff
+    /// </summary>
+    /// <param name="coeff">coefficient to elevate 2</param>
+    /// <returns>2^coeff</returns>
+    int powerOf2(const int coeff);
 }

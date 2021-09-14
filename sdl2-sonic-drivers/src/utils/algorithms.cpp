@@ -20,4 +20,16 @@ namespace utils
 
         return i;
     }
+
+    int powerOf2(const int coeff)
+    {
+        /*int res = 1;
+        for (int i = 0; i < coeff; i++) {
+            res *= 2;
+        }
+
+        return res;*/
+
+        return 1 << coeff;
+    }
 }
