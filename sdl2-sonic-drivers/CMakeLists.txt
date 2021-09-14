@@ -41,7 +41,7 @@ install(FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/VOCDriver.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/WAVDriver.hpp
     
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/ADLFile.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/westwood/ADLFile.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/MIDFile.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/XMIFile.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/AILDriverFile.hpp
@@ -100,7 +100,7 @@ target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/WAVDriver.cpp
     #${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/miles/XMidi.cpp
     # --- #
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/ADLFile.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/westwood/ADLFile.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/MIDFile.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/File.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/IFFFile.cpp

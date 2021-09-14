@@ -81,7 +81,7 @@ macro_test(
 
 macro_test(
     EXE TestADLFile
-    FILES "files/TestADLFile.cpp"
+    FILES "files/westwood/TestADLFile.cpp"
     LINKS_PRIVATE sonic-drivers-static
     FIXTURES 
         "fixtures/EOBSOUND.ADL" # v1

@@ -3,7 +3,7 @@
 #include <drivers/westwood/ADLDriver.hpp>
 #include <memory>
 #include "../test/audio/mocks/MockMixer.hpp"
-#include <files/ADLFile.hpp>
+#include <files/westwood/ADLFile.hpp>
 #include <hardware/opl/scummvm/mame/mame.hpp>
 
 namespace drivers
@@ -17,7 +17,7 @@ namespace drivers
             std::shared_ptr<MockMixer> mixer = std::make_shared<MockMixer>();
             EXPECT_EQ(mixer.use_count(), 1);
 
-            std::shared_ptr<files::ADLFile> adlFile = std::make_shared<files::ADLFile>("fixtures/DUNE19.ADL");
+            std::shared_ptr<files::westwood::ADLFile> adlFile = std::make_shared<files::westwood::ADLFile>("fixtures/DUNE19.ADL");
             EXPECT_EQ(adlFile.use_count(), 1);
 
             std::shared_ptr<hardware::opl::scummvm::mame::OPL> opl = std::make_shared<hardware::opl::scummvm::mame::OPL>(mixer);
@@ -34,7 +34,7 @@ namespace drivers
             std::shared_ptr<MockMixer> mixer = std::make_shared<MockMixer>();
             EXPECT_EQ(mixer.use_count(), 1);
 
-            std::shared_ptr<files::ADLFile> adlFile = std::make_shared<files::ADLFile>("fixtures/DUNE19.ADL");
+            std::shared_ptr<files::westwood::ADLFile> adlFile = std::make_shared<files::westwood::ADLFile>("fixtures/DUNE19.ADL");
             EXPECT_EQ(adlFile.use_count(), 1);
 
             std::shared_ptr<hardware::opl::scummvm::mame::OPL> opl = std::make_shared<hardware::opl::scummvm::mame::OPL>(mixer);
