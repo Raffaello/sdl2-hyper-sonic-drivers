@@ -99,6 +99,7 @@ target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/VOCDriver.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/WAVDriver.cpp
     #${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/miles/XMidi.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/MIDParser.cpp
     # --- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/westwood/ADLFile.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/MIDFile.cpp
