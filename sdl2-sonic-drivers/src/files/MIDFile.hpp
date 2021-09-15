@@ -58,9 +58,11 @@ namespace files
         {
             uint32_t delta_time;
             MIDI_EVENT_type_u type;
-            std::vector<uint8_t> data;
+            std::vector<uint8_t> data; // MIDI events 1 or 2 bytes, sysEx/MetaEvent varies.
         } MIDI_event_t;
 
+        // This could be a class for processing format 2
+        // with its own tempo, key, time, etc... 
         typedef struct MIDI_track_t
         {
             std::vector<MIDI_track_event_t> events;

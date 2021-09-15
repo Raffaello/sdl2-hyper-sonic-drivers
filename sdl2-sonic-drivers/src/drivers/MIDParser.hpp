@@ -15,6 +15,7 @@ namespace drivers
         virtual ~MIDParser();
 
         void processTrack(const files::MIDFile::MIDI_track_t& track, const int i);
+        void incTicks();
         void display();
     private:
         std::shared_ptr<files::MIDFile> _mid_file;

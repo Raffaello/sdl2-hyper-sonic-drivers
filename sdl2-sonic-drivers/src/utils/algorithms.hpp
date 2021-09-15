@@ -61,6 +61,12 @@ namespace utils
         return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     }
 
+    template<typename T>
+    inline T getMicro()
+    {
+        return std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+    }
+
     inline void delayMillis(const unsigned int delaytime)
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(delaytime));
