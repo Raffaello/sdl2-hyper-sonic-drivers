@@ -169,6 +169,7 @@ namespace drivers
 
         num_tracks = _mid_file->getNumTracks();
         division = _mid_file->getDivision();
+        // TODO: division to update after processed is missing.
         if (division & 0x8000) {
             // ticks per frame
             int smpte = (division & 0x7FFF) >> 8;
@@ -215,7 +216,6 @@ namespace drivers
             // BODY: so it requires a callback that
             // BODY: is called exactly every tick
             threads[i] = std::thread(&MIDParser::processTrack, this, track, i);
-            
         }
 
         for (auto& t : threads) {
