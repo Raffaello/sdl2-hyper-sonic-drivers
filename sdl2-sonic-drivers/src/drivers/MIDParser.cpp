@@ -243,7 +243,7 @@ namespace drivers
 
         // TODO: this works only with a constant tempo during all the sequence
         // BODY: also should be computed in float and ceiled for integer.
-        float exp_time_seconds = _mid_file->getTotalTime() / division * (tempo / 1000000.0f);
+        float exp_time_seconds = static_cast<float>(_mid_file->getTotalTime()) / static_cast<float>(division) * (static_cast<float>(tempo) / 1000000.0f);
         auto end_time = std::chrono::system_clock::now();
         auto tot_time = end_time - start_time;
         spdlog::info("Total Running Time: {:%M:%S}, expected={}:{}",
