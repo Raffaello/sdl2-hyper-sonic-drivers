@@ -66,6 +66,8 @@ namespace files
         typedef struct MIDI_track_t
         {
             std::vector<MIDI_track_event_t> events;
+            uint32_t cur_pos = 0; // events current position index
+            uint32_t ticks = 0;   // track ticks
         } MIDI_track_t;
 
 

@@ -31,10 +31,13 @@ namespace drivers
 
     void MIDParser::processTrack(const MIDFile::MIDI_track_t& track, const int i)
     {
-        int cur_time = 0;
-
+        int cur_time = 0; // ticks
+        //track.ticks = 0;
+        //track.cur_pos = 0;
+        unsigned int start = utils::getMicro<unsigned int>();
         for (auto& e : track.events)
         {
+            //unsigned int start = utils::getMicro<unsigned int>();
             spdlog::debug("MIDI Track#={:3}, Event: dt={:4}, type={:#04x}", i, e.delta_time, e.type.val);
             switch (e.type.high)
             {
@@ -103,7 +106,7 @@ namespace drivers
                         break;
                     case MIDFile::MIDI_META_EVENT::TIME_SIGNATURE:
                     {
-                        spdlog::debug("Time Signature: {:d}/{:d}, midi_clock={}, bb={}",
+                        spdlog::info("Time Signature: {:d}/{:d}, midi_clock={}, ticks per metronome click={}",
                             e.data[skip], powerOf2(e.data[skip + 1]), e.data[skip + 2], e.data[skip + 3]);
                         break;
                     }
@@ -150,10 +153,17 @@ namespace drivers
             cur_time += e.delta_time;
             //if (cur_time > _ticks)
             {
-                //unsigned int delta_ticks = cur_time - _ticks;
-                unsigned int delta_delay = e.delta_time * (tempo / division);
-                spdlog::debug("cur_time={}, delta_delay={}", cur_time, delta_delay / 1000.0);
-                delayMicro(delta_delay);
+                float tt = static_cast<float>(tempo) / static_cast<float>(division);
+                unsigned int end = utils::getMicro<unsigned int>();
+                float delta_delay = e.delta_time * tt;
+                float dd = std::roundf(delta_delay -(end - start));
+                start = end;
+                spdlog::info("#{} --- cur_time={}, delta_delay={}, dd={}, end-start={}",i, cur_time, delta_delay, dd, delta_delay-dd);
+                if (dd >= 1.0f) {
+                    delayMicro(dd); // not precise
+                    start += dd;
+                }
+                
             }
         }
     }
@@ -198,6 +208,8 @@ namespace drivers
             spdlog::debug("Division: Ticks per quarter note = {}", division & 0x7FFF);
         }
 
+        // TODO time signature used for what?
+
         std::vector<MIDFile::MIDI_track_t> tracks = _mid_file->getTracks();
         tempo = 500000; //120 BPM;
 
@@ -211,6 +223,7 @@ namespace drivers
         {
             MIDFile::MIDI_track_t track = tracks[i];
 
+            // TODO do without threads
             //processTrack(track, i);
 
             // TODO: in this way no need to convert to format 0
@@ -230,9 +243,12 @@ namespace drivers
 
         // TODO: this works only with a constant tempo during all the sequence
         // BODY: also should be computed in float and ceiled for integer.
-        unsigned int exp_time_seconds = _mid_file->getTotalTime() / division * (tempo / 1000000.0);
+        float exp_time_seconds = _mid_file->getTotalTime() / division * (tempo / 1000000.0f);
         auto end_time = std::chrono::system_clock::now();
         auto tot_time = end_time - start_time;
-        spdlog::info("Total Running Time: {:%M:%S}, expected={}:{}", tot_time, exp_time_seconds / 60, exp_time_seconds % 60);
+        spdlog::info("Total Running Time: {:%M:%S}, expected={}:{}",
+            tot_time,
+            std::floorf(exp_time_seconds / 60.0f),
+            exp_time_seconds - (std::floorf(exp_time_seconds / 60.f) * 60.f));
     }
 }
