@@ -22,6 +22,7 @@
 #include <drivers/WAVDriver.hpp>
 
 #include <drivers/MIDParser.hpp>
+#include <drivers/miles/XMIParser.hpp>
 
 #include <utils/algorithms.hpp>
 
@@ -439,6 +440,32 @@ int mid_parser()
 
 }
 
+int xmi_parser()
+{
+    using namespace audio::scummvm;
+    using  drivers::miles::XMIParser;
+
+    SdlMixerManager mixerManager;
+    mixerManager.init();
+
+    std::shared_ptr<Mixer> mixer = mixerManager.getMixer();
+
+    //spdlog::set_level(spdlog::level::debug);
+    std::shared_ptr<files::miles::XMIFile> xmiFile = std::make_shared<files::miles::XMIFile>("test/fixtures/AIL2_14_DEMO.XMI");
+
+    XMIParser xmiParser(xmiFile, mixer);
+    xmiParser.display();
+
+
+
+    spdlog::info("SDLMixer quitting...");
+    SDL_Delay(1000);
+    spdlog::info("SDLMixer quit");
+
+    return 0;
+
+}
+
 int main(int argc, char* argv[])
 {
     //sdlMixer();
@@ -448,7 +475,8 @@ int main(int argc, char* argv[])
     //
     // vocdriver();
     //wavdriver();
-    mid_parser();
+    //mid_parser();
+    xmi_parser();
 
     SDL_Init(SDL_INIT_TIMER | SDL_INIT_AUDIO);
 

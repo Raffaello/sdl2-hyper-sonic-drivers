@@ -150,7 +150,6 @@ namespace files
         {
             // MTrck Event:
             MIDI_track_event_t e;
-            int debug = 0;
             // delta time encoded in VRQ
             offs += decode_VLQ(e.delta_time);
             e.type.val = readU8();
@@ -171,11 +170,11 @@ namespace files
                 {
                 case 0x0:
                     // sys-event
-                {int a = 0; }
+                //{int a = 0; }
                 break;
                 case 0x7:
                     // sys-event
-                {int a = 0; }
+                //{int a = 0; }
                 break;
                 case 0xF:
                 {
@@ -295,7 +294,7 @@ namespace files
 
         // sanity check
         if (offs != chunk.length) {
-            spdlog::warn("MIDFile: FIleanme '{}' track {} length mismatch real length {}", _filename, chunk.length, offs);
+            spdlog::warn("MIDFile: Fileanme '{}' track {} length mismatch real length {}", _filename, chunk.length, offs);
         }
 
         _tracks.push_back(track);
