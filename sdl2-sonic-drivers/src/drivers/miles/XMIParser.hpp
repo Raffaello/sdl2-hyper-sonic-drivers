@@ -26,7 +26,7 @@ namespace drivers
 
             int num_tracks;
             //int division;
-            //uint32_t tempo;
+            uint32_t tempo;
         };
     }
 }

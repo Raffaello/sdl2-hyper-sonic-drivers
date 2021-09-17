@@ -52,4 +52,24 @@ namespace utils
         return i;
 
     }
+
+    int decode_xmi_VLQ(std::vector<uint8_t>& v, int index, uint32_t& out_value)
+    {
+        int i = index;
+        uint8_t byte = 0;
+        out_value = 0;
+        do
+        {
+            // 0xFFFF / 0x7F = 0x1FF = 511
+            if (i >= 512) {
+                throw std::runtime_error("decode_xmi_VLQ: more than 32bits VLQ input");
+            }
+
+            byte = v[i++];
+            out_value += (byte & 0x7F);
+        } while (byte == 0x7F);
+
+        return i - index;
+
+    }
 }

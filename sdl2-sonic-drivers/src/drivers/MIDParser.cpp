@@ -94,7 +94,7 @@ namespace drivers
                     case MIDFile::MIDI_META_EVENT::SET_TEMPO:
                     {
                         tempo = (e.data[skip] << 16) + (e.data[skip + 1] << 8) + (e.data[skip + 2]);
-                        spdlog::debug("Tempo {}, ({} bps)", tempo, 60000000 / tempo);
+                        spdlog::debug("Tempo {}, ({} bpm)", tempo, 60000000 / tempo);
                         break;
                     }
                     case MIDFile::MIDI_META_EVENT::SMPTE_OFFSET:
