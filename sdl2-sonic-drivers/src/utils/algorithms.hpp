@@ -91,4 +91,12 @@ namespace utils
     /// <param name="coeff">coefficient to elevate 2</param>
     /// <returns>2^coeff</returns>
     int powerOf2(const int coeff);
+
+    /// <summary>
+    /// XMI Variable length quantuty decoding algorithm
+    /// </summary>
+    /// <param name="buf">the max 4 bytes array to decode</param>
+    /// <param name="out_value">the resulting decoded value</param>
+    /// <returns>byte reads</returns>
+    int decode_xmi_VLQ(const uint8_t buf[], uint32_t& out_value);
 }
