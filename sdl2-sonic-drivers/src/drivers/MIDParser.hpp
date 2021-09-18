@@ -2,6 +2,7 @@
 
 #include <audio/scummvm/Mixer.hpp>
 #include <files/MIDFile.hpp>
+#include <audio/midi/types.hpp>
 #include <memory>
 #include <cstdint>
 
@@ -14,8 +15,8 @@ namespace drivers
         MIDParser(std::shared_ptr<files::MIDFile> mid_file, std::shared_ptr<audio::scummvm::Mixer> mixer);
         virtual ~MIDParser();
 
-        void processTrack(const files::MIDFile::MIDI_track_t& track, const int i);
-        void incTicks();
+        void processTrack(const audio::midi::MIDI_track_t& track, const int i);
+        //void incTicks();
         void display();
     private:
         std::shared_ptr<files::MIDFile> _mid_file;

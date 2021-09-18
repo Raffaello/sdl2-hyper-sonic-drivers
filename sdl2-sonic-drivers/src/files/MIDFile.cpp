@@ -66,12 +66,12 @@ namespace files
         return _division;
     }
 
-    const MIDFile::MIDI_track_t& MIDFile::getTrack(const uint16_t track) const
+    const audio::midi::MIDI_track_t& MIDFile::getTrack(const uint16_t track) const
     {
         return _tracks.at(track);
     }
 
-    const std::vector<MIDFile::MIDI_track_t>& MIDFile::getTracks() const noexcept
+    const std::vector<audio::midi::MIDI_track_t>& MIDFile::getTracks() const noexcept
     {
         return _tracks;
     }
@@ -120,6 +120,8 @@ namespace files
 
     void MIDFile::check_format()
     {
+        using audio::midi::MIDI_FORMAT;
+
         switch (static_cast<MIDI_FORMAT>(_format))
         {
         case MIDI_FORMAT::SINGLE_TRACK:
@@ -136,6 +138,11 @@ namespace files
 
     void MIDFile::read_track()
     {
+        using audio::midi::MIDI_track_t;
+        using audio::midi::MIDI_track_event_t;
+        using audio::midi::MIDI_EVENT_type_u;
+        using audio::midi::MIDI_META_EVENT;
+
         MIDI_track_t track;
         bool endTrack = false;
         MIDI_EVENT_type_u lastStatus = { 0 };
