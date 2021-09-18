@@ -1,7 +1,3 @@
-#include "MIDI.hpp"
-#include "MIDI.hpp"
-#include "MIDI.hpp"
-#include "MIDI.hpp"
 #include <audio/MIDI.hpp>
 
 namespace audio

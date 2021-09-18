@@ -5,8 +5,6 @@
 #include <vector>
 #include <string>
 #include <audio/midi/types.hpp>
-//#include <audio/midi/MIDIEvent.hpp>
-//#include <audio/midi/MIDITrack.hpp>
 #include <audio/MIDI.hpp>
 #include <memory>
 

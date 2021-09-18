@@ -13,6 +13,9 @@ namespace audio
             MIDITrack();
             MIDITrack(const std::vector<MIDIEvent> events);
             void addEvent(const MIDIEvent& e);
+
+            int getBPM();
+
             // TODO move to protected later on..
             std::vector<MIDIEvent> events;
         protected:
@@ -30,7 +33,11 @@ namespace audio
             /// </summary>
             uint8_t _denominator;
             uint8_t _midi_clocks_per_metronome_click;
-            uint8_t _bb; // notated 32nd notes in what MIDI thinks of a quarter note???
+            uint8_t _tickPerMetronomeClick; // notated 32nd notes in what MIDI thinks of a quarter note???
+            
+            // TODO: SMPTE? 
+
+
             /// <summary>
             /// A positive value for the key specifies the number of sharps and a
             /// negative value specifies the number of flats.
