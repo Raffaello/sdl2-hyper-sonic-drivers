@@ -13,10 +13,6 @@ namespace audio
         {
         public:
             MIDIEvent();
-            //MIDIEvent(const uint32_t delta_time, const MIDI_EVENT_type_u type, const std::vector<uint8_t>& data);
-            //MIDIEvent(const uint32_t delta_time, const MIDI_EVENT_type_u type, const std::shared_ptr<uint8_t[]> data, const int dataSize);
-
-            //void setEvent(const uint32_t delta_time, const MIDI_EVENT_type_u type, const std::vector<uint8_t>& data);
 
             uint32_t delta_time;
             MIDI_EVENT_type_u type;
@@ -24,7 +20,6 @@ namespace audio
         protected:
 
             // MIDI event types (SysEx, Meta, Midi)
-
         };
     }
 }

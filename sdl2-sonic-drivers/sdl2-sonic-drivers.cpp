@@ -21,6 +21,7 @@
 #include <drivers/VOCDriver.hpp>
 #include <drivers/WAVDriver.hpp>
 
+#include <files/MIDFile.hpp>
 #include <drivers/MIDParser.hpp>
 #include <drivers/miles/XMIParser.hpp>
 
@@ -427,7 +428,7 @@ int mid_parser()
     //spdlog::set_level(spdlog::level::debug);
     std::shared_ptr<files::MIDFile> midFile = std::make_shared<files::MIDFile>("test/fixtures/MI_intro.mid");
 
-    MIDParser midParser(midFile, mixer);
+    MIDParser midParser(midFile->getMIDI(), mixer);
     midParser.display();
 
     

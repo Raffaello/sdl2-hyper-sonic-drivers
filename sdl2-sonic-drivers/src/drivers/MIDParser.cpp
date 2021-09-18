@@ -9,23 +9,19 @@
 
 namespace drivers
 {
-    using files::MIDFile;
     using utils::decode_VLQ;
     using utils::powerOf2;
     using utils::delayMicro;
-
     using audio::midi::MIDI_FORMAT;
-
 
     std::string midi_event_to_string(const std::vector<uint8_t>& e)
     {
         return std::string(++e.begin(), e.end());
     }
 
-    MIDParser::MIDParser(std::shared_ptr<files::MIDFile> mid_file, std::shared_ptr<audio::scummvm::Mixer> mixer)
-        : _mid_file(mid_file), _mixer(mixer)
+    MIDParser::MIDParser(std::shared_ptr<audio::MIDI> midi, std::shared_ptr<audio::scummvm::Mixer> mixer)
+        : _midi(midi), _mixer(mixer)
     {
-        _midi = _mid_file->getMIDI();
     }
 
     MIDParser::~MIDParser()
