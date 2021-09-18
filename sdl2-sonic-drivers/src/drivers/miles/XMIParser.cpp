@@ -1,4 +1,3 @@
-#include "XMIParser.hpp"
 #include <drivers/miles/XMIParser.hpp>
 #include <vector>
 #include <spdlog/spdlog.h>
@@ -15,7 +14,7 @@ namespace drivers
         
 
         XMIParser::XMIParser(std::shared_ptr<files::miles::XMIFile> xmi_file, std::shared_ptr<audio::scummvm::Mixer> mixer)
-            : _xmi_file(xmi_file), _mixer(mixer)
+            : _xmi_file(xmi_file), _mixer(mixer), tempo(0)
         {
             num_tracks = _xmi_file->getNumTracks();
         }
