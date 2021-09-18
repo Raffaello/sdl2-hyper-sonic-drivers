@@ -19,7 +19,8 @@ namespace drivers
 
             //void processTrack(const files::MIDFile::MIDI_track_t& track, const int i);
             //void incTicks();
-            void display();
+            void display(const int num_track);
+            void displayAllTracks();
         private:
             std::shared_ptr<files::miles::XMIFile> _xmi_file;
             std::shared_ptr<audio::scummvm::Mixer> _mixer;
