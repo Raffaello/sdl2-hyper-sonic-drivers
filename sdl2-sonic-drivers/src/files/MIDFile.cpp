@@ -13,14 +13,10 @@ namespace files
 {
     using audio::midi::MIDI_FORMAT;
 
-    constexpr int32_t MAX_VRQ = 0x0FFFFFFF; // 3.5 bytes = 27 bits
-
     // TODO consider to "join" with IFFFile / or put common functions altogheter
     //      as it is similar to just the sub_header_chunk of IFF file.
     constexpr const char* MIDI_HEADER = "MThd";
     constexpr const char* MIDI_TRACK = "MTrk";
-
-    constexpr int MICROSECONDS_PER_MINUTE = 60000000;
 
     MIDFile::MIDFile(const std::string& filename) : File(filename),
         _midi(nullptr)
@@ -29,19 +25,13 @@ namespace files
         check_format();
 
         // Read Tracks
-        _midi = std::make_shared<audio::MIDI>(static_cast<MIDI_FORMAT>(_format), _nTracks, _division);
-        //_tracks.clear();
-        //_tracks.reserve(_nTracks);
-        for (int i = 0; i < _nTracks; i++)
+        for (int i = 0; i < _midi->numTracks; i++)
         {
             read_track();
         }
-
-       //_assertValid(_tracks.size() == _nTracks);
     }
 
-    MIDFile::~MIDFile()
-    {}
+    MIDFile::~MIDFile() = default;
 
     std::shared_ptr<audio::MIDI> MIDFile::getMIDI() const noexcept
     {
@@ -61,53 +51,7 @@ namespace files
 
         return utils::decode_VLQ(buf, out_value);
     }
-    /*
-    uint16_t MIDFile::getFormat() const noexcept
-    {
-        return _format;
-    }
 
-    uint16_t MIDFile::getNumTracks() const noexcept
-    {
-        return _nTracks;
-    }
-
-    uint16_t MIDFile::getDivision() const noexcept
-    {
-        return _division;
-    }
-
-    const audio::midi::MIDI_track_t& MIDFile::getTrack(const uint16_t track) const
-    {
-        return _tracks.at(track);
-    }
-
-    const std::vector<audio::midi::MIDI_track_t>& MIDFile::getTracks() const noexcept
-    {
-        return _tracks;
-    }
-
-    int MIDFile::getTotalTime() const noexcept
-    {
-        // TODO: format 2 won't be right.
-        int max = 0;
-        for (auto& t : _tracks)
-        {
-            int sum = 0;
-            for (auto& e : t.events)
-            {
-                sum += e.delta_time;
-            }
-
-            if (sum > max) {
-                max = sum;
-            }
-        }
-
-        // max / (_tempo / _division) (with _divsion bit 15 = 0)
-        return max;
-    }
-    */
     MIDFile::midi_chunk_t MIDFile::read_chunk()
     {
         midi_chunk_t chunk;
@@ -124,21 +68,24 @@ namespace files
         _assertValid(strncmp(header.id, MIDI_HEADER, sizeof(header.id)) == 0);
         _assertValid(header.length == 6);
 
-        _format = readBE16();
-        _nTracks = readBE16();
-        _division = readBE16();
+
+        uint16_t format = readBE16();
+        uint16_t nTracks = readBE16();
+        uint16_t division = readBE16();
+
+        _midi = std::make_shared<audio::MIDI>(static_cast<MIDI_FORMAT>(format), nTracks, division);
     }
 
     void MIDFile::check_format()
     {
-        switch (static_cast<MIDI_FORMAT>(_format))
+        switch (_midi->format)
         {
         case MIDI_FORMAT::SINGLE_TRACK:
-            _assertValid(_nTracks == 1);
+            _assertValid(_midi->numTracks == 1);
             break;
         case MIDI_FORMAT::SIMULTANEOUS_TRACK:
         case MIDI_FORMAT::MULTI_TRACK:
-            _assertValid(_nTracks >= 1);
+            _assertValid(_midi->numTracks >= 1);
             break;
         default:
             throw std::runtime_error("MIDFile: _format invalid");
@@ -147,15 +94,11 @@ namespace files
 
     void MIDFile::read_track()
     {
-        //using audio::midi::MIDI_track_t;
-        //using audio::midi::MIDI_track_event_t;
         using audio::midi::MIDI_EVENT_type_u;
         using audio::midi::MIDI_META_EVENT;
-
         using audio::midi::MIDITrack;
         using audio::midi::MIDIEvent;
 
-        //MIDI_track_t track;
         MIDITrack track;
         bool endTrack = false;
         MIDI_EVENT_type_u lastStatus = { 0 };
@@ -165,11 +108,9 @@ namespace files
 
         // events
         int offs = 0;
-        //track.events.clear();
         while (!endTrack)
         {
             // MTrck Event:
-            //MIDI_track_event_t e;
             MIDIEvent e;
             // delta time encoded in VRQ
             offs += decode_VLQ(e.delta_time);
@@ -190,13 +131,13 @@ namespace files
                 switch (e.type.low)
                 {
                 case 0x0:
-                    // sys-event
-                //{int a = 0; }
-                break;
+                    // sysEx-event
+                    spdlog::error("sysEx event not implemented yet");
+                    break;
                 case 0x7:
-                    // sys-event
-                //{int a = 0; }
-                break;
+                    // sysEx-event
+                    spdlog::error("sysEx event not implemented yet");
+                    break;
                 case 0xF:
                 {
                     // meta-event
@@ -216,66 +157,6 @@ namespace files
                         endTrack = true;
                     }
                     break;
-                    // MOve to the sequencer/parser
-                    /*
-                    switch (static_cast<MIDI_META_EVENT>(type))
-                    {
-                    case MIDI_META_EVENT::SEQUENCE_NUMBER:
-                        break;
-                    case MIDI_META_EVENT::TEXT:
-                        break;
-                    case MIDI_META_EVENT::COPYRIGHT:
-                        break;
-                    case MIDI_META_EVENT::SEQUENCE_NAME:
-                        break;
-                    case MIDI_META_EVENT::INSTRUMENT_NAME:
-                        break;
-                    case MIDI_META_EVENT::LYRICS:
-                        break;
-                    case MIDI_META_EVENT::MARKER:
-                        break;
-                    case MIDI_META_EVENT::CUE_POINT:
-                        break;
-                    case MIDI_META_EVENT::CHANNEL_PREFIX:
-                        break;
-                    case MIDI_META_EVENT::MIDI_PORT:
-                        buf[offs++];
-                        break;
-                    case MIDI_META_EVENT::END_OF_TRACK:
-                        if (offs != chunk.length) {
-                            spdlog::critical("out of sync reading MIDFile");
-                            throw std::runtime_error("MIDFile: review the buf[offs] logic");
-                        }
-
-                        endTrack = true;
-                        break;
-                    case MIDI_META_EVENT::SET_TEMPO:
-                        _assertValid(length == 3);
-
-                        _tempo = (buf[offs] << 16) + (buf[offs + 1] << 8) + (buf[offs + 2]);
-                        offs += length;
-                        break;
-                    case MIDI_META_EVENT::SMPTE_OFFSET:
-                        break;
-                    case MIDI_META_EVENT::TIME_SIGNATURE:
-                        _numerator = buf[offs++];
-                        _denominator = buf[offs++];
-                        _midi_clocks_per_metronome_click = buf[offs++];
-                        _bb = buf[offs++];
-                        break;
-                    case MIDI_META_EVENT::KEY_SIGNATURE:
-                        _key = buf[offs++];
-                        _scale = buf[offs++];
-                        break;
-                    case MIDI_META_EVENT::SEQUENCER_SPECIFIC:
-                        break;
-                    default:
-                        spdlog::critical("MIDFile: not recognized META-EVENT {:#04x}", type);
-                        throw std::runtime_error("not recognized meta-event. todo: skip");
-                        break;
-                    }
-                    break;
-                    */
                 }
                 default:
                     spdlog::critical("MIDFile sub-event {:#04x} not recognized", e.type.val);
@@ -309,7 +190,6 @@ namespace files
             }
 
             e.data.resize(e.data.size());
-            //track.events.push_back(e);
             track.addEvent(e);
             lastStatus = e.type;
         }
@@ -320,6 +200,5 @@ namespace files
         }
 
         _midi->addTrack(track);
-        //_tracks.push_back(track);
     }
 }

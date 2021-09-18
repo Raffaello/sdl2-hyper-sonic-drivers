@@ -8,7 +8,7 @@ namespace files
 {
     namespace miles
     {
-        class XMIFile final : public IFFFile
+        class XMIFile final : protected IFFFile
         {
         public:
             XMIFile(const std::string& filename);

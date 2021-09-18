@@ -19,7 +19,7 @@ namespace files
         TEST(XMIFile, headerXmi)
         {
             XMIFile f("fixtures/header.xmi");
-            EXPECT_EQ(f.size(), 56);
+            
             EXPECT_EQ(f.getNumTracks(), 1);
             auto t = f.getTrack(0);
             EXPECT_EQ(t.size(), 2);
@@ -30,7 +30,7 @@ namespace files
         TEST(XMIFile, headerNoXdirXmi)
         {
             XMIFile f("fixtures/header_no_xdir.xmi");
-            EXPECT_EQ(f.size(), 34);
+            
             EXPECT_EQ(f.getNumTracks(), 1);
             auto t = f.getTrack(0);
             EXPECT_EQ(t.size(), 2);
@@ -41,7 +41,6 @@ namespace files
         TEST(XMIFile, AIL2_14_DEMOXmi)
         {
             XMIFile f("fixtures/AIL2_14_DEMO.XMI");
-            EXPECT_EQ(f.size(), 26950);
             EXPECT_EQ(f.getNumTracks(), 3);
         }
     }
