@@ -1,0 +1,48 @@
+#include "MIDI.hpp"
+#include "MIDI.hpp"
+#include "MIDI.hpp"
+#include "MIDI.hpp"
+#include <audio/MIDI.hpp>
+
+namespace audio
+{
+    MIDI::MIDI(const midi::MIDI_FORMAT format, const uint16_t num_tracks, const uint16_t division)
+        : format(format), numTracks(num_tracks), division(division), _maxTicks(0)
+    {
+        _tracks.reserve(numTracks);
+    }
+
+    void MIDI::addTrack(const midi::MIDITrack& track)
+    {
+        _tracks.push_back(track);
+    }
+
+    const midi::MIDITrack& MIDI::getTrack(const uint16_t track) const
+    {
+        return _tracks.at(track);
+    }
+
+    int MIDI::getMaxTicks() noexcept
+    {
+        // TODO: format 2 won't be right.
+        // BODY: to move into MIDITrack class
+        if (_maxTicks == 0)
+        {
+            for (auto& t : _tracks)
+            {
+                int sum = 0;
+                for (auto& e : t.events) {
+                    sum += e.delta_time;
+                }
+
+                if (sum > _maxTicks) {
+                    _maxTicks = sum;
+                }
+            }
+
+            // max / (_tempo / _division) (with _divsion bit 15 = 0)
+        }
+
+        return _maxTicks;
+    }
+}

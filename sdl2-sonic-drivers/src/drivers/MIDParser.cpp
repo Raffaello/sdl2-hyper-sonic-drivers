@@ -14,6 +14,8 @@ namespace drivers
     using utils::powerOf2;
     using utils::delayMicro;
 
+    using audio::midi::MIDI_FORMAT;
+
 
     std::string midi_event_to_string(const std::vector<uint8_t>& e)
     {
@@ -23,13 +25,14 @@ namespace drivers
     MIDParser::MIDParser(std::shared_ptr<files::MIDFile> mid_file, std::shared_ptr<audio::scummvm::Mixer> mixer)
         : _mid_file(mid_file), _mixer(mixer)
     {
+        _midi = _mid_file->getMIDI();
     }
 
     MIDParser::~MIDParser()
     {
     }
 
-    void MIDParser::processTrack(const audio::midi::MIDI_track_t& track, const int i)
+    void MIDParser::processTrack(const audio::midi::MIDITrack& track, const int i)
     {
         int cur_time = 0; // ticks
         //track.ticks = 0;
@@ -170,7 +173,7 @@ namespace drivers
 
     void MIDParser::display()
     {
-        if (_mid_file->getFormat() == 2) {
+        if (_midi->format == MIDI_FORMAT::MULTI_TRACK) {
             spdlog::critical("MIDI format 2 not supported yet");
             return;
         }
@@ -182,8 +185,8 @@ namespace drivers
         // BODY: to enqueue the parsed events as midi messages
         // BODY: consider to use a better structure for midi msg
 
-        num_tracks = _mid_file->getNumTracks();
-        division = _mid_file->getDivision();
+        num_tracks = _midi->numTracks;
+        division = _midi->division;
         // TODO: division to update after processed is missing.
         if (division & 0x8000) {
             // ticks per frame
@@ -210,7 +213,7 @@ namespace drivers
 
         // TODO time signature used for what?
 
-        std::vector<audio::midi::MIDI_track_t> tracks = _mid_file->getTracks();
+        //std::vector<audio::midi::MIDI_track_t> tracks = _mid_file->getTracks();
         tempo = 500000; //120 BPM;
 
         
@@ -221,7 +224,7 @@ namespace drivers
 
         for (int i = 0; i < num_tracks; i++)
         {
-            audio::midi::MIDI_track_t track = tracks[i];
+            audio::midi::MIDITrack track = _midi->getTrack(i);
 
             // TODO do without threads
             //processTrack(track, i);
@@ -243,7 +246,7 @@ namespace drivers
 
         // TODO: this works only with a constant tempo during all the sequence
         // BODY: also should be computed in float and ceiled for integer.
-        float exp_time_seconds = static_cast<float>(_mid_file->getTotalTime()) / static_cast<float>(division) * (static_cast<float>(tempo) / 1000000.0f);
+        float exp_time_seconds = static_cast<float>(_midi->getMaxTicks()) / static_cast<float>(division) * (static_cast<float>(tempo) / 1000000.0f);
         auto end_time = std::chrono::system_clock::now();
         auto tot_time = end_time - start_time;
         spdlog::info("Total Running Time: {:%M:%S}, expected={}:{}",

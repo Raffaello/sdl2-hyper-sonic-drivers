@@ -5,10 +5,14 @@
 #include <spdlog/spdlog.h>
 #include <cstring>
 #include <utils/algorithms.hpp>
+#include <audio/midi/MIDITrack.hpp>
+#include <audio/midi/MIDIEvent.hpp>
 
 
 namespace files
 {
+    using audio::midi::MIDI_FORMAT;
+
     constexpr int32_t MAX_VRQ = 0x0FFFFFFF; // 3.5 bytes = 27 bits
 
     // TODO consider to "join" with IFFFile / or put common functions altogheter
@@ -18,24 +22,31 @@ namespace files
 
     constexpr int MICROSECONDS_PER_MINUTE = 60000000;
 
-    MIDFile::MIDFile(const std::string& filename) : File(filename)
+    MIDFile::MIDFile(const std::string& filename) : File(filename),
+        _midi(nullptr)
     {
         read_header();
         check_format();
 
         // Read Tracks
-        _tracks.clear();
-        _tracks.reserve(_nTracks);
+        _midi = std::make_shared<audio::MIDI>(static_cast<MIDI_FORMAT>(_format), _nTracks, _division);
+        //_tracks.clear();
+        //_tracks.reserve(_nTracks);
         for (int i = 0; i < _nTracks; i++)
         {
             read_track();
         }
 
-        _assertValid(_tracks.size() == _nTracks);
+       //_assertValid(_tracks.size() == _nTracks);
     }
 
     MIDFile::~MIDFile()
     {}
+
+    std::shared_ptr<audio::MIDI> MIDFile::getMIDI() const noexcept
+    {
+        return _midi;
+    }
 
     int MIDFile::decode_VLQ(uint32_t& out_value)
     {
@@ -45,12 +56,12 @@ namespace files
         
         do {
             buf[i++] = v = readU8();
-            _assertValid(i < 4);
+            _assertValid(i <= 4);
         } while (v & 0x80);
-        
+
         return utils::decode_VLQ(buf, out_value);
     }
-
+    /*
     uint16_t MIDFile::getFormat() const noexcept
     {
         return _format;
@@ -96,7 +107,7 @@ namespace files
         // max / (_tempo / _division) (with _divsion bit 15 = 0)
         return max;
     }
-
+    */
     MIDFile::midi_chunk_t MIDFile::read_chunk()
     {
         midi_chunk_t chunk;
@@ -120,8 +131,6 @@ namespace files
 
     void MIDFile::check_format()
     {
-        using audio::midi::MIDI_FORMAT;
-
         switch (static_cast<MIDI_FORMAT>(_format))
         {
         case MIDI_FORMAT::SINGLE_TRACK:
@@ -138,12 +147,16 @@ namespace files
 
     void MIDFile::read_track()
     {
-        using audio::midi::MIDI_track_t;
-        using audio::midi::MIDI_track_event_t;
+        //using audio::midi::MIDI_track_t;
+        //using audio::midi::MIDI_track_event_t;
         using audio::midi::MIDI_EVENT_type_u;
         using audio::midi::MIDI_META_EVENT;
 
-        MIDI_track_t track;
+        using audio::midi::MIDITrack;
+        using audio::midi::MIDIEvent;
+
+        //MIDI_track_t track;
+        MIDITrack track;
         bool endTrack = false;
         MIDI_EVENT_type_u lastStatus = { 0 };
         // Read Track
@@ -152,11 +165,12 @@ namespace files
 
         // events
         int offs = 0;
-        track.events.clear();
+        //track.events.clear();
         while (!endTrack)
         {
             // MTrck Event:
-            MIDI_track_event_t e;
+            //MIDI_track_event_t e;
+            MIDIEvent e;
             // delta time encoded in VRQ
             offs += decode_VLQ(e.delta_time);
             e.type.val = readU8();
@@ -295,7 +309,8 @@ namespace files
             }
 
             e.data.resize(e.data.size());
-            track.events.push_back(e);
+            //track.events.push_back(e);
+            track.addEvent(e);
             lastStatus = e.type;
         }
 
@@ -304,6 +319,7 @@ namespace files
             spdlog::warn("MIDFile: Fileanme '{}' track {} length mismatch real length {}", _filename, chunk.length, offs);
         }
 
-        _tracks.push_back(track);
+        _midi->addTrack(track);
+        //_tracks.push_back(track);
     }
 }

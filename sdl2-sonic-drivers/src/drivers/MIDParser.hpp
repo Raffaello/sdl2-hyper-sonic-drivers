@@ -1,7 +1,8 @@
 #pragma once
 
 #include <audio/scummvm/Mixer.hpp>
-#include <files/MIDFile.hpp>
+#include <files/MIDFile.hpp> // todo remove
+#include <audio/MIDI.hpp>
 #include <audio/midi/types.hpp>
 #include <memory>
 #include <cstdint>
@@ -15,12 +16,13 @@ namespace drivers
         MIDParser(std::shared_ptr<files::MIDFile> mid_file, std::shared_ptr<audio::scummvm::Mixer> mixer);
         virtual ~MIDParser();
 
-        void processTrack(const audio::midi::MIDI_track_t& track, const int i);
+        void processTrack(const audio::midi::MIDITrack& track, const int i);
         //void incTicks();
         void display();
     private:
         std::shared_ptr<files::MIDFile> _mid_file;
         std::shared_ptr<audio::scummvm::Mixer> _mixer;
+        std::shared_ptr<audio::MIDI> _midi;
 
         int num_tracks;
         int division;

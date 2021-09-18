@@ -13,8 +13,9 @@ namespace audio
             MIDITrack();
             MIDITrack(const std::vector<MIDIEvent> events);
             void addEvent(const MIDIEvent& e);
+            // TODO move to protected later on..
+            std::vector<MIDIEvent> events;
         protected:
-            std::vector<MIDIEvent> _events;
             uint32_t _curPos;
             uint32_t _ticks;
         };

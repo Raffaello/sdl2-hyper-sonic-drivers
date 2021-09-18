@@ -5,8 +5,10 @@
 #include <vector>
 #include <string>
 #include <audio/midi/types.hpp>
-#include <audio/midi/MIDIEvent.hpp>
-#include <audio/midi/MIDITrack.hpp>
+//#include <audio/midi/MIDIEvent.hpp>
+//#include <audio/midi/MIDITrack.hpp>
+#include <audio/MIDI.hpp>
+#include <memory>
 
 namespace files
 {
@@ -18,13 +20,15 @@ namespace files
     //      
     //      so decouple into a MIDI sequencer to stream the events into it?
     //      
-    class MIDFile : public File
+    class MIDFile : protected File
     {
     public:
         MIDFile(const std::string& filename);
         virtual ~MIDFile();
+
+        std::shared_ptr<audio::MIDI> getMIDI() const noexcept;
         /// <summary>
-        /// Variable length quantity decoding algorithm
+        /// Variable length quantity decoding algorithm to read from file
         /// </summary>
         /// <param name="buf">the max 4 bytes array to decode</param>
         /// <param name="out_value">the resulting decoded value</param>
@@ -33,12 +37,12 @@ namespace files
         //static int decode_VLQ(const uint8_t buf[], uint32_t& out_value);
         int decode_VLQ(uint32_t& out_value);
 
-        uint16_t getFormat() const noexcept;
-        uint16_t getNumTracks() const noexcept;
-        uint16_t getDivision() const noexcept;
-        const audio::midi::MIDI_track_t& getTrack(const uint16_t track) const;
-        const std::vector<audio::midi::MIDI_track_t>& getTracks() const noexcept;
-        int getTotalTime() const noexcept;
+        //uint16_t getFormat() const noexcept;
+        //uint16_t getNumTracks() const noexcept;
+        //uint16_t getDivision() const noexcept;
+        //const audio::midi::MIDI_track_t& getTrack(const uint16_t track) const;
+        //const std::vector<audio::midi::MIDI_track_t>& getTracks() const noexcept;
+        //int getTotalTime() const noexcept;
 
     private:
         typedef struct midi_chunk_t
@@ -113,6 +117,8 @@ namespace files
         void check_format();
         void read_track();
 
-        std::vector<audio::midi::MIDI_track_t> _tracks;
+        //std::vector<audio::midi::MIDI_track_t> _tracks;
+        
+        std::shared_ptr<audio::MIDI> _midi;
     };
 }

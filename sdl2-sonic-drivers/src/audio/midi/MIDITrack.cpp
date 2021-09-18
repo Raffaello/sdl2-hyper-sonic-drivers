@@ -8,14 +8,14 @@ namespace audio
         {
         }
 
-        MIDITrack::MIDITrack(const std::vector<MIDIEvent> events) : MIDITrack(),
-            _events(events)
+        MIDITrack::MIDITrack(const std::vector<MIDIEvent> events) : MIDITrack()
         {
+            this->events = events;
         }
 
         void MIDITrack::addEvent(const MIDIEvent& e)
         {
-            _events.push_back(e);
+            events.push_back(e);
         }
     }
 }
