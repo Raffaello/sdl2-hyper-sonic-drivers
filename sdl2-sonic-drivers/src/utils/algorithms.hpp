@@ -100,6 +100,4 @@ namespace utils
     /// <param name="out_value">the resulting decoded value</param>
     /// <returns>byte reads</returns>
     int decode_xmi_VLQ(const uint8_t buf[], uint32_t& out_value);
-    
-    int decode_xmi_VLQ(std::vector<uint8_t>& v, int index, uint32_t& out_value);
 }

@@ -9,6 +9,7 @@ namespace drivers
     namespace miles
     {
         using utils::decode_xmi_VLQ;
+        using utils::decode_VLQ;
         using utils::powerOf2;
         using files::MIDFile; // todo remove
 
@@ -41,7 +42,8 @@ namespace drivers
                         uint8_t type = track[i++];
                         // decode_xmi_vlq
                         uint32_t length = 0;
-                        i += decode_xmi_VLQ(track, i, length);
+                        //i += decode_xmi_VLQ(track, i, length);
+                        i += decode_VLQ(&track[i], length);
                         switch (static_cast<MIDFile::MIDI_META_EVENT>(type))
                         {
                         case MIDFile::MIDI_META_EVENT::CHANNEL_PREFIX:
@@ -122,7 +124,7 @@ namespace drivers
                         {
                             // note on
                             // The first difference is "Note On" event contains 3 parameters:
-                            // the note number, velocity level (sameas standard MIDI),
+                            // the note number, velocity level (same as standard MIDI),
                             // and also duration in ticks.
                             // Duration is stored as variable-length value inconcatenated bits format.
                             // Since note events store information about its duration,
@@ -131,7 +133,8 @@ namespace drivers
                             uint8_t vel = track[i++];
                             uint32_t duration = 0;
                             // TODO: figure out the VLQ here... not correct now.
-                            i+= decode_xmi_VLQ(track, i, duration);
+                            i+= decode_xmi_VLQ(&track[i], duration);
+                            //i+= decode_VLQ(&track[i], duration);
                             
                             spdlog::debug("Channel #{} Note ON: note={}, velocity={}, duration={}", (int)ch, note, vel, duration);
                         }
@@ -158,7 +161,10 @@ namespace drivers
                         }
                     }
                     else {
-                        spdlog::warn("t={:#04x}", t);
+                    // delay event? 
+                    uint32_t delay = 0;
+                    i += decode_xmi_VLQ(&track[i], delay);
+                        spdlog::warn("delay? how to use it? ={}", delay);
                     }
                 }
             }

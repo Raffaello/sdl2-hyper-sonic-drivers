@@ -89,6 +89,7 @@ namespace utils
         EXPECT_EQ(value, exp_value);
         EXPECT_EQ(reads, exp_reads);
     }
+
     INSTANTIATE_TEST_SUITE_P(
         decode_xmi_VLQ,
         XMIVLQTest,
@@ -96,7 +97,8 @@ namespace utils
             std::make_tuple<std::vector<uint8_t>, uint32_t, int>({ 0 }, 0, 1),
             std::make_tuple<std::vector<uint8_t>, uint32_t, int>({ 0x40 }, 0x40, 1),
             std::make_tuple<std::vector<uint8_t>, uint32_t, int>({ 0x7F,0x01 }, 0x7F+0x01, 2),
-            std::make_tuple<std::vector<uint8_t>, uint32_t, int>({ 0x7F, 0x22 }, 0xA1, 2)
+            std::make_tuple<std::vector<uint8_t>, uint32_t, int>({ 0x7F, 0x22 }, 0xA1, 2),
+            std::make_tuple<std::vector<uint8_t>, uint32_t, int>({ 0x7F, 0x22, 0x80 }, 0xA1, 2)
         )
     );
 }
