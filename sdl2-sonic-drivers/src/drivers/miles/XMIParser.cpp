@@ -16,7 +16,7 @@ namespace drivers
         XMIParser::XMIParser(std::shared_ptr<files::miles::XMIFile> xmi_file, std::shared_ptr<audio::scummvm::Mixer> mixer)
             : _xmi_file(xmi_file), _mixer(mixer), tempo(0)
         {
-            num_tracks = _xmi_file->getNumTracks();
+            num_tracks = _xmi_file->getMIDI()->numTracks;
         }
 
         XMIParser::~XMIParser()
@@ -25,7 +25,11 @@ namespace drivers
 
         void XMIParser::display(const int num_track)
         {
-            std::vector<uint8_t> track = _xmi_file->getTrack(num_track);
+            // TODO redoit with the MIDI should be almost the same as MIDParser now
+            // body: with the exception of note_on and note_off data.
+
+            /*
+            std::vector<uint8_t> track = _xmi_file->getMIDI()->getTrack(num_track);
 
             // process track
             // TODO need to be processed byte by byte ...
@@ -177,7 +181,10 @@ namespace drivers
             if (i != track.size()) {
                 spdlog::error("end of track don't match track size: end of track index={}, track size={}", i, track.size());
             }
+            */
         }
+
+        
 
         // Each track is 1 sequence (song), like Format 0 in midi files
         // So it is required to choose which track to play
@@ -187,7 +194,7 @@ namespace drivers
 
             for (int it = 0; it < num_tracks; it++)
             {
-                display(it);
+                //display(it);
             }
         }
     }

@@ -29,8 +29,9 @@ namespace files
             XMIFile(const std::string& filename);
             virtual ~XMIFile();
 
-            int getNumTracks() const noexcept;
-            const std::vector<uint8_t>& getTrack(const uint16_t track) const noexcept;
+            std::shared_ptr<audio::MIDI> getMIDI() const noexcept;
+            //int getNumTracks() const noexcept;
+            //const std::vector<uint8_t>& getTrack(const uint16_t track) const noexcept;
         private:
             uint16_t _readFormXdirChunk(IFF_chunk_header_t& form_xdir);
             audio::midi::MIDIEvent _readEvnt(const IFF_sub_chunk_header_t& IFF_evnt, const int16_t track);
@@ -39,8 +40,9 @@ namespace files
             
             std::shared_ptr<audio::MIDI> _midi;
 
-            uint16_t _num_tracks;
-            std::vector<std::vector<uint8_t>> _midi_events;
+            //uint16_t _num_tracks;
+            //std::vector<std::vector<uint8_t>> _midi_events;
+            
             std::vector<std::vector<uint8_t>> _timbre_patch_numbers;
             std::vector<std::vector<uint8_t>> _timbre_bank;
         };

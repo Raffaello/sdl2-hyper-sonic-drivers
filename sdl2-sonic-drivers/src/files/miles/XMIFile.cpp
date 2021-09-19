@@ -108,24 +108,15 @@ namespace files
                     }
                 } while (chunk.id.id != eIFF_ID::ID_EVNT);
             }
-
-
-            _num_tracks = num_tracks;
-           
         }
 
         XMIFile::~XMIFile()
         {
         }
 
-        int XMIFile::getNumTracks() const noexcept
+        std::shared_ptr<audio::MIDI> XMIFile::getMIDI() const noexcept
         {
-            return _num_tracks;
-        }
-
-        const std::vector<uint8_t>& XMIFile::getTrack(const uint16_t track) const noexcept
-        {
-            return _midi_events[track];
+            return _midi;
         }
 
         uint16_t XMIFile::_readFormXdirChunk(IFF_chunk_header_t& form_xdir)
