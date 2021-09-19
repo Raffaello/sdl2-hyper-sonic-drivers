@@ -34,7 +34,7 @@ namespace files
             //const std::vector<uint8_t>& getTrack(const uint16_t track) const noexcept;
         private:
             uint16_t _readFormXdirChunk(IFF_chunk_header_t& form_xdir);
-            audio::midi::MIDIEvent _readEvnt(const IFF_sub_chunk_header_t& IFF_evnt, const int16_t track);
+            audio::midi::MIDITrack _readEvnts(const IFF_sub_chunk_header_t& IFF_evnt, const int16_t track);
             void _readTimb(const IFF_sub_chunk_header_t& IFF_timb, const int16_t track);
             void _readRbrn(const IFF_sub_chunk_header_t& IFF_rbrn, const int16_t track);
             

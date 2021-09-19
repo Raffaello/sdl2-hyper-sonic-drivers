@@ -23,9 +23,8 @@ namespace files
             EXPECT_EQ(f.getMIDI()->numTracks, 1);
             EXPECT_EQ(f.getMIDI()->format, audio::midi::MIDI_FORMAT::SINGLE_TRACK);
             auto t = f.getMIDI()->getTrack(0);
-            EXPECT_EQ(t.events.size(), 2);
-            EXPECT_EQ(t.events[0].type.val, 0xA0);
-            EXPECT_EQ(t.events[1].type.val, 0xB0);
+            EXPECT_EQ(t.events.size(), 1);
+            EXPECT_EQ(t.events[0].type.val, 0xFF);
         }
 
         TEST(XMIFile, headerNoXdirXmi)
@@ -35,15 +34,15 @@ namespace files
             EXPECT_EQ(f.getMIDI()->numTracks, 1);
             EXPECT_EQ(f.getMIDI()->format, audio::midi::MIDI_FORMAT::SINGLE_TRACK);
             auto t = f.getMIDI()->getTrack(0);
-            EXPECT_EQ(t.events.size(), 2);
-            EXPECT_EQ(t.events[0].type.val, 0xA0);
-            EXPECT_EQ(t.events[1].type.val, 0xB0);
+            EXPECT_EQ(t.events.size(), 1);
+            EXPECT_EQ(t.events[0].type.val, 0xFF);
         }
 
         TEST(XMIFile, AIL2_14_DEMOXmi)
         {
             XMIFile f("fixtures/AIL2_14_DEMO.XMI");
             EXPECT_EQ(f.getMIDI()->numTracks, 3);
+            
             EXPECT_EQ(f.getMIDI()->format, audio::midi::MIDI_FORMAT::MULTI_TRACK);
         }
     }

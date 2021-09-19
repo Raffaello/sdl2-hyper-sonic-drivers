@@ -68,7 +68,6 @@ namespace files
             _assertValid(cat.type.id == eIFF_ID::ID_XMID);
             _assertValid(num_tracks >= 1);
 
-            //_midi_events.resize(num_tracks);
             _timbre_patch_numbers.resize(num_tracks);
             _timbre_bank.resize(num_tracks);
             // Create MIDI object
@@ -100,13 +99,15 @@ namespace files
                         _readRbrn(chunk, track);
                         break;
                     case eIFF_ID::ID_EVNT:
-                        midi_track.addEvent(_readEvnt(chunk, track));
+                        midi_track = _readEvnts(chunk, track);
                         break;
                     default:
                         std::string s(chunk.id.str, 4);
                         throw std::invalid_argument("Not a valid XMI file: " + _filename + " (IFF_ID: " + s + ")");
                     }
                 } while (chunk.id.id != eIFF_ID::ID_EVNT);
+
+                _midi->addTrack(midi_track);
             }
         }
 
@@ -142,27 +143,22 @@ namespace files
             return num_tracks;
         }
 
-        MIDIEvent XMIFile::_readEvnt(const IFF_sub_chunk_header_t& IFF_evnt, const int16_t track)
+        MIDITrack XMIFile::_readEvnts(const IFF_sub_chunk_header_t& IFF_evnt, const int16_t track)
         {
             // { UBYTE interval count(if < 128)
             //     UBYTE <MIDI event>(if > 127) } ...
             
-            /*_assertValid(_midi_events[track].size() == 0);
-            _midi_events[track].reserve(IFF_evnt.size);
-            for (int i = 0; i < IFF_evnt.size; i++) {
-                _midi_events[track].push_back(readU8());
-            }
-            _assertValid(_midi_events[track].size() == IFF_evnt.size);*/
-            // ----
             std::unique_ptr<uint8_t[]> buf = std::make_unique<uint8_t[]>(IFF_evnt.size);
             read(buf.get(), IFF_evnt.size);
 
-            MIDIEvent e;
             bool endTrack = false;
             int offs = 0;
+            MIDITrack t;
 
-            while(!endTrack)
+            while(!endTrack && offs < IFF_evnt.size)
             {
+                MIDIEvent e;
+
                 offs += decode_xmi_VLQ(&buf[offs], e.delta_time);
                 e.type.val = buf[offs++];
                 // TODO: refactor later as there is quite a lot in common with MIDFile
@@ -240,15 +236,24 @@ namespace files
                 }
 
                 e.data.resize(e.data.size());
+                t.addEvent(e);
             }
+
+            
 
             // sanity check
             if (offs != IFF_evnt.size) {
                 spdlog::warn("XMIFile: Fileanme '{}' track {} length mismatch real length {}", _filename, IFF_evnt.size, offs);
             }
+
+            if (!endTrack) {
+                const char* err_msg = "XMIFile: not a valid XMI file, missing end of track midi event";
+                spdlog::critical(err_msg);
+                throw std::invalid_argument(err_msg);
+            }
             
         
-            return e;
+            return t;
         }
 
         void XMIFile::_readTimb(const IFF_sub_chunk_header_t& IFF_timb, const int16_t track)

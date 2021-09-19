@@ -10,7 +10,11 @@ namespace audio
 
     void MIDI::addTrack(const midi::MIDITrack& track)
     {
-        _tracks.push_back(track);
+        if (_tracks.size() >= numTracks) {
+            //return;
+        }
+
+        _tracks.emplace_back(track);
     }
 
     const midi::MIDITrack& MIDI::getTrack(const uint16_t track) const
