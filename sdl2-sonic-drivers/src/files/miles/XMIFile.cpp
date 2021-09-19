@@ -94,15 +94,15 @@ namespace files
         {
         }
 
-        /*int XMIFile::getNumTracks() const noexcept
+        int XMIFile::getNumTracks() const noexcept
         {
             return _num_tracks;
-        }*/
+        }
 
-        /*const std::vector<uint8_t>& XMIFile::getTrack(const uint16_t track) const noexcept
+        const std::vector<uint8_t>& XMIFile::getTrack(const uint16_t track) const noexcept
         {
             return _midi_events[track];
-        }*/
+        }
 
         void XMIFile::_readFormXdirChunk()
         {
