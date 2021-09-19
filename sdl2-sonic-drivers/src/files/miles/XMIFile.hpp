@@ -28,7 +28,7 @@ namespace files
             std::shared_ptr<audio::MIDI> _midi;
 
             uint16_t _num_tracks;
-            std::vector<uint8_t> _midi_events;
+            std::vector<std::vector<uint8_t>> _midi_events;
             std::vector<std::vector<uint8_t>> _timbre_patch_numbers;
             std::vector<std::vector<uint8_t>> _timbre_bank;
         };
