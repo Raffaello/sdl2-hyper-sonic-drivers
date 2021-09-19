@@ -13,8 +13,6 @@ namespace files
         using utils::decode_xmi_VLQ;
         using utils::decode_VLQ;
 
-        
-
         // This first "meta-header" is optional
         // [  FORM<len>XDIR
         // {
@@ -111,9 +109,7 @@ namespace files
             }
         }
 
-        XMIFile::~XMIFile()
-        {
-        }
+        XMIFile::~XMIFile() = default;
 
         std::shared_ptr<audio::MIDI> XMIFile::getMIDI() const noexcept
         {
@@ -122,7 +118,7 @@ namespace files
 
         uint16_t XMIFile::_readFormXdirChunk(IFF_chunk_header_t& form_xdir)
         {
-            // ---------------------------------------------------
+            // the FORM<len>XDIR chunk is already read and pass as a paramter
             // [  FORM<len>XDIR
             // {
             //     INFO<len>
@@ -239,8 +235,6 @@ namespace files
                 t.addEvent(e);
             }
 
-            
-
             // sanity check
             if (offs != IFF_evnt.size) {
                 spdlog::warn("XMIFile: Fileanme '{}' track {} length mismatch real length {}", _filename, IFF_evnt.size, offs);
@@ -251,16 +245,15 @@ namespace files
                 spdlog::critical(err_msg);
                 throw std::invalid_argument(err_msg);
             }
-            
-        
+
             return t;
         }
 
         void XMIFile::_readTimb(const IFF_sub_chunk_header_t& IFF_timb, const int16_t track)
         {
-            //             UWORD # of timbre list entries, 0 - 16384
-            //           { UBYTE patch number 0 - 127
-            //             UBYTE timbre bank 0 - 127 } ...]
+            // UWORD # of timbre list entries, 0 - 16384
+            // { UBYTE patch number 0 - 127
+            // UBYTE timbre bank 0 - 127 } ...]
             _assertValid(_timbre_patch_numbers[track].size() == 0 && _timbre_bank[track].size() == 0);
             const uint16_t timbre_list_entries = readLE16();
             _assertValid(timbre_list_entries == (IFF_timb.size - sizeof(uint16_t)) / 2);
@@ -276,10 +269,12 @@ namespace files
         }
         void XMIFile::_readRbrn(const IFF_sub_chunk_header_t& IFF_rbrn, const int16_t track)
         {
-            //             UWORD # of branch point offsets, 0 - 127
-            //           { UWORD Sequence Branch Index controller value 0 - 127
-            //             ULONG controller offset from start of EVNT chunk } ...]
-            throw std::runtime_error("ID_RBRN: not implemented yet");
+            // UWORD # of branch point offsets, 0 - 127
+            // { UWORD Sequence Branch Index controller value 0 - 127
+            // ULONG controller offset from start of EVNT chunk } ...]
+            const char* err_msg = "XMIFile: ID_RBRN not implemented yet";
+            spdlog::critical(err_msg);
+            throw std::runtime_error(err_msg);
         }
     }
 }
