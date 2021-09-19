@@ -42,22 +42,5 @@ namespace audio
             KEY_SIGNATURE = 0x59,
             SEQUENCER_SPECIFIC = 0x7F
         };
-
-        // TODO: to remove and convert as classes?
-        typedef struct MIDI_track_event_t
-        {
-            uint32_t delta_time;
-            MIDI_EVENT_type_u type;
-            std::vector<uint8_t> data; // MIDI events 1 or 2 bytes, sysEx/MetaEvent varies.
-        } MIDI_event_t;
-
-        // This could be a class for processing format 2
-        // with its own tempo, key, time, etc... 
-        typedef struct MIDI_track_t
-        {
-            std::vector<MIDI_track_event_t> events;
-            uint32_t cur_pos = 0; // events current position index
-            uint32_t ticks = 0;   // track ticks
-        } MIDI_track_t;
     }
 }
