@@ -9,6 +9,7 @@ namespace files
         {
             IFF_ID xmiId;
             readId(xmiId);
+            // TODO remove this seek stmt, as redundant
             seek(0, std::fstream::_Seekbeg);
             switch (xmiId.id)
             {
@@ -25,6 +26,7 @@ namespace files
             _midi_events.resize(_num_tracks);
             _timbre_patch_numbers.resize(_num_tracks);
             _timbre_bank.resize(_num_tracks);
+            
             // ---------------------------------------------------
             // this chunk is required with at least 1 FORM with 1 EVNT
             // CAT <len>XMID
@@ -49,7 +51,6 @@ namespace files
             IFF_chunk_header_t cat;
             readChunkHeader(cat);
             _assertValid(cat.chunk.id.id == eIFF_ID::ID_CAT);
-            //_assertValid(cat.chunk.size == ???); // file size minus the previous form and 4 char?
             _assertValid(cat.type.id == eIFF_ID::ID_XMID);
 
             for (int track = 0; track < _num_tracks; track++)
@@ -79,21 +80,29 @@ namespace files
                     }
                 } while (chunk.id.id != eIFF_ID::ID_EVNT);
             }
+
+
+            // Create MIDI object
+            /*audio::midi::MIDI_FORMAT format = _num_tracks == 1 ?
+                audio::midi::MIDI_FORMAT::SINGLE_TRACK :
+                audio::midi::MIDI_FORMAT::MULTI_TRACK;
+
+            _midi = std::make_shared<audio::MIDI>(format, _num_tracks, division);*/
         }
 
         XMIFile::~XMIFile()
         {
         }
 
-        int XMIFile::getNumTracks() const noexcept
+        /*int XMIFile::getNumTracks() const noexcept
         {
             return _num_tracks;
-        }
+        }*/
 
-        const std::vector<uint8_t>& XMIFile::getTrack(const uint16_t track) const noexcept
+        /*const std::vector<uint8_t>& XMIFile::getTrack(const uint16_t track) const noexcept
         {
             return _midi_events[track];
-        }
+        }*/
 
         void XMIFile::_readFormXdirChunk()
         {
@@ -121,6 +130,17 @@ namespace files
 
         void XMIFile::_readEvnt(const IFF_sub_chunk_header_t& IFF_evnt, const int16_t track)
         {
+            // TODO: midi events need to be "parsed"
+            // body: like for MIDFile to be validated
+            // body: and construct the MIDI object.
+            // body: what is needed at least is the 
+            // body: division, value.
+            // body: also it requires to be 
+            // body: created to create MIDIEvents objecys
+            // body: and MIDITrack objects
+            // body: to be added in MIDI object.
+            
+
             // { UBYTE interval count(if < 128)
             //     UBYTE <MIDI event>(if > 127) } ...
             _assertValid(_midi_events[track].size() == 0);
