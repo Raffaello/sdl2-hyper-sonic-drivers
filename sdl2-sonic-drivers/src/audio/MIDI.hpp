@@ -14,6 +14,8 @@ namespace audio
 
         void addTrack(const midi::MIDITrack& track);
         const midi::MIDITrack& getTrack(const uint16_t track) const;
+
+        void reset() noexcept;
         
         int getMaxTicks() noexcept;
         //int getTotalTime() const noexcept;

@@ -14,12 +14,18 @@ namespace audio
             MIDITrack(const std::vector<MIDIEvent> events);
             void addEvent(const MIDIEvent& e);
 
+            void reset() noexcept;
+            void setTempo() noexcept;
             int getBPM();
 
             // TODO move to protected later on..
             std::vector<MIDIEvent> events;
         protected:
             // TODO implement those below...
+            // body: should tempo and other values
+            // body: addressed in the MIDI class instead?
+            // body: these different values might worth only on format 2
+
             /**
             * This tempo is in microseconds per minute, default 120BPM = 500000
             * MICROSECONDS_PER_MINUTE / _temp = Beats per minute.

@@ -28,11 +28,11 @@ namespace drivers
     {
     }
 
-    void MIDParser::processTrack(const audio::midi::MIDITrack& track, const int i)
+    void MIDParser::processTrack(audio::midi::MIDITrack& track, const int i)
     {
         int cur_time = 0; // ticks
-        //track.ticks = 0;
-        //track.cur_pos = 0;
+        // TODO: the timer should be inside the MIDI object when play it?
+        //track.reset();
         unsigned int start = utils::getMicro<unsigned int>();
         for (auto& e : track.events)
         {

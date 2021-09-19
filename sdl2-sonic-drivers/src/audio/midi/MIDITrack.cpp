@@ -17,5 +17,10 @@ namespace audio
         {
             events.push_back(e);
         }
+        void MIDITrack::reset() noexcept
+        {
+            _curPos = 0;
+            _ticks = 0;
+        }
     }
 }

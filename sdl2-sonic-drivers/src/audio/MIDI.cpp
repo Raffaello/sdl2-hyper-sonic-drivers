@@ -22,6 +22,12 @@ namespace audio
         return _tracks.at(track);
     }
 
+    void MIDI::reset() noexcept
+    {
+        for (auto& track : _tracks)
+            track.reset();
+    }
+
     int MIDI::getMaxTicks() noexcept
     {
         // TODO: format 2 won't be right.
