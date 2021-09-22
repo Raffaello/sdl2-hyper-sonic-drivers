@@ -19,30 +19,31 @@ namespace files
         TEST(XMIFile, headerXmi)
         {
             XMIFile f("fixtures/header.xmi");
-            EXPECT_EQ(f.size(), 56);
-            EXPECT_EQ(f.getNumTracks(), 1);
-            auto t = f.getTrack(0);
-            EXPECT_EQ(t.size(), 2);
-            EXPECT_EQ(t[0], 0xA0);
-            EXPECT_EQ(t[1], 0xB0);
+            
+            EXPECT_EQ(f.getMIDI()->numTracks, 1);
+            EXPECT_EQ(f.getMIDI()->format, audio::midi::MIDI_FORMAT::SINGLE_TRACK);
+            auto t = f.getMIDI()->getTrack(0);
+            EXPECT_EQ(t.events.size(), 1);
+            EXPECT_EQ(t.events[0].type.val, 0xFF);
         }
 
         TEST(XMIFile, headerNoXdirXmi)
         {
             XMIFile f("fixtures/header_no_xdir.xmi");
-            EXPECT_EQ(f.size(), 34);
-            EXPECT_EQ(f.getNumTracks(), 1);
-            auto t = f.getTrack(0);
-            EXPECT_EQ(t.size(), 2);
-            EXPECT_EQ(t[0], 0xA0);
-            EXPECT_EQ(t[1], 0xB0);
+            
+            EXPECT_EQ(f.getMIDI()->numTracks, 1);
+            EXPECT_EQ(f.getMIDI()->format, audio::midi::MIDI_FORMAT::SINGLE_TRACK);
+            auto t = f.getMIDI()->getTrack(0);
+            EXPECT_EQ(t.events.size(), 1);
+            EXPECT_EQ(t.events[0].type.val, 0xFF);
         }
 
         TEST(XMIFile, AIL2_14_DEMOXmi)
         {
             XMIFile f("fixtures/AIL2_14_DEMO.XMI");
-            EXPECT_EQ(f.size(), 26950);
-            EXPECT_EQ(f.getNumTracks(), 3);
+            EXPECT_EQ(f.getMIDI()->numTracks, 3);
+            
+            EXPECT_EQ(f.getMIDI()->format, audio::midi::MIDI_FORMAT::MULTI_TRACK);
         }
     }
 }

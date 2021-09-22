@@ -9,19 +9,18 @@
 
 namespace drivers
 {
-    using files::MIDFile;
     using utils::decode_VLQ;
     using utils::powerOf2;
     using utils::delayMicro;
-
+    using audio::midi::MIDI_FORMAT;
 
     std::string midi_event_to_string(const std::vector<uint8_t>& e)
     {
         return std::string(++e.begin(), e.end());
     }
 
-    MIDParser::MIDParser(std::shared_ptr<files::MIDFile> mid_file, std::shared_ptr<audio::scummvm::Mixer> mixer)
-        : _mid_file(mid_file), _mixer(mixer)
+    MIDParser::MIDParser(std::shared_ptr<audio::MIDI> midi, std::shared_ptr<audio::scummvm::Mixer> mixer)
+        : _midi(midi), _mixer(mixer)
     {
     }
 
@@ -29,11 +28,11 @@ namespace drivers
     {
     }
 
-    void MIDParser::processTrack(const MIDFile::MIDI_track_t& track, const int i)
+    void MIDParser::processTrack(audio::midi::MIDITrack& track, const int i)
     {
         int cur_time = 0; // ticks
-        //track.ticks = 0;
-        //track.cur_pos = 0;
+        // TODO: the timer should be inside the MIDI object when play it?
+        //track.reset();
         unsigned int start = utils::getMicro<unsigned int>();
         for (auto& e : track.events)
         {
@@ -51,60 +50,60 @@ namespace drivers
 
                     int skip = 1;
 
-                    switch (static_cast<MIDFile::MIDI_META_EVENT>(type))
+                    switch (static_cast<audio::midi::MIDI_META_EVENT>(type))
                     {
-                    case MIDFile::MIDI_META_EVENT::CHANNEL_PREFIX:
+                    case audio::midi::MIDI_META_EVENT::CHANNEL_PREFIX:
                         spdlog::debug("Channel {}", e.data[skip]); // 0-15
                         break;
-                    case MIDFile::MIDI_META_EVENT::COPYRIGHT:
+                    case audio::midi::MIDI_META_EVENT::COPYRIGHT:
                         spdlog::debug("Copyright {}", &e.data[skip]);
                         break;
-                    case MIDFile::MIDI_META_EVENT::CUE_POINT:
+                    case audio::midi::MIDI_META_EVENT::CUE_POINT:
                         spdlog::debug("Cue Point {}", &e.data[skip]);
                         break;
-                    case MIDFile::MIDI_META_EVENT::END_OF_TRACK:
+                    case audio::midi::MIDI_META_EVENT::END_OF_TRACK:
                         spdlog::debug("End Of Track");
                         break;
-                    case MIDFile::MIDI_META_EVENT::INSTRUMENT_NAME:
+                    case audio::midi::MIDI_META_EVENT::INSTRUMENT_NAME:
                         spdlog::debug("Instrument Name {}", &e.data[skip]);
                         break;
-                    case MIDFile::MIDI_META_EVENT::KEY_SIGNATURE:
+                    case audio::midi::MIDI_META_EVENT::KEY_SIGNATURE:
                         spdlog::debug("Key: {:d},  major/minor={:d}", e.data[skip], e.data[skip + 1]);
                         break;
-                    case MIDFile::MIDI_META_EVENT::LYRICS:
+                    case audio::midi::MIDI_META_EVENT::LYRICS:
                         spdlog::debug("Lyrics {}", &e.data[skip]);
                         break;
-                    case MIDFile::MIDI_META_EVENT::MARKER:
+                    case audio::midi::MIDI_META_EVENT::MARKER:
                         spdlog::debug("Marker {}", &e.data[skip]);
                         break;
-                    case MIDFile::MIDI_META_EVENT::MIDI_PORT:
+                    case audio::midi::MIDI_META_EVENT::MIDI_PORT:
                         spdlog::debug("Midi Port {:d}", e.data[skip]);
                         break;
-                    case MIDFile::MIDI_META_EVENT::SEQUENCER_SPECIFIC:
+                    case audio::midi::MIDI_META_EVENT::SEQUENCER_SPECIFIC:
                         spdlog::warn("Sequencer specific, skip");
                         break;
-                    case MIDFile::MIDI_META_EVENT::SEQUENCE_NAME:
+                    case audio::midi::MIDI_META_EVENT::SEQUENCE_NAME:
                     {
                         spdlog::debug("Sequence Name '{}'", midi_event_to_string(e.data));
                         break;
                     }
-                    case MIDFile::MIDI_META_EVENT::SEQUENCE_NUMBER:
+                    case audio::midi::MIDI_META_EVENT::SEQUENCE_NUMBER:
                         spdlog::debug("Sequence Number {:d} {:d}", e.data[skip + 1], e.data[skip + 2]);
                         break;
-                    case MIDFile::MIDI_META_EVENT::SET_TEMPO:
+                    case audio::midi::MIDI_META_EVENT::SET_TEMPO:
                     {
                         tempo = (e.data[skip] << 16) + (e.data[skip + 1] << 8) + (e.data[skip + 2]);
                         spdlog::debug("Tempo {}, ({} bpm)", tempo, 60000000 / tempo);
                         break;
                     }
-                    case MIDFile::MIDI_META_EVENT::SMPTE_OFFSET:
+                    case audio::midi::MIDI_META_EVENT::SMPTE_OFFSET:
                         spdlog::debug("SMPTE OFFSET hh={:d}, mm={:d}, ss={:d}, frames={:d}, fractional_frame={:d}",
                             e.data[skip], e.data[skip + 1], e.data[skip + 2], e.data[skip + 3], e.data[skip + 4]);
                         break;
-                    case MIDFile::MIDI_META_EVENT::TEXT:
+                    case audio::midi::MIDI_META_EVENT::TEXT:
                         spdlog::debug("Text {}", midi_event_to_string(e.data));
                         break;
-                    case MIDFile::MIDI_META_EVENT::TIME_SIGNATURE:
+                    case audio::midi::MIDI_META_EVENT::TIME_SIGNATURE:
                     {
                         spdlog::info("Time Signature: {:d}/{:d}, midi_clock={}, ticks per metronome click={}",
                             e.data[skip], powerOf2(e.data[skip + 1]), e.data[skip + 2], e.data[skip + 3]);
@@ -170,7 +169,7 @@ namespace drivers
 
     void MIDParser::display()
     {
-        if (_mid_file->getFormat() == 2) {
+        if (_midi->format == MIDI_FORMAT::MULTI_TRACK) {
             spdlog::critical("MIDI format 2 not supported yet");
             return;
         }
@@ -182,8 +181,8 @@ namespace drivers
         // BODY: to enqueue the parsed events as midi messages
         // BODY: consider to use a better structure for midi msg
 
-        num_tracks = _mid_file->getNumTracks();
-        division = _mid_file->getDivision();
+        num_tracks = _midi->numTracks;
+        division = _midi->division;
         // TODO: division to update after processed is missing.
         if (division & 0x8000) {
             // ticks per frame
@@ -210,7 +209,7 @@ namespace drivers
 
         // TODO time signature used for what?
 
-        std::vector<MIDFile::MIDI_track_t> tracks = _mid_file->getTracks();
+        //std::vector<audio::midi::MIDI_track_t> tracks = _mid_file->getTracks();
         tempo = 500000; //120 BPM;
 
         
@@ -221,7 +220,7 @@ namespace drivers
 
         for (int i = 0; i < num_tracks; i++)
         {
-            MIDFile::MIDI_track_t track = tracks[i];
+            audio::midi::MIDITrack track = _midi->getTrack(i);
 
             // TODO do without threads
             //processTrack(track, i);
@@ -243,7 +242,7 @@ namespace drivers
 
         // TODO: this works only with a constant tempo during all the sequence
         // BODY: also should be computed in float and ceiled for integer.
-        float exp_time_seconds = static_cast<float>(_mid_file->getTotalTime()) / static_cast<float>(division) * (static_cast<float>(tempo) / 1000000.0f);
+        float exp_time_seconds = static_cast<float>(_midi->getMaxTicks()) / static_cast<float>(division) * (static_cast<float>(tempo) / 1000000.0f);
         auto end_time = std::chrono::system_clock::now();
         auto tot_time = end_time - start_time;
         spdlog::info("Total Running Time: {:%M:%S}, expected={}:{}",
