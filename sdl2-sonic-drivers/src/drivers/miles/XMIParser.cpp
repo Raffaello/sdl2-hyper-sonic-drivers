@@ -30,6 +30,8 @@ namespace drivers
 
         void XMIParser::display(const int num_track)
         {
+            // TODO: Note that note_on and note_off are different from midi.
+
             // TODO: division to update after processed is missing.
             if (_midi->division & 0x8000) {
                 // ticks per frame
@@ -208,6 +210,7 @@ namespace drivers
         // So it is required to choose which track to play
         void XMIParser::displayAllTracks()
         {
+            // TODO: not sure if it is ok the way to interpret the tracks.
             spdlog::set_level(spdlog::level::debug);
 
             for (int it = 0; it < _midi->numTracks; it++)
