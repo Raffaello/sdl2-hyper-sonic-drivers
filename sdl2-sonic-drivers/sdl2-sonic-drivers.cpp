@@ -454,7 +454,7 @@ int xmi_parser()
     //spdlog::set_level(spdlog::level::debug);
     std::shared_ptr<files::miles::XMIFile> xmiFile = std::make_shared<files::miles::XMIFile>("test/fixtures/AIL2_14_DEMO.XMI");
 
-    XMIParser xmiParser(xmiFile, mixer);
+    XMIParser xmiParser(xmiFile->getMIDI(), mixer);
     xmiParser.displayAllTracks();
 
 
