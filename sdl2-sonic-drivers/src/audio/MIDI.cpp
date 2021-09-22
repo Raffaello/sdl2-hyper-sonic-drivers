@@ -10,6 +10,8 @@ namespace audio
 
     void MIDI::addTrack(const midi::MIDITrack& track)
     {
+        //TODO: it is possible to add tracks
+        //BODY: that it shouldn't from public interface
         if (_tracks.size() >= numTracks) {
             //return;
         }

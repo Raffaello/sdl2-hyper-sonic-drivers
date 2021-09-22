@@ -12,6 +12,7 @@ namespace audio
             SINGLE_TRACK = 0,
             SIMULTANEOUS_TRACK = 1,
             MULTI_TRACK = 2
+            //TODO: add XMI_FORMAT?
         };
 
         typedef union MIDI_EVENT_type_u

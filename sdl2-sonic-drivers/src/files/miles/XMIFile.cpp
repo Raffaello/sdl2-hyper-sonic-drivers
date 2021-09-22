@@ -214,6 +214,7 @@ namespace files
                 }
                 break;
                 case 0x9: // Note ON
+                    // TODO: should convert to note_on/off standard midi?
                     e.data.reserve(3);
                     e.data.push_back(buf[offs++]);
                     e.data.push_back(buf[offs++]);
