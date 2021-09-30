@@ -39,8 +39,9 @@ namespace hardware
                 }
 
                 _opl = new ymfm::ymf262(_ymfm);
+                
 
-                auto rate = _opl->sample_rate(OPL3_INTERNAL_FREQ);
+                //auto rate = _opl->sample_rate(OPL3_INTERNAL_FREQ);
                 //_opl->sample_rate(_mixer->getOutputRate());
                 
 

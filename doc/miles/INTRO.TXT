@@ -1,0 +1,209 @@
+                                         
+
+
+
+IBM Audio Interface Library
+
+Introduction
+
+ Release 2.15 of 5 July 1992
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Overview
+
+The IBM Audio Interface Library offers a versatile, powerful solution to the need for high-
+quality sound effects and music performance on IBM-compatible personal computers running
+MS-DOS or Microsoft Windows.  The Library provides a variety of audio playback resources
+suitable for even the most demanding multimedia and entertainment applications, including a
+distinctive array of features unmatched by any other PC sound system now in use.
+
+From the MS-DOS application's point of view, the Audio Interface Library consists of a set of
+loadable drivers, or device-dependent code modules which interact with the host machine's
+sound-generating hardware, and the Application Program Interface (API), a single object
+module containing the device-independent functions which allow the application to control the
+output of music and sound effects.  The actual musical sequences, digitized sound samples, and
+programmable instrument data reside in loadable data files.  The remaining parts of this manual
+describe these components and their role within a typical Library application.  
+
+The entire Audio Interface Library is optionally available as a collection of dynamic-link
+libraries (DLLs) for the Microsoft Windows 3.0 & 3.1 environments.  With the introduction of
+the Audio Interface Library Windows Extensions (WAIL), virtually all of the features provided
+by the base MS-DOS system are accessible from a Microsoft or Borland C/C++ Windows
+application.  The optional AIL/16 package configures the WAIL drivers for use with a 16-bit
+protected-mode application compiled with a DPMI-compliant DOS extender such as Ergo
+Systems' DPM-16 product.   Still another API module option bridges the gap between the MS-
+DOS AIL drivers and Borland Turbo Pascal 6.0.  Real-mode audio drivers for MS-DOS C and
+Pascal can be recognized by their ".ADV" file suffix, while the Windows and DPMI drivers
+are dynamic-link libraries named with the usual ".DLL" suffix.
+
+In both MS-DOS and Windows, the Library's driver file structure is the key to its
+expandability and ease of use.  Each unique sound module standard supported by the Library
+has its own driver which contains enough self-descriptive information to drive its sound module
+under control of an application developed before that sound module was supported.  This
+"encapsulated" approach helps guard against obsolescence when new sound hardware appears
+in the marketplace.  It is possible to add to an application's list of compatible sound modules
+without changing a single byte of existing application code, unless unique new performance
+features must be supported.  Even after a product's release, new drivers and data files can be
+distributed to end-users via bulletin boards or direct mail.
+
+Each driver is written in 8088 assembly language as a single-segment program containing a
+vector table whose entries point to various functions.  Except in the case of the 16-bit
+protected-mode DOS extender libraries, the drivers' low-level functions are never directly
+called by the application.  Most serve instead to pass data back and forth between the sound
+module and the Application Program Interface, while others provide the driver with a means of
+describing its own capabilities in terms the API can understand.  
+
+One particularly important entry in each .ADV driver's vector table is a routine which returns
+a structure containing various flags, values, and strings that describe the supported sound
+module's name and characteristics.  This "description function" provides the name(s) of all
+devices supported by the driver, whether the supported modules perform MIDI file playback or
+digital audio playback, the module's interrupt service requirements, and more.The nature of the rest of the driver routines depends largely on whether the driver in question
+supports digitized sound or MIDI music playback.  In the former case, the routines are
+concerned with issues such as sound buffer management and monitoring.  Drivers for FM
+sound modules, on the other hand, contain routines to interpret and transmit performance data
+and upload custom instrument data to the synthesizer's memory.  Specific information about
+each driver's capabilities and constraints can be found in the Technical Notes section of this
+manual.
+
+The API module is a collection of 8088 assembly functions which link the user application's C
+or Turbo Pascal code with the low-level driver routines.  The MS-DOS C, Pascal, and 16-bit
+DPMI API modules are compilable with Turbo Assembler version 2.0 or later, while their
+functions may be called from any Turbo C/C++ or Microsoft C program in any memory
+model, or from any Turbo Pascal 6.0-compatible application.  Under Windows, the API
+module as well as the individual drivers are dynamic-link libraries, compilable by Microsoft
+Assembler (MASM) version 6.0.  Supported Windows development platforms include the
+Microsoft C SDK, Microsoft QuickC for Windows, and Borland C++.
+
+Under the API's Multiple Driver Interface protocol, multiple .ADV or .DLL drivers may
+operate concurrently.  This feature allows an application to simultaneously perform multi-voice
+music via a Roland MT-32 and/or other MIDI synthesizers, while generating digitized sound
+effects through a secondary sound module such as the Sound Blaster.  
+
+Four distinct service categories are provided by the MS-DOS and Windows API modules.  The
+Installation Services include functions to detect, describe, initialize, and shut down the .ADV
+drivers; the Extended MIDI Performance Services and Digital Performance Services comprise
+the main body of the Library's runtime sound management routines; and the Process Services
+govern the isochronous interrupt processing necessary to execute the sound drivers in a
+"background task" mode, as well as managing any needs the application program may have for
+similar interrupt service.  These API services are described in the Application Program
+Interface (API) Reference section.
+
+Many useful development tools are also provided with the Audio Interface Library.  MLIST
+and MIDILOG are two utilities which disassemble and modify MIDI files, respectively, while
+CAKEPORT brings Audio Interface Library support to the popular Cakewalk(TM) sequencer
+program from Twelve Tone Systems.  The MIDIECHO program brings CAKEPORT-like
+arrangement capabilities to musicians who prefer to use other sequencers or computer systems. 
+
+The Audio Interface Library's Version 2.00 (and later) releases implement some significant
+extensions to the Standard MIDI-based data format used in prior versions.  The "Version 1"
+MIDI drivers have been entirely redesigned to support this new format, which is known as
+Extended MIDI, or XMIDI.  XMIDI sequences are AIL Version 1-compatible Format 0 or
+Format 1 MIDI sequences which have been preprocessed by the MIDIFORM utility. 
+MIDIFORM shrinks the original MIDI files by up to 30% while reducing the amount of
+background processing time required for their performance on a similar scale.  The Extended
+MIDI (XMIDI) Specification section outlines the technical aspects of XMIDI, while information
+about MIDIFORM and the other tools supplied with the current Library release may be found
+in the Tools Reference section.Features
+
+Standard MIDI file compatibility
+       Extended MIDI (XMIDI) preprocessing dramatically increases
+             performance efficiency while reducing file size
+      
+Support for virtually all popular PC sound synthesizers
+       Roland MT-32 family, Sound Blaster(TM), Sound Blaster Pro(TM), Ad
+             Lib(R), Ad Lib(R) Gold, Pro Audio Spectrum(TM), Tandy 3-voice, and IBM-PC
+             internal speaker XMIDI drivers supplied
+       All XMIDI drivers emulate Roland MT-32 MIDI standard for
+             simplified sequence arrangement with other sound adapters
+       Complete tool set provided for use with both Ad Lib(R) and
+             Creative Labs instrument editors
+       Cakewalk(TM) 4.0-compatible driver and MIDIECHO utility allow
+             on-the-fly XMIDI composition with any PC sound adapter, including
+             Ad Lib, Tandy, PC speaker, and others
+       XMIDI Global Timbre Library format maintains over 16,000 timbres
+             for all programmable synthesizers
+
+Digital playback capability for sampled sound effects
+       Direct memory access between Sound Blaster / Pro Audio Spectrum
+             and host RAM supported at virtually no cost in CPU throughput
+       Dual-buffer DMA transfer available for uninterrupted sound output
+             in memory-limited environments
+      
+SurroundFX(TM) capability with Multiple Driver Interface
+       Multiple Driver Interface with dynamic linking allows up to 16
+             drivers to perform independently under Windows or real-mode DOS
+       Digitized sound effects performed concurrently with MIDI music
+             playback through any supported synthesizer hardware
+
+Encapsulated runtime drivers
+       New sound driver options may be added to existing products simply by releasing
+             updated driver and/or data files
+       Applications may safely call any API function with any specified
+             driver, regardless of whether the driver can actually process the
+             desired function
+
+Industry-standard data file formats
+       Extended MIDI format based on Standard MIDI Files 1.0 (SMF)
+             specification
+       Creative Labs Voice (.VOC) format supported by digital sound
+             drivers
+Versatile application interface
+       Distributes timer interrupt resources between drivers and
+             application
+       Low interrupt latency for minimal overall performance impact
+       Many MIDI control requests available, including tempo and volume
+             changes and individual channel control, sequence layering,
+             callback functions, looping, and branching
+       Independent one-shot MIDI message capability for MIDI-based sound
+             effects
+       Over 60 pages of example C code provided
+
+Enhanced support for overlaid sequences
+       Each driver may play from 1 to 8 XMIDI sequences concurrently 
+       Sound effects sequences and "jingles" supported through MIDI
+             channel-locking mechanism
+
+Optional Microsoft Windows(TM) support
+       Roland MT-32 family, Sound Blaster(TM), Sound Blaster Pro(TM), Ad Lib(R), Ad
+             Lib(R) Gold, Pro Audio Spectrum(TM), Tandy 3-voice, and IBM-PC internal
+             speaker XMIDI drivers supplied
+       System-wide high resolution timer services provided
+       Offers a powerful, MS-DOS AIL-compatible alternative to Microsoft 
+             Multimedia sound products
+       Co-exists with Multimedia Windows applications
+
+Optional 16-bit DPMI-compliant DOS extender support
+       Protected-mode DLL driver modules may be called directly from Ergo DPM-16 and
+             compatible DOS-extended applications
+       High-resolution timer services provided by API module
+
+Compatible with DIGPAK digital sound drivers from The Audio Solution
+       DIGPAK driver support for Sound Blaster-style digital sound output 
+             from Ad Lib, PC internal speaker, Walt Disney Sound Source, and many others
+             available directly through the AIL API
