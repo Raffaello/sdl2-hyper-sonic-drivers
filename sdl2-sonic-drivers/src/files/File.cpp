@@ -43,7 +43,7 @@ namespace files
     void File::read(void* buf, std::streamsize size)
     {
         if (!_file.read(reinterpret_cast<char*>(buf), size)) {
-            throw std::system_error(errno, std::system_category(), "Cannot read file: " + _filename + " (" + strerror(errno) +")");
+            throw std::system_error(errno, std::system_category(), "Cannot read file: " + _filename + " (" + strerror(errno) + ")");
         }
     }
 
@@ -63,6 +63,9 @@ namespace files
             c = _file.get();
             filename += c;
         }
+
+        // removing the last c==0 inserted before stop the loop.
+        filename.pop_back();
 
         return filename;
     }

@@ -5,6 +5,7 @@
 #include <hardware/opl/scummvm/dosbox/dosbox.hpp>
 #include <hardware/opl/scummvm/nuked/OPL.hpp>
 #include <hardware/opl/woody/WoodyOPL.hpp>
+#include <hardware/opl/mame/MameOPL.hpp>
 
 namespace hardware
 {
@@ -17,12 +18,16 @@ namespace hardware
                 switch (oplEmulator)
                 {
                 case OplEmulator::MAME:
-                    if (type != OplType::OPL2) {
-                        spdlog::warn("MAME OPL emulator only supports OPL2 emulation");
+                    switch (type)
+                    {
+                    case OplType::OPL2:
+                        return std::make_shared<mame::OPL>(mixer);
+                    case OplType::DUAL_OPL2:
+                        spdlog::warn("MAME OPL emulator doesn't support DUAL_OPL2 emulation");
                         return nullptr;
+                    case OplType::OPL3:
+                        return std::make_shared<hardware::opl::mame::MameOPL>(mixer);
                     }
-                    
-                    return std::make_shared<mame::OPL>(mixer);
                 case OplEmulator::AUTO:
                 case OplEmulator::DOS_BOX:
                     return std::make_shared<dosbox::OPL>(mixer, type);

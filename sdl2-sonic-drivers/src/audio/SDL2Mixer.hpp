@@ -8,6 +8,7 @@
 
 namespace audio
 {
+    // TODO rename MixMixerManager (using SDL_Mixer)
     class SDL2Mixer : public scummvm::Mixer
     {
     private:

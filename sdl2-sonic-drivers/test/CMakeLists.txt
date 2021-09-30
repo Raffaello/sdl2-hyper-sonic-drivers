@@ -58,6 +58,7 @@ macro_test(
 macro_test(
     EXE TestAlgorithms
     FILES "utils/TestAlgorithms.cpp"
+    LINKS_PRIVATE sonic-drivers-static
 )
 
 macro_test(
@@ -80,7 +81,7 @@ macro_test(
 
 macro_test(
     EXE TestADLFile
-    FILES "files/TestADLFile.cpp"
+    FILES "files/westwood/TestADLFile.cpp"
     LINKS_PRIVATE sonic-drivers-static
     FIXTURES 
         "fixtures/EOBSOUND.ADL" # v1
@@ -154,22 +155,60 @@ macro_test(
 macro_test(
     EXE TestIFFFile
     FILES "files/TestIFFFile.cpp"
-        "../src/files/IFFFile.cpp"
-        "../src/files/File.cpp"
-        "../src/utils/endianness.cpp"
-    #LINKS_PRIVATE sonic-drivers-static
+    LINKS_PRIVATE sonic-drivers-static
 )
 
 macro_test(
     EXE TestXMIFile
-    FILES "files/TestXMIFile.cpp"
-        "../src/files/XMIFile.cpp"
-        "../src/files/IFFFile.cpp"
-        "../src/files/File.cpp"
-        "../src/utils/endianness.cpp"
-    #LINKS_PRIVATE sonic-drivers-static
+    FILES "files/miles/TestXMIFile.cpp"
+    LINKS_PRIVATE sonic-drivers-static
     FIXTURES 
         "fixtures/header.xmi"
         "fixtures/header_no_xdir.xmi"
         "fixtures/AIL2_14_DEMO.XMI"
+)
+
+
+macro_test(
+    EXE TestXMidi
+    FILES "drivers/miles/TestXMidi.cpp"
+    LINKS_PRIVATE sonic-drivers-static
+)
+
+macro_test(
+    EXE TestAILFileDriver
+    FILES "files/miles/TestAILDriverFile.cpp"
+    LINKS_PRIVATE sonic-drivers-static
+    FIXTURES 
+        "fixtures/ADLIB.ADV"
+        "fixtures/ADLIBG.ADV"
+        #"fixutres/ALGDIG.ADV"
+        "fixtures/MT32MPU.ADV"
+        #"fixutres/PASDIG.ADV"
+        #"fixutres/PASFM.ADV"
+        #"fixutres/PASOPL.ADV"
+        "fixtures/PCSPKR.ADV"
+        #"fixutres/SBDIG.ADV"
+        "fixtures/SBFM.ADV"
+        "fixtures/SBP1FM.ADV"
+        "fixtures/SBP2FM.ADV"
+        #"fixutres/SBPDIG.ADV"
+        "fixtures/TANDY.ADV"
+)
+
+macro_test(
+    EXE TestWAVFile
+    FILES "files/TestWAVFile.cpp"
+    LINKS_PRIVATE sonic-drivers-static
+    FIXTURES
+        "fixtures/Wav_868kb.wav" # format 1
+)
+
+macro_test(
+    EXE TestVOCFile
+    FILES "files/TestVOCFile.cpp"
+    LINKS_PRIVATE sonic-drivers-static
+    FIXTURES
+        "fixtures/VSCREAM1.VOC"
+        "fixtures/DUNE.VOC"
 )

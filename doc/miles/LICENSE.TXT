@@ -1,0 +1,93 @@
+IMPORTANT -- READ BEFORE OPENING
+
+This is a legal agreement between you, the software licensee, and Miles Design, Incorporated
+("Miles Design").  By opening this sealed disk package, you are accepting the terms of this
+agreement.  If you do not wish to become bound by the terms of this agreement, you should
+return the unopened disk package and any related items to Miles Design at the address given
+below.
+
+This software program (or programs) is licensed, not sold, and remains the sole property of
+Miles Design.  Programs and program components covered by this agreement may take the form
+of compilable program instructions ("source code"), compiled but unlinked data or program
+functions ("object code"), and application programs, loadable drivers, and data in final form
+("executable code").  When any part of the enclosed executable code becomes part of, or is used
+in the development of your own products, you may use, give away, lease, sell, or otherwise
+distribute an unlimited number of copies of those products without additional license, fees, or
+notice of copyright or ownership.  However, no part of the enclosed source or object code, nor
+any rendering or descriptive documentation of it, may be distributed to any third party not
+actively engaged in designing, developing, testing, marketing, publishing, or translating your
+products.  Any use of the enclosed software by any party under any conditions other than those
+named above is prohibited by this agreement.  You may transfer your license on a permanent
+basis if the party receiving it agrees to the terms of this agreement.  
+
+Miles Design warrants the physical diskettes and physical documentation enclosed herein to be
+free of defects in materials and workmanship for a period of ninety days from the purchase date. 
+During this period, Miles Design will replace any defective diskette(s) or documentation without
+charge.  Miles Design disclaims all other warranties, express or implied, including but not
+limited to, any implied warranty of merchantability or fitness for a particular purpose. 
+Specifically, Miles Design makes no representation or warranty that the software is fit for any
+particular purpose and any implied warranty of merchantability is limited to the ninety-day
+duration of the Limited Warranty covering the physical diskette(s) and physical documentation
+only (and not the software) and is otherwise expressly and specifically disclaimed.  This limited
+warranty gives you certain legal rights; you may have others which vary from state to state. 
+Some states do not allow the exclusion of incidental or consequential damages, or the limitation
+on how long an implied warranty lasts, so some of the above may not apply to you.
+
+The above terms do not apply to any parts of the enclosed software which are not the property of
+Miles Design.  However, you shall remain solely responsible for, and will hold Miles Design
+harmless from, any claims, liability, and damages arising from the use or misuse of any of your
+products which incorporate or were developed with the aid of any part of the enclosed software
+or accompanying materials, regardless of ownership.
+
+This Agreement is governed by the laws of the State of Texas.
+
+Should you have any questions concerning this Agreement, or if you desire to contact Miles
+Design for any reason, please write or call Miles Design, 10926 Jollyville #308, Austin, Texas
+78759, Tel. (512) 345-2642.Many of the new features introduced with the Audio Interface Library's Version 2.0 release are
+the result of valuable suggestions and feedback from the product's users.  As a licensee, your
+comments are important, and help to ensure the continued improvement of this product.
+
+The Extended MIDI (XMIDI) standard was designed in collaboration with the musicians,
+programmers, and developers at Origin Systems in Austin, Texas.  In particular, the author
+gratefully acknowledges the expert assistance of Martin Galway, Dana Glover, Chris Roberts,
+Marc Schaefgen, Gary Scott Smith, Nenad Vugrinec, and Kirk Winterrowd in the evolution of
+the XMIDI standard, as well as their patience in dealing with the stream of almost-daily
+"upgrades" during the development process.
+
+Finally, the author wishes to thank Ken Arnold and George ('The Fat Man') Sanger for their
+indispensable advice and support.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+�컴컴컴컴컴컴컴컴컴컴컴컴�
+
+
+IBM Audio Interface Library, XMIDI, and SurroundFX are trademarks of John Miles and Miles
+Design, Inc.  Other brand and product names are trademarks or registered trademarks of their
+respective holders.
+
+Copyright (c) 1991, 1992 by John Miles and Miles Design, Inc..  All rights reserved. 
+Permission to copy and distribute this manual, or portions thereof, is hereby granted to Audio
+Interface Library licensees in accordance with the conditions set forth in the product's license
+agreement.
+

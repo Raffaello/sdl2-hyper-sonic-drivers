@@ -2,7 +2,7 @@
 #include <hardware/opl/scummvm/Config.hpp>
 #include <utils/algorithms.hpp>
 #include <audio/scummvm/SDLMixerManager.hpp>
-#include <files/ADLFile.hpp>
+#include <files/westwood/ADLFile.hpp>
 #include <drivers/westwood/ADLDriver.hpp>
 
 #include <spdlog/spdlog.h>
@@ -18,7 +18,7 @@ using audio::scummvm::SdlMixerManager;
 using hardware::opl::scummvm::Config;
 using hardware::opl::scummvm::OplEmulator;
 using utils::delayMillis;
-using files::ADLFile;
+using files::westwood::ADLFile;
 using drivers::westwood::ADLDriver;
 
 
@@ -29,7 +29,7 @@ void adl_test(const OplEmulator emu, const Config::OplType type, std::shared_ptr
     if (opl == nullptr)
         return;
 
-    std::shared_ptr<files::ADLFile> adlFile = std::make_shared<files::ADLFile>(filename);
+    std::shared_ptr<ADLFile> adlFile = std::make_shared<ADLFile>(filename);
     ADLDriver adlDrv(opl, adlFile);
     adlDrv.play(track, 0xFF);
 

@@ -1,0 +1,1053 @@
+                                    
+
+
+
+IBM Audio Interface Library
+
+ Technical Notes
+
+ Release 2.10 of 5 July 1992
+
+Contents
+
+The Audio Interface Library is licensed with full source code for all sound drivers and
+development tools.  For the exact steps involved in recompiling a driver or utility program,
+refer to the .MAK makefile which accompanies the source code for the AIL package in
+question.  Each source file's comment header specifies the particular assembler or compiler
+brand and version needed.
+
+Roland MT-32/LAPC-1 XMIDI Drivers .................................... 3
+
+Yamaha YM3812 and YMF262 (OPL3)-based FM synthesizers, 
+including Ad Lib, Sound Blaster, and Pro Audio Spectrum
+XMIDI Drivers ........................................................ 9
+
+IBM & Tandy Internal Speaker XMIDI Drivers ........................... 15
+
+Sound Blaster, Pro Audio Spectrum, & Ad Lib Gold PCM Drivers ......... 19
+
+Appendix: DIGPAK Drivers from The Audio Solution, Inc. ............... 22
+Roland MT-32/LAPC-1 XMIDI Drivers 
+
+             Real-mode MS-DOS: MT32MPU.ADV 
+
+           16-bit AIL/16 DPMI: A16MT32.DLL 
+
+AIL Windows Extensions (WAIL): AILMT32.DLL 
+
+  Factory default I/O address: 330h
+     Front-panel display size: 20 character alphanumeric (MT-32 only)
+ Global Timbre Library suffix: .MT
+
+Implementation Notes
+
+When creating a Global Timbre Library for the Roland MT-32/LAPC-1
+synthesizer family, the following rules apply:
+
+     * All patch numbers in timbre bank 0 correspond to the MT-32 
+       built-in instruments.  No custom timbres may be installed in 
+       bank 0.
+
+     * All patch numbers in bank 127 correspond to the MT-32 built-in
+       rhythm voices.  No custom timbres may be installed in bank
+       127.
+
+     * Data for Roland custom timbres may be copied into the Global
+       Timbre Library file either in banks of 64 timbres at a time from
+       the Big Noise MT-32 Editor/Librarian's .MTB file format, or one 
+       timbre at a time in the form of a binary timbre image.  Each
+       binary timbre image should be $F6 bytes long, and should consist
+       of a Common Parameter followed by four Partial Parameters.
+
+     * The Roland family's synthesizer memory is capable of receiving up
+       to 64 custom timbres.  No local timbre cache is required.  It
+       should be emphasized that the location of a timbre within the
+       synthesizer's memory bears no relation at all to the timbre's
+       Global Timbre Library bank number, or to the patch number with
+       which the timbre is associated.  It is not possible for an
+       application to determine a particular timbre's address within the 
+       synthesizer's memory.
+
+Extended MIDI Implementation
+                                                   
+          ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+          ³ Controller    ³ Description                 ³
+          ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+          ³ 32 (20h)      ³ Start Address MSB           ³
+          ³ 33 (21h)      ³ Start Address KSB           ³
+          ³ 34 (22h)      ³ Start Address LSB           ³
+          ³ 35 (23h)      ³ Data Byte                   ³
+          ³ 36 (24h)      ³ Final Data Byte             ³
+          ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+          ³ 37 (25h)      ³ Start Address MSB           ³
+          ³ 38 (26h)      ³ Start Address KSB           ³
+          ³ 39 (27h)      ³ Start Address LSB           ³
+          ³ 40 (28h)      ³ Data Byte                   ³
+          ³ 41 (29h)      ³ Final Data Byte             ³
+          ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+          ³ 42 (2ah)      ³ Start Address MSB           ³
+          ³ 33 (2bh)      ³ Start Address KSB           ³
+          ³ 34 (2ch)      ³ Start Address LSB           ³
+          ³ 35 (2dh)      ³ Data Byte                   ³
+          ³ 46 (2eh)      ³ Final Data Byte             ³
+          ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+          ³ 58 (3ah)      ³ Rhythm Setup Timbre         ³
+          ³ 59 (3bh)      ³ Patch Reverb Switch         ³
+          ³ 60 (3ch)      ³ Patch Bender Range          ³
+          ³ 61 (3dh)      ³ Reverb Mode                 ³
+          ³ 62 (3eh)      ³ Reverb Time                 ³
+          ³ 63 (3fh)      ³ Reverb Level                ³
+          ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+
+Extended MIDI Notes
+
+Controllers 32-46 control three independent, identical system exclusive
+message queues.  Each group of five controllers provides a simplified
+means of addressing any location in the Roland MT-32 or LAPC-1
+synthesizer and sending a stream of bytes to the synthesizer's memory
+beginning at that location.  
+
+Each queue's destination address is given by the values of the three
+controllers Start Address MSB, Start Address KSB, and Start Address LSB. 
+The values for these address controllers may be determined from the MT-32
+or LAPC-1 MIDI Implementation, or from the reference list generated by
+the Audio Interface Library's MLIST (q.v.) program.  Up to 32 Data Byte
+controller values may be sent to a particular "queue" before the driver
+must actually transmit the queued data to the synthesizer with a System
+Exclusive message.  The last data byte to be sent should appear as a
+Final Data Byte controller value.
+
+When composing XMIDI sequences, these controllers may be used instead of
+embedding literal System Exclusive messages in the MIDI data.  In any
+event, allowance must be made in the MIDI sequence for System Exclusive
+transmission time.  The Roland synthesizer family is extremely
+temperamental about System Exclusive buffer overruns; it is the
+responsibility of the composer to watch for and prevent these
+occurrences.  A minimum delay of 20 milliseconds should elapse between
+the Final Data Byte of a System Exclusive message and the next
+transmissible MIDI event.  Depending on the destination and length of the
+System Exclusive message being sent, a much longer delay is often
+necessary.  
+As an example of the use of a system exclusive message queue, consider
+the following fragment of an Extended MIDI sequence:
+
+Event                Number         Value
+Control Change       32             16      ;System Area MSB (10H)
+Control Change       33             0       ;System Area KSB (offset 00H)
+Control Change       34             1       ;System Area LSB (offset 01H)
+Control Change       35             3       ;Reverb Mode=3 (data byte #1)
+Control Change       35             7       ;Reverb Time=7 (data byte #2)
+Control Change       36             7       ;Reverb Level=7 (final byte)
+...
+Control Change       36             5       ;Reverb Level=5 (final byte)
+
+Note that the Final Data Byte controller does not, in itself, cause the
+System Exclusive address to be incremented.  In the example above, the
+composer was able to change the Reverb Level from 7 to 5 merely by
+repeating the last Final Data Byte controller (36) with a new value of 5.
+
+Since the synthesizer's System Area reverb parameters are among the most
+common targets of System Exclusive messages, XMIDI implements a still
+simpler way to access this area.  Controllers 61, 62, and 63 cause their
+values to be written directly to the synthesizer's Reverb Mode, Reverb
+Time, and Reverb Level locations, respectively.  As with the queue
+controllers described above, no delay is automatically inserted after the
+System Exclusive message is sent.
+
+Two other Roland-specific Extended MIDI controllers are Controller 59
+(Patch Reverb Switch) and Controller 60 (Patch Bender Range).  These
+controllers trigger System Exclusive messages which write their values to
+the locations at offset 6 and offset 4, respectively, within the current
+patch's Patch Memory area.  Refer to the MT-32 or LAPC-1 MIDI
+Implementation for information about these locations and their acceptable
+values.  Unlike the previously described System Exclusive "shortcut"
+controllers, these controllers automatically incorporate a reasonable
+delay to avoid buffer overruns, and do not require any special timing
+considerations on the composer's part.
+
+The remaining Roland-specific Extended MIDI controller is Controller 58
+(Rhythm Setup Timbre).  This controller offers the composer the ability
+to create a custom "drum kit" mapped to keyboard note messages sent on
+MIDI Channel 10.
+
+To map a given rhythm key to a custom timbre, the custom timbre must
+first be loaded with the standard combination of an XMIDI Patch Bank
+Select controller (114) followed by a MIDI Program Change (Patch)
+message.  This step is necessary in order to force the timbre to be
+loaded by the XMIDI application, which depends on the
+AIL_timbre_request() function to inform it of the timbres needed by the
+sequence.  After the synthesizer patch's timbre has been loaded from the
+desired Global Timbre Library bank, the Rhythm Setup Timbre controller
+(58) may be used to associate the timbre with the Rhythm Setup for a
+given MIDI note number.
+The MT-32 contains Rhythm Setup areas for MIDI note numbers 24 through
+87, while the CM-32L and LAPC-1 synthesizers contain Rhythm Setup areas
+which cover the entire range of MIDI keys up to and including 108.  Some
+of these key numbers are mapped to various internal drum sounds and PCM
+sound-effect samples, while others are left "blank" by default, producing
+no sound at all when struck.  Any note number within the synthesizer's
+Rhythm Setup range may be mapped to any of 30 (MT-32) or 63 (LAPC-1, CM-
+32L) built-in PCM samples, or to any of the 64 loadable timbres.  The
+latter mapping operation is handled by the XMIDI Rhythm Setup Timbre
+controller.
+
+For example, suppose it is desired to play a custom timbre called
+"bassdrum" whenever the B key below middle C (MIDI note number 59) is
+struck on MIDI channel 10.  Further assume that the data for the timbre
+appears as the tenth Tone entry in a Big Noise-compatible .MTB file.  The
+Roland MT-32 driver's Global Timbre Library catfile might contain the
+following assignment statement:
+
+timbre(1,0) = MTB_file("drums.mtb")
+
+This statement would cause the .MTB file's timbres to be copied to the
+Global Timbre Library starting at bank 1, patch 0.  The tenth timbre in
+the file, "bassdrum," would be accessible at bank 1, patch 9.
+
+Within the XMIDI sequence, these events could be inserted to load the
+"bassdrum" timbre, map it to key #59 (B 4 under Cakewalk), and, finally,
+play it!
+
+Event                Number         Value
+Control Change       114            1       ;Patch Bank Select = 1
+Patch                9              ---     ;Select "bassdrum" timbre
+Control Change       58             59      ;Rhythm Setup Timbre 59 = B 4
+Note                 B 4            127     ;Play note #59, velocity 127
+
+Although the Rhythm Setup Timbre controller causes a System Exclusive
+message to be sent, the necessary buffer delay is automatically
+incorporated.  No special timing considerations are required on the part
+of the composer, although the delay involved in sending the message may
+prove objectionable if the controller event occurs while a sequence is
+actually being played.  It may be convenient to play an XMIDI sequence
+file dedicated to setting up the "drum kit" when the application is still
+in its initialization stage, before any music begins.  
+
+It is not necessary to permanently "waste" the patch numbers used, as in
+the example above, to request a timbre for a rhythm setup.  Once the
+Rhythm Setup Timbre controller has been executed, the timbre no longer
+requires a synthesizer patch mapping in order to be played; the rhythm
+key mapping accomplishes this purpose.  Convenient re-use of patch
+numbers is another good reason to create a "drum kit setup" sequence as
+mentioned above.
+The Roland drivers recognize and interpret the following general XMIDI
+controllers, described in the Extended MIDI Specification section of this
+manual:
+
+          ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+          ³ 110 (6eh)     ³ Channel Lock                ³
+          ³ 111 (6fh)     ³ Channel Protect             ³
+          ³ 113 (71h)     ³ Timbre Protect              ³
+          ³ 114 (72h)     ³ Patch Bank Select           ³
+          ³ 115 (73h)     ³ Indirect Controller Prefix  ³ 
+          ³ 116 (74h)     ³ For Loop Controller         ³
+          ³ 117 (75h)     ³ Next/Break Loop Controller  ³
+          ³ 118 (76h)     ³ Clear Beat/Bar Count        ³
+          ³ 119 (77h)     ³ Callback Trigger            ³
+          ³ 120 (78h)     ³ Sequence Branch Index       ³
+          ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+Standard MIDI Implementation Chart
+
+Roland MT-32/LAPC-1 Series                                  Version: 2.0
+ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+³Function ...           ºRecognized            ³Remarks                 ³
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ×ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+³Basic       Default    º2-10                  ³                        ³
+³Channel     Changed    º2-10                  ³                        ³
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ×ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+³Mode                   ºMode 3                ³OMNI OFF, POLY          ³
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ×ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+³Note                   º12-108                ³                        ³
+³Number                 º                      ³                        ³
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ×ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+³Velocity     Note ON   ºO v=1-127             ³                        ³
+³             Note OFF  ºX                     ³                        ³
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ×ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+³After Touch  Key       ºX                     ³                        ³
+³             Chs       ºX                     ³                        ³
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ×ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+³Pitch Bender           ºO 0-24 semi           ³                        ³
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ×ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+³              1        ºO                     ³Modulation              ³
+³              7        ºO                     ³Part Volume             ³
+³             10        ºO                     ³Panpot                  ³
+³             11        ºO                     ³Expression              ³
+³             12        º                      ³                        ³
+³             :         ºX                     ³                        ³
+³Control      63        º                      ³                        ³
+³Change       64        ºO                     ³Hold1                   ³
+³             65        º                      ³                        ³
+³             :         ºX                     ³                        ³
+³            120        º                      ³                        ³
+³            121        ºO                     ³Reset All Controllers   ³
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ×ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+³Prog                   ºO 0-127               ³                        ³
+³Change                 º                      ³                        ³
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ×ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+³System Exclusive       ºO                     ³                        ³
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ×ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+³         Local ON/OFF  ºX                     ³                        ³
+³Aux      All Notes OFF ºO (123)               ³                        ³
+³Message  Active Sense  ºX                     ³                        ³
+³         Reset         ºX                     ³                        ³
+ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄĞÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+                                                       
+                                                O : Yes
+                                                X : No 
+Yamaha YM3812 and YMF262 (OPL3)-based FM synthesizers, including Ad Lib,
+Sound Blaster, and Pro Audio Spectrum XMIDI Drivers
+
+             Real-mode MS-DOS: ADLIB.ADV     (Ad Lib)
+                               ADLIBG.ADV    (Ad Lib Gold)
+                               PASFM.ADV     (Pro Audio Spectrum)
+                               PASOPL.ADV    (Pro Audio Spectrum Plus/16)
+                               SBFM.ADV      (Sound Blaster)
+                               SBP1FM.ADV    (Sound Blaster Pro YM3812)
+                               SBP2FM.ADV    (Sound Blaster Pro OPL-3)
+
+           16-bit AIL/16 DPMI: A16ADLIB.DLL  (Ad Lib)
+                               A16ALGDG.DLL  (Ad Lib Gold)
+                               A16PASFM.DLL  (Pro Audio Spectrum)
+                               A16PASOP.DLL  (Pro Audio Spectrum Plus/16)
+                               A16SBFM.DLL   (Sound Blaster)
+                               A16SP1FM.DLL  (Sound Blaster Pro YM3812)
+                               A16SP2FM.DLL  (Sound Blaster Pro OPL-3)
+
+AIL Windows Extensions (WAIL): AILADLIB.DLL  (Ad Lib)
+                               AILALGDG.DLL  (Ad Lib Gold)
+                               AILPASFM.DLL  (Pro Audio Spectrum)
+                               AILPASOP.DLL  (Pro Audio Spectrum Plus/16)
+                               AILSBFM.DLL   (Sound Blaster)
+                               AILSP1FM.DLL  (Sound Blaster Pro YM3812)
+                               AILSP2FM.DLL  (Sound Blaster Pro OPL-3)
+
+  Factory default I/O address: 388H (Ad Lib)
+                               388H (Ad Lib Gold)
+                               220H (Sound Blaster)
+                               220H (Sound Blaster Pro YM3812)
+                               220H (Sound Blaster Pro OPL-3)
+
+ Global Timbre Library suffix: .AD  (Ad Lib)
+                               .OPL (Ad Lib Gold)
+                               .AD  (Pro Audio Spectrum)
+                               .OPL (Pro Audio Spectrum Plus/16)
+                               .AD  (Sound Blaster)
+                               .AD  (Sound Blaster Pro YM3812)
+                               .OPL (Sound Blaster Pro OPL-3)
+
+Implementation Notes
+
+* Only the device name table and I/O routines differ between the
+  Ad Lib and Sound Blaster assembly options of YAMAHA.INC and     
+  WYAMAHA.INC.  The "Ad Lib" drivers will drive any Ad Lib or Sound
+  Blaster-compatible card, but the "Sound Blaster" drivers can drive only
+  the Sound Blaster.  Normally the Ad Lib driver will be sufficient to
+  provide support for both adapters, but keep in mind that some users may
+  need to address their Sound Blaster card at its default I/O address of
+  220h due to a conflict with other hardware, or may wish to take
+  advantage of multiple Sound Blaster cards.
+
+* The following functions have no effect with any of these drivers:
+
+AIL_send_sysex_message()
+AIL_write_display()
+* The Pro Audio Spectrum drivers require the Media Vision MVSOUND.SYS
+  device driver to be present in the host system's CONFIG.SYS file.  If
+  playback volume is low, use the PAS utility (provided by Media Vision)
+  to increase the Pro Audio Spectrum's master volume setting.  If the
+  MVSOUND.SYS version number (visible during boot) is less than 1.02, the
+  older YM3812-based Pro Audio Spectrum boards may not work properly.
+
+* Full stereo support is provided by the Pro Audio Spectrum, Ad Lib Gold,
+  and Sound Blaster Pro drivers.  On the Roland synthesizers, the MIDI
+  Panpot controller has no effect on the rhythm voices in MIDI channel
+  10.  However, the other drivers are capable of interpreting panpot
+  settings in channel 10.  Composers working with the AIL may wish to use
+  panpot settings to place their percussive instruments in the stereo
+  field, even though the Roland synthesizer will ignore those settings. 
+  All channels in which no panpot controller appears will assume a panpot
+  setting of 64, or "center stage."
+
+* The Ad Lib Gold drivers direct voices to right, left, or center in the
+  stereo field according to the following table:
+
+          ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+          ³ MIDI Panpot (Controller 10)         Stereo Location   ³
+          ÆÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍµ
+          ³ [0,27]                           ³  RIGHT             ³
+          ³ [28,99]                          ³  CENTER            ³
+          ³ [100,127]                        ³  LEFT              ³
+          ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+
+  If desired, these thresholds may be adjusted by changing the 
+  R_PAN_THRESH and L_PAN_THRESH equates in YAMAHA.INC / WYAMAHA.INC.
+
+* Beginning with Version 2.00, the Yamaha drivers operate  
+  exclusively in "melodic," or 9-voice, mode.  MIDI channels 2 through 9
+  are recognized, and the Roland MT-32 family's rhythm instruments on
+  MIDI channel 10 are emulated by timbres in bank 127 of the Global
+  Timbre Library.  See the GLIB program description in the Tools
+  Reference section of this manual for details.  Since rhythm instruments
+  on MIDI channel 10 are now played by melodic-mode timbres, each rhythm
+  key note message must have a valid, non-zero duration.  Depending on
+  the composer's habit, sequences used with the Roland MT-32 or older Ad
+  Lib percussive-mode drivers may turn each rhythm note off immediately
+  after turning it on.  When played with the melodic-mode drivers, this
+  may cause an undesirable staccato effect.
+
+* The degree of MIDI velocity sensitivity is adjustable.  By default, the
+  YAMAHA.INC/WYAMAHA.INC file contains the equate VEL_TRUE equ 0, which
+  results in the compression of the dynamic MIDI velocity range to
+  approximately one-sixteenth its normal value.  The compressed range is
+  translated to the "loud" end of the normal range.  This feature raises
+  the average amplitude of all melodic notes, reducing noise during
+  playback.  Recompiling the driver with a nonzero VEL_TRUE value will
+  enable normal velocity interpretation.  Velocity sensitivity may be
+  disabled altogether by setting YAMAHA.INC/WYAMAHA.INC's VEL_SENS equate
+  to 0.
+* The standard Global Timbre Library filename suffix for all YM3812
+  drivers is '.AD'.
+
+* The standard Global Timbre Library filename suffix for all OPL3/YMF262
+  drivers is '.OPL'.  .OPL files can contain a mixture of 4-operator and
+  "old" 2-operator Ad Lib-style voices, but .AD files should contain only
+  2-operator voices.  An .AD file may be converted into an .OPL file
+  simply by renaming it, but an .OPL file which contains 4-operator
+  voices will produce very strange sounds if treated as a 2-operator .AD
+  file.
+
+* Only the base I/O address parameter of the Ad Lib Gold card is required 
+  by the Ad Lib Gold drivers; the DMA channel and IRQ settings are
+  automatically determined during initialization.  The I/O address
+  parameter defaults to 388H unless changed by the user.  Ad Lib's
+  installation software represents the card's I/O address with the DOS 
+  environment variable GOLD=xxx.  When initializing an Ad Lib Gold card,
+  applications may retrieve the hexadecimal value from the GOLD
+  environment variable and pass it to the AIL API.  This avoids the need
+  to prompt the end-user to manually enter the card's address setting if
+  it is not detected at its factory default location.
+IMPORTANT! Creative Labs has recently begun equipping their Sound Blaster
+Pro adapters with the new Yamaha YMF262 (OPL3) 4-operator FM synthesizer
+IC.  While this certainly represents a technical improvement over the old
+dual-YM3812 Sound Blaster Pro adapter, AIL developers must be aware of
+certain drawbacks to the way in which Creative Labs has chosen to
+implement this "upgrade."
+
+ * The new OPL3 synthesizer chip is not compatible with the dual-YM3812
+   arrangement.  Use of previous AIL SBPFM.ADV/SBPFM.DLL driver versions
+   with the OPL3-equipped boards will result in strange-sounding volume 
+   imbalances.
+
+ * According to Creative Labs, the new, incompatible OPL3-based Sound
+   Blaster Pro adapter is being marketed and shipped under the same
+   "Sound Blaster Pro" name by which tens of thousands of the
+   dual-YM3812 version have been distributed.
+
+Obviously, these factors may create something of a customer-support
+headache for developers who have already shipped products with the
+dual-YM3812 SBPFM.ADV driver.  In the AIL's version 2.10 release,
+SBPFM.ADV has been renamed SBP1FM.ADV ("Sound Blaster Pro 1"), and a new
+SBP2FM.ADV ("Sound Blaster Pro 2") driver has been released to support
+the OPL3-based Sound Blaster Pro board.  The Windows and AIL/16 drivers
+are now called AILSB1FM.DLL and AILSB2FM.DLL, respectively.
+
+Unfortunately, the application must now decide which driver to load when
+the end-user selects "Sound Blaster Pro" support from the opening menu. 
+(A nontechnical end-user is unlikely to know which FM chipset is present
+on the board, so separate menu options for the different versions would
+be of little help).  There appears to be no reliable way to distinguish
+between the different FM sections by testing the hardware directly. 
+However, the Creative Labs installation software places a DOS environment
+variable called BLASTER in the user's AUTOEXEC.BAT file which can be used
+to determine not only which driver to load, but what I/O parameters are
+in use.
+
+Assuming the end-user has installed a Sound Blaster in accordance with
+Creative Labs' instructions, the DOS environment will contain a BLASTER
+environment variable similar in form to the following:
+
+BLASTER=A220 I7 D1 T1
+
+The A, I, and D "numbers" reflect the board's I/O address, interrupt
+level, and DMA channel, respectively.  The T parameter specifies the type
+of Sound Blaster which is installed.  Currently defined T numbers are:
+
+          1 - Sound Blaster V1.5 or earlier
+          2 - Sound Blaster Pro (Yamaha YM3812 version)
+          3 - Sound Blaster V2.0
+          4 - Sound Blaster Pro (Yamaha YMF262/OPL3 version)
+
+(T numbers after 4 are assumed to be later incarnations of the OPL3-based
+board.)
+As an aid to developers, the AIL 2.10 release contains source and
+executable code for a short program called BLASTER.C.  BLASTER.C contains
+a rudimentary parser (board_ID()) which interprets the BLASTER
+environment variable and yields the names of the AIL FM and digital sound
+drivers designed to communicate with the user's particular Sound Blaster
+card.  Because BLASTER.C's board_ID() routine returns 0 if no BLASTER
+variable exists, it may be integrated into any AIL digital sound
+application in a "device-independent" fashion.  The Example Programs
+section contains a listing for BLASTER.C, along with more specific
+instructions on how to link the board_ID() function with an AIL
+application.
+
+In summary, AIL developers interested in providing Sound Blaster Pro
+support to end-users can take the following steps to minimize
+inconvenience and confusion:
+
+* Use the BLASTER environment variable, when present, to determine which
+  drivers to load and the I/O parameters with which to initialize them.
+
+* Instruct end-users, by way of the product's documentation, to make sure
+  their Sound Blaster card has been installed using Creative Labs'
+  installation utility, and that their BLASTER environment variable is
+  set properly.
+
+* Distribute copies of SBP2FM.ADV and AILSP2FM.DLL via bulletin boards
+  and other channels to users who experience problems.  Users should be
+  given instructions similar to the following:
+
+  1) Change to the directory containing your application's sound files.
+
+  2) Execute the command copy sbp2fm.adv sbpfm.adv, where sbp2fm.adv is
+     the new Sound Blaster Pro OPL3 driver.  (For Windows, use the
+     command copy ailsp2fm.dll sbpfm.dll instead.)
+
+  3) Execute the command copy *.ad *.opl (this step creates a "quick
+     and dirty" OPL3-compatible Global Timbre Library file).
+
+The last option outlined above will be valid only for products which do
+not "hide" the AIL drivers and instrument files within a proprietary
+library-file format.  For this reason, Miles Design strongly recommends
+that applications' AIL drivers and Global Timbre Libraries be distributed
+and installed in the form of standard MS-DOS files.
+
+Extended MIDI Implementation
+
+          ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+          ³ 110 (6eh)     ³ Channel Lock                ³
+          ³ 111 (6fh)     ³ Channel Protect             ³
+          ³ 112 (70h)     ³ Voice Protect               ³
+          ³ 113 (71h)     ³ Timbre Protect              ³
+          ³ 114 (72h)     ³ Patch Bank Select           ³
+          ³ 115 (73h)     ³ Indirect Controller Prefix  ³ 
+          ³ 116 (74h)     ³ For Loop Controller         ³
+          ³ 117 (75h)     ³ Next/Break Loop Controller  ³
+          ³ 118 (76h)     ³ Clear Beat/Bar Count        ³
+          ³ 119 (77h)     ³ Callback Trigger            ³
+          ³ 120 (78h)     ³ Sequence Branch Index       ³
+          ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+
+MIDI Implementation Chart
+
+Yamaha YM3812 / YMF262 (OPL3) Series                        Version: 2.0
+ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+³Function ...           ºRecognized            ³Remarks                 ³
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ×ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+³Basic                  º2-10                  ³Melodic mode timbres    ³
+³Channel                º                      ³only                    ³
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ×ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+³Mode                   ºMode 3                ³OMNI OFF, POLY          ³
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ×ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+³Note                   º12-108                ³                        ³
+³Number                 º                      ³                        ³
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ×ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+³Velocity     Note ON   ºO v=1-127             ³(VEL_TRUE = 0)          ³
+³             Note OFF  ºX                     ³                        ³
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ×ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+³After Touch  Key       ºX                     ³                        ³
+³             Chs       ºX                     ³                        ³
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ×ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+³Pitch Bender           ºO 0-24 semi           ³                        ³
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ×ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+³              1        ºO                     ³Modulation              ³
+³              7        ºO                     ³Part Volume             ³
+³             10        ºO (PAS/SBP/ADLIBG)    ³Panpot                  ³
+³             11        ºO                     ³Expression              ³
+³             12        º                      ³                        ³
+³             :         ºX                     ³                        ³
+³Control      63        º                      ³                        ³
+³Change       64        ºO                     ³Hold1                   ³
+³             65        º                      ³                        ³
+³             :         ºX                     ³                        ³
+³            120        º                      ³                        ³
+³            121        ºO                     ³Reset All Controllers   ³
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ×ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+³Prog                   ºO 0-127               ³                        ³
+³Change                 º                      ³                        ³
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ×ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+³System Exclusive       ºX                     ³                        ³
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ×ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+³         Local ON/OFF  ºX                     ³                        ³
+³Aux      All Notes OFF ºO (123)               ³                        ³
+³Message  Active Sense  ºX                     ³                        ³
+³         Reset         ºX                     ³                        ³
+ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄĞÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+                                                       
+                                                O : Yes
+                                                X : No IBM & Tandy Internal Speaker XMIDI Drivers
+
+             Real-mode MS-DOS: TANDY.ADV    (Tandy 3-voice XMIDI)
+                               PCSPKR.ADV   (IBM internal speaker XMIDI)
+
+           16-bit AIL/16 DPMI: A16TANDY.DLL (Tandy 3-voice XMIDI)
+                               A16SPKR.DLL  (IBM internal speaker XMIDI)
+
+AIL Windows Extensions (WAIL): AILTANDY.DLL (Tandy 3-voice XMIDI)
+                               AILSPKR.DLL  (IBM internal speaker XMIDI)
+
+Implementation Notes
+
+* Since these drivers are designed for use in low-performance (XT/Turbo
+  and faster) environments, their source MIDI files should contain no
+  tracks not absolutely essential to the music being played.  Performance
+  will decrease in proportion to the music's activity level and the
+  number of MIDI tracks in use.  Although possible, it will often be
+  undesirable to play XMIDI sequences designed for use with the Roland or
+  Ad Lib-class devices through these drivers.  Due to both devices'
+  limited polyphony, MIDI-based sound effects should be used sparingly.
+
+* Since only one "voice" is available from the standard IBM internal
+  speaker, the IBM internal speaker drivers respond only to events on
+  MIDI channel 2.
+
+* The following functions have no effect with these drivers:
+
+All functions concerned with timbre loading and management
+AIL_send_sysex_message()
+AIL_write_display()
+
+* The following functions have no effect with these drivers:
+
+AIL_set_sequence_volume()
+
+* For optimum sound effect quality, linear pitch wheel interpretation is
+turned on by default.  Change the LINEAR_PITCH equate (SPKR.INC only) to
+0 if normal semitonal pitch bend increments are desired.
+
+* When SPKR.INC's LINEAR_PITCH and EMULATE_MOD equates are both set to 1,
+the MIDI Modulation Controller (1) is emulated by the PC and Tandy
+speaker drivers.  The MOD_DEPTH equate, which defaults to 5, determines
+the number of pitch wheel units (0-16383) per modulation controller value
+(0-127) by which note frequencies are varied alternately to either side. 
+The rate in hertz at which note frequencies are "modulated" is determined
+by the MOD_RATE equate, which defaults to 20 Hz.
+
+Extended MIDI Implementation
+
+          ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+          ³ 110 (6eh)     ³ Channel Lock                ³
+          ³ 111 (6fh)     ³ Channel Protect             ³
+          ³ 112 (70h)     ³ Voice Protect               ³
+          ³ 115 (73h)     ³ Indirect Controller Prefix  ³ 
+          ³ 116 (74h)     ³ For Loop Controller         ³
+          ³ 117 (75h)     ³ Next/Break Loop Controller  ³
+          ³ 118 (76h)     ³ Clear Beat/Bar Count        ³
+          ³ 119 (77h)     ³ Callback Trigger            ³
+          ³ 120 (78h)     ³ Sequence Branch Index       ³
+          ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+Due to the limited voicing and channel response capability of these
+drivers, it is not recommended that applications attempt to make use of
+features such as voice protection or channel locking and remapping.
+MIDI Implementation Chart
+
+Tandy 3-voice XMIDI                                         Version: 2.0
+ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+³Function ...           ºRecognized            ³Remarks                 ³
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ×ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+³Basic                  º2-4                   ³Melodic mode            ³
+³Channel                º                      ³                        ³
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ×ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+³Mode                   ºMode 3                ³OMNI OFF, POLY          ³
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ×ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+³Note                   º12-108                ³                        ³
+³Number     True Voice  º45-108                ³                        ³
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ×ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+³Velocity     Note ON   ºO v=1-127             ³                        ³
+³             Note OFF  ºX                     ³                        ³
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ×ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+³After Touch  Key       ºX                     ³                        ³
+³             Chs       ºX                     ³                        ³
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ×ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+³Pitch Bender           ºO 0-24 semi           ³                        ³
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ×ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+³              1        ºO                     ³Modulation (SPKR.INC)   ³
+³              7        ºO                     ³Part Volume             ³
+³             10        ºX                     ³Panpot                  ³
+³             11        ºO                     ³Expression              ³
+³             12        º                      ³                        ³
+³             :         ºX                     ³                        ³
+³Control      63        º                      ³                        ³
+³Change       64        ºO                     ³Hold1                   ³
+³             65        º                      ³                        ³
+³             :         ºX                     ³                        ³
+³            120        º                      ³                        ³
+³            121        ºO                     ³Reset All Controllers   ³
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ×ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+³Prog                   ºX                     ³                        ³
+³Change                 º                      ³                        ³
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ×ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+³System Exclusive       ºX                     ³                        ³
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ×ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+³         Local ON/OFF  ºX                     ³                        ³
+³Aux      All Notes OFF ºO (123)               ³                        ³
+³Message  Active Sense  ºX                     ³                        ³
+³         Reset         ºX                     ³                        ³
+ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄĞÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+                                                       
+                                                O : Yes
+                                                X : No MIDI Implementation Chart
+
+IBM Internal Speaker                                        Version: 2.0
+ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+³Function ...           ºRecognized            ³Remarks                 ³
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ×ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+³Basic                  º2                     ³                        ³
+³Channel                º                      ³                        ³
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ×ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+³Mode                   ºMode 4                ³OMNI OFF, MONO          ³
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ×ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+³Note                   º12-108                ³                        ³
+³Number     True Voice  º12-108                ³                        ³
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ×ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+³Velocity     Note ON   ºX                     ³                        ³
+³             Note OFF  ºX                     ³                        ³
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ×ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+³After Touch  Key       ºX                     ³                        ³
+³             Chs       ºX                     ³                        ³
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ×ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+³Pitch Bender           ºO 0-24 semi           ³                        ³
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ×ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+³              1        ºO                     ³Modulation (SPKR.INC)   ³
+³              7        ºX                     ³Part Volume             ³
+³             10        ºX                     ³Panpot                  ³
+³             11        ºX                     ³Expression              ³
+³             12        º                      ³                        ³
+³             :         ºX                     ³                        ³
+³Control      63        º                      ³                        ³
+³Change       64        ºO                     ³Hold1                   ³
+³             65        º                      ³                        ³
+³             :         ºX                     ³                        ³
+³            120        º                      ³                        ³
+³            121        ºO                     ³Reset All Controllers   ³
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ×ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+³Prog                   ºX                     ³                        ³
+³Change                 º                      ³                        ³
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ×ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+³System Exclusive       ºX                     ³                        ³
+ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ×ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
+³         Local ON/OFF  ºX                     ³                        ³
+³Aux      All Notes OFF ºO (123)               ³                        ³
+³Message  Active Sense  ºX                     ³                        ³
+³         Reset         ºX                     ³                        ³
+ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄĞÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+                                                       
+                                                O : Yes
+                                                X : No Sound Blaster, Pro Audio Spectrum, & Ad Lib Gold PCM Drivers
+
+             Real-mode MS-DOS: SBDIG.ADV    (Sound Blaster)
+                               SBPDIG.ADV   (Sound Blaster Pro)
+                               PASDIG.ADV   (Pro Audio Spectrum)
+                               ALGDIG.ADV   (Ad Lib Gold)
+
+           16-bit AIL/16 DPMI: A16SBDG.DLL  (Sound Blaster)
+                               A16SBPDG.DLL (Sound Blaster Pro)
+                               A16PASDG.DLL (Pro Audio Spectrum)
+                               A16ALGDG.DLL (Ad Lib Gold)
+
+AIL Windows Extensions (WAIL): AILSBDG.DLL  (Sound Blaster)
+                               AILSBPDG.DLL (Sound Blaster Pro)
+                               AILPASDG.DLL (Pro Audio Spectrum)
+                               AILALGDG.DLL (Ad Lib Gold)
+
+  Factory default I/O address: 220h (Sound Blaster)
+                               220h (Sound Blaster Pro)
+                               388h (Ad Lib Gold)
+
+          Factory default IRQ: 7  (Sound Blaster)
+                               7  (Sound Blaster Pro)
+                               7  (Pro Audio Spectrum 16 under AIL/16)
+
+  Factory default DMA channel: 1  (Sound Blaster)
+                               1  (Sound Blaster Pro)
+                               3  (Pro Audio Spectrum 16 under AIL/16)
+
+Implementation Notes
+
+* Standard Sound Blaster DSP volume settings are not adjustable.  In the
+  AIL implementation, volume setting 0 = full off; volume settings
+  1-127 = full on.
+
+* The following functions have no effect with the standard Sound Blaster 
+  card:
+
+AIL_digital_playback_panpot()
+AIL_set_digital_playback_panpot()
+
+* The following pack_type equates are valid for API functions which use 
+  the sound_buff structure (defined in AIL.H / WAIL.H / AIL16.H):
+
+         ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+         ³pack_type     Definition                      ³
+         ÆÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍµ
+         ³0         ³   8-bit PCM, monaural             ³
+         ³1         ³   4-bit ADPCM, monaural           ³
+         ³2         ³   2.6-bit ADPCM, monaural         ³
+         ³3         ³   2-bit ADPCM, monaural           ³
+         ³128       ³   8-bit PCM, stereo               ³
+         ³129       ³   4-bit ADPCM, stereo             ³
+         ³130       ³   2.6-bit ADPCM, stereo           ³
+         ³131       ³   2-bit ADPCM, stereo             ³
+         ÀÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+
+* Stereo samples are not supported by the standard Sound Blaster card.
+
+* The Ad Lib Gold drivers support the 8-bit PCM and 4-bit ADPCM
+  pack_types mentioned above, as well as the following additional
+  pack_types:
+
+         ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+         ³pack_type    Definition                       ³
+         ÆÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍµ
+         ³4         ³  16-bit PCM, monaural             ³
+         ³132       ³  16-bit PCM, stereo               ³
+         ÀÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+
+* The Pro Audio Spectrum drivers support mono and stereo PCM samples of
+  8-bit resolution only.  DMASOUND.ASM and WDMASND.ASM contain a
+  PAS_FILTER equate which, when set to TRUE, causes the Pro Audio
+  Spectrum's antialiasing filter to adjust its cutoff frequency to the
+  current sample rate.  Because this filter adversely affects the card's
+  FM sound quality, PAS_FILTER is FALSE by default.
+
+* For a given sampling frequency in hertz rate, the sampling_rate value
+  for use with a sound_buff structure may be determined by 
+          
+            sampling_rate = 256 - (1000000 / rate)
+
+  During stereo playback, the frequency rate must be doubled to
+  compensate for the interleaving of left/right sample information.
+
+* The Pro Audio Spectrum and Ad Lib Gold drivers do not support "silence
+  packing" in Creative Voice (.VOC) files. Silence blocks (type 3) are
+  skipped during playback.
+
+* The Pro Audio Spectrum driver requires the Media Vision MVSOUND.SYS
+  device driver to be present in the host system's CONFIG.SYS file.  
+
+* The Sound Blaster Pro adapter does not support high-speed (> 23 kHz)
+  sampled playback under the architecture used by the Audio Interface
+  Library drivers.  The Sound Blaster Pro drivers should be used only at
+  sample rates of 23 kHz (11.5 kHz/channel in stereo) and below.
+* 8-bit PCM sample data played by the Ad Lib Gold card must be
+  preprocessed by the AIL_format_VOC_file() or AIL_format_sound_buffer()
+  functions, due to a fundamental lack of data compatibility with the   
+  Sound Blaster standard.  See the API Reference for a description of
+  these functions.
+
+* Only true stereo samples may be panned from left to right with the Ad
+  Lib Gold adapter. 
+
+* In PCM mode, the Ad Lib Gold adapter supports only the 44.1 kHz, 22.05
+  kHz, 11.025 kHz, and 7.35 kHz sampling rates.  In ADPCM mode, rates
+  available include 22.05 kHz, 11.025 kHz, 7.35 kHz, and 5.5125 kHz.
+  The Ad Lib Gold drivers will automatically select the closest available
+  sampling rate when playing samples recorded at other frequencies.
+
+* Only the base I/O address parameter of the Ad Lib Gold card is required 
+  by the Ad Lib Gold driver; the DMA channel and IRQ settings are
+  automatically determined during initialization.  The I/O address
+  parameter defaults to 388H unless changed by the user.  Ad Lib's
+  installation software represents the card's I/O address with the DOS
+  environment variable GOLD=xxx.  When initializing an Ad Lib Gold card,
+  applications may retrieve the hexadecimal value from the GOLD
+  environment variable and pass it to the AIL API.  This avoids the need
+  to prompt the end-user to manually enter the card's address setting if
+  it is not detected at its factory default location.
+
+* At least two potentially serious hardware bugs exist in certain 
+  releases of the Pro Audio Spectrum 16 adapter, and possibly in 
+  the Pro Audio Spectrum Plus devices as well.  Users may occasionally
+  notice sudden, unexplained "downshifts" in the sampling rate during PCM 
+  playback.  Additionally, on slower systems running high-overhead
+  environments such as Windows or other DPMI hosts, PCM playback may
+  halt altogether during playback of a sample, when the end-of-DMA 
+  transfer interrupt expected by the driver fails to arrive.  The former
+  problem appears to occur when the DMA channel has been changed to 1
+  from its default value of 3, while the latter problem becomes more
+  prevalent when higher sampling rates or slower systems are in use.
+  End-users who are plagued by either of these bugs should reconfigure
+  their applications to take advantage of the Pro Audio Spectrum's Sound
+  Blaster emulation mode.
+APPENDIX
+ DIGPAK Drivers from The Audio Solution, Inc.
+
+DIGPAK, or Digitized Sound Package, is a popular set of software tools
+and drivers licensed by The Audio Solution, Inc. to provide digitized
+sound support for a wide range of PC sound peripherals.  The DIGPAK
+drivers can play 8-bit digitized sound samples through almost every PC-
+compatible sound device currently available.  Supported devices include:
+
+ ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄ¿
+ ³ Manufacturer / Device            ³  Mode   ³ Resolution  ³  Driver   ³
+ ÆÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍµ
+ ³ IBM Internal Speaker             ³  Fgnd   ³  6-bit      ³  IBMSND   ³ 
+ ³ IBM Internal Speaker             ³  Bkgnd  ³  6-bit      ³  IBMBAK   ³
+ ³ Covox Speech Thing               ³  Bkgnd  ³  8-bit      ³  CVXSND   ³
+ ³ Covox Voice Master               ³  Bkgnd  ³  8-bit      ³  VMSND    ³
+ ³ Covox Sound Master               ³  Bkgnd  ³  8-bit      ³  SMSND    ³
+ ³ Creative Labs Sound Blaster      ³  Bkgnd  ³  8-bit/DMA  ³  SBLASTER ³
+ ³ Ad Lib Personal Music System     ³  Bkgnd  ³  6-bit      ³  ADLIB    ³
+ ³ Digispeech Adapter Board         ³  Fgnd   ³  8-bit      ³  DIGISP   ³
+ ³ Walt Disney Sound Source         ³  Bkgnd  ³  8-bit      ³  SOURCE   ³
+ ³ Street Electronics Echo II       ³  Bkgnd  ³  8-bit      ³  ECHOII   ³
+ ³ Lantastic Voice Adapter          ³  Bkgnd  ³  8-bit      ³  LANTSND  ³
+ ³ Tandy EX/TX, IBM PC jr.          ³  Bkgnd  ³  4-bit      ³  TANEXTX  ³
+ ³ Tandy SL/TL                      ³  Bkgnd  ³  8-bit/DMA  ³  TANSLTL  ³
+ ³ Media Vision Pro Audio Spectrum  ³  Bkgnd  ³  8-bit/DMA  ³  PAUDIO   ³
+ ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÙ
+
+Frequent additions are made to the above list; contact The Audio Solution
+for the latest information on supported devices.
+
+Compared to the primarily MIDI-oriented Audio Interface Library, DIGPAK
+offers a much more extensive repertoire of digital sound drivers. 
+Unfortunately, developers wishing to include both AIL FM music and DIGPAK
+digitized sound in their products have been forced to program for
+compatibility with two very different API modules, to say nothing of the
+difficulties encountered when both AIL and DIGPAK insist on having their
+own ways with the system's timer hardware resources.
+
+In response to requests from many developers, Miles Design and The Audio
+Solution have combined the technologies that make their respective
+products leaders in their fields.  Beginning with the AIL 2.07 release,
+the Audio Interface Library's standard MS-DOS API for Turbo/Microsoft C
+can communicate directly with all DIGPAK drivers listed above.
+
+DIGPAK .COM drivers are "registered" with the AIL API with the usual
+AIL_register_driver() call.  Once the API determines that a DIGPAK .COM
+driver is being registered, rather than a conventional AIL .ADV driver,
+all necessary handshaking and initialization steps are automatically
+taken.  The application may then make calls to the driver via the API's
+Digital Sound Services, exactly as if an .ADV driver were being used.The current DIGPAK driver set is included with each Audio Interface
+Library release by courtesy of The Audio Solution, Inc.  These drivers
+are supplied for evaluation purposes only and may not be incorporated
+into any commercial or public-domain product unless licensed separately
+from The Audio Solution.  Miles Design, Inc. disclaims any responsibility
+for unlicensed use of the DIGPAK drivers supplied with the AIL.
+
+DIGPAK digital sound drivers may be used with the sample AIL applications
+VOCPLAY and DIGIPLAY, simply by specifying the name of a DIGPAK .COM
+driver file instead of the expected .ADV driver filename.  For instance,
+
+VOCPLAY vprice.voc digpak\ibmbak.com
+
+will play the vprice.voc file through the IBM internal speaker, a device
+not otherwise supported by any AIL digital sound driver.  (Note that only
+8-bit monaural sample data is supported by DIGPAK.)
+
+All DIGPAK compatibility features are implemented within the AIL.OBJ API
+module.  If application memory is extremely scarce and DIGPAK support is
+not desired, AIL.OBJ may be reduced in size by approximately 3K bytes by
+re-assembling AIL.ASM (according to the rules in AIL.MAK) with its DIGPAK
+equate set to FALSE.  By default, this equate is set to TRUE, enabling
+full support for the DIGPAK drivers.  DIGPAK support is not available for
+the Borland Turbo Pascal(R) or Microsoft Windows(TM) API modules.
+
+Whenever practical, the AIL's "device independent" behavior with respect
+to its .ADV drivers has been preserved in its interaction with the DIGPAK
+.COM drivers.  Still, some of the AIL API functions may operate in a
+slightly different manner when addressing a DIGPAK driver.  These
+considerations are discussed below; for detailed background information
+about an individual function, refer to that function's listing in the API
+Reference section of this manual.
+
+HDRIVER AIL_register_driver(void far *driver_base_addr)
+
+Only one DIGPAK driver may be registered at a time.  Like .ADV drivers,
+DIGPAK .COM drivers must be loaded at paragraph boundaries.
+
+drvr_desc far *AIL_describe_driver(HDRIVER driver)
+
+When driver refers to a DIGPAK driver, the default_IO, default_IRQ,
+default_DMA, and default_DRQ members of the returned drvr_desc structure
+will be equal to -1, even though the supported device may offer a choice
+of I/O configurations.  The DIGPAK drivers are responsible for auto-
+detecting their supported devices and configuring themselves accordingly.
+While playing back digitized sound, several of the DIGPAK drivers must
+seize control of the system timer interrupt vector (INT 8) away from the
+normal AIL Process Services timer handler.  This is because very high
+interrupt rates are often required to service devices which do not
+support DMA transfers.  To accommodate the DIGPAK driver's need for fast,
+low-overhead periodic service, the AIL API switches the INT 8 vector back
+and forth on demand between the DIGPAK driver and the AIL Process
+Services.  If the application is playing one or more XMIDI sequences when
+this switch occurs, the music may appear to "hang" for as long as the
+digital sound sample is being played.  In situations where this is likely
+to be a problem, the application should make arrangements to pause and
+resume all active XMIDI sequences during digital playback.  This can be
+accomplished by use of the AIL_pause_sequence() and AIL_resume_sequence()
+functions, and will be necessary only if the service_rate member of the
+DIGPAK driver's drvr_desc structure is equal to 0.  DIGPAK drivers which
+do not require exclusive use of the INT 8 vector will return a
+service_rate value of -1.
+
+In all other respects, the returned drvr_desc structure will share the
+same characteristic values as any other AIL .ADV driver of type DSP_DRVR.
+
+unsigned AIL_detect_device(HDRIVER driver, unsigned IO_addr, unsigned
+IRQ, unsigned DMA, unsigned DRQ)
+
+This function always returns a nonzero value (device successfully found)
+when driver refers to a DIGPAK driver, whether or not the supported
+device is actually available.
+
+void AIL_register_sound_buffer(HDRIVER driver, unsigned buffer_num,
+sound_buff far *buff)
+
+void AIL_format_sound_buffer(HDRIVER driver, sound_buff far *buff)
+
+void AIL_play_VOC_file(HDRIVER driver, void far *VOC_file, unsigned
+block_marker)
+
+void AIL_format_VOC_file(HDRIVER driver, void far *VOC_file, unsigned
+block_marker)
+
+Certain DIGPAK drivers must preformat digital audio sample data before
+playback.  The preformatting process expands the dynamic range of the
+sample data to achieve satisfactory volume levels on devices not normally
+intended for use with digital audio samples.  It is important to use the
+AIL_format_sound_buffer() and AIL_format_VOC_file() functions (as
+described in the API Reference) to allow the driver to prepare the audio
+data for playback, if necessary.
+
+Note that only 8-bit monaural voice data blocks in .VOC files are
+supported by the DIGPAK interface.
+
+If necessary, the application may call the DIGPAK AudioCapabilities
+function directly through INT 66H Function 068CH to determine whether or
+not the driver will need to preformat the sample data.  Refer to the
+DIGPAK Digitized Sound Package User's Guide for more information on the
+INT 66H interface.  The AIL API imposes no restrictions on an
+application's use of INT 66H to communicate directly with an installed
+DIGPAK driver.
+void AIL_pause_digital_playback(HDRIVER driver)
+void AIL_resume_digital_playback(HDRIVER driver)
+void AIL_digital_playback_volume(HDRIVER driver)
+void AIL_set_digital_playback_volume(HDRIVER driver, unsigned volume)
+void AIL_digital_playback_panpot(HDRIVER driver)
+void AIL_set_digital_playback_panpot(HDRIVER driver, unsigned panpot)
+
+The above functions have no effect with DIGPAK drivers.
+
+* * *
+
+Miles Design, Inc. provides DIGPAK support from the AIL API as a service
+to developers.  The Audio Solution, Inc. remains the sole custodian of
+the DIGPAK drivers' source code, and is solely responsible for its own
+agreements relating to the support, maintenance, revision, and delivery
+of the licensed DIGPAK drivers.  Miles Design accepts responsibility for
+support and maintenance of only the Audio Interface Library API interface
+to the DIGPAK drivers.  Questions and comments regarding DIGPAK should be
+directed to The Audio Solution, Inc., P.O. Box 11688, Clayton, Missouri,
+63105, Tel. (314) 567-0267.

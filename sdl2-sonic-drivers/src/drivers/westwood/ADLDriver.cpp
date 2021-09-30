@@ -22,7 +22,7 @@ namespace drivers
 {
     namespace westwood
     {
-        ADLDriver::ADLDriver(std::shared_ptr<hardware::opl::OPL> opl, std::shared_ptr<files::ADLFile> adl_file)
+        ADLDriver::ADLDriver(std::shared_ptr<hardware::opl::OPL> opl, std::shared_ptr<files::westwood::ADLFile> adl_file)
             : _opl(opl)
         {
             if (!_opl || !_opl->init()) {
@@ -76,7 +76,7 @@ namespace drivers
         {
         }
 
-        void ADLDriver::setADLFile(const std::shared_ptr<files::ADLFile> adl_file) noexcept
+        void ADLDriver::setADLFile(const std::shared_ptr<files::westwood::ADLFile> adl_file) noexcept
         {
             const std::lock_guard<std::mutex> lock(_mutex);
 
@@ -266,7 +266,7 @@ namespace drivers
             return isChannelPlaying(0);
         }
 
-        uint8_t* ADLDriver::getProgram(const int progId, const files::ADLFile::PROG_TYPE progType)
+        uint8_t* ADLDriver::getProgram(const int progId, const files::westwood::ADLFile::PROG_TYPE progType)
         {
             if (_adl_file == nullptr) {
                 spdlog::error("ADLDriver::getProgram(): no ADL file loaded.");
@@ -295,12 +295,12 @@ namespace drivers
 
         uint8_t* ADLDriver::getProgram(const int progId)
         {
-            return getProgram(progId, files::ADLFile::PROG_TYPE::TRACK);
+            return getProgram(progId, files::westwood::ADLFile::PROG_TYPE::TRACK);
         }
 
         const uint8_t* ADLDriver::getInstrument(const int instrumentId)
         {
-            return getProgram(instrumentId, files::ADLFile::PROG_TYPE::INSTRUMENT);
+            return getProgram(instrumentId, files::westwood::ADLFile::PROG_TYPE::INSTRUMENT);
         }
 
         // This is presumably only used for some sound effects, e.g. Malcolm blowing up
@@ -2140,7 +2140,6 @@ namespace drivers
         // note value and the pitch bend value. In theory, we could very well try to
         // access memory outside this table, but in reality that probably won't happen.
         //
-
         const uint8_t ADLDriver::_pitchBendTables[][32] = {
             // 0
             { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x08,
