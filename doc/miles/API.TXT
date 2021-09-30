@@ -1,0 +1,2608 @@
+                                    
+
+
+
+IBM Audio Interface Library
+
+Application Program Interface (API) Reference
+
+ Release 2.16 of 27 September 1992
+
+Contents
+
+When possible, functions within each category are listed in order of
+their appearance in a typical application program.  Complementary
+functions (e.g. AIL_measure_count() / AIL_beat_count()) are often listed
+together.
+
+Overview ............................................................. 4
+
+I.  Installation Services
+
+AIL_register_driver() ................................................ 5
+AIL_release_driver_handle() .......................................... 6
+AIL_describe_driver() ................................................ 7
+AIL_detect_device() .................................................. 9
+AIL_init_driver() .................................................... 10
+XMI_serve_driver() ................................................... 10
+AIL_shutdown_driver() ................................................ 11
+
+II.  Extended MIDI (XMIDI) Performance Services
+
+AIL_state_table_size() ............................................... 12
+AIL_default_timbre_cache_size() ...................................... 13
+AIL_define_timbre_cache() ............................................ 13
+AIL_register_sequence() .............................................. 14
+AIL_release_sequence_handle() ........................................ 16
+AIL_timbre_request() ................................................. 17
+AIL_timbre_status() .................................................. 19
+AIL_install_timbre() ................................................. 20
+AIL_protect_timbre() ................................................. 21
+AIL_unprotect_timbre() ............................................... 21
+AIL_start_sequence() ................................................. 22
+AIL_stop_sequence() .................................................. 23
+AIL_resume_sequence() ................................................ 24
+AIL_sequence_status() ................................................ 25
+AIL_relative_volume() ................................................ 26
+AIL_set_relative_volume() ............................................ 26
+AIL_relative_tempo() ................................................. 27
+AIL_set_relative_tempo() ............................................. 27
+AIL_controller_value() ............................................... 28
+AIL_set_controller_value() ........................................... 28
+AIL_channel_notes() .................................................. 29
+AIL_measure_count() .................................................. 30
+AIL_beat_count() ..................................................... 30
+AIL_branch_index() ................................................... 31
+AIL_install_callback() ............................................... 32
+AIL_cancel_callback() ................................................ 32
+AIL_lock_channel() ................................................... 35
+AIL_release_channel() ................................................ 36
+AIL_map_sequence_channel() ........................................... 37
+AIL_true_sequence_channel() .......................................... 38
+AIL_send_channel_voice_message() ..................................... 39
+AIL_send_sysex_message() ............................................. 40
+AIL_write_display() .................................................. 41
+
+III.  Digital Performance Services
+
+AIL_index_VOC_block() ................................................ 42
+AIL_format_sound_buffer() ............................................ 44
+AIL_register_sound_buffer() .......................................... 44
+AIL_sound_buffer_status() ............................................ 47
+AIL_format_VOC_file() ................................................ 48
+AIL_play_VOC_file() .................................................. 48
+AIL_VOC_playback_status() ............................................ 50
+AIL_start_digital_playback() ......................................... 50
+AIL_stop_digital_playback() .......................................... 51
+AIL_pause_digital_playback() ......................................... 51
+AIL_resume_digital_playback() ........................................ 51
+AIL_digital_playback_volume() ........................................ 52
+AIL_set_digital_playback_volume() .................................... 52
+AIL_digital_playback_panpot() ........................................ 52
+AIL_set_digital_playback_panpot() .................................... 52
+
+
+IV.  Process Services
+
+AIL_startup() ........................................................ 53
+AIL_shutdown() ....................................................... 54
+AIL_register_timer() ................................................. 55
+AIL_set_timer_period() ............................................... 57
+AIL_set_timer_frequency() ............................................ 57
+AIL_set_timer_divisor() .............................................. 57
+AIL_interrupt_divisor() .............................................. 58
+AIL_start_timer() .................................................... 58
+AIL_start_all_timers() ............................................... 58
+AIL_stop_timer() ..................................................... 59
+AIL_stop_all_timers() ................................................ 59
+AIL_release_timer_handle() ........................................... 59
+AIL_release_all_timers() ............................................. 59
+Overview
+
+Real-mode C functions are prototyped in the AIL.H header file with the far cdecl keywords,
+while protected-mode C function prototypes appear in AIL16.H, supplied with the optional
+AIL/16 package.  The Windows functions are prototyped as far pascal in the WAIL.H header
+file which accompanies the optional AIL Windows Extensions software.  The functions are
+compatible with all Microsoft and Turbo/Borland C/C++ memory models.  Except where
+noted, the Windows and AIL/16 function calls with their "Hungarian" prototypes emulate the
+operation of the standard MS-DOS C function calls.
+
+All Pascal functions are prototyped in the Turbo Pascal 6.0-compatible unit header file
+AIL.PAS, supplied with the optional AIL Pascal API package.  Except where noted, the Pascal
+calls emulate the operation of the standard MS-DOS C function calls.
+
+Under AIL/16, an application must call its sound drivers directly.  By default, one PCM and
+one XMIDI driver DLL are available for use by the application.  All functions in the Digital
+Performance Services category reside within the AILPCM.DLL module, and are named with
+the prefix PCM_, rather than AIL_.  Similarly, all functions in the Extended MIDI
+Performance Services category are implemented in the AILXMI.DLL module and named with
+the prefix XMI_.  AILPCM.DLL and AILXMI.DLL are actually renamed copies of the
+desired digital sound and XMIDI drivers; refer to the Technical Notes section for their
+individual names and descriptions.
+
+AIL/16 function prototypes are identical to those for the AIL Windows Extensions, except for
+their cdecl declarations, PCM_ or XMI_ prefixes, and lack of HDRIVER driver handle
+parameters.
+
+The AIL/16 and AIL Windows Extensions drivers and API provide their audio playback
+services to DPMI clients in 16-bit protected mode.  Some DPMI hosts (including enhanced-
+mode Windows) provide virtual memory, which efficiently manages application RAM by
+swapping blocks of rarely-used code and data to and from disk.  Because this "paging" process
+results in calls to the MS-DOS kernel, it is important that "page misses" do not occur during
+the execution of an asynchronous hardware interrupt handler such as those employed by the
+AIL Process Services or Digital Performance Services.  Many references on DPMI
+programming emphasize the need to disable virtual-memory paging for all regions of code and
+data which can be accessed from within such an interrupt handler, and most DPMI API
+interfaces provide high-level functions to lock and unlock arbitrary regions of memory. 
+(Examples include the Windows GlobalPageLock()/ GlobalPageUnlock and Ergo DPM-16
+LockRegion()/UnlockRegion() calls.)  To keep the example programs' code clean and
+portable, no measures are taken to inhibit paging on the various code and data blocks used by
+the drivers and their associated interrupt handlers.  However, if the application under
+development is expected to operate in a DPMI environment with limited RAM and extensive
+multitasking, reliability may be enhanced by including calls to the appropriate memory-locking
+routines for all driver and API code segments, code segments containing XMIDI callback
+functions, and data segments containing PCM samples and XMIDI sequences, state tables, and
+timbre caches.  For more information on virtual memory paging and memory-locking calls,
+consult the reference documentation for the DPMI host in use.I.  Installation Services
+
+şÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄş
+       C: HDRIVER AIL_register_driver(void far *driver_base_addr)
+
+ Windows: HDRIVER AIL_register_driver(char far *lpPathName)
+
+  AIL/16: See below
+
+  Pascal: function AIL_register_driver(driver_base_addr:pointer):HDRIVER
+
+ Purpose: Informs the API that the application has loaded an Audio
+          Interface Library .ADV driver at *driver_base_addr.  Returns a
+          "handle" to the installed driver if successful, or -1 if all
+          possible driver handles are in use.  HDRIVER handles are
+          required by all other calls to the API driver services, which
+          are a Windows or real-mode DOS application's only legitimate
+          means of communication with its sound drivers.
+
+ Remarks: Under real-mode DOS, the application's memory resource
+          management is responsible for allocating sufficient memory for
+          each driver and loading it at an address *driver_base_addr of
+          seg:0000h.  The AIL_startup() function must first have been 
+          called to initialize the API's internal variables.
+
+          The AIL Windows Extensions sound drivers are dynamic-link
+          libraries (DLLs) which are loaded by the API DLL module via the
+          LoadLibrary() function in response to an AIL_register_driver()
+          function call.  The Windows AIL_register_driver() call
+          accepts a DOS pathname string for the desired driver (such as
+          MT32MPU.DLL or ADLIB.DLL), rather than an actual driver image
+          address.
+            
+          In Windows and real-mode DOS, up to 16 drivers may be installed
+          with this function.  Under Windows, any number of processes may
+          simultaneously use the API DLL, but only one process may use a
+          given driver DLL.
+
+          Under AIL/16, the AILPCM.DLL and AILXMI.DLL drivers are loaded 
+          by the DOS extender at runtime.  Digital sound services are
+          provided by imported functions whose names begin with PCM_, and
+          XMIDI playback services are provided by imported functions
+          whose names begin with XMI_.  HDRIVER handles returned by this
+          fucntion are unnecessary since the driver DLLs cannot be
+          loaded, discarded, or reconfigured at runtime.
+
+ Example: XPLAY.C, VOCPLAY.C, WINXMIDI.C, WINSAMP.C, etc.
+şÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄş
+       C: void AIL_release_driver_handle(HDRIVER driver)
+
+ Windows: void AIL_release_driver_handle(HDRIVER hDriver)
+
+  AIL/16: See AIL_register_driver() above
+
+  Pascal: procedure AIL_release_driver_handle(driver:HDRIVER)
+
+ Purpose: Releases a driver handle obtained from AIL_register_driver(),
+          freeing the handle for future assignment.  
+
+ Remarks: This function should be used only after a call to 
+          AIL_shutdown_driver(), or after a failed AIL_detect_device()
+          attempt.  Once a driver handle has been released, further
+          interaction with that driver is impossible. 
+
+          Under Windows, an AIL_release_driver_handle() call causes the
+          driver DLL to be discarded from memory via the FreeLibrary()
+          function.
+şÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄş
+       C: drvr_desc far *AIL_describe_driver(HDRIVER driver)
+
+ Windows: drvr_desc far * pascal far AIL_describe_driver(HDRIVER hDriver)
+
+  AIL/16: drvr_desc far * cdecl far XMI_describe_driver(void)
+          drvr_desc far * cdecl far PCM_describe_driver(void)
+
+  Pascal: function AIL_describe_driver(driver:HDRIVER):pointer
+
+ Purpose: Obtains various items of information about a driver, such as
+          its basic sound type, names of supported devices, and default
+          I/O settings.
+
+ Remarks: AIL_describe_driver() returns a pointer to a static structure
+          of type drvr_desc, defined in AIL.H as
+
+          typedef struct
+            {
+            unsigned min_API_version;
+            unsigned drvr_type;
+            char data_suffix[4];
+            void far *dev_name_table;
+            int default_IO;
+            int default_IRQ;
+            int default_DMA;
+            int default_DRQ;
+            int service_rate;
+            unsigned display_size;
+            }
+          drvr_desc;
+            
+          Its members are defined as follows:                           
+
+          unsigned min_API_version specifies the degree of backward API
+          compatibility available in future driver releases.  This value
+          will be changed only when absolutely necessary for the addition
+          of new features, as the API will not recognize any driver it
+          considers "obsolete."     
+ 
+          unsigned drvr_type may equal one of the following values
+          (mnemonics defined in AIL.H):
+
+          Value   Mnemonic     Definition
+          1       MIDI_DRVR    Driver supports or emulates the Roland 
+                               MT-32 MIDI synthesizer, interpreting
+                               Standard MIDI files directly.  This 
+                               obsolete driver type appears in the Audio
+                               Interface Library's Version 1.XX releases
+                               only.
+
+          2       DSP_DRVR     Driver supports or emulates devices
+                               compatible with the Digital Sound
+                               Processor used in the Creative Labs Sound
+                               Blaster.
+
+          3       XMIDI_DRVR   Driver supports or emulates the Roland
+                               MT-32 MIDI synthesizer, interpreting
+                               AIL-specific Extended MIDI (XMIDI) 
+                               sequences generated by the MIDIFORM
+                               program.  This driver type is a
+                               replacement for the MIDI_DRVR type above.          4   WIN_XMIDI_DRVR   Equivalent to XMIDI_DRVR class above for
+                               Windows and AIL/16.
+
+          5     WIN_DSP_DRVR   Equivalent to DSP_DRVR class above for
+                               Windows and AIL/16.
+
+          char data_suffix[4] is a null-terminated string containing the
+          "official" MS-DOS filename suffix of data files used by the
+          driver.  For drivers of class MIDI_DRVR, data_suffix indicates
+          the standard filename suffix for the supported synthesizer's
+          instrument files (such as 'MTB' for the MT-32 or 'ADB' for the
+          Ad Lib and compatibles).  DSP_DRVR drivers normally return the
+          suffix 'VOC', indicating compatibility with the Creative Labs
+          Creative Voice File format introduced with the Sound
+          Blaster(TM) adapter.  XMIDI_DRVR drivers report the standard
+          suffix for the supported synthesizer's Global Timbre Library
+          file, or the collection of all "custom" timbres used during the
+          execution of an Audio Interface Library application.
+
+          void far *dev_name_table points to a list of one or more null-
+          terminated ASCII strings containing the names of all devices
+          supported by the driver.  The last entry in the list is
+          followed by an additional 0x00 byte.  This list may be used
+          to present an installation menu to the user.  (Ideally,
+          applications should not make assumptions about supported
+          devices based solely on driver filenames.)
+
+          int default_IO / default_IRQ / default_DMA / default_DRQ 
+          represent the "factory default" jumper or switch settings on
+          the device(s) supported by the driver.  If any of these
+          parameters equals -1, that parameter is either not used by the
+          device's I/O interface, or is not required by the driver.  The
+          parameters represent the base I/O address, interrupt line, DMA
+          acknowledge channel, and DMA request channel settings, 
+          respectively.
+
+          int service_rate informs the API of the driver's need for
+          isochronous time slices.  service_rate will equal -1 if no
+          periodic service is required.  Otherwise, the AIL_init_driver()
+          function assigns a timer to the driver with calls to 
+          AIL_register_timer() and AIL_set_timer_frequency(). 
+          Windows and real-mode DOS application programmers should not
+          normally be concerned with this parameter; AIL/16 programmers
+          should refer to the notes regarding XMIDI timer service under
+          the XMI_serve_driver() description below.
+
+          unsigned display_size, if nonzero, indicates the size in
+          characters of the supported device's alphanumeric front-panel
+          display.  The application program may examine this value to
+          aid in displaying trademark logos or other text.
+
+          The MS-DOS and Windows driver description structures are
+          fundamentally equivalent.
+
+          Other parameters may be appended to drvr_desc, or new driver
+          types added, in future releases.
+
+          Study the Windows and Pascal example programs listed below for
+          information on the equivalent drvr_desc structure/record
+          element syntax in other environments.  Note that all byte
+          arrays must be manually converted to Turbo Pascal strings.
+ Example: XPLAY.C, VOCPLAY.C, WINXMIDI.C, WINSAMP.C, TPXPLAY.PAS,
+          TPVPLAY.PAS, XP16.C, VP16.C
+
+şÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄş
+       C: unsigned AIL_detect_device(HDRIVER driver, unsigned IO_addr, 
+            unsigned IRQ, unsigned DMA, unsigned DRQ)
+
+ Windows: unsigned AIL_detect_device(HDRIVER hDriver, WORD
+            wIOAddr, WORD wIRQ, WORD wDMA, WORD wDRQ)
+
+  AIL/16: unsigned XMI_detect_device(WORD wIOAddr, WORD wIRQ, WORD
+            wDMA, WORD wDRQ)
+          unsigned PCM_detect_device(WORD wIOAddr, WORD wIRQ, WORD
+            wDMA, WORD wDRQ)
+
+  Pascal: function AIL_detect_device(driver:HDRIVER; IO_addr:integer;
+            IRQ:integer; DMA:integer; DRQ:integer):word
+
+ Purpose: Determines if a device supported by driver is present
+          and functional with the specified I/O parameters.  Returns 0 if
+          no device supported by the driver is available.
+
+ Remarks: After the user selects a sound adapter from the application's 
+          installation menu, this function should be called with the
+          default I/O parameters returned by AIL_describe_driver() to 
+          determine whether the adapter's jumpers or switches have been
+          changed from their factory default settings.  If the function
+          succeeds, returning with a nonzero value, the device may be
+          initialized and used by the application.  Otherwise, the user
+          must be prompted to enter new values for all I/O parameters 
+          which have a valid default setting (i.e., other than -1).
+          AIL_detect_device() should then be called once again to verify
+          the new hardware settings.
+
+ Example: XPLAY.C, VOCPLAY.C, XP16.C, VP16.C, WINXMIDI.C, WINSAMP.C
+şÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄş
+       C: void AIL_init_driver(HDRIVER driver, unsigned IO_addr, 
+            unsigned IRQ, unsigned DMA, unsigned DRQ)
+
+ Windows: void AIL_init_driver(HDRIVER hDriver, WORD wIOAddr, 
+            WORD wIRQ, WORD wDMA, WORD wDRQ)
+
+  AIL/16: void XMI_init_driver(WORD wIOAddr, WORD wIRQ, WORD wDMA, WORD
+            wDRQ)
+          void PCM_init_driver(WORD wIOAddr, WORD wIRQ, WORD wDMA, WORD
+            wDRQ)
+
+  Pascal: procedure AIL_init_driver(driver:HDRIVER; IO_addr:integer;
+            IRQ:integer; DMA:integer; DRQ:integer)
+
+ Purpose: Initializes the specified driver's internal data structures,
+          and prepares the driver's sound adapter for use.  Under Windows
+          and real-mode DOS, AIL_init_driver() allocates any requested
+          timer resources.
+
+ Remarks: The application must call this function only once for each
+          installed driver, and only after a successful call to
+          AIL_detect_device() has been executed at startup time to verify
+          the presence of a supported device at the specified hardware
+          settings.
+
+ Example: XPLAY.C, VOCPLAY.C, XP16.C, VP16.C, WINXMIDI.C, WINSAMP.C
+
+şÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄş
+  AIL/16: void pascal XMI_serve_driver(void)
+
+       C: Not applicable.
+
+ Windows: Not applicable.
+
+  Pascal: Not applicable.
+
+ Purpose: Provides periodic timer service to AIL/16 Extended MIDI
+          drivers.
+
+ Remarks: Under 16-bit protected-mode DOS, sound drivers are loaded by
+          the DOS extender at runtime without intervention from the AIL
+          API module.  To allow normal background operation of the XMIDI
+          driver, applications which use XMIDI playback must manually
+          register XMI_serve_driver() as a timer callback function with
+          the API Process Services.  For example:
+
+          desc = XMI_describe_driver();
+          if (desc->service_rate > 0) 
+              {
+              htimer = AIL_register_timer(XMI_serve_driver);
+              AIL_set_timer_frequency(htimer,desc->service_rate);
+              AIL_start_timer(htimer);
+              }
+
+          The timer should be registered only after the driver has been
+          initialized with a call to XMI_init_driver().  Furthermore,
+          timer service must be stopped with a call to AIL_stop_timer(),
+          AIL_release_timer_handle(), or AIL_shutdown() before the driver
+          is shut down via XMI_shutdown_driver().
+
+Examples: XP16.C, MIX16.CşÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄş
+       C: void AIL_shutdown_driver(HDRIVER driver, char far *signoff_msg)
+
+ Windows: void AIL_shutdown_driver(HDRIVER hDriver, char far     
+            *lpSignOff) 
+
+  AIL/16: void XMI_shutdown_driver(char far *lpSignOff)     
+          void PCM_shutdown_driver(char far *lpSignOff)     
+
+  Pascal: procedure AIL_shutdown_driver(driver:HDRIVER;
+            signoff_msg:pointer)
+
+ Purpose: Shuts down the specified driver, silencing any output
+          from the driver's sound adapter.  Under Windows and real-mode
+          DOS, this function releases any internal timer resources owned
+          by the driver.
+
+ Remarks: Used only when the application no longer intends to permit any
+          interaction with the specified driver.  If the application does
+          not terminate immediately after calling this function, it may
+          (optionally) release the driver's handle with a call to
+          AIL_release_driver_handle().  *signoff_msg points to an ASCII
+          string to be written to the supported device's front-panel
+          display, if any, and should equal NULL if no signoff message is
+          desired.
+
+          The function AIL_shutdown() is often used instead under Windows
+          and real-mode DOS, since it shuts down all active drivers.  If
+          an application terminates without shutting down all drivers, a
+          fatal system crash can be expected as soon as the API's
+          interrupt handler is overwritten by a subsequent process.
+
+          Under AIL/16, the AILPCM.DLL and AILXMI.DLL drivers must be
+          shut down manually.  If a timer has been registered to provide
+          service to AILXMI.DLL's XMI_serve_driver() function, the timer
+          must be stopped before XMI_shutdown_driver() is called.  This
+          may be accomplished by calling AIL_shutdown() before
+          XMI_shutdown_driver().  This is the only circumstance in which
+          any Audio Interface Library calls are permissible after an
+          AIL_shutdown().
+
+          The Turbo Pascal implementation of AIL_shutdown_driver()
+          receives a null-terminated ASCII string, which must be manually
+          constructed from the Turbo Pascal length-prefixed string data
+          type.  Refer to the TPXPLAY.PAS program listing for an example
+          of this technique.
+
+ Example: XPLAY.C, VOCPLAY.C, XP16.C, VP16.C, WINXMIDI.C, WINSAMP.C
+II.  Extended MIDI (XMIDI) Performance Services
+
+şÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄş
+       C: unsigned AIL_state_table_size(HDRIVER driver)
+
+ Windows: WORD AIL_state_table_size(HDRIVER hDriver)
+
+  AIL/16: WORD XMI_state_table_size(void)
+
+  Pascal: function AIL_state_table_size(driver:HDRIVER):word
+
+ Purpose: Returns the amount of memory in bytes required to store
+          the state table for each XMIDI sequence registered with
+          a given driver.
+
+ Remarks: One of the features provided by the AIL's Extended MIDI drivers
+          is the ability to stop, start, and maintain the status of up to
+          eight independent, concurrent XMIDI sequences.  To keep the
+          drivers' internal memory requirements to a minimum, the data
+          pointers, time counters, and controller value registers
+          associated with each XMIDI sequence are preserved in an
+          external area of memory called the "state table."  Each
+          sequence's state table will occupy approximately 500-700 bytes;
+          this function returns the precise amount of memory required.
+
+          The application should allocate memory for a sufficient number
+          of state tables to maintain as many XMIDI sequences as the
+          application expects to register concurrently.  Since many
+          applications will never need to register more than one or two
+          concurrent XMIDI sequences, substantial memory savings may be
+          realized by allowing the application to dynamically allocate
+          memory for its sequences' state tables.
+
+          Under Windows, memory for state tables should be allocated with
+          the GMEM_FIXED attribute.
+
+          After an XMIDI sequence's handle is released with 
+          AIL_release_sequence_handle(), its state table is no longer
+          needed by the driver.  (Refer to the
+          AIL_release_sequence_handle() description for an important
+          exception.)  The state table's memory may be returned to the
+          application's heap, or re-used when registering another 
+          sequence.  However, the required state table size may vary
+          between different XMIDI driver types, so a state table whose
+          size was determined with a call to one driver should not be
+          arbitrarily reassigned to a different driver.  Under no
+          circumstances should the sequence state table be released or
+          altered before its handle is released.  
+
+ Example: XPLAY.C, XP16.C, MIX16.C, WINXMIDI.C
+şÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄş
+       C: unsigned AIL_default_timbre_cache_size(HDRIVER driver)
+
+ Windows: WORD AIL_default_timbre_cache_size(HDRIVER hDriver)
+
+  AIL/16: WORD XMI_default_timbre_cache_size(void)
+
+  Pascal: function AIL_default_timbre_cache_size(driver:HDRIVER):word
+
+ Purpose: Returns the recommended size in bytes of a given driver's
+          timbre cache. 
+
+ Remarks: Some MIDI synthesizer emulators (such as the Ad Lib family)
+          require an area of application memory to be set aside for the
+          storage of instrument data objects, or timbres.  This function
+          returns the recommended timbre cache size for a particular
+          driver, so that the application can allocate the memory from
+          its own heap and pass it to the driver with a call to
+          AIL_define_timbre_cache() (q.v.)  The exact size of this memory
+          area is not critical, and timbre caches larger or smaller than
+          the default value may be allocated if circumstances warrant.
+
+          Synthesizers with built-in timbre memory (such as the Roland
+          family) do not require any local timbre cache at all.  The
+          application should call this function and test for a returned
+          value of zero before allocating memory, even if it does not
+          intend to follow the driver's cache size recommendation.
+
+ Example: XPLAY.C, XP16.C, WINXMIDI.C
+
+şÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄş
+       C: void AIL_define_timbre_cache(HDRIVER driver, void far
+            *cache_addr, unsigned cache_size)
+
+ Windows: void AIL_define_timbre_cache(HDRIVER hDriver, void far 
+            *lpCacheAddr, WORD wCacheSize)
+
+  AIL/16: void XMI_define_timbre_cache(void far *lpCacheAddr, WORD
+            wCacheSize)
+
+  Pascal: procedure AIL_define_timbre_cache(driver:HDRIVER;
+            cache_addr:pointer; cache_size:word)
+
+ Purpose: Informs an XMIDI driver of the location and size of its local 
+          timbre cache.
+
+ Remarks: See AIL_default_timbre_cache_size() for more information about
+          the local timbre cache.
+
+          Under Windows, timbre cache memory should be allocated with the
+          GMEM_FIXED attribute.
+
+ Example: XPLAY.C, XP16.C, WINXMIDI.C
+şÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄş
+       C: HSEQUENCE AIL_register_sequence(HDRIVER driver, void far
+            *FORM_XMID, unsigned sequence_num, void far
+            *state_table, void far *controller_table)
+
+ Windows: HSEQUENCE AIL_register_sequence(HDRIVER hDriver, 
+            void far *lpFORM_XMID, WORD wSequenceNum, void far
+            *lpStateTable, void far *lpControllerTable)
+
+  AIL/16: HSEQUENCE XMI_register_sequence(void far *lpFORM_XMID, WORD
+            wSequenceNum, void far *lpStateTable, void far
+            *lpControllerTable)
+
+  Pascal: function AIL_register_sequence(driver:HDRIVER;
+            FORM_XMID:pointer; sequence_num:word; state_table:pointer;
+            controller_table:pointer):HSEQUENCE
+
+ Purpose: Registers an Extended MIDI (XMIDI) sequence sequence_num with
+          an XMIDI-compatible driver HDRIVER, and returns a handle
+          HSEQUENCE with which other function calls may refer to the
+          sequence.
+
+ Remarks: The *FORM_XMID parameter should point to a memory-resident
+          image of an Extended MIDI (XMIDI) sequence file as produced by
+          the Audio Interface Library's MIDIFORM program.  An XMIDI
+          sequence file may contain one or more sequences.  The
+          sequence_num parameter should be 0 to access the first (or
+          only) sequence in the XMIDI file image, 1 to refer to the
+          second sequence, and so on.  The value -1 is returned if the
+          specified sequence could not be found in the XMIDI file image,
+          or if the XMIDI file image itself is invalid.  Information
+          regarding the creation of XMIDI sequence files may be found in
+          the Tools Reference under the MIDIFORM program description,
+          while the XMIDI IFF file format itself is described in the
+          Extended MIDI (XMIDI) Specification section of this manual.
+          
+          *state_table refers to the location of a small block of memory
+          used by the XMIDI driver to maintain pointers and other data
+          related to each registered sequence.  The state table must be
+          allocated by the application.  Refer to AIL_state_table_size()
+          for further details.
+
+          The *controller_table parameter optionally points to an array
+          of up to 128 bytes of application memory known as the Indirect
+          Controller Array.  A non-NULL value allows the XMIDI sequence
+          to take advantage of the XMIDI Indirect Controller Prefix
+          control event (115).  This Extended MIDI Control Change
+          event causes the very next MIDI Control Change event in its
+          channel to ignore its own explicitly specified value, obtaining
+          its value instead from the Indirect Controller Array's nth byte
+          entry, where n is the Indirect Controller Prefix's own value. 
+          In this manner, any performance parameter normally determined
+          by Control Change events (e.g. volume, panpot, XMIDI looping or
+          reverb control, etc.) may be dynamically altered by the AIL
+          application.  This technique offers an alternative to explicit
+          MIDI messages sent via the AIL_send_channel_voice_message()
+          function.  (One important difference is that changes made by
+          the application to the Indirect Controller Array will have no
+          effect until the sequence executes an Indirect Controller
+          Prefix/Control Change event pair which refers to the changed
+          array entry.)  If no Indirect Controller Prefix events appear
+          in the sequence, the *controller_table value will be unused and
+          should equal NULL.  
+
+          A sequence handle is required by all other library functions
+          which deal with sequences.  Therefore, this function must be
+          called before any other sequence-oriented actions (such as
+          playback or timbre loading) are possible.  Up to 8 sequence
+          handles may be registered simultaneously.  When access to a
+          sequence is no longer needed, its handle may be reclaimed with
+          a call to AIL_release_sequence_handle().
+
+          None of the sequence-based library functions, including
+          AIL_register_sequence(), will write to the data at *FORM_XMID. 
+          The same XMIDI data file image may safely be passed to other
+          drivers (or even registered more than once per driver) without
+          being reloaded into memory.
+
+          Under Windows, memory for the sequence, state table, timbre
+          cache, and Indirect Controller Array should be allocated with
+          the GMEM_FIXED attribute.  The size of an entire XMIDI file
+          is limited to 64K bytes by the Windows Extensions (including
+          drivers used by AIL/16), but the basic MS-DOS AIL imposes no
+          such restriction.
+
+ Example: XPLAY.C, XP16.C, WINXMIDI.C
+şÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄş
+       C: void AIL_release_sequence_handle(HDRIVER driver, HSEQUENCE
+            sequence)
+
+ Windows: void AIL_release_sequence_handle(HDRIVER hDriver, HSEQUENCE
+            hSequence)
+
+  AIL/16: void XMI_release_sequence_handle(HSEQUENCE hSequence)
+
+  Pascal: procedure AIL_release_sequence_handle(driver:HDRIVER;
+            sequence:HSEQUENCE)
+
+ Purpose: Releases a sequence handle HSEQUENCE obtained from
+          AIL_register_sequence(), freeing the handle for future
+          assignment.  
+
+ Remarks: After a sequence handle is released, no further calls to any
+          sequence-based functions may be executed with the released
+          handle.
+
+          Ordinarily, the application should call AIL_stop_sequence()
+          with a handle before releasing it with this function.  If a
+          sequence is playing when this function is called to release its
+          handle, an internal flag is set which causes the sequence
+          handle to be released as soon as the end of the sequence is
+          reached.  This feature is known as a "delayed release." 
+          Playback is not interrupted, and the sequence handle itself
+          does not become invalid until the release actually
+          occurs.  However, applications should still abide strictly by 
+          the rule against further API calls with the sequence handle,
+          and not assume that the handle will remain valid for any time
+          after the AIL_release_sequence_handle() call.  This feature is
+          intended to allow applications to start brief sound-effect or
+          "jingle" sequences and release them immediately, allowing them
+          to expire without the need for further supervision.  
+
+          CAUTION: If the delayed release feature is used, the sequence's
+          state table should not be released for as long as the
+          Audio Interface Library driver is active.  It is not possible
+          to safely determine whether or not a sequence handle is valid
+          at any given time after a delayed release call is performed. 
+          Applications which perform delayed releases on sound-effects
+          sequences should maintain n "static" state tables for these
+          sequences, where n is the maximum anticipated number of
+          concurrent sound effects.  These state tables should be
+          assigned in a circular fashion, to guard against the
+          possibility of re-using a state table which is still assigned
+          to an unexpired sequence.
+
+          For more information about sequence handles, refer to
+          AIL_register_sequence().
+şÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄş
+       C: unsigned AIL_timbre_request(HDRIVER driver, HSEQUENCE
+            sequence)
+
+ Windows: unsigned AIL_timbre_request(HDRIVER hDriver, HSEQUENCE
+            hSequence)
+
+  AIL/16: unsigned XMI_timbre_request(HSEQUENCE hSequence)
+
+  Pascal: function AIL_timbre_request(driver:HDRIVER;
+            sequence:HSEQUENCE):word
+
+ Purpose: Informs the application of the need to load a custom timbre
+          from the Global Timbre Library for use when playing an Extended
+          MIDI (XMIDI) sequence sequence.
+
+ Remarks: Briefly, the Global Timbre Library is the set of timbres, or
+          sound description data for musical instruments or sound
+          effects, which are intended for use by a given synthesizer
+          during the course of an entire Audio Interface Library
+          application.  Each synthesizer may have its own timbre data   
+          format.  The GLIB program (described in the Tools Reference
+          section of this manual) is responsible for compiling Global
+          Timbre Library files according to instructions in a standard
+          ASCII "catalog file."  The catalog file is created by a
+          musician or programmer, and specifies the source files, names,
+          and Program Change or "patch" mappings for the desired timbres.
+
+          Each timbre specification in the GLIB catalog file (or
+          "catfile") consists of an assignment statement of the form
+          timbre(bank,patch) = ..., in which the "..." expression on the
+          right side of the assignment statement tells GLIB where to find
+          the source data for the timbre (in an Ad Lib Instrument Maker
+          bankfile, for example), while the timbre() expression on the
+          left specifies the destination "address" of the timbre in the
+          Global Timbre Library file being created.  This "address"
+          consists of a timbre bank number and a patch (MIDI Program
+          Change number) mapping for the timbre.  A musician who is
+          composing a MIDI sequence for use with an AIL XMIDI driver may
+          "request" that a custom timbre be associated with a particular
+          patch during playback, simply by prefixing each MIDI Program
+          Change message in the sequence with an XMIDI Patch Bank Select
+          controller (114) which specifies the bank number under which
+          the desired timbre for the patch was stored in the Global
+          Timbre Library file.
+
+          As part of its XMIDI compilation task, the MIDIFORM program
+          creates a list of XMIDI Patch Bank Select controller / MIDI
+          Program Change message combinations that appear in each MIDI
+          source sequence.  The AIL_timbre_request() function gives the
+          application access to this list.  By means of this function,
+          the application can load each necessary timbre into the
+          synthesizer's memory or local timbre cache (via the
+          AIL_install_timbre() function) before playback begins.  
+
+          For each required timbre which is not already in the
+          synthesizer or local timbre cache, AIL_timbre_request() returns
+          an unsigned 16-bit integer.  The most significant (or second)
+          byte of this word contains the timbre's bank number from 0 to
+          127, while the least significant (or first) byte contains the
+          timbre's patch number, which also ranges from 0 to 127.  A
+          returned value of 0xffff (65535, or -1) indicates that all 
+          timbres necessary to play sequence are present in the
+          synthesizer or local cache.
+
+          Early AIL releases returned the timbre word as an
+          equivalent two-byte structure, which caused compatibility
+          problems with some versions of Borland and Microsoft C.  
+
+          The returned timbre address word should be used by the
+          application to look up the timbre originally placed in the
+          Global Timbre Library by GLIB in response to a catalog file
+          assignment statement of the form timbre(bank,patch) = ....  The
+          data block representing the timbre should be retrieved from the
+          Global Timbre Library file and installed into the synthesizer's
+          memory or local timbre cache through the use of the
+          AIL_install_timbre() function (q.v.).
+
+          More information about creating Global Timbre Library files
+          with GLIB can be found in the Tools Reference section of this
+          manual.  The Global Timbre Library's standard file format
+          appears in the Extended MIDI Specification section.  For a
+          "boilerplate" example of an application which loads and
+          installs a sequence's timbres from the Global Timbre Library in
+          response to AIL_timbre_request() function calls, refer to the
+          XPLAY.C program and its listing in the Programming Examples
+          section.  Also see the descriptions of the other functions
+          which deal with timbre loading, such as AIL_timbre_status(),
+          AIL_install_timbre(), and AIL_protect/unprotect_timbre(). 
+          Information about the creation and maintenance of the local
+          timbre cache can be found in the
+          AIL_default_timbre_cache_size() and AIL_define_timbre_cache()
+          descriptions. 
+
+ Example: XPLAY.C, XP16.C, WINXMIDI.C, TPXPLAY.PAS
+şÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄş
+       C: unsigned AIL_timbre_status(HDRIVER driver, int bank, int patch)
+
+ Windows: WORD AIL_timbre_status(HDRIVER hDriver, int iBank, int 
+            iPatch)
+
+  AIL/16: WORD XMI_timbre_status(int iBank, int iPatch)
+
+  Pascal: function AIL_timbre_status(driver:HDRIVER; bank:integer; 
+            patch:integer):word
+
+ Purpose: Returns 0 if the timbre bank, patch is not present in the
+          synthesizer memory or local timbre cache associated with a
+          driver driver.
+
+ Remarks: Synthesizers with built-in (ROM) timbres, such as the Roland
+          MT-32, will always return a non-zero value for timbres in bank
+          0.  This is because the 128 possible timbres in bank 0 are
+          mapped directly to the synthesizer's built-in instrument
+          timbres, and cannot be externally installed or removed.  Bank
+          127 is unusable by the MT-32 driver for a similar reason; this
+          bank is used only on the Ad Lib and other synthesizers to map
+          rhythm key numbers to custom timbre "patches."
+
+          This function may be useful by applications which play note-
+          based sound effects with custom timbres.  It allows the
+          application to avoid the time delay involved in accessing the
+          Global Timbre Library file and uploading a timbre when the
+          timbre is already present in the local timbre cache.
+şÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄş
+       C: void AIL_install_timbre(HDRIVER driver, int bank, int patch,
+            void far *src_addr)
+
+ Windows: void AIL_install_timbre(HDRIVER hDriver, int iBank, int 
+            iPatch, void far *lpTimbreAddr)
+
+  AIL/16: void XMI_install_timbre(int iBank, int iPatch, void far
+            *lpTimbreAddr)
+
+  Pascal: procedure AIL_install_timbre(driver:HDRIVER; bank:integer;
+            patch:integer; src_addr:pointer)
+
+ Purpose: Copies the timbre data at *src_addr to the synthesizer memory
+          or local timbre cache, allowing it to be used for performance
+          in a channel of an Extended MIDI (XMIDI) sequence which
+          contains an XMIDI Patch Bank Select controller (114) with the
+          value bank followed by a MIDI Program Change (Patch) message
+          with the value patch.
+
+ Remarks: Assuming a timbre in a given bank has been uploaded through the
+          use of this function, subsequent MIDI Program Change messages
+          for the specified patch will "call up" the timbre which was
+          installed for the patch number patch and current XMIDI Patch
+          Bank Select controller (114) bank.
+
+          Synthesizers with built-in (ROM) timbres, such as the Roland
+          MT-32, will select their built-in timbre for the specified
+          patch when attempting to install an external timbre in bank 0. 
+          This is because the 128 possible timbres in bank 0 are always
+          mapped directly to the synthesizer's built-in instrument
+          timbres, and cannot be externally installed.  Bank 127 is
+          unusable by the MT-32 driver for a similar fashion; this bank
+          is used only on the Ad Lib and other synthesizers to map rhythm
+          key numbers to custom timbre "patches."  On the MT-32, custom
+          drum/rhythm setups on MIDI channel 10 must be assigned by an
+          entirely different technique; see the Technical Notes section
+          of this manual for details.
+
+          For an overview of timbre management and installation, see the
+          AIL_timbre_request() function.  More information about creating
+          Global Timbre Library files with GLIB can be found in the Tools
+          Reference section of this manual, along with an explanation of
+          the Global Timbre Library standard file format.  For a
+          "boilerplate" example of an application which installs a
+          sequence's timbres from the Global Timbre Library with
+          AIL_install_timbre() function calls, refer to the XPLAY.C
+          program and its listing in the Programming Examples section. 
+          Also see the descriptions of the other functions which deal
+          with timbre loading, such as AIL_timbre_status() and
+          AIL_protect/unprotect_timbre().  Information about the
+          creation and maintenance of the local timbre cache can be found
+          in the AIL_default_timbre_cache_size() and
+          AIL_define_timbre_cache() descriptions. 
+
+ Example: XPLAY.C, XP16.C, WINXMIDI.C, TPXPLAY.PAS
+şÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄş
+       C: void AIL_protect_timbre(HDRIVER driver, int bank, int patch)
+          void AIL_unprotect_timbre(HDRIVER driver, int bank, int patch)
+
+ Windows: void AIL_protect_timbre(HDRIVER hDriver, int iBank, int iPatch)
+          void AIL_unprotect_timbre(HDRIVER hDriver, int iBank, int 
+            iPatch)
+
+  AIL/16: void XMI_protect_timbre(int iBank, int iPatch)
+          void XMI_unprotect_timbre(int iBank, int iPatch)
+
+  Pascal: procedure AIL_protect_timbre(driver:HDRIVER; bank:integer;
+            patch:integer)
+          procedure AIL_unprotect_timbre(driver:HDRIVER; bank:integer;
+            patch:integer)
+
+ Purpose: Prevents the timbre bank, patch from being
+          discarded from the synthesizer memory or local timbre cache
+          ("protected"), or subjects the timbre to the action of the
+          normal timbre replacement algorithm ("unprotected").
+
+ Remarks: If the synthesizer memory or local timbre cache does not
+          contain sufficient space for a timbre to be installed with
+          AIL_install_timbre(), one or more least-recently-used timbres
+          (the timbres least recently used to play notes) will be
+          discarded from the cache to make room.  These functions provide
+          a means of protecting a given timbre against deletion, and of
+          removing such protection.  (Neither function will have any
+          immediate effect on the contents of the timbre cache.)
+
+          Timbres installed with AIL_install_timbre() are "unprotected"
+          by default.  Timbre protection may be useful in cases where it
+          is desirable to play little-used sound-effect or music
+          sequences at widely varying intervals during the course of an
+          application, while avoiding the delay associated with loading
+          and transmitting their custom timbres.  Excessive use of timbre
+          protection may give rise to "logjams" in the timbre cache.
+
+          If both the bank and the patch parameters are equal to -1, the
+          functions will protect or unprotect all timbres in the cache.
+
+          The action of these functions is analogous to the Extended MIDI
+          Control Change event 113 (Timbre Protect).
+şÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄş
+       C: void AIL_start_sequence(HDRIVER driver, HSEQUENCE sequence)
+
+ Windows: void AIL_start_sequence(HDRIVER hDriver, HSEQUENCE hSequence)
+
+  AIL/16: void XMI_start_sequence(HSEQUENCE hSequence)
+
+  Pascal: procedure AIL_start_sequence(driver:HDRIVER;
+            sequence:HSEQUENCE)
+
+ Purpose: Starts or restarts performance of an Extended MIDI (XMIDI)
+          sequence from its beginning.
+
+ Remarks: This function performs the following actions, in order:
+
+          * If sequence status (as reported by AIL_sequence_status())
+            is SEQ_PLAYING, perform a call to AIL_stop_sequence()
+          
+          * Initialize all FOR...NEXT loop counters to "inactive"
+
+          * Map all logical MIDI channels used in the sequence to their
+            equivalent physical channel numbers (see
+            AIL_map_sequence_channel() / AIL_true_sequence_channel())
+
+          * Set all sequence-tracked controller values to "unused"
+
+          * Initialize relative sequence volume to the driver's
+            default value (usually 100%; the Roland MT-32 driver's volume
+            value defaults to 90% to reduce distortion in loud passages)
+
+          * Initialize relative sequence tempo to 100%
+
+          * Initialize beat, measure, and internal tick counters to 0:0:0
+
+          * Initialize time signature to 4/4 and tempo to 120
+            beats/minute (these values are normally overridden
+            immediately by the actual meta-event values within the XMIDI
+            sequence)
+          
+          * Set the sequence's event pointer to the first event in the
+            sequence
+
+          * Set the sequence's status to SEQ_PLAYING
+
+          * Return to the calling application
+
+ Example: XPLAY.C, MIXDEMO.C, XP16.C, MIX16.C, WINXMIDI.C, TPXPLAY.PAS
+şÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄş
+       C: void AIL_stop_sequence(HDRIVER driver, HSEQUENCE sequence)
+
+ Windows: void AIL_stop_sequence(HDRIVER hDriver, HSEQUENCE hSequence)
+
+  AIL/16: void XMI_stop_sequence(HSEQUENCE hSequence)
+
+  Pascal: procedure AIL_stop_sequence(driver:HDRIVER; sequence:HSEQUENCE)
+
+ Purpose: Immediately stops performance of an Extended MIDI (XMIDI)
+          sequence, silencing all notes currently being played.
+
+ Remarks: This function performs the following actions, in order:
+
+          * If sequence status (as reported by AIL_sequence_status())
+            is not SEQ_PLAYING, return to the calling application
+          
+          * Flush the sequence's note queue, turning off all notes
+
+          * For each MIDI channel used by the sequence:
+
+                  * Turn off sustain pedal, if on
+                  * Release channel, if locked
+                  * Turn off channel lock protection, if active
+                  * Turn off channel voice protection, if active
+
+          * Set the sequence's status to SEQ_STOPPED
+          
+          * Return to the calling application
+şÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄş
+       C: void AIL_resume_sequence(HDRIVER driver, HSEQUENCE sequence)
+
+ Windows: void AIL_resume_sequence(HDRIVER hDriver, HSEQUENCE 
+            hSequence)
+
+  AIL/16: void XMI_resume_sequence(HSEQUENCE hSequence
+
+  Pascal: procedure AIL_resume_sequence(driver:HDRIVER;
+            sequence:HSEQUENCE)
+
+ Purpose: Resumes playback of a sequence from the point at which playback
+          was stopped by a call to AIL_stop_sequence() (q.v.).
+
+ Remarks: This function performs the following actions, in order:
+
+          * If sequence status (as reported by AIL_sequence_status())
+            is not SEQ_STOPPED, return to the calling application
+          
+          * For each MIDI channel in the sequence which was "locked" by
+            an Extended MIDI Channel Lock controller:
+
+                  * Attempt to lock a channel
+                  * If successful, map the locked (physical) channel to
+                    the sequence's (logical) channel
+
+          * For each MIDI channel used by the sequence, update the 
+            following MIDI Channel Voice and XMIDI Control Change values,
+            in order, to their values at the time the sequence was
+            stopped:
+
+                  * XMIDI Patch Bank Select (114)
+                  * MIDI Program (Patch) Change
+                  * MIDI Pitch Wheel
+
+          * For each MIDI channel used by the sequence, update the
+            following MIDI and XMIDI Control Change values, in order, to
+            their values at the time the sequence was stopped:
+
+                  * MIDI Part Volume (7)
+                  * MIDI Modulation (1)
+                  * MIDI Panpot (10)
+                  * MIDI Expression (11)
+                  * MIDI Sustain (Hold1) (64)
+                  * XMIDI Channel Lock Protect (111)
+                  * XMIDI Voice Protect (112)
+
+          * Set the sequence's status to SEQ_PLAYING
+
+          * Return to the calling application
+
+          Since all notes in a sequence are turned off when the sequence
+          is stopped, the same notes may appear to be "missing"
+          immediately after the track is restarted.  This condition is
+          unavoidable due to the nature of MIDI synthesizers, but will
+          remedy itself quickly as the sequence progresses past the point
+          of interruption.
+şÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄş
+       C: unsigned AIL_sequence_status(HDRIVER driver, HSEQUENCE
+            sequence)
+
+ Windows: WORD AIL_sequence_status(HDRIVER hDriver, HSEQUENCE 
+            hSequence)
+
+  AIL/16: WORD XMI_sequence_status(HSEQUENCE hSequence
+
+  Pascal: function AIL_sequence_status(driver:HDRIVER;
+            sequence:HSEQUENCE):word
+
+ Purpose: Allows the application to poll the status of an XMIDI sequence
+          HSEQUENCE.
+
+ Remarks: The sequence status returned by AIL_sequence_status() may take
+          on one of the following values (mnemonics defined in AIL.H):
+
+          Value  Mnemonic      Definition
+          0      SEQ_STOPPED   Sequence has been stopped with a call to 
+                               AIL_stop_sequence()
+          1      SEQ_PLAYING   Sequence is currently playing
+          2      SEQ_DONE      End-of-track event (MIDI meta-event 2FH)
+                               reached; XMIDI sequence playback done
+şÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄş
+       C: unsigned AIL_relative_volume(HDRIVER driver, HSEQUENCE
+            sequence)
+          void AIL_set_relative_volume(HDRIVER driver, HSEQUENCE
+            sequence, unsigned percent, unsigned milliseconds)
+
+ Windows: WORD AIL_relative_volume(HDRIVER hDriver, HSEQUENCE 
+            hSequence)
+          void AIL_set_relative_volume(HDRIVER hDriver, HSEQUENCE
+            hSequence, WORD wPercent, WORD wMilliseconds)
+
+  AIL/16: WORD XMI_relative_volume(HSEQUENCE hSequence)
+          void XMI_set_relative_volume(HSEQUENCE hSequence, WORD
+            wPercent, WORD wMilliseconds)
+
+  Pascal: function AIL_relative_volume(driver:HDRIVER;
+            sequence:HSEQUENCE):word
+          procedure AIL_set_relative_volume(driver:HDRIVER;
+            sequence:HSEQUENCE; percent:word; milliseconds:word)
+
+ Purpose: Returns, or allows the application to establish, the current
+          volume scaling factor for each MIDI Channel Volume Control
+          Change (controller 7) event occurring in a sequence.
+
+ Remarks: Volume values are expressed as a percentage relative to the
+          normal (unscaled) volume levels specified in a sequence's MIDI
+          Control Change events.  The relative volume for a sequence
+          will ordinarily assume a default value of 100, or 100%. 
+          However, this default value is reduced to 90, or 90%, in the
+          Roland MT-32 driver, as a means of reducing distortion which
+          otherwise plagues certain MT-32 synthesizers during loud
+          crescendos.
+
+          The milliseconds parameter allows the application to specify a
+          number of milliseconds from 0 (immediate) to 65,535 (slightly
+          more than 1 minute) over which the relative volume should ramp
+          up or down to reach the specified value.  This graduation
+          time is measured only while the sequence is actually playing;
+          if a sequence is paused during a ramp-up or ramp-down with a
+          call to AIL_stop_sequence(), the graduation effect itself will
+          continue, along with the rest of the sequence's performance,
+          upon a subsequent call to AIL_resume_sequence().
+
+          AIL_set_relative_volume() will have no effect on MIDI channels
+          for which no MIDI Channel Volume Control Change (controller 7)
+          values have been established.
+şÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄş
+       C: unsigned AIL_relative_tempo(HDRIVER driver, HSEQUENCE sequence)
+          void AIL_set_relative_tempo(HDRIVER driver, HSEQUENCE sequence,
+            unsigned percent, unsigned milliseconds)
+
+ Windows: WORD AIL_relative_tempo(HDRIVER hDriver, HSEQUENCE hSequence)
+          void AIL_set_relative_tempo(HDRIVER hDriver, HSEQUENCE 
+            hSequence, WORD wPercent, WORD wMilliseconds)
+
+  AIL/16: WORD XMI_relative_tempo(HSEQUENCE hSequence)
+          void XMI_set_relative_tempo(HSEQUENCE hSequence, WORD
+            wPercent, WORD wMilliseconds)
+
+  Pascal: function AIL_relative_tempo(driver:HDRIVER;
+            sequence:HSEQUENCE):word
+          procedure AIL_set_relative_tempo(driver:HDRIVER;
+            sequence:HSEQUENCE; percent:word; milliseconds:word)
+
+ Purpose: Returns, or allows the application to establish, the current
+          tempo scaling factor for a given sequence.
+
+ Remarks: Tempo values are expressed as a percentage relative to the
+          normal (unscaled) tempo values specified in a sequence's MIDI
+          Set Tempo (type 51H) meta-events.  The relative tempo for a
+          sequence will ordinarily assume a default value of 100, or
+          100%. 
+
+          The milliseconds parameter allows the application to specify a
+          number of milliseconds from 0 (immediate) to 65,535 (slightly
+          more than 1 minute) over which the relative tempo should ramp
+          up or down to reach the specified value.  This graduation
+          time is measured only while the sequence is actually playing;
+          if a sequence is paused during a ramp-up or ramp-down with a
+          call to AIL_stop_sequence(), the graduation effect itself will
+          continue, along with the rest of the sequence's performance,
+          upon a subsequent call to AIL_resume_sequence().
+şÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄş
+       C: int AIL_controller_value(HDRIVER driver, HSEQUENCE sequence,
+            unsigned channel, unsigned controller_num)
+          void AIL_set_controller_value(HDRIVER driver, HSEQUENCE
+            sequence, unsigned channel, unsigned controller_num,
+            unsigned value)
+
+ Windows: int AIL_controller_value(HDRIVER hDriver, HSEQUENCE hSequence,
+            WORD wChannel, WORD wControllerNum)
+          void AIL_set_controller_value(HDRIVER hDriver, HSEQUENCE
+            hSequence, WORD wChannel, WORD wControllerNum, WORD wValue)
+
+  AIL/16: int XMI_controller_value(HSEQUENCE hSequence, WORD wChannel,
+            WORD wControllerNum)
+          void XMI_set_controller_value(HSEQUENCE hSequence, WORD
+            wChannel, WORD wControllerNum, WORD wValue)
+
+  Pascal: function AIL_controller_value(driver:HDRIVER;
+            sequence:HSEQUENCE; channel:word;
+            controller_num:word):integer
+          procedure AIL_set_controller_value(driver:HDRIVER;
+            sequence:HSEQUENCE; channel:word; controller_num:word;
+            value:word)
+
+ Purpose: Returns, or allows the application to establish, the current
+          MIDI Control Change values for the channels used in a given
+          sequence.
+
+ Remarks: channel refers to a MIDI channel number from 1 to 16.  
+          The value parameter may range from 0 to 127.
+
+          When the MIDI channel of the controller to be changed is one
+          which is associated with a specific XMIDI sequence, use of
+          AIL_set_controller_value() is often preferable to calling the
+          lower-level AIL_send_channel_voice_message() function.  The
+          latter function does not update the sequence state table,
+          global controller table, or any other Extended MIDI data
+          structures.  AIL_set_controller_value(), on the other hand,
+          allows changes made to a controller's value to be recorded for
+          correct tracking with channel locking, AIL_resume_sequence(),
+          and other procedures, exactly as if the value had been changed
+          by a Control Change event appearing in the sequence at that
+          instant.
+          
+          If an Indirect Controller Prefix event has been executed in the
+          sequence without a subsequent Control Change event as its
+          target, the actual value set by AIL_set_controller_value() will
+          be taken from the sequence's Indirect Controller Array instead
+          of the function's value parameter.  If this is undesirable,
+          Indirect Controller Prefix events should always appear
+          immediately before (i.e., within the same 1/120 sec. XMIDI
+          quantization interval) the Control Change events they are
+          intended to modify.  Refer to AIL_register_sequence() for more
+          information about the Indirect Controller Array and its
+          associated Indirect Controller Prefix controller.
+
+
+          The following MIDI/XMIDI controller numbers are recognized by
+          the AIL_controller_value() function:
+          Controller                 controller_num Parameter
+          MIDI Part Volume           7
+          MIDI Modulation            1
+          MIDI Panpot                10
+          MIDI Expression            11
+          MIDI Sustain (Hold1)       64
+          XMIDI Patch Bank Select    114
+          XMIDI Channel Lock         110
+          XMIDI Channel Lock Protect 111
+          XMIDI Voice Protect        112
+          XMIDI Callback Trigger     119
+
+          The values of the following MIDI/XMIDI controllers may be set
+          by the AIL_set_controller_value() function:
+
+          Controller                 controller_num Parameter
+          MIDI Part Volume           7
+          MIDI Modulation            1
+          MIDI Panpot                10
+          MIDI Expression            11
+          MIDI Sustain (Hold1)       64
+          XMIDI Channel Lock Protect 111
+          XMIDI Voice Protect        112
+          XMIDI Timbre Protect       113
+          
+          If AIL_set_controller_value() is used to set the values of any
+          other XMIDI controllers, undesirable side-effects may occur.
+
+şÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄş
+       C: unsigned AIL_channel_notes(HDRIVER driver, HSEQUENCE sequence,
+            unsigned channel)
+
+ Windows: WORD AIL_channel_notes(HDRIVER hDriver, HSEQUENCE hSequence,
+            WORD wChannel)
+
+  AIL/16: WORD XMI_channel_notes(HSEQUENCE hSequence, WORD wChannel)
+
+  Pascal: function AIL_channel_notes(driver:HDRIVER; sequence:HSEQUENCE;
+            channel:word):word
+
+ Purpose: Returns the number of notes currently turned "on" in a given
+          MIDI channel channel by a given sequence sequence.
+
+ Remarks: This function is intended for use in special-purpose
+          applications (such as editors and test programs) where an
+          indication of channel note activity is useful.
+
+          channel may range from 1 to 16.
+şÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄş
+       C: unsigned AIL_measure_count(HDRIVER driver, HSEQUENCE sequence)
+          unsigned AIL_beat_count(HDRIVER driver, HSEQUENCE sequence)
+
+ Windows: WORD AIL_measure_count(HDRIVER hDriver, HSEQUENCE hSequence)
+          WORD AIL_beat_count(HDRIVER hDriver, HSEQUENCE hSequence)
+
+  AIL/16: WORD XMI_measure_count(HSEQUENCE hSequence)
+          WORD XMI_beat_count(HSEQUENCE hSequence)
+
+  Pascal: function AIL_measure_count(driver:HDRIVER;
+            sequence:HSEQUENCE):word
+          function AIL_beat_count(driver:HDRIVER;
+            sequence:HSEQUENCE):word
+
+ Purpose: Returns the number of beats or measures played since a given
+          XMIDI sequence sequence was started with AIL_start_sequence().
+
+ Remarks: This function is normally used to let the application know 
+          when a new beat or measure has begun, for indexing, layering,
+          or animation purposes.  (To allow an application extra time to
+          respond to the beginning of a new beat or bar, the
+          QUANT_ADVANCE equate in XMIDI.ASM or WXMIDI.ASM may be
+          increased from its normal value of 1 quantization interval.)
+
+          The beat and measure counters are constantly updated as long as
+          the XMIDI sequence is playing, and are reset to 0 during a 
+          call to AIL_start_sequence().  While the beat count is reset
+          to 0 at the beginning of each new measure, the actual measure
+          count is incremented modulo 65,536.  Generally, applications
+          should watch for and pay attention to changes in the beat or
+          measure count, rather than attempting to interpret their
+          absolute values.
+
+          Both counters are reset to 0 when an AIL-specific XMIDI
+          Control Change event of type 118 (76h) is encountered during
+          playback of the sequence.  This event may be embedded to ensure
+          the validity of the beat and measure counters at critical
+          junctures in the sequence, such as track index points.
+şÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄş
+       C: void AIL_branch_index(HDRIVER driver, HSEQUENCE sequence,
+            unsigned marker_number)
+
+ Windows: void AIL_branch_index(HDRIVER hDriver, HSEQUENCE hSequence, 
+            WORD wMarkerNumber)
+
+  AIL/16: void XMI_branch_index(HSEQUENCE hSequence, WORD wMarkerNumber)
+
+  Pascal: procedure AIL_branch_index(driver:HDRIVER; sequence:HSEQUENCE; 
+            marker_number:word)
+
+ Purpose: Moves a sequence's data pointers to the location of a specified
+          XMIDI Sequence Branch Index controller.
+
+ Remarks: An XMIDI Sequence Branch Index event is defined by an Extended
+          MIDI controller of type 120 (78h).  As the MIDIFORM program
+          (q.v.) compiles its MIDI input files into XMIDI sequence files,
+          it records the location of every Sequence Index event in a
+          special IFF "private chunk" for quick reference by the
+          AIL_branch_index() function.
+
+          Up to 128 Sequence Branch Index events, with controller
+          values from 0 to 127, may appear in each XMIDI sequence.
+          If a given Sequence Branch Index marker_number appears in
+          more than one track in the original MIDI file, the
+          MIDIFORM program will terminate with an error message.
+          
+          When a sequence's pointers are adjusted by this function, all
+          notes playing in the sequence are turned off before the branch
+          is taken.  However, any active Sustain (Hold1) controllers are
+          not released, so "stuck notes" are a possibility unless care is
+          taken to make sure all sustain controllers are released before
+          this function is called.  No controller values (volume,
+          panpot, pitch, etc.) are affected, so it is advisable to
+          follow each Sequence Branch Index event with MIDI events
+          which reset all relevant MIDI controllers to reasonable
+          values for that point in the sequence.
+
+          Normally, Sequence Branch Index events should be placed on beat
+          or measure boundaries in the MIDI sequence, and the
+          AIL_branch_index() function should be called immediately after
+          a new beat or measure begins (as reported by
+          AIL_beat_count() or AIL_measure_count()). 
+          Synchronizing branches according to beats will ensure that
+          future calls to AIL_beat_count() return meaningful values 
+          for tracks in which branches have been taken, while
+          synchronizing branches according to measures will
+          ensure that subsequent AIL_measure_count() calls remain
+          valid as well.  Another way to ensure the accuracy of beat and
+          measure count values is to embed an XMIDI Control Change event
+          with a controller type of 118 (76h); see AIL_beat_count()
+          for more information.
+şÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄş
+       C: void AIL_install_callback(HDRIVER driver, void far
+            (*callback_fn)())
+          void AIL_cancel_callback(HDRIVER driver)
+
+ Windows: void AIL_install_callback(HDRIVER hDriver, FARPROC 
+            lpCallbackFn)
+          void AIL_cancel_callback(HDRIVER hDriver)
+
+  AIL/16: void XMI_install_callback(FARPROC lpCallbackFn)
+          void XMI_cancel_callback(void)
+
+  Pascal: procedure AIL_install_callback(driver:HDRIVER;
+            callback:XMIDIProc)
+          procedure AIL_cancel_callback(driver:HDRIVER)
+
+ Purpose: Declares the address of a callback function to be invoked when
+          an XMIDI Callback Trigger Control Change event is
+          encountered in any track of a sequence, or allows the
+          application to prevent further calls to a previously registered
+          callback function.
+
+ Remarks: A Callback Trigger event is defined by an Extended MIDI (XMIDI)
+          controller of type 119 (77h).  When encountered in a playing
+          sequence, the callback function is invoked from within
+          the XMIDI driver's periodic interrupt handler.
+
+          Callback Trigger events are ignored until
+          AIL_install_callback() is used to install a callback trigger
+          handler.  Functions such as AIL_register_sequence() do not
+          invalidate an installed callback trigger handler address; only
+          the AIL_cancel_callback() or AIL_shutdown_driver() functions
+          can guarantee an end to further invocations of the installed
+          callback function.
+
+          The meta-event callback trigger representation introduced with
+          the Audio Interface Library Version 1 package is no longer
+          supported starting with Version 2.0.  
+
+          Under MS-DOS, the callback function itself may be prototyped as
+          follows:
+
+          void far cdecl foo(HSEQUENCE sequence, unsigned trigger_value)
+
+          The trigger_value parameter will receive the Callback Trigger
+          controller's value byte, while the sequence parameter will
+          equal the handle of the sequence in which the Callback Trigger
+          controller appeared.
+
+          The MS-DOS AIL_install_callback() function preserves a copy of
+          the calling program's current DS register value at the time it
+          is called.  This DS value is restored before the driver's
+          interrupt routine actually invokes the callback function. 
+          Depending on the C compiler and memory model used, it may be
+          necessary to call AIL_install_callback() from within the same
+          application source module that contains the callback function
+          itself, to ensure that global data will be accessible from
+          within the callback function.  Since the AIL API's interrupt
+          handler sets up its own stack segment (SS:SP registers), the
+          callback function will be entered with different DS and SS
+          values.  Depending on the C compiler in use, this may place
+          certain restrictions on the type of actions which may safely be
+          performed in the function.  It is imperative to disable the
+          compiler's stack-checking facility for the callback function
+          and any function which may be called from within it.
+
+          Under Windows and AIL/16, the callback function must be
+          prototyped as follows:
+
+          void far pascal foo(HSEQUENCE sequence, unsigned trigger_value)
+          
+          Windows callback functions must be listed in the EXPORTS
+          section of the module definition (.DEF) file, and the function
+          address passed to AIL_install_callback() must be obtained
+          through a call to MakeProcInstance() or an equivalent function.
+          Additionally, the callback function's code segment (and any
+          data segments which it may access) must be FIXED.  According to
+          Microsoft documentation, only the PostMessage() Windows call
+          may be safely executed from within a callback function. 
+          Microsoft further indicates that callback functions must reside
+          within DLLs, but this rule does not appear to be mandatory in
+          practice.
+
+          Callback functions, if misused, can spawn some of the most
+          frustrating and elusive bugs imaginable.  The application
+          programmer must remember that a callback function is
+          actually a subroutine called directly from an AIL driver's
+          periodic interrupt handler.  Within a callback function,
+          interrupts are -- and must remain -- disabled and
+          unacknowledged.  It is vital that the callback function
+          return control to the driver as quickly as possible.  The use
+          of even the most rudimentary C runtime library functions from
+          within a callback function is strongly discouraged, since most
+          C functions are not re-entrant.  BIOS or DOS calls are
+          prohibited.  Although all are protected from inadvertent re-
+          entry, many Audio Interface Library functions may have
+          obscure and undesirable side-effects when invoked from within a
+          callback function, and their use is not recommended unless the
+          programmer understands, and can deal with, the risks involved.
+
+          The safest course of action for a callback function is to
+          do nothing but use the data passed to it in its own arguments
+          to alter the values in global variables and quickly return.
+          The application's foreground process (or "event loop") should
+          monitor the global variables and respond to changes in their
+          values as part of its own event-handling procedure.  All global
+          variables manipulated by callback functions should be declared
+          with the volatile type modifier.  Otherwise, the compiler's
+          register optimization may prevent changes in the variable from
+          being recognized by the foreground process.
+
+          Under Turbo Pascal, the timer callback procedure should be
+          prototyped according to the following example:
+
+          procedure foo(trigger_value:word; sequence:HSEQUENCE); far;
+
+          Note the transposition of the trigger_value and sequence formal
+          parameters as compared to the C and Windows versions above. 
+          Although the MS-DOS XMIDI drivers can handle callbacks to
+          either Pascal- or C-style functions, the actual parameters are
+          always placed in the stack frame according to the AIL's native
+          C calling convention.  Only the Windows and AIL/16 DLL drivers
+          use the Pascal calling convention when invoking callback
+          functions.
+şÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄş
+       C: unsigned AIL_lock_channel(HDRIVER driver)
+
+ Windows: WORD AIL_lock_channel(HDRIVER hDriver)
+
+  AIL/16: WORD XMI_lock_channel(void)
+
+  Pascal: function AIL_lock_channel(driver:HDRIVER):word
+
+ Purpose: Returns an individual MIDI channel number to the application
+          for direct MIDI message control, preventing the sound
+          driver from utilizing that channel until its release with
+          AIL_release_channel().
+
+ Remarks: This function is useful for "one-shot" sound effects which
+          require a MIDI channel to be temporarily set aside from the
+          normal background playback process.  When accessed from 
+          within an XMIDI sequence by use of the XMIDI Channel Lock
+          controller (110), channel locking is invaluable in overlaying
+          sound effect sequences over a "background" score.  See the
+          Extended MIDI Specification section of this manual for an
+          overview of channel locking, remapping, and multiple-sequence
+          playback.
+
+          AIL_lock_channel() attempts to return the highest MIDI channel
+          number recognized by the driver's supported synthesizer which
+          has the fewest actively playing notes.  Channels which are
+          already locked, or which have been "protected" against locking
+          by use of the XMIDI Channel Lock Protect controller (111),
+          will not be returned.  If no available MIDI channels are
+          eligible for locking under these criteria, the function returns
+          a value of 0.  Otherwise, the returned channel number may range
+          from 1 to 16, but will be restricted to the range 2 through
+          9 for currently supported synthesizers.
+
+          Before the channel number is returned to the application, the
+          MIDI Sustain (Hold1) controller (64) in the channel is forced
+          to its "off" condition, and all notes playing in the channel
+          are silenced.  No other controller values or MIDI messages are
+          initialized!  It is essential for an application (or a
+          sequence) which has just received a locked channel from this
+          function to initialize all MIDI parameters, including MIDI
+          controllers, the XMIDI Patch Bank Select controller and MIDI
+          Program Change number, and the MIDI pitch wheel, to appropriate
+          values.
+
+          The application should use AIL_send_channel_voice_message() to
+          send MIDI and XMIDI Channel Voice messages on the locked
+          channel.  No other API function will communicate directly with
+          a locked channel.  The locked channel should be returned to the
+          driver with AIL_release_channel() (q.v.) as soon as it is no
+          longer needed by the application.
+
+          For a typical implementation of MIDI-based sound effects, refer
+          to the SOUNDFX.C listing in the Programming Examples section of
+          this manual.
+
+ Example: SOUNDFX.C
+şÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄş
+       C: void AIL_release_channel(HDRIVER driver, unsigned channel)
+
+ Windows: void AIL_release_channel(HDRIVER hDriver, WORD wChannel)
+
+  AIL/16: WORD XMI_release_channel(WORD wChannel)
+
+  Pascal: procedure AIL_release_channel(driver:HDRIVER; channel:word)
+
+ Purpose: Returns a MIDI channel previously locked with
+          AIL_lock_channel() to the driver.
+
+ Remarks: Although messages are no longer sent to a MIDI channel after
+          it is locked by the application, the driver still tracks
+          MIDI and XMIDI controller values for that channel as they are
+          altered by events (or calls to AIL_set_controller_value()) in
+          the sequence being performed.  When a channel is returned to
+          the driver by AIL_release_channel() (or an XMIDI Channel Lock
+          controller with a value below 64), the function automatically
+          updates the channel with its current MIDI and XMIDI controller
+          values, pitch wheel, and Program Change (Patch) values,
+          overriding any controller values set and silencing any notes
+          turned on by the application while the channel was locked.
+
+ Example: SOUNDFX.C
+şÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄş
+       C: void AIL_map_sequence_channel(HDRIVER driver, HSEQUENCE
+            sequence, unsigned sequence_channel, unsigned
+            physical_channel)
+
+ Windows: void AIL_map_sequence_channel(HDRIVER hDriver, 
+            HSEQUENCE hSequence, WORD wSequenceChannel, WORD
+            wPhysicalChannel)
+
+  AIL/16: void XMI_map_sequence_channel(HSEQUENCE hSequence, WORD
+            wSequenceChannel, WORD wPhysicalChannel)
+
+  Pascal: procedure AIL_map_sequence_channel(driver:HDRIVER;
+            sequence:HSEQUENCE; sequence_channel:word;
+            physical_channel:word)
+
+ Purpose: Causes all events in a given sequence sequence which are
+          associated with a given MIDI channel sequence_channel to be
+          transmitted instead on a "remapped" MIDI channel
+          physical_channel.
+
+ Remarks: Typically, this function is useful in cases where a sound-
+          effects sequence or "jingle" must be played, but the
+          application wishes to assert control over the values of various
+          XMIDI and MIDI Channel Voice parameters before the sequence
+          begins and/or during its course.  In such a case, the
+          application may wish to perform its own channel locking for the
+          sequence through the AIL_lock_channel() function, followed by
+          one or more calls to this function to assign the locked, or
+          physical, channels to the logical sequence_channels used by the
+          XMIDI sequence.
+
+          This function should not be used to remap "physical" MIDI
+          channels (typically 2 through 9) to other "physical" MIDI
+          channels, as this may cause undesirable internal conflicts. 
+          Only channels 11-16, which are not normally interpreted
+          directly by AIL synthesizer drivers, should be remapped to
+          physical channels.
+
+          Normally, XMIDI Channel Lock (110) controller events are
+          embedded at the beginning of each sound-effect sequence
+          to automatically handle the necessary channel locking and
+          remapping necessary to overlay the sequence.  Most applications
+          will not require the high degree of direct control over a
+          sequence's channel assignments that is provided by this
+          function.  A less flexible but somewhat simpler way of
+          implementing dynamic Control Change events involves the use of
+          the XMIDI Indirect Controller Prefix controller.  Refer to the
+          AIL_register_sequence() function description, as well as the
+          Extended MIDI (XMIDI) Specification section of this manual, to
+          learn about the use of this feature.
+şÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄş
+       C: unsigned AIL_true_sequence_channel(HDRIVER driver, HSEQUENCE
+            sequence, unsigned sequence_channel)
+
+ Windows: WORD AIL_true_sequence_channel(HDRIVER hDriver, 
+            HSEQUENCE hSequence, WORD wSequenceChannel)
+
+  AIL/16: WORD XMI_true_sequence_channel(HSEQUENCE hSequence, WORD
+            wSequenceChannel)
+
+  Pascal: function AIL_true_sequence_channel(driver:HDRIVER;
+            sequence:HSEQUENCE; sequence_channel:word):word
+
+ Purpose: Returns the physical MIDI channel number which receives MIDI  
+          and XMIDI messages sent to a logical channel number
+          sequence_channel by a given sequence sequence.
+
+ Remarks: This function allows the application to obtain the actual MIDI
+          channel number to which a locked sequence channel (typically a
+          MIDI channel from 11-16) has been mapped, either through a call
+          to AIL_map_sequence_channel() or by execution of an XMIDI
+          Channel Lock (110) controller event.  The application may use
+          the returned MIDI channel number to send MIDI Channel Voice
+          messages to the sequence's physical, or true, channel via the
+          AIL_send_channel_voice_message() function.
+şÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄş
+       C: void AIL_send_channel_voice_message(HDRIVER driver, 
+            unsigned status, unsigned data_1, unsigned data_2)
+
+ Windows: void AIL_send_channel_voice_message(HDRIVER hDriver, WORD 
+            wStatus, WORD wData1, WORD wData2)
+
+  AIL/16: void XMI_send_channel_voice_message(WORD wStatus, WORD wData1,
+            WORD wData2)
+
+  Pascal: procedure AIL_send_channel_voice_message(driver:HDRIVER;
+            status:word; data_1:word; data_2:word)
+
+ Purpose: Transmits any desired MIDI Channel Voice message on any 
+          supported MIDI channel.
+
+ Remarks: This function is normally used to output "one-shot" sound
+          effects on locked MIDI channels.  See AIL_lock_channel() for
+          details.
+
+          Most other API MIDI functions are track-oriented, in an attempt
+          to insulate the application from the concept of MIDI channels.
+          Since the range of channel numbers recognized by different
+          synthesizers can vary widely, this function should be used only
+          with channel numbers supplied by the AIL_lock_channel() 
+          function.
+          
+          For a discussion of standard MIDI Channel Voice messages and
+          their exact format, refer to De Furia and Scacciaferro's MIDI
+          Programmer's Handbook, pp. 59-81.  Also refer to the MIDI
+          Implementation Charts which accompany each supported 
+          synthesizer driver's entry in the Technical Notes section of 
+          this manual.
+
+          It is important to note that the lower nibble of the status
+          byte consists of the MIDI channel number minus 1.  This allows
+          the range of MIDI channels from 1 to 16 to be mapped into a
+          single four-bit binary nibble, but may be a source of confusion
+          since all other Audio Interface Library API calls express
+          channel numbers according to conventional 1-based MIDI
+          notation.  Unfortunately, "musician-perspective" versus
+          "programmer-perspective" numbering conflicts are everyday
+          occurrences in the field of MIDI programming.
+
+          data_2 should be set to 0 when transmitting Channel Voice
+          messages which have no second data byte (such as Program Change
+          and Channel Pressure messages).
+
+ Example: SOUNDFX.C
+şÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄş
+       C: void AIL_send_sysex_message(HDRIVER driver, unsigned addr_a,
+            unsigned addr_b, unsigned addr_c, void far *data, unsigned
+            size, unsigned delay)
+
+ Windows: void AIL_send_sysex_message(HDRIVER hDriver, WORD wAddrMSB, 
+            WORD wAddrKSB, WORD wAddrLSB, void far *lpSysexData, WORD
+            wSize, WORD wDelay)
+
+  AIL/16: void XMI_send_sysex_message(WORD wAddrMSB, WORD wAddrKSB, WORD
+            wAddrLSB, void far *lpSysexData, WORD wSize, WORD wDelay)
+
+  Pascal: procedure AIL_send_sysex_message(driver:HDRIVER; addr_a:word; 
+            addr_b:word; addr_c:word; data:pointer; size:word; 
+            delay:word)
+
+ Purpose: Transmits any desired MIDI System Exclusive message to the
+          driver's supported synthesizer.  addr_a, addr_b, and addr_c
+          specify the packet's 7-bit destination address (MSB to LSB,
+          respectively), while *data points to an array of size bytes in
+          the host memory to be transmitted to that address.
+
+ Remarks: System Exclusive message addresses, formats, and functions vary
+          according to the synthesizer in use.  System Exclusive messages
+          sent to incompatible synthesizers will generally be ignored.
+
+          The delay parameter specifies the number of screen refreshes to
+          wait after transmission of the System Exclusive message, before
+          returning to the application.  Synthesizers such as the Roland
+          MT-32 require a non-zero delay value in many cases to avoid
+          internal buffer overflows.  This parameter must be set to zero
+          in cases where the application's video subsystem is not
+          compatible with the IBM CGA, EGA, VGA, MCGA, or XGA display
+          adapter.
+
+          For example, the following C function will activate a rather
+          tomblike reverberation effect on the Roland MT-32 family:
+
+          #include "ail.h"
+
+          void activate_reverb(HDRIVER handle)
+          {
+            unsigned char reverb[] = {1,7,7};
+          
+            AIL_send_sysex_message(handle,0x10,0x00,0x01,reverb,
+               sizeof(reverb),3);
+          }
+şÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄş
+       C: void AIL_write_display(HDRIVER driver, char far *string)
+
+ Windows: void AIL_write_display(HDRIVER hDriver, char far *lpString)
+
+  AIL/16: void XMI_write_display(char far *lpString)
+
+  Pascal: procedure AIL_write_display(driver:HDRIVER;
+            display_string:pointer)
+
+ Purpose: Writes a null-terminated ASCII string to the synthesizer's
+          front-panel display, if possible.
+
+ Remarks: Not all synthesizers have front-panel displays.  To format
+          the string attractively, the application may check the
+          display_size member of the drvr_desc structure returned by
+          AIL_describe_driver().  If display_size is zero, no
+          front-panel display is available, and any calls to this
+          function will be ignored.
+
+          The string is padded with blanks (ASCII 32) if it is too short
+          to completely overwrite the synthesizer's front-panel display.
+          
+          Synthesizers such as the Roland MT-32 do not always allow
+          external messages to appear on their front-panel displays,
+          depending on the nature of the current MIDI message activity. 
+          Therefore, some experimentation with this function may be
+          necessary.
+
+          The Turbo Pascal implementation of AIL_write_display()
+          receives a null-terminated ASCII string, which must be manually
+          constructed from the Turbo Pascal length-prefixed string data
+          type.
+III.  Digital Performance Services
+
+şÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄş
+       C: unsigned AIL_index_VOC_block(HDRIVER driver, void far
+            *VOC_file, unsigned block_marker, sound_buff far *buff)
+
+ Windows: WORD AIL_index_VOC_block(HDRIVER hDriver, DWORD    
+            GlobalDOSVOCFile, WORD wBlockMarker, sound_buff far *lpBuff)
+
+  AIL/16: WORD PCM_index_VOC_block(DWORD GlobalDOSVOCFile, WORD
+            wBlockMarker, sound_buff far *lpBuff)
+
+  Pascal: function AIL_index_VOC_block(driver:HDRIVER; VOC_file:pointer;
+            block_marker:integer; sound_buff:pointer):word
+
+ Purpose: Creates a structure containing information about the Voice Data
+          block which follows a given Marker block of type
+          block_marker in a Creative Voice File (.VOC) image.
+
+ Remarks: This function may be used in conjunction with the
+          AIL_register_sound_buffer() and AIL_start_digital_playback() 
+          functions to index and play various sampled sound effects
+          in a Creative Voice File.  The Sound Blaster VEDIT utility
+          allows the placement of Marker blocks in the voice file,
+          which serve as a convenient means of storing and accessing many
+          small sound effects in a single file.
+
+          The sound_buff structure, defined in AIL.H, AIL16.H, and
+          WAIL.H, fully describes a block of raw digitized sound data. 
+          For more information about the sound_buff data type, refer to
+          the AIL_register_sound_buffer() function description below.
+
+          If block_marker is equal to -1, the function will index the
+          first Voice Data block in the file image.  If the specified
+          block marker cannot be found in the file image, the function
+          will return 0 without altering the contents of sound_buff;
+          otherwise, a nonzero value will be returned.
+
+          Under protected-mode Windows, .VOC files must be loaded into
+          "real-mode" memory allocated through the GlobalDosAlloc()
+          function.  Because this memory is a very scarce Windows
+          resource, dual-buffer sound output is preferable to the direct
+          loading of entire .VOC files (especially large ones).  
+
+          To learn how to allocate real-mode memory for .VOC files and
+          other PCM sample data under a generic DPMI host such as the
+          Ergo DPM-16 DOS extender, see the example programs STP16.C and
+          VP16.C.
+
+          Because Turbo Pascal limits the size of an individual heap
+          object to 64K bytes, only small .VOC files can be handled
+          by the TPVPLAY.PAS example program.  Although the AIL itself
+          imposes no such limitation, dual-buffer sound output may often
+          be preferable to the direct playback of .VOC files under Turbo
+          Pascal.
+
+          Refer to the Sound Blaster Developer Kit manual for information
+          about the Creative Voice File format.
+
+ Example: DIGIPLAY.C, WINSAMP.C, VP16.C, STP16.C
+şÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄş
+       C: void AIL_register_sound_buffer(HDRIVER driver, unsigned
+            buffer_num, sound_buff far *buff)
+          void AIL_format_sound_buffer(HDRIVER driver, sound_buff far 
+            *buff)
+
+ Windows: void AIL_register_sound_buffer(HDRIVER hDriver, WORD       
+            wBufferNum, sound_buff far *lpBuff)
+          void AIL_format_sound_buffer(HDRIVER hDriver, sound_buff far
+            *lpBuff)
+
+  AIL/16: void PCM_register_sound_buffer(WORD wBufferNum, sound_buff far
+            *lpBuff)
+          void PCM_format_sound_buffer(sound_buff far *lpBuff)
+
+  Pascal: procedure AIL_register_sound_buffer(driver:HDRIVER;
+            buffer_num:word; sound_buff:pointer)
+          procedure AIL_format_sound_buffer(driver:HDRIVER;
+            sound_buff:pointer)
+
+ Purpose: Specifies a block of data described by sound_buff far *buff to
+          be treated as one of two sound buffers, whose contents are
+          played consecutively to allow the application time to maintain
+          uninterrupted DMA-driven output of an arbitrarily large sound
+          sample. 
+
+ Remarks: The sound_buff structure fully describes a block of raw 
+          digitized sound data.  AIL.H defines sound_buff as follows:
+
+          typedef struct
+            {
+            unsigned pack_type;
+            unsigned sample_rate;
+            void far *data;
+            unsigned long len;
+            }
+          sound_buff;
+
+          In both the DOS and Windows environments, pack_type and
+          sample_rate correspond to the Sound Blaster DAC programming
+          parameters necessary to reproduce the sound.  (Certain sound
+          adapters may not be able to play blocks encoded with certain  
+          pack_type and sample_rate values.  Refer to the Technical Notes
+          supplied with each adapter's driver.)  
+
+          *data and len indicate the location and size, respectively, of
+          the actual voice data to be played or preformatted.  These
+          parameters are limited only by available memory. 
+
+          The function AIL_format_sound_buffer() allows an application to
+          "preformat" the voice data in a sound buffer for compatibility
+          with the Ad Lib Gold and DIGPAK drivers.  (See the Technical
+          Notes section for more information about these drivers.)  To
+          ensure compatibility with these (and future) devices which do
+          not conform to the Sound Blaster unsigned PCM data standard, a
+          call to AIL_format_sound_buffer() should appear immediately
+          before each call to AIL_register_sound_buffer().  Unlike most
+          other AIL functions, AIL_format_sound_buffer() actually alters
+          the digital sound data in memory.  Applying
+          AIL_format_sound_buffer() more than once to a given sound
+          buffer's data may result in strange sounds when the buffer is
+          played.
+
+          AIL_format_sound_buffer() preformats 8-bit PCM data buffers
+          only.
+
+          For compatibility, drivers for devices which accept Sound
+          Blaster-style unsigned PCM data will ignore any calls to
+          AIL_format_sound_buffer().
+
+          No sound output will begin until playback is started with a
+          call to AIL_start_digital_playback().  Playback will begin with
+          the first registered buffer (normally buffer_num 0), moving
+          automatically to the other registered, unplayed buffer when the
+          end of a buffer is reached.  If both buffers are allowed to
+          play to completion without being "refreshed" by this function,
+          another call to AIL_start_digital_playback() will be necessary
+          to restart sound output when the next buffer is registered.
+
+          The buffer_num value should equal 0 or 1, depending on
+          which of the two buffer "slots" are available (i.e., either
+          unassigned, or finished playing) at the time the function is
+          called.  Refer to AIL_sound_buffer_status() for more
+          information on dual-buffer sound output management.
+
+          The Windows header file WAIL.H and AIL/16 header file AIL16.H
+          define sound_buff as:
+          
+          typedef struct
+            {
+            WORD pack_type;
+            WORD sample_rate;
+            void far *sel_data;
+            void far *seg_data;
+            DWORD len;
+            }     
+          sound_buff;
+
+          This structure is similar to its DOS counterpart except for
+          the sel_data and seg_data pointer members.  These far pointers
+          are derived from the return value of the Windows
+          GlobalDosAlloc() function, or from DPMI function 0100H in an
+          AIL/16 application.  Only memory allocated by these functions
+          may be used for DMA-based sound output in protected mode.
+          This is because the driver must program the DMA controller with
+          the segment address of a data block in linear memory, rather
+          than its conventional protected-mode selector address.  The
+          following SDK C code fragment illustrates a practical way to
+          derive the sel_data and seg_data value for a sound_buff
+          structure:
+           {
+           DWORD GlobalDOSBuff;
+           sound_buff sndbuf;
+           ...
+           GlobalDOSBuff = GlobalDosAlloc(16384L);
+           sndbuff.sel_data = (void far *) (GlobalDOSBuff << 16);
+           sndbuff.seg_data = (void far *) (GlobalDOSBuff & 0xffff0000L);
+           ...
+           }
+
+          To learn how to allocate real-mode memory for .VOC files and
+          other PCM sample data under a generic DPMI host such as the
+          Ergo DPM-16 DOS extender, see the example programs STP16.C and
+          VP16.C.
+          
+ Example: STPLAY.C, DIGIPLAY.C, WINSAMP.C, STP16.C
+şÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄş
+       C: unsigned AIL_sound_buffer_status(HDRIVER driver, unsigned
+            buffer_num)
+
+ Windows: WORD AIL_sound_buffer_status(HDRIVER hDriver, WORD      
+            wBufferNum)
+
+  AIL/16: WORD PCM_sound_buffer_status(WORD wBufferNum)
+
+  Pascal: function AIL_sound_buffer_status(driver:HDRIVER;
+            buffer_num:word):word
+
+ Purpose: Returns the status of one of two sound buffers previously
+          assigned with the AIL_register_sound_buffer() function.
+
+ Remarks: AIL_sound_buffer_status() accepts a buffer_num parameter
+          which should equal 0 or 1, depending on which of the two
+          sound buffers the application wishes to monitor.  The function
+          returns a status word which may equal one of the following four
+          values (defined in AIL.H):
+
+          Value  Mnemonic      Definition 
+          0      DAC_STOPPED   Buffer was assigned, but playback has not
+                               yet started
+          1      DAC_PAUSED    Buffer is playing, but has been paused
+                               with AIL_pause_digital_playback() 
+          2      DAC_PLAYING   Buffer is currently being played
+          3      DAC_DONE      Buffer has finished playing (or has never
+                               been registered) and is ready for
+                               re-assignment, or playback has been
+                               stopped with AIL_stop_digital_playback()
+
+          After placing a sound buffer in the "queue" with
+          AIL_register_sound_buffer(), the application should call
+          this function frequently to avoid undesired interruption of
+          digital sound output.  As soon as either buffer returns a
+          DAC_DONE status value, another call to 
+          AIL_register_sound_buffer() should be made with
+          the address, length, and sampling characteristics of the
+          next raw data block to be played.  This technique is clearly
+          illustrated in the DIGIPLAY.C program, listed in the
+          Programming Examples section.
+
+          Refer to AIL_register_sound_buffer() for more information on 
+          dual-buffer sound output management.
+
+ Example: STPLAY.C, DIGIPLAY.C, WINSAMP.C, STP16.C
+şÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄş
+       C: void AIL_play_VOC_file(HDRIVER driver, void far *VOC_file,
+            int block_marker)
+          void AIL_format_VOC_file(HDRIVER driver, void far *VOC_file, 
+            int block_marker)
+
+ Windows: void AIL_play_VOC_file(HDRIVER hDriver, DWORD   
+            GlobalDOSVOCFile, int wBlockMarker)
+          void AIL_format_VOC_file(HDRIVER hDriver, DWORD   
+            GlobalDOSVOCFile, int wBlockMarker)
+
+  AIL/16: void PCM_play_VOC_file(DWORD GlobalDOSVOCFile, int
+            wBlockMarker)
+          void PCM_format_VOC_file(DWORD GlobalDOSVOCFile, int
+            wBlockMarker)
+
+  Pascal: procedure AIL_play_VOC_file(driver:HDRIVER; VOC_file:pointer;
+            block_marker:integer)
+          procedure AIL_format_VOC_file(driver:HDRIVER; VOC_file:pointer;
+            block_marker:integer)
+
+ Purpose: Searches a memory-resident Creative Voice File (.VOC) image for
+          a specified marker block of type block_marker, and prepares
+          to play all subsequent blocks in the file until the next marker
+          block is encountered or the file ends.
+
+ Remarks: If block_marker is equal to -1, playback will begin at the
+          first block in the file and continue until the file ends or a
+          marker block is encountered.  If the first block in the file is
+          a marker block, the function call will have no effect.  (This
+          behavior is different from that exhibited by
+          AIL_index_VOC_block() under similar conditions.)
+
+          The function AIL_format_VOC_file() allows an application to
+          "preformat" the voice data blocks in a .VOC file for
+          compatibility with the Ad Lib Gold and DIGPAK drivers.  (See
+          the Technical Notes section for more information about these
+          drivers.)  To ensure compatibility with these (and future)
+          devices which do not conform to the Sound Blaster unsigned PCM
+          data standard, a call to AIL_format_VOC_file() should appear
+          immediately before the first call to AIL_play_VOC_file(). 
+          Unlike most other AIL functions, AIL_format_VOC_file() actually
+          alters the digital sound data in memory.  Applying
+          AIL_format_VOC_file() more than once to a given data file image
+          may result in strange sounds when the data file is played.
+
+          AIL_format_VOC_file() preformats 8-bit PCM data blocks only.
+
+          For compatibility, drivers for devices which accept Sound
+          Blaster-style unsigned PCM data will ignore any calls to
+          AIL_format_VOC_file().
+
+          All block types listed in the Creative Labs Sound Blaster
+          Developer Kit are interpreted by this function, including
+          repeat loops and "silence packing."  However, some drivers
+          may not support every block type, and will ignore any
+          unrecognized blocks.  Refer to the Sound Blaster Developer Kit
+          manual for information on the various block types, and to the
+          Technical Notes section of this manual for any restrictions on
+          block types supported by each driver.
+
+          These functions are intended to serve as a "shortcut" to be
+          used when the more sophisticated dual-buffer playback features
+          provided by AIL_register_sound_buffer() are not required.  They
+          are ideal for playing sounds from a collection of brief sound
+          effects stored in a single .VOC file.  AIL_play_VOC_file()
+          cancels any dual-buffer output in progress; the status of
+          both buffers will be set to DAC_DONE if this function is
+          called.  AIL_format_VOC_file() should not be called while
+          .VOC file playback is in progress.
+
+          No sound output will begin until playback is started with a
+          call to AIL_start_digital_playback().
+
+          Under protected-mode Windows, .VOC files must be loaded into
+          "real-mode" memory allocated through the GlobalDosAlloc()
+          function.  Because this memory is a very scarce Windows
+          resource, dual-buffer sound output is preferable to the direct
+          playback of entire .VOC files (especially large ones).
+
+          To learn how to allocate real-mode memory for .VOC files and
+          other PCM sample data under a generic DPMI host such as the
+          Ergo DPM-16 DOS extender, see the example programs STP16.C and
+          VP16.C.
+
+          Because Turbo Pascal limits the size of an individual heap
+          object to 64K bytes, only small .VOC files can be handled
+          by the TPVPLAY.PAS example program.  Although the AIL itself
+          imposes no such limitation, dual-buffer sound output may often
+          be preferable to the direct playback of .VOC files under Turbo
+          Pascal.
+
+ Example: VOCPLAY.C, TPVPLAY.PAS, VP16.C
+şÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄş
+       C: unsigned AIL_VOC_playback_status(HDRIVER driver)
+
+ Windows: WORD AIL_VOC_playback_status(HDRIVER hDriver)
+
+  AIL/16: WORD PCM_VOC_playback_status(void)
+
+  Pascal: function AIL_VOC_playback_status(driver:HDRIVER):word
+
+ Purpose: Returns the playback status of the Creative Voice File being
+          played by the AIL_play_VOC_file() function (above).  
+
+ Remarks: AIL_VOC_playback_status() returns a status word which may
+          equal one of the following four values (defined in AIL.H):
+
+          Value  Mnemonic      Definition 
+          0      DAC_STOPPED   Playback has been requested, but has not
+                               yet started or has been stopped with 
+                               AIL_stop_digital_playback()
+          1      DAC_PAUSED    File is playing, but has been paused
+                               with AIL_pause_digital_playback() 
+          2      DAC_PLAYING   File is currently being played
+          3      DAC_DONE      File has finished playing (or playback
+                               has never been requested)
+
+          If dual-buffer playback is occurring, the value returned by
+          AIL_VOC_playback_status() is meaningless.
+
+ Example: TPVPLAY.PAS
+
+şÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄş
+       C: void AIL_start_digital_playback(HDRIVER driver)
+
+ Windows: void AIL_start_digital_playback(HDRIVER hDriver)
+
+  AIL/16: void PCM_start_digital_playback(void)
+
+  Pascal: procedure AIL_start_digital_playback(driver:HDRIVER)
+
+ Purpose: Initiates sound output after playback of a Creative Voice File
+          has been requested with AIL_play_VOC_file(), or one or more
+          buffers have been registered for playback with
+          AIL_register_sound_buffer().  
+
+ Remarks: This function must be called before any sound output can begin.
+          Refer to the preceding function descriptions to learn about the
+          two basic methods of digital playback available.
+
+ Example: VOCPLAY.C, STPLAY.C, DIGIPLAY.C, WINSAMP.C, TPVPLAY.PAS,
+          VP16.C, STP16.C
+şÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄş
+       C: void AIL_stop_digital_playback(HDRIVER driver)
+
+ Windows: void AIL_stop_digital_playback(HDRIVER hDriver)
+
+  AIL/16: void PCM_stop_digital_playback(void)
+
+  Pascal: procedure AIL_stop_digital_playback(driver:HDRIVER)
+
+ Purpose: Silences sound output and resets the status of any registered
+          sound buffers to DAC_DONE.  
+
+ Remarks: Refer to the preceding function descriptions to learn about the
+          two basic methods of digital playback available.
+
+          After this function is called, there is no way to resume sound
+          output from the point of interruption.
+
+şÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄş
+       C: void AIL_pause_digital_playback(HDRIVER driver)
+          void AIL_resume_digital_playback(HDRIVER driver)
+
+ Windows: void AIL_pause_digital_playback(HDRIVER hDriver)
+          void AIL_resume_digital_playback(HDRIVER hDriver)
+
+  AIL/16: void PCM_pause_digital_playback(void)
+          void PCM_resume_digital_playback(void)
+
+  Pascal: procedure AIL_pause_digital_playback(driver:HDRIVER)
+          procedure AIL_resume_digital_playback(driver:HDRIVER)
+
+ Purpose: Pauses or resumes digital sound playback initiated with
+          AIL_start_digital_playback().
+
+ Remarks: Refer to the preceding function descriptions to learn about the
+          two basic methods of digital playback available.
+
+ Example: STPLAY.C, STP16.C, WINSAMP.C
+şÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄş
+       C: unsigned AIL_digital_playback_volume(HDRIVER driver)
+          void AIL_set_digital_playback_volume(HDRIVER driver, unsigned
+            volume)
+
+ Windows: WORD AIL_digital_playback_volume(HDRIVER hDriver)
+          void AIL_set_digital_playback_volume(HDRIVER
+            hDriver, WORD wVolume)
+
+  AIL/16: WORD PCM_digital_playback_volume(void)
+          void PCM_set_digital_playback_volume(WORD wVolume)
+
+  Pascal: function AIL_digital_playback_volume(driver:HDRIVER):word
+          procedure AIL_set_digital_playback_volume(driver:HDRIVER;
+            volume:word)
+
+ Purpose: Allows the application to read or establish the volume level of
+          digital sound playback.
+
+ Remarks: The volume value is given in standard MIDI units, where 0 is
+          the minimum and 127 is the maximum possible setting.
+
+          Some synthesizers may not accept the full range of digitized
+          sound volume values.  For details, refer to the Technical
+          Notes supplied with each synthesizer's driver.
+
+Example: STPLAY.C, STP16.C, WINSAMP.C
+
+şÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄş
+       C: unsigned AIL_digital_playback_panpot(HDRIVER driver)
+          void AIL_set_digital_playback_panpot(HDRIVER driver, unsigned
+            panpot)
+
+ Windows: WORD AIL_digital_playback_panpot(HDRIVER hDriver)
+          void AIL_set_digital_playback_panpot(HDRIVER
+            hDriver, WORD wPanpot)
+
+  AIL/16: WORD PCM_digital_playback_panpot(void)
+          void PCM_set_digital_playback_panpot(WORD wPanpot)
+
+  Pascal: function AIL_digital_playback_panpot(driver:HDRIVER):word
+          procedure AIL_set_digital_playback_panpot(driver:HDRIVER;
+            panpot:word)
+
+ Purpose: Allows the application to read or establish the relative
+          position of a synthesizer's digital sound playback source in
+          the L-R stereo field.
+
+ Remarks: The panpot value is given in standard MIDI-compatible units,
+          where a controller value of 0 corresponds to hard right, 64
+          corresponds to center, and 127 corresponds to hard left.
+
+          Some synthesizers may not be capable of stereo sound imagery. 
+          Others, such as the Ad Lib Gold adapter, may be capable of
+          panning only during playback of stereo samples.  For details,
+          refer to the Technical Notes supplied with each synthesizer's
+          driver.
+
+Example: STPLAY.C, STP16.C, WINSAMP.CIV.  Process Services
+
+şÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄş
+       C: void AIL_startup(void)
+
+ Windows: void AIL_startup(void)
+
+  AIL/16: void AIL_startup(void)
+
+  Pascal: procedure AIL_startup
+
+ Purpose: Initializes the Audio Interface Library's Application Program
+          Interface (API) and prepares for the installation and use of 
+          sound drivers.
+
+ Remarks: Under Windows and real-mode DOS, this function must be called
+          before any other API functions are used, and should not be
+          called again without an intervening call to AIL_shutdown().
+
+          Under AIL/16, the API module contains only the Process
+          Services, and is not needed to communicate with the actual
+          sound drivers.  AIL/16 applications which do not need timer 
+          or XMIDI services do not need to call AIL_startup() or
+          AIL_shutdown(), or even link with AIL16.OBJ at all.  (See
+          XMI_serve_driver() for more information.)
+
+ Example: XPLAY.C, VOCPLAY.C, XP16.C, etc.
+şÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄş
+       C: void AIL_shutdown(char *signoff_msg)
+
+ Windows: void AIL_shutdown(char far *lpSignOff)
+
+  AIL/16: void AIL_shutdown(char far *lpSignOff)
+
+  Pascal: procedure AIL_shutdown(signoff_msg:pointer)
+
+ Purpose: Shuts down all active sound drivers (Windows/real-mode DOS
+          only) and restores normal system timer operation, disconnecting
+          the API timer interrupt handler.  Under Windows and real-mode
+          DOS, a *signoff_msg string, if not NULL, is written to the
+          front-panel display of any suitably equipped MIDI synthesizers.
+
+ Remarks: Under Windows and real-mode DOS, AIL_shutdown() performs an
+          AIL_shutdown_driver() call for all installed drivers.  The API
+          automatically disconnects its timer interrupt handler when the
+          last timer is shut down; under real- or protected-mode DOS,
+          this function must be called only if the application does not
+          wish to perform the required AIL_shutdown_driver() and/or
+          AIL_release_timer_handle() calls on its own.
+
+          Under Windows, AIL_shutdown() must be called before the
+          application terminates.
+
+          No further API function calls should be made after an
+          AIL_shutdown(), unless the application reinitializes the 
+          API with a subsequent call to AIL_startup().  Ordinarily,
+          AIL_shutdown() should be called only when the application
+          is ready to terminate.  
+
+          Under AIL/16, the AILPCM.DLL and AILXMI.DLL drivers must be
+          shut down manually.  If a timer has been registered to provide
+          service to AILXMI.DLL's XMI_serve_driver() function, the timer
+          must be stopped before XMI_shutdown_driver() is called.  This
+          may be accomplished by calling AIL_shutdown() before
+          XMI_shutdown_driver().  This is the only circumstance in which
+          any Audio Interface Library calls are permissible after an
+          AIL_shutdown().
+
+          The AIL/16 API module AIL16.OBJ contains only the Process
+          Services, and is not needed to communicate with the actual
+          sound drivers.  AIL/16 applications which do not need timer 
+          or XMIDI services do not need to call AIL_startup() or
+          AIL_shutdown(), or even link with AIL16.OBJ at all.  (See
+          XMI_serve_driver() for more information.)
+
+          The Turbo Pascal implementation of AIL_shutdown()
+          receives a null-terminated ASCII string, which must be manually
+          constructed from the Turbo Pascal length-prefixed string data
+          type.  Refer to the TPXPLAY.PAS program listing for an example
+          of this technique.
+
+ Example: XPLAY.C, VOCPLAY.C, WINXMIDI.C, WINSAMP.C, TPXPLAY.PAS, 
+          TPVPLAY.PAS, XP16.C, etc.
+şÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄş
+       C: HTIMER AIL_register_timer(void far (*callback_fn)())
+
+ Windows: HTIMER AIL_register_timer(FARPROC lpTimerProc)
+
+  AIL/16: HTIMER AIL_register_timer(FARPROC lpTimerProc)
+
+  Pascal: function AIL_register_timer(callback:TimerProc):HTIMER
+
+ Purpose: Registers a callback function *callback_fn to receive
+          isochronous time-slice service from a timer, and returns a 
+          handle HTIMER which may be used to start, stop, and program the
+          function's assigned timer. 
+
+ Remarks: A timer is an API resource which, by asserting control over the
+          host system's clock-tick (INT 8 / IRQ 0) interrupt mechanism,
+          provides periodic interrupt service to a given function.  Since
+          the Audio Interface Library must directly program the IBM PC's
+          Programmable Interval Timer hardware, the API makes this and
+          other timer-related functions externally available in case the
+          application itself requires periodic interrupt service. 
+
+          Up to 16 timer functions may be registered, but each sound
+          driver which requires periodic service, including all XMIDI
+          drivers, will allocate one of the 16 available timer handles
+          for its own use.  This must be done manually under AIL/16;
+          see XMI_serve_driver() for details.
+          
+          AIL_register_timer() will return the value -1 if no timer
+          handles are available.  Under Windows, timers are a global
+          system resource available to all tasks.  Windows applications
+          should be designed to fail "nicely" if all 16 timer handles
+          have been allocated to other processes.  Applications may
+          freely mix calls to the built-in Windows timer services with
+          the AIL Windows Extensions timer services described here.
+
+          The callback function will not be invoked until the timer's
+          service rate is established with AIL_set_timer_period(),
+          AIL_set_timer_frequency(), or AIL_set_timer_divisor(), and the 
+          AIL_start_timer() function is called to initiate timer service.
+
+          Warning: Before using this function under MS-DOS or Windows,
+          review the notes on callback function usage which appear in the
+          AIL_install_callback() function description!  Most of the
+          caveats which apply to the use of MIDI callback functions also
+          apply to timer callback functions.  However, many AIL API
+          functions may be called from within a timer callback function. 
+          If in doubt about whether a particular action may be performed
+          from within a timer callback function, contact Miles Design for
+          current information.
+
+          Under Turbo Pascal, the timer callback procedure should be
+          prototyped according to the following example:
+
+          procedure foo; far;
+
+          Under Windows and AIL/16, the timer callback procedure should
+          be prototyped according to the following example:
+
+          void FAR PASCAL foo(void);
+          AIL V2.13 contains a version of AIL.ASM which can be configured
+          to use the real-time clock interrupt (INT 70H) for timer
+          service, rather than the more conventional interrupt 8 vector.
+
+          By default, AIL.ASM's USE_INT8 equate is TRUE.  Its operation
+          is identical to the previous versions.  However, if AIL.ASM is
+          reassembled with USE_INT8 EQU FALSE, the AIL will not attempt
+          to intercept the system timer tick interrupt.  Other sound
+          packages (such as RealSound, ALFX, and DIGPAK) can now co-exist
+          seamlessly with the AIL XMIDI drivers and Process Services;
+          there's no longer any need to suspend XMIDI playback, real-time
+          animation, and so forth during sound-effects playback with
+          these packages.
+
+          However, there are a few constraints on the use of the
+          real-time clock interrupt option:
+
+           * Timer frequencies are limited to a maximum of 256 hertz.
+
+           * Only AT-class machines support the real-time clock
+             interrupt.
+
+           * Applications which depend on RTC service will not function
+             properly when run from a Windows or OS/2 2.0 "DOS box."
+
+ Example: SOUNDFX.C, MIX16.C, XP16.CşÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄş
+       C: void AIL_set_timer_period(HTIMER timer, unsigned long
+            microseconds)
+          void AIL_set_timer_frequency(HTIMER timer, unsigned long
+            hertz)
+          void AIL_set_timer_divisor(HTIMER timer, unsigned 
+            PIT_divisor)
+
+ Windows: void AIL_set_timer_period(HTIMER hTimer, DWORD 
+            dwMicroseconds)
+          void AIL_set_timer_frequency(HTIMER hTimer, DWORD dwHertz)
+          void AIL_set_timer_divisor(HTIMER hTimer, WORD wPIT_divisor)
+
+  AIL/16: void AIL_set_timer_period(HTIMER hTimer, DWORD 
+            dwMicroseconds)
+          void AIL_set_timer_frequency(HTIMER hTimer, DWORD dwHertz)
+          void AIL_set_timer_divisor(HTIMER hTimer, WORD wPIT_divisor)
+
+  Pascal: procedure AIL_set_timer_period(timer:HTIMER;
+            microseconds:longint)
+          procedure AIL_set_timer_frequency(timer:HTIMER; hertz:longint)
+          procedure AIL_set_timer_divisor(timer:HTIMER;
+            PIT_divisor:word)
+
+ Purpose: Provides three equivalent methods of programming the service
+          rate of a specified timer HTIMER.
+
+ Remarks: AIL_set_timer_period() accepts a timer period value ranging
+          from 1 microsecond to 1,000,000,000 microseconds (approx. 15
+          minutes).  
+
+          AIL_set_timer_frequency() accepts a timer frequency ranging
+          from 1 Hz (Hertz, or cycles per second) to 1,000,000 Hz.
+
+          AIL_set_timer_divisor() accepts a timer frequency in terms of 
+          the constant value that would normally be used to program the 
+          IBM PC's 8253 Programmable Interval Timer chip for the desired
+          interrupt rate.  This representation is useful in cases where
+          the Audio Interface Library is installed in an existing
+          application that requires periodic service.  When this function
+          is used to program a timer, the timer's frequency is given by
+          1193181 / PIT_divisor Hz.
+
+          In practice, the fastest possible rate will be substantially
+          slower than the theoretical value due to the host system's 
+          interrupt-processing overhead.  Under Microsoft Windows with
+          Multimedia Extensions installed, the minimum available AIL
+          timer period is 5 milliseconds (200 hertz). 
+
+          Under normal circumstances, the programmed timer service rate
+          will exhibit a long-term accuracy of better than ñ 100 parts
+          per million (ppm).  This accuracy figure may be somewhat
+          degraded in the Windows environment.
+
+          See AIL_register_timer() for more information about timer
+          resources.
+
+ Example: SOUNDFX.C, MIX16.C, XP16.C
+şÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄş
+       C: unsigned AIL_interrupt_divisor(void)
+
+ Windows: WORD AIL_interrupt_divisor(void)
+
+  AIL/16: WORD AIL_interrupt_divisor(void)
+
+  Pascal: function AIL_interrupt_divisor:word
+
+ Purpose: Returns the current value used internally by the Audio
+          Interface Library's Process Services to program the IBM PC's
+          8253 Programmable Interval Timer chip for periodic INT 8 (IRQ
+          0) service.
+
+ Remarks: This function is intended for use by applications which must
+          seize direct control of the IBM's timer interrupt hardware. 
+          Its use is not recommended under ordinary circumstances.
+
+          The AIL Process Services are fast enough and flexible enough to
+          meet nearly any conceivable application's needs for periodic
+          callback service, and programmers are strongly encouraged to
+          make use of them whenever possible.  In the rare event that
+          this is not practical, AIL_interrupt_divisor() allows the
+          application to continue to play sequences while subclassing the
+          AIL's timer interrupt handler for its own purposes.  The
+          application must assume responsibility for generating
+          software INT 8 calls at the indicated rate.
+
+şÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄş
+       C: void AIL_start_timer(HTIMER timer)
+          void AIL_start_all_timers(void)
+
+ Windows: void AIL_start_timer(HTIMER hTimer)
+          void AIL_start_all_timers(void)
+
+  AIL/16: void AIL_start_timer(HTIMER hTimer)
+          void AIL_start_all_timers(void)
+
+  Pascal: procedure AIL_start_timer(timer:HTIMER)
+          procedure AIL_start_all_timers
+
+ Purpose: Initiates or resumes periodic time-slice interrupt service to
+          the callback function registered to timer HTIMER, or to all
+          registered timers.
+
+ Remarks: Periodic timer service will not begin until AIL_start_timer()
+          is called with the timer's handle.  
+
+          AIL_start_timer() should not be called before the timer's
+          service rate has been established by AIL_set_timer_period(),
+          AIL_set_timer_frequency(), or AIL_set_timer_divisor().
+
+          The application program should not normally call
+          AIL_start_all_timers(), as this function affects timers
+          assigned to sound drivers as well as any timers assigned to the
+          application.
+
+          Under Windows, a call to AIL_start_all_timers() will affect
+          only timers allocated by the current task or its sound drivers.
+
+ Example: SOUNDFX.C, XP16.C, MIX16.C
+şÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄş
+       C: void AIL_stop_timer(HTIMER timer)
+          void AIL_stop_all_timers(void)
+
+ Windows: void AIL_stop_timer(HTIMER hTimer)
+          void AIL_stop_all_timers(void)
+
+  AIL/16: void AIL_stop_timer(HTIMER hTimer)
+          void AIL_stop_all_timers(void)
+
+  Pascal: procedure AIL_stop_timer(timer:HTIMER)
+          procedure AIL_stop_all_timers
+
+ Purpose: Stops periodic time-slice interrupt service to the callback
+          function registered to timer HTIMER, or to all registered
+          timers.  The timer's periodic service can be restarted with
+          AIL_start_timer().
+
+ Remarks: The application program should not normally call
+          AIL_stop_all_timers(), as this function affects timers
+          assigned to sound drivers as well as any timers assigned to the
+          application.  Stopping a timer assigned to a sound driver may
+          result in "stuck notes" or other undesirable effects.
+          
+          Under Windows, a call to AIL_stop_all_timers() will affect
+          only timers allocated by the current task or its sound drivers.
+
+şÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄş
+       C: void AIL_release_timer_handle(HTIMER timer)
+          void AIL_release_all_timers(void)
+
+ Windows: void AIL_release_timer_handle(HTIMER hTimer)
+          void AIL_release_all_timers(void)
+
+  AIL/16: void AIL_release_timer_handle(HTIMER hTimer)
+          void AIL_release_all_timers(void)
+
+  Pascal: procedure AIL_release_timer_handle(timer:HTIMER)
+          procedure AIL_release_all_timers
+
+ Purpose: Stops periodic time-slice interrupt service to the callback
+          function registered to timer HTIMER, and releases the timer's 
+          handle.
+
+ Remarks: The application program should not normally call
+          AIL_release_all_timers(), as this function affects timers
+          assigned to sound drivers as well as any timers assigned to the
+          application.  Releasing a timer assigned to a sound driver may
+          result in "stuck notes" or other undesirable effects.
+
+          Once a timer's handle has been released, it is made available
+          for future allocation by AIL_register_timer(), and can no
+          longer be used to restart or reprogram the timer.
+
+          Under Windows, a call to AIL_release_all_timers() will affect
+          only timers allocated by the current task or its sound drivers.
+
+ Example: SOUNDFX.C

@@ -1,0 +1,795 @@
+                                    
+
+
+
+IBM Audio Interface Library
+
+ Tools Reference
+
+ Release 2.08 of 27 September 1992
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Contents
+
+MIDIFORM ............................................................. 3
+GLIB ................................................................. 5
+CLAD ................................................................. 12
+MIDIECHO ............................................................. 13
+MIDILOG .............................................................. 15
+MIDIREC .............................................................. 18
+MLIST ................................................................ 19
+CAKEPORT ............................................................. 21
+VTOR ................................................................. 24
+MIDIFORM: Extended MIDI (XMIDI) File Conversion Utility  
+
+The MIDIFORM program converts Standard MIDI Format 0 and Format 1 sequence files to
+the Extended MIDI (XMIDI) format used by the Audio Interface Library's Version 2.0 (and
+later) drivers.  
+
+MIDIFORM preserves all of the information needed to faithfully reproduce the sequence's
+original sound, while discarding elements of the MIDI storage format that are redundant,
+inefficient, or otherwise unnecessary for real-time playback.  An XMIDI file containing a
+single translated MIDI sequence often requires from 10% to 30% less storage space, and can
+be performed with substantially less background processing time.  
+
+MIDIFORM has the following command-line syntax:
+
+MIDIFORM [/Q:nn] output_filename [[input_filename...] | [< rspfile]]
+
+where output_filename specifies the name of the AIL-compatible XMIDI file to create. 
+XMIDI files should normally be saved with the standard filename suffix '.XMI'.  
+
+Up to 65,536 Standard MIDI sequence files may be converted and stored in a single XMIDI
+file.  You may specify their filenames [input_filename...] directly on the MIDIFORM
+command line.  If the MIDIFORM command line contains no input_filenames, the program
+will prompt you to enter the pathnames of the MIDI files to be converted.  Optionally, you
+may use the MS-DOS console redirection command '<' to pass a list of filenames in a rspfile,
+or "response file."  The response file should contain one or more filename entries in plain
+ASCII text.  Each filename must be listed on its own line in the response file, with no
+intervening blank lines.  Comments in response files must begin with a semicolon (';').  
+
+Regardless of how their names were passed to MIDIFORM, the converted sequences are
+stored in the XMIDI file in the order in which they were specified.  When registering a
+sequence from an XMIDI file with the AIL_register_sequence() function, or when specifying
+an XMIDI sequence number for XPLAY or other programs, the individual XMIDI sequences
+contained in the file are numbered starting with 0.
+
+MIDIFORM first merges MIDI events from multiple parallel tracks into a single linear track,
+a process reminiscent of the transformation from MIDI Format 1 to Format 0.  Next, the delta-
+time prefixes which appear before each MIDI event are removed, and the event stream is
+"quantized," or partitioned into clusters of events occurring at fixed intervals of time. 
+(MIDIFORM's /Q:nn parameter allows the quantization rate to be changed from its default
+value of 120 intervals per second.  If this seldom-needed option is used, the QUANT_RATE,
+QUANT_TIME, and QUANT_TIME_16 equates in the XMIDI drivers must be adjusted as
+well.) 
+
+The MIDI data track is then further compressed by the elimination of all Note Off messages,
+which is made possible by appending each note's duration in quantization intervals to its
+original Note On event.  Track-specific MIDI meta-events (such as Sequence/Track Name,
+Instrument Name, and End of Track events) are stripped from the data stream, while a single
+End of Track meta-event (FF 2F 00) is placed at the end of the XMIDI sequence.In addition to the prequantized MIDI event stream, the XMIDI sequence format also includes
+information such as master lists of Global Timbre Library entries needed by the sequence and
+target offsets for any Sequence Branch Index controllers present in the sequence.  To aid
+developers with specialized needs, XMIDI files are stored in accordance with Electronic Arts'
+Interchange File Format (EA IFF 85) standard.  For example, using conventional IFF access
+routines, AIL applications may load and interpret XMIDI timbre list (TIMB) chunks manually,
+using the data to prepare the synthesizer for immediate playback of sequences at a later time.
+
+Refer to the Extended MIDI (XMIDI) Specification section of this manual for a detailed
+description of the XMIDI IFF structure.
+GLIB: Extended MIDI (XMIDI) Global Timbre Librarian
+
+The GLIB program creates Global Timbre Library files for use by Audio Interface Library
+Extended MIDI (XMIDI) driver applications.
+
+The Global Timbre Library, or GTL, is the set of timbres, or sound description data for
+musical instruments or sound effects, which are intended for use by a given synthesizer during
+the course of an entire Audio Interface Library application.  Each supported synthesizer may
+have its own timbre data format, so an application may need as many GTL files as it has
+XMIDI drivers.  Many synthesizers (such as the Ad Lib) contain no built-in timbres, and thus
+require at least a small GTL file in order to make any sounds at all.  Others, such as the
+Roland MT-32, contain a number of built-in timbres, and do not require GTL support unless
+the musician wishes to supplement the built-in timbres with "custom" timbres created with a
+third-party editor program.
+
+GLIB is responsible for creating each Global Timbre Library file according to instructions in a
+standard ASCII catalog file, or "catfile."  The catfile is created by a musician or programmer
+who is responsible for deciding how some or all of the 128 possible MIDI Program Change
+("Patch") numbers are mapped to as many as 16,000 possible timbres of both the built-in and
+custom types, at various points during the application's execution.  A single catfile may serve
+as the "script" for every Global Timbre Library file used by an application, but the usual
+practice is to maintain a separate catfile for each individual synthesizer's GTL file. 
+
+Each timbre specification in the GLIB catalog file consists of an assignment statement of the
+form
+
+timbre(bank,patch) = ...
+
+In an assignment statement, the '...' expression on the right side of the assignment statement
+(or rvalue) tells GLIB where to find the source data for the timbre (in an Ad Lib Instrument
+Maker bankfile, for example).  The timbre() expression on the left (or lvalue) specifies the
+destination "address" of the timbre in the Global Timbre Library file being created. This
+"address" consists of a timbre bank number and a patch (MIDI Program Change number)
+mapping for the timbre.  A musician who is composing a MIDI sequence for use with an AIL
+XMIDI driver may "request" that a custom timbre be associated with a particular patch during
+playback, simply by prefixing each MIDI Program Change message in the sequence with an
+XMIDI Patch Bank Select controller (114) which specifies the bank number under which the
+desired timbre for the patch was stored in the Global Timbre Library file.  For each
+synthesizer, only one timbre may be mapped to a particular patch at any given time.
+
+The nature of the '...' rvalue expression depends on the GTL file's target synthesizer.  The
+following rvalue expressions are currently supported by GLIB:
+BNK_inst(string,num): Refers to the name of an Ad Lib instrument to be found in an Ad Lib
+Instrument Maker bankfile which was previously specified with a BNK_file() expression (see
+below).  num normally specifies the number of semitones by which to transpose notes played
+with the instrument.  (This value is added to any transposition value specified with the Ad Lib
+Gold Instrument Maker.)  If the timbre is to be played in MIDI channel 10 (to emulate a
+Roland MT-32 rhythm key), num specifies the MIDI note number corresponding to the pitch at
+which the instrument should sound.  In such a case, the bank number specified in the lvalue
+must be 127, while the patch number specifies the MIDI key number which causes the
+instrument to be played.
+
+MTB_file("filename"): Refers to the name of a Big Noise MT-32 Editor/Librarian file
+containing a complete bank of 64 Roland MT-32 timbres.  The 64 timbres will be mapped to
+64 sequential patches beginning at the patch number given in the timbre() lvalue expression. 
+(If this sequential mapping causes any timbre's patch number to exceed 127, the patch bank
+number is incremented at that point and the patch number itself is incremented modulo 128.) 
+Note that only the timbres, or "tones," in the file are used by GLIB; the "bank timbre patch
+change" and "rhythm key table" information in the file is ignored.
+
+BIN_file("filename"): Refers to the name of a binary file containing a single timbre image in
+the target Audio Interface Library driver's native timbre format.  This "generic" expression is
+useful in cases where the application designer wishes to use a proprietary editor with its own
+timbre file format, but is not otherwise needed.
+
+In addition to timbre assignment statements, GLIB recognizes two "declarative" expressions:
+
+outfile("filename"): Specifies the name of a Global Timbre Library to create.  An outfile()
+specification must appear in the catfile before any timbres are assigned to the outfile.  When
+this statement is encountered, any GTL file being created by a previous outfile() statement is
+closed and saved to disk.
+
+BNK_file("filename"): Specifies the Ad Lib Instrument Maker bankfile from which subsequent
+BNK_inst() statements should retrieve timbres for inclusion in the Global Timbre Library file. 
+The Ad Lib Instrument Maker program (version 1.5 or greater) is used to create the .BNK
+"source file" format for all Yamaha YM3812-based adapters, including the Ad Lib, Sound
+Blaster, Sound Blaster Pro, Pro Audio Spectrum, Thunderboard, and others.
+
+Beginning with GLIB version 1.02, bankfiles from the Ad Lib Gold Instrument Maker
+program may be used interchangeably with those created by the original Ad Lib Instrument
+Maker.  The Ad Lib Gold Instrument Maker may be used to create 4-operator timbres for the
+Ad Lib Gold card and other sound adapters based on the Yamaha YMF262 (OPL3) integrated
+circuit, as well as 2-operator timbres for standard YM3812-compatible adapters.  To guard
+against inadvertent use of 4-operator timbres in GTL files intended for use with YM3812
+drivers, GLIB will issue a warning message if any BNK_inst() statement assigns a 4-operator
+timbre to an output file whose suffix is ".AD".
+
+All characters appearing on a line after a semicolon are considered to be comments, and
+ignored.  Blank lines are also acceptable.The catalog file used to create a Global Timbre Library is of extreme importance in
+determining how well a given XMIDI sequence will sound when "tweaked" for optimum Ad
+Lib playback quality.  Supplied with the Audio Interface Library is SAMPLE.CAT, a sample
+GLIB catalog file which creates an Ad Lib-compatible Global Timbre Library file, and
+SAMPLE.BNK, an Ad Lib Instrument Maker bankfile containing approximately 200 "canned"
+instruments supplied with the Ad Lib and Sound Blaster developer kits.  The sample Ad Lib
+GTL file SAMPLE.AD was created by the following command:
+
+GLIB sample.cat
+
+As released with the Audio Interface Library, SAMPLE.AD should be used only for
+development, testing, and experimental purposes, as its instruments are not "adjusted" with the
+Instrument Maker program to emulate the Roland synthesizer faithfully in important areas such
+as octave register, envelope timing, relative volume level, and general tonal quality.  This task
+is an important step in the development of high-quality music for the Ad Lib and Sound Blaster
+family of sound adapters, and should be performed by a skilled musician for best results.
+
+Also supplied with the Audio Interface Library is SAMPLE.OPL, a Global Timbre Library
+file for use with the Ad Lib Gold, Sound Blaster Pro, and other OPL3-based device drivers. 
+SAMPLE.OPL is actually nothing more than a renamed copy of SAMPLE.AD, and does not
+contain any 4-operator timbres.  Due to the way the OPL3 chip's 4-operator capability works,
+the composer must decide which musical parts will be handled by 2- and 4-operator timbres on
+a case-by-case basis.
+
+As an example of a GLIB catalog file, SAMPLE.CAT is reproduced here in its entirety.
+;                                         
+;SAMPLE.CAT                                  
+;Global Timbre Library assignments for sample AIL V2.0 applications
+;                                         
+;Usage: C:\>glib sample.cat
+;                                         
+
+outfile("sample.ad")            ;create Ad Lib Global Timbre Library
+        
+BNK_file("sample.bnk")          ;name of Ad Lib Instrument Maker bankfile
+
+;
+;Bank 0: Melodic instruments to emulate Roland MT-32 built-in timbres
+;
+
+timbre(0,0) = BNK_inst("piano1",0)             ;Acou Piano 1
+timbre(0,1) = BNK_inst("piano3",0)             ;Acou Piano 2
+timbre(0,2) = BNK_inst("piano4",0)             ;Acou Piano 3
+timbre(0,3) = BNK_inst("elpiano1",0)           ;Elec Piano 1
+timbre(0,4) = BNK_inst("elpiano2",0)           ;Elec Piano 2
+timbre(0,5) = BNK_inst("elpiano1",0)           ;Elec Piano 3
+timbre(0,6) = BNK_inst("pianof",0)             ;Elec Piano 4
+timbre(0,7) = BNK_inst("piano1",0)             ;Honkytonk
+timbre(0,8) = BNK_inst("organ2",0)             ;Elec Org 1
+timbre(0,9) = BNK_inst("organ1",0)             ;Elec Org 2
+timbre(0,10) = BNK_inst("organ1",0)            ;Elec Org 3
+timbre(0,11) = BNK_inst("organ4",0)            ;Elec Org 4
+timbre(0,12) = BNK_inst("pipes",0)             ;Pipe Org 1
+timbre(0,13) = BNK_inst("pipes",0)             ;Pipe Org 2
+timbre(0,14) = BNK_inst("pipes",0)             ;Pipe Org 3
+timbre(0,15) = BNK_inst("accordn",0)           ;Accordion
+timbre(0,16) = BNK_inst("harpsi4",0)           ;Harpsi 1
+timbre(0,17) = BNK_inst("harpsi4",0)           ;Harpsi 2
+timbre(0,18) = BNK_inst("harpsi4",0)           ;Harpsi 3
+timbre(0,19) = BNK_inst("elclav2",0)           ;Clavi 1
+timbre(0,20) = BNK_inst("elclav2",0)           ;Clavi 2
+timbre(0,21) = BNK_inst("elclav2",0)           ;Clavi 3
+timbre(0,22) = BNK_inst("celesta",0)           ;Celesta 1
+timbre(0,23) = BNK_inst("celesta",0)           ;Celesta 2
+timbre(0,24) = BNK_inst("sftbrss1",0)          ;Syn Brass 1
+timbre(0,25) = BNK_inst("sftbrss1",0)          ;Syn Brass 2
+timbre(0,26) = BNK_inst("sftbrss1",0)          ;Syn Brass 3
+timbre(0,27) = BNK_inst("sftbrss1",0)          ;Syn Brass 4
+timbre(0,28) = BNK_inst("bass2",0)             ;Syn Bass 1
+timbre(0,29) = BNK_inst("bass2",0)             ;Syn Bass 2
+timbre(0,30) = BNK_inst("bass2",0)             ;Syn Bass 3
+timbre(0,31) = BNK_inst("bass2",0)             ;Syn Bass 4
+timbre(0,32) = BNK_inst("fantapan",0)          ;Fantasy
+timbre(0,33) = BNK_inst("mars",0)              ;Harmo Pan
+timbre(0,34) = BNK_inst("syn1",0)              ;Chorale
+timbre(0,35) = BNK_inst("tincan1",0)           ;Glasses
+timbre(0,36) = BNK_inst("mars",0)              ;Soundtrack
+timbre(0,37) = BNK_inst("moon",0)              ;Atmosphere
+timbre(0,38) = BNK_inst("trainbel",0)          ;Warm Bell
+timbre(0,39) = BNK_inst("synbass1",0)          ;Funny Vox
+timbre(0,40) = BNK_inst("bells",0)             ;Echo Bell
+timbre(0,41) = BNK_inst("bells",0)             ;Ice Rain
+timbre(0,42) = BNK_inst("oboe1",0)             ;Oboe 2001
+timbre(0,43) = BNK_inst("bass1",0)             ;Echo Pan
+timbre(0,44) = BNK_inst("bass2",0)             ;Doctor Solo
+timbre(0,45) = BNK_inst("bass2",0)             ;Schooldaze
+timbre(0,46) = BNK_inst("javaican",0)          ;Bellsinger
+timbre(0,47) = BNK_inst("csynth",0)            ;Square Wave
+timbre(0,48) = BNK_inst("strings1",0)          ;Str Sect 1
+timbre(0,49) = BNK_inst("strnlong",0)          ;Str Sect 2
+timbre(0,50) = BNK_inst("strings1",0)          ;Str Sect 3
+timbre(0,51) = BNK_inst("koto1",0)             ;Pizzicato
+timbre(0,52) = BNK_inst("violin",0)            ;Violin 1
+timbre(0,53) = BNK_inst("violin1",0)           ;Violin 2
+timbre(0,54) = BNK_inst("violin",0)            ;Cello 1
+timbre(0,55) = BNK_inst("cello",0)             ;Cello 2
+timbre(0,56) = BNK_inst("contrab",0)           ;Contrabass
+timbre(0,57) = BNK_inst("harp1",0)             ;Harp 1
+timbre(0,58) = BNK_inst("harp",0)              ;Harp 2
+timbre(0,59) = BNK_inst("guitar1",0)           ;Guitar 1
+timbre(0,60) = BNK_inst("guitar1",0)           ;Guitar 2
+timbre(0,61) = BNK_inst("elguit2",0)           ;Elec Gtr 1
+timbre(0,62) = BNK_inst("elguit1",0)           ;Elec Gtr 2
+timbre(0,63) = BNK_inst("sitar1",0)            ;Sitar
+timbre(0,64) = BNK_inst("bbass",0)             ;Acou Bass 1
+timbre(0,65) = BNK_inst("bass2",0)             ;Acou Bass 2
+timbre(0,66) = BNK_inst("bass2",0)             ;Elec Bass 1
+timbre(0,67) = BNK_inst("bass2",0)             ;Elec Bass 2
+timbre(0,68) = BNK_inst("bbass",0)             ;Slap Bass 1
+timbre(0,69) = BNK_inst("bbass",0)             ;Slap Bass 2
+timbre(0,70) = BNK_inst("bass1",0)             ;Fretless 1
+timbre(0,71) = BNK_inst("bass1",0)             ;Fretless 2
+timbre(0,72) = BNK_inst("flute1",0)            ;Flute 1
+timbre(0,73) = BNK_inst("flute1",0)            ;Flute 2
+timbre(0,74) = BNK_inst("flute1",0)            ;Piccolo 1
+timbre(0,75) = BNK_inst("flute1",0)            ;Piccolo 2
+timbre(0,76) = BNK_inst("flute2",0)            ;Recorder
+timbre(0,77) = BNK_inst("flute2",0)            ;Pan Pipes
+timbre(0,78) = BNK_inst("sax1",0)              ;Sax 1
+timbre(0,79) = BNK_inst("sax1",0)              ;Sax 2
+timbre(0,80) = BNK_inst("sax1",0)              ;Sax 3
+timbre(0,81) = BNK_inst("softsax",0)           ;Sax 4
+timbre(0,82) = BNK_inst("clar1",0)             ;Clarinet 1
+timbre(0,83) = BNK_inst("clarinet",0)          ;Clarinet 2
+timbre(0,84) = BNK_inst("oboe",0)              ;Oboe
+timbre(0,85) = BNK_inst("oboe",0)              ;Engl Horn
+timbre(0,86) = BNK_inst("bassoon",0)           ;Bassoon
+timbre(0,87) = BNK_inst("harmonca",0)          ;Harmonica
+timbre(0,88) = BNK_inst("trumpet4",0)          ;Trumpet 1
+timbre(0,89) = BNK_inst("trumpet4",0)          ;Trumpet 2
+timbre(0,90) = BNK_inst("tromb2",0)            ;Trombone 1
+timbre(0,91) = BNK_inst("tromb1",0)            ;Trombone 2
+timbre(0,92) = BNK_inst("frhorn1",0)           ;Fr Horn 1
+timbre(0,93) = BNK_inst("frhorn2",0)           ;Fr Horn 2
+timbre(0,94) = BNK_inst("tuba1",0)             ;Tuba
+timbre(0,95) = BNK_inst("brass1",0)            ;Brs Sect 1
+timbre(0,96) = BNK_inst("brass2",0)            ;Brs Sect 2
+timbre(0,97) = BNK_inst("vibra2",0)            ;Vibe 1
+timbre(0,98) = BNK_inst("vibra3",0)            ;Vibe 2
+timbre(0,99) = BNK_inst("marimba",0)           ;Syn Mallet
+timbre(0,100) = BNK_inst("belshort",0)         ;Windbell
+timbre(0,101) = BNK_inst("belshort",0)         ;Glock
+timbre(0,102) = BNK_inst("belshort",0)         ;Tube Bell
+timbre(0,103) = BNK_inst("xylofone",0)         ;Xylophone
+timbre(0,104) = BNK_inst("marimba",0)          ;Marimba
+timbre(0,105) = BNK_inst("koto1",0)            ;Koto
+timbre(0,106) = BNK_inst("fstrp2",0)           ;Sho
+timbre(0,107) = BNK_inst("flute",0)            ;Shakuhachi
+timbre(0,108) = BNK_inst("flute",0)            ;Whistle 1
+timbre(0,109) = BNK_inst("flute",0)            ;Whistle 2
+timbre(0,110) = BNK_inst("flute2",0)           ;Bottleblow
+timbre(0,111) = BNK_inst("flute2",0)           ;Breathpipe
+timbre(0,112) = BNK_inst("bdrum3",0)           ;Timpani
+timbre(0,113) = BNK_inst("tom",0)              ;Melodic Tom
+timbre(0,114) = BNK_inst("sdrum2",0)           ;Deep Snare
+timbre(0,115) = BNK_inst("synsnr1",0)          ;Elec Perc 1
+timbre(0,116) = BNK_inst("synsnr1",0)          ;Elec Perc 2
+timbre(0,117) = BNK_inst("synsnr2",0)          ;Taiko
+timbre(0,118) = BNK_inst("synsnr2",0)          ;Taiko Rim
+timbre(0,119) = BNK_inst("cymbal",0)           ;Cymbal
+timbre(0,120) = BNK_inst("shppizz",0)          ;Castanets
+timbre(0,121) = BNK_inst("triangle",0)         ;Triangle
+timbre(0,122) = BNK_inst("synbass4",0)         ;Orche Hit
+timbre(0,123) = BNK_inst("phone1",0)           ;Telephone
+timbre(0,124) = BNK_inst("chirp",0)            ;Bird Tweet
+timbre(0,125) = BNK_inst("mars",0)             ;One Note Jam
+timbre(0,126) = BNK_inst("bells",0)            ;Water Bells
+timbre(0,127) = BNK_inst("meri",0)             ;Jungle Tune;
+;Rhythm key assignments (to Ad Lib melodic instruments)
+;
+;Played in channel 10 to emulate built-in Roland MT-32 rhythm sounds
+;
+;(Bank 127 reserved for use with "rhythm" emulation instruments)
+;
+
+timbre(127,35) = BNK_inst("bdrum",41)          ;Acou BD
+timbre(127,36) = BNK_inst("bdrum",41)          ;Acou BD
+timbre(127,37) = BNK_inst("tom",55)            ;Rim Shot
+timbre(127,38) = BNK_inst("snare2",60)         ;Acou SD
+timbre(127,39) = BNK_inst("snare2",60)         ;Hand Clap
+timbre(127,40) = BNK_inst("snare2",60)         ;Elec SD
+timbre(127,41) = BNK_inst("tom",41)            ;Acou Low Tom
+timbre(127,42) = BNK_inst("clsdhi",84)         ;Clsd Hi Hat
+timbre(127,43) = BNK_inst("tom",41)            ;Acou Low Tom
+timbre(127,44) = BNK_inst("bcymbal",84)        ;Open Hi Hat 2
+timbre(127,45) = BNK_inst("tom",48)            ;Acou Mid Tom
+timbre(127,46) = BNK_inst("bcymbal",84)        ;Open Hi Hat 1
+timbre(127,47) = BNK_inst("tom",48)            ;Acou Mid Tom
+timbre(127,48) = BNK_inst("tom",55)            ;Acou Hi Tom
+timbre(127,49) = BNK_inst("cymbal3",72)        ;Crash Cym
+timbre(127,50) = BNK_inst("tom",55)            ;Acou Hi Tom
+timbre(127,51) = BNK_inst("bcymbal",84)        ;Ride Cym
+timbre(127,54) = BNK_inst("bcymbal",84)        ;Tambourine
+timbre(127,56) = BNK_inst("tom",48)            ;Cowbell
+timbre(127,60) = BNK_inst("tom",55)            ;High Bongo
+timbre(127,61) = BNK_inst("tom",41)            ;Low Bongo
+timbre(127,62) = BNK_inst("tom",55)            ;Mt High Conga
+timbre(127,63) = BNK_inst("tom",55)            ;High Conga
+timbre(127,64) = BNK_inst("tom",48)            ;Low Conga
+timbre(127,65) = BNK_inst("tom",55)            ;High Timbale
+timbre(127,66) = BNK_inst("tom",41)            ;Low Timbale
+timbre(127,67) = BNK_inst("snare2",60)         ;High Agogo
+timbre(127,68) = BNK_inst("snare2",48)         ;Low Agogo
+timbre(127,69) = BNK_inst("bcymbal",84)        ;Cabasa
+timbre(127,70) = BNK_inst("bcymbal",84)        ;Maracas
+timbre(127,71) = BNK_inst("bcymbal",84)        ;Smba Whis S
+timbre(127,72) = BNK_inst("bcymbal",84)        ;Smba Whis L
+timbre(127,73) = BNK_inst("bcymbal",84)        ;Quijada
+timbre(127,75) = BNK_inst("bcymbal",84)        ;Claves
+CLAD: Creative Labs / Ad Lib(TM) Converter
+
+The CLAD program translates instrument data between the Ad Lib and Creative Labs (Sound
+Blaster) native file formats.
+
+CLAD has the following command-line syntax:
+
+CLAD <infile.ins | infile.sbi> <outfile.ins | outfile.sbi>
+
+where infile represents the instrument file (in either Ad Lib (.INS) or Sound Blaster (.SBI)
+format) to translate, and outfile represents the file to be created in the new format.
+
+.INS and .SBI files are used by the Ad Lib and Creative Labs voice editing tools, respectively. 
+The use of the .INS and .SBI file suffixes is mandatory.
+
+INS2SBI, a similar program which accompanies the Sound Blaster Developer Kit, can also
+perform a one-way instrument file translation from the Ad Lib format to the Sound Blaster
+format.  However, INS2SBI contains several bugs; CLAD should be used for this purpose
+instead.
+MIDIECHO: MIDI Data Receiver / Interpreter
+
+The MIDIECHO program receives incoming MIDI Channel Voice and System Exclusive
+messages via a Roland MPU-401-compatible MIDI interface, and sends them to a specified
+Audio Interface Library Extended MIDI (XMIDI) driver.
+
+MIDIECHO is a valuable resource for musicians who wish to use sequencers other than
+Cakewalk(TM) to develop music and sound-effects arrangements for AIL applications. 
+Composers can receive immediate feedback when developing Tandy, Ad Lib, or Roland
+XMIDI compositions on a Macintosh or Atari ST-based MIDI sequencer platform, simply by
+connecting the host's MIDI interface to the MPU-401 interface on a "slave" PC system running
+MIDIECHO.
+
+MIDIECHO has the following command-line syntax:
+
+MIDIECHO driver_file [instrument_file] [/MA:xx] [/MI:xx] [/A:xx] [I:xx]
+         [/DY | /DR | /DO] [/NV]
+
+where driver_file specifies the Audio Interface Library .ADV driver to be used for playback,
+and instrument_file optionally indicates the name of a driver-specific Global Timbre Library
+file (such as the Ad Lib driver's bundled SAMPLE.AD file).  Other optional parameters
+include /MA:xx and /MI:xx, which specify the hexadecimal I/O port address and IRQ number
+of the Roland MIDI interface used to receive the incoming data, and /A:xx and /I:xx, which
+specify the hexadecimal I/O port address and IRQ number to be passed to the AIL playback
+driver.  The /MA and /MI parameters are required only if the Roland interface is not
+addressable at its default jumper settings I/O address $330, IRQ 2.  Similarly, /A and /I are
+necessary only if the sound adapter used for playback is configured at a non-standard I/O
+address or interrupt setting.
+
+The options /DY, /DO, and /DR present a continuously updated graphical display of sound
+partial usage for the Yamaha YM3812 (Ad Lib, etc.), Yamaha YMF262/OPL3 (Ad Lib Gold,
+etc.), and Roland MT-32 synthesizer families.  This feature may be helpful when diagnosing
+note "dropout" problems that occur due to partial overflow.  When one of these three options
+is used, a bar graph will indicate instantaneous partial usage during playback.  The graph,
+normally green in color, will become red when all available synthesizer partials have been
+exhausted.  (With the /DO option in effect, the green portion of the graph will turn yellow
+when more than six 4-partial voices are simultaneously active.)
+
+MIDIECHO normally scales incoming Channel Volume (controller 7) values by the default
+relative volume percentage for the XMIDI driver in use.  (See the description of the
+AIL_relative_volume() function in the API Reference for more details.)  The /NV option can
+be used to inhibit volume scaling, causing MIDIECHO to pass all channel volume messages to
+the synthesizer exactly as received.
+MIDIECHO re-transmits incoming data on all 16 MIDI channels to the AIL driver via the
+send_channel_voice_message() call.  Messages on channels greater than 10 are remapped to
+the lower physical MIDI channels beginning with channel 2, to simulate the XMIDI "channel
+locking" features available during sequenced playback.  The program retransmits all MIDI
+Channel Voice messages.  (MIDI System Exclusive messages are retransmitted as well, but use
+of this capability is not recommended since "timing slips" inherent in System Exclusive
+transmission can cause strange, misleading effects in the music.)  Under the control of
+MIDIECHO, any AIL-compatible sound adapter can emulate a full-fledged MIDI synthesizer
+with the characteristics listed in its driver's MIDI Implementation Chart.  For information on
+various AIL drivers and their equivalent MIDI implementations, refer to the Technical Notes
+section of this manual.
+
+During playback, if a combination of XMIDI Patch Bank Select controller and MIDI Program
+Change number values is used to set up a timbre which cannot be found in the specified Global
+Timbre Library file, MIDIECHO will complain with an error message before attempting to
+continue. However, if a /DY or /DR option (see above) is in use, only a short 'beep' tone from
+the MIDIECHO host machine's internal speaker will signify a missing timbre.
+
+MIDIECHO is intended to receive normal MIDI Channel Voice data, not synthesizer-ready
+XMIDI data.  Timing problems may occur if a dense XMIDI data stream (as from an Audio
+Interface Library application or the CAKEPORT driver) is fed to the MIDIECHO host's input
+port.  
+MIDILOG: MIDI File/Event Filter
+
+The MIDILOG program strips any non-standard headers and trailers from a Standard MIDI
+file, and optionally translates certain MIDI events in the file.
+
+The ability to translate MIDI events makes MIDILOG a powerful tool when dealing with
+sequencer programs that do not allow certain events to be embedded in a MIDI file, but which
+are capable of recording other types of events which may be replaced later with the events
+originally desired by the musician or programmer.
+
+MIDILOG has the following command-line syntax:
+
+MIDILOG infile outfile [logfile]
+
+where infile refers to the original MIDI file to be translated, outfile specifies the MIDI output
+file, and logfile specifies an optional ASCII text file containing a list of event translation rules
+to apply to the infile's MIDI events while copying them to the outfile.  
+
+An event translation rule consists of two expressions separated by an '=' sign.  Both
+expressions represent MIDI events.  During the MIDI file translation process, MIDILOG
+compares each event in the infile with each event translation rule's lvalue, or the expression on
+the left side of its '=' sign.  If no match is found, the infile's event is written, unchanged, to
+the outfile.  However, if the event matches one of the logfile's lvalues, the event on the right
+side of the same event translation rule's '=' sign, called the rvalue, is written to the outfile
+instead.
+
+Up to 128 event translation rules may appear in each logfile.  Each expression used in an event
+translation rule must take one of the following forms.  (Terms in [] brackets may appear zero
+or more times.)
+
+event( [val,] ): Any MIDI event.
+
+meta_event( type, [val,] ): A MIDI meta-event of type /type/, optionally containing zero or
+more bytes of associated data.  For example, meta_event(1,"Test") is identical to
+event($FF,$01,$04,"Test").
+
+MT32_sysex_event( addr_MSB, addr, addr_LSB, data, [data,]): A type DT1 System
+Exclusive event capable of addressing Roland MT-32-compatible synthesizers.  No nibble
+masks or wildcards (see below) may be used.  For example,
+MT32_sysex_event($20,$00,$00,"This is a test"), when written to a MIDI file as an rvalue,
+will cause the string 'This is a test' to appear on the MT-32's front-panel LCD display when
+the file is performed.
+
+The values used within each expression must conform to the following rules:
+$nn: A single hexadecimal byte, which may be 1 or 2 digits in length.  The letter 'x' may be
+used to mask one of the nibbles in the byte, causing that nibble to be disregarded in event
+comparisons.  The value of the last nibble masked in a rule's lvalue is restored to any masked
+nibbles in the rvalue, which is useful for preserving channel nibbles in replaced MIDI status
+bytes.  Character case is not meaningful.  Examples: $4, $69, $Bx.
+
+nnn: A single decimal byte, which may range from 1 to 3 digits in length. Examples: 4, 105,
+176. 
+
+'...' / "...": A string literal value.  Either apostrophes or quotation marks may be used. 
+Examples: 'Test', "Test".
+
+? or $xx: Wildcard decimal byte value.  The entire byte is masked (disregarded in event
+comparisons).  The value of the last byte masked in a rule's lvalue is restored to any masked
+bytes in the rvalue, which is useful for preserving data bytes in replaced MIDI events.
+
+Commas must be used to separate values within expressions.  Up to 16 bytes may appear in
+each rule's lvalue expression, while as many as 128 bytes may appear in each rvalue
+expression.  
+
+All characters appearing on a line after a semicolon (';') are considered to be comments, and
+ignored.  All characters appearing before an equal sign ('=') are considered to be part of the
+rule's lvalue expression; all characters appearing after an equal sign are considered to be part
+of its rvalue expression.  For example, the line
+
+event($Bx,120,0) = meta_event($01,"Test")   ;Control Change #120 
+
+contains a valid event translation rule which will trap infile events that set Controller 120 in
+any MIDI channel to a value of 0, replacing them in the outfile with Text meta-events
+containing the string "Test".
+
+An empty rvalue in a rule (such as event()) may be used to completely remove events which
+match the rule's lvalue.  When an event is removed in this manner, however, its delta-time
+prefix is removed as well.  This may cause loss of synchronization between tracks.  To avoid
+this problem, it is best to replace the undesired event with an unrecognized Control Change or
+similar event, rather than simply preventing it from appearing in the outfile.
+
+It is impossible to use MIDILOG's advanced features effectively without a good understanding
+of MIDI events and the Standard MIDI File specification.  However, an in-depth examination
+of these subjects is beyond the scope of this manual. To learn more about all aspects of MIDI,
+refer to a good general-purpose reference such as De Furia and Scacciaferro's MIDI
+Programmer's Handbook.
+
+Below is a sample logfile for use with MIDILOG.
+
+     ;                                                                    
+     ;SYSTEST.LOG                                                         
+     ;Sample event translation logfile -- turns SEQ.MID into APP.MID      
+     ;                                                                    
+     ;Usage: midilog seq.mid app.mid systest.log                          
+     ;                                                                    
+  
+     event($Bx,118,0) = meta_event($01,"Second measure")                 
+
+     event($Bx,119,1) = meta_event($02,"Copyright (C) 1991")              
+  
+     event($Bx,120,?) = meta_event($7E,?)                ;AIL Track Index
+
+     event($Bx,117,?) = event($F0,$43,$12,$00,$07,$F7)     ;Generic sysex 
+                                                                          
+     event($Bx,116,?) = MT32_sysex_event($10,$00,$01,1,7,7) ;MT-32 reverb
+MIDIREC: Standard MIDI File Recorder
+
+The MIDIREC program receives incoming MIDI Channel Voice and System Exclusive
+messages via a Roland MPU-401-compatible MIDI interface, and records them to a Standard
+MIDI Format 0 file.
+
+MIDIREC has the following command-line syntax:
+
+MIDIREC filename [/MA:xx] [/MI:xx]
+
+filename indicates the name of the Standard MIDI Format 0 file to create.  Optional
+parameters include /MA:xx and /MI:xx, which specify the hexadecimal I/O port address and
+IRQ number, respectively, of the Roland-compatible MIDI interface used to receive the
+incoming data.
+
+MIDIREC's advantage over many MIDI sequencers such as Cakewalk is its ability to record
+System Exclusive message transmissions, in addition to conventional MIDI Channel Voice
+messages.  When used in conjunction with MLIST's intelligent Roland MT-32 System
+Exclusive disassembly feature, MIDIREC is a valuable diagnostic tool for the examination of a
+MIDI application's output stream, whether or not the stream originated from an Audio
+Interface Library driver.
+
+The MIDIREC output file conforms to the standards for a Format 0 MIDI file, and is recorded
+as though it is being played in 4/4 time with a division of 120 delta-time ticks per quarter note
+and a tempo of 500,000 microseconds per quarter note.  If necessary, the file may be imported
+into a sequencer to adjust these parameters, but care should be taken not to inadvertently "lose"
+System Exclusive information in the process.MLIST: Standard MIDI File Disassembler
+
+The MLIST program displays and describes each event in a Standard MIDI Format 1.0 file. 
+In addition, MLIST is capable of displaying a reference list, either abridged or unabridged, of
+every documented, addressable memory location in the Roland MT-32 and LAPC-1
+synthesizers.
+
+MLIST has the following command-line syntax:
+
+MLIST [/MT] filename | /MA | /MU
+
+When disassembling MIDI file data intended for use with the Roland MT-32 and LAPC-1
+synthesizer family, MLIST's /MT option may be used to generate a detailed description of all
+System Exclusive data appearing in the file, including destination address names and functions
+for each byte sent to the Roland's memory-mapped parameter areas.  Used with the MIDIREC
+MIDI recorder program, this feature can provide a unique and powerful MIDI troubleshooting
+facility.
+
+The /MA and /MU options are intended to be used without an accompanying filename for
+disassembly.  These options cause either an Abridged (/MA) or Unabridged (/MU) list of the
+individual memory locations addressable in the Roland MT-32 or LAPC-1 synthesizers to be
+sent to the standard MS-DOS output device.  By means of the MS-DOS console redirection
+('>') command, this listing may be sent to a printer or disk file for later reference.  The
+unabridged Roland listing is rather voluminous, requiring approximately 300 sheets of paper if
+printed or approximately 1.5 megabytes if sent to a disk file.
+
+In addition to all standard MIDI file events, MLIST also recognizes and displays each Audio
+Interface Library-specific meta-event and Extended MIDI Control Change event.
+Below is a sample MLIST disassembly of a MIDI file.
+
+MLIST version 1.00                          Copyright (C) 1991 John Miles
+-------------------------------------------------------------------------
+
+Offset $0000: Chunk MThd, length $0006
+    MIDI file format: 1
+    # of tracks: 2
+    MIDI division: 120 delta-time ticks per quarter-note
+Offset $000E: Chunk MTrk, length $0019
+    DTime 0000: meta-event: key signature 0 0
+    DTime 0000: meta-event: tempo in uS/MIDI quarter-note = 666666
+    DTime 0000: meta-event: time signature 4/4, c = 024, b = 008
+    DTime 0000: meta-event: end of track
+Offset $002F: Chunk MTrk, length $0048
+    DTime 0000: meta-event: sequence/track name "PIANO"
+    DTime 0000: meta-event: instrument name "Acou Piano 2"
+    DTime 0000: Ch 02 program change to 001
+    DTime 0000: Ch 02 main volume MSB = 127
+    DTime 0000: Ch 02 note 048 on, attack velocity 091
+    DTime 0092: Ch 02 note 048 off
+    DTime 0028: Ch 02 note 048 on, attack velocity 088
+    DTime 0106: Ch 02 note 048 off
+    DTime 0014: Ch 02 note 048 on, attack velocity 098
+    DTime 0079: Ch 02 note 048 off
+    DTime 0001: Ch 02 note 050 on, attack velocity 088
+    DTime 0035: Ch 02 note 050 off
+    DTime 0007: Ch 02 note 052 on, attack velocity 090
+    DTime 0091: Ch 02 note 052 off
+    DTime 0027: Ch 02 AIL callback trigger controller 000
+    DTime 0000: meta-event: end of track
+CAKEPORT: Cakewalk(TM) Version 4.0 AIL Driver Interface
+
+The CAKEPORT program allows the use of any Audio Interface Library .ADV driver with
+the Cakewalk and Cakewalk Professional IBM MIDI sequencer programs from Twelve Tone
+Systems.
+
+Cakewalk and Cakewalk Professional communicate with their supported MIDI synthesizers
+through the use of a small, encapsulated driver which is loaded by the main program at
+runtime.  As described in Cakewalk's own literature, drivers for several different brands of PC
+MIDI interface adapters are supplied with the Cakewalk package.  To inform Cakewalk of the
+desired MIDI interface adapter type, the user is expected to save the adapter's driver under the
+standard filename MIDIPORT.DRV in the MS-DOS directory from which Cakewalk is
+launched.  For example, the DOS command copy mpu401.drv midiport.drv configures
+Cakewalk to communicate with the user's synthesizer and keyboard through the popular Roland
+MPU-401 MIDI interface.
+
+CAKEPORT.DRV supplements the list of MIDI drivers included with Cakewalk.  It is
+intended for use as a composition and arrangement tool when creating music for the IBM
+internal speaker, Ad Lib, Sound Blaster, Pro Audio Spectrum, Tandy, and other "non-MIDI"
+PC sound synthesizers, as well as a means of taking advantage of the timbre management and
+synthesizer-specific controllers provided by the Extended MIDI (XMIDI) standard for the
+Roland MT-32 family.  In essence, CAKEPORT allows the Cakewalk user to listen to
+sequenced MIDI playback through any sound adapter supported by any Audio Interface Library
+XMIDI driver, while still allowing MIDI keyboard input via a standard Roland MPU-401-
+compatible MIDI interface.
+
+CAKEPORT conforms to the same Extended MIDI (XMIDI) Global Timbre Library timbre
+management system used during XMIDI sequence playback.  When a Program Change number
+is encountered in the data being played (or echoed from the MIDI input port), the driver will
+attempt to install a timbre in the synthesizer's memory or local timbre cache from the Global
+Timbre Library file for that synthesizer.  Unlike standard XMIDI playback, however, it is
+impossible for the Cakewalk driver to know, in advance, which timbres will be requested by
+the sequence data.  Therefore, a short delay in the music may be noticed the first time a
+Program Change message which calls for a custom MIDI timbre is encountered.  This delay
+will not occur during subsequent playback commands, since the timbre will then be properly
+installed.  If a requested timbre cannot be found in the Global Timbre Library file, or if other
+problems are encountered during driver installation, initialization, or playback, a helpful
+"error" dialog box will inform the user of the nature of the problem and its possible solutions.
+Follow these steps to install and use the CAKEPORT driver:
+
+1.  Change to the directory from which Cakewalk will be launched.  This
+    directory is normally the one which already contains the default  
+    MIDIPORT.DRV and TIMER.DRV drivers supplied with Cakewalk.
+
+2.  Execute the command copy cakeport.drv midiport.drv, specifying
+    the directory in which CAKEPORT.DRV actually resides.  This installs
+    the Audio Interface Library CAKEPORT driver as the standard Cakewalk
+    MIDI driver resource.
+   
+3.  Execute the command copy xxxxx.adv xmidi.adv, where xxxxx.adv 
+    specifies the path and filename of an Audio Interface Library
+    Extended MIDI (XMIDI) .ADV driver which supports the desired 
+    sound adapter.  XMIDI.ADV is the filename under which CAKEPORT
+    expects to find the AIL XMIDI driver.
+
+4.  If the driver you specified in step 3 requires a Global Timbre
+    Library, or if you wish to use a set of custom timbres during
+    playback in Cakewalk, you should save the Global Timbre Library file
+    for the desired synthesizer in the Cakewalk driver directory under
+    the name xmidi.???.  Check the Technical Notes section of this manual
+    to find the proper Global Timbre Library filename suffix for the
+    XMIDI driver being used.  For instance, XMIDI.MT is the filename
+    under which CAKEPORT expects to find a Global Timbre Library file for
+    use with the Roland MT-32 synthesizer XMIDI driver, while XMIDI.AD
+    would be the correct filename for use with the Yamaha YM3812-based
+    drivers for the Ad Lib, Sound Blaster, and Pro Audio Spectrum family.
+
+6.  Execute the command cakewalk /s (or cakepro /s for Cakewalk
+    Professional).  When the Cakewalk Configuration Setup menu appears,
+    select the option marked (3) MIDI Interface Setup.  Cakewalk will
+    display a menu similar in appearance to the following:
+       
+      ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+      ³                                                                 ³
+      ³   << MIDI INTERFACE SETUP >>                                    ³
+      ³   Use <Up> and <Down> cursor keys to move between lines.        ³
+      ³   Press <Return> when done to return to the Main Menu.          ³
+      ³                                                                 ³
+      ³   Interface type is:  Audio Interface Library CAKEPORT Driver   ³
+      ³                                                                 ³
+      ³       MPU-401: "1" to enable, "2" to disable  1                 ³
+      ³                 Base port address (hex)       330               ³
+      ³                 IRQ number                    2                 ³
+      ³    AIL driver: "1" to enable, "2" to disable  1                 ³
+      ³                 Base port address (hex)       388               ³
+      ³                                                                 ³
+      ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ 
+                                             
+    The I/O parameters shown are the default values for the CAKEPORT
+    driver, and actually reflect the factory settings for the Roland MPU
+    -401 MIDI interface card and the Ad Lib Music Synthesizer card.  If
+    you have chosen to install any other driver configuration, you must
+    specify the settings required by your hardware.  Both the MPU-401
+    input and AIL driver output sections should ordinarily be enabled
+    with a "1" at the '"1" to enable, "2" to disable' prompts.
+
+7.  Press Enter to return to the Cakewalk Configuration Setup menu.  
+    Save the new CAKEPORT settings by selecting the (S) Save settings as
+    new defaults menu option.  You may now exit to DOS with the (Q) Quit
+    and return to DOS option, or start Cakewalk immediately by selecting
+    (C) Start Cakewalk.
+VTOR: Creative Labs .VOC File to Raw Sample Data Converter
+
+The VTOR program extracts raw PCM sample data from standard Creative Labs Sound Blaster
+Voice Editor-compatible .VOC files.
+
+VTOR has the following command-line syntax:
+
+VTOR infile.VOC outfile
+
+where infile represents the .VOC file to be stripped of its header and marker data, and outfile
+represents the file to which the raw PCM data should be saved.
+
+.VOC files to be converted may be of any length, and must not contain "silence packing"
+blocks or voice blocks with varying sample rates or compression types.
+
+During the conversion process, "repeat blocks" are expanded into multiple instances of the
+repeated voice data blocks.  The "extended block" type introduced with the Sound Blaster Pro
+developer kit is also supported by VTOR.

@@ -1,0 +1,5432 @@
+                                    
+
+
+
+IBM Audio Interface Library
+
+ Programming Examples
+
+ Release 2.06 of 5 July 1992
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Contents
+
+XPLAY.C .............................................................. 3
+MIXDEMO.C ............................................................ 8
+VOCPLAY.C ............................................................ 13
+DIGIPLAY.C ........................................................... 15
+STPLAY.C ............................................................. 18
+BLASTER.C ............................................................ 22
+SOUNDFX.C ............................................................ 25
+SOUNDFX.H ............................................................ 29
+AIL.H ................................................................ 30
+GEN.H ................................................................ 33
+WINXMIDI.C(*) ........................................................ 35
+WINSAMP.C(*) ......................................................... 43
+WAIL.H(*) ............................................................ 52
+TPXPLAY.PAS(+) ....................................................... 55
+TPVPLAY.PAS(+) ....................................................... 61
+AIL.PAS(+) ........................................................... 64
+VP16.C (**) .......................................................... 69
+XP16.C (**) .......................................................... 72
+STP16.C (**) ......................................................... 77
+MIX16.C (**) ......................................................... 81
+AIL16.H (**) ......................................................... 86
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+*  = Program provided on disk with optional Audio
+     Interface Library Windows Extensions (WAIL) package
+
++  = Program provided on disk with optional Audio
+     Interface Library Pascal API package
+
+** = Program provided on disk with optional Audio Interface
+     Library for 16-bit DPMI (AIL/16) package//ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+//лл                                                         лл
+//лл   XPLAY.C                                               лл
+//лл                                                         лл
+//лл   Standard XMIDI file performance utility               лл
+//лл                                                         лл
+//лл   V1.00 of 23-Oct-91                                    лл
+//лл   V1.01 of 12-Dec-91: New timbre request structure      лл
+//лл   V1.02 of 20-Dec-91: Register requested sequence only  лл
+//лл                                                         лл
+//лл   C source compatible with Turbo C++ v1.0 or later      лл
+//лл                                                         лл
+//ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+//лл                                                         лл
+//лл   xplay.obj: xplay.c gen.h ail.h                        лл
+//лл      bcc -ml -c -v xplay.c                              лл
+//лл                                                         лл
+//лл   xplay.exe: xplay.obj gen.lib ail.obj                  лл
+//лл      tlink @xplay.lls                                   лл
+//лл                                                         лл
+//лл   Contents of XPLAY.LLS:                                лл
+//лл     /c /v /x +                                          лл
+//лл     \bc\lib\c0l.obj +                                   лл
+//лл     xplay ail, +                                        лл
+//лл     xplay.exe, +                                        лл
+//лл     xplay.map, +                                        лл
+//лл     \bc\lib\cl.lib gen.lib                              лл
+//лл                                                         лл
+//ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+//лл                                                         лл
+//лл   Copyright (C) 1991 John Miles                         лл
+//лл                                                         лл
+//лл   Miles Design, Inc.                                    лл
+//лл   10926 Jollyville #308                                 лл
+//лл   Austin, TX 78759                                      лл
+//лл   (512) 345-2642                                        лл
+//лл                                                         лл
+//ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+
+#include <process.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <dos.h>
+#include <alloc.h>
+
+#include "ail.h"        // Audio Interface Library API function header
+#include "gen.h"        // General DOS and system functions
+
+const char VERSION[] = "1.02";
+
+/***************************************************************/
+//
+// Standard C routine for Global Timbre Library access
+//
+
+void far *load_global_timbre(FILE *GTL, unsigned bank, unsigned patch)
+{
+   unsigned far *timb_ptr;
+   static unsigned len;
+
+   static struct                  // GTL file header entry structure
+   {
+      char patch;
+      char bank;
+      unsigned long offset;
+   }
+   GTL_hdr;
+
+   if (GTL==NULL) return NULL;    // if no GTL, return failure
+
+   rewind(GTL);                   // else rewind to GTL header
+   do                             // search file for requested timbre
+      {
+      fread(&GTL_hdr,sizeof(GTL_hdr),1,GTL);    
+      if (GTL_hdr.bank == -1) 
+         return NULL;             // timbre not found, return NULL
+      }
+   while ((GTL_hdr.bank != bank) ||
+          (GTL_hdr.patch != patch));       
+
+   fseek(GTL,GTL_hdr.offset,SEEK_SET);    
+   fread(&len,2,1,GTL);           // timbre found, read its length
+
+   timb_ptr = farmalloc(len);     // allocate memory for timbre ..
+   *timb_ptr = len;         
+                                  // and load it
+   fread((timb_ptr+1),len-2,1,GTL);       
+                           
+   if (ferror(GTL))               // return NULL if any errors
+      return NULL;                // occurred
+   else
+      return timb_ptr;            // else return pointer to timbre
+}
+   
+/***************************************************************/
+void main(int argc, char *argv[])
+{
+   HDRIVER hdriver;
+   HSEQUENCE hseq;
+   drvr_desc far *desc;
+   FILE *GTL;
+   char GTL_filename[32];
+   char far *state;
+   char far *drvr;
+   char far *timb;
+   char far *tc_addr;
+   unsigned char far *buffer;
+   unsigned long state_size;
+   unsigned bank,patch,tc_size,seqnum,treq;
+   
+   if (!strcmp((char far *) 0x000004f0,"XPLAY"))
+      {
+      printf("You must type 'EXIT' before re-starting XPLAY.\n");
+      exit(1);
+      }
+
+   printf("\n");
+   printf("XPLAY version %s                                Copyright (C) 1991 John Miles\n",VERSION);
+   printf("-------------------------------------------------------------------------------\n\n");
+
+   if (argc < 3)
+      {
+      printf("This program plays an Extended MIDI (XMIDI) sequence through a \n");
+      printf("specified Audio Interface Library V2.0 sound driver.\n\n");
+      printf("Usage: XPLAY XMIDI_filename driver_filename [sequence_number]\n");
+      exit(1);
+      }
+
+   seqnum = 0;
+   if (argc == 4) seqnum = val(argv[3],10);
+
+   //
+   // Load driver file at seg:0000
+   //
+
+   drvr = load_driver(argv[2]); 
+   if (drvr==NULL)     
+      {
+      printf("Driver %s not found\n",argv[2]);
+      exit(1);
+      }
+   //
+   // Initialize API before calling any Library functions
+   //
+
+   AIL_startup();
+
+   //
+   // Register the driver with the API
+   //
+
+   hdriver = AIL_register_driver(drvr);
+   if (hdriver==-1)
+      {
+      printf("Driver %s not compatible with linked API version.\n",
+         argv[2]);
+      AIL_shutdown(NULL);
+      exit(1);
+      }
+
+   //
+   // Get driver type and factory default I/O parameters; exit if
+   // driver is not capable of interpreting MIDI files
+   //
+
+   desc = AIL_describe_driver(hdriver);
+
+   if (desc->drvr_type != XMIDI_DRVR)
+      {
+      printf("Driver %s not an XMIDI driver.\n",argv[2]);
+      AIL_shutdown(NULL);
+      exit(1);
+      }
+
+   //
+   // Verify presence of driver's sound hardware and prepare 
+   // driver/hardware for use
+   //
+
+   if (!AIL_detect_device(hdriver,desc->default_IO,desc->default_IRQ,
+      desc->default_DMA,desc->default_DRQ))
+         {
+         printf("Sound hardware not found.\n");
+         AIL_shutdown(NULL);
+         exit(1);
+         }
+
+   AIL_init_driver(hdriver,desc->default_IO,desc->default_IRQ,
+      desc->default_DMA,desc->default_DRQ);
+
+   state_size = AIL_state_table_size(hdriver);
+
+
+   //
+   // Load XMIDI data file
+   //
+
+   buffer = read_file(argv[1],NULL);
+   if (buffer == NULL)
+      {
+      printf("Can't load XMIDI file %s.\n",argv[1]);
+      AIL_shutdown(NULL);
+      exit(1);
+      }
+
+   //
+   // Get name of Global Timbre Library file by appending suffix 
+   // supplied by XMIDI driver to GTL filename prefix "SAMPLE."
+   //
+
+   strcpy(GTL_filename,"SAMPLE.");
+   strcat(GTL_filename,desc->data_suffix);
+   //
+   // Set up local timbre cache; open Global Timbre Library file
+   //
+
+   tc_size = AIL_default_timbre_cache_size(hdriver);
+   if (tc_size)
+      {
+      tc_addr = farmalloc((unsigned long) tc_size);
+      AIL_define_timbre_cache(hdriver,tc_addr,tc_size);
+      }
+
+   GTL = fopen(GTL_filename,"rb");
+
+   //
+   // Look up and register desired sequence in XMIDI file, loading
+   // timbres if needed
+   //
+
+   state = farmalloc(state_size);
+   if ((hseq = AIL_register_sequence(hdriver,buffer,seqnum,state,
+      NULL)) == -1)
+      {
+      printf("Sequence %u not present in XMIDI file \"%s\".\n",
+         seqnum,argv[1]);
+      AIL_shutdown(NULL);
+      exit(1);
+      }
+
+   while ((treq=AIL_timbre_request(hdriver,hseq)) != 0xffff)
+      {
+      bank = treq / 256; patch = treq % 256;
+                         
+      timb = load_global_timbre(GTL,bank,patch);
+      if (timb != NULL)
+         {
+         AIL_install_timbre(hdriver,bank,patch,timb);
+         farfree(timb);
+         printf("Installed timbre bank %u, patch %u\n",bank,patch);
+         }
+      else
+         {
+         printf("Timbre bank %u, patch %u not found ",bank,patch);
+         printf("in Global Timbre Library %s\n",GTL_filename);
+         AIL_shutdown(NULL);
+         exit(1);
+         }
+      }
+
+   if (GTL != NULL) fclose(GTL);         
+
+   //
+   // Start music playback and set flag to prevent user from 
+   // launching multiple copies of XPLAY from the DOS shell
+   //
+
+   printf("Playing sequence %u from XMIDI file \"%s\" ...\n\n",
+      seqnum,argv[1]);
+
+   AIL_start_sequence(hdriver,hseq);
+
+   strcpy((char far *) 0x000004f0,"XPLAY");
+
+   printf("Launching DOS shell.  Type 'EXIT' to stop playback ");
+   printf("and exit XPLAY.");
+   spawnlp(P_WAIT,"command.com",NULL);
+   //
+   // Shut down API and all installed drivers; write XMIDI filename 
+   // to any front-panel displays
+   //
+
+   strcpy((char far *) 0x000004f0,"        ");
+   printf("XPLAY stopped.\n");
+   AIL_shutdown(argv[1]);
+}
+//ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+//лл                                                         лл
+//лл   MIXDEMO.C                                             лл
+//лл                                                         лл
+//лл   XMIDI multiple-sequence sound effects demo            лл
+//лл                                                         лл
+//лл   V1.00 of 09-Nov-91                                    лл
+//лл   V1.01 of 12-Dec-91: New timbre request structure      лл
+//лл                                                         лл
+//лл   C source compatible with Turbo C++ v1.0 or later      лл
+//лл                                                         лл
+//ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+//лл                                                         лл
+//лл   demo.xmi: backgnd.mid shanty.mid choral.mid           лл
+//лл     midiform demo.xmi backgnd.mid shanty.mid choral.mid лл
+//лл                                                         лл
+//лл   mixdemo.obj: mixdemo.c gen.h ail.h                    лл
+//лл     bcc -ml -c -v mixdemo.c                             лл
+//лл                                                         лл
+//лл   mixdemo.exe: mixdemo.obj gen.lib ail.obj              лл
+//лл     tlink @mixdemo.lls                                  лл
+//лл                                                         лл
+//лл   Contents of MIXDEMO.LLS:                              лл
+//лл     /c /v /x +                                          лл
+//лл     \bc\lib\c0l.obj +                                   лл
+//лл     mixdemo ail, +                                      лл
+//лл     mixdemo.exe, +                                      лл
+//лл     mixdemo.map, +                                      лл
+//лл     \bc\lib\cl.lib gen.lib                              лл
+//лл                                                         лл
+//ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+//лл                                                         лл
+//лл   Copyright (C) 1991 John Miles                         лл
+//лл                                                         лл
+//лл   10926 Jollyville #308                                 лл
+//лл   Austin, TX 78759                                      лл
+//лл   (512) 345-2642                                        лл
+//лл                                                         лл
+//ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <dos.h>
+#include <alloc.h>
+
+#include "ail.h"        // Audio Interface Library API function header
+#include "gen.h"        // General DOS and system functions
+
+const char VERSION[] = "1.01";
+
+const char seq_fn[] = "DEMO.XMI"; // name of XMIDI sequence file
+
+/***************************************************************/
+//
+// Standard C routine for Global Timbre Library access
+//
+
+void far *load_global_timbre(FILE *GTL, unsigned bank, unsigned patch)
+{
+   unsigned far *timb_ptr;
+   static unsigned len;
+
+   static struct                  // GTL file header entry structure
+   {
+      char patch;
+      char bank;
+      unsigned long offset;
+   }
+   GTL_hdr;
+   if (GTL==NULL) return NULL;    // if no GTL, return failure
+
+   rewind(GTL);                   // else rewind to GTL header
+
+   do                             // search file for requested timbre
+      {
+      fread(&GTL_hdr,sizeof(GTL_hdr),1,GTL);    
+      if (GTL_hdr.bank == -1) 
+         return NULL;             // timbre not found, return NULL
+      }
+   while ((GTL_hdr.bank != bank) ||
+          (GTL_hdr.patch != patch));       
+
+   fseek(GTL,GTL_hdr.offset,SEEK_SET);    
+   fread(&len,2,1,GTL);           // timbre found, read its length
+
+   timb_ptr = farmalloc(len);     // allocate memory for timbre ..
+   *timb_ptr = len;         
+                                  // and load it
+   fread((timb_ptr+1),len-2,1,GTL);       
+                           
+   if (ferror(GTL))               // return NULL if any errors
+      return NULL;                // occurred
+   else
+      return timb_ptr;            // else return pointer to timbre
+}
+
+/***************************************************************/
+void main(int argc, char *argv[])
+{
+   HDRIVER hdriver;
+   HSEQUENCE hseq[8];
+   char far *state[8];
+   char GTL_filename[32];
+   unsigned char far *buffer;
+   unsigned long state_size;
+   drvr_desc far *desc;
+   char far *drvr;
+   char far *timb;
+   int seqnum;
+   FILE *GTL;
+   unsigned i,ch,tc_size;
+   char far *tc_addr;
+   unsigned treq;
+
+   printf("\n");
+   printf("MIXDEMO version %s                              Copyright (C) 1991 John Miles\n",VERSION);
+   printf("-------------------------------------------------------------------------------\n\n");
+
+   if (argc != 2)
+      {
+      printf("This program demonstrates the Audio Interface Library's ");
+      printf("multiple-sequence\nExtended MIDI playback features.\n\n");
+      printf("Usage: MIXDEMO driver_filename\n");
+      exit(1);
+      }
+
+   //
+   // Load driver file at seg:0000
+   //
+
+   drvr = load_driver(argv[1]); 
+   if (drvr==NULL)     
+      {
+      printf("Driver %s not found\n",argv[1]);
+      exit(1);
+      }
+
+   //
+   // Initialize API before calling any Library functions
+   //
+
+   AIL_startup();   //
+   // Register the driver with the API
+   //
+
+   hdriver = AIL_register_driver(drvr);
+   if (hdriver==-1)
+      {
+      printf("Driver %s not compatible with linked API version.\n",
+         argv[1]);
+      AIL_shutdown(NULL);
+      exit(1);
+      }
+
+   //
+   // Get driver type and factory default I/O parameters; exit if
+   // driver is not capable of interpreting MIDI files
+   //
+
+   desc = AIL_describe_driver(hdriver);
+
+   if (desc->drvr_type != XMIDI_DRVR)
+      {
+      printf("Driver %s not an XMIDI driver.\n",argv[1]);
+      AIL_shutdown(NULL);
+      exit(1);
+      }
+
+   //
+   // Verify presence of driver's sound hardware and prepare 
+   // driver/hardware for use
+   //
+
+   if (!AIL_detect_device(hdriver,desc->default_IO,desc->default_IRQ,
+      desc->default_DMA,desc->default_DRQ))
+         {
+         printf("Sound hardware not found.\n");
+         AIL_shutdown(NULL);
+         exit(1);
+         }
+
+   AIL_init_driver(hdriver,desc->default_IO,desc->default_IRQ,
+      desc->default_DMA,desc->default_DRQ);
+
+   state_size = AIL_state_table_size(hdriver);
+
+   //
+   // Load XMIDI data file
+   //
+
+   buffer = read_file(seq_fn,NULL);
+   if (buffer == NULL)
+      {
+      printf("Can't load XMIDI file %s.\n",seq_fn);
+      AIL_shutdown(NULL);
+      exit(1);
+      }
+
+   //
+   // Get name of Global Timbre Library file by appending suffix 
+   // supplied by XMIDI driver to GTL filename prefix "SAMPLE."
+   //
+
+   strcpy(GTL_filename,"SAMPLE.");
+   strcat(GTL_filename,desc->data_suffix);
+   //
+   // Set up local timbre cache; open Global Timbre Library file
+   //
+
+   tc_size = AIL_default_timbre_cache_size(hdriver);
+   if (tc_size)
+      {
+      tc_addr = farmalloc((unsigned long) tc_size);
+      AIL_define_timbre_cache(hdriver,tc_addr,tc_size);
+      }
+
+   GTL = fopen(GTL_filename,"rb");
+
+   //
+   // Register all sequences in XMIDI file (up to 8 allowed), loading
+   // new timbres as needed
+   //
+
+   for (i=0;i<8;i++)
+      {
+      state[i] = farmalloc(state_size);
+      if ((hseq[i] = AIL_register_sequence(hdriver,buffer,i,state[i],
+         NULL)) == -1)
+         {
+         farfree(state[i]);
+         break;
+         }
+
+      while ((treq=AIL_timbre_request(hdriver,hseq[i])) != 0xffff)
+         {
+         timb = load_global_timbre(GTL,treq/256,treq%256);
+         if (timb != NULL)
+            {
+            AIL_install_timbre(hdriver,treq/256,treq%256,timb);
+            farfree(timb);
+            }
+         else
+            {
+            printf("Timbre bank %u, patch %u not found ",
+               treq/256,treq%256);
+            printf("in Global Timbre Library %s\n",GTL_filename);
+            AIL_shutdown(NULL);
+            exit(1);
+            }
+         }
+      }
+
+   if (GTL != NULL) fclose(GTL);         
+   printf("Sequences 0-%u registered.\n\n",i-1);
+
+   //
+   // Show menu, start sequences at user's request
+   //
+
+   printf("Options: [1] to start main sequence (BACKGND.MID)\n");
+   printf("         [2] to start sequence #1   (SHANTY.MID)\n");
+   printf("         [3] to start sequence #2   (CHORAL.MID)\n");
+   printf("       [ESC] to quit\n\n");
+
+   while ((ch=getch()) != 27)
+      {
+      switch (ch)
+         {
+         case '1':
+         case '2':
+         case '3':
+            i = ch - '1';
+            AIL_start_sequence(hdriver,hseq[i]);
+            break;
+         }
+      }
+   //
+   // Shut down API and all installed drivers; write signoff message
+   // to any front-panel displays
+   //
+
+   printf("MIXDEMO stopped.\n");
+   AIL_shutdown("MIXDEMO stopped.");
+}
+//лллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+//лл                                                      лл
+//лл   VOCPLAY.C                                          лл
+//лл                                                      лл
+//лл   Creative Voice File (.VOC) performance utility     лл
+//лл                                                      лл
+//лл   V2.00 of 09-Oct-91                                 лл
+//лл                                                      лл
+//лл   C source compatible with Turbo C++ v1.0 or later   лл
+//лл                                                      лл
+//лллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+//лл                                                      лл
+//лл   vocplay.obj: vocplay.c gen.h ail.h                 лл
+//лл      bcc -ml -c -v vocplay.c                         лл
+//лл                                                      лл
+//лл   vocplay.exe: vocplay.obj gen.lib ail.obj           лл
+//лл      tlink @vocplay.lls                              лл
+//лл                                                      лл
+//лл   Contents of VOCPLAY.LLS:                           лл
+//лл     /c /v /x +                                       лл
+//лл     \bc\lib\c0l.obj +                                лл
+//лл     vocplay ail, +                                   лл
+//лл     vocplay.exe, +                                   лл
+//лл     vocplay.map, +                                   лл
+//лл     \bc\lib\cl.lib gen.lib                           лл
+//лл                                                      лл
+//лллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+//лл                                                      лл
+//лл   Copyright (C) 1991 John Miles                      лл
+//лл                                                      лл
+//лл   10926 Jollyville #308                              лл
+//лл   Austin, TX 78759                                   лл
+//лл   (512) 345-2642                                     лл
+//лл                                                      лл
+//лллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+
+#include <process.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <dos.h>
+#include <alloc.h>
+
+#include "ail.h"        // Audio Interface Library API header file
+#include "gen.h"        // General DOS and system functions
+
+const char VERSION[] = "2.00";
+
+/*****************************************************************/
+void main(int argc, char *argv[])
+{
+   HDRIVER hdriver;
+   char far *vfile;
+   char far *drvr;
+   drvr_desc far *desc;
+
+   printf("\n");
+   printf("VOCPLAY version %s                              Copyright (C) 1991 John Miles\n",VERSION);
+   printf("-------------------------------------------------------------------------------\n\n");
+
+   if (argc != 3)
+      {
+      printf("This program plays a Creative Voice File (.VOC) through any Audio Interface\n");
+      printf("Library digital sound driver.\n\n");
+      printf("Usage: VOCPLAY filename.voc driver.adv\n");
+      exit(1);
+      }
+
+   AIL_startup();
+   drvr = load_driver(argv[2]);
+   if (drvr == NULL)
+      {
+      printf("Couldn't load driver.\n");
+      AIL_shutdown(NULL);
+      exit(1);
+      }
+
+   hdriver = AIL_register_driver(drvr);
+   if (hdriver==-1)
+      {
+      printf("Driver %s not compatible with linked API version.\n"
+         ,argv[2]);
+      AIL_shutdown(NULL);
+      exit(1);
+      }
+
+   desc = AIL_describe_driver(hdriver);
+
+   if (desc->drvr_type != DSP_DRVR)
+      {
+      printf("%s is not a digital sound driver.\n",argv[2]);
+      AIL_shutdown(NULL);
+      exit(1);
+      }
+   
+   if (!AIL_detect_device(hdriver,desc->default_IO,desc->default_IRQ,
+      desc->default_DMA,desc->default_DRQ))
+         {
+         printf("Sound hardware not found.\n");
+         AIL_shutdown(NULL);
+         exit(1);
+         }
+
+   AIL_init_driver(hdriver,desc->default_IO,desc->default_IRQ,
+      desc->default_DMA,desc->default_DRQ);
+
+   vfile = read_file(argv[1],NULL);
+   if (vfile == NULL)
+      {
+      printf("Couldn't load %s.\n",argv[1]);
+      AIL_shutdown(NULL);
+      exit(1);
+      }
+
+   AIL_format_VOC_file(hdriver,vfile,-1);
+   AIL_play_VOC_file(hdriver,vfile,-1);
+   AIL_start_digital_playback(hdriver);
+
+   printf("Launching DOS shell.  Type 'EXIT' to stop playback and ");
+   printf("exit VOCPLAY.");
+   spawnlp(P_WAIT,"command.com",NULL);
+
+   printf("VOCPLAY stopped.\n");
+   AIL_shutdown(NULL);
+}
+//лллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+//лл                                                      лл
+//лл   DIGIPLAY.C                                         лл
+//лл                                                      лл
+//лл   Creative Voice File (.VOC) performance utility     лл
+//лл   with dual-buffer playback                          лл
+//лл                                                      лл
+//лл   V2.00 of 09-Oct-91                                 лл
+//лл                                                      лл
+//лл   C source compatible with Turbo C++ v1.0 or later   лл
+//лл                                                      лл
+//лллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+//лл                                                      лл
+//лл   digiplay.obj: digiplay.c gen.h ail.h               лл
+//лл      bcc -ml -c -v digiplay.c                        лл
+//лл                                                      лл
+//лл   digiplay.exe: digiplay.obj gen.lib ail.obj         лл
+//лл      tlink @digiplay.lls                             лл
+//лл                                                      лл
+//лл   Contents of DIGIPLAY.LLS:                          лл
+//лл     /c /v /x +                                       лл
+//лл     \bc\lib\c0l.obj +                                лл
+//лл     digiplay ail, +                                  лл
+//лл     digiplay.exe, +                                  лл
+//лл     digiplay.map, +                                  лл
+//лл     \bc\lib\cl.lib gen.lib                           лл
+//лл                                                      лл
+//лллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+//лл                                                      лл
+//лл   Copyright (C) 1991 John Miles                      лл
+//лл                                                      лл
+//лл   10926 Jollyville #308                              лл
+//лл   Austin, TX 78759                                   лл
+//лл   (512) 345-2642                                     лл
+//лл                                                      лл
+//лллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+
+#include <process.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <dos.h>
+#include <alloc.h>
+
+#include "ail.h"        // Audio Interface Library API header file
+#include "gen.h"        // General DOS and system functions
+
+const char VERSION[] = "2.00";
+
+/***********************************************************/
+void main(int argc, char *argv[])
+{
+   HDRIVER hdriver;
+   char far *vfile;
+   char far *drvr;
+   drvr_desc *desc;
+   sound_buff firstblock,tempblock;
+   int i,done;
+
+   printf("\n");
+   printf("DIGIPLAY version %s                             Copyright (C) 1991 John Miles\n",VERSION);
+   printf("-------------------------------------------------------------------------------\n\n");
+
+   if (argc != 3)
+      {
+      printf("This program plays the first Voice Block from a Creative Voice File (.VOC)\n");
+      printf("through any Audio Interface Library digital driver.\n\n");
+      printf("Usage: DIGIPLAY VOC_filename driver_filename\n");
+      exit(1);
+      }
+
+   AIL_startup();
+   //
+   // Load, install, describe, and initialize the Sound Blaster-
+   // compatible driver
+   //
+
+   drvr = load_driver(argv[2]);
+   if (drvr == NULL)
+      {
+      printf("Couldn't load driver.\n");
+      AIL_shutdown(NULL);
+      exit(1);
+      }
+
+   hdriver = AIL_register_driver(drvr);
+   if (hdriver==-1)
+      {
+      printf("Driver %s not compatible with linked API version.\n",
+         argv[2]);
+      AIL_shutdown(NULL);
+      exit(1);
+      }
+
+   desc = AIL_describe_driver(hdriver);
+
+   if (desc->drvr_type != DSP_DRVR)
+      {
+      printf("%s is not a digital sound driver.\n",argv[2]);
+      AIL_shutdown(NULL);
+      exit(1);
+      }
+
+   if (!AIL_detect_device(hdriver,desc->default_IO,desc->default_IRQ,
+      desc->default_DMA,desc->default_DRQ))
+         {
+         printf("Sound hardware not found.\n");
+         AIL_shutdown(NULL);
+         exit(1);
+         }
+
+   AIL_init_driver(hdriver,desc->default_IO,desc->default_IRQ,
+      desc->default_DMA,desc->default_DRQ);
+
+   //
+   // Read the entire .VOC file into memory
+   //
+   // (Not necessary when double-buffering, but done for simplicity)
+   //
+
+   vfile = read_file(argv[1],NULL);
+   if (vfile == NULL)
+      {
+      printf("Couldn't load %s.\n",argv[1]);
+      AIL_shutdown(NULL);
+      exit(1);
+      }
+
+   //
+   // Get the address and size of the first Voice Data block in the
+   // target .VOC file
+   //
+
+   AIL_index_VOC_block(hdriver,vfile,-1,&firstblock);
+
+   //
+   // Play the block as a series of double-buffered 16K chunks
+   //
+   // For this example, we disregard the fact that the entire file is
+   // in memory, and simulate the use of registered sound buffers to 
+   // maintain continuous sound output as if the buffered chunks were
+   // actually loaded on demand from disk or extra memory
+   //
+
+   printf("Press any key to stop playback ");
+
+   //
+   // Copy sample rate and packing type to working sound buffer 
+   // structure
+   //
+
+   tempblock = firstblock;
+
+   //
+   // Sample application main loop ...
+   //
+
+   done = 0;
+   do
+      {
+
+      //
+      // (Application-specific events here)
+      //
+
+      //
+      // Update sound DMA buffers and ensure sound output is active
+      //                          
+
+      for (i=0;i<2;i++)
+         if ((AIL_sound_buffer_status(hdriver,i) == DAC_DONE)
+            && firstblock.len)
+            {
+            tempblock.data = firstblock.data;
+            tempblock.len = min(16384L,firstblock.len);
+            firstblock.len -= tempblock.len;
+            firstblock.data = (void far *) ((char huge *)
+               firstblock.data + tempblock.len);
+            AIL_format_sound_buffer(hdriver,&tempblock);
+            AIL_register_sound_buffer(hdriver,i,&tempblock);
+            printf(".");
+            }
+      AIL_start_digital_playback(hdriver);
+
+      if (kbhit()) done = 1;
+
+      //
+      // Playback ends when no bytes are left in the source data and
+      // the status of both buffers equals DAC_DONE
+      //
+
+      if (!firstblock.len)
+         if ((AIL_sound_buffer_status(hdriver,0) == DAC_DONE)
+            && (AIL_sound_buffer_status(hdriver,1) == DAC_DONE))
+               done = 1;
+      }
+   while (!done);
+
+   while (kbhit()) getch();
+
+   printf("\n\nDIGIPLAY stopped.\n");
+   AIL_shutdown(NULL);
+}
+//лллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+//лл                                                      лл
+//лл   STPLAY.C                                           лл
+//лл                                                      лл
+//лл   Creative Voice File (.VOC) stereo performance      лл
+//лл   utility with dual-buffer playback                  лл
+//лл                                                      лл
+//лл   V2.00 of 09-Oct-91                                 лл
+//лл   V2.01 of 14-Dec-91: Pause/resume added             лл
+//лл                                                      лл
+//лл   C source compatible with Turbo C++ v1.0 or later   лл
+//лл                                                      лл
+//лллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+//лл                                                      лл
+//лл   stplay.obj: stplay.c gen.h ail.h                   лл
+//лл      bcc -ml -c -v stplay.c                          лл
+//лл                                                      лл
+//лл   stplay.exe: stplay.obj gen.lib ail.obj             лл
+//лл      tlink @stplay.lls                               лл
+//лл                                                      лл
+//лл   Contents of STPLAY.LLS:                            лл
+//лл     /c /v /x +                                       лл
+//лл     \bc\lib\c0l.obj +                                лл
+//лл     stplay ail, +                                    лл
+//лл     stplay.exe, +                                    лл
+//лл     stplay.map, +                                    лл
+//лл     \bc\lib\cl.lib gen.lib                           лл
+//лл                                                      лл
+//лллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+//лл                                                      лл
+//лл   Copyright (C) 1991 John Miles                      лл
+//лл                                                      лл
+//лл   10926 Jollyville #308                              лл
+//лл   Austin, TX 78759                                   лл
+//лл   (512) 345-2642                                     лл
+//лл                                                      лл
+//лллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+
+#include <process.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <dos.h>
+#include <alloc.h>
+#include <io.h>
+
+#include "ail.h"        // Audio Interface Library API header file
+#include "gen.h"        // General DOS and system functions
+
+const char VERSION[] = "2.01";
+
+char far buf1[16384], far buf2[16384];
+
+/*****************************************************************/
+void main(int argc, char *argv[])
+{
+   HDRIVER hdriver;
+   FILE *vfile;
+   char far *drvr;
+   drvr_desc far *desc;
+   sound_buff firstblock,tempblock;
+   int i,done,bufnum,paused;
+
+   printf("\n");
+   printf("STPLAY version %s                               Copyright (C) 1991 John Miles\n",VERSION);
+   printf("-------------------------------------------------------------------------------\n\n");
+
+   if (argc != 3)
+      {
+      printf("This program plays a raw 8-bit stereo sample at 22 kHz\n");
+      printf("through any Audio Interface Library digital stereo driver.\n\n");
+      printf("Usage: STPLAY ST_filename driver_filename\n");
+      exit(1);
+      }   AIL_startup();
+
+   //
+   // Load, install, describe, and initialize the Sound Blaster-
+   // compatible driver
+   //
+
+   drvr = load_driver(argv[2]);
+   if (drvr == NULL)
+      {
+      printf("Couldn't load driver.\n");
+      AIL_shutdown(NULL);
+      exit(1);
+      }
+
+   hdriver = AIL_register_driver(drvr);
+   if (hdriver==-1)
+      {
+      printf("Driver %s not compatible with linked API version.\n",
+         argv[2]);
+      AIL_shutdown(NULL);
+      exit(1);
+      }
+
+   desc = AIL_describe_driver(hdriver);
+
+   if (desc->drvr_type != DSP_DRVR)
+      {
+      printf("%s is not a digital sound driver.\n",argv[2]);
+      AIL_shutdown(NULL);
+      exit(1);
+      }
+
+   if (!AIL_detect_device(hdriver,desc->default_IO,desc->default_IRQ,
+      desc->default_DMA,desc->default_DRQ))
+         {
+         printf("Sound hardware not found.\n");
+         AIL_shutdown(NULL);
+         exit(1);
+         }
+
+   AIL_init_driver(hdriver,desc->default_IO,desc->default_IRQ,
+      desc->default_DMA,desc->default_DRQ);
+
+   vfile = fopen(argv[1],"rb");
+   if (vfile == NULL)
+      {
+      printf("Couldn't open %s.\n",argv[1]);
+      AIL_shutdown(NULL);
+      exit(1);
+      }
+
+   //
+   // Play the block as a series of double-buffered 16K chunks
+   //
+
+   printf("U D to increase/decrease volume\n");
+   printf("P R to pause/resume playback\n");
+   printf("< > to pan left, right\n");
+   printf("ESC to stop playback\n\n");
+
+   //
+   // Copy sample rate and packing type to working sound buffer 
+   // structure
+   //
+   // Sound Blaster standard sample rate: 256-(1000000-freq in Hz.)
+   //
+
+   firstblock.sample_rate = 234;     // 22.050 kHz (stereo 44.1 kHz)
+   firstblock.pack_type = 0 | 0x80;  // 8-bit stereo sample
+   firstblock.len = filelength(fileno(vfile));
+   bufnum = 0;
+   tempblock = firstblock;
+
+   //
+   // Sample application main loop ...
+   //
+
+   done = paused = 0;
+   do
+      {
+
+      //
+      // (Application-specific events here)
+      //
+
+      if (kbhit())                                 
+         {
+         switch (toupper(getch()))
+            {
+            case 'P':
+               AIL_pause_digital_playback(hdriver);
+               paused = 1;
+               break;
+
+            case 'R':
+               AIL_resume_digital_playback(hdriver);
+               paused = 0;
+               break;
+
+            case 'U':
+               i = AIL_digital_playback_volume(hdriver);
+               i+=10;
+               if (i>127) i=127;
+               AIL_set_digital_playback_volume(hdriver,i);
+               break;
+
+            case 'D':
+               i = AIL_digital_playback_volume(hdriver);
+               i-=10;
+               if (i<0) i=0;
+               AIL_set_digital_playback_volume(hdriver,i);
+               break;
+
+            case ',':
+            case '<':
+               i = AIL_digital_playback_panpot(hdriver);
+               i+=10;
+               if (i>127) i=127;
+               AIL_set_digital_playback_panpot(hdriver,i);
+               break;
+
+            case '.':
+            case '>':
+               i = AIL_digital_playback_panpot(hdriver);
+               i-=10;
+               if (i<0) i=0;
+               AIL_set_digital_playback_panpot(hdriver,i);
+               break;
+
+            case 27:
+               done=1;
+               break;
+            }
+         }
+      //
+      // Update sound DMA buffers and ensure sound output is active
+      //                          
+
+      if (!paused)
+         {
+         for (i=0;i<2;i++)
+            if ((AIL_sound_buffer_status(hdriver,i) == DAC_DONE)
+               && firstblock.len)
+               {
+               tempblock.len = min(16384L,firstblock.len);
+               firstblock.len -= tempblock.len;
+               if (!(bufnum ^= 1))
+                  {
+                  fread(buf1,(unsigned) tempblock.len,1,vfile);
+                  tempblock.data = buf1;
+                  }
+               else
+                  {
+                  fread(buf2,(unsigned) tempblock.len,1,vfile);
+                  tempblock.data = buf2;
+                  }
+
+               AIL_format_sound_buffer(hdriver,&tempblock);
+               AIL_register_sound_buffer(hdriver,i,&tempblock);
+               printf(".");
+               }
+         AIL_start_digital_playback(hdriver);
+         }
+
+      //
+      // Playback ends when no bytes are left in the source data and
+      // the status of both buffers equals DAC_DONE
+      //
+
+      if (!firstblock.len)
+         if ((AIL_sound_buffer_status(hdriver,0) == DAC_DONE)
+            && (AIL_sound_buffer_status(hdriver,1) == DAC_DONE))
+               done = 1;
+      }
+   while (!done);
+
+   while (kbhit()) getch();
+
+   fclose(vfile);
+   printf("\n\nSTPLAY stopped.\n");
+   AIL_shutdown(NULL);
+}
+//ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+//лл                                                                       лл
+//лл  BLASTER.C                                                            лл
+//лл                                                                       лл
+//лл  Demonstrates a technique for determining the address and type        лл
+//лл  parameters of a Sound Blaster Pro adapter.  Relies on the BLASTER    лл
+//лл  environment variable, which is normally inserted into the end        лл
+//лл  user's AUTOEXEC.BAT file by the Sound Blaster installation program.  лл
+//лл                                                                       лл
+//лл-----------------------------------------------------------------------лл
+//лл  Example usage:                                                       лл
+//лл                                                                       лл
+//лл  C:\>SET BLASTER=A220 I7 D1 T4                                        лл
+//лл                                                                       лл
+//лл  C:\>blaster                                                          лл
+//лл    Sound Blaster type: Sound Blaster Pro (Yamaha YMF262/OPL3 version) лл
+//лл           I/O address: 220H                                           лл
+//лл                   IRQ: 7                                              лл
+//лл                   DMA: 1                                              лл
+//лл  Digital sound driver: SBPDIG.ADV                                     лл
+//лл       FM sound driver: SBP2FM.ADV                                     лл
+//лл                                                                       лл
+//лл  C:\>                                                                 лл
+//лл-----------------------------------------------------------------------лл
+//лл                                                                       лл
+//лл  V1.00 of 20-Apr-92                                                   лл
+//лл                                                                       лл
+//лл  Project: IBM Audio Interface Library                                 лл
+//лл   Author: John Miles                                                  лл
+//лл                                                                       лл
+//лл  C source compatible with Turbo C++ v1.0 or later                     лл
+//лл                                                                       лл
+//ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+//лл                                                                       лл
+//лл  blaster.obj: blaster.c ail.h                                         лл
+//лл     bcc -ml -c -v blaster.c                                           лл
+//лл                                                                       лл
+//лл  blaster.exe: blaster.obj ail.obj                                     лл
+//лл     tlink @blaster.lls                                                лл
+//лл                                                                       лл
+//лл  Contents of BLASTER.LLS:                                             лл
+//лл    /c /v /x +                                                         лл
+//лл    \bc\lib\c0l.obj +                                                  лл
+//лл    blaster ail, +                                                     лл
+//лл    blaster.exe, +                                                     лл
+//лл    blaster.map, +                                                     лл
+//лл    \bc\lib\cl.lib                                                     лл
+//лл                                                                       лл
+//ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+//лл                                                                       лл
+//лл  Copyright (C) 1992 Miles Design, Inc.                                лл
+//лл                                                                       лл
+//лл  Miles Design, Inc.                                                   лл
+//лл  10926 Jollyville #308                                                лл
+//лл  Austin, TX 78759                                                     лл
+//лл  (512) 345-2642 / FAX (512) 338-9630 / BBS (512) 454-9990             лл
+//лл                                                                       лл
+//ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+
+#include <ctype.h>
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <dos.h>
+
+#include "ail.h"        // Audio Interface Library API function header
+/*************************************************************/
+//
+// board_ID(): Reads the BLASTER environment variable to determine the type
+// and I/O port settings of the user's Sound Blaster adapter.
+//
+// Returns the names of the FM and digital sound drivers which should be
+// used to communicate with the board, as well as an AIL drvr_desc structure
+// which contains the correct I/O parameters for the board.
+//
+// If board_ID() returns 0, no BLASTER environment variable was found.
+// Either the user has not installed the Sound Blaster in accordance with
+// Creative Labs' instructions, or no Sound Blaster is installed.
+//
+// You can call board_ID() twice: once to get the name of the driver to
+// load, and a second time to insert the correct I/O parameters into the
+// drvr_desc structure returned by the driver's AIL_describe_driver()
+// function.
+//
+/*************************************************************/
+
+int board_ID(drvr_desc *desc, char *FM_driver_name,
+   char *DSP_driver_name, char *board_name)
+{
+   int i,j,k,m,d,num,p;
+   char *env;
+   char string[128];
+   static drvr_desc t;
+   static int type;
+   static char tokens[] =
+      {
+      "AIDT"
+      };
+   static int base[] =
+      {
+      16,10,10,10
+      };
+   static int *targets[] =
+      {
+         &t.default_IO,&t.default_IRQ,&t.default_DMA,&type
+      };
+   static char *FM_driver_names[] =
+      {
+         "SBFM.ADV",
+         "SBP1FM.ADV",
+         "SBFM.ADV",
+         "SBP2FM.ADV",
+      };
+   static char *DSP_driver_names[] =
+      {
+         "SBDIG.ADV",
+         "SBPDIG.ADV",
+         "SBDIG.ADV",
+         "SBPDIG.ADV",
+      };
+   static char *board_names[] =
+      {
+         "Sound Blaster V1.5 or earlier",
+         "Sound Blaster Pro (Yamaha YM3812 version)",
+         "Sound Blaster V2.0",
+         "Sound Blaster Pro (Yamaha YMF262/OPL3 version)",
+      };
+
+   
+   env = getenv("BLASTER");
+   if (env==NULL) return 0;
+
+   strncpy(string,env,127);
+   if (!strlen(string)) return 0;
+
+   strupr(string);
+   t = *desc;
+   for (m=0;m<strlen(string);m++)
+      {
+      if ((m != 0) && (string[m] != ' ')) continue;
+
+      m += (string[m] == ' '); k = string[m];
+
+      for (i=0;i<4;i++)
+         if (k==tokens[i])
+            {
+            p = m + 1;
+            num = 0;
+
+            do
+               {
+               d = string[p++];
+
+               for (j=0;j<base[i];j++)
+                  if (toupper(d) == "0123456789ABCDEF"[j])
+                     num = (num * base[i]) + j;
+               }
+            while (isalnum(d));
+
+            *targets[i] = num;
+            break;
+            }
+      }
+                     
+   *desc = t;
+
+   if (!type) return 0;
+
+   if (type > 4) type=4;
+
+   if (FM_driver_name != NULL)
+      strcpy(FM_driver_name,FM_driver_names[type-1]);
+
+   if (DSP_driver_name != NULL)
+      strcpy(DSP_driver_name,DSP_driver_names[type-1]);
+
+   if (board_name != NULL)
+      strcpy(board_name,board_names[type-1]);
+
+   return type;
+}
+
+/*************************************************************/
+void main(void)
+{
+   static drvr_desc blank = {0,0,{0,0,0,0},NULL,0,0,0,0,0,0};
+   char DSP_drvr[16];
+   char FM_drvr[16];
+   char board[64];
+
+   if (!board_ID(&blank,FM_drvr,DSP_drvr,board))
+      {
+      printf("Sound Blaster not installed, or BLASTER environment\n");
+      printf("variable not set.\n");
+      exit(1);
+      }
+
+   printf("  Sound Blaster type: %s\n",board);
+   printf("         I/O address: %XH\n",blank.default_IO);
+   printf("                 IRQ: %u\n",blank.default_IRQ);
+   printf("                 DMA: %u\n",blank.default_DMA);
+   printf("Digital sound driver: %s\n",DSP_drvr);
+   printf("     FM sound driver: %s\n",FM_drvr);
+}
+
+//лллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+//лл                                                      лл
+//лл   SOUNDFX.C                                          лл
+//лл                                                      лл
+//лл   Sample AIL MIDI sound effects shell                лл
+//лл                                                      лл
+//лл   V1.00 of 14-Aug-91                                 лл
+//лл                                                      лл
+//лл   C source compatible with Turbo C++ v1.0 or later   лл
+//лл                                                      лл
+//лллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+//лл                                                      лл
+//лл These subroutines, prototyped in soundfx.h,          лл
+//лл illustrate a practical, efficient technique for the  лл
+//лл production of MIDI-based sound effects with the      лл
+//лл Audio Interface Library.                             лл
+//лл                                                      лл
+//лллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+//лл                                                      лл
+//лл   soundfx.obj: soundfx.c soundfx.h ail.h             лл
+//лл      bcc -ml -c -v soundfx.c                         лл
+//лл                                                      лл
+//лл   Caution: Do not overlay!                           лл
+//лл                                                      лл
+//лллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+//лл                                                      лл
+//лл   Copyright (C) 1991 John Miles                      лл
+//лл                                                      лл
+//лл   10926 Jollyville #308                              лл
+//лл   Austin, TX 78759                                   лл
+//лл   (512) 345-2642                                     лл
+//лл                                                      лл
+//лллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <dos.h>
+#include <alloc.h>
+
+#include "ail.h"        // Audio Interface Library API header file
+#include "soundfx.h"    // SOUNDFX function header file
+
+#define NOTE_OFF 0x80   // MIDI message equates
+#define NOTE_ON 0x90
+#define CTRL_CHG 0xB0
+#define  VOLUME 7
+#define  PANPOT 10
+#define PRG_CHG 0xC0
+#define PITCH_WHEEL 0xE0
+
+#define NEFFECTS 8     // Size of sound effects list
+
+HTIMER server;
+HDRIVER effect_drivers[NEFFECTS];
+unsigned effect_channels[NEFFECTS];
+int effect_duration[NEFFECTS];
+int effect_handles[NEFFECTS];
+
+unsigned active_effects;
+
+/***************************************************************/
+//
+// Sound effect timer callback function -- do not call directly
+//
+
+void timer_callback(void)
+{
+   int i;
+   //
+   // Exit quickly if no sound effect handles are active
+   //
+
+   if (!active_effects) return;
+
+   //
+   // Subtract 10 ms. from durations of all active sound effects; 
+   // stop sound effect when its duration expires by releasing its 
+   // channel and handle 
+   //
+   // (OK to call AIL functions from Process Services callbacks)
+   //
+
+   for (i=0;i<NEFFECTS;i++)
+      if (effect_handles[i] != -1)
+         if ((effect_duration[i] -= 10) <= 0)
+            {
+            effect_handles[i] = -1;
+            AIL_release_channel(effect_drivers[i],effect_channels[i]);
+            --active_effects;                              
+            }
+}
+
+/***************************************************************/
+//
+// Initialize sound effects shell -- must be called before any
+// other functions in this module
+//
+
+void init_sfx(void)
+{
+   int i,j;
+
+   //
+   // Mark all sound effect handles "available"; initialize list size
+   //
+
+   for (i=0;i<NEFFECTS;i++)
+      effect_handles[i] = -1;
+
+   active_effects = 0;
+
+   //
+   // Register a timer function; set up for 10-millisecond (100 Hz.) 
+   // callback intervals
+   //
+
+   server=AIL_register_timer(timer_callback);
+   AIL_set_timer_period(server,10000L);
+   AIL_start_timer(server);
+}
+
+/***************************************************************/
+//
+// Shut down sound effects shell (normally done before 
+// application terminates)
+//
+
+void shutdown_sfx(void)
+{
+   int i;
+
+   //
+   // Release sound effect service timer and any locked channels
+   //
+
+   AIL_release_timer(server);
+
+   for (i=0;i<NEFFECTS;i++)
+      if (effect_handles[i] != -1)
+         AIL_release_channel(effect_drivers[i],effect_channels[i]);
+}/***************************************************************/
+//
+// Start sound effect with specified program change #, note #, MIDI 
+// volume & panpot, and duration in milliseconds; return handle to 
+// sound effect (required by other functions)
+//
+
+HEFFECT play_sound_effect(HDRIVER driver, unsigned program, unsigned
+   note, unsigned volume, unsigned panpot, int ms_duration)
+   
+{
+   int i,ch;
+
+   //
+   // Find a free sound effect handle; return -1 if no handles 
+   // available
+   //
+
+   for (i=0;i<NEFFECTS;i++)
+      if (effect_handles[i] == -1) break;
+
+   if (i==NEFFECTS) return -1;
+
+   //
+   // Lock a MIDI channel for use by the sound effect
+   //
+
+   effect_channels[i] = ch = AIL_lock_channel(driver);
+
+   //
+   // Initialize housekeeping arrays and all MIDI controllers not set
+   // by AIL_lock_channel()
+   //
+
+   effect_drivers[i] = driver;
+   effect_duration[i] = ms_duration;
+
+   AIL_send_channel_voice_message(driver,PRG_CHG | ch,program,0);
+   AIL_send_channel_voice_message(driver,PITCH_WHEEL | ch,0,64);
+   AIL_send_channel_voice_message(driver,CTRL_CHG | ch,PANPOT,panpot);
+   AIL_send_channel_voice_message(driver,CTRL_CHG | ch,VOLUME,volume);
+
+   //
+   // Start the sound effect with a MIDI Note On event
+   //
+
+   AIL_send_channel_voice_message(driver,NOTE_ON | ch,note,127);
+
+   //
+   // Assign handle to sound effect, increment counter of active sound
+   // effects, and return the handle to the caller
+   //
+
+   ++active_effects;
+   effect_handles[i] = i;
+
+   return i;
+}
+   
+/***************************************************************/
+//
+// Return: 0 if sound effect expired or unused; 1 if sound effect 
+// playing
+//
+
+unsigned get_sound_effect_status(HEFFECT effect)
+{
+   return (effect_handles[effect] != -1);
+}
+/***************************************************************/
+//
+// Return MIDI channel used by sound effect; may be used by 
+// application to adjust volume, panpot, pitch, etc.
+//
+
+unsigned get_sound_effect_channel(HEFFECT effect)
+{
+   return effect_channels[effect];
+}
+
+/***************************************************************/
+//
+// Force sound effect off (without waiting for its duration to 
+// expire)
+//
+
+void stop_sound_effect(HEFFECT effect)
+{
+   if (get_sound_effect_status(effect)==EFFECT_FREE) return;
+
+   effect_handles[effect] = -1;
+   AIL_release_channel(effect_drivers[effect],effect_channels[effect]);
+   --active_effects;
+}   
+//лллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+//лл                                                      лл
+//лл   SOUNDFX.H                                          лл
+//лл                                                      лл
+//лл   Sample AIL MIDI sound effects shell header         лл
+//лл                                                      лл
+//лл   V1.00 of 14-Aug-91                                 лл
+//лл                                                      лл
+//лл   C source compatible with Turbo C++ v1.0 or later   лл
+//лл                                                      лл
+//лллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+//лл                                                      лл
+//лл   Copyright (C) 1991 John Miles                      лл
+//лл                                                      лл
+//лл   10926 Jollyville #308                              лл
+//лл   Austin, TX 78759                                   лл
+//лл   (512) 345-2642                                     лл
+//лл                                                      лл
+//лллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+
+typedef int HEFFECT;       // handle to sound effect
+
+#define EFFECT_FREE 0      // values for get_sound_effect_status()
+#define EFFECT_PLAYING 1
+
+void init_sfx(void);       // called at application startup
+void shutdown_sfx(void);   // called at application shutdown
+
+//
+// play_sound_effect(): Plays a single MIDI note "note" lasting 
+// "ms_duration" milliseconds on driver "driver," with a MIDI Program 
+// Change number "program," a Pan Controller value "panpot," and a 
+// relative volume "volume."  Returns a handle to the sound effect 
+// in progress "HEFFECT," which may be used with the remaining 
+// functions to monitor or interrupt the sound effect.  The "note," 
+// "program," "panpot," and "volume" values should be given in 
+// standard MIDI units (0-127).
+//
+
+HEFFECT play_sound_effect(HDRIVER driver, unsigned program, unsigned note, unsigned volume, unsigned
+panpot, int ms_duration);
+
+//
+// get_sound_effect_status(): Returns the status of a sound effect 
+// handle provided by a previous play_sound_effect() call.  
+// (See #defines above.)
+//
+
+unsigned get_sound_effect_status(HEFFECT effect);
+
+//
+// get_sound_effect_channel(): Returns the MIDI channel number 
+// allocated for a given sound effect.  This may be used with the 
+// AIL_send_channel_voice_message() function to alter the MIDI 
+// controllers governing the sound effect.
+//
+
+unsigned get_sound_effect_channel(HEFFECT effect);
+
+//
+// stop_sound_effect(): Silences a given sound effect, and releases its 
+// MIDI channel, without waiting for its duration to expire.
+//
+
+void stop_sound_effect(HEFFECT effect);
+/*лллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+//лл                                                    лл
+//лл   IBM Audio Interface Library                      лл
+//лл                                                    лл
+//лл   AIL.H: C API function prototypes                 лл
+//лл                                                    лл
+//лл   Source compatible with Borland/Microsoft C/C++   лл
+//лл                                                    лл
+//лл   AIL.H release 2.03                               лл
+//лл   For use with API version 2.11                    лл
+//лл                                                    лл
+//лллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+//лл                                                    лл
+//лл   Copyright (C) 1991 John Miles                    лл
+//лл                                                    лл
+//лл   10926 Jollyville #308                            лл
+//лл   Austin, TX 78759                                 лл
+//лл   (512) 345-2642                                   лл
+//лл                                                    лл
+//лллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+*/
+
+#ifndef AIL_H
+#define AIL_H
+
+#define SEQ_STOPPED 0       /* equates for AIL_sequence_status()       */
+#define SEQ_PLAYING 1
+#define SEQ_DONE 2
+
+#define DAC_STOPPED 0       /* equates for AIL_sound_buffer_status()   */
+#define DAC_PAUSED 1        /*             AIL_VOC_playback_status()   */
+#define DAC_PLAYING 2
+#define DAC_DONE 3
+
+#define XMIDI_DRVR 3        /* equates for drvr_desc.drvr_type values  */
+#define DSP_DRVR 2
+
+typedef int HTIMER;         /* handle to timer                         */
+typedef int HDRIVER;        /* handle to driver                        */
+typedef int HSEQUENCE;      /* handle to XMIDI sequence                */
+
+typedef struct
+{
+   unsigned min_API_version;
+   unsigned drvr_type;
+   char data_suffix[4];
+   void far *dev_name_table;
+   int default_IO;
+   int default_IRQ;
+   int default_DMA;
+   int default_DRQ;
+   int service_rate;
+   unsigned display_size;
+}  
+drvr_desc;
+
+typedef struct
+{
+   unsigned pack_type;
+   unsigned sample_rate;
+   void far *data;
+   unsigned long len;
+}
+sound_buff;
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+/********************/
+/*                  */
+/* Process services */
+/*                  */
+/********************/
+
+void far cdecl AIL_startup(void);
+void far cdecl AIL_shutdown(char far *signoff_msg);
+HTIMER far cdecl AIL_register_timer(void (far cdecl *callback_fn)());
+void far cdecl AIL_set_timer_period(HTIMER timer, unsigned long microseconds);
+void far cdecl AIL_set_timer_frequency(HTIMER timer, unsigned long hertz);
+void far cdecl AIL_set_timer_divisor(HTIMER timer, unsigned PIT_divisor);
+unsigned far cdecl AIL_interrupt_divisor(void);
+void far cdecl AIL_start_timer(HTIMER timer);
+void far cdecl AIL_start_all_timers(void);
+void far cdecl AIL_stop_timer(HTIMER timer);
+void far cdecl AIL_stop_all_timers(void);
+void far cdecl AIL_release_timer_handle(HTIMER timer);
+void far cdecl AIL_release_all_timers(void);
+
+/*************************/
+/*                       */
+/* Installation services */
+/*                       */
+/*************************/
+
+HDRIVER far cdecl AIL_register_driver(void far *driver_base_addr);
+void far cdecl AIL_release_driver_handle(HDRIVER driver);
+drvr_desc far * cdecl far AIL_describe_driver(HDRIVER driver);
+unsigned far cdecl AIL_detect_device(HDRIVER driver, unsigned IO_addr, 
+    unsigned IRQ, unsigned DMA, unsigned DRQ);
+void far cdecl AIL_init_driver(HDRIVER driver, unsigned IO_addr, 
+    unsigned IRQ, unsigned DMA, unsigned DRQ);
+void far cdecl AIL_shutdown_driver(HDRIVER driver, char far *signoff_msg);
+                    
+/********************************/
+/*                              */
+/* Digital performance services */
+/*                              */
+/********************************/
+
+unsigned far cdecl AIL_index_VOC_block(HDRIVER driver, void far *VOC_file, unsigned block_marker,
+sound_buff far *buff);
+
+void far cdecl AIL_register_sound_buffer(HDRIVER driver, unsigned buffer_num, sound_buff far *buff);
+void far cdecl AIL_format_sound_buffer(HDRIVER driver, sound_buff far *buff);
+unsigned far cdecl AIL_sound_buffer_status(HDRIVER driver, unsigned buffer_num);
+
+void far cdecl AIL_format_VOC_file(HDRIVER driver, void far *VOC_file, int block_marker);
+void far cdecl AIL_play_VOC_file(HDRIVER driver, void far *VOC_file, int block_marker);
+unsigned far cdecl AIL_VOC_playback_status(HDRIVER driver);
+
+void far cdecl AIL_start_digital_playback(HDRIVER driver);
+void far cdecl AIL_stop_digital_playback(HDRIVER driver);
+void far cdecl AIL_pause_digital_playback(HDRIVER driver);
+void far cdecl AIL_resume_digital_playback(HDRIVER driver);
+void far cdecl AIL_set_digital_playback_volume(HDRIVER driver, unsigned volume);
+unsigned far cdecl AIL_digital_playback_volume(HDRIVER driver);
+void far cdecl AIL_set_digital_playback_panpot(HDRIVER driver, unsigned panpot);
+unsigned far cdecl AIL_digital_playback_panpot(HDRIVER driver);
+
+/******************************/
+/*                            */
+/* XMIDI performance services */
+/*                            */
+/******************************/
+
+unsigned far cdecl AIL_state_table_size(HDRIVER driver);
+HSEQUENCE far cdecl AIL_register_sequence(HDRIVER driver, void far *FORM_XMID, unsigned sequence_num,
+void far *state_table, void far *controller_table);
+void far cdecl AIL_release_sequence_handle(HDRIVER driver, HSEQUENCE sequence);
+unsigned far cdecl AIL_default_timbre_cache_size(HDRIVER driver);
+void far cdecl AIL_define_timbre_cache(HDRIVER driver, void far *cache_addr, unsigned cache_size);    
+unsigned far cdecl AIL_timbre_request(HDRIVER driver, HSEQUENCE sequence);
+unsigned far cdecl AIL_timbre_status(HDRIVER driver, int bank, int patch);
+void far cdecl AIL_install_timbre(HDRIVER driver, int bank, int patch, 
+   void far *src_addr);
+void far cdecl AIL_protect_timbre(HDRIVER driver, int bank, int patch);
+void far cdecl AIL_unprotect_timbre(HDRIVER driver, int bank, int patch);
+
+void far cdecl AIL_start_sequence(HDRIVER driver, HSEQUENCE sequence);
+void far cdecl AIL_stop_sequence(HDRIVER driver, HSEQUENCE sequence);
+void far cdecl AIL_resume_sequence(HDRIVER driver, HSEQUENCE sequence);
+unsigned far cdecl AIL_sequence_status(HDRIVER driver, HSEQUENCE sequence);
+unsigned far cdecl AIL_relative_volume(HDRIVER driver, HSEQUENCE sequence);
+unsigned far cdecl AIL_relative_tempo(HDRIVER driver, HSEQUENCE sequence);
+unsigned far cdecl AIL_set_relative_volume(HDRIVER driver, HSEQUENCE sequence, unsigned percent,
+unsigned milliseconds);
+unsigned far cdecl AIL_set_relative_tempo(HDRIVER driver, HSEQUENCE sequence, unsigned percent,
+unsigned milliseconds);
+int far cdecl AIL_controller_value(HDRIVER driver, HSEQUENCE sequence,
+   unsigned channel, unsigned controller_num);
+void far cdecl AIL_set_controller_value(HDRIVER driver, HSEQUENCE sequence, unsigned channel,
+unsigned controller_num, unsigned value);
+unsigned far cdecl AIL_channel_notes(HDRIVER driver, HSEQUENCE sequence,
+   unsigned channel);
+unsigned far cdecl AIL_beat_count(HDRIVER driver, HSEQUENCE sequence);
+unsigned far cdecl AIL_measure_count(HDRIVER driver, HSEQUENCE sequence);
+
+void far cdecl AIL_branch_index(HDRIVER driver, HSEQUENCE sequence, 
+   unsigned marker_number);
+
+void far cdecl AIL_send_channel_voice_message(HDRIVER driver, unsigned status, unsigned data_1,
+unsigned data_2);
+void far cdecl AIL_send_sysex_message(HDRIVER driver, unsigned addr_a, 
+   unsigned addr_b, unsigned addr_c, void far *data, unsigned size, 
+   unsigned delay);
+void far cdecl AIL_write_display(HDRIVER driver, char far *string);
+void far cdecl AIL_install_callback(HDRIVER driver, 
+   void (far cdecl *callback_fn)());
+void far cdecl AIL_cancel_callback(HDRIVER driver);
+
+unsigned far cdecl AIL_lock_channel(HDRIVER driver);
+void far cdecl AIL_map_sequence_channel(HDRIVER driver, HSEQUENCE sequence, unsigned
+sequence_channel, unsigned physical_channel);
+unsigned far cdecl AIL_true_sequence_channel(HDRIVER driver, HSEQUENCE sequence, unsigned
+sequence_channel);
+void far cdecl AIL_release_channel(HDRIVER driver, unsigned channel);
+
+#ifdef __cplusplus
+}
+#endif
+   
+#endif
+//лллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+//лл                                                              лл
+//лл   GEN.H                                                      лл
+//лл                                                              лл
+//лл   General-purpose resources                                  лл
+//лл                                                              лл
+//лл   Version 1.00 of 04-Jun-91: Initial version (Large model)   лл
+//лл           1.01 of 22-Sep-91: file_size() now type long       лл
+//лл           1.02 of 14-Oct-91: C++ compatibility added         лл
+//лл                                                              лл
+//лл   C function prototypes                                      лл
+//лл   Source compatible with Turbo C++ v1.0 or later             лл
+//лл                                                              лл      
+//лллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+//лл                                                              лл       
+//лл These functions, found in the large-model library file       лл       
+//лл GEN.LIB, are provided to aid in the compilation of various   лл       
+//лл Audio Interface Library tools and sample programs.  GEN.LIB  лл       
+//лл and GEN.H are in the public domain, and are not a part of    лл       
+//лл the licensed Audio Interface Library package.                лл       
+//лл                                                              лл       
+//лл Although not prohibited, it is not recommended that these    лл       
+//лл functions be incorporated into any applications intended     лл       
+//лл for distribution to end-users, as no source code or          лл       
+//лл documentation is provided for their maintenance or use.      лл       
+//лл                                                              лл      
+//лллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+//лл                                                              лл
+//лл   Copyright (C) 1991 John Miles                              лл
+//лл                                                              лл
+//лл   10926 Jollyville #308                                      лл
+//лл   Austin, TX 78759                                           лл
+//лл   (512) 345-2642                                             лл
+//лл                                                              лл
+//лллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+
+#ifndef GEN_H
+#define GEN_H
+
+//
+// Universal error codes
+//
+
+#define NO_ERROR 0
+#define IO_ERROR 1
+#define OUT_OF_MEMORY 2
+#define FILE_NOT_FOUND 3
+#define CANT_WRITE_FILE 4
+#define CANT_READ_FILE 5
+#define DISK_FULL 6
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+//
+// Disk I/O services
+//
+
+int cdecl get_disk_error(void);
+long cdecl file_size(char far *filename);
+char far * cdecl read_file(char far *filename, void far *dest);
+char far * cdecl load_driver(char far *filename);
+int cdecl write_file(char far *filename, void far *src, unsigned long len);
+int cdecl append_file(char far *filename, void far *src, unsigned long len);
+
+//        
+// Miscellaneous services
+//
+
+void far * cdecl norm(void far *farptr);
+void far * cdecl denorm(void far *farptr);
+void far * cdecl add_ptr(void far *farptr, long offset);
+void far * cdecl far_memmove(void far *dest, void far *src, unsigned long len);
+long cdecl ptr_dif(void far *sub2, void far *sub1);
+
+unsigned long cdecl wswap(unsigned long n);
+unsigned cdecl bswap(unsigned n);
+int cdecl array_DDA(int far *a0, int far *a1, int arysiz);
+long cdecl val(char *str, int base);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif
+//ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+//лл                                                                     лл
+//лл  WINXMIDI.C                                                         лл
+//лл                                                                     лл
+//лл  Standard XMIDI file performance demonstration                      лл
+//лл                                                                     лл
+//лл  V1.00 of 15-Dec-91                                                 лл
+//лл  V1.01 of  1-Feb-92: ADLIB.DLL -> AILADLIB.DLL for MM compatibility лл
+//лл                      AIL_startup() call added                       лл
+//лл  V1.02 of 21-Jun-92: New drivers added, names changed               лл
+//лл                      file_size() returns -1L if file not found      лл
+//лл                                                                     лл
+//лл  C source compatible with Microsoft C v6.0 or later                 лл
+//лл                                                                     лл
+//ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+//лл                                                                     лл
+//лл  rc -r winxmidi.rc                                                  лл
+//лл                                                                     лл
+//лл  cl -c -Gsw -Ow -W2 -Zp winxmidi.c                                  лл
+//лл  link winxmidi, /align:16, NUL, /nod slibcew libw wail, winxmidi    лл
+//лл  rc winxmidi.res                                                    лл
+//лл                                                                     лл
+//ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+//лл                                                                     лл
+//лл  Copyright (C) 1991 John Miles                                      лл
+//лл                                                                     лл
+//лл  Miles Design, Inc.                                                 лл
+//лл  10926 Jollyville #308                                              лл
+//лл  Austin, TX 78759                                                   лл
+//лл  (512) 345-2642                                                     лл
+//лл                                                                     лл
+//ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+                                                                         
+#include <windows.h>
+#include "wail.h"                                                        
+
+#include <string.h>
+#include <stdlib.h>
+#include <dos.h>
+
+#define rbRoland                    0x0065
+#define rbPAS                       0x0066
+#define rbSBP1                      0x0067
+#define rbAdLib                     0x0068
+#define rbTandy                     0x0069
+#define rbPCSpkr                    0x006A
+#define btnAbout                    0x006B
+#define btnPause                    0x006C
+#define btnResume                   0x006D
+#define slideVolume                 0x006E
+#define rbSBP2                      0x006F
+#define rbPASOPL                    0x0070
+#define rbAdLibG                    0x0071
+
+static char szAppName[] = "WinXMIDI";
+
+long FAR PASCAL WndProc(HWND,WORD,WORD,LONG);
+
+HSEQUENCE hSeq;
+HDRIVER hDriver;
+BOOL bValid;
+int nAtten;
+
+char far *lpGTL;
+WORD wTCSize;
+HANDLE hState,hSeqFile,hTC,hGTL;
+struct
+{
+   WORD wBtnID;
+   char *szDriverName;
+   char *szSequenceFile;
+   WORD wSequence;
+   char *szErrorHelp;
+}
+synth[] =
+{
+   rbRoland, "ailmt32.dll",  "windemo.xmi", 0, "(I/O 330H)",
+   rbPAS,    "ailpasfm.dll", "windemo.xmi", 0, "(Requires MVSOUND.SYS)",
+   rbPASOPL, "ailpasop.dll", "windemo.xmi", 0, "(Requires MVSOUND.SYS)",
+   rbSBP1,   "ailsp1fm.dll", "windemo.xmi", 0, "(I/O 220H)",
+   rbSBP2,   "ailsp2fm.dll", "windemo.xmi", 0, "(I/O 220H)",
+   rbAdLib,  "ailadlib.dll", "windemo.xmi", 0, "(I/O 388H)",
+   rbAdLibG, "ailalgfm.dll", "windemo.xmi", 0, "(I/O 388H)",
+   rbTandy,  "ailtandy.dll", "windemo.xmi", 1, "",
+   rbPCSpkr, "ailspkr.dll",  "windemo.xmi", 1, ""
+};
+
+#define NSYNTHS (sizeof synth / sizeof synth[0])
+
+#define MIN_ATTEN 0
+#define MAX_ATTEN 100
+
+/***************************************************************/
+
+//
+// Standard C routine for XMIDI Global Timbre Library access
+//
+
+typedef struct                      
+   {
+   char cPatch;
+   char cBank;
+   DWORD dwOffset;
+   }
+GTL_hdr;
+
+char far *locate_timbre(char far *lpGTL, WORD wBank, WORD wPatch)
+{
+   char far *lpG_ptr;
+   GTL_hdr GHDR;
+
+   if (lpGTL==NULL) return NULL;
+
+   lpG_ptr = lpGTL;
+
+   do
+      {
+      GHDR = *(GTL_hdr far *) lpG_ptr;
+      lpG_ptr += sizeof(GHDR);
+
+      if (GHDR.cBank == -1) return NULL;
+      }
+   while ((GHDR.cBank != wBank) ||
+          (GHDR.cPatch != wPatch));
+
+   return lpGTL+GHDR.dwOffset;
+}
+
+/***********************************************************/
+   
+//
+//
+// File access routines 
+//
+//
+long pascal file_size(char far *filename)
+{
+   int hFile;
+   long lSize;
+
+   hFile = _lopen(filename,OF_READ);
+
+   if (hFile == -1) return -1L;
+   
+   lSize = _llseek(hFile,0,2);
+
+   _lclose(hFile);
+
+   return lSize;
+}
+
+
+HANDLE pascal read_file(char *filename, void huge *dest)
+{
+   int hFile;
+   long lSize;
+   unsigned char huge *hpBuf;
+   unsigned char huge *hpPtr;
+   HANDLE hBuf;
+
+   lSize = file_size(filename);
+
+   if (dest==NULL)
+      {
+      hBuf = GlobalAlloc(GMEM_FIXED,lSize);
+      hpBuf = (char huge *) GlobalLock(hBuf);
+      }
+   else
+      hpBuf = dest;
+
+   hFile = _lopen(filename,OF_READ);
+
+   hpPtr = hpBuf;
+
+   while (lSize > 32768)
+      {
+      _lread(hFile,hpPtr,(WORD) 32768);
+      lSize -= 32768;
+      hpPtr += 32768;
+      }
+
+   if (lSize)
+      _lread(hFile,hpPtr,(WORD) lSize);
+
+   _lclose(hFile);
+
+   if (dest==NULL)
+      GlobalUnlock(hBuf);
+
+   return hBuf;
+}
+
+/***********************************************************/
+//
+// Initiate music playback with a given synthesizer
+//
+
+void InitSound(HWND hParent, WORD wSynthID)
+{
+   WORD wSeqNum,timbre,bank,patch,i;
+   drvr_desc far *lpDrvrDesc;
+   char szXMIFilename[32];
+   char szDLLFilename[32];
+   char szGTLfilename[32];
+   char szErrorParms[32];
+   char szErrorText[128];
+   char far *hpSeqFile;
+   char far *lpStateTable;
+   char far *lpTC;
+   char far *timb_ptr;
+
+   //
+   // Look up driver & sequence information used to
+   // demonstrate the specified synthesizer based on
+   // radio button's control ID
+   //
+
+   for (i=0;i<NSYNTHS;i++)
+      if (synth[i].wBtnID == wSynthID)
+         {
+         lstrcpy(szDLLFilename,synth[i].szDriverName);
+         lstrcpy(szXMIFilename,synth[i].szSequenceFile);
+         lstrcpy(szErrorParms,synth[i].szErrorHelp);
+         wSeqNum = synth[i].wSequence;
+         break;
+         }
+
+   if (i==NSYNTHS) return;
+
+   //
+   // Attempt to register sound driver DLL with API module.
+   // Exit if another Windows task is already using the 
+   // requested sound driver
+   //
+
+
+   hDriver = AIL_register_driver(szDLLFilename);
+   if (hDriver == -1)
+      {
+      MessageBeep(0);
+      MessageBox(hParent,
+         "Synthesizer in use. Choose another.",
+         "Error",MB_ICONEXCLAMATION | MB_OK);
+      return;
+      }
+
+   //
+   // Get driver information, including factory default I/O
+   // settings, and attempt to detect the selected synthesizer.
+   // Exit if synthesizer cannot be found at the default I/O
+   // settings.  Otherwise, initialize the driver
+   //
+
+   lpDrvrDesc = AIL_describe_driver(hDriver);
+   if (!AIL_detect_device(hDriver,
+      lpDrvrDesc->default_IO,lpDrvrDesc->default_IRQ,
+      lpDrvrDesc->default_DMA,lpDrvrDesc->default_DRQ))
+         {
+         wsprintf(szErrorText,
+            "Synthesizer not found at default I/O port settings. %s",
+            (char far *) szErrorParms);
+         MessageBeep(0);
+         MessageBox(hParent,szErrorText,"Error",
+            MB_ICONEXCLAMATION | MB_OK);
+         AIL_release_driver_handle(hDriver);
+         return;
+         }
+
+   AIL_init_driver(hDriver,
+      lpDrvrDesc->default_IO,lpDrvrDesc->default_IRQ,
+      lpDrvrDesc->default_DMA,lpDrvrDesc->default_DRQ);
+
+   //
+   // Get name of Global Timbre Library file by appending suffix
+   // supplied by XMIDI driver to GTL filename prefix "SAMPLE."
+   // If GTL file exists, load it; else set GTL pointer to NULL 
+   // to indicate that only built-in timbres are to be used
+   //
+
+   lstrcpy(szGTLfilename,"SAMPLE.");
+   lstrcat(szGTLfilename,lpDrvrDesc->data_suffix);
+
+   if (file_size(szGTLfilename) == -1L) 
+      lpGTL = NULL;
+   else
+      {
+      hGTL = read_file(szGTLfilename,NULL);
+      lpGTL = GlobalLock(hGTL);
+      }
+
+   //
+   // If the driver requires a local timbre cache, allocate its
+   // memory and register it
+   //
+
+   wTCSize = AIL_default_timbre_cache_size(hDriver);
+   if (wTCSize)
+      {
+      hTC = GlobalAlloc(GMEM_FIXED,wTCSize);
+      lpTC = GlobalLock(hTC);
+      AIL_define_timbre_cache(hDriver,lpTC,wTCSize);
+      }
+   
+   //
+   // Allocate memory for sequence state table used by driver.
+   // Only one state table will be required, since this demo
+   // does not play multiple sequences simultaneously
+   //
+
+   hState = GlobalAlloc(GMEM_FIXED,AIL_state_table_size(hDriver));
+   lpStateTable = GlobalLock(hState);
+
+   // 
+   // Load the XMIDI sequence file.  WINDEMO.XMI contains two
+   // sequences; sequence 0 is "Couple Days Off" by Huey Lewis, 
+   // while sequence 1 is "Eine Kleine Nachtmusik" by Mozart.
+   // Register the proper sequence for the requested driver
+   //
+
+   hSeqFile = read_file(szXMIFilename,NULL);
+   hpSeqFile = GlobalLock(hSeqFile);
+
+   hSeq = AIL_register_sequence(hDriver,hpSeqFile,wSeqNum,
+      lpStateTable,NULL);
+   //
+   // Load any custom timbres that the driver will need in
+   // order to play the XMIDI sequence
+   //
+
+   while ((timbre=AIL_timbre_request(hDriver,hSeq)) != -1)
+      {
+      bank = timbre / 256;
+      patch = timbre % 256;
+      timb_ptr = locate_timbre(lpGTL,bank,patch);
+      if (timb_ptr != NULL)
+         AIL_install_timbre(hDriver,bank,patch,timb_ptr);
+      else
+         {
+         MessageBeep(0);
+         MessageBox(hParent,
+            "Couldn't find all timbres needed to play sequence.",
+            "Error",MB_ICONEXCLAMATION | MB_OK);
+         return;
+         }
+      }
+
+   //
+   // Start the music!
+   //
+
+   AIL_start_sequence(hDriver,hSeq);
+
+   //
+   // Set the sequence volume to the value last requested by 
+   // the user (see window procedure below). The vertical
+   // scroll bar returns a value of 0 at its highest setting,
+   // so subtract the volume value from 100 to determine the 
+   // actual level
+   //
+
+   AIL_set_relative_volume(hDriver,hSeq,MAX_ATTEN-nAtten,0);
+
+   //
+   // Set flag indicating valid driver is loaded and playing
+   //
+
+   bValid = TRUE;
+}
+
+/***********************************************************/
+
+//
+// Stop music playback and release all memory in use by
+// playback process
+//
+
+void ClearSound(void)
+{
+   if (bValid == FALSE) return;
+   bValid = FALSE;
+
+   AIL_shutdown_driver(hDriver,"    Miles Design    ");
+
+   GlobalUnlock(hSeqFile);
+   GlobalFree(hSeqFile);
+
+   GlobalUnlock(hState);
+   GlobalFree(hState);
+
+   if (wTCSize)
+      {
+      GlobalUnlock(hTC);
+      GlobalFree(hTC);
+      }
+   if (lpGTL != NULL)
+      {
+      GlobalUnlock(hGTL);
+      GlobalFree(hGTL);
+      }
+
+   AIL_release_driver_handle(hDriver);
+}
+
+/***********************************************************/
+int PASCAL WinMain(HANDLE hInstance, HANDLE hPrevInstance,
+                   LPSTR lpszCmdLine, int nCmdShow)
+{
+   HWND hwnd;
+   HWND hCtrl;
+   MSG msg;
+   WNDCLASS wndclass;
+
+   if (!hPrevInstance)
+      {
+      wndclass.style         = CS_HREDRAW | CS_VREDRAW;
+      wndclass.lpfnWndProc   = WndProc;
+      wndclass.cbClsExtra    = 0;
+      wndclass.cbWndExtra    = DLGWINDOWEXTRA;
+      wndclass.hInstance     = hInstance;
+      wndclass.hIcon         = LoadIcon(hInstance,szAppName);
+      wndclass.hCursor       = LoadCursor(NULL,IDC_ARROW);
+      wndclass.hbrBackground = COLOR_WINDOW + 1;
+      wndclass.lpszMenuName  = NULL;
+      wndclass.lpszClassName = szAppName;
+
+      RegisterClass(&wndclass);
+      }
+
+   AIL_startup();
+
+   hwnd = CreateDialog(hInstance,szAppName,0,NULL);
+
+   bValid = FALSE;
+   nAtten = MIN_ATTEN;
+
+   hCtrl = GetDlgItem(hwnd,slideVolume);
+   SetScrollRange(hCtrl,SB_CTL,MIN_ATTEN,MAX_ATTEN,FALSE);
+   SetScrollPos(hCtrl,SB_CTL,nAtten,FALSE);
+
+   ShowWindow(hwnd,nCmdShow);
+
+   while (GetMessage(&msg,NULL,0,0))
+      {
+      TranslateMessage(&msg);
+      DispatchMessage(&msg);
+      }
+
+   return msg.wParam;
+}
+
+/***********************************************************/
+long FAR PASCAL WndProc(HWND hwnd, WORD message, WORD wParam, LONG lParam)
+{
+   HWND hCtrl;
+
+   switch (message)
+      {
+      case WM_VSCROLL:
+         switch (wParam)
+            {
+            case SB_THUMBPOSITION:
+            case SB_THUMBTRACK:
+               nAtten = LOWORD(lParam);
+               break;
+            case SB_PAGEDOWN:
+               nAtten += 20;
+            case SB_LINEDOWN:
+               nAtten = min(MAX_ATTEN,nAtten+5);
+               break;
+            case SB_PAGEUP:
+               nAtten -= 20;
+            case SB_LINEUP:
+               nAtten = max(MIN_ATTEN,nAtten-5);
+               break;
+            case SB_TOP:
+               nAtten = MIN_ATTEN;
+               break;
+            case SB_BOTTOM:
+               nAtten = MAX_ATTEN;
+               break;
+            }
+         hCtrl = GetDlgItem(hwnd,slideVolume);
+         SetScrollPos(hCtrl,SB_CTL,nAtten,TRUE);
+         if (bValid == TRUE)
+            AIL_set_relative_volume(hDriver,hSeq,MAX_ATTEN-nAtten,0);
+         return 0;
+
+      case WM_COMMAND:
+         switch (wParam)
+            {
+            case btnPause:
+               if (bValid == TRUE)
+                  AIL_stop_sequence(hDriver,hSeq);
+               break;
+            case btnResume:
+               if (bValid == TRUE)
+                  AIL_resume_sequence(hDriver,hSeq);
+               break;
+            case btnAbout:
+               MessageBox(hwnd,
+                  "Copyright 1991, 1992 John Miles and Miles Design, Inc.",
+                  "About WINXMIDI", MB_OK);
+               break;
+            default:
+               ClearSound();
+               InitSound(hwnd,wParam);
+               break;
+            }  
+         return 0;
+
+      case WM_DESTROY:
+         AIL_shutdown("    Miles Design    ");
+         PostQuitMessage(0);
+         return 0;
+      }
+
+   return DefWindowProc(hwnd,message,wParam,lParam);
+}
+//ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+//лл                                                                     лл
+//лл  WINSAMP.C                                                          лл
+//лл                                                                     лл
+//лл  Digital (sampled) sound performance demonstration                  лл
+//лл                                                                     лл
+//лл  V1.00 of 15-Dec-91                                                 лл
+//лл  V1.01 of  1-Feb-92: AIL_startup() call added                       лл
+//лл  V1.02 of 29-Feb-92: MMLock() / MMUnlock() calls added              лл
+//лл  V1.03 of 30-Jun-92: Ad Lib Gold option added w/formatting calls    лл
+//лл                                                                     лл
+//лл  C source compatible with Microsoft C v6.0 or later                 лл
+//лл                                                                     лл
+//ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+//лл                                                                     лл
+//лл  rc -r winsamp.rc                                                   лл
+//лл                                                                     лл
+//лл  cl -c -Gsw -Ow -W2 -Zp winsamp.c                                   лл
+//лл  link winsamp, /align:16, NUL, /nod slibcew libw wail, winsamp      лл
+//лл  rc winsamp.res                                                     лл
+//лл                                                                     лл
+//ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+//лл                                                                     лл
+//лл  Copyright (C) 1991 John Miles                                      лл
+//лл                                                                     лл
+//лл  Miles Design, Inc.                                                 лл
+//лл  10926 Jollyville #308                                              лл
+//лл  Austin, TX 78759                                                   лл
+//лл  (512) 345-2642                                                     лл
+//лл                                                                     лл
+//ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+                                                                         
+#include <windows.h>
+#include "wail.h"                                                        
+
+#include <string.h>
+#include <stdlib.h>
+#include <dos.h>
+
+//
+// Prototypes for GlobalDosAlloc() and GlobalDosFree()
+// (Windows 3.0-specific functions which allocate memory
+// accessible to DMA controller in protected mode)
+//
+
+DWORD FAR PASCAL GlobalDosAlloc(DWORD dwBytes);
+WORD FAR PASCAL GlobalDosFree(WORD wSelector);
+
+#define rbPAS       0x0065
+#define rbSBP       0x0066
+#define rbSB        0x0067
+#define rbALG       0x0068
+#define btnAbout    0x006B
+#define btnPause    0x006C
+#define btnResume   0x006D
+#define slideVolume 0x006E
+#define slidePanpot 0x0070
+
+static char szAppName[] = "WinSAMP";
+
+long FAR PASCAL WndProc(HWND,WORD,WORD,LONG);
+void RefreshSound(void);
+
+HDRIVER hDriver;
+BOOL bValid;
+BOOL bPaused;
+int nAtten;
+int nPan;
+
+int hSoundFile;
+DWORD GlobalDOSBuff[2];
+sound_buff sndbuff[2];
+struct
+{
+   WORD wBtnID;
+   char *szDriverName;
+   char *szSampleFile;
+   char *szErrorHelp;
+}
+adapter[] =
+{
+   rbPAS, "ailpasdg.dll", "vprice.raw", "(Requires MVSOUND.SYS)",
+   rbSBP, "ailsbpdg.dll", "vprice.raw", "(I/O 220H, IRQ 7, DMA 1)",
+   rbSB,  "ailsbdg.dll",  "vprice.raw", "(I/O 220H, IRQ 7, DMA 1)",
+   rbALG, "ailalgdg.dll", "vprice.raw", "(I/O 388H)"
+};
+
+#define NADAPTERS (sizeof adapter / sizeof adapter[0])
+
+#define MIN_ATTEN 0
+#define MAX_ATTEN 127
+
+#define RIGHT_PAN 0
+#define CENTER_PAN 64
+#define LEFT_PAN 127
+
+/***********************************************************/
+
+//
+// Multimedia device driver locking subroutines and data
+//
+
+static HANDLE hMMSYS = NULL;  // handle to MM Extensions DLL
+WORD wMMLockFlag = 0;         // flag nonzero if MM drivers locked
+WORD nDevDrvCnt;              // # of waveform audio drivers found
+HANDLE hDrvrs[32];            // handles to locked drivers
+
+WORD (FAR PASCAL *lpfnwOGND)(void);
+WORD (FAR PASCAL *lpfnwOO)(void far *,WORD,void far *,DWORD,DWORD,DWORD);
+WORD (FAR PASCAL *lpfnwOC)(HANDLE);
+
+struct                  // Same as PCMWAVEFORMAT structure
+{                       // defined in MMSYSTEM.H; initialized
+   WORD wFormatTag;     // with "lowest-common denominator" specs
+   WORD nChannels;      // (i.e., standard Sound Blaster)
+   DWORD nSamplesPerSec; 
+   DWORD nAvgBytesPerSec;
+   WORD nBlockAlign;
+   WORD wBitsPerSample;
+}
+sPCMWF = {1,1,11025L,11025L,1,8};
+
+#define CALLBACK_WINDOW 0x00010000l
+
+//
+// "Lock" all Multimedia digital sound drivers if MM Extensions
+// present -- avoids hardware-level conflicts between MM and AIL
+// (hwnd parameter can be any desired window handle)
+//
+// Returns 0 if one or more digital sound drivers could not be locked;
+// nonzero if all digital drivers locked successfully (or MM not 
+// present)
+//
+
+WORD MMLock(HWND hwnd)
+{
+   WORD i,j,k;
+   static buf[30];
+
+   if (wMMLockFlag) return 1;
+   if (hMMSYS == NULL)
+      {
+      hMMSYS = GetModuleHandle("MMSYSTEM.DLL");
+      if (hMMSYS == NULL) return 1;
+
+      lpfnwOGND = GetProcAddress(hMMSYS,"waveOutGetNumDevs");
+      lpfnwOO = GetProcAddress(hMMSYS,"waveOutOpen");
+      lpfnwOC = GetProcAddress(hMMSYS,"waveOutClose");
+         
+      if ((lpfnwOGND==NULL) || (lpfnwOO==NULL) || (lpfnwOC==NULL))
+         {
+         MessageBeep(0);
+         return 0;
+         }
+
+      nDevDrvCnt = (*lpfnwOGND)();
+      }
+
+   for (i=j=0;i<nDevDrvCnt;i++)
+      {
+      k = (*lpfnwOO)((void far *)&hDrvrs[i],i,(void far *)&sPCMWF,
+         hwnd,NULL,CALLBACK_WINDOW);
+      if (k) hDrvrs[i] = -1;
+      j |= k;
+      }
+
+   wMMLockFlag = 1;
+
+   return (!j);
+}
+
+//
+// "Unlock" all Multimedia digital sound drivers if MM Extensions
+// present -- used when AIL application is shutting down or otherwise not
+// playing digital audio samples
+//
+
+void MMUnlock(void)
+{
+   int i,j;
+
+   if ((hMMSYS == NULL) || (!wMMLockFlag)) return;
+
+   for (i=j=0;i<nDevDrvCnt;i++)
+      if (hDrvrs[i] != -1)
+         if ((*lpfnwOC)(hDrvrs[i]))
+            MessageBeep(0);
+
+   wMMLockFlag = 0;
+}
+
+/***********************************************************/
+
+//
+// Initiate sound playback with a given adapter
+//
+
+void InitSound(HWND hParent, WORD wAdapterID)
+{
+   HWND hCtrl;
+   WORD i;
+   drvr_desc far *lpDrvrDesc;
+   char szSNDFilename[32];
+   char szDLLFilename[32];
+   char szErrorParms[32];
+   char szErrorText[128];
+
+   //
+   // Look up driver & sound file information used to
+   // demonstrate the specified sound adapter based on
+   // radio button's control ID
+   //
+   for (i=0;i<NADAPTERS;i++)
+      if (adapter[i].wBtnID == wAdapterID)
+         {
+         lstrcpy(szDLLFilename,adapter[i].szDriverName);
+         lstrcpy(szSNDFilename,adapter[i].szSampleFile);
+         lstrcpy(szErrorParms,adapter[i].szErrorHelp);
+         break;
+         }
+
+   if (i==NADAPTERS) return;
+
+   //
+   // Attempt to register sound driver DLL with API module.
+   // Exit if another Windows task is already using the 
+   // requested sound driver
+   //
+
+   hDriver = AIL_register_driver(szDLLFilename);
+   if (hDriver == -1)
+      {
+      MessageBeep(0);
+      MessageBox(hParent,
+         "Sound adapter in use. Choose another.",
+         "Error",MB_ICONEXCLAMATION | MB_OK);
+      return;
+      }
+
+   //
+   // Get driver information, including factory default I/O
+   // settings, and attempt to detect the selected sound adapter.
+   // Exit if adapter cannot be found at the default I/O
+   // settings.  Otherwise, initialize the driver
+   //
+
+   lpDrvrDesc = AIL_describe_driver(hDriver);
+
+   if (!AIL_detect_device(hDriver,
+      lpDrvrDesc->default_IO,lpDrvrDesc->default_IRQ,
+      lpDrvrDesc->default_DMA,lpDrvrDesc->default_DRQ))
+         {
+         wsprintf(szErrorText,
+            "Sound adapter not found at default I/O port settings. %s",
+            (char far *) szErrorParms);
+         MessageBeep(0);
+         MessageBox(hParent,szErrorText,"Error",
+            MB_ICONEXCLAMATION | MB_OK);
+         AIL_release_driver_handle(hDriver);
+         return;
+         }
+
+   AIL_init_driver(hDriver,
+      lpDrvrDesc->default_IO,lpDrvrDesc->default_IRQ,
+      lpDrvrDesc->default_DMA,lpDrvrDesc->default_DRQ);
+
+   //
+   // Allocate memory from lower DOS memory for two 16K DMA buffers.
+   // Store the buffers' selector & segment addresses in AIL sound_buff
+   // structures for use by the dual-buffer playback process.  Also
+   // initialize each buffer's sample width to 8 bits and rate
+   // to 11,025 Hz for use with data from the VPRICE.RAW file
+   // 
+   for (i=0;i<2;i++)
+      {
+      GlobalDOSBuff[i] = GlobalDosAlloc(16384L);
+
+      if (GlobalDOSBuff[i] == 0L)
+         {
+         MessageBeep(0);
+         MessageBox(hParent,
+            "Insufficient DOS memory available.",
+            "Error",MB_ICONEXCLAMATION | MB_OK);
+         AIL_release_driver_handle(hDriver);
+         return;
+         }
+
+      sndbuff[i].pack_type = 0;
+      sndbuff[i].sample_rate = 256 - (WORD) (1000000L / 11025L);
+      sndbuff[i].sel_data = (void far *) (GlobalDOSBuff[i] << 16);
+      sndbuff[i].seg_data = (void far *) (GlobalDOSBuff[i] & 0xffff0000L);
+      }
+
+   //
+   // Obtain a handle to the specified sound file (normally VPRICE.RAW)
+   // for use by the RefreshSound() buffer maintenance function
+   //
+
+   hSoundFile = _lopen(szSNDFilename,OF_READ);
+
+   //
+   // Set the volume and panpot controls to their default values
+   // based on the requested driver
+   // The scroll bars return a value of 0 at their highest
+   // settings, so subtract the control values from their
+   // maximum values
+   //
+
+   nAtten = MAX_ATTEN - AIL_digital_playback_volume(hDriver);
+   nPan = LEFT_PAN - AIL_digital_playback_panpot(hDriver);
+
+   hCtrl = GetDlgItem(hParent,slidePanpot);
+   SetScrollPos(hCtrl,SB_CTL,nPan,TRUE);
+
+   hCtrl = GetDlgItem(hParent,slideVolume);
+   SetScrollPos(hCtrl,SB_CTL,nAtten,TRUE);
+
+   //
+   // Set flags indicating valid driver is loaded and playing
+   //
+
+   bValid = TRUE;
+   bPaused = FALSE;
+
+   //
+   // Call sound buffer refresh function to start playback
+   //
+
+   RefreshSound();
+}
+/***********************************************************/
+//
+// Periodically refresh sound buffers with new sample data
+// from sound file.  When entire file has been read, seek
+// to start-of-file and continue playing.
+//
+// The Windows timer message interval should be sufficient to
+// guarantee that both DMA buffers never become empty at the
+// sample rate being used.  Two 16K buffers and a sample rate
+// of 11,025 Hz. are used in this example, so a callback
+// interval of 740 milliseconds will provide a 100% safety
+// margin without needlessly reducing system performance
+//
+
+void RefreshSound(void)
+{
+   WORD i;
+
+   if ((bValid == FALSE) || (bPaused == TRUE)) return;
+
+   i = 0;
+
+   do
+      {
+      if (AIL_sound_buffer_status(hDriver,i) == DAC_DONE)
+         {
+         sndbuff[i].len = _lread(hSoundFile,sndbuff[i].sel_data,16384);
+
+         if (!sndbuff[i].len)
+            {
+            _llseek(hSoundFile,0,0);
+            continue;
+            }
+         else
+            {
+            AIL_format_sound_buffer(hDriver,&sndbuff[i]);
+            AIL_register_sound_buffer(hDriver,i,&sndbuff[i]);
+            AIL_start_digital_playback(hDriver);
+            }
+         }
+
+      i++;
+      }
+   while (i < 2);
+}
+
+/***********************************************************/
+
+//
+// Stop sound playback and release all resources in use by
+// playback process
+//
+
+void ClearSound(void)
+{
+   WORD i;
+
+   if (bValid == FALSE) return;
+   bValid = FALSE;
+
+   AIL_shutdown_driver(hDriver,"    Miles Design    ");
+
+   _lclose(hSoundFile);
+
+   for (i=0;i<2;i++)
+      GlobalDosFree((WORD) (GlobalDOSBuff[i] & 0xffffL));
+
+   AIL_release_driver_handle(hDriver);
+}
+/***********************************************************/
+int PASCAL WinMain(HANDLE hInstance, HANDLE hPrevInstance,
+                   LPSTR lpszCmdLine, int nCmdShow)
+{
+   HWND hwnd;
+   HWND hCtrl;
+   MSG msg;
+   WNDCLASS wndclass;
+
+   if (!hPrevInstance)
+      {
+      wndclass.style         = CS_HREDRAW | CS_VREDRAW;
+      wndclass.lpfnWndProc   = WndProc;
+      wndclass.cbClsExtra    = 0;
+      wndclass.cbWndExtra    = DLGWINDOWEXTRA;
+      wndclass.hInstance     = hInstance;
+      wndclass.hIcon         = LoadIcon(hInstance,szAppName);
+      wndclass.hCursor       = LoadCursor(NULL,IDC_ARROW);
+      wndclass.hbrBackground = COLOR_WINDOW + 1;
+      wndclass.lpszMenuName  = NULL;
+      wndclass.lpszClassName = szAppName;
+
+      RegisterClass(&wndclass);
+      }
+
+   AIL_startup();
+
+   hwnd = CreateDialog(hInstance,szAppName,0,NULL);
+
+   bValid = FALSE;
+   bPaused = FALSE;
+   nAtten = MIN_ATTEN;
+   nPan = CENTER_PAN;
+
+   //
+   // (See comments for RefreshSound() above)
+   //
+
+   SetTimer(hwnd,1,740,NULL);
+
+   hCtrl = GetDlgItem(hwnd,slideVolume);
+   SetScrollRange(hCtrl,SB_CTL,MIN_ATTEN,MAX_ATTEN,FALSE);
+   SetScrollPos(hCtrl,SB_CTL,nAtten,FALSE);
+
+   hCtrl = GetDlgItem(hwnd,slidePanpot);
+   SetScrollRange(hCtrl,SB_CTL,RIGHT_PAN,LEFT_PAN,FALSE);
+   SetScrollPos(hCtrl,SB_CTL,nPan,FALSE);
+
+   ShowWindow(hwnd,nCmdShow);
+
+   MMLock(hwnd);
+
+   while (GetMessage(&msg,NULL,0,0))
+      {
+      TranslateMessage(&msg);
+      DispatchMessage(&msg);
+      }
+
+   return msg.wParam;
+}
+
+/***********************************************************/
+long FAR PASCAL WndProc(HWND hwnd, WORD message, WORD wParam, LONG lParam)
+{
+   HWND hCtrl;
+
+   switch (message)
+      {
+      case WM_VSCROLL:
+         switch (wParam)
+            {
+            case SB_THUMBPOSITION:
+            case SB_THUMBTRACK:               nAtten = LOWORD(lParam);
+               break;
+            case SB_PAGEDOWN:
+               nAtten += 20;
+            case SB_LINEDOWN:
+               nAtten = min(MAX_ATTEN,nAtten+5);
+               break;
+            case SB_PAGEUP:
+               nAtten -= 20;
+            case SB_LINEUP:
+               nAtten = max(MIN_ATTEN,nAtten-5);
+               break;
+            case SB_TOP:
+               nAtten = MIN_ATTEN;
+               break;
+            case SB_BOTTOM:
+               nAtten = MAX_ATTEN;
+               break;
+            }
+         hCtrl = GetDlgItem(hwnd,slideVolume);
+         SetScrollPos(hCtrl,SB_CTL,nAtten,TRUE);
+         if (bValid == TRUE)
+            AIL_set_digital_playback_volume(hDriver,MAX_ATTEN-nAtten);
+         return 0;
+
+      case WM_HSCROLL:
+         switch (wParam)
+            {
+            case SB_THUMBPOSITION:
+            case SB_THUMBTRACK:
+               nPan = LOWORD(lParam);
+               break;
+            case SB_PAGEDOWN:
+               nPan += 20;
+            case SB_LINEDOWN:
+               nPan = min(LEFT_PAN,nPan+5);
+               break;
+            case SB_PAGEUP:
+               nPan -= 20;
+            case SB_LINEUP:
+               nPan = max(RIGHT_PAN,nPan-5);
+               break;
+            case SB_TOP:
+               nPan = RIGHT_PAN;
+               break;
+            case SB_BOTTOM:
+               nPan = LEFT_PAN;
+               break;
+            }
+         hCtrl = GetDlgItem(hwnd,slidePanpot);
+         SetScrollPos(hCtrl,SB_CTL,nPan,TRUE);
+         if (bValid == TRUE)
+            AIL_set_digital_playback_panpot(hDriver,LEFT_PAN-nPan);
+         return 0;
+
+      case WM_COMMAND:
+         switch (wParam)
+            {
+            case btnPause:
+               if (bValid == TRUE)
+                  {
+                  AIL_pause_digital_playback(hDriver);
+                  bPaused = TRUE;
+                  }
+               break;
+            case btnResume:
+               if (bValid == TRUE)
+                  {
+                  AIL_resume_digital_playback(hDriver);
+                  bPaused = FALSE;
+                  }
+               break;            case btnAbout:
+               MessageBox(hwnd,
+                  "Copyright 1991, 1992 John Miles and Miles Design, Inc.",
+                  "About WINSAMP", MB_OK);
+               break;
+            default:
+               ClearSound();
+               InitSound(hwnd,wParam);
+               break;
+            }  
+         return 0;
+
+      case WM_TIMER:
+         RefreshSound();
+         return 0;
+
+      case WM_DESTROY:
+         KillTimer(hwnd,1);
+         ClearSound();
+         AIL_shutdown("    Miles Design    ");
+
+         MMUnlock();
+         PostQuitMessage(0);
+
+         return 0;
+      }
+
+   return DefWindowProc(hwnd,message,wParam,lParam);
+}
+/*лллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+//лл                                                    лл
+//лл   IBM Audio Interface Library for Windows(TM)      лл
+//лл                                                    лл
+//лл   WAIL.H: C API function prototypes                лл
+//лл                                                    лл
+//лл   Source compatible with Microsoft/Borland C/C++   лл
+//лл                                                    лл
+//лл   AIL.H release 2.00                               лл
+//лл   For use with API version 2.00                    лл
+//лл   WAIL.H release 2.01 of 1-Feb-92                  лл
+//лл   Include after WINDOWS.H                          лл
+//лл                                                    лл
+//лллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+//лл                                                    лл
+//лл   Copyright (C) 1991 John Miles                    лл
+//лл                                                    лл
+//лл   Miles Design, Inc.                               лл
+//лл   10926 Jollyville #308                            лл
+//лл   Austin, TX 78759                                 лл
+//лл   (512) 345-2642                                   лл
+//лл                                                    лл
+//лллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+*/
+
+#ifndef WAIL_H
+#define WAIL_H
+
+#define SEQ_STOPPED 0       /* equates for AIL_sequence_status()      */
+#define SEQ_PLAYING 1
+#define SEQ_DONE 2
+
+#define DAC_STOPPED 0       /* equates for AIL_sound_buffer_status()  */
+#define DAC_PAUSED 1        /*             AIL_VOC_playback_status()  */
+#define DAC_PLAYING 2
+#define DAC_DONE 3
+
+#define XMIDI_DRVR 3        /* equates for drvr_desc.drvr_type values */
+#define DSP_DRVR 2
+#define WIN_XMIDI_DRVR 4
+#define WIN_DSP_DRVR 5
+
+typedef int HTIMER;         /* handle to timer                        */
+typedef int HDRIVER;        /* handle to driver                       */
+typedef int HSEQUENCE;      /* handle to XMIDI sequence               */
+
+typedef struct
+{
+   WORD min_API_version;
+   WORD drvr_type;
+   char data_suffix[4];
+   void far *dev_name_table;
+   int default_IO;
+   int default_IRQ;
+   int default_DMA;
+   int default_DRQ;
+   int service_rate;
+   WORD display_size;
+}  
+drvr_desc;
+
+typedef struct
+{
+   WORD pack_type;
+   WORD sample_rate;
+   void far *sel_data;
+   void far *seg_data;
+   DWORD len;
+}
+sound_buff;
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/********************/
+/*                  */
+/* Process services */
+/*                  */
+/********************/
+
+void far pascal AIL_startup(void);
+HTIMER far pascal AIL_register_timer(FARPROC lpTimerProc);
+void far pascal AIL_set_timer_period(HTIMER hTimer, DWORD 
+     dwMicroseconds);
+void far pascal AIL_set_timer_frequency(HTIMER hTimer, DWORD dwHertz);
+void far pascal AIL_set_timer_divisor(HTIMER hTimer, WORD wPIT_divisor);
+WORD far pascal AIL_interrupt_divisor(void);
+void far pascal AIL_start_timer(HTIMER hTimer);
+void far pascal AIL_start_all_timers(void);
+void far pascal AIL_stop_timer(HTIMER hTimer);
+void far pascal AIL_stop_all_timers(void);
+void far pascal AIL_release_timer_handle(HTIMER hTimer);
+void far pascal AIL_release_all_timers(void);
+void far pascal AIL_shutdown(char far *lpSignOff);
+
+/*************************/
+/*                       */
+/* Installation services */
+/*                       */
+/*************************/
+
+HDRIVER far pascal AIL_register_driver(char far *lpPathName);
+void far pascal AIL_release_driver_handle(HDRIVER hDriver);
+drvr_desc far * pascal far AIL_describe_driver(HDRIVER hDriver);
+unsigned far pascal AIL_detect_device(HDRIVER hDriver, WORD wIOAddr, 
+    WORD wIRQ, WORD wDMA, WORD wDRQ);
+void far pascal AIL_init_driver(HDRIVER hDriver, WORD wIOAddr, 
+    WORD wIRQ, WORD wDMA, WORD wDRQ);
+void far pascal AIL_shutdown_driver(HDRIVER hDriver, char far   
+    *lpSignOff);
+
+/********************************/
+/*                              */
+/* Digital performance services */
+/*                              */
+/********************************/
+
+WORD far pascal AIL_index_VOC_block(HDRIVER hDriver, DWORD    
+    GlobalDOSVOCFile, WORD wBlockMarker, sound_buff far *lpBuff);
+
+void far pascal AIL_register_sound_buffer(HDRIVER hDriver, WORD       
+    wBufferNum, sound_buff far *lpBuff);
+WORD far pascal AIL_sound_buffer_status(HDRIVER hDriver, WORD   
+    wBufferNum);
+
+void far pascal AIL_play_VOC_file(HDRIVER hDriver, DWORD   
+   GlobalDOSVOCFile, int wBlockMarker);
+WORD far pascal AIL_VOC_playback_status(HDRIVER hDriver);
+
+void far pascal AIL_start_digital_playback(HDRIVER hDriver);
+void far pascal AIL_stop_digital_playback(HDRIVER hDriver);
+void far pascal AIL_pause_digital_playback(HDRIVER hDriver);
+void far pascal AIL_resume_digital_playback(HDRIVER hDriver);
+void far pascal AIL_set_digital_playback_volume(HDRIVER hDriver, 
+   WORD wVolume);
+WORD far pascal AIL_digital_playback_volume(HDRIVER hDriver);
+void far pascal AIL_set_digital_playback_panpot(HDRIVER hDriver, 
+   WORD wPanpot);
+WORD far pascal AIL_digital_playback_panpot(HDRIVER hDriver);
+/******************************/
+/*                            */
+/* XMIDI performance services */
+/*                            */
+/******************************/
+
+WORD far pascal AIL_state_table_size(HDRIVER hDriver);
+HSEQUENCE far pascal AIL_register_sequence(HDRIVER hDriver, 
+   void far *lpFORM_XMID, WORD wSequenceNum, void far *lpStateTable, 
+   void far *lpControllerTable);
+void far pascal AIL_release_sequence_handle(HDRIVER hDriver, 
+   HSEQUENCE hSequence);
+
+WORD far pascal AIL_default_timbre_cache_size(HDRIVER hDriver);
+void far pascal AIL_define_timbre_cache(HDRIVER hDriver, void far 
+   *lpCacheAddr, WORD wCacheSize);                     
+unsigned far pascal AIL_timbre_request(HDRIVER hDriver, HSEQUENCE hSequence);
+   
+WORD far pascal AIL_timbre_status(HDRIVER hDriver, int iBank, int 
+     iPatch);
+void far pascal AIL_install_timbre(HDRIVER hDriver, int iBank, int 
+     iPatch, void far *lpTimbreAddr);
+void far pascal AIL_protect_timbre(HDRIVER hDriver, int iBank, int iPatch);
+void far pascal AIL_unprotect_timbre(HDRIVER hDriver, int iBank, int 
+     iPatch);
+
+void far pascal AIL_start_sequence(HDRIVER hDriver, HSEQUENCE hSequence);
+void far pascal AIL_stop_sequence(HDRIVER hDriver, HSEQUENCE hSequence);
+void far pascal AIL_resume_sequence(HDRIVER hDriver, HSEQUENCE 
+     hSequence);
+WORD far pascal AIL_sequence_status(HDRIVER hDriver, HSEQUENCE 
+     hSequence);
+WORD far pascal AIL_relative_volume(HDRIVER hDriver, HSEQUENCE 
+     hSequence);
+WORD far pascal AIL_relative_tempo(HDRIVER hDriver, HSEQUENCE hSequence);
+void far pascal AIL_set_relative_volume(HDRIVER hDriver, HSEQUENCE 
+     hSequence, WORD wPercent, WORD wMilliseconds);
+void far pascal AIL_set_relative_tempo(HDRIVER hDriver, HSEQUENCE 
+     hSequence, WORD wPercent, WORD wMilliseconds);
+int far pascal AIL_controller_value(HDRIVER hDriver, HSEQUENCE hSequence,
+   WORD wChannel, WORD wControllerNum);
+void far pascal AIL_set_controller_value(HDRIVER hDriver, HSEQUENCE
+   hSequence, WORD wChannel, WORD wControllerNum, WORD wValue);
+WORD far pascal AIL_channel_notes(HDRIVER hDriver, HSEQUENCE hSequence,
+   WORD wChannel);
+WORD far pascal AIL_beat_count(HDRIVER hDriver, HSEQUENCE hSequence);
+WORD far pascal AIL_measure_count(HDRIVER hDriver, HSEQUENCE hSequence);
+void far pascal AIL_branch_index(HDRIVER hDriver, HSEQUENCE hSequence, 
+   WORD wMarkerNumber);
+
+void far pascal AIL_send_channel_voice_message(HDRIVER hDriver, WORD 
+   wStatus, WORD wData1, WORD wData2);
+void far pascal AIL_send_sysex_message(HDRIVER hDriver, WORD wAddrMSB, 
+   WORD wAddrKSB, WORD wAddrLSB, void far *lpSysexData, WORD wSize, 
+   WORD wDelay);
+void far pascal AIL_write_display(HDRIVER hDriver, char far *lpString);
+void far pascal AIL_install_callback(HDRIVER hDriver, FARPROC 
+   lpCallbackFn);
+void far pascal AIL_cancel_callback(HDRIVER hDriver);
+
+WORD far pascal AIL_lock_channel(HDRIVER hDriver);
+void far pascal AIL_map_sequence_channel(HDRIVER hDriver, 
+   HSEQUENCE hSequence, WORD wSequenceChannel, WORD wPhysicalChannel);
+   
+WORD far pascal AIL_true_sequence_channel(HDRIVER hDriver, 
+   HSEQUENCE hSequence, WORD wSequenceChannel);
+   
+void far pascal AIL_release_channel(HDRIVER hDriver, WORD wChannel);
+
+#ifdef __cplusplus
+}
+#endif
+#endif{*
+ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+лл                                                         лл
+лл   TPXPLAY.PAS                                           лл
+лл                                                         лл
+лл   Standard XMIDI file performance utility               лл
+лл                                                         лл
+лл   V1.00 of 28-Dec-91                                    лл
+лл                                                         лл
+лл   Source compatible with Borland Turbo Pascal 6.0       лл
+лл                                                         лл
+ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+лл                                                         лл
+лл   tpxplay.exe: tpxplay.pas ail.tpu                      лл
+лл     tpc tpxplay.pas                                     лл
+лл                                                         лл
+ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+лл                                                         лл
+лл   Copyright (C) 1991 John Miles                         лл
+лл                                                         лл
+лл   Miles Design, Inc.                                    лл
+лл   10926 Jollyville #308                                 лл
+лл   Austin, TX 78759                                      лл
+лл   (512) 345-2642                                        лл
+лл                                                         лл
+ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+*}
+
+program TPXPLAY;
+
+uses Crt,AIL;
+
+const
+   version = '1.00';
+
+{ 
+*******************************************************************
+*                                                                 * 
+* read_file: Read file (< 64K!) into memory at paragraph boundary *
+*                                                                 *
+*******************************************************************
+}
+
+function read_file(filename:string):pointer;
+var
+   infile : file;
+   size   : longint;
+   memblk : ^byte;
+begin
+   assign(infile,filename);
+   reset(infile,1);
+
+   size := filesize(infile);
+
+   if (size >= 65500) then
+   begin
+      writeln('File too large for Pascal environment.');
+      halt(1);
+   end;
+
+   getmem(memblk,size+16);   { allocate extra paragraph (16 bytes) }
+
+   asm
+      inc WORD PTR memblk+2  { segment := next paragraph boundary  }
+      mov WORD PTR memblk,0  {  offset := 0                        }
+   end;
+
+   blockread(infile,memblk^,size); 
+
+   close(infile);
+   read_file := memblk;
+end;
+{ 
+*****************************************************************
+*                                                               * 
+* load_global_timbre: Standard Pascal routine for Global Timbre *
+*                     Library access                            *
+*                                                               *
+*****************************************************************
+}
+
+function load_global_timbre(GTL_filename:string;bank,patch:word):pointer;
+type
+   GTL_hdr_rec = record
+      patch : byte;
+      bank  : byte;
+      off_l : word;
+      off_h : word;
+   end;
+var
+   GTL_hdr  :GTL_hdr_rec;
+   timb_ptr :pointer;
+   len      :word;
+   filename :array[0..128] of byte;
+   i,handle :integer;
+label
+   exit;
+begin
+   timb_ptr := NIL;     { initialize timbre pointer and filename }
+
+   for i := 1 to length(GTL_filename) do
+      filename[i-1] := byte(GTL_filename[i]);
+   filename[length(GTL_filename)] := 0;
+   
+   asm
+      mov ax,3d00h      { open the Global Timbre Library file    }
+      lea dx,filename
+      push ds
+      push ss
+      pop ds
+      int 21h
+      pop ds
+      jc exit           { exit with NIL pointer if GTL not found }
+      mov handle,ax     
+   end;
+
+   repeat
+   asm
+      mov ax,3f00h      { read a single 6-byte GTL_hdr record    }
+      mov bx,handle
+      mov cx,6
+      push ds
+      push ss
+      pop ds
+      lea dx,GTL_hdr
+      int 21h           { keep reading until desired timbre      }
+      pop ds
+   end;                 { found or end of header reached         }
+   until
+      ((GTL_hdr.patch = patch) and (GTL_hdr.bank = bank)) or 
+       (GTL_hdr.bank = 255);
+
+   if (GTL_hdr.bank = 255) then 
+   begin
+      asm
+         mov ax,3e00h   { close GTL and exit if timbre not found }
+         mov bx,handle
+         int 21h
+      end;
+      goto exit;        
+   end;
+   asm
+      mov ax,4200h      { else seek to desired timbre in file    }
+      mov bx,handle
+      mov cx,GTL_hdr.off_h
+      mov dx,GTL_hdr.off_l
+      int 21h
+
+      mov ax,3f00h      { read timbre length word and allocate   }
+      mov bx,handle     { memory                                 }
+      mov cx,2
+      lea dx,len
+      push ds
+      push ss
+      pop ds
+      int 21h
+      pop ds
+   end;
+
+   getmem(timb_ptr,len);
+
+   asm
+      les di,timb_ptr   { copy length to first word in timbre    }
+      mov ax,len
+      mov es:[di],ax
+      add di,2
+
+      sub ax,2
+      mov cx,ax
+
+      push ds           { read timbre data into memory           }
+      mov ax,3f00h
+      mov bx,handle
+      mov ds,WORD PTR timb_ptr+2
+      mov dx,di
+      int 21h
+      pop ds
+
+      mov ax,3e00h      { close GTL file                         }
+      mov bx,handle
+      int 21h
+   end;
+
+exit:
+   load_global_timbre := timb_ptr;
+
+end;
+
+{ 
+******************************************************************
+*                                                                * 
+* Main TPXPLAY code                                              *
+*                                                                *
+******************************************************************
+}
+
+var
+   driver                    : HDRIVER;
+   hseq                      : HSEQUENCE;
+   drvr_name                 : string[128];
+   seq_name                  : string[128];
+   GTL_name                  : string[128];
+   shutdown_text             : array[0..128] of byte;
+   ch                        : char;
+   i,seq_num,bank,patch      : integer;
+   drvr_addr                 : ^byte;
+   desc                      : ^drvr_desc;
+   buffer,state,timb,tc_addr : pointer;
+   GTL                       : file;
+   treq,tc_size              : word;
+begin
+   writeln;
+   writeln('Turbo Pascal XPLAY version ',version,'                   Copyright (C) 1991 John Miles');
+   writeln('-------------------------------------------------------------------------------');
+   writeln;
+
+   if (paramcount < 2) then
+   begin
+      writeln('This program plays an Extended MIDI (XMIDI) sequence through a ');
+      writeln('specified Audio Interface Library V2.X sound driver.');
+      writeln;
+      writeln('Usage: TPXPLAY XMIDI_filename driver_filename [sequence_number]');
+      halt(1);
+   end;
+
+   {
+      Initialize API before calling any Library functions
+   }
+
+   AIL_startup;
+           
+   seq_num   := 0;
+   seq_name  := paramstr(1);
+   drvr_name := paramstr(2);
+
+   if (paramcount = 3) then val(paramstr(3),seq_num,i);
+
+   {
+      Load driver file at seg:0000
+   }
+
+   drvr_addr := read_file(drvr_name);
+
+   {
+      Load XMIDI data file
+   }
+
+   buffer := read_file(seq_name); 
+
+   {
+      Register the driver with the API
+   }
+
+   driver := AIL_register_driver(drvr_addr);
+
+   if (driver = -1) then
+   begin
+      writeln('Driver ',drvr_name,' not compatible with API version.');
+      AIL_shutdown(NIL);
+      halt(1);
+   end;
+
+   {
+      Get driver type and factory default I/O parameters; exit if
+      driver is not capable of interpreting MIDI files
+   }
+
+   desc := AIL_describe_driver(driver);
+
+   if (not (desc^.drvr_type = XMIDI_DRVR)) then
+   begin
+      writeln('Driver ',drvr_name,' not an XMIDI driver.');
+      AIL_shutdown(NIL);
+      halt(1);
+   end;
+
+   {
+      Verify presence of driver's sound hardware and prepare 
+      driver/hardware for use
+   }
+   if (AIL_detect_device(driver,desc^.default_IO,
+      desc^.default_IRQ,desc^.default_DMA,desc^.default_DRQ) = 0) then
+      begin
+         writeln('Sound hardware not found.');
+         AIL_shutdown(NIL);
+         halt(1);
+      end;
+
+   AIL_init_driver(driver,desc^.default_IO,desc^.default_IRQ,
+      desc^.default_DMA,desc^.default_DRQ);
+
+   getmem(state,AIL_state_table_size(driver));
+
+   {
+      Get name of Global Timbre Library file by appending suffix 
+      supplied by XMIDI driver to GTL filename prefix "SAMPLE."
+   }
+
+   GTL_name     := 'SAMPLE.___';
+   GTL_name[8]  := desc^.data_suffix[0];
+   GTL_name[9]  := desc^.data_suffix[1];
+   GTL_name[10] := desc^.data_suffix[2];
+
+   {
+      Set up local timbre cache; open Global Timbre Library file
+   }
+
+   tc_size := AIL_default_timbre_cache_size(driver);
+   if not (tc_size = 0) then
+   begin
+      getmem(tc_addr,tc_size);
+      AIL_define_timbre_cache(driver,tc_addr,tc_size);
+   end;
+
+   {
+      Look up and register desired sequence in XMIDI file, loading
+      timbres if needed
+   }
+
+   hseq := AIL_register_sequence(driver,buffer,seq_num,state,NIL);
+   if (hseq = -1) then
+   begin
+      writeln('Sequence ',seq_num,' not present in XMIDI file ',seq_name);
+      AIL_shutdown(NIL);
+      halt(1);
+   end;
+
+   assign(GTL,GTL_name);
+   {$I-}
+   reset(GTL);
+   {$I+}
+   if (IoResult = 0) then
+   begin
+      close(GTL);         
+      treq := AIL_timbre_request(driver,hseq);
+
+      while not (treq = 65535) do
+      begin
+         bank := treq div 256; patch := treq mod 256;
+         timb := load_global_timbre(GTL_name,bank,patch);
+         if not (timb = NIL) then
+         begin
+            AIL_install_timbre(driver,bank,patch,timb);
+            dispose(timb);
+            writeln('Installed timbre bank ',bank,', patch ',patch);
+         end
+         else
+         begin
+            write('Timbre bank ',bank,', patch ',patch,' not found ');
+            writeln('in Global Timbre Library ',GTL_name);
+            AIL_shutdown(NIL);
+            halt(1);
+         end;
+         
+         treq := AIL_timbre_request(driver,hseq);
+      end;
+      writeln;
+   end;
+
+   {
+      Start music playback and wait for keypress or end of
+      sequence
+   }
+
+   AIL_start_sequence(driver,hseq);
+
+   writeln('Press any key to stop playback and exit TPXPLAY.');
+
+   repeat ; until (AIL_sequence_status(driver,hseq) = SEQ_DONE) or 
+         (keypressed);
+   if (keypressed) then ch := readkey;
+
+   {
+      Shut down API and all installed drivers; write XMIDI filename 
+      to any front-panel displays
+   }
+
+   writeln;
+   writeln('TPXPLAY stopped.');
+
+   for i := 1 to length(seq_name) do
+      shutdown_text[i-1] := byte(seq_name[i]);
+   shutdown_text[length(seq_name)] := 0;
+
+   AIL_shutdown(addr(shutdown_text));
+end.
+{*
+ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+лл                                                         лл
+лл   TPVPLAY.PAS                                           лл
+лл                                                         лл
+лл   Standard .VOC file performance utility                лл
+лл                                                         лл
+лл   V1.00 of 28-Dec-91                                    лл
+лл                                                         лл
+лл   Source compatible with Borland Turbo Pascal 6.0       лл
+лл                                                         лл
+ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+лл                                                         лл
+лл   tpvplay.exe: tpvplay.pas ail.tpu                      лл
+лл     tpc tpvplay.pas                                     лл
+лл                                                         лл
+ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+лл                                                         лл
+лл   Copyright (C) 1991 John Miles                         лл
+лл                                                         лл
+лл   Miles Design, Inc.                                    лл
+лл   10926 Jollyville #308                                 лл
+лл   Austin, TX 78759                                      лл
+лл   (512) 345-2642                                        лл
+лл                                                         лл
+ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+*}
+
+program TPVPLAY;
+
+uses Crt,AIL;
+
+const
+   version = '1.00';
+
+{ 
+*******************************************************************
+*                                                                 * 
+* read_file: Read file (< 64K!) into memory at paragraph boundary *
+*                                                                 *
+*******************************************************************
+}
+
+function read_file(filename:string):pointer;
+var
+   infile : file;
+   size   : longint;
+   memblk : ^byte;
+begin
+   assign(infile,filename);
+   reset(infile,1);
+
+   size := filesize(infile);
+
+   if (size >= 65500) then
+   begin
+      writeln('File must be < 64K to load under Turbo Pascal.');
+      writeln('Use C-based VOCPLAY program instead.');
+      halt(1);
+   end;
+
+   getmem(memblk,size+16);   { allocate extra paragraph (16 bytes) }
+
+   asm
+      inc WORD PTR memblk+2  { segment := next paragraph boundary  }
+      mov WORD PTR memblk,0  {  offset := 0                        }
+   end;
+
+   blockread(infile,memblk^,size); 
+
+   close(infile);
+   read_file := memblk;
+end;{ 
+******************************************************************
+*                                                                * 
+* Main TPVPLAY code                                              *
+*                                                                *
+******************************************************************
+}
+
+var
+   driver    : HDRIVER;
+   drvr_name : string[128];
+   voc_name  : string[128];
+   ch        : char;
+   i         : integer;
+   drvr_addr : ^byte;
+   desc      : ^drvr_desc;
+   vfile     : pointer;
+begin
+
+   writeln;
+   writeln('Turbo Pascal VOCPLAY version ',version,'                 Copyright (C) 1991 John Miles');
+   writeln('-------------------------------------------------------------------------------');
+   writeln;
+
+   if (paramcount < 2) then
+   begin
+      writeln('This program plays a Creative Voice File (.VOC) through any Audio Interface');
+      writeln('Library digital sound driver.');
+      writeln;
+      writeln('Usage: TPVPLAY filename.voc driver.adv');
+      halt(1);
+   end;
+
+   {
+      Initialize API before calling any Library functions
+   }
+
+   AIL_startup;
+           
+   voc_name  := paramstr(1);
+   drvr_name := paramstr(2);
+
+   {
+      Load driver file at seg:0000
+   }
+
+   drvr_addr := read_file(drvr_name);
+
+   {
+      Load .VOC data file
+   }
+
+   vfile := read_file(voc_name); 
+
+   {
+      Register the driver with the API
+   }
+
+   driver := AIL_register_driver(drvr_addr);
+
+   if (driver = -1) then
+   begin
+      writeln('Driver ',drvr_name,' not compatible with API version.');
+      AIL_shutdown(NIL);
+      halt(1);
+   end;
+   {
+      Get driver type and factory default I/O parameters; exit if
+      driver is not capable of interpreting digital sound files
+   }
+
+   desc := AIL_describe_driver(driver);
+
+   if (not (desc^.drvr_type = DSP_DRVR)) then
+   begin
+      writeln(drvr_name,' is not a digital sound driver.');
+      AIL_shutdown(NIL);
+      halt(1);
+   end;
+
+   {
+      Verify presence of driver's sound hardware and prepare 
+      driver/hardware for use
+   }
+
+   if (AIL_detect_device(driver,desc^.default_IO,
+      desc^.default_IRQ,desc^.default_DMA,desc^.default_DRQ) = 0) then
+      begin
+         writeln('Sound hardware not found.');
+         AIL_shutdown(NIL);
+         halt(1);
+      end;
+
+   AIL_init_driver(driver,desc^.default_IO,desc^.default_IRQ,
+      desc^.default_DMA,desc^.default_DRQ);
+
+   {
+      Start .VOC playback and wait for keypress or end of file
+   }
+   
+   AIL_play_VOC_file(driver,vfile,-1);
+   AIL_start_digital_playback(driver);
+
+   writeln('Press any key to stop playback and exit TPVPLAY.');
+
+   repeat ; until (AIL_VOC_playback_status(driver) = DAC_DONE) or 
+         (keypressed);
+   if (keypressed) then ch := readkey;
+
+   {
+      Shut down API and all installed drivers
+   }
+
+   writeln;
+   writeln('TPVPLAY stopped.');
+
+   AIL_shutdown(NIL);
+end.
+{
+лллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+лл                                                    лл
+лл   IBM Audio Interface Library                      лл
+лл                                                    лл
+лл   AIL.PAS: Turbo Pascal API function prototypes    лл
+лл                                                    лл
+лл   Source compatible with Borland Turbo Pascal 6.0  лл
+лл                                                    лл
+лл   AIL.PAS release 1.00                             лл
+лл   For use with Pascal API version 1.00             лл
+лл                                                    лл
+лллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+лл                                                    лл
+лл   Copyright (C) 1991 John Miles                    лл
+лл                                                    лл
+лл   Miles Design, Inc.                               лл
+лл   10926 Jollyville #308                            лл
+лл   Austin, TX 78759                                 лл
+лл   (512) 345-2642                                   лл
+лл                                                    лл
+лллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+}
+
+unit ail;
+
+interface
+
+const
+   SEQ_STOPPED = 0;       { equates for AIL_sequence_status()      }
+   SEQ_PLAYING = 1;
+   SEQ_DONE    = 2;
+
+   DAC_STOPPED = 0;       { equates for AIL_sound_buffer_status()  }
+   DAC_PAUSED  = 1;       {             AIL_VOC_playback_status()  }
+   DAC_PLAYING = 2;
+   DAC_DONE    = 3;
+
+   XMIDI_DRVR  = 3;       { equates for drvr_desc.drvr_type values }
+   DSP_DRVR    = 2;
+
+type
+                                               
+HTIMER    = integer;      { handle to timer          }
+HDRIVER   = integer;      { handle to driver         } 
+HSEQUENCE = integer;      { handle to XMIDI sequence }
+
+TimerProc = procedure;
+XMIDIProc = procedure(trigger_value:word; sequence:HSEQUENCE);
+                                             
+drvr_desc = record
+   min_API_version   :word;
+   drvr_type         :word;
+   data_suffix       :array[0..3] of char;
+   dev_name_table    :pointer;
+   default_IO        :integer; 
+   default_IRQ       :integer; 
+   default_DMA       :integer; 
+   default_DRQ       :integer; 
+   service_rate      :integer; 
+   display_size      :word;
+end;
+
+sound_buff = record
+   pack_type         :word;
+   sample_rate       :word;
+   data              :pointer;
+   len               :word;
+end;
+{
+********************
+*                  *
+* Process services *
+*                  *
+********************
+}
+
+procedure AIL_startup;
+procedure AIL_shutdown(signoff_msg:pointer);
+function  AIL_register_timer(callback:TimerProc):HTIMER;
+procedure AIL_set_timer_period(timer:HTIMER; microseconds:longint);
+procedure AIL_set_timer_frequency(timer:HTIMER; hertz:longint);
+procedure AIL_set_timer_divisor(timer:HTIMER; PIT_divisor:word);
+function  AIL_interrupt_divisor:word;
+procedure AIL_start_timer(timer:HTIMER);
+procedure AIL_start_all_timers;
+procedure AIL_stop_timer(timer:HTIMER);
+procedure AIL_stop_all_timers;
+procedure AIL_release_timer_handle(timer:HTIMER);
+procedure AIL_release_all_timers;
+
+{
+*************************
+*                       *
+* Installation services *
+*                       *
+*************************
+}
+
+function  AIL_register_driver(driver_base_addr:pointer):HDRIVER;
+procedure AIL_release_driver_handle(driver:HDRIVER);
+function  AIL_describe_driver(driver:HDRIVER):pointer;
+function  AIL_detect_device(driver:HDRIVER; IO_addr:integer; IRQ:integer;
+          DMA:integer; DRQ:integer):word;
+procedure AIL_init_driver(driver:HDRIVER; IO_addr:integer; IRQ:integer;
+          DMA:integer; DRQ:integer);
+procedure AIL_shutdown_driver(driver:HDRIVER; signoff_msg:pointer);
+
+{
+********************************
+*                              *
+* Digital performance services *
+*                              *
+********************************
+}
+
+function  AIL_index_VOC_block(driver:HDRIVER; VOC_file:pointer;
+          block_marker:integer; sound_buff:pointer):word;
+procedure AIL_register_sound_buffer(driver:HDRIVER; buffer_num:word;
+          sound_buff:pointer);
+function  AIL_sound_buffer_status(driver:HDRIVER; buffer_num:word):word;
+procedure AIL_play_VOC_file(driver:HDRIVER; VOC_file:pointer;
+          block_marker:integer);
+function  AIL_VOC_playback_status(driver:HDRIVER):word;
+procedure AIL_start_digital_playback(driver:HDRIVER);
+procedure AIL_stop_digital_playback(driver:HDRIVER);
+procedure AIL_pause_digital_playback(driver:HDRIVER);
+procedure AIL_resume_digital_playback(driver:HDRIVER);
+procedure AIL_set_digital_playback_volume(driver:HDRIVER; volume:word);
+function  AIL_digital_playback_volume(driver:HDRIVER):word;
+procedure AIL_set_digital_playback_panpot(driver:HDRIVER; panpot:word);
+function  AIL_digital_playback_panpot(driver:HDRIVER):word;
+{
+******************************
+*                            *
+* XMIDI performance services *
+*                            *
+******************************
+}
+
+function  AIL_state_table_size(driver:HDRIVER):word;
+function  AIL_register_sequence(driver:HDRIVER; FORM_XMID:pointer;
+          sequence_num:word; state_table:pointer;
+          controller_table:pointer):HSEQUENCE;
+procedure AIL_release_sequence_handle(driver:HDRIVER; sequence:HSEQUENCE);
+
+function  AIL_default_timbre_cache_size(driver:HDRIVER):word;
+procedure AIL_define_timbre_cache(driver:HDRIVER; cache_addr:pointer;
+          cache_size:word);                     
+function  AIL_timbre_request(driver:HDRIVER; sequence:HSEQUENCE):word;
+function  AIL_timbre_status(driver:HDRIVER; bank:integer; 
+          patch:integer):word;
+procedure AIL_install_timbre(driver:HDRIVER; bank:integer; patch:integer;          
+src_addr:pointer);
+procedure AIL_protect_timbre(driver:HDRIVER; bank:integer; patch:integer);
+procedure AIL_unprotect_timbre(driver:HDRIVER; bank:integer; patch:integer);
+
+procedure AIL_start_sequence(driver:HDRIVER; sequence:HSEQUENCE);
+procedure AIL_stop_sequence(driver:HDRIVER; sequence:HSEQUENCE);
+procedure AIL_resume_sequence(driver:HDRIVER; sequence:HSEQUENCE);
+function  AIL_sequence_status(driver:HDRIVER; sequence:HSEQUENCE):word;
+function  AIL_relative_volume(driver:HDRIVER; sequence:HSEQUENCE):word;
+function  AIL_relative_tempo(driver:HDRIVER; sequence:HSEQUENCE):word;
+procedure AIL_set_relative_volume(driver:HDRIVER; sequence:HSEQUENCE;
+          percent:word; milliseconds:word);
+procedure AIL_set_relative_tempo(driver:HDRIVER; sequence:HSEQUENCE;
+          percent:word; milliseconds:word);
+function  AIL_controller_value(driver:HDRIVER; sequence:HSEQUENCE;
+          channel:word; controller_num:word):integer;
+procedure AIL_set_controller_value(driver:HDRIVER; sequence:HSEQUENCE;
+          channel:word; controller_num:word; value:word);
+function  AIL_channel_notes(driver:HDRIVER; sequence:HSEQUENCE;
+          channel:word):word;
+function  AIL_beat_count(driver:HDRIVER; sequence:HSEQUENCE):word;
+function  AIL_measure_count(driver:HDRIVER; sequence:HSEQUENCE):word;
+procedure AIL_branch_index(driver:HDRIVER; sequence:HSEQUENCE; 
+          marker_number:word);
+
+procedure AIL_send_channel_voice_message(driver:HDRIVER; status:word; 
+          data_1:word; data_2:word);
+procedure AIL_send_sysex_message(driver:HDRIVER; addr_a:word; 
+          addr_b:word; addr_c:word; data:pointer; size:word; 
+          delay:word);
+procedure AIL_write_display(driver:HDRIVER; display_string:pointer);
+procedure AIL_install_callback(driver:HDRIVER; callback:XMIDIProc);
+procedure AIL_cancel_callback(driver:HDRIVER);
+
+function  AIL_lock_channel(driver:HDRIVER):word;
+procedure AIL_map_sequence_channel(driver:HDRIVER; sequence:HSEQUENCE;
+          sequence_channel:word; physical_channel:word);
+function  AIL_true_sequence_channel(driver:HDRIVER; sequence:HSEQUENCE;
+          sequence_channel:word):word;
+procedure AIL_release_channel(driver:HDRIVER; channel:word);
+{**************************************************************}
+
+implementation
+
+{$L AIL_TP.OBJ}
+                                          
+procedure AIL_startup                     ;external;
+procedure AIL_shutdown                    ;external;
+function  AIL_register_timer              ;external;
+procedure AIL_set_timer_period            ;external;
+procedure AIL_set_timer_frequency         ;external;
+procedure AIL_set_timer_divisor           ;external;
+function  AIL_interrupt_divisor           ;external;
+procedure AIL_start_timer                 ;external;
+procedure AIL_start_all_timers            ;external;
+procedure AIL_stop_timer                  ;external;
+procedure AIL_stop_all_timers             ;external;
+procedure AIL_release_timer_handle        ;external;
+procedure AIL_release_all_timers          ;external;
+                                          
+function  AIL_register_driver             ;external;
+procedure AIL_release_driver_handle       ;external;
+function  AIL_describe_driver             ;external;
+function  AIL_detect_device               ;external;
+procedure AIL_init_driver                 ;external;
+procedure AIL_shutdown_driver             ;external;
+                                     
+function  AIL_index_VOC_block             ;external;
+procedure AIL_register_sound_buffer       ;external;
+function  AIL_sound_buffer_status         ;external;
+procedure AIL_play_VOC_file               ;external;
+function  AIL_VOC_playback_status         ;external;
+procedure AIL_start_digital_playback      ;external;
+procedure AIL_stop_digital_playback       ;external;
+procedure AIL_pause_digital_playback      ;external;
+procedure AIL_resume_digital_playback     ;external;
+procedure AIL_set_digital_playback_volume ;external;
+function  AIL_digital_playback_volume     ;external;
+procedure AIL_set_digital_playback_panpot ;external;
+function  AIL_digital_playback_panpot     ;external;
+
+function  AIL_state_table_size            ;external;
+function  AIL_register_sequence           ;external;
+procedure AIL_release_sequence_handle     ;external;
+
+function  AIL_default_timbre_cache_size   ;external;
+procedure AIL_define_timbre_cache         ;external;
+function  AIL_timbre_request              ;external;
+function  AIL_timbre_status               ;external;
+procedure AIL_install_timbre              ;external;
+procedure AIL_protect_timbre              ;external;
+procedure AIL_unprotect_timbre            ;external;
+
+procedure AIL_start_sequence              ;external;
+procedure AIL_stop_sequence               ;external;
+procedure AIL_resume_sequence             ;external;
+function  AIL_sequence_status             ;external;
+function  AIL_relative_volume             ;external;
+function  AIL_relative_tempo              ;external;
+procedure AIL_set_relative_volume         ;external;
+procedure AIL_set_relative_tempo          ;external;
+function  AIL_controller_value            ;external;
+procedure AIL_set_controller_value        ;external;
+function  AIL_channel_notes               ;external;
+function  AIL_beat_count                  ;external;
+function  AIL_measure_count               ;external;
+procedure AIL_branch_index                ;external;
+procedure AIL_send_channel_voice_message  ;external;
+procedure AIL_send_sysex_message          ;external;
+procedure AIL_write_display               ;external;
+procedure AIL_install_callback            ;external;
+procedure AIL_cancel_callback             ;external;
+
+function  AIL_lock_channel                ;external;
+procedure AIL_map_sequence_channel        ;external;
+function  AIL_true_sequence_channel       ;external;
+procedure AIL_release_channel             ;external;
+
+end.
+//ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+//лл                                                                       лл
+//лл   VP16.C                                                              лл
+//лл                                                                       лл
+//лл   Creative Voice File (.VOC) performance utility                      лл
+//лл                                                                       лл
+//лл   V1.00 of 02-Jul-92: Derived from VOCPLAY.C v2.01                    лл
+//лл                                                                       лл
+//лл   Project: IBM Audio Interface Library for 16-bit DPMI (AIL/16)       лл
+//лл    Author: John Miles                                                 лл
+//лл                                                                       лл
+//лл   C source compatible with Turbo C++ v1.0 or later                    лл
+//лл                                                                       лл
+//ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+//лл                                                                       лл
+//лл   Copyright (C) 1991, 1992 Miles Design, Inc.                         лл
+//лл                                                                       лл
+//лл   Miles Design, Inc.                                                  лл
+//лл   10926 Jollyville #308                                               лл
+//лл   Austin, TX 78759                                                    лл
+//лл   (512) 345-2642 / FAX (512) 338-9630 / BBS (512) 454-9990            лл
+//лл                                                                       лл
+//ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+
+#include <process.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <dos.h>
+#include <alloc.h>
+#include <io.h>
+#include <fcntl.h>
+#include <sys\stat.h>
+#include <mem.h>
+
+#include "ail16.h"      // Audio Interface Library API header file
+
+const char VERSION[] = "1.00";
+
+/*****************************************************************/
+
+//
+// Determine a file's size and load it into "real-mode" memory (in
+// the lower 1MB) accessible to the DMA controller.  Return the file 
+// image's base address in the form of a 32-bit segment:selector dword
+// (cf. Windows' GlobalDosAlloc() function).
+//
+// Returns -1 if file not found or insufficient real-mode memory available
+//
+
+unsigned long real_load_file(char far *filename)
+{
+   union REGS inregs,outregs;
+   int in;
+   unsigned long size,paras;
+   char huge *addr;
+   unsigned long loc;
+
+   in = open(filename,O_RDONLY | O_BINARY);
+   if (in == -1) return -1L;
+   
+   size = lseek(in,0,SEEK_END);
+
+   paras = (size+15L) >> 4;
+
+   inregs.x.ax = 0x100;
+   inregs.x.bx = (unsigned) paras;
+   int86(0x31,&inregs,&outregs);
+
+   if (outregs.x.cflag)
+      {
+      close(in);
+      return -1L;
+      }   addr = (char huge *) ((unsigned long) outregs.x.dx << 16);
+
+   loc = (((unsigned long) outregs.x.ax) << 16) |
+          ((unsigned long) outregs.x.dx);
+
+   lseek(in,0,SEEK_SET);
+
+   while (size > 32768L)
+      {
+      read(in,addr,32768U);
+
+      size -= 32768L;
+      addr += 32768L;
+      }
+
+   read(in,addr,(unsigned) size);
+
+   close(in);
+
+   return loc;
+}
+
+/*****************************************************************/
+
+//
+// Call DPMI to free a block of memory associated with a file loaded by 
+// real_load_file() (cf. Windows' GlobalDosFree() function)
+//
+
+void real_free(unsigned long loc)
+{
+   union REGS inregs,outregs;
+   struct SREGS sregs;
+   
+   sregs.ds = sregs.es = 0;
+
+   inregs.x.ax = 0x101;
+   inregs.x.dx = (unsigned) (loc & 0xffffL);
+   int86x(0x31,&inregs,&outregs,&sregs);
+}
+
+/*****************************************************************/
+void main(int argc, char *argv[])
+{
+   unsigned long vfile;
+   drvr_desc far *desc;
+
+   printf("\nVP16 version %s                   Copyright (C) 1991, 1992 Miles Design,
+Inc.\n",VERSION);
+   printf("-------------------------------------------------------------------------------\n\n");
+
+   if (argc != 2)
+      {
+      printf("This program plays a Creative Voice File (.VOC) through the current\n");
+      printf("AILPCM.DLL digital sound driver.\n\n");
+      printf("Usage: VP16 filename.voc\n");
+      exit(1);
+      }
+
+   vfile = real_load_file(argv[1]);
+   if (vfile == -1L)
+      {
+      printf("Couldn't load %s.\n",argv[1]);
+      PCM_shutdown_driver(NULL);
+      exit(1);
+      }
+
+   desc = PCM_describe_driver();
+   if (!PCM_detect_device(desc->default_IO,desc->default_IRQ,
+      desc->default_DMA,desc->default_DRQ))
+         {
+         printf("Sound hardware not found.\n");
+         PCM_shutdown_driver(NULL);
+         exit(1);
+         }
+
+   PCM_init_driver(desc->default_IO,desc->default_IRQ,
+      desc->default_DMA,desc->default_DRQ);
+
+   PCM_format_VOC_file(vfile,-1);
+
+   PCM_play_VOC_file(vfile,-1);
+   PCM_start_digital_playback();
+
+   printf("Launching DOS shell.  Type 'EXIT' to stop playback and ");
+   printf("exit VP16.");
+
+   spawnlp(P_WAIT,"command.com",NULL);
+
+   PCM_shutdown_driver(NULL);
+   real_free(vfile);
+
+   printf("VP16 stopped.\n");
+}
+//ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+//лл                                                                       лл
+//лл   XP16.C                                                              лл
+//лл                                                                       лл
+//лл   Standard XMIDI file performance utility                             лл
+//лл                                                                       лл
+//лл   V1.00 of 03-Jul-92: Derived from XPLAY.C v1.02                      лл
+//лл                                                                       лл
+//лл   Project: IBM Audio Interface Library for 16-bit DPMI (AIL/16)       лл
+//лл    Author: John Miles                                                 лл
+//лл                                                                       лл
+//лл   C source compatible with Turbo C++ v1.0 or later                    лл
+//лл                                                                       лл
+//ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+//лл                                                                       лл
+//лл   Copyright (C) 1991, 1992 Miles Design, Inc.                         лл
+//лл                                                                       лл
+//лл   Miles Design, Inc.                                                  лл
+//лл   10926 Jollyville #308                                               лл
+//лл   Austin, TX 78759                                                    лл
+//лл   (512) 345-2642 / FAX (512) 338-9630 / BBS (512) 454-9990            лл
+//лл                                                                       лл
+//ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <dos.h>
+#include <alloc.h>
+#include <conio.h>
+#include <string.h>
+#include <fcntl.h>
+#include <io.h>
+#include <sys\stat.h>
+#include <process.h>
+
+#include "ail16.h"      // Audio Interface Library API function header
+
+const char VERSION[] = "1.00";
+
+/****************************************************************************/
+
+//
+// Misc. file access routines
+//
+
+long file_size(char far *filename)
+{
+   int handle;
+   unsigned long len;
+
+   handle = open(filename,O_RDONLY | O_BINARY);
+   if (handle==-1)
+      return -1L;
+
+   len = filelength(handle);
+
+   close(handle);
+   return len;
+}
+
+char huge *read_file(char far *filename, void huge *dest)
+{
+   int i,handle;
+   unsigned long len;
+   char huge *buf, huge *mem;
+
+   len = file_size(filename);
+   if (len==-1L)
+      return NULL;
+
+   buf = mem = (dest==NULL)? farmalloc(len) : dest;
+   if (buf==NULL)
+      return NULL;
+
+   handle = open(filename,O_RDONLY | O_BINARY);
+   if (handle==-1)
+      {
+      farfree(mem);
+      return NULL;
+      }
+
+   while (len >= 4096L)
+      {
+      i = read(handle,buf,4096);
+      if (i != 4096)
+         {
+         farfree(mem);
+         return NULL;
+         }
+      len -= 4096L;
+      buf += 4096L;
+      }
+
+   i = read(handle,buf,(unsigned) len);
+   if (i != (unsigned) len)
+      {
+      farfree(mem);
+      return NULL;
+      }
+
+   close(handle);
+   return mem;   
+}
+
+/***************************************************************/
+
+//
+// Standard C routine for Global Timbre Library access
+//
+
+void huge *load_global_timbre(FILE *GTL, unsigned bank, unsigned patch)
+{
+   unsigned huge *timb_ptr;
+   static unsigned len;
+
+   static struct                  // GTL file header entry structure
+   {
+      char patch;
+      char bank;
+      unsigned long offset;
+   }
+   GTL_hdr;
+
+   if (GTL==NULL) return NULL;    // if no GTL, return failure
+
+   rewind(GTL);                   // else rewind to GTL header
+
+   do                             // search file for requested timbre
+      {
+      fread(&GTL_hdr,sizeof(GTL_hdr),1,GTL);    
+      if (GTL_hdr.bank == -1) 
+         return NULL;             // timbre not found, return NULL
+      }
+   while ((GTL_hdr.bank != bank) ||
+          (GTL_hdr.patch != patch));       
+
+   fseek(GTL,GTL_hdr.offset,SEEK_SET);    
+   fread(&len,2,1,GTL);           // timbre found, read its length
+
+   timb_ptr = farmalloc(len);     // allocate memory for timbre ..
+   *timb_ptr = len;         
+                                  // and load it
+   fread((timb_ptr+1),len-2,1,GTL);       
+   if (ferror(GTL))               // return NULL if any errors
+      return NULL;                // occurred
+   else
+      return timb_ptr;            // else return pointer to timbre
+}
+   
+/***************************************************************/
+void main(int argc, char *argv[])
+{
+   HTIMER htimer;
+   HSEQUENCE hseq;
+   FILE *GTL;
+   drvr_desc far *desc;
+   char GTL_filename[32];
+   char far *state;
+   char far *tc_addr;
+   char huge *timb;
+   char huge *buffer;
+   unsigned long state_size;
+   unsigned bank,patch,tc_size,seqnum,treq;
+   
+   printf("\nXP16 version %s                   Copyright (C) 1991, 1992 Miles Design,
+Inc.\n",VERSION);
+   printf("-------------------------------------------------------------------------------\n\n");
+
+   if (argc < 2)
+      {
+      printf("This program plays an Extended MIDI (XMIDI) sequence through the\n");
+      printf("current AILXMI.DLL sound driver.\n\n");
+      printf("Usage: XP16 XMIDI_filename [sequence_number]\n");
+      exit(1);
+      }
+
+   seqnum = 0;
+   if (argc == 3) seqnum = atoi(argv[2]);
+
+   //
+   // Initialize API timer services
+   //
+
+   AIL_startup();
+
+   //
+   // Get supported device's default I/O parameters
+   //
+
+   desc = XMI_describe_driver();
+
+   //
+   // Verify presence of driver's sound hardware and prepare 
+   // driver/hardware for use
+   //
+
+   if (!XMI_detect_device(desc->default_IO,desc->default_IRQ,
+      desc->default_DMA,desc->default_DRQ))
+         {
+         printf("Sound hardware not found.\n");
+         AIL_shutdown(NULL);
+         XMI_shutdown_driver(NULL);
+         exit(1);
+         }
+
+   XMI_init_driver(desc->default_IO,desc->default_IRQ,
+      desc->default_DMA,desc->default_DRQ);
+
+   state_size = XMI_state_table_size();
+   //
+   // Set up background timer service (normally 120 Hz.) for XMIDI driver
+   //
+
+   if (desc->service_rate > 0)
+      {
+      htimer = AIL_register_timer(XMI_serve_driver);
+
+      AIL_set_timer_frequency(htimer,desc->service_rate);
+
+      AIL_start_timer(htimer);
+      }
+
+   //
+   // Load XMIDI data file
+   //
+
+   buffer = read_file(argv[1],NULL);
+   if (buffer == NULL)
+      {
+      printf("Can't load XMIDI file %s.\n",argv[1]);
+      AIL_shutdown(NULL);
+      XMI_shutdown_driver(NULL);
+      exit(1);
+      }
+
+   //
+   // Get name of Global Timbre Library file by appending suffix 
+   // supplied by XMIDI driver to GTL filename prefix "SAMPLE."
+   //
+
+   strcpy(GTL_filename,"SAMPLE.");
+   strcat(GTL_filename,desc->data_suffix);
+
+   //
+   // Set up local timbre cache; open Global Timbre Library file
+   //
+
+   tc_size = XMI_default_timbre_cache_size();
+   if (tc_size)
+      {
+      tc_addr = farmalloc((unsigned long) tc_size);
+      XMI_define_timbre_cache(tc_addr,tc_size);
+      }
+
+   GTL = fopen(GTL_filename,"rb");
+
+   //
+   // Look up and register desired sequence in XMIDI file, loading
+   // timbres if needed
+   //
+
+   state = farmalloc(state_size);
+   if ((hseq = XMI_register_sequence(buffer,seqnum,state,
+      NULL)) == -1)
+      {
+      printf("Sequence %u not present in XMIDI file \"%s\".\n",
+         seqnum,argv[1]);
+      AIL_shutdown(NULL);
+      XMI_shutdown_driver(NULL);
+      exit(1);
+      }
+   while ((treq=XMI_timbre_request(hseq)) != 0xffff)
+      {
+      bank = treq / 256; patch = treq % 256;
+                         
+      timb = load_global_timbre(GTL,bank,patch);
+      if (timb != NULL)
+         {
+         XMI_install_timbre(bank,patch,timb);
+         farfree(timb);
+         printf("Installed timbre bank %u, patch %u\n",bank,patch);
+         }
+      else
+         {
+         printf("Timbre bank %u, patch %u not found ",bank,patch);
+         printf("in Global Timbre Library %s\n",GTL_filename);
+         AIL_shutdown(NULL);
+         XMI_shutdown_driver(NULL);
+         exit(1);
+         }
+      }
+
+   if (GTL != NULL) fclose(GTL);         
+
+   //
+   // Start music playback and launch DOS shell
+   //
+
+   printf("Playing sequence %u from XMIDI file \"%s\" ...\n\n",
+      seqnum,argv[1]);
+
+   XMI_start_sequence(hseq);
+
+   printf("Launching DOS shell.  Type 'EXIT' to stop playback ");
+   printf("and exit XP16.");
+   spawnlp(P_WAIT,"command.com",NULL);
+
+   //
+   // Shut down API and XMIDI driver; write signoff message
+   // to any front-panel display
+   //
+
+   printf("XP16 stopped.\n");
+   AIL_shutdown(NULL);
+   XMI_shutdown_driver("    Miles Design    ");
+}
+//ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+//лл                                                                       лл
+//лл   STP16.C                                                             лл
+//лл                                                                       лл
+//лл   Creative Voice File (.VOC) stereo performance                       лл
+//лл   utility with dual-buffer playback                                   лл
+//лл                                                                       лл
+//лл   V1.00 of 02-Jul-92: Derived from STPLAY.C v2.02                     лл
+//лл                                                                       лл
+//лл   Project: IBM Audio Interface Library for 16-bit DPMI (AIL/16)       лл
+//лл    Author: John Miles                                                 лл
+//лл                                                                       лл
+//лл   C source compatible with Turbo C++ v1.0 or later                    лл
+//лл                                                                       лл
+//ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+//лл                                                                       лл
+//лл   Copyright (C) 1991, 1992 Miles Design, Inc.                         лл
+//лл                                                                       лл
+//лл   Miles Design, Inc.                                                  лл
+//лл   10926 Jollyville #308                                               лл
+//лл   Austin, TX 78759                                                    лл
+//лл   (512) 345-2642 / FAX (512) 338-9630 / BBS (512) 454-9990            лл
+//лл                                                                       лл
+//ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+
+#include <process.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <dos.h>
+#include <alloc.h>
+#include <io.h>
+#include <conio.h>
+#include <ctype.h>
+
+#include "ail16.h"      // Audio Interface Library API header file
+
+const char VERSION[] = "1.00";
+
+/*****************************************************************/
+void main(int argc, char *argv[])
+{
+   FILE *vfile;
+   drvr_desc far *desc;
+   sound_buff firstblock,tempblock;
+   int i,done,bufnum,paused;
+   char *buf1,*buf2;
+   char *seg1,*seg2;
+   union REGS inregs,outregs;
+
+   printf("\nSTP16 version %s                  Copyright (C) 1991, 1992 Miles Design,
+Inc.\n",VERSION);
+   printf("-------------------------------------------------------------------------------\n\n");
+
+   if (argc != 2)
+      {
+      printf("This program plays a raw 8-bit stereo sample at 22 kHz\n");
+      printf("through the current AILPCM.DLL digital stereo driver.\n\n");
+      printf("Usage: STP16 ST_filename\n");
+      exit(1);
+      }
+
+   //
+   // Allocate two 16K buffers from real-mode (lower 1MB) memory, 
+   // accessible to DMA controller
+   //
+   // *buf1, *buf2 -> protected-mode pointers to buffers (sel:0000)
+   // *seg1, *seg2 -> real-mode (physical) pointers to buffers (seg:0000)
+   //
+
+   inregs.x.ax = 0x100;
+   inregs.x.bx = (16384 / 16);
+   int86(0x31,&inregs,&outregs);
+   buf1 = (char *) ((unsigned long) outregs.x.dx << 16);
+   seg1 = (char *) ((unsigned long) outregs.x.ax << 16);
+
+   inregs.x.ax = 0x100;
+   inregs.x.bx = (16384 / 16);
+   int86(0x31,&inregs,&outregs);
+
+   buf2 = (char *) ((unsigned long) outregs.x.dx << 16);
+   seg2 = (char *) ((unsigned long) outregs.x.ax << 16);
+
+   //
+   // Initialize the driver
+   //
+
+   desc = PCM_describe_driver();
+
+   if (!PCM_detect_device(desc->default_IO,desc->default_IRQ,
+      desc->default_DMA,desc->default_DRQ))
+         {
+         printf("Sound hardware not found.\n");
+         PCM_shutdown_driver(NULL);
+         exit(1);
+         }
+
+   PCM_init_driver(desc->default_IO,desc->default_IRQ,
+      desc->default_DMA,desc->default_DRQ);
+
+   vfile = fopen(argv[1],"rb");
+   if (vfile == NULL)
+      {
+      printf("Couldn't open %s.\n",argv[1]);
+      PCM_shutdown_driver(NULL);
+      exit(1);
+      }
+
+   //
+   // Play the block as a series of double-buffered 16K chunks
+   //
+
+   printf("U D to increase/decrease volume\n");
+   printf("P R to pause/resume playback\n");
+   printf("< > to pan left, right\n");
+   printf("ESC to stop playback\n\n");
+
+   //
+   // Copy sample rate and packing type to working sound buffer 
+   // structure
+   //
+   // Sound Blaster standard sample rate: 256-(1000000-freq in Hz.)
+   //
+
+   firstblock.sample_rate = 234;     // 22.050 kHz (stereo 44.1 kHz)
+   firstblock.pack_type = 0 | 0x80;  // 8-bit stereo sample
+   firstblock.len = filelength(fileno(vfile));
+   bufnum = 0;
+
+   tempblock = firstblock;
+
+   //
+   // Sample application main loop ...
+   //
+
+   done = paused = 0;
+   do
+      {
+
+      //
+      // (Application-specific events here)
+      //
+      if (kbhit())                                 
+         {
+         switch (toupper(getch()))
+            {
+            case 'P':
+               PCM_pause_digital_playback();
+               paused = 1;
+               break;
+
+            case 'R':
+               PCM_resume_digital_playback();
+               paused = 0;
+               break;
+
+            case 'U':
+               i = PCM_digital_playback_volume();
+               i+=10;
+               if (i>127) i=127;
+               PCM_set_digital_playback_volume(i);
+               break;
+
+            case 'D':
+               i = PCM_digital_playback_volume();
+               i-=10;
+               if (i<0) i=0;
+               PCM_set_digital_playback_volume(i);
+               break;
+
+            case ',':
+            case '<':
+               i = PCM_digital_playback_panpot();
+               i+=10;
+               if (i>127) i=127;
+               PCM_set_digital_playback_panpot(i);
+               break;
+
+            case '.':
+            case '>':
+               i = PCM_digital_playback_panpot();
+               i-=10;
+               if (i<0) i=0;
+               PCM_set_digital_playback_panpot(i);
+               break;
+
+            case 27:
+               done=1;
+               break;
+            }
+         }
+
+
+      //
+      // Update sound DMA buffers and ensure sound output is active
+      //                          
+
+      if (!paused)
+         {
+         for (i=0;i<2;i++)
+            if ((PCM_sound_buffer_status(i) == DAC_DONE)
+               && firstblock.len)
+               {
+               tempblock.len = min(16384L,firstblock.len);
+               firstblock.len -= tempblock.len;
+               if (!(bufnum ^= 1))
+                  {
+                  fread(buf1,(unsigned) tempblock.len,1,vfile);
+                  tempblock.sel_data = buf1;
+                  tempblock.seg_data = seg1;
+                  }
+               else                  {
+                  fread(buf2,(unsigned) tempblock.len,1,vfile);
+                  tempblock.sel_data = buf2;
+                  tempblock.seg_data = seg2;
+                  }
+
+               PCM_register_sound_buffer(i,&tempblock);
+               PCM_format_sound_buffer(&tempblock);
+               printf(".");
+               }
+         PCM_start_digital_playback();
+         }
+
+      //
+      // Playback ends when no bytes are left in the source data and
+      // the status of both buffers equals DAC_DONE
+      //
+
+      if (!firstblock.len)
+         if ((PCM_sound_buffer_status(0) == DAC_DONE)
+            && (PCM_sound_buffer_status(1) == DAC_DONE))
+               done = 1;
+      }
+   while (!done);
+
+   while (kbhit()) getch();
+
+   fclose(vfile);
+   printf("\n\nSTP16 stopped.\n");
+   PCM_shutdown_driver(NULL);
+}
+//ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+//лл                                                                       лл
+//лл   MIX16.C                                                             лл
+//лл                                                                       лл
+//лл   XMIDI multiple-sequence sound effects demo                          лл
+//лл                                                                       лл
+//лл   V1.00 of 03-Jul-92: Derived from MIXDEMO.C v1.02                    лл
+//лл                                                                       лл
+//лл   Project: IBM Audio Interface Library for 16-bit DPMI (AIL/16)       лл
+//лл    Author: John Miles                                                 лл
+//лл                                                                       лл
+//лл   C source compatible with Turbo C++ v1.0 or later                    лл
+//лл                                                                       лл
+//ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+//лл                                                                       лл
+//лл   Copyright (C) 1991, 1992 Miles Design, Inc.                         лл
+//лл                                                                       лл
+//лл   Miles Design, Inc.                                                  лл
+//лл   10926 Jollyville #308                                               лл
+//лл   Austin, TX 78759                                                    лл
+//лл   (512) 345-2642 / FAX (512) 338-9630 / BBS (512) 454-9990            лл
+//лл                                                                       лл
+//ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <dos.h>
+#include <alloc.h>
+#include <conio.h>
+#include <string.h>
+#include <fcntl.h>
+#include <io.h>
+#include <sys\stat.h>
+
+#include "ail16.h"    // Audio Interface Library API function header
+
+const char VERSION[] = "1.00";
+
+char seq_fn[] = "DEMO.XMI";       // name of XMIDI sequence file
+
+/****************************************************************************/
+
+//
+// Misc. file access routines
+//
+
+long file_size(char far *filename)
+{
+   int handle;
+   unsigned long len;
+
+   handle = open(filename,O_RDONLY | O_BINARY);
+   if (handle==-1)
+      return -1L;
+
+   len = filelength(handle);
+
+   close(handle);
+   return len;
+}
+
+char huge *read_file(char far *filename, void huge *dest)
+{
+   int i,handle;
+   unsigned long len;
+   char huge *buf, huge *mem;
+
+   len = file_size(filename);
+   if (len==-1L)
+      return NULL;
+
+   buf = mem = (dest==NULL)? farmalloc(len) : dest;
+   if (buf==NULL)
+      return NULL;
+
+   handle = open(filename,O_RDONLY | O_BINARY);
+   if (handle==-1)
+      {
+      farfree(mem);
+      return NULL;
+      }
+
+   while (len >= 4096L)
+      {
+      i = read(handle,buf,4096);
+      if (i != 4096)
+         {
+         farfree(mem);
+         return NULL;
+         }
+      len -= 4096L;
+      buf += 4096L;
+      }
+
+   i = read(handle,buf,(unsigned) len);
+   if (i != (unsigned) len)
+      {
+      farfree(mem);
+      return NULL;
+      }
+
+   close(handle);
+   return mem;   
+}
+
+/***************************************************************/
+
+//
+// Standard C routine for Global Timbre Library access
+//
+
+void huge *load_global_timbre(FILE *GTL, unsigned bank, unsigned patch)
+{
+   unsigned huge *timb_ptr;
+   static unsigned len;
+
+   static struct                  // GTL file header entry structure
+   {
+      char patch;
+      char bank;
+      unsigned long offset;
+   }
+   GTL_hdr;
+
+   if (GTL==NULL) return NULL;    // if no GTL, return failure
+
+   rewind(GTL);                   // else rewind to GTL header
+
+   do                             // search file for requested timbre
+      {
+      fread(&GTL_hdr,sizeof(GTL_hdr),1,GTL);    
+      if (GTL_hdr.bank == -1) 
+         return NULL;             // timbre not found, return NULL
+      }
+   while ((GTL_hdr.bank != bank) ||
+          (GTL_hdr.patch != patch));       
+
+   fseek(GTL,GTL_hdr.offset,SEEK_SET);    
+   fread(&len,2,1,GTL);           // timbre found, read its length
+
+   timb_ptr = farmalloc(len);     // allocate memory for timbre ..
+   *timb_ptr = len;         
+                                  // and load it
+   fread((timb_ptr+1),len-2,1,GTL);       
+                         
+   if (ferror(GTL))               // return NULL if any errors
+      return NULL;                // occurred
+   else
+      return timb_ptr;            // else return pointer to timbre
+}
+   
+/***************************************************************/
+void main(int argc)
+{
+   FILE *GTL;
+   HTIMER htimer;
+   HSEQUENCE hseq[8];
+   drvr_desc far *desc;
+   char far *state[8];
+   char far *tc_addr;
+   char huge *buffer;
+   char huge *timb;
+   char GTL_filename[32];
+   unsigned long state_size;
+   unsigned i,ch,tc_size;
+   unsigned treq;
+
+   printf("\nMIX16 version %s                  Copyright (C) 1991, 1992 Miles Design,
+Inc.\n",VERSION);
+   printf("-------------------------------------------------------------------------------\n\n");
+
+   if (argc != 1)
+      {
+      printf("This program demonstrates the Audio Interface Library's ");
+      printf("multiple-sequence\nExtended MIDI playback features.\n\n");
+      printf("Usage: MIX16\n");
+      exit(1);
+      }
+
+   //
+   // Initialize API timer services
+   //
+
+   AIL_startup();
+
+   //
+   // Get supported device's default I/O parameters
+   //
+
+   desc = XMI_describe_driver();
+
+   //
+   // Verify presence of driver's sound hardware and prepare 
+   // driver/hardware for use
+   //
+
+   if (!XMI_detect_device(desc->default_IO,desc->default_IRQ,
+      desc->default_DMA,desc->default_DRQ))
+         {
+         printf("Sound hardware not found.\n");
+         AIL_shutdown(NULL);
+         XMI_shutdown_driver(NULL);
+         exit(1);
+         }
+
+   XMI_init_driver(desc->default_IO,desc->default_IRQ,
+      desc->default_DMA,desc->default_DRQ);
+
+   state_size = XMI_state_table_size();
+   //
+   // Set up background timer service (normally 120 Hz.) for XMIDI driver
+   //
+
+   if (desc->service_rate > 0)
+      {
+      htimer = AIL_register_timer(XMI_serve_driver);
+
+      AIL_set_timer_frequency(htimer,desc->service_rate);
+
+      AIL_start_timer(htimer);
+      }
+
+   //
+   // Load XMIDI data file
+   //
+
+   buffer = read_file(seq_fn,NULL);
+   if (buffer == NULL)
+      {
+      printf("Can't load XMIDI file %s.\n",seq_fn);
+      AIL_shutdown(NULL);
+      XMI_shutdown_driver(NULL);
+      exit(1);
+      }
+
+   //
+   // Get name of Global Timbre Library file by appending suffix 
+   // supplied by XMIDI driver to GTL filename prefix "SAMPLE."
+   //
+
+   strcpy(GTL_filename,"SAMPLE.");
+   strcat(GTL_filename,desc->data_suffix);
+
+   //
+   // Set up local timbre cache; open Global Timbre Library file
+   //
+
+   tc_size = XMI_default_timbre_cache_size();
+   if (tc_size)
+      {
+      tc_addr = farmalloc((unsigned long) tc_size);
+      XMI_define_timbre_cache(tc_addr,tc_size);
+      }
+
+   GTL = fopen(GTL_filename,"rb");
+
+   //
+   // Register all sequences in XMIDI file (up to 8 allowed), loading
+   // new timbres as needed
+   //
+
+   for (i=0;i<8;i++)
+      {
+      state[i] = farmalloc(state_size);
+      if ((hseq[i] = XMI_register_sequence(buffer,i,state[i],
+         NULL)) == -1)
+         {
+         farfree(state[i]);
+         break;
+         }
+
+      while ((treq=XMI_timbre_request(hseq[i])) != 0xffff)
+         {
+         timb = load_global_timbre(GTL,treq/256,treq%256);
+         if (timb != NULL)
+            {
+            XMI_install_timbre(treq/256,treq%256,timb);
+            farfree(timb);
+            }
+         else            {
+            printf("Timbre bank %u, patch %u not found ",
+               treq/256,treq%256);
+            printf("in Global Timbre Library %s\n",GTL_filename);
+            AIL_shutdown(NULL);
+            XMI_shutdown_driver(NULL);
+            exit(1);
+            }
+         }
+      }
+
+   if (GTL != NULL) fclose(GTL);         
+   printf("Sequences 0-%u registered.\n\n",i-1);
+
+   //
+   // Show menu, start sequences at user's request
+   //
+
+   printf("Options: [1] to start main sequence (BACKGND.MID)\n");
+   printf("         [2] to start sequence #1   (SHANTY.MID)\n");
+   printf("         [3] to start sequence #2   (CHORAL.MID)\n");
+   printf("       [ESC] to quit\n\n");
+
+   while ((ch=getch()) != 27)
+      {
+      switch (ch)
+         {
+         case '1':
+         case '2':
+         case '3':
+            i = ch - '1';
+            XMI_start_sequence(hseq[i]);
+            break;
+         }
+      }
+
+   //
+   // Shut down API and XMIDI driver; write signoff message
+   // to any front-panel display
+   //
+
+   printf("MIX16 stopped.\n");
+   AIL_shutdown(NULL);
+   XMI_shutdown_driver("    Miles Design    ");
+}
+/*лллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+//лл                                                                        лл
+//лл  AIL16.H: C API function prototypes                                    лл
+//лл                                                                        лл
+//лл  Source compatible with Borland/Microsoft C/C++                        лл
+//лл                                                                        лл
+//лл  V1.00 of 02-Jul-92: Initial version derived from WAIL.H V2.01         лл
+//лл                                                                        лл
+//лл  Project: IBM Audio Interface Library for 16-bit DPMI (AIL/16)         лл
+//лл   Author: John Miles                                                   лл
+//лл                                                                        лл
+//лллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+//лл                                                                        лл
+//лл  Copyright (C) 1991, 1992 Miles Design, Inc.                           лл
+//лл                                                                        лл
+//лл  Miles Design, Inc.                                                    лл
+//лл  10926 Jollyville #308                                                 лл
+//лл  Austin, TX 78759                                                      лл
+//лл  (512) 345-2642 / FAX (512) 338-9630 / BBS (512) 454-9990              лл
+//лл                                                                        лл
+//лллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+*/
+
+#ifndef AIL16_H
+#define AIL16_H
+
+#define SEQ_STOPPED 0       /* equates for AIL_sequence_status()      */
+#define SEQ_PLAYING 1
+#define SEQ_DONE 2
+
+#define DAC_STOPPED 0       /* equates for AIL_sound_buffer_status()  */
+#define DAC_PAUSED 1        /*             AIL_VOC_playback_status()  */
+#define DAC_PLAYING 2
+#define DAC_DONE 3
+
+#define XMIDI_DRVR 3        /* equates for drvr_desc.drvr_type values */
+#define DSP_DRVR 2
+#define WIN_XMIDI_DRVR 4
+#define WIN_DSP_DRVR 5
+
+typedef int WORD;
+typedef long DWORD;
+typedef int HTIMER;         /* handle to timer                        */
+typedef int HSEQUENCE;      /* handle to XMIDI sequence               */
+
+typedef void (far pascal * FARPROC)(void);
+
+typedef struct
+{
+   WORD min_API_version;
+   WORD drvr_type;
+   char data_suffix[4];
+   void far *dev_name_table;
+   int default_IO;
+   int default_IRQ;
+   int default_DMA;
+   int default_DRQ;
+   int service_rate;
+   WORD display_size;
+}  
+drvr_desc;
+
+typedef struct
+{
+   WORD pack_type;
+   WORD sample_rate;
+   void far *sel_data;
+   void far *seg_data;
+   DWORD len;
+}
+sound_buff;
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/********************/
+/*                  */
+/* Process services */
+/*                  */
+/********************/
+
+void far cdecl AIL_startup(void);
+HTIMER far cdecl AIL_register_timer(FARPROC lpTimerProc);
+void far cdecl AIL_set_timer_period(HTIMER hTimer, DWORD dwMicroseconds);
+void far cdecl AIL_set_timer_frequency(HTIMER hTimer, DWORD dwHertz);
+void far cdecl AIL_set_timer_divisor(HTIMER hTimer, WORD wPIT_divisor);
+WORD far cdecl AIL_interrupt_divisor(void);
+void far cdecl AIL_start_timer(HTIMER hTimer);
+void far cdecl AIL_start_all_timers(void);
+void far cdecl AIL_stop_timer(HTIMER hTimer);
+void far cdecl AIL_stop_all_timers(void);
+void far cdecl AIL_release_timer_handle(HTIMER hTimer);
+void far cdecl AIL_release_all_timers(void);
+void far cdecl AIL_shutdown(char far *lpSignOff);
+
+/*************************/
+/*                       */
+/* Installation services */
+/*                       */
+/*************************/
+
+drvr_desc far * cdecl far PCM_describe_driver(void);
+unsigned far cdecl PCM_detect_device(WORD wIOAddr, 
+    WORD wIRQ, WORD wDMA, WORD wDRQ);
+void far cdecl PCM_init_driver(WORD wIOAddr, 
+    WORD wIRQ, WORD wDMA, WORD wDRQ);
+void far pascal XMI_serve_driver(void);
+void far cdecl PCM_shutdown_driver(char far *lpSignOff);
+
+drvr_desc far * cdecl far XMI_describe_driver(void);
+unsigned far cdecl XMI_detect_device(WORD wIOAddr, 
+    WORD wIRQ, WORD wDMA, WORD wDRQ);
+void far cdecl XMI_init_driver(WORD wIOAddr, 
+    WORD wIRQ, WORD wDMA, WORD wDRQ);
+void far cdecl XMI_shutdown_driver(char far *lpSignOff);
+
+/********************************/
+/*                              */
+/* Digital performance services */
+/*                              */
+/********************************/
+
+WORD far cdecl PCM_index_VOC_block(DWORD GlobalDOSVOCFile, 
+   WORD wBlockMarker, sound_buff far *lpBuff);
+
+void far cdecl PCM_register_sound_buffer(WORD wBufferNum,
+   sound_buff far *lpBuff);
+void far cdecl PCM_format_sound_buffer(sound_buff far *lpBuff);
+WORD far cdecl PCM_sound_buffer_status(WORD wBufferNum);
+
+void far cdecl PCM_format_VOC_file(DWORD GlobalDOSVOCFile,
+   int wBlockMmarker);
+void far cdecl PCM_play_VOC_file(DWORD GlobalDOSVOCFile,
+   int wBlockMarker);
+WORD far cdecl PCM_VOC_playback_status(void);
+
+void far cdecl PCM_start_digital_playback(void);
+void far cdecl PCM_stop_digital_playback(void);
+void far cdecl PCM_pause_digital_playback(void);
+void far cdecl PCM_resume_digital_playback(void);
+void far cdecl PCM_set_digital_playback_volume(WORD wVolume);
+WORD far cdecl PCM_digital_playback_volume(void);
+void far cdecl PCM_set_digital_playback_panpot(WORD wPanpot);
+WORD far cdecl PCM_digital_playback_panpot(void);/******************************/
+/*                            */
+/* XMIDI performance services */
+/*                            */
+/******************************/
+
+WORD far cdecl XMI_state_table_size(void);
+HSEQUENCE far cdecl XMI_register_sequence(void far *lpFORM_XMID, 
+   WORD wSequenceNum, void far *lpStateTable, void far *lpControllerTable);
+   
+void far cdecl XMI_release_sequence_handle(HSEQUENCE hSequence);
+
+WORD far cdecl XMI_default_timbre_cache_size(void);
+void far cdecl XMI_define_timbre_cache(void far 
+   *lpCacheAddr, WORD wCacheSize);                     
+unsigned far cdecl XMI_timbre_request(HSEQUENCE hSequence);
+   
+WORD far cdecl XMI_timbre_status(int iBank, int iPatch);
+void far cdecl XMI_install_timbre(int iBank, int iPatch, 
+   void far *lpTimbreAddr);
+void far cdecl XMI_protect_timbre(int iBank, int iPatch);
+void far cdecl XMI_unprotect_timbre(int iBank, int iPatch);
+
+void far cdecl XMI_start_sequence(HSEQUENCE hSequence);
+void far cdecl XMI_stop_sequence(HSEQUENCE hSequence);
+void far cdecl XMI_resume_sequence(HSEQUENCE hSequence);
+WORD far cdecl XMI_sequence_status(HSEQUENCE hSequence);
+WORD far cdecl XMI_relative_volume(HSEQUENCE hSequence);
+WORD far cdecl XMI_relative_tempo(HSEQUENCE hSequence);
+void far cdecl XMI_set_relative_volume(HSEQUENCE hSequence,
+   WORD wPercent, WORD wMilliseconds);
+void far cdecl XMI_set_relative_tempo(HSEQUENCE hSequence,
+   WORD wPercent, WORD wMilliseconds);
+int far cdecl XMI_controller_value(HSEQUENCE hSequence,
+   WORD wChannel, WORD wControllerNum);
+void far cdecl XMI_set_controller_value(HSEQUENCE hSequence,
+   WORD wChannel, WORD wControllerNum, WORD wValue);
+WORD far cdecl XMI_channel_notes(HSEQUENCE hSequence,
+   WORD wChannel);
+WORD far cdecl XMI_beat_count(HSEQUENCE hSequence);
+WORD far cdecl XMI_measure_count(HSEQUENCE hSequence);
+void far cdecl XMI_branch_index(HSEQUENCE hSequence, 
+   WORD wMarkerNumber);
+
+void far cdecl XMI_send_channel_voice_message(WORD wStatus, 
+   WORD wData1, WORD wData2);
+void far cdecl XMI_send_sysex_message(WORD wAddrMSB, 
+   WORD wAddrKSB, WORD wAddrLSB, void far *lpSysexData, WORD wSize, 
+   WORD wDelay);
+void far cdecl XMI_write_display(char far *lpString);
+void far cdecl XMI_install_callback(FARPROC lpCallbackFn);
+void far cdecl XMI_cancel_callback(void);
+
+WORD far cdecl XMI_lock_channel(void);
+void far cdecl XMI_map_sequence_channel(HSEQUENCE hSequence,
+   WORD wSequenceChannel, WORD wPhysicalChannel);
+   
+WORD far cdecl XMI_true_sequence_channel(HSEQUENCE hSequence,
+   WORD wSequenceChannel);
+   
+void far cdecl XMI_release_channel(WORD wChannel);
+
+#ifdef __cplusplus
+}
+#endif
+   
+#endif
+

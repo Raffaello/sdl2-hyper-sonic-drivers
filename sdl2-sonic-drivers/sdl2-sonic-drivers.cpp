@@ -9,10 +9,23 @@
 #include <audio/scummvm/SDLMixerManager.hpp>
 #include <drivers/miles/XMidi.hpp>
 #include <drivers/westwood/ADLDriver.hpp>
-#include <files/XMIFile.hpp>
-#include <files/ADLFile.hpp>
+#include <files/miles/XMIFile.hpp>
+#include <files/westwood/ADLFile.hpp>
 #include <hardware/PCSpeaker.hpp>
 #include <hardware/opl/scummvm/Config.hpp>
+
+#include <hardware/opl/mame/MameOPL.hpp>
+
+#include <audio/DiskRendererMixerManager.hpp>
+
+#include <drivers/VOCDriver.hpp>
+#include <drivers/WAVDriver.hpp>
+
+#include <files/MIDFile.hpp>
+#include <drivers/MIDParser.hpp>
+#include <drivers/miles/XMIParser.hpp>
+
+#include <utils/algorithms.hpp>
 
 #include <spdlog/spdlog.h>
 
@@ -240,7 +253,8 @@ int sdlMixer()
 
     //spdlog::set_level(spdlog::level::debug);
     auto opl = Config::create(OplEmulator::NUKED, Config::OplType::OPL3, mixer);
-    std::shared_ptr<files::ADLFile> adlFile = std::make_shared<files::ADLFile>("test/fixtures/DUNE0.ADL");
+    //auto opl = std::make_shared<hardware::opl::mame::MameOPL>(mixer);
+    std::shared_ptr<files::westwood::ADLFile> adlFile = std::make_shared<files::westwood::ADLFile>("test/fixtures/DUNE0.ADL");
     
     ADLDriver adlDrv(opl, adlFile);
     adlDrv.play(4, 0xFF);
@@ -265,10 +279,205 @@ int sdlMixer()
     return 0;
 }
 
+int renderMixer()
+{
+    using namespace audio::scummvm;
+    using namespace hardware::opl::scummvm;
+    using namespace drivers::westwood;
+
+    audio::DiskRendererMixerManager mixerManager(44100);
+    mixerManager.init();
+    mixerManager.startRecording("test.dat");
+
+    std::shared_ptr<Mixer> mixer = mixerManager.getMixer();
+
+    //spdlog::set_level(spdlog::level::debug);
+    auto opl = Config::create(OplEmulator::NUKED, Config::OplType::OPL3, mixer);
+    auto pOpl = dynamic_cast<EmulatedOPL*>( opl.get());
+    //auto opl = std::make_shared<hardware::opl::mame::MameOPL>(mixer);
+    std::shared_ptr<files::westwood::ADLFile> adlFile = std::make_shared<files::westwood::ADLFile>("test/fixtures/DUNE0.ADL");
+
+    ADLDriver adlDrv(opl, adlFile);
+    adlDrv.play(4, 0xFF);
+    int samples = -1;
+    int totSamples = 0;
+    bool isPlaying = adlDrv.isPlaying();
+    do
+    {
+        // TODO review, but is dumping the data
+        int16_t buf[1024];
+
+        samples = pOpl->readBuffer(buf, 1024);
+        mixerManager.callbackHandler((uint8_t*)buf, samples * 2);
+        totSamples += samples;
+        isPlaying = adlDrv.isPlaying();
+        //spdlog::info("isPlaying? {}", isPlaying);
+    } while (isPlaying);
+
+    spdlog::info("TotSamples={} --- space require={} ({}KB) [{}MB]", totSamples, totSamples * sizeof(int16_t), totSamples * sizeof(int16_t) / 1024, totSamples * sizeof(int16_t) / 1024 / 1024);
+
+    while (!mixer->isReady()) {
+        spdlog::info("mixer not ready");
+        utils::delayMillis(100);
+    }
+
+    utils::delayMillis(1000);
+    while (adlDrv.isPlaying())
+    {
+        spdlog::info("is playing");
+        utils::delayMillis(100);
+
+    }
+
+    spdlog::info("renderer quitting...");
+
+    return 0;
+}
+
+int vocdriver()
+{
+    using namespace audio::scummvm;
+    using  drivers::VOCDriver;
+
+    SdlMixerManager mixerManager;
+    mixerManager.init();
+
+    std::shared_ptr<Mixer> mixer = mixerManager.getMixer();
+
+    //spdlog::set_level(spdlog::level::debug);
+    //std::shared_ptr<files::VOCFile> vocFile = std::make_shared<files::VOCFile>("test/fixtures/DUNE.VOC");
+    std::shared_ptr<files::VOCFile> vocFile = std::make_shared<files::VOCFile>("test/fixtures/sample1.voc");
+
+    VOCDriver voc(mixer, vocFile);
+    voc.play();
+
+    while (!mixer->isReady()) {
+        spdlog::info("mixer not ready");
+        SDL_Delay(100);
+    }
+    /*while (SDL_GetAudioStatus() == SDL_AUDIO_PLAYING) {
+        spdlog::info("sdl playing...");
+        SDL_Delay(100);
+    }*/
+    while (voc.isPlaying())
+    {
+        spdlog::info("is playing");
+        SDL_Delay(1000);
+
+    }
+
+    //SDL_Delay(2000);
+    spdlog::info("SDLMixer quitting...");
+    SDL_Delay(1000);
+    spdlog::info("SDLMixer quit");
+
+    return 0;
+
+}
+
+int wavdriver()
+{
+    using namespace audio::scummvm;
+    using  drivers::WAVDriver;
+
+    SdlMixerManager mixerManager;
+    mixerManager.init();
+
+    std::shared_ptr<Mixer> mixer = mixerManager.getMixer();
+
+    //spdlog::set_level(spdlog::level::debug);
+    std::shared_ptr<files::WAVFile> vocFile = std::make_shared<files::WAVFile>("test/fixtures/Wav_868kb.wav");
+
+    WAVDriver wav(mixer, vocFile);
+    wav.play();
+
+    while (!mixer->isReady()) {
+        spdlog::info("mixer not ready");
+        SDL_Delay(100);
+    }
+    /*while (SDL_GetAudioStatus() == SDL_AUDIO_PLAYING) {
+        spdlog::info("sdl playing...");
+        SDL_Delay(100);
+    }*/
+    while (wav.isPlaying())
+    {
+        spdlog::info("is playing");
+        SDL_Delay(1000);
+
+    }
+
+    //SDL_Delay(2000);
+    spdlog::info("SDLMixer quitting...");
+    SDL_Delay(1000);
+    spdlog::info("SDLMixer quit");
+
+    return 0;
+
+}
+
+int mid_parser()
+{
+    using namespace audio::scummvm;
+    using  drivers::MIDParser;
+
+    SdlMixerManager mixerManager;
+    mixerManager.init();
+
+    std::shared_ptr<Mixer> mixer = mixerManager.getMixer();
+
+    //spdlog::set_level(spdlog::level::debug);
+    std::shared_ptr<files::MIDFile> midFile = std::make_shared<files::MIDFile>("test/fixtures/MI_intro.mid");
+
+    MIDParser midParser(midFile->getMIDI(), mixer);
+    midParser.display();
+
+    
+
+    spdlog::info("SDLMixer quitting...");
+    SDL_Delay(1000);
+    spdlog::info("SDLMixer quit");
+
+    return 0;
+
+}
+
+int xmi_parser()
+{
+    using namespace audio::scummvm;
+    using  drivers::miles::XMIParser;
+
+    SdlMixerManager mixerManager;
+    mixerManager.init();
+
+    std::shared_ptr<Mixer> mixer = mixerManager.getMixer();
+
+    //spdlog::set_level(spdlog::level::debug);
+    std::shared_ptr<files::miles::XMIFile> xmiFile = std::make_shared<files::miles::XMIFile>("test/fixtures/AIL2_14_DEMO.XMI");
+
+    XMIParser xmiParser(xmiFile->getMIDI(), mixer);
+    xmiParser.displayAllTracks();
+
+
+
+    spdlog::info("SDLMixer quitting...");
+    SDL_Delay(1000);
+    spdlog::info("SDLMixer quit");
+
+    return 0;
+
+}
+
 int main(int argc, char* argv[])
 {
-    sdlMixer();
-    SDL_Delay(100);
+    //sdlMixer();
+    //SDL_Delay(100);
+    //renderMixer();
+
+    //
+    // vocdriver();
+    //wavdriver();
+    //mid_parser();
+    xmi_parser();
 
     SDL_Init(SDL_INIT_TIMER | SDL_INIT_AUDIO);
 
