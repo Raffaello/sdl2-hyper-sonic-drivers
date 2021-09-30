@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <chrono>
 #include <thread>
+#include <vector>
 
 
 namespace utils
@@ -61,6 +62,12 @@ namespace utils
         return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     }
 
+    template<typename T>
+    inline T getMicro()
+    {
+        return std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+    }
+
     inline void delayMillis(const unsigned int delaytime)
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(delaytime));
@@ -78,4 +85,19 @@ namespace utils
     /// <param name="out_value">the resulting decoded value</param>
     /// <returns>byte reads</returns>
     int decode_VLQ(const uint8_t buf[], uint32_t& out_value);
+
+    /// <summary>
+    /// return the value of 2^coeff
+    /// </summary>
+    /// <param name="coeff">coefficient to elevate 2</param>
+    /// <returns>2^coeff</returns>
+    int powerOf2(const int coeff);
+
+    /// <summary>
+    /// XMI Variable length quantuty decoding algorithm
+    /// </summary>
+    /// <param name="buf">the max 4 bytes array to decode</param>
+    /// <param name="out_value">the resulting decoded value</param>
+    /// <returns>byte reads</returns>
+    int decode_xmi_VLQ(const uint8_t buf[], uint32_t& out_value);
 }

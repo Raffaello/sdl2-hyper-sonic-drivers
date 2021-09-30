@@ -21,6 +21,10 @@
 #include <drivers/VOCDriver.hpp>
 #include <drivers/WAVDriver.hpp>
 
+#include <files/MIDFile.hpp>
+#include <drivers/MIDParser.hpp>
+#include <drivers/miles/XMIParser.hpp>
+
 #include <utils/algorithms.hpp>
 
 #include <spdlog/spdlog.h>
@@ -330,7 +334,6 @@ int renderMixer()
     return 0;
 }
 
-
 int vocdriver()
 {
     using namespace audio::scummvm;
@@ -412,14 +415,69 @@ int wavdriver()
 
 }
 
+int mid_parser()
+{
+    using namespace audio::scummvm;
+    using  drivers::MIDParser;
+
+    SdlMixerManager mixerManager;
+    mixerManager.init();
+
+    std::shared_ptr<Mixer> mixer = mixerManager.getMixer();
+
+    //spdlog::set_level(spdlog::level::debug);
+    std::shared_ptr<files::MIDFile> midFile = std::make_shared<files::MIDFile>("test/fixtures/MI_intro.mid");
+
+    MIDParser midParser(midFile->getMIDI(), mixer);
+    midParser.display();
+
+    
+
+    spdlog::info("SDLMixer quitting...");
+    SDL_Delay(1000);
+    spdlog::info("SDLMixer quit");
+
+    return 0;
+
+}
+
+int xmi_parser()
+{
+    using namespace audio::scummvm;
+    using  drivers::miles::XMIParser;
+
+    SdlMixerManager mixerManager;
+    mixerManager.init();
+
+    std::shared_ptr<Mixer> mixer = mixerManager.getMixer();
+
+    //spdlog::set_level(spdlog::level::debug);
+    std::shared_ptr<files::miles::XMIFile> xmiFile = std::make_shared<files::miles::XMIFile>("test/fixtures/AIL2_14_DEMO.XMI");
+
+    XMIParser xmiParser(xmiFile->getMIDI(), mixer);
+    xmiParser.displayAllTracks();
+
+
+
+    spdlog::info("SDLMixer quitting...");
+    SDL_Delay(1000);
+    spdlog::info("SDLMixer quit");
+
+    return 0;
+
+}
+
 int main(int argc, char* argv[])
 {
     //sdlMixer();
     //SDL_Delay(100);
     //renderMixer();
 
-    vocdriver();
+    //
+    // vocdriver();
     //wavdriver();
+    //mid_parser();
+    xmi_parser();
 
     SDL_Init(SDL_INIT_TIMER | SDL_INIT_AUDIO);
 
