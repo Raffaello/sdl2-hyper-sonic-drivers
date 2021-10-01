@@ -1,5 +1,6 @@
 #pragma once
 
+#include <audio/Sound.hpp>
 #include <files/RIFFFile.hpp>
 #include <string>
 #include <memory>
@@ -49,6 +50,7 @@ namespace files
         const format_t&                  getFormat()   const noexcept;
         const uint32_t                   getDataSize() const noexcept;
         const std::shared_ptr<uint8_t[]> getData()     const noexcept;
+        std::shared_ptr<audio::Sound>    getSound()    const noexcept;
         
         static bool save(const int rate, const int bits, const int channels, const uint8_t* buffer, const int length);
         static bool render(const uint8_t* buffer, int length);
@@ -58,6 +60,7 @@ namespace files
         format_t _fmt_chunk;
         uint32_t _dataSize;
         std::shared_ptr<uint8_t[]> _data;
+        std::shared_ptr<audio::Sound> _sound;
 
         bool _expDataChunk = false;
         

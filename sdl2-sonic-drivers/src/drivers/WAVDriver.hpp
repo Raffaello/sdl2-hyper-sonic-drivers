@@ -40,4 +40,3 @@ namespace drivers
         audio::scummvm::SoundHandle* _handle;
     };
 }
-

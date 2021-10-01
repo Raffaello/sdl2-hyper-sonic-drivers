@@ -1,7 +1,9 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <files/WAVFile.hpp>
+#include <audio/Sound.hpp>
 #include <cstdint>
+#include <memory>
 
 namespace files
 {
@@ -22,6 +24,11 @@ namespace files
         EXPECT_EQ(f.getData()[0], 0);
         EXPECT_EQ(f.getData()[size-1], 0);
         EXPECT_EQ(f.getData()[size/2], 0x6D);
+
+        auto sound = f.getSound();
+        EXPECT_TRUE(sound->isStereo());
+        EXPECT_EQ(sound->getRate(), fmt.samplesPerSec);
+        EXPECT_EQ(sound->getBitsDepth(), fmt.bitsPerSample);
     }
 
     TEST(WAVFile, file_not_found)

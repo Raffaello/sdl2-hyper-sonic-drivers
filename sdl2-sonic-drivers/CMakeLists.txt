@@ -37,6 +37,7 @@ install(FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/scummvm/SDLMixerManager.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/SDL2Mixer.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/MIDI.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/Sound.hpp
     
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/westwood/ADLDriver.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/VOCDriver.hpp
@@ -93,6 +94,7 @@ target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/MIDI.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/midi/MIDIEvent.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/midi/MIDITrack.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/Sound.cpp
     # --- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/scummvm/SDLMixerManager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/scummvm/Channel.cpp

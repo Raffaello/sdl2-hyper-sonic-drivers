@@ -55,7 +55,7 @@ namespace drivers
     }
     bool WAVDriver::endOfData() const
     {
-        return _curPos == _dataSize;;
+        return _curPos == _dataSize;
     }
     bool WAVDriver::isPlaying() const noexcept
     {

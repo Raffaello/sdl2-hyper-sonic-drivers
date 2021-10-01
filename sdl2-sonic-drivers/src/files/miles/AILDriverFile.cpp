@@ -41,7 +41,7 @@ namespace files
 
         const int16_t AILDriverFile::getDriverType() const noexcept
         {
-            return _ddt.driver_type;;
+            return _ddt.driver_type;
         }
 
         const char* AILDriverFile::getDataSuffix() const noexcept
