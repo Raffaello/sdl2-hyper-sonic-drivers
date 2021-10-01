@@ -8,7 +8,7 @@
 
 namespace files
 {
-    class WAVFile final : public RIFFFile
+    class WAVFile final : protected RIFFFile
     {
     public:
         enum class eFormat
@@ -53,8 +53,8 @@ namespace files
         const std::shared_ptr<uint8_t[]> getData()     const noexcept;
         std::shared_ptr<audio::Sound>    getSound()    const noexcept;
         
-        static bool save(const int rate, const int bits, const int channels, const uint8_t* buffer, const int length);
-        static bool render(const uint8_t* buffer, int length);
+        ///static bool save(const int rate, const int bits, const int channels, const uint8_t* buffer, const int length);
+        //static bool render(const uint8_t* buffer, int length);
 
 
     private:

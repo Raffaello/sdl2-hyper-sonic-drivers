@@ -8,11 +8,20 @@ namespace files
     constexpr const char* MAGIC = "Creative Voice File\x1A";
     constexpr const uint16_t VALIDATION_MAGIC = 0x1234;
 
-    VOCFile::VOCFile(const std::string& filename) : File(filename),
+    VOCFile::VOCFile(const std::string& filename, const audio::scummvm::Mixer::SoundType soundType) : File(filename),
         _version(0), _channels(1), _bitsDepth(8)
     {
         _assertValid(readHeader());
         _assertValid(readDataBlockHeader());
+
+        _sound = std::make_shared<audio::Sound>(
+            soundType,
+            getChannels() == 2,
+            getSampleRate(),
+            getBitsDepth(),
+            getDataSize(),
+            getData()
+        );
     }
 
     VOCFile::~VOCFile()
@@ -46,6 +55,11 @@ namespace files
     const std::shared_ptr<uint8_t[]> VOCFile::getData() const noexcept
     {
         return _data;
+    }
+
+    std::shared_ptr<audio::Sound> VOCFile::getSound() const noexcept
+    {
+        return _sound;
     }
 
     bool VOCFile::readHeader()

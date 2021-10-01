@@ -1,5 +1,7 @@
 #pragma once
 
+#include <audio/scummvm/Mixer.hpp>
+#include <audio/Sound.hpp>
 #include <files/File.hpp>
 #include <string>
 #include <cstdint>
@@ -7,10 +9,10 @@
 
 namespace files
 {
-    class VOCFile : public File
+    class VOCFile final : protected File
     {
     public:
-        VOCFile(const std::string& filename);
+        VOCFile(const std::string& filename, const audio::scummvm::Mixer::SoundType soundType = audio::scummvm::Mixer::SoundType::PLAIN);
         virtual ~VOCFile();
 
         const std::string getVersion() const noexcept;
@@ -20,13 +22,15 @@ namespace files
         const int getDataSize() const noexcept;
         const std::shared_ptr<uint8_t[]> getData() const noexcept;
 
+        std::shared_ptr<audio::Sound> getSound() const noexcept;
+
     private:
         static const int MAGIC_SIZE = 19 + 1;
         typedef struct voc_header_t
         {
             char magic[MAGIC_SIZE];
             uint16_t data_block_offset; // 0x1A
-            uint16_t version;          
+            uint16_t version;
             uint16_t validation_code;   // complement(version) + 0x1234
         } voc_header_t;
         static_assert(sizeof(voc_header_t) == MAGIC_SIZE + 2 + 2 + 2);
@@ -40,13 +44,12 @@ namespace files
 
         uint16_t _version;
         // VOC to PCM info
-        // TODO create a class Sound and substitue these values
         int       _channels;
         uint32_t  _sampleRate;
         int       _dataSize;
         uint8_t   _bitsDepth;
         std::shared_ptr<uint8_t[]> _data;
-        // ---
+        std::shared_ptr<audio::Sound> _sound;
 
         bool readHeader();
         bool readDataBlockHeader();
