@@ -75,8 +75,58 @@ int wav_example()
 
 int main(int argc, char* argv[])
 {
-    wav_example();
-    voc_exmaple();
+    SdlMixerManager mixerManager;
+    mixerManager.init();
+
+    std::shared_ptr<Mixer> mixer = mixerManager.getMixer();
+
+    std::shared_ptr<files::WAVFile> wavFile = std::make_shared<files::WAVFile>("Wav_868kb.wav");
+    std::shared_ptr<files::VOCFile> vocFile = std::make_shared<files::VOCFile>("DUNE.VOC");
+
+    std::shared_ptr<audio::Sound> wavSound = wavFile->getSound();
+    std::shared_ptr<audio::Sound> vocSound = vocFile->getSound();
+
+    PCMDriver drv(mixer);
+
+    drv.play(wavSound);
+
+    while (!mixer->isReady()) {
+        spdlog::info("mixer not ready");
+        SDL_Delay(100);
+    }
+
+    while(drv.isPlaying(wavSound))
+    {
+        spdlog::info("is playing");
+        SDL_Delay(1000);
+    }
+
+    SDL_Delay(500);
+
+    drv.play(vocSound);
+    while (drv.isPlaying(vocSound))
+    {
+        spdlog::info("is playing");
+        SDL_Delay(1000);
+
+    }
+
+    SDL_Delay(500);
+
+    drv.play(wavSound);
+    drv.play(vocSound);
+    while(drv.isPlaying(vocSound) || drv.isPlaying(wavSound))
+    {
+        spdlog::info("is playing");
+        SDL_Delay(1000);
+    }
 
     return 0;
+
+
+    return 0;
+
+
+
+
 }

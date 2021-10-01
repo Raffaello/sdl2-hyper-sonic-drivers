@@ -19,6 +19,8 @@ namespace drivers
         // TODO review it,
         // BODY those constants and could be done in Sound class instead?
         // BODY this driver at the moment became just an helper class. not really usefull..
+        
+        sound->reset();
         _mixer->playStream(
             sound->getSoundType(),
             sound->getHandle(),

@@ -62,4 +62,9 @@ namespace audio
     {
         return _soundType;
     }
+
+    void Sound::reset()
+    {
+        _curPos = 0;
+    }
 }
