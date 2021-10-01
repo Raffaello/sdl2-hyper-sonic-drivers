@@ -1,22 +1,14 @@
 #include <drivers/PCMDriver.hpp>
-#include <utils/endianness.hpp>
 
 namespace drivers
 {
     using audio::scummvm::Mixer;
-    //using audio::scummvm::SoundHandle;
-    //using audio::scummvm::AudioStream;
-    //using utils::READ_LE_UINT16;
 
     PCMDriver::PCMDriver(std::shared_ptr<audio::scummvm::Mixer> mixer) :
         _mixer(mixer)
     {
     }
-
-    PCMDriver::~PCMDriver()
-    {
-    }
-    
+   
     bool PCMDriver::isPlaying(const std::shared_ptr<audio::Sound> sound) const noexcept
     {
         return _mixer->isSoundHandleActive(*sound->getHandle());
