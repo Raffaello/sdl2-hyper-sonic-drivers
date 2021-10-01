@@ -11,7 +11,6 @@ namespace drivers
     {
     public:
         PCMDriver(std::shared_ptr<audio::scummvm::Mixer> mixer);
-        virtual ~PCMDriver();
         
         bool isPlaying(const std::shared_ptr<audio::Sound> sound) const noexcept;
         void play(const std::shared_ptr<audio::Sound> sound, const uint8_t volume = audio::scummvm::Mixer::MaxVolume::CHANNEL);
