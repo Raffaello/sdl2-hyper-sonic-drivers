@@ -40,8 +40,7 @@ install(FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/Sound.hpp
     
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/westwood/ADLDriver.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/VOCDriver.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/WAVDriver.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/PCMDriver.hpp
     
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/westwood/ADLFile.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/MIDFile.hpp
@@ -55,7 +54,6 @@ install(FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/mame/mame.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/nuked/OPL.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/Config.hpp
-    #${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/EmulatedOPL.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/woody/WoodyOPL.hpp
     
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/PCSPeaker.hpp
@@ -103,8 +101,8 @@ target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/scummvm/Timestamp.cpp
     # --- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/westwood/ADLDriver.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/VOCDriver.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/WAVDriver.cpp
+    #${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/VOCDriver.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/PCMDriver.cpp
     #${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/miles/XMidi.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/MIDParser.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/miles/XMIParser.cpp

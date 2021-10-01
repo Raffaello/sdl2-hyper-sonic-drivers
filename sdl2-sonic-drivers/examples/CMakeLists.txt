@@ -73,21 +73,12 @@ macro_example(
 )
 
 macro_example(
-    EXE VOCExample
-    FILE "voc-example.cpp"
-    DEPS sonic-drivers-static
-    LINKS ${LIB_SDL2main} sonic-drivers-static
-    FIXTURES 
-      "../test/fixtures/DUNE.VOC"
-    NONE
-)
-
-macro_example(
-    EXE WAVExample
-    FILE "wav-example.cpp"
+    EXE PCMExample
+    FILE "pcm-example.cpp"
     DEPS sonic-drivers-static
     LINKS ${LIB_SDL2main} sonic-drivers-static
     FIXTURES 
       "../test/fixtures/Wav_868kb.wav"
+      "../test/fixtures/DUNE.VOC"
     NONE
 )

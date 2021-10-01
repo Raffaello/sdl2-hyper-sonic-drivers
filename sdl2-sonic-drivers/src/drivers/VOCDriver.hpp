@@ -8,7 +8,7 @@
 
 namespace drivers
 {
-    class VOCDriver : protected audio::scummvm::AudioStream
+    class VOCDriver
     {
     public:
         VOCDriver(std::shared_ptr<audio::scummvm::Mixer> mixer, std::shared_ptr<files::VOCFile> voc_file);

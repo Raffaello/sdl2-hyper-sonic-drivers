@@ -1,4 +1,4 @@
-#include <drivers/WAVDriver.hpp>
+#include <drivers/PCMDriver.hpp>
 #include <utils/endianness.hpp>
 
 namespace drivers
@@ -8,21 +8,21 @@ namespace drivers
     //using audio::scummvm::AudioStream;
     //using utils::READ_LE_UINT16;
 
-    WAVDriver::WAVDriver(std::shared_ptr<audio::scummvm::Mixer> mixer) :
+    PCMDriver::PCMDriver(std::shared_ptr<audio::scummvm::Mixer> mixer) :
         _mixer(mixer)
     {
     }
 
-    WAVDriver::~WAVDriver()
+    PCMDriver::~PCMDriver()
     {
     }
     
-    bool WAVDriver::isPlaying(const std::shared_ptr<audio::Sound> sound) const noexcept
+    bool PCMDriver::isPlaying(const std::shared_ptr<audio::Sound> sound) const noexcept
     {
         return _mixer->isSoundHandleActive(*sound->getHandle());
     }
 
-    void WAVDriver::play(const std::shared_ptr<audio::Sound> sound, const uint8_t volume)
+    void PCMDriver::play(const std::shared_ptr<audio::Sound> sound, const uint8_t volume)
     {
         // TODO review it,
         // BODY those constants and could be done in Sound class instead?

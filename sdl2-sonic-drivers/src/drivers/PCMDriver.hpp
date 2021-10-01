@@ -9,11 +9,11 @@ namespace drivers
 {
     // TODO generalize in PCMDriver class both for WAV and VOC
     // BODY: this class is basicaly a copy of VOCDriver
-    class WAVDriver
+    class PCMDriver
     {
     public:
-        WAVDriver(std::shared_ptr<audio::scummvm::Mixer> mixer);
-        virtual ~WAVDriver();
+        PCMDriver(std::shared_ptr<audio::scummvm::Mixer> mixer);
+        virtual ~PCMDriver();
         
         //void setFile() noexcept;
 
