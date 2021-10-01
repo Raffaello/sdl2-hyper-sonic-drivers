@@ -7,8 +7,8 @@ namespace audio
     using utils::READ_LE_UINT16;
     using audio::scummvm::SoundHandle;
 
-    Sound::Sound(const bool isStereo, const int rate, const uint8_t bitsDepth, const uint32_t dataSize, const std::shared_ptr<uint8_t[]> data)
-        : _stereo(isStereo), _rate(rate), _bitsDepth(bitsDepth), _dataSize(dataSize), _data(data), _curPos(0)
+    Sound::Sound(const scummvm::Mixer::SoundType soundType, const bool isStereo, const int rate, const uint8_t bitsDepth, const uint32_t dataSize, const std::shared_ptr<uint8_t[]> data)
+        : _soundType(soundType), _stereo(isStereo), _rate(rate), _bitsDepth(bitsDepth), _dataSize(dataSize), _data(data), _curPos(0)
     {
         _bitsFactor = _bitsDepth == 16 ? 2 : 1;
         _handle = new SoundHandle();
@@ -52,5 +52,14 @@ namespace audio
     uint8_t Sound::getBitsDepth() const noexcept
     {
         return _bitsDepth;
+    }
+
+    audio::scummvm::SoundHandle* Sound::getHandle() const noexcept
+    {
+        return _handle;
+    }
+    const scummvm::Mixer::SoundType Sound::getSoundType() const noexcept
+    {
+        return _soundType;
     }
 }

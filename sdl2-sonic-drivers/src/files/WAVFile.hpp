@@ -1,13 +1,14 @@
 #pragma once
 
 #include <audio/Sound.hpp>
+#include <audio/scummvm/Mixer.hpp>
 #include <files/RIFFFile.hpp>
 #include <string>
 #include <memory>
 
 namespace files
 {
-    class WAVFile : public RIFFFile
+    class WAVFile final : public RIFFFile
     {
     public:
         enum class eFormat
@@ -44,7 +45,7 @@ namespace files
         } format_t;
         static_assert(2 + 2 + 4 + 4 + 2 + 2 == sizeof(format_t) - sizeof(eFormat));
 
-        WAVFile(const std::string& filename);
+        WAVFile(const std::string& filename, const audio::scummvm::Mixer::SoundType soundType = audio::scummvm::Mixer::SoundType::PLAIN);
         virtual ~WAVFile();
 
         const format_t&                  getFormat()   const noexcept;

@@ -4,7 +4,7 @@
 
 namespace files
 {
-    WAVFile::WAVFile(const std::string& filename) : RIFFFile(filename),
+    WAVFile::WAVFile(const std::string& filename, const audio::scummvm::Mixer::SoundType soundType) : RIFFFile(filename),
         _expDataChunk(false), _dataSize(0)
     {
         std::memset(&_fmt_chunk, 0, sizeof(format_t));
@@ -43,6 +43,7 @@ namespace files
 
         // TODO: works only for mono and stereo (1 or 2 channels)
         _sound = std::make_shared<audio::Sound>(
+            soundType,
             getFormat().channels == 2,
             getFormat().samplesPerSec,
             getFormat().bitsPerSample,

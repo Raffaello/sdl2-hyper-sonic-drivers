@@ -2,6 +2,9 @@
 #include <audio/scummvm/SDLMixerManager.hpp>
 #include <drivers/WAVDriver.hpp>
 #include <files/WAVFile.hpp>
+#include <audio/Sound.hpp>
+#include <drivers/WAVDriver.hpp>
+
 #include <spdlog/spdlog.h>
 #include <SDL2/SDL.h>
 
@@ -15,21 +18,22 @@ int main(int argc, char* argv[])
 
     std::shared_ptr<Mixer> mixer = mixerManager.getMixer();
 
-    std::shared_ptr<files::WAVFile> vocFile = std::make_shared<files::WAVFile>("Wav_868kb.wav");
-
-    WAVDriver wav(mixer, vocFile);
-    wav.play();
+    std::shared_ptr<files::WAVFile> wavFile = std::make_shared<files::WAVFile>("Wav_868kb.wav");
+    std::shared_ptr<audio::Sound> wavSound = wavFile->getSound();
+    
+    WAVDriver wav(mixer);
+    
+    wav.play(wavSound);
 
     while (!mixer->isReady()) {
         spdlog::info("mixer not ready");
         SDL_Delay(100);
     }
 
-    while (wav.isPlaying())
+    while (wav.isPlaying(wavSound))
     {
         spdlog::info("is playing");
         SDL_Delay(1000);
-
     }
 
     spdlog::info("quitting...");

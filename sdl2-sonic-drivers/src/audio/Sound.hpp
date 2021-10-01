@@ -2,6 +2,7 @@
 
 #include <audio/scummvm/AudioStream.hpp>
 #include <audio/scummvm/SoundHandle.hpp>
+#include <audio/scummvm/Mixer.hpp>
 #include <cstdint>
 #include <memory>
 
@@ -11,7 +12,7 @@ namespace audio
     {
     public:
         Sound(const Sound&) = delete;
-        Sound(const bool isStereo, const int rate, const uint8_t bitsDepth, const uint32_t dataSize, const std::shared_ptr<uint8_t[]> data);
+        Sound(const scummvm::Mixer::SoundType soundType, const bool isStereo, const int rate, const uint8_t bitsDepth, const uint32_t dataSize, const std::shared_ptr<uint8_t[]> data);
 
         virtual int readBuffer(int16_t* buffer, const int numSamples);
         virtual bool isStereo() const;
@@ -19,6 +20,8 @@ namespace audio
         virtual bool endOfData() const;
 
         uint8_t getBitsDepth() const noexcept;
+        scummvm::SoundHandle* getHandle() const noexcept;
+        const scummvm::Mixer::SoundType getSoundType() const noexcept;
 
     private:
         uint32_t _dataSize;
@@ -26,9 +29,11 @@ namespace audio
         bool _stereo;
         int _rate;
         uint8_t _bitsDepth;
-        audio::scummvm::SoundHandle* _handle;
+        scummvm::SoundHandle* _handle;
 
         uint32_t _curPos;
         int _bitsFactor;
+
+        scummvm::Mixer::SoundType _soundType;
     };
 }

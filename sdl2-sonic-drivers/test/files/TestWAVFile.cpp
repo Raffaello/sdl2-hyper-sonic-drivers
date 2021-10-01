@@ -9,7 +9,7 @@ namespace files
 {
     TEST(WAVFile, cstorDefault)
     {
-        WAVFile f("fixtures/Wav_868kb.wav");
+        WAVFile f("fixtures/Wav_868kb.wav", audio::scummvm::Mixer::SoundType::SPEECH);
 
         WAVFile::format_t fmt = f.getFormat();
         EXPECT_EQ(fmt.format, WAVFile::eFormat::WAVE_FORMAT_PCM);
@@ -29,6 +29,7 @@ namespace files
         EXPECT_TRUE(sound->isStereo());
         EXPECT_EQ(sound->getRate(), fmt.samplesPerSec);
         EXPECT_EQ(sound->getBitsDepth(), fmt.bitsPerSample);
+        EXPECT_EQ(sound->getSoundType(), audio::scummvm::Mixer::SoundType::SPEECH);
     }
 
     TEST(WAVFile, file_not_found)
