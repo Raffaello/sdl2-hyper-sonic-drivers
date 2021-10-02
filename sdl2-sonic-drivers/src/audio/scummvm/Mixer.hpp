@@ -9,12 +9,11 @@ namespace audio
 {
     namespace scummvm
     {
-        //constexpr int MAX_VOLUME_CHANNEL = 255;
-        //constexpr int MAX_VOLUME_MIXER = 256;
-
         class Mixer
         {
         public:
+            static const int MAX_CHANNELS = 32;
+
             Mixer(const Mixer&) = delete;
             Mixer& operator=(const Mixer&) = delete;
             

@@ -11,7 +11,6 @@ namespace audio
         : _soundType(soundType), _stereo(isStereo), _rate(rate), _bitsDepth(bitsDepth), _dataSize(dataSize), _data(data), _curPos(0)
     {
         _bitsFactor = _bitsDepth == 16 ? 2 : 1;
-        _handle = new SoundHandle();
     }
 
     int Sound::readBuffer(int16_t* buffer, const int numSamples)
@@ -54,17 +53,8 @@ namespace audio
         return _bitsDepth;
     }
 
-    audio::scummvm::SoundHandle* Sound::getHandle() const noexcept
-    {
-        return _handle;
-    }
     const scummvm::Mixer::SoundType Sound::getSoundType() const noexcept
     {
         return _soundType;
-    }
-
-    void Sound::reset()
-    {
-        _curPos = 0;
     }
 }

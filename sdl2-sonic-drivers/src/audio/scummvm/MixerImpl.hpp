@@ -43,7 +43,7 @@ namespace audio
         {
         private:
             enum {
-                NUM_CHANNELS = 32
+                NUM_CHANNELS = MAX_CHANNELS
             };
 
             //Common::Mutex _mutex;
