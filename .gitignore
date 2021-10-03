@@ -2,5 +2,4 @@
 /CMakeSettings.json
 /.vs
 /build
-#*.ADV
 *.bak
