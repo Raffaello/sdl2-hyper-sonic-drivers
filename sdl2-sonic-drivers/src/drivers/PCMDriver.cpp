@@ -19,6 +19,8 @@ namespace drivers
    
     bool PCMDriver::isPlaying(const std::shared_ptr<audio::Sound> sound) const noexcept
     {
+        // TODO: should be returned the soundHandle or soundID in play method to be used later on?
+        // BODY: so here it can be addressed in constant time instead of searching for sound in the slots?
         for (int i = 0; i < _max_streams; i++) {
             if (nullptr != _soundStreams[i] && _soundStreams[i]->getSound().lock() == sound) {
                 return _mixer->isSoundHandleActive(*_soundStreams[i]->getSoundHandlePtr());
@@ -30,8 +32,9 @@ namespace drivers
 
     void PCMDriver::play(const std::shared_ptr<audio::Sound> sound, const uint8_t volume, const int8_t balance)
     {
-        // TODO: is not thread-safe now
-        int cur_stream ;
+        // TODO: this method is not thread-safe at the moment.
+        int cur_stream;
+        
         // find first free slot
         for (cur_stream = 0; cur_stream < _max_streams ; ++cur_stream) {
             if (nullptr == _soundStreams[cur_stream])
@@ -42,13 +45,11 @@ namespace drivers
             }
         }
 
-        // TODO review it,
-        // BODY those constants and could be done in Sound class instead?
-        // BODY this driver at the moment became just an helper class. not really usefull..
         if (cur_stream == _max_streams)
             return;
         
         _soundStreams[cur_stream] = std::make_shared<SoundStream>(SoundStream(sound));
+        
         // TODO: could be autofree stream and create directly on the playStream method simplified all?
         // BODY: Yes, but loosing the handle for checking if is it playing.
         // BODY: alternatively could be stored the ID?
