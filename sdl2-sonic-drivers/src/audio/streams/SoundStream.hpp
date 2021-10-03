@@ -13,7 +13,6 @@ namespace audio
         class SoundStream final : public scummvm::AudioStream
         {
         public:
-            //SoundStream(const SoundStream&) = delete;
             SoundStream(const std::shared_ptr<Sound> sound);
             ~SoundStream();
 

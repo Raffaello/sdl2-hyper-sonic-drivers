@@ -21,6 +21,5 @@ namespace drivers
         std::shared_ptr<audio::scummvm::Mixer> _mixer;
         std::vector<std::shared_ptr<audio::streams::SoundStream>> _soundStreams;
         int _max_streams;
-        //int _cur_stream;
     };
 }

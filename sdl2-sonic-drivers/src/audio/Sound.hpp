@@ -18,8 +18,5 @@ namespace audio
         const uint8_t bitsDepth;
         const uint32_t dataSize;
         const std::shared_ptr<uint8_t[]> data;
-
-    private:
-        
     };
 }

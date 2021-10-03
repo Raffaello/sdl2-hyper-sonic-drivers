@@ -47,10 +47,11 @@ namespace drivers
         // BODY this driver at the moment became just an helper class. not really usefull..
         if (cur_stream == _max_streams)
             return;
-
-        // TODO use SoundStream, create a Soundstream from the sound arg
+        
         _soundStreams[cur_stream] = std::make_shared<SoundStream>(SoundStream(sound));
         // TODO: could be autofree stream and create directly on the playStream method simplified all?
+        // BODY: Yes, but loosing the handle for checking if is it playing.
+        // BODY: alternatively could be stored the ID?
         _mixer->playStream(
             sound->soundType,
             _soundStreams[cur_stream]->getSoundHandlePtr(),
