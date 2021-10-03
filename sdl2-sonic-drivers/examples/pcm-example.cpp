@@ -49,8 +49,8 @@ int main(int argc, char* argv[])
 
     SDL_Delay(500);
 
-    drv.play(wavSound);
-    drv.play(vocSound);
+    drv.play(wavSound, 150, -127);
+    drv.play(vocSound, 255, 127);
     while(drv.isPlaying(vocSound) || drv.isPlaying(wavSound))
     {
         cout << "is playing" << endl;

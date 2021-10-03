@@ -4,69 +4,61 @@
 namespace drivers
 {
     using audio::scummvm::Mixer;
+    using audio::streams::SoundStream;
 
     PCMDriver::PCMDriver(std::shared_ptr<audio::scummvm::Mixer> mixer, const int max_channels) :
-        _mixer(mixer), _cur_handles(0)
+        _mixer(mixer)
     {
-        _max_handles = std::min(mixer->MAX_CHANNELS, max_channels);
-        _handles.resize(_max_handles);
+        _max_streams = std::min(mixer->MAX_CHANNELS, max_channels);
+        _soundStreams.resize(_max_streams);
+    }
+
+    PCMDriver::~PCMDriver()
+    {
     }
    
     bool PCMDriver::isPlaying(const std::shared_ptr<audio::Sound> sound) const noexcept
     {
-        for (int i = 0; i < _max_handles; i++) {
-            if (_handles[i].s == sound) {
-                return _mixer->isSoundHandleActive(_handles[i].h);
+        for (int i = 0; i < _max_streams; i++) {
+            if (nullptr != _soundStreams[i] && _soundStreams[i]->getSound().lock() == sound) {
+                return _mixer->isSoundHandleActive(*_soundStreams[i]->getSoundHandlePtr());
             }
         }
 
         return false;
     }
 
-    void PCMDriver::play(const std::shared_ptr<audio::Sound> sound, const uint8_t volume)
+    void PCMDriver::play(const std::shared_ptr<audio::Sound> sound, const uint8_t volume, const int8_t balance)
     {
-        if (_cur_handles == _max_handles) {
-            // clean finished sounds
-            for (int i = _max_handles-1; i >=0 ; --i) {
-                if (!_mixer->isSoundHandleActive(_handles[i].h)) {
-                    _handles[i].s = nullptr;
-                    _handles[i].buf_pos = 0;
-                    _cur_handles = i;
-                }
+        // TODO: is not thread-safe now
+        int cur_stream ;
+        // find first free slot
+        for (cur_stream = 0; cur_stream < _max_streams ; ++cur_stream) {
+            if (nullptr == _soundStreams[cur_stream])
+                break;
+
+            if (!_mixer->isSoundHandleActive(*_soundStreams[cur_stream]->getSoundHandlePtr())) {
+                break;
             }
         }
-
-
-        //if (_handles[_cur_handles].s != nullptr) {
-        //    // here should never go...
-        //    for (int i = _cur_handles + 1; i < _max_handles; i++) {
-        //        if (_handles[i].s == nullptr) {
-        //            _cur_handles = i;
-        //            break;
-        //        }
-        //    }
-        //}
 
         // TODO review it,
         // BODY those constants and could be done in Sound class instead?
         // BODY this driver at the moment became just an helper class. not really usefull..
-
-        if (_cur_handles == _max_handles)
+        if (cur_stream == _max_streams)
             return;
 
-        channel_t ch = _handles[_cur_handles++];
-        ch.s = sound;
-        ch.buf_pos = 0;
+        // TODO use SoundStream, create a Soundstream from the sound arg
+        _soundStreams[cur_stream] = std::make_shared<SoundStream>(SoundStream(sound));
+        // TODO: could be autofree stream and create directly on the playStream method simplified all?
         _mixer->playStream(
-            sound->getSoundType(),
-            &ch.h,
-            sound.get(),
+            sound->soundType,
+            _soundStreams[cur_stream]->getSoundHandlePtr(),
+            _soundStreams[cur_stream].get(),
             -1,
             volume,
-            0,
+            balance,
             false
         );
-       
-        
     }
 }

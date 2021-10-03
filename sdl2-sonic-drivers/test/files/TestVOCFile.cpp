@@ -28,10 +28,10 @@ namespace files
         EXPECT_EQ(f.getData()[0], 0x80);
         
         std::shared_ptr<Sound> s = f.getSound();
-        EXPECT_EQ(s->getBitsDepth(), f.getBitsDepth());
-        EXPECT_FALSE(s->isStereo());
-        EXPECT_EQ(s->getRate(), f.getSampleRate());
-        EXPECT_EQ(s->getSoundType(), Mixer::SoundType::SFX);
+        EXPECT_EQ(s->bitsDepth, f.getBitsDepth());
+        EXPECT_FALSE(s->stereo);
+        EXPECT_EQ(s->rate, f.getSampleRate());
+        EXPECT_EQ(s->soundType, Mixer::SoundType::SFX);
     }
 
     TEST(VOCFile, DUNE_VOC)
@@ -46,10 +46,10 @@ namespace files
         EXPECT_EQ(f.getData()[0], 0x83);
 
         std::shared_ptr<Sound> s = f.getSound();
-        EXPECT_EQ(s->getBitsDepth(), f.getBitsDepth());
-        EXPECT_FALSE(s->isStereo());
-        EXPECT_EQ(s->getRate(), f.getSampleRate());
-        EXPECT_EQ(s->getSoundType(), Mixer::SoundType::SPEECH);
+        EXPECT_EQ(s->bitsDepth, f.getBitsDepth());
+        EXPECT_FALSE(s->stereo);
+        EXPECT_EQ(s->rate, f.getSampleRate());
+        EXPECT_EQ(s->soundType, Mixer::SoundType::SPEECH);
     }
 
 
