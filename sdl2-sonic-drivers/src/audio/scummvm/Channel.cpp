@@ -93,7 +93,6 @@ namespace audio
                 _pauseLevel++;
 
                 if (_pauseLevel == 1) {
-                    //_pauseStartTime = g_system->getMillis(true);
                     _pauseStartTime = utils::getMillis<int32_t>();
                 }
             }

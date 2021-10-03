@@ -26,10 +26,10 @@ namespace files
         EXPECT_EQ(f.getData()[size/2], 0x6D);
 
         auto sound = f.getSound();
-        EXPECT_TRUE(sound->isStereo());
-        EXPECT_EQ(sound->getRate(), fmt.samplesPerSec);
-        EXPECT_EQ(sound->getBitsDepth(), fmt.bitsPerSample);
-        EXPECT_EQ(sound->getSoundType(), audio::scummvm::Mixer::SoundType::SPEECH);
+        EXPECT_TRUE(sound->stereo);
+        EXPECT_EQ(sound->rate, fmt.samplesPerSec);
+        EXPECT_EQ(sound->bitsDepth, fmt.bitsPerSample);
+        EXPECT_EQ(sound->soundType, audio::scummvm::Mixer::SoundType::SPEECH);
     }
 
     TEST(WAVFile, file_not_found)

@@ -49,9 +49,17 @@ int main(int argc, char* argv[])
 
     SDL_Delay(500);
 
-    drv.play(wavSound);
-    drv.play(vocSound);
-    while(drv.isPlaying(vocSound) || drv.isPlaying(wavSound))
+    drv.play(wavSound, 150, -127);
+    drv.play(vocSound, 255, 127);
+    for (int i = 0, sig = +1; i < 3; i++, sig *= -1)
+    {
+        cout << i << ". playing same sound again reversed balance" << endl;
+        SDL_Delay(200);
+        drv.play(wavSound, 150, 127 * sig);
+        drv.play(vocSound, 255, -127 * sig);
+    }
+
+    while(drv.isPlaying())
     {
         cout << "is playing" << endl;
         SDL_Delay(1000);
