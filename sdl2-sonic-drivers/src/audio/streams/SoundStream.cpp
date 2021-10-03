@@ -22,6 +22,8 @@ namespace audio
 
         int SoundStream::readBuffer(int16_t* buffer, const int numSamples)
         {
+            assert(_sound->dataSize % _bitsFactor == 0);
+            
             int len = numSamples;
             int rest = (_sound->dataSize - _curPos) / _bitsFactor;
             int remaining = std::min(len, rest);
