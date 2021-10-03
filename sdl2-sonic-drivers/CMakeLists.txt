@@ -37,10 +37,10 @@ install(FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/scummvm/SDLMixerManager.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/SDL2Mixer.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/MIDI.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/Sound.hpp
     
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/westwood/ADLDriver.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/VOCDriver.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/WAVDriver.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/PCMDriver.hpp
     
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/westwood/ADLFile.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/MIDFile.hpp
@@ -93,6 +93,8 @@ target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/MIDI.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/midi/MIDIEvent.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/midi/MIDITrack.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/Sound.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/streams/SoundStream.cpp
     # --- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/scummvm/SDLMixerManager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/scummvm/Channel.cpp
@@ -101,8 +103,7 @@ target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/scummvm/Timestamp.cpp
     # --- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/westwood/ADLDriver.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/VOCDriver.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/WAVDriver.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/PCMDriver.cpp
     #${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/miles/XMidi.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/MIDParser.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/miles/XMIParser.cpp

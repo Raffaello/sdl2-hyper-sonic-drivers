@@ -4,7 +4,7 @@
 
 namespace files
 {
-    WAVFile::WAVFile(const std::string& filename) : RIFFFile(filename),
+    WAVFile::WAVFile(const std::string& filename, const audio::scummvm::Mixer::SoundType soundType) : RIFFFile(filename),
         _expDataChunk(false), _dataSize(0)
     {
         std::memset(&_fmt_chunk, 0, sizeof(format_t));
@@ -40,6 +40,16 @@ namespace files
             }
         } while (data.id.id != eRIFF_ID::ID_DATA);
         read_data_sub_chunk(data);
+
+        // TODO: works only for mono and stereo (1 or 2 channels)
+        _sound = std::make_shared<audio::Sound>(
+            soundType,
+            getFormat().channels == 2,
+            getFormat().samplesPerSec,
+            getFormat().bitsPerSample,
+            getDataSize(),
+            getData()
+        );
     }
 
     WAVFile::~WAVFile()
@@ -59,6 +69,11 @@ namespace files
     const std::shared_ptr<uint8_t[]> WAVFile::getData() const noexcept
     {
         return _data;
+    }
+
+    std::shared_ptr<audio::Sound> WAVFile::getSound() const noexcept
+    {
+        return _sound;
     }
 
     bool WAVFile::read_fmt_sub_chunk(const RIFF_sub_chunk_header_t& chunk)

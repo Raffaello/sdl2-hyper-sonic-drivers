@@ -1,12 +1,14 @@
 #pragma once
 
+#include <audio/Sound.hpp>
+#include <audio/scummvm/Mixer.hpp>
 #include <files/RIFFFile.hpp>
 #include <string>
 #include <memory>
 
 namespace files
 {
-    class WAVFile : public RIFFFile
+    class WAVFile final : protected RIFFFile
     {
     public:
         enum class eFormat
@@ -43,21 +45,23 @@ namespace files
         } format_t;
         static_assert(2 + 2 + 4 + 4 + 2 + 2 == sizeof(format_t) - sizeof(eFormat));
 
-        WAVFile(const std::string& filename);
+        WAVFile(const std::string& filename, const audio::scummvm::Mixer::SoundType soundType = audio::scummvm::Mixer::SoundType::PLAIN);
         virtual ~WAVFile();
 
         const format_t&                  getFormat()   const noexcept;
         const uint32_t                   getDataSize() const noexcept;
         const std::shared_ptr<uint8_t[]> getData()     const noexcept;
+        std::shared_ptr<audio::Sound>    getSound()    const noexcept;
         
-        static bool save(const int rate, const int bits, const int channels, const uint8_t* buffer, const int length);
-        static bool render(const uint8_t* buffer, int length);
+        ///static bool save(const int rate, const int bits, const int channels, const uint8_t* buffer, const int length);
+        //static bool render(const uint8_t* buffer, int length);
 
 
     private:
         format_t _fmt_chunk;
         uint32_t _dataSize;
         std::shared_ptr<uint8_t[]> _data;
+        std::shared_ptr<audio::Sound> _sound;
 
         bool _expDataChunk = false;
         

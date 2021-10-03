@@ -1,13 +1,15 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <files/WAVFile.hpp>
+#include <audio/Sound.hpp>
 #include <cstdint>
+#include <memory>
 
 namespace files
 {
     TEST(WAVFile, cstorDefault)
     {
-        WAVFile f("fixtures/Wav_868kb.wav");
+        WAVFile f("fixtures/Wav_868kb.wav", audio::scummvm::Mixer::SoundType::SPEECH);
 
         WAVFile::format_t fmt = f.getFormat();
         EXPECT_EQ(fmt.format, WAVFile::eFormat::WAVE_FORMAT_PCM);
@@ -22,6 +24,12 @@ namespace files
         EXPECT_EQ(f.getData()[0], 0);
         EXPECT_EQ(f.getData()[size-1], 0);
         EXPECT_EQ(f.getData()[size/2], 0x6D);
+
+        auto sound = f.getSound();
+        EXPECT_TRUE(sound->stereo);
+        EXPECT_EQ(sound->rate, fmt.samplesPerSec);
+        EXPECT_EQ(sound->bitsDepth, fmt.bitsPerSample);
+        EXPECT_EQ(sound->soundType, audio::scummvm::Mixer::SoundType::SPEECH);
     }
 
     TEST(WAVFile, file_not_found)
