@@ -13,7 +13,6 @@
 #include <files/westwood/ADLFile.hpp>
 #include <hardware/PCSpeaker.hpp>
 #include <hardware/opl/scummvm/Config.hpp>
-#include <audio/streams/SoundStream.hpp>
 
 #include <hardware/opl/mame/MameOPL.hpp>
 
