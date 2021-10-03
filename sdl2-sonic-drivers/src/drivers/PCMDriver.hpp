@@ -9,9 +9,17 @@
 
 namespace drivers
 {
+    /**
+     * @brief Managing PCM sound and their playback
+     * @details It is a sort of bridge between Mixer and Sound objects
+     *          so just simplify playing digital sounds.
+     */
     class PCMDriver final
     {
     public:
+        // TODO: review max_channels default value
+        // BODY: can use max_channel = 0 to be dynamic instead of fixed size
+        // BODY: can be -1 (check if < 0) to use mixer max channels
         PCMDriver(std::shared_ptr<audio::scummvm::Mixer> mixer, const int max_channels = 0xFFFF);
         ~PCMDriver();
 
