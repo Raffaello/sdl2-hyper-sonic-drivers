@@ -7,7 +7,6 @@
 #include <SDL2/SDL_mixer.h>
 
 #include <audio/scummvm/SDLMixerManager.hpp>
-#include <drivers/miles/XMidi.hpp>
 #include <drivers/westwood/ADLDriver.hpp>
 #include <files/miles/XMIFile.hpp>
 #include <files/westwood/ADLFile.hpp>
@@ -237,45 +236,6 @@ int song()
     return 0;
 }
 
-int sdlMixer()
-{
-    using namespace audio::scummvm;
-    using namespace hardware::opl::scummvm;
-    using namespace drivers::westwood;
-   
-    SdlMixerManager mixerManager;
-    mixerManager.init();
-    
-    std::shared_ptr<Mixer> mixer = mixerManager.getMixer();
-
-    //spdlog::set_level(spdlog::level::debug);
-    auto opl = Config::create(OplEmulator::NUKED, Config::OplType::OPL3, mixer);
-    //auto opl = std::make_shared<hardware::opl::mame::MameOPL>(mixer);
-    std::shared_ptr<files::westwood::ADLFile> adlFile = std::make_shared<files::westwood::ADLFile>("test/fixtures/DUNE0.ADL");
-    
-    ADLDriver adlDrv(opl, adlFile);
-    adlDrv.play(4, 0xFF);
-    
-    while (!mixer->isReady()) {
-        spdlog::info("mixer not ready");
-        SDL_Delay(100);
-    }
-
-    SDL_Delay(1000);
-    while(adlDrv.isPlaying())
-    {
-        spdlog::info("is playing");
-        SDL_Delay(1000);
-            
-    }
-
-    spdlog::info("SDLMixer quitting...");
-    SDL_Delay(1000);
-    spdlog::info("SDLMixer quit");
-    
-    return 0;
-}
-
 int renderMixer()
 {
     using namespace audio::scummvm;
@@ -389,9 +349,6 @@ int main(int argc, char* argv[])
     //SDL_Delay(100);
     //renderMixer();
 
-    //
-    // vocdriver();
-    //wavdriver();
     //mid_parser();
     xmi_parser();
 
