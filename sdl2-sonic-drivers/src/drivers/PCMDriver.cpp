@@ -17,13 +17,23 @@ namespace drivers
     {
     }
    
+    bool PCMDriver::isPlaying() const noexcept
+    {
+        for (int i = 0; i < _max_streams; ++i) {
+            if (isSoundHandleActive(i))
+                return true;
+        }
+
+        return false;
+    }
+
     bool PCMDriver::isPlaying(const std::shared_ptr<audio::Sound> sound) const noexcept
     {
         // TODO: should be returned the soundHandle or soundID in play method to be used later on?
         // BODY: so here it can be addressed in constant time instead of searching for sound in the slots?
         for (int i = 0; i < _max_streams; i++) {
             if (nullptr != _soundStreams[i] && _soundStreams[i]->getSound().lock() == sound) {
-                return _mixer->isSoundHandleActive(*_soundStreams[i]->getSoundHandlePtr());
+                return isSoundHandleActive(i);
             }
         }
 
@@ -37,12 +47,8 @@ namespace drivers
         
         // find first free slot
         for (cur_stream = 0; cur_stream < _max_streams ; ++cur_stream) {
-            if (nullptr == _soundStreams[cur_stream])
+            if(!isSoundHandleActive(cur_stream))
                 break;
-
-            if (!_mixer->isSoundHandleActive(*_soundStreams[cur_stream]->getSoundHandlePtr())) {
-                break;
-            }
         }
 
         if (cur_stream == _max_streams)
@@ -62,5 +68,11 @@ namespace drivers
             balance,
             false
         );
+    }
+
+    inline bool PCMDriver::isSoundHandleActive(const int index) const noexcept
+    {
+        return nullptr != _soundStreams[index] &&
+            _mixer->isSoundHandleActive(*_soundStreams[index]->getSoundHandlePtr());
     }
 }
