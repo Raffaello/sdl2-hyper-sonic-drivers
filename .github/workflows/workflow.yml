@@ -14,7 +14,6 @@ jobs:
         #with:
            # fetch-depth: 50
       - uses: actions/cache@v2
-        #id: vcpkg-cache
         with:
             path: C:\vcpkg\installed
             key: ${{ runner.os }}-vcpkg-cache
@@ -24,18 +23,16 @@ jobs:
         run: |
           . "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars32.bat"
           vcpkg install sdl2
+
+      - name: debug
+        run: |
+          echo $env:VCPKG_INSTALLATION_ROOT
+          echp {{ env:VCPKG_INSTALLATION_ROOT }}
       
       - name: create build dir
         run: mkdir build
       - name: cmake
         run: |
           . "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars32.bat"
-          cmake -DVCPKG_TARGET_TRIPLET=x86 -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake -DCMAKE_BUILD_TYPE=Debug ..
+      #    cmake -DVCPKG_TARGET_TRIPLET=x86 -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake -DCMAKE_BUILD_TYPE=Debug ..
         working-directory: build
-
-      - name: debug
-        run: |
-          echo $env:VCPKG_INSTALLATION_ROOT
-          echp {{ env:VCPKG_INSTALLATION_ROOT }}
-
-
