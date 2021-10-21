@@ -18,7 +18,8 @@ jobs:
       - uses: actions/cache@v2
         id: vcpkg-cache
         with:
-            path: C:\vcpkg\installed
+            path: |
+              C:\vcpkg\installed
             key: ${{ runner.os }}-vcpkg-cache-${{ hashFiles('**/*') }}
             restore-keys: ${{ runner.os }}-vcpkg-cache
       - name: vcpkg
@@ -26,11 +27,13 @@ jobs:
         run: |
           . "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars32.bat"
           vcpkg install sdl2 --triplet=x86-windows
+      - name: install Ninja
+        run: choco install ninja
 
       - name: debug
         run: |
           echo $env:VCPKG_INSTALLATION_ROOT
-          echo {{ env.VCPKG_INSTALLATION_ROOT }}
+          echo ${{ env.VCPKG_INSTALLATION_ROOT }}
 
       - uses: actions/checkout@v2
       - name: create build dir
