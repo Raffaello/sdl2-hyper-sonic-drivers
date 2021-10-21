@@ -30,12 +30,7 @@ jobs:
       - name: debug
         run: |
           echo $env:VCPKG_INSTALLATION_ROOT
-
-      - name: debug
-        run: |
-          ls c:\vcpkg\installed
-          ls c:\vcpkg\installed\x86-windows
-          ls c:\vcpkg\installed\x86-windows\share
+          echo {{ env.VCPKG_INSTALLATION_ROOT }}
 
       - uses: actions/checkout@v2
       - name: create build dir
@@ -43,5 +38,5 @@ jobs:
       - name: cmake
         run: |
           . "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars32.bat"
-          cmake -DVCPKG_TARGET_TRIPLET=x86-windows -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake -DCMAKE_BUILD_TYPE=Debug ..
+          cmake -DVCPKG_TARGET_TRIPLET=x86-windows -A Win32 -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake -DCMAKE_BUILD_TYPE=Debug ..
         working-directory: build
