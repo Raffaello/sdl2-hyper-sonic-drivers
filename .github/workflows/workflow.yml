@@ -1,0 +1,24 @@
+name: ci
+on:
+  pull_request:
+    branches: [ master ]
+
+permissions: read-all
+jobs:
+  build:
+    name: Build win
+    runs-on: windows-2019
+    steps:
+      - uses: actions/checkout@v2
+        #with:
+           # fetch-depth: 50
+      #- uses: actions/cache@v2
+      #  id: cache
+      #  with:
+      #      path:
+
+      - name: vcpkg
+        run: vcpkg install sdl2
+        working-directory: vcpkg
+
+
