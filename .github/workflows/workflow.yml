@@ -32,7 +32,7 @@ jobs:
       - name: install Ninja
         run: choco install ninja
       
-        - name: debug
+      - name: debug
         run: ninja --version
 
       - uses: actions/checkout@v2
