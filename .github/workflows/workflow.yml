@@ -6,8 +6,8 @@ on: [ push ]
 
 permissions: read-all
 jobs:
-  vcpkg:
-    name: vcpkg-dependecies
+  vcpkg-dep:
+    name: vcpkg dependecies
     runs-on: windows-2019
     steps:
       - uses: actions/cache@v2
@@ -27,7 +27,7 @@ jobs:
   build:
     name: Build win
     runs-on: windows-2019
-    needs: vcpkg-dependencies
+    needs: vcpkg
     steps:
       - uses: actions/checkout@v2
       - name: create build dir
