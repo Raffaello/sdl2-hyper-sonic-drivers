@@ -22,7 +22,7 @@ jobs:
         
       - name: vcpkg
         run: |
-          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsx86.bat"
+          . "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars32.bat"
           vcpkg install sdl2
         working-directory: vcpkg
       
@@ -30,7 +30,9 @@ jobs:
         run: mkdir build
 
       - name: cmake
-        run: cmake -DCMAKE_TOOLCHAIN_FILE=./vcpkg/scripts/buildsystems/vcpkg.cmake ..
+        run: |
+          . "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars32.bat"
+          cmake -DCMAKE_TOOLCHAIN_FILE=./vcpkg/scripts/buildsystems/vcpkg.cmake ..
         working-directory: build
 
 
