@@ -28,7 +28,8 @@ jobs:
       
       - name: create build dir
         run: mkdir build
-
+      - name: debug
+        run: ls ./vcpkg/scripts/buildsystems/vcpkg.cmake
       - name: cmake
         run: |
           . "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars32.bat"
