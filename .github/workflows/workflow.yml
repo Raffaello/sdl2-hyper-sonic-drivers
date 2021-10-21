@@ -27,7 +27,7 @@ jobs:
       - name: debug
         run: |
           echo $env:VCPKG_INSTALLATION_ROOT
-          echo ${{ env:VCPKG_INSTALLATION_ROOT }}
+          echo ${{ VCPKG_INSTALLATION_ROOT }}
       
       - name: create build dir
         run: mkdir build
