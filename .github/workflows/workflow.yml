@@ -17,7 +17,9 @@ jobs:
       #  id: cache
       #  with:
       #      path:
-
+      - name: create vcpkg dir
+        run: mkdir vcpkg
+        
       - name: vcpkg
         run: vcpkg install sdl2
         working-directory: vcpkg
