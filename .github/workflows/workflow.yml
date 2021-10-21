@@ -17,26 +17,20 @@ jobs:
       #  id: cache
       #  with:
       #      path:
-      - name: create vcpkg dir
-        run: mkdir vcpkg
-        
+      
+      #- name: create vcpkg dir
+      #  run: mkdir vcpkg
       - name: vcpkg
         run: |
           . "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars32.bat"
           vcpkg install sdl2
-        working-directory: vcpkg
-      
+        #working-directory: vcpkg
       - name: create build dir
         run: mkdir build
-      - name: debug
-        run: |
-          ls
-          ls vcpkg
-          ls C:/vcpkg/scripts/buildsystems/vcpkg.cmake
       - name: cmake
         run: |
           . "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars32.bat"
-          cmake -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake ..
+          cmake -DVCPKG_TARGET_TRIPLET=x86 -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake -G"Ninja" -DCMAKE_BUILD_TYPE=Debug ..
         working-directory: build
 
 
