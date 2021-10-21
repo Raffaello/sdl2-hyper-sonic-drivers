@@ -40,7 +40,7 @@ jobs:
       - name: cmake build
         run: |
           . "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars32.bat"
-          cmake --build --config=Debug .
+          cmake --build . --config=Debug
       - name: CTest
         run: ctest -V
       - name: cmake install
