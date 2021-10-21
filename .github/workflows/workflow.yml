@@ -6,32 +6,34 @@ on: [ push ]
 
 permissions: read-all
 jobs:
-  build:
-    name: Build win
+  vcpkg:
+    name: vcpkg-dependecies
     runs-on: windows-2019
     steps:
-      - uses: actions/checkout@v2
-        #with:
-           # fetch-depth: 50
       - uses: actions/cache@v2
         with:
             path: C:\vcpkg\installed
             key: ${{ runner.os }}-vcpkg-cache
             restore-keys: ${{ runner.os }}-vcpkg-cache
-      
       - name: vcpkg
         run: |
           . "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars32.bat"
-          vcpkg install sdl2
+          vcpkg install sdl2 --triplet=x86-windows
 
       - name: debug
         run: |
           echo $env:VCPKG_INSTALLATION_ROOT
-      
+          
+  build:
+    name: Build win
+    runs-on: windows-2019
+    needs: vcpkg-dependencies
+    steps:
+      - uses: actions/checkout@v2
       - name: create build dir
         run: mkdir build
       - name: cmake
         run: |
           . "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars32.bat"
-          cmake -DVCPKG_TARGET_TRIPLET=x86 -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake -DCMAKE_BUILD_TYPE=Debug ..
+          cmake -DVCPKG_TARGET_TRIPLET=x86-windows -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake -DCMAKE_BUILD_TYPE=Debug ..
         working-directory: build
