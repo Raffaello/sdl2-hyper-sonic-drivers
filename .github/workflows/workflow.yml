@@ -32,11 +32,11 @@ jobs:
         run: |
           ls
           ls vcpkg
-          ls ./vcpkg/scripts/buildsystems/vcpkg.cmake
+          ls C:/vcpkg/scripts/buildsystems/vcpkg.cmake
       - name: cmake
         run: |
           . "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars32.bat"
-          cmake -DCMAKE_TOOLCHAIN_FILE=./vcpkg/scripts/buildsystems/vcpkg.cmake ..
+          cmake -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake ..
         working-directory: build
 
 
