@@ -21,7 +21,6 @@ jobs:
         with:
             path: |
               C:\vcpkg\installed
-              C:\ProgramData\chocolatey\lib\ninja
             key: ${{ runner.os }}-dep-cache-${{ hashFiles('**/*') }}
             restore-keys: ${{ runner.os }}-dep-cache
       - name: vcpkg
@@ -29,17 +28,12 @@ jobs:
         run: |
           . "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars32.bat"
           vcpkg install sdl2 --triplet=x86-windows
-      - name: install Ninja
-        run: choco install ninja
       
-      - name: debug
-        run: ninja --version
-
       - uses: actions/checkout@v2
       - name: create build dir
         run: mkdir build
       - name: cmake
         run: |
           . "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars32.bat"
-          cmake -G"Ninja" -DVCPKG_TARGET_TRIPLET=x86-windows -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake -DCMAKE_BUILD_TYPE=Debug ..
+          cmake -G"Ninja" -DVCPKG_TARGET_TRIPLET=x86-windows -A Win32 -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake -DCMAKE_BUILD_TYPE=Debug ..
         working-directory: build
