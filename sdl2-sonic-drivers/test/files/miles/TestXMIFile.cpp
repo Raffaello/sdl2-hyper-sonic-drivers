@@ -2,13 +2,16 @@
 #include <gmock/gmock.h>
 #include <files/miles/XMIFile.hpp>
 
+int _argc;
+char** _argv;
+
 namespace files
 {
     namespace miles
     {
         TEST(XMIFile, file_not_valid)
         {
-            EXPECT_THROW(XMIFile f("TestXMIFile.exe"), std::invalid_argument);
+            EXPECT_THROW(XMIFile f(_argv[0]), std::invalid_argument);
         }
 
         TEST(XMIFile, file_not_found)
@@ -51,5 +54,9 @@ namespace files
 int main(int argc, char** argv)
 {
     ::testing::InitGoogleTest(&argc, argv);
+
+    _argc = argc;
+    _argv = argv;
+
     return RUN_ALL_TESTS();
 }
