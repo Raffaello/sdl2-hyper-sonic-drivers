@@ -1,3 +1,5 @@
+![windows-x86](https://github.com/raffaello/sdl2-sonic-drivers/actions/workflows/workflow.yml/badge.svg?branch=master)
+
 # Sonic Drivers
 
 `sdl2-sonic-drivers` is a `sdl2_mixer` based emulating audio of '90s hardware PCs (adlib, OPL3, ...)
