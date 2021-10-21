@@ -30,7 +30,7 @@ jobs:
       - name: cmake
         run: |
           . "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars32.bat"
-          cmake -DVCPKG_TARGET_TRIPLET=x86 -DCMAKE_TOOLCHAIN_FILE=$(VCPKG_INSTALLATION_ROOT)\scripts\buildsystems\vcpkg.cmake -DCMAKE_BUILD_TYPE=Debug ..
+          cmake -DVCPKG_TARGET_TRIPLET=x86 -DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_INSTALLATION_ROOT\scripts\buildsystems\vcpkg.cmake -DCMAKE_BUILD_TYPE=Debug ..
         working-directory: build
 
 
