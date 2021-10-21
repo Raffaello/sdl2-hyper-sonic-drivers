@@ -5,6 +5,7 @@ on: [ push ]
   #  branches: [ master ]
 
 permissions: read-all
+
 jobs:
   #vcpkg-dep:
   #  name: vcpkg dependecies
@@ -29,11 +30,6 @@ jobs:
           vcpkg install sdl2 --triplet=x86-windows
       - name: install Ninja
         run: choco install ninja
-
-      - name: debug
-        run: |
-          echo $env:VCPKG_INSTALLATION_ROOT
-          echo ${{ env.VCPKG_INSTALLATION_ROOT }}
 
       - uses: actions/checkout@v2
       - name: create build dir
