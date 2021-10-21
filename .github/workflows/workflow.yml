@@ -6,9 +6,14 @@ on: [ push ]
 
 permissions: read-all
 jobs:
-  vcpkg-dep:
-    name: vcpkg dependecies
+  #vcpkg-dep:
+  #  name: vcpkg dependecies
+  #  runs-on: windows-2019
+  #  steps:
+  build:
+    name: Build win
     runs-on: windows-2019
+    #needs: vcpkg-dep
     steps:
       - uses: actions/cache@v2
         id: vcpkg-cache
@@ -25,12 +30,7 @@ jobs:
       - name: debug
         run: |
           echo $env:VCPKG_INSTALLATION_ROOT
-          
-  build:
-    name: Build win
-    runs-on: windows-2019
-    needs: vcpkg-dep
-    steps:
+
       - name: debug
         run: |
           ls c:\vcpkg\installed
