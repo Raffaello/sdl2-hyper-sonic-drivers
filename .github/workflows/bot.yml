@@ -6,7 +6,9 @@ on:
       - opened
       - edited
       - reopened
-      
+  issue_comment:
+    types:
+      - created
 
 jobs:
   bot:
@@ -24,7 +26,7 @@ jobs:
           --data '{"body": "Hello"}'
 
       - name: execute command
-        if: contains(github.event.comment.body, '/help')
+        if: ${{ github.event.issue_comment }} && contains(github.event.comment.body, '/help')
         run: |
           curl -X POST \
           -H "Content-Type: application/json" \
