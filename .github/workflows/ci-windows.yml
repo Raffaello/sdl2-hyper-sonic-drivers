@@ -64,7 +64,7 @@ jobs:
       - name: cmake install
         run: cmake --build . --target install
         working-directory: build
-      - name: cmake pacakge
+      - name: cmake package
         run: cmake --build . --target package
         working-directory: build
   # SonarCloud.
@@ -135,7 +135,7 @@ jobs:
         working-directory: build
       - name: cmake build sonar wrapper
         run: |
-          . "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsx64.bat"
+          . "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
           build-wrapper-win-x86-64 --out-dir . cmake --build . --config=Debug
         working-directory: build
       #- name: CTest
