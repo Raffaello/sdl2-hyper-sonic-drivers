@@ -28,7 +28,7 @@ jobs:
         with:
             path: C:\vcpkg\installed
             key: ${{ runner.os }}-dep-cache-${{ hashFiles('**/*') }}
-            restore-keys: ${{ runner.os }}-dep-cache-${{ matrix.triplet }}
+            restore-keys: ${{ runner.os }}-${{ matrix.triplet }}-dep-cache
       - name: set-up environment variables
         run: |
           if ( "${{ matrix.triplet }}".startsWith('x86')) {
