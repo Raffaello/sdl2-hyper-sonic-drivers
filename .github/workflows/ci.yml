@@ -33,10 +33,10 @@ jobs:
         run: |
           if ( "${{ matrix.triplet }}".startsWith('x86')) {
             #echo "ARCH=32" >> $GITHUB_ENV
-            echo "ARCH=32" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+            echo "ARCH=32" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           } else {
             #echo "ARCH=64" >> $GITHUB_ENV
-            echo "ARCH=64" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+            echo "ARCH=64" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           }
       - name: vcpkg
         #if: steps.dep-cache.outputs.cache-hit != 'true'
