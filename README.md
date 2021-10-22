@@ -16,7 +16,7 @@ The majority of the core code is part of these projects:
 - ScummVM
 - Mame
 - DosBox
-	
+
 
 ## Notes
 
