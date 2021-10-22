@@ -1,0 +1,56 @@
+name: ci
+on: [ push ]
+    
+  #pull_request:
+  #  branches: [ master ]
+
+permissions: read-all
+
+jobs:
+  build:
+    name: Build win
+    runs-on: windows-2019
+    strategy:
+      matrix:
+        include:
+          - triplet: x86-windows
+            arch: 32
+            build_type: Debug
+            cmake_A: Win32
+          #- triplet: x64-windows
+          #  arch: 64
+  
+    steps:
+      - uses: actions/cache@v2
+        id: dep-cache
+        with:
+            path: C:\vcpkg\installed
+            key: ${{ runner.os }}-dep-cache-${{ hashFiles('**/*') }}
+            restore-keys: ${{ runner.os }}-dep-cache
+      - name: vcpkg
+        #if: steps.dep-cache.outputs.cache-hit != 'true'
+        run: |
+          . "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars${{ matrix.arch }}.bat"
+          vcpkg --triplet=${{ matrix.triplet }} install sdl2 sdl2-mixer spdlog gtest
+      - uses: actions/checkout@v2
+      - name: create build dir
+        run: mkdir build
+      - name: cmake generator
+        run: |
+          . "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars${{ matrix.arch }}.bat"
+          cmake -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }} -A $${{ matrix.cmake_A }} -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ..
+        working-directory: build
+      - name: cmake build
+        run: |
+          . "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars${{ matrix.arch }}.bat"
+          cmake --build . --config=${{ matrix.build_type }}
+        working-directory: build
+      - name: CTest
+        run: ctest --output-on-failure
+        working-directory: build
+      - name: cmake install
+        run: cmake --build . --target install
+        working-directory: build
+      - name: cmake pacakge
+        run: cmake --build . --target package
+        working-directory: build
