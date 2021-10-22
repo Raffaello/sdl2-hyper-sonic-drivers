@@ -1,0 +1,23 @@
+name: bot
+
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - reopened
+      
+
+jobs:
+  bot:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Add Comment when opening a PR
+        if: ${{ github.event.pull_request.openend ||  github.event.pull_request.reopenend }}
+        run: |
+          curl -X POST \
+          -H "Content-Type: application/json" \
+          -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          ${{ github.event.pull_request.comments_url }} \
+          --data '{"body": "Hello"}'
+            
