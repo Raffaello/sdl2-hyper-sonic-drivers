@@ -80,15 +80,18 @@ namespace files
     {
         std::vector<uint8_t> buf;
         uint8_t lastType;
-
+ 
         while (true)
         {
             uint8_t type = readU8();
-            if (type == 0) {
+            if (type == 0)
                 break;
-            }
+            
+            uint32_t a = readU8();
+            uint32_t b = readU8() << 8;
+            uint32_t c = readU8() << 16;
+            uint32_t data_block_size = a + b + c;
 
-            uint32_t data_block_size = readU8() + (readU8() << 8) + (readU8() << 16);
             sub_data_block_t db = readSubDataBlock(data_block_size, type);
 
             // TODO add streaming capability from the file later on
