@@ -1,4 +1,4 @@
-name: ci
+name: ci-windows
 on: [ push ]
     
   #pull_request:
@@ -8,22 +8,13 @@ permissions: read-all
 
 jobs:
   build:
-    name: Build win
+    name: Build Windows
     runs-on: windows-2019
     strategy:
       fail-fast: true
       matrix:
         triplet: [ x86-windows, x64-windows ]
         build_type: [ Debug, Release ]
-        #include:
-        #  - triplet: x86-windows
-            #arch: 32
-        #    build_type: Debug
-            #cmake_A: Win32
-       #   - triplet: x64-windows
-            #arch: 64
-        #    build_type: Debug
-            #cmake_A: x64
     steps:
       - uses: actions/cache@v2
         id: dep-cache
