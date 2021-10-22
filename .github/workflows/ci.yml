@@ -38,7 +38,7 @@ jobs:
       - name: cmake generator
         run: |
           . "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars${{ matrix.arch }}.bat"
-          cmake -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }} -A $${{ matrix.cmake_A }} -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ..
+          cmake -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }} -A ${{ matrix.cmake_A }} -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ..
         working-directory: build
       - name: cmake build
         run: |
