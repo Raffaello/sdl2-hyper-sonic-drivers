@@ -19,6 +19,8 @@ jobs:
             cmake_A: Win32
           #- triplet: x64-windows
           #  arch: 64
+          #  build_type: Debug
+          #  cmake_A: x64
   
     steps:
       - uses: actions/cache@v2
@@ -26,7 +28,7 @@ jobs:
         with:
             path: C:\vcpkg\installed
             key: ${{ runner.os }}-dep-cache-${{ hashFiles('**/*') }}
-            restore-keys: ${{ runner.os }}-dep-cache
+            restore-keys: ${{ runner.os }}-dep-cache-${{ matrix.triplet }}
       - name: vcpkg
         #if: steps.dep-cache.outputs.cache-hit != 'true'
         run: |

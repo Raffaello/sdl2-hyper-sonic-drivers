@@ -27,8 +27,13 @@ namespace audio
     {
         int rate = 44100;
 
+        // TODO: use setUp and tearDown to for SDL_Init and Mix_OpenAudio
         ASSERT_EQ(SDL_Init(SDL_INIT_AUDIO), 0);
-        ASSERT_EQ(Mix_OpenAudio(rate, AUDIO_S16, 2, 1024), 0);
+        int res = Mix_OpenAudio(rate, AUDIO_S16, 2, 1024);
+        if (res == -1) {
+            GTEST_SKIP() << "Cannot open Audio device";
+        }
+
         SDL2Mixer mixer;
 
         EXPECT_EQ(mixer.getOutputRate(), rate);
@@ -42,7 +47,10 @@ namespace audio
         int rate = 44100;
 
         ASSERT_EQ(SDL_Init(SDL_INIT_AUDIO), 0);
-        ASSERT_EQ(Mix_OpenAudio(rate, AUDIO_S16, 2, 1024), 0);
+        int res = Mix_OpenAudio(rate, AUDIO_S16, 2, 1024);
+        if (res == -1) {
+            GTEST_SKIP() << "Cannot open Audio device";
+        }
         
         std::shared_ptr<SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
         EXPECT_EQ(mixer.use_count(), 1);
