@@ -67,3 +67,6 @@ jobs:
       - name: cmake pacakge
         run: cmake --build . --target package
         working-directory: build
+  # SonarCloud.
+  # how to reuse vcpkg packages/cache?
+  # need to download sonar scanner and cache it
