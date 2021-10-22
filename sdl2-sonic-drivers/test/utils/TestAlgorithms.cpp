@@ -85,7 +85,7 @@ namespace utils
         const uint8_t* buf = values.data();
         uint32_t value = 0;
 
-        int reads = utils::decode_xmi_VLQ(values.data(), value);
+        int reads = utils::decode_xmi_VLQ(buf, value);
         EXPECT_EQ(value, exp_value);
         EXPECT_EQ(reads, exp_reads);
     }

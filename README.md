@@ -1,4 +1,4 @@
-![windows-x86](https://github.com/raffaello/sdl2-sonic-drivers/actions/workflows/workflow.yml/badge.svg?branch=master)
+![windows](https://github.com/raffaello/sdl2-sonic-drivers/actions/workflows/ci-windows.yml/badge.svg?branch=master)
 
 # Sonic Drivers
 

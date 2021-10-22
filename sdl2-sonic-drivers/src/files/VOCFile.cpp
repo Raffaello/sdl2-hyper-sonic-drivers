@@ -80,7 +80,7 @@ namespace files
     {
         std::vector<uint8_t> buf;
         uint8_t lastType;
- 
+
         while (true)
         {
             uint8_t type = readU8();
