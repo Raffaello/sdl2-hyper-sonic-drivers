@@ -13,14 +13,16 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        include:
-          - triplet: x86-windows
+        triplet: [ x86-windows, x64-windows ]
+        build_type: [ Debug, Release ]
+        #include:
+        #  - triplet: x86-windows
             #arch: 32
-            build_type: Debug
+        #    build_type: Debug
             #cmake_A: Win32
-          - triplet: x64-windows
+       #   - triplet: x64-windows
             #arch: 64
-            build_type: Debug
+        #    build_type: Debug
             #cmake_A: x64
     steps:
       - uses: actions/cache@v2
