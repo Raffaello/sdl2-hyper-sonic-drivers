@@ -86,7 +86,7 @@ namespace files
             uint8_t type = readU8();
             if (type == 0)
                 break;
-            
+
             uint32_t a = readU8();
             uint32_t b = readU8() << 8;
             uint32_t c = readU8() << 16;
