@@ -11,7 +11,7 @@ jobs:
     name: Build Windows
     runs-on: windows-2019
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         triplet: [ x86-windows, x64-windows ]
         build_type: [ Debug, Release ]
