@@ -31,7 +31,7 @@ jobs:
             restore-keys: ${{ runner.os }}-dep-cache-${{ matrix.triplet }}
       - name: set-up ARCH environment variable
         run: |
-          if ( ${{ env.triplet }}.startsWith('x86')) {
+          if ( ${{ matrix.triplet }}.startsWith('x86')) {
             echo "ARCH=32" >> $GITHUB_ENV
           } else {
             echo "ARCH=64" >> $GITHUB_ENV
