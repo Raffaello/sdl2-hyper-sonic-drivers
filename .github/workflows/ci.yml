@@ -32,18 +32,16 @@ jobs:
       - name: set-up environment variables
         run: |
           if ( "${{ matrix.triplet }}".startsWith('x86')) {
-            echo "ARCH=32" >> $GITHUB_ENV
+            #echo "ARCH=32" >> $GITHUB_ENV
+            echo "ARCH=32" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
           } else {
-            echo "ARCH=64" >> $GITHUB_ENV
+            #echo "ARCH=64" >> $GITHUB_ENV
+            echo "ARCH=64" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
           }
-
-          echo "action_state=yellow" >> $GITHUB_ENV
-
       - name: vcpkg
         #if: steps.dep-cache.outputs.cache-hit != 'true'
         run: |
           echo "ARCH = ${{ env.ARCH}}"
-          echo "${{ env.action_state }}" # This will output 'yellow'
           . "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars${{ env.ARCH }}.bat"
           vcpkg --triplet=${{ matrix.triplet }} install sdl2 sdl2-mixer spdlog gtest
       - uses: actions/checkout@v2
