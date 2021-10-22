@@ -27,7 +27,7 @@ jobs:
           --data '{"body": "Hello"}'
 
       - name: execute help command
-        if: (${{ github.event.issue_comment.created }} || ${{ github.event.issue_comment.edited }}) 
+        if: (${{ github.event.issue_comment }} && contains(github.event.comment.body, '/help')
         run: |
           curl -X POST \
           -H "Content-Type: application/json" \
