@@ -1,3 +1,5 @@
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/94519cf7a54248bf96e3de83cc3cc897)](https://www.codacy.com/gh/Raffaello/sdl2-sonic-drivers/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Raffaello/sdl2-sonic-drivers&amp;utm_campaign=Badge_Grade)
+
 ![windows](https://github.com/raffaello/sdl2-sonic-drivers/actions/workflows/ci-windows.yml/badge.svg?branch=master)
 
 # Sonic Drivers
