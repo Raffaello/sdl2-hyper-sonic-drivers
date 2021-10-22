@@ -1,10 +1,17 @@
 name: ci-windows
-on: [ push ]
-    
+on:
+  push:
+    paths-ignore:
+      - 'doc/**'
+      - '.gitignore'
+      - '.gitattributes'
+      - 'README.md'
+      - 'wave_generators.r'
+
   #pull_request:
   #  branches: [ master ]
 
-permissions: read-all
+#permissions: read-all
 
 jobs:
   build:
