@@ -105,7 +105,7 @@ jobs:
         id: sonar-cache
         with:
             path: |
-             ${{ env.HOME }}\.sonar\
+             ${{ env.HOME }}\sonar\
              # ${{ env.HOME }}\.sonar\/sonar-scanner-${{ env.SONAR_SCANNER_VERSION }}-windows
              # ${{ env.HOME }}\.sonar\/build-wrapper-win-x86
             key: ${{ runner.os }}-sonar-cache-v2-${{ hashFiles('**/*') }}
@@ -115,22 +115,22 @@ jobs:
         env:
           SONAR_SCANNER_DOWNLOAD_URL: https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-${{ env.SONAR_SCANNER_VERSION }}-windows.zip
         run: |
-          New-Item -Force -ItemType directory -Path ${{ env.HOME }}\.sonar
-          curl -sSLo ${{ env.HOME }}\.sonar\sonar-scanner.zip ${{ env.SONAR_SCANNER_DOWNLOAD_URL }}
-          unzip -o ${{ env.HOME }}\.sonar\sonar-scanner.zip -d ${{ env.HOME }}\.sonar\
-          rm ${{ env.HOME }}\.sonar\sonar-scanner.zip
+          New-Item -Force -ItemType directory -Path ${{ env.HOME }}\sonar
+          curl -sSLo ${{ env.HOME }}\sonar\sonar-scanner.zip ${{ env.SONAR_SCANNER_DOWNLOAD_URL }}
+          unzip -o ${{ env.HOME }}\sonar\sonar-scanner.zip -d ${{ env.HOME }}\sonar\
+          rm ${{ env.HOME }}\sonar\sonar-scanner.zip
       - name: Download and set up build-wrapper
-        #if: steps.sonar-cache.outputs.cache-hit != 'true'
+        #if: stepssonar-cache.outputs.cache-hit != 'true'
         env:
           BUILD_WRAPPER_DOWNLOAD_URL: ${{ env.SONAR_SERVER_URL }}/static/cpp/build-wrapper-win-x86.zip
         run: |
-          curl -sSLo ${{ env.HOME }}\.sonar\build-wrapper.zip ${{ env.BUILD_WRAPPER_DOWNLOAD_URL }}
-          unzip -o ${{ env.HOME }}\.sonar\build-wrapper.zip -d ${{ env.HOME }}\.sonar\
-          rm ${{ env.HOME }}\.sonar\build-wrapper.zip
+          curl -sSLo ${{ env.HOME }}\sonar\build-wrapper.zip ${{ env.BUILD_WRAPPER_DOWNLOAD_URL }}
+          unzip -o ${{ env.HOME }}\sonar\build-wrapper.zip -d ${{ env.HOME }}\sonar\
+          rm ${{ env.HOME }}\sonar\build-wrapper.zip
       - name: set up PATH
         run: |
-          echo "${{ env.HOME }}\.sonar\sonar-scanner-${{ env.SONAR_SCANNER_VERSION }}-windows\bin" | Out-File -Append -FilePath $env:GITHUB_PATH -Encoding utf8
-          echo "${{ env.HOME }}\.sonar\build-wrapper-win-x86" | Out-File -Append -FilePath $env:GITHUB_PATH -Encoding utf8
+          echo "${{ env.HOME }}\sonar\sonar-scanner-${{ env.SONAR_SCANNER_VERSION }}-windows\bin" | Out-File -Append -FilePath $env:GITHUB_PATH -Encoding utf8
+          echo "${{ env.HOME }}\sonar\build-wrapper-win-x86" | Out-File -Append -FilePath $env:GITHUB_PATH -Encoding utf8
 
       - uses: actions/checkout@v2
         with:
