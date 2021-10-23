@@ -111,7 +111,7 @@ jobs:
             key: ${{ runner.os }}-sonar-cache-v2-${{ hashFiles('**/*') }}
             restore-keys: ${{ runner.os }}-sonar-cache-v2
       - name: Download and set up sonar-scanner
-        #if: steps.sonar-cache.outputs.cache-hit != 'true'
+        if: steps.sonar-cache.outputs.cache-hit != 'true'
         env:
           SONAR_SCANNER_DOWNLOAD_URL: https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-${{ env.SONAR_SCANNER_VERSION }}-windows.zip
         run: |
@@ -120,7 +120,7 @@ jobs:
           unzip -o ${{ env.HOME }}\sonar\sonar-scanner.zip -d ${{ env.HOME }}\sonar\
           rm ${{ env.HOME }}\sonar\sonar-scanner.zip
       - name: Download and set up build-wrapper
-        #if: stepssonar-cache.outputs.cache-hit != 'true'
+        if: stepssonar-cache.outputs.cache-hit != 'true'
         env:
           BUILD_WRAPPER_DOWNLOAD_URL: ${{ env.SONAR_SERVER_URL }}/static/cpp/build-wrapper-win-x86.zip
         run: |
@@ -137,22 +137,22 @@ jobs:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
       - name: create build dir
         run: mkdir build
-      #- name: cmake generator
-      #  run: |
-      #    . "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-      #    cmake -DVCPKG_TARGET_TRIPLET=x64-windows -A x64 -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake -DCMAKE_BUILD_TYPE=Debug ..
-      #  working-directory: build
-      #- name: cmake build sonar wrapper
-      #  run: |
-      #    . "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-      #    build-wrapper-win-x86-64 --out-dir . cmake --build . --config=Debug
-      #  working-directory: build
+      - name: cmake generator
+        run: |
+          . "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          cmake -DVCPKG_TARGET_TRIPLET=x64-windows -A x64 -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake -DCMAKE_BUILD_TYPE=Debug ..
+        working-directory: build
+      - name: cmake build sonar wrapper
+        run: |
+          . "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          build-wrapper-win-x86-64 --out-dir . cmake --build . --config=Debug
+        working-directory: build
       #- name: CTest
       #  run: ctest --output-on-failure
       #  working-directory: build
-     # - name: Run sonar-scanner
-     #   env:
-     #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-     #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-     #   run: |
-     #     sonar-scanner --define sonar.host.url="${{ env.SONAR_SERVER_URL }}" --define sonar.cfamily.build-wrapper-output="${{ env.BUILD_WRAPPER_OUT_DIR }}"
+      - name: Run sonar-scanner
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          sonar-scanner --define sonar.host.url="${{ env.SONAR_SERVER_URL }}" --define sonar.cfamily.build-wrapper-output="${{ env.BUILD_WRAPPER_OUT_DIR }}"
