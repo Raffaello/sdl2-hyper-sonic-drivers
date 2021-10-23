@@ -120,7 +120,7 @@ jobs:
           unzip -o ${{ env.HOME }}\sonar\sonar-scanner.zip -d ${{ env.HOME }}\sonar\
           rm ${{ env.HOME }}\sonar\sonar-scanner.zip
       - name: Download and set up build-wrapper
-        if: stepssonar-cache.outputs.cache-hit != 'true'
+        if: steps.sonar-cache.outputs.cache-hit != 'true'
         env:
           BUILD_WRAPPER_DOWNLOAD_URL: ${{ env.SONAR_SERVER_URL }}/static/cpp/build-wrapper-win-x86.zip
         run: |
