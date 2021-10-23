@@ -3,6 +3,9 @@
 #include <files/westwood/ADLFile.hpp>
 #include <memory>
 
+int _argc;
+char** _argv;
+
 namespace files
 {
     namespace westwood
@@ -81,7 +84,7 @@ namespace files
 
         TEST(ADLFile, file_not_valid)
         {
-            EXPECT_THROW(ADLFile f("TestADLFile.exe"), std::invalid_argument);
+            EXPECT_THROW(ADLFile f(_argv[0]), std::invalid_argument);
         }
 
         TEST(ADLFile, file_not_found)
@@ -111,5 +114,9 @@ namespace files
 int main(int argc, char** argv)
 {
     ::testing::InitGoogleTest(&argc, argv);
+
+    _argc = argc;
+    _argv = argv;
+
     return RUN_ALL_TESTS();
 }

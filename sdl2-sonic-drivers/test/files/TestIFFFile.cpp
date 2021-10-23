@@ -3,11 +3,14 @@
 #include <files/IFFFile.hpp>
 #include <string>
 
+int _argc;
+char** _argv;
+
 namespace files
 {
     TEST(IFFFile, cstorDefault)
     {
-        IFFFile f("TestIFFFile.exe");
+        IFFFile f(_argv[0]);
         EXPECT_EQ(f.tell(), 0);
         f.close();
     }
@@ -21,5 +24,9 @@ namespace files
 int main(int argc, char** argv)
 {
     ::testing::InitGoogleTest(&argc, argv);
+
+    _argc = argc;
+    _argv = argv;
+
     return RUN_ALL_TESTS();
 }

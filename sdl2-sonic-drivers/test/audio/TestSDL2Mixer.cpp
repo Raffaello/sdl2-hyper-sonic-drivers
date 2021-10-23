@@ -23,33 +23,40 @@ namespace audio
         SDL_Quit();
     }
 
-    TEST(SDL2Mixer, cstorDefault)
+    class SDL2MixerTest : public ::testing::Test
     {
-        int rate = 44100;
+    public:
+        const static int rate = 44100;
+    protected:
+        void SetUp() override
+        {
+            if ((SDL_Init(SDL_INIT_AUDIO) != 0) || 
+                (Mix_OpenAudio(rate, AUDIO_S16, 2, 1024) != 0)) {
+                GTEST_SKIP() << "Cannot open Audio device";
+            }
 
-        ASSERT_EQ(SDL_Init(SDL_INIT_AUDIO), 0);
-        ASSERT_EQ(Mix_OpenAudio(rate, AUDIO_S16, 2, 1024), 0);
+        }
+
+        void TearDown() override
+        {
+            Mix_CloseAudio();
+            Mix_Quit();
+            SDL_Quit();
+        }
+    };
+
+    TEST_F(SDL2MixerTest, cstorDefault)
+    {
         SDL2Mixer mixer;
 
-        EXPECT_EQ(mixer.getOutputRate(), rate);
-
-        Mix_Quit();
-        SDL_Quit();
+        EXPECT_EQ(mixer.getOutputRate(), SDL2MixerTest::rate);
     }
 
-    TEST(SDL2Mixer, share_ptrDefault)
+    TEST_F(SDL2MixerTest, share_ptrDefault)
     {
-        int rate = 44100;
-
-        ASSERT_EQ(SDL_Init(SDL_INIT_AUDIO), 0);
-        ASSERT_EQ(Mix_OpenAudio(rate, AUDIO_S16, 2, 1024), 0);
-        
         std::shared_ptr<SDL2Mixer> mixer = std::make_shared<audio::SDL2Mixer>();
         EXPECT_EQ(mixer.use_count(), 1);
-        EXPECT_EQ(mixer->getOutputRate(), rate);
-
-        Mix_Quit();
-        SDL_Quit();
+        EXPECT_EQ(mixer->getOutputRate(), SDL2MixerTest::rate);
     }
 }
 
