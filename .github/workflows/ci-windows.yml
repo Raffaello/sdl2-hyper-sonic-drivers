@@ -105,10 +105,11 @@ jobs:
         id: sonar-cache
         with:
             path: |
-              ${{ env.HOME }}\.sonar\/sonar-scanner-${{ env.SONAR_SCANNER_VERSION }}-windows
-              ${{ env.HOME }}\.sonar\/build-wrapper-win-x86
-            key: ${{ runner.os }}-sonar-cache-${{ hashFiles('**/*') }}
-            restore-keys: ${{ runner.os }}-sonar-cache
+             ${{ env.HOME }}\.sonar\
+             # ${{ env.HOME }}\.sonar\/sonar-scanner-${{ env.SONAR_SCANNER_VERSION }}-windows
+             # ${{ env.HOME }}\.sonar\/build-wrapper-win-x86
+            key: ${{ runner.os }}-sonar-cache-v2-${{ hashFiles('**/*') }}
+            restore-keys: ${{ runner.os }}-sonar-cache-v2
       - name: Download and set up sonar-scanner
         #if: steps.sonar-cache.outputs.cache-hit != 'true'
         env:
