@@ -1,3 +1,9 @@
+### Doesn't really work as expected
+### events are not smoothly detected
+### it was an experiment anyway, but
+### would have been nice if it was possible
+### to create a sort of mini-bot with-in workflows.
+
 name: bot
 
 on:
