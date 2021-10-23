@@ -2,6 +2,9 @@
 ### and so are not used as a workflow without a strategy matrix
 ### to feed in inputs parameters is useless in my case.
 
+### Sonar cloud job the cache in $HOME/.sonar doesn't save sub-dirs
+### so can't be cached.
+
 name: ci-windows
 on:
   push:
@@ -108,7 +111,7 @@ jobs:
             key: ${{ runner.os }}-sonar-cache-${{ hashFiles('**') }}
             restore-keys: ${{ runner.os }}-sonar-cache
       - name: Download and set up sonar-scanner
-        if: steps.sonar-cache.outputs.cache-hit != 'true'
+        #if: steps.sonar-cache.outputs.cache-hit != 'true'
         env:
           SONAR_SCANNER_DOWNLOAD_URL: https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-${{ env.SONAR_SCANNER_VERSION }}-windows.zip
         run: |
@@ -117,7 +120,7 @@ jobs:
           unzip -o $HOME\.sonar\sonar-scanner.zip -d $HOME\.sonar\
           rm $HOME\.sonar\sonar-scanner.zip
       - name: Download and set up build-wrapper
-        if: steps.sonar-cache.outputs.cache-hit != 'true'
+        #if: steps.sonar-cache.outputs.cache-hit != 'true'
         env:
           BUILD_WRAPPER_DOWNLOAD_URL: ${{ env.SONAR_SERVER_URL }}/static/cpp/build-wrapper-win-x86.zip
         run: |
