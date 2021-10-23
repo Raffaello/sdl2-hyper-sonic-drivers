@@ -98,11 +98,11 @@ jobs:
       - uses: actions/cache@v2
         id: sonar-cache
         with:
-            path: $HOME\.sonar\
+            path: $HOME\.sonar
             key: ${{ runner.os }}-sonar-cache-${{ hashFiles('**/*') }}
             restore-keys: ${{ runner.os }}-sonar-cache
       - name: Download and set up sonar-scanner
-        if: steps.sonar-cache.outputs.cache-hit != 'true'
+        #if: steps.sonar-cache.outputs.cache-hit != 'true'
         env:
           SONAR_SCANNER_DOWNLOAD_URL: https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-${{ env.SONAR_SCANNER_VERSION }}-windows.zip
         run: |
@@ -111,7 +111,7 @@ jobs:
           unzip -o $HOME\.sonar\sonar-scanner.zip -d $HOME\.sonar\
           rm $HOME\.sonar\sonar-scanner.zip
       - name: Download and set up build-wrapper
-        if: steps.sonar-cache.outputs.cache-hit != 'true'
+        #if: steps.sonar-cache.outputs.cache-hit != 'true'
         env:
           BUILD_WRAPPER_DOWNLOAD_URL: ${{ env.SONAR_SERVER_URL }}/static/cpp/build-wrapper-win-x86.zip
         run: |
