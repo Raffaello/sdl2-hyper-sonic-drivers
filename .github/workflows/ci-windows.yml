@@ -45,7 +45,7 @@ jobs:
         id: dep-cache
         with:
             path: C:\vcpkg\installed
-            key: ${{ runner.os }}-${{ matrix.triplet }}-dep-cache-${{ hashFiles('**') }}
+            key: ${{ runner.os }}-${{ matrix.triplet }}-dep-cache-${{ hashFiles('**/*') }}
             restore-keys: ${{ runner.os }}-${{ matrix.triplet }}-dep-cache
       - name: vcpkg
         #if: steps.dep-cache.outputs.cache-hit != 'true'
@@ -92,7 +92,7 @@ jobs:
         id: dep-cache
         with:
             path: C:\vcpkg\installed
-            key: ${{ runner.os }}-x64-windows-dep-cache-${{ hashFiles('**') }}
+            key: ${{ runner.os }}-x64-windows-dep-cache-${{ hashFiles('**/*') }}
             restore-keys: ${{ runner.os }}-x64-windows-dep-cache
       - name: vcpkg
         #if: steps.dep-cache.outputs.cache-hit != 'true'
@@ -104,11 +104,9 @@ jobs:
         id: sonar-cache
         with:
             path: |
-              $HOME\.sonar/**
               $HOME\.sonar\/sonar-scanner-${{ env.SONAR_SCANNER_VERSION }}-windows
               $HOME\.sonar\/build-wrapper-win-x86
-              $HOME\.sonar\cache
-            key: ${{ runner.os }}-sonar-cache${{ hashFiles('**') }}
+            key: ${{ runner.os }}-sonar-cache-${{ hashFiles('**/*') }}
             restore-keys: ${{ runner.os }}-sonar-cache
       - name: Download and set up sonar-scanner
         #if: steps.sonar-cache.outputs.cache-hit != 'true'
