@@ -157,12 +157,3 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           sonar-scanner --define sonar.host.url="${{ env.SONAR_SERVER_URL }}" --define sonar.cfamily.build-wrapper-output="${{ env.BUILD_WRAPPER_OUT_DIR }}"
-      # Initializes the CodeQL tools for scanning.
-      #- name: Initialize CodeQL
-      #  uses: github/codeql-action/init@v1
-      #  with:
-      #    languages: cpp
-      #- name: Autobuild
-      #  uses: github/codeql-action/autobuild@v1
-      #- name: Perform CodeQL Analysis
-      #  uses: github/codeql-action/analyze@v1
