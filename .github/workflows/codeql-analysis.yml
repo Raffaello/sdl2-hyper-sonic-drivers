@@ -1,0 +1,63 @@
+### It has been done as a detached job
+### Some steps are just redundant like cmake generator for e.g.
+
+name: "CodeQL Analysis"
+
+on:
+  push:
+    paths-ignore:
+      - 'doc/**'
+      - '.gitignore'
+      - '.gitattributes'
+      - 'README.md'
+      - 'LICENSE'
+      - 'wave_generators.r'
+
+jobs:
+  analyze:
+    name: CodeQL (x64-windows, Debug)
+    runs-on: windows-2019
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'cpp' ]
+        # CodeQL supports [ 'cpp', 'csharp', 'go', 'java', 'javascript', 'python' ]
+        # Learn more:
+        # https://docs.github.com/en/free-pro-team@latest/github/finding-security-vulnerabilities-and-errors-in-your-code/configuring-code-scanning#changing-the-languages-that-are-analyzed
+
+    steps:
+      - uses: actions/cache@v2
+        id: dep-cache
+        with:
+            path: C:\vcpkg\installed
+            key: ${{ runner.os }}-x64-windows-dep-cache-${{ hashFiles('**/*') }}
+            restore-keys: ${{ runner.os }}-x64-windows-dep-cache
+      - name: vcpkg
+        #if: steps.dep-cache.outputs.cache-hit != 'true'
+        run: |
+          . "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          vcpkg --triplet=x64-windows install sdl2 sdl2-mixer spdlog gtest
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - name: create build dir
+        run: mkdir build
+      - name: cmake generator
+        run: |
+          . "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          cmake -DVCPKG_TARGET_TRIPLET=x64-windows -A x64 -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake -DCMAKE_BUILD_TYPE=Debug ..
+        working-directory: build
+      # Initializes the CodeQL tools for scanning.
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v1
+        with:
+          languages: cpp
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v1
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v1
