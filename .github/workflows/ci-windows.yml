@@ -76,8 +76,8 @@ jobs:
         run: cmake --build . --target package
         working-directory: build
  
-  Analysis:
-    name: Analysis (x64-windows, Debug)
+  sonarcloud:
+    name: SonarCloud Analysis (x64-windows, Debug)
     runs-on: windows-2019
     env:
       SONAR_SCANNER_VERSION: 4.4.0.2170
@@ -166,4 +166,3 @@ jobs:
       #  uses: github/codeql-action/autobuild@v1
       #- name: Perform CodeQL Analysis
       #  uses: github/codeql-action/analyze@v1
-        
