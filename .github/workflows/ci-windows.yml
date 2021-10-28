@@ -162,5 +162,8 @@ jobs:
         uses: github/codeql-action/init@v1
         with:
           languages: cpp
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v1
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v1
+        
