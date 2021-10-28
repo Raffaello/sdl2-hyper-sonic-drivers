@@ -76,8 +76,8 @@ jobs:
         run: cmake --build . --target package
         working-directory: build
  
-  sonarcloud:
-    name: SonarCloud Analysis (x64-windows, Debug)
+  Analysis:
+    name: Analysis (x64-windows, Debug)
     runs-on: windows-2019
     env:
       SONAR_SCANNER_VERSION: 4.4.0.2170
@@ -157,3 +157,10 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           sonar-scanner --define sonar.host.url="${{ env.SONAR_SERVER_URL }}" --define sonar.cfamily.build-wrapper-output="${{ env.BUILD_WRAPPER_OUT_DIR }}"
+      # Initializes the CodeQL tools for scanning.
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v1
+        with:
+          languages: cpp
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v1
