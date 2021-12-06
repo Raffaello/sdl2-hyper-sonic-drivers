@@ -54,12 +54,12 @@ jobs:
         run: |
           cmake --build . --config=${{ matrix.build_type }}
         working-directory: build
-      #- name: CTest
-      #  run: ctest --output-on-failure
-      #  working-directory: build
-      #- name: cmake install
-      #  run: cmake --build . --target install
-      #  working-directory: build
-      #- name: cmake package
-      #  run: cmake --build . --target package
-      #  working-directory: build
+      - name: CTest
+        run: ctest --output-on-failure
+        working-directory: build
+      - name: cmake install
+        run: cmake --build . --target install
+        working-directory: build
+      - name: cmake package
+        run: cmake --build . --target package
+        working-directory: build

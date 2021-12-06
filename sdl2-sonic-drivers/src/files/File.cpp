@@ -32,7 +32,7 @@ namespace files
         return std::filesystem::file_size(_filename);
     }
 
-    void File::seek(const std::streamoff offs, const std::fstream::_Seekdir whence)
+    void File::seek(const std::streamoff offs, const std::fstream::seekdir whence)
     {
         _file.seekg(offs, whence);
         if (!_file.good()) {

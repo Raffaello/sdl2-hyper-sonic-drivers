@@ -15,7 +15,7 @@ namespace files
 
         uintmax_t size() const noexcept;
         std::streampos tell() noexcept;
-        void seek(const std::streamoff offs, const std::fstream::_Seekdir whence = std::fstream::beg);
+        void seek(const std::streamoff offs, const std::fstream::seekdir whence = std::fstream::beg);
         void read(void* buf, std::streamsize size);
         void close();
 
