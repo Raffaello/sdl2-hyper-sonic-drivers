@@ -17,7 +17,10 @@ namespace audio
 
     TEST(SDL2Mixer, SDL2_audio_not_init)
     {
-        ASSERT_EQ(SDL_Init(SDL_INIT_AUDIO), 0);
+        if (SDL_Init(SDL_INIT_AUDIO) != 0) {
+            GTEST_SKIP() << "Cannot open Audio device";
+        }
+        
         EXPECT_THROW(audio::SDL2Mixer mixer, std::runtime_error);
 
         SDL_Quit();
