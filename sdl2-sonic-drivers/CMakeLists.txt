@@ -140,7 +140,7 @@ target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/woody/SurroundOPL.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/woody/WoodyEmuOPL.cpp
     # --- #
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/PCSPeaker.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/PCSpeaker.cpp
     # --- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/endianness.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/algorithms.cpp
