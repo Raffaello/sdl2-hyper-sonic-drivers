@@ -2,6 +2,9 @@
 #include <utils/endianness.hpp>
 #include <exception>
 #include <filesystem>
+//#ifdef __GNUC__
+#include <cstring>
+//#endif
 
 namespace files
 {

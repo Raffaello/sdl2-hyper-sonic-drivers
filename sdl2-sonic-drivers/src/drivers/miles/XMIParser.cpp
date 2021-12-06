@@ -201,8 +201,8 @@ namespace drivers
             auto tot_time = end_time - start_time;
             spdlog::info("Total Running Time: {:%M:%S}, expected={}:{}",
                 tot_time,
-                std::floorf(exp_time_seconds / 60.0f),
-                exp_time_seconds - (std::floorf(exp_time_seconds / 60.f) * 60.f));
+                std::floor(exp_time_seconds / 60.0f),
+                exp_time_seconds - (std::floor(exp_time_seconds / 60.f) * 60.f));
         }
 
 

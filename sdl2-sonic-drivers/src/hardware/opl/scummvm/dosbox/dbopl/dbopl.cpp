@@ -19,6 +19,9 @@
 #include <hardware/opl/scummvm/dosbox/dbopl/dbopl.hpp>
 #include <string>
 #include <utils/constants.hpp>
+//#ifdef __GNUC__
+#include <cstring>
+//#endif
 
 using utils::M_PI;
 

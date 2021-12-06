@@ -1,6 +1,9 @@
 #include <files/WAVFile.hpp>
 #include <stdexcept>
 #include <string>
+//#ifdef __GNUC__
+#include <cstring>
+//#endif
 
 namespace files
 {

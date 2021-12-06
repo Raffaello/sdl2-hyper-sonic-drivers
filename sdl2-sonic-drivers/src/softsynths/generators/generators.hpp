@@ -77,7 +77,7 @@ namespace softsynths
         /// <summary>
         /// Wave Form Generators
         /// </summary>
-        const enum class eWaveForm
+        enum class eWaveForm
         {
             SQUARE = 0,
             SINE,

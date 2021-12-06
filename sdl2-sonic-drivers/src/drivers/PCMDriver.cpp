@@ -1,5 +1,6 @@
 #include <drivers/PCMDriver.hpp>
 #include <audio/scummvm/MixerImpl.hpp>
+#include <audio/scummvm/Mixer.hpp>
 
 namespace drivers
 {
@@ -9,7 +10,7 @@ namespace drivers
     PCMDriver::PCMDriver(std::shared_ptr<audio::scummvm::Mixer> mixer, const int max_channels) :
         _mixer(mixer)
     {
-        _max_streams = std::min(mixer->MAX_CHANNELS, max_channels);
+        _max_streams = std::min(audio::scummvm::MIXER_MAX_CHANNELS, max_channels);
         _soundStreams.resize(_max_streams);
     }
 

@@ -223,7 +223,7 @@ namespace drivers
             audio::midi::MIDITrack track = _midi->getTrack(i);
 
             // TODO do without threads
-            //processTrack(track, i);
+            processTrack(track, i);
 
             // TODO: in this way no need to convert to format 0
             // BODY: but there is no synchornization, missing a
@@ -233,12 +233,13 @@ namespace drivers
             // BODY: an extra delay that is not considered.
             // BODY: so it requires a callback that
             // BODY: is called exactly every tick
-            threads[i] = std::thread(&MIDParser::processTrack, this, track, i);
+            //threads[i] = std::thread(&MIDParser::processTrack, this, track, i);
+            
         }
 
-        for (auto& t : threads) {
+        /*for (auto& t : threads) {
             t.join();
-        }
+        }*/
 
         // TODO: this works only with a constant tempo during all the sequence
         // BODY: also should be computed in float and ceiled for integer.
@@ -247,7 +248,7 @@ namespace drivers
         auto tot_time = end_time - start_time;
         spdlog::info("Total Running Time: {:%M:%S}, expected={}:{}",
             tot_time,
-            std::floorf(exp_time_seconds / 60.0f),
-            exp_time_seconds - (std::floorf(exp_time_seconds / 60.f) * 60.f));
+            std::floor(exp_time_seconds / 60.0f),
+            exp_time_seconds - (std::floor(exp_time_seconds / 60.f) * 60.f));
     }
 }

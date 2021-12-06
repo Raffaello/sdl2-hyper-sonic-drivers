@@ -61,7 +61,7 @@ namespace drivers
             // The sound data has two lookup tables:
             uint8_t* getProgram(const int progId);
             const uint8_t* getInstrument(const int instrumentId);
-            uint8_t* ADLDriver::getProgram(const int progId, const files::westwood::ADLFile::PROG_TYPE progType);
+            uint8_t* getProgram(const int progId, const files::westwood::ADLFile::PROG_TYPE progType);
 
             struct Channel {
                 bool lock;	// New to ScummVM

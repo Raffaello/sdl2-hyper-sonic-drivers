@@ -9,11 +9,11 @@ namespace audio
 {
     namespace scummvm
     {
+        constexpr int MIXER_MAX_CHANNELS = 32;
+
         class Mixer
         {
         public:
-            static const int MAX_CHANNELS = 32;
-
             Mixer(const Mixer&) = delete;
             Mixer& operator=(const Mixer&) = delete;
             
@@ -261,6 +261,5 @@ namespace audio
              */
             virtual uint8_t getBitsDepth() const = 0;
         };
-
     }
 }

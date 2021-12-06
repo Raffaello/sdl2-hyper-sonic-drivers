@@ -54,21 +54,21 @@ public:
 TYPED_TEST_SUITE(SawWaveGeneratorTest, Types);
 TYPED_TEST(SawWaveGeneratorTest, percent_0)
 {
-    auto v = this->wave(0, f);
+    auto v = this->wave(0, this->f);
     EXPECT_EQ(v, this->min_);
-    EXPECT_EQ(this->genWave(eWaveForm::SAW, 0, f), v);
+    EXPECT_EQ(this->genWave(eWaveForm::SAW, 0, this->f), v);
 }
 TYPED_TEST(SawWaveGeneratorTest, percent_50)
 {
-    auto v = this->wave(f * 1 / 2, f);
+    auto v = this->wave(this->f * 1 / 2, this->f);
     EXPECT_NEAR(v, this->mid_, 1);
-    EXPECT_EQ(this->genWave(eWaveForm::SAW, f * 1 / 2, f), v);
+    EXPECT_EQ(this->genWave(eWaveForm::SAW, this->f * 1 / 2, this->f), v);
 }
 TYPED_TEST(SawWaveGeneratorTest, percent_100)
 {
-    auto v = this->wave(f, f);
+    auto v = this->wave(this->f, this->f);
     EXPECT_EQ(v, this->max_);
-    EXPECT_EQ(this->genWave(eWaveForm::SAW, f, f), v);
+    EXPECT_EQ(this->genWave(eWaveForm::SAW, this->f, this->f), v);
 }
 
 template<class T> class TriangleWaveGeneratorTest : public WaveGeneratorTest<T>
@@ -80,29 +80,29 @@ public:
 TYPED_TEST_SUITE(TriangleWaveGeneratorTest, Types);
 TYPED_TEST(TriangleWaveGeneratorTest, percent_0)
 {
-    auto v = this->wave(0, f);
+    auto v = this->wave(0, this->f);
     EXPECT_EQ(v, this->min_);
-    EXPECT_EQ(v, this->wave(f, f));
-    EXPECT_EQ(this->genWave(eWaveForm::TRIANGLE, 0, f), v);
-    EXPECT_EQ(this->genWave(eWaveForm::TRIANGLE, f, f), v);
+    EXPECT_EQ(v, this->wave(this->f, this->f));
+    EXPECT_EQ(this->genWave(eWaveForm::TRIANGLE, 0, this->f), v);
+    EXPECT_EQ(this->genWave(eWaveForm::TRIANGLE, this->f, this->f), v);
 }
 TYPED_TEST(TriangleWaveGeneratorTest, percent_25)
 {
-    auto v = this->wave(f * 1 / 4, f);
+    auto v = this->wave(this->f * 1 / 4, this->f);
     EXPECT_NEAR(v, this->mid_, 1);
-    EXPECT_EQ(this->genWave(eWaveForm::TRIANGLE, f * 1 / 4, f), v);
+    EXPECT_EQ(this->genWave(eWaveForm::TRIANGLE, this->f * 1 / 4, this->f), v);
 }
 TYPED_TEST(TriangleWaveGeneratorTest, percent_50)
 {
-    auto v = this->wave(f * 2 / 4, f);
+    auto v = this->wave(this->f * 2 / 4, this->f);
     EXPECT_EQ(v, this->max_);
-    EXPECT_EQ(this->genWave(eWaveForm::TRIANGLE, f * 2 / 4, f), v);
+    EXPECT_EQ(this->genWave(eWaveForm::TRIANGLE, this->f * 2 / 4, this->f), v);
 }
 TYPED_TEST(TriangleWaveGeneratorTest, percent_75)
 {
-    auto v = this->wave(f * 3 / 4, f);
+    auto v = this->wave(this->f * 3 / 4, this->f);
     EXPECT_NEAR(v, this->mid_, 1);
-    EXPECT_EQ(this->genWave(eWaveForm::TRIANGLE, f * 3 / 4, f), v);
+    EXPECT_EQ(this->genWave(eWaveForm::TRIANGLE, this->f * 3 / 4, this->f), v);
 }
 
 template<class T> class SineWaveGeneratorTest : public WaveGeneratorTest<T>
@@ -114,30 +114,30 @@ public:
 TYPED_TEST_SUITE(SineWaveGeneratorTest, Types);
 TYPED_TEST(SineWaveGeneratorTest, percent_0)
 {
-    auto v1 = this->wave(0, f);
-    auto v2 = this->wave(f, f);
+    auto v1 = this->wave(0, this->f);
+    auto v2 = this->wave(this->f, this->f);
     EXPECT_EQ(v1, this->mid_);
     EXPECT_EQ(v2, this->mid_);
-    EXPECT_EQ(this->genWave(eWaveForm::SINE, 0, f), v1);
-    EXPECT_EQ(this->genWave(eWaveForm::SINE, 0, f), v2);
+    EXPECT_EQ(this->genWave(eWaveForm::SINE, 0, this->f), v1);
+    EXPECT_EQ(this->genWave(eWaveForm::SINE, 0, this->f), v2);
 }
 TYPED_TEST(SineWaveGeneratorTest, percent_25)
 {
-    auto v = this->wave(f * 1 / 4, f);
+    auto v = this->wave(this->f * 1 / 4, this->f);
     EXPECT_NEAR(v, this->max_, 1);
-    EXPECT_EQ(this->genWave(eWaveForm::SINE, f * 1 / 4, f), this->wave(f * 1 / 4, f));
+    EXPECT_EQ(this->genWave(eWaveForm::SINE, this->f * 1 / 4, this->f), this->wave(this->f * 1 / 4, this->f));
 }
 TYPED_TEST(SineWaveGeneratorTest, percent_50)
 {
-    auto v = this->wave(f * 2 / 4, f);
+    auto v = this->wave(this->f * 2 / 4, this->f);
     EXPECT_EQ(v, this->mid_);
-    EXPECT_EQ(this->genWave(eWaveForm::SINE, f * 2 / 4, f), v);
+    EXPECT_EQ(this->genWave(eWaveForm::SINE, this->f * 2 / 4, this->f), v);
 }
 TYPED_TEST(SineWaveGeneratorTest, percent_75)
 {
-    auto v = this->wave(f * 3 / 4, f);
+    auto v = this->wave(this->f * 3 / 4, this->f);
     EXPECT_NEAR(v, this->min_, 1);
-    EXPECT_EQ(this->genWave(eWaveForm::SINE, f * 3 / 4, f), v);
+    EXPECT_EQ(this->genWave(eWaveForm::SINE, this->f * 3 / 4, this->f), v);
 }
 
 int main(int argc, char** argv)

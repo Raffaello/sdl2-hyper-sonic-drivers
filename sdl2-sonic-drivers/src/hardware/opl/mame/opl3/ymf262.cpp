@@ -56,8 +56,6 @@ differences between OPL2 and OPL3 shown in datasheets:
 
 */
 
-#pragma once
-
 //#include "support.h"
 #include <algorithm>
 #include <cassert>
