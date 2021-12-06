@@ -14,8 +14,8 @@ on:
       - 'README.md'
       - 'LICENSE'
 
-  pull_request:
-    branches: [ master ]
+  #pull_request:
+  #  branches: [ master ]
 
 #permissions: read-all
 
@@ -58,8 +58,8 @@ jobs:
         run: ctest --output-on-failure
         working-directory: build
       - name: cmake install
-        run: cmake --build . --target install
+        run: sudo cmake --build . --target install --config ${{ matrix.build_type }}
         working-directory: build
       - name: cmake package
-        run: cmake --build . --target package
+        run: cmake --build . --target package --config ${{ matrix.build_type }}
         working-directory: build
