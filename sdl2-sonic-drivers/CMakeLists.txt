@@ -57,7 +57,7 @@ install(FILES
     #${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/EmulatedOPL.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/woody/WoodyOPL.hpp
     
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/PCSPeaker.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/PCSpeaker.hpp
     DESTINATION "static/include"
 )
 
