@@ -5,7 +5,7 @@
 ### Sonar cloud job the cache in $HOME/.sonar doesn't save sub-dirs
 ### so can't be cached.
 
-name: ci-linux
+name: ci-mac
 on:
   push:
     paths-ignore:
@@ -21,12 +21,12 @@ on:
 
 jobs:
   build:
-    name: Build Linux
-    runs-on: ubuntu-20.04
+    name: Build Mac
+    runs-on: macos-11
     strategy:
       fail-fast: false
       matrix:
-        triplet: [ x64-linux ]
+        triplet: [ x64-osx ]
         build_type: [ Debug, Release ]
     steps:
       - name: set-up environment variables
