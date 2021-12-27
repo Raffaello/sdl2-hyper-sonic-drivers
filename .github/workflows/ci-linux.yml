@@ -69,4 +69,4 @@ jobs:
         with:
             generate_release_notes: true
             prerelease: true
-            files: "*.zip"
+            files: "build/*.zip"
