@@ -2,6 +2,7 @@
 
 ![windows](https://github.com/raffaello/sdl2-sonic-drivers/actions/workflows/ci-windows.yml/badge.svg?branch=master)
 ![linux](https://github.com/raffaello/sdl2-sonic-drivers/actions/workflows/ci-linux.yml/badge.svg?branch=master)
+![macOS](https://github.com/raffaello/sdl2-sonic-drivers/actions/workflows/ci-mac.yml/badge.svg?branch=master)
 
 # Sonic Drivers
 
