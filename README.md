@@ -4,28 +4,47 @@
 
 # Sonic Drivers
 
-`sdl2-sonic-drivers` is a `sdl2_mixer` based emulating audio of '90s hardware PCs (adlib, OPL3, ...)
+`sdl2-sonic-drivers` is a `sdl2` based emulating audio of '90s hardware PCs (adlib, OPL3, ...)
 
 reading some old files too as utility and give the capability to render them in digital format
 or play them in real time
 
+## Digital sound files
+Partially reading these types of files, depending of their format.
+- [x] VOC files
+- [x] WAV files
+
+
+## Music sound files
+
+- [x] ADL files
+- [ ] XMI files
+- [ ] MID files
+
+## Emulators
+At the moment the only implemented emulators are OPL chips.
+
+### Adlib/Sound Blaster PRO 2.0 chips
+- [x] Mame OPL2
+- [/] Mame OPL3
+- [x] DosBox OPL2
+- [x] DosBox Dual OPL2
+- [/] DosBox OPL3
+- [x] Nuked OPL3
+- [x] "woody" OPL2/Surround OPL2 (adding a sort of chrous effect)
+
+
 ## Credits
 
-The majority of the core code is part of these projects:
+Most of the core emulation code is part of these projects:
 
-- ScummVM
-- Mame
-- DosBox
+- [ScummVM](https://www.scummvm.org/) mostly all emulators
+- [Mame](https://www.mamedev.org/) 
+- [DosBox](https://www.dosbox.com/)
+- [AIL](http://www.vgmpf.com/Wiki/index.php?title=Audio_Interface_Library) reverse engineering
 
 
 ## Notes
-
-TODO
-
-- `drivers` folder is analog to `*.DRV`|`*.ADV` files. (to read them or to be hardcoded)
-- `hardware` is the soundcard/chip emulation.
-- `audio`  API interface? `./sdl2` for `SDL2` implementation?
-- `files` `*.ADL` `*.XMI` `*.MID`
 
 ## TODO
 
