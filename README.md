@@ -21,7 +21,7 @@ Partially reading these types of files, depending of their format.
 - [ ] XMI files
 - [ ] MID files
 
-## Emulator implemented
+## Emulators
 At the moment the only implemented emulators are OPL chips.
 
 ### Adlib/Sound Blaster PRO 2.0 chips
@@ -41,7 +41,7 @@ Most of the core emulation code is part of these projects:
 - [ScummVM](https://www.scummvm.org/) mostly all emulators
 - [Mame](https://www.mamedev.org/) 
 - [DosBox](https://www.dosbox.com/)
-- [AIL](http://www.vgmpf.com/Wiki/index.php?title=Audio_Interface_Library) for reverse engineering
+- [AIL](http://www.vgmpf.com/Wiki/index.php?title=Audio_Interface_Library) reverse engineering
 
 
 ## Notes
