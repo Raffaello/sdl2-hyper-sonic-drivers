@@ -13,6 +13,10 @@
 //      WHILE AUDIO IS THE INTERFACE HIGH LEVEL API TO MAKE SOUNDS
 //      DRIVERS IS IN BETWEEN... ALSO MIGHT CONTAIN MILES SOUND DRIVERS (AIL)
 //      AND READING FILE FORMATS LIKE ADL OR XMI
+// NOTE:
+//      THIS CLASS IS sort of HIGH LEVEL, while generators is low level
+//      PCSpeaker still miss to read the pc speaker files and drivers.
+
 namespace hardware
 {
     class PCSpeaker final

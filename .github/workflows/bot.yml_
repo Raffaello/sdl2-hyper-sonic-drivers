@@ -1,0 +1,43 @@
+### Doesn't really work as expected
+### events are not smoothly detected
+### it was an experiment anyway, but
+### would have been nice if it was possible
+### to create a sort of mini-bot with-in workflows.
+
+# name: bot
+
+# on:
+#   pull_request:
+#     types:
+#       - opened
+#       - edited
+#       - reopened
+#   issue_comment:
+#     types:
+#       - created
+#       - edited
+
+# jobs:
+#   bot:
+#     runs-on: ubuntu-20.04
+#     steps:
+#       - name: Add Comment when opening a PR
+#         #if: ${{ github.event.pull_request.openend }}
+#         ## used for testing remove the if below after
+#         if: ${{ github.event.pull_request.openend }} || ${{ github.event.pull_request.reopenend }}
+#         run: |
+#           curl -X POST \
+#           -H "Content-Type: application/json" \
+#           -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+#           ${{ github.event.pull_request.comments_url }} \
+#           --data '{"body": "Hello"}'
+
+#       - name: execute help command
+#         if: ${{ github.event.issue_comment }} && contains(github.event.comment.body, '/help')
+#         run: |
+#           curl -X POST \
+#           -H "Content-Type: application/json" \
+#           -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+#           ${{ github.event.pull_request.comments_url }} \
+#           --data '{"body": "Help"}'
+

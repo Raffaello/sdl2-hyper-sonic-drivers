@@ -1,0 +1,204 @@
+#include <files/MIDFile.hpp>
+#include <string>
+#include <utils/endianness.hpp>
+#include <memory>
+#include <spdlog/spdlog.h>
+#include <cstring>
+#include <utils/algorithms.hpp>
+#include <audio/midi/MIDITrack.hpp>
+#include <audio/midi/MIDIEvent.hpp>
+
+
+namespace files
+{
+    using audio::midi::MIDI_FORMAT;
+
+    // TODO consider to "join" with IFFFile / or put common functions altogheter
+    //      as it is similar to just the sub_header_chunk of IFF file.
+    constexpr const char* MIDI_HEADER = "MThd";
+    constexpr const char* MIDI_TRACK = "MTrk";
+
+    MIDFile::MIDFile(const std::string& filename) : File(filename),
+        _midi(nullptr)
+    {
+        read_header();
+        check_format();
+
+        // Read Tracks
+        for (int i = 0; i < _midi->numTracks; i++)
+        {
+            read_track();
+        }
+    }
+
+    MIDFile::~MIDFile() = default;
+
+    std::shared_ptr<audio::MIDI> MIDFile::getMIDI() const noexcept
+    {
+        return _midi;
+    }
+
+    int MIDFile::decode_VLQ(uint32_t& out_value)
+    {
+        uint8_t buf[4] = { 0, 0, 0, 0 };
+        uint8_t i = 0;
+        uint8_t v = 0;
+        
+        do {
+            buf[i++] = v = readU8();
+            _assertValid(i <= 4);
+        } while (v & 0x80);
+
+        return utils::decode_VLQ(buf, out_value);
+    }
+
+    MIDFile::midi_chunk_t MIDFile::read_chunk()
+    {
+        midi_chunk_t chunk;
+
+        read(&chunk, sizeof(midi_chunk_t));
+        chunk.length = utils::swapBE32(chunk.length);
+
+        return chunk;
+    }
+
+    void MIDFile::read_header()
+    {
+        midi_chunk_t header = read_chunk();
+        _assertValid(strncmp(header.id, MIDI_HEADER, sizeof(header.id)) == 0);
+        _assertValid(header.length == 6);
+
+
+        uint16_t format = readBE16();
+        uint16_t nTracks = readBE16();
+        uint16_t division = readBE16();
+
+        _midi = std::make_shared<audio::MIDI>(static_cast<MIDI_FORMAT>(format), nTracks, division);
+    }
+
+    void MIDFile::check_format()
+    {
+        switch (_midi->format)
+        {
+        case MIDI_FORMAT::SINGLE_TRACK:
+            _assertValid(_midi->numTracks == 1);
+            break;
+        case MIDI_FORMAT::SIMULTANEOUS_TRACK:
+        case MIDI_FORMAT::MULTI_TRACK:
+            _assertValid(_midi->numTracks >= 1);
+            break;
+        default:
+            throw std::runtime_error("MIDFile: _format invalid");
+        }
+    }
+
+    void MIDFile::read_track()
+    {
+        using audio::midi::MIDI_EVENT_type_u;
+        using audio::midi::MIDI_META_EVENT;
+        using audio::midi::MIDITrack;
+        using audio::midi::MIDIEvent;
+
+        MIDITrack track;
+        bool endTrack = false;
+        MIDI_EVENT_type_u lastStatus = { 0 };
+        // Read Track
+        midi_chunk_t chunk = read_chunk();
+        _assertValid(strncmp(chunk.id, MIDI_TRACK, sizeof(chunk.id)) == 0);
+
+        // events
+        int offs = 0;
+        while (!endTrack)
+        {
+            // MTrck Event:
+            MIDIEvent e;
+            // delta time encoded in VRQ
+            offs += decode_VLQ(e.delta_time);
+            e.type.val = readU8();
+
+            if (e.type.high < 0x8) {
+                e.type = lastStatus;
+                seek(-1, std::fstream::cur);
+            }
+            else {
+                offs++;
+            }
+
+            switch (e.type.high)
+            {
+            case 0xF:
+                // special event
+                switch (e.type.low)
+                {
+                case 0x0:
+                    // sysEx-event
+                    spdlog::error("sysEx event not implemented yet");
+                    break;
+                case 0x7:
+                    // sysEx-event
+                    spdlog::error("sysEx event not implemented yet");
+                    break;
+                case 0xF:
+                {
+                    // meta-event
+                    uint8_t type = readU8();
+                    offs++;
+                    _assertValid(type < 128);
+                    uint32_t length = 0;
+                    offs += decode_VLQ(length);
+                    e.data.reserve(length + 1);
+                    e.data.push_back(type);
+                    for (int j = 0; j < length; j++) {
+                        e.data.push_back(readU8());
+                        offs++;
+                    }
+
+                    if (MIDI_META_EVENT::END_OF_TRACK == static_cast<MIDI_META_EVENT>(type)) {
+                        endTrack = true;
+                    }
+                    break;
+                }
+                default:
+                    spdlog::critical("MIDFile sub-event {:#04x} not recognized", e.type.val);
+                    throw std::runtime_error("");
+
+                }
+                break;
+            case 0xC:
+            case 0xD:
+                e.data.reserve(1);
+                e.data.push_back(readU8());
+                offs++;
+                break;
+            case 0x8:
+            case 0x9:
+            case 0xA:
+            case 0xB:
+            case 0xE:
+                e.data.reserve(2);
+                e.data.push_back(readU8());
+                e.data.push_back(readU8());
+                offs += 2;
+                break;
+            default:
+                // using previous status
+                if (lastStatus.val == 0) {
+
+                    spdlog::critical("MIDFile: midi event {:#04x} not recognized {:#03x} - last status = {} (pos={}).", e.type.val, (uint8_t)e.type.high, lastStatus.val, tell());
+                    throw std::runtime_error("MIDFile: midi event type not recognized.");
+                }
+            }
+
+            e.data.resize(e.data.size());
+            track.addEvent(e);
+            lastStatus = e.type;
+        }
+
+        // sanity check
+        if (offs != chunk.length) {
+            spdlog::warn("MIDFile: Fileanme '{}' track {} length mismatch real length {}", _filename, chunk.length, offs);
+        }
+
+        _midi->addTrack(track);
+    }
+}

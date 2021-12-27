@@ -1,18 +1,15 @@
 #pragma once
+#include <cstdint>
 #include <cmath>
 #include <limits>
 #include <functional>
-
-#ifndef M_PI
-constexpr double M_PI = 3.14159265358979323846;
-#endif // ! M_PI
-
-#ifndef M_2PI
-constexpr double M_2PI = 2.0 * M_PI;
-#endif // ! M_2PI
+#include <utils/constants.hpp>
 
 namespace softsynths
 {
+    using utils::M_PI;
+    using utils::M_2PI;
+
     namespace generators
     {
         template<typename T> constexpr int32_t unsigned_max = (std::numeric_limits<T>::max() - std::numeric_limits<T>::min());
@@ -80,7 +77,7 @@ namespace softsynths
         /// <summary>
         /// Wave Form Generators
         /// </summary>
-        const enum class eWaveForm
+        enum class eWaveForm
         {
             SQUARE = 0,
             SINE,

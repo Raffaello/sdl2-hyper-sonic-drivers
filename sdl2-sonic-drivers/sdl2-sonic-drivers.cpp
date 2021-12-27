@@ -2,9 +2,28 @@
 //
 
 #include <iostream>
+
 #include <SDL2/SDL.h>
-#include <SDL_mixer.h>
+#include <SDL2/SDL_mixer.h>
+
+#include <audio/scummvm/SDLMixerManager.hpp>
+#include <drivers/westwood/ADLDriver.hpp>
+#include <files/miles/XMIFile.hpp>
+#include <files/westwood/ADLFile.hpp>
 #include <hardware/PCSpeaker.hpp>
+#include <hardware/opl/scummvm/Config.hpp>
+
+#include <hardware/opl/mame/MameOPL.hpp>
+
+#include <audio/DiskRendererMixerManager.hpp>
+
+#include <files/MIDFile.hpp>
+#include <drivers/MIDParser.hpp>
+#include <drivers/miles/XMIParser.hpp>
+
+#include <utils/algorithms.hpp>
+
+#include <spdlog/spdlog.h>
 
 using namespace std;
 
@@ -217,8 +236,122 @@ int song()
     return 0;
 }
 
+int renderMixer()
+{
+    using namespace audio::scummvm;
+    using namespace hardware::opl::scummvm;
+    using namespace drivers::westwood;
+
+    audio::DiskRendererMixerManager mixerManager(44100);
+    mixerManager.init();
+    mixerManager.startRecording("test.dat");
+
+    std::shared_ptr<Mixer> mixer = mixerManager.getMixer();
+
+    //spdlog::set_level(spdlog::level::debug);
+    auto opl = Config::create(OplEmulator::NUKED, Config::OplType::OPL3, mixer);
+    auto pOpl = dynamic_cast<EmulatedOPL*>( opl.get());
+    //auto opl = std::make_shared<hardware::opl::mame::MameOPL>(mixer);
+    std::shared_ptr<files::westwood::ADLFile> adlFile = std::make_shared<files::westwood::ADLFile>("test/fixtures/DUNE0.ADL");
+
+    ADLDriver adlDrv(opl, adlFile);
+    adlDrv.play(4, 0xFF);
+    int samples = -1;
+    int totSamples = 0;
+    bool isPlaying = adlDrv.isPlaying();
+    do
+    {
+        // TODO review, but is dumping the data
+        int16_t buf[1024];
+
+        samples = pOpl->readBuffer(buf, 1024);
+        mixerManager.callbackHandler((uint8_t*)buf, samples * 2);
+        totSamples += samples;
+        isPlaying = adlDrv.isPlaying();
+        //spdlog::info("isPlaying? {}", isPlaying);
+    } while (isPlaying);
+
+    spdlog::info("TotSamples={} --- space require={} ({}KB) [{}MB]", totSamples, totSamples * sizeof(int16_t), totSamples * sizeof(int16_t) / 1024, totSamples * sizeof(int16_t) / 1024 / 1024);
+
+    while (!mixer->isReady()) {
+        spdlog::info("mixer not ready");
+        utils::delayMillis(100);
+    }
+
+    utils::delayMillis(1000);
+    while (adlDrv.isPlaying())
+    {
+        spdlog::info("is playing");
+        utils::delayMillis(100);
+
+    }
+
+    spdlog::info("renderer quitting...");
+
+    return 0;
+}
+
+int mid_parser()
+{
+    using namespace audio::scummvm;
+    using  drivers::MIDParser;
+
+    SdlMixerManager mixerManager;
+    mixerManager.init();
+
+    std::shared_ptr<Mixer> mixer = mixerManager.getMixer();
+
+    //spdlog::set_level(spdlog::level::debug);
+    std::shared_ptr<files::MIDFile> midFile = std::make_shared<files::MIDFile>("test/fixtures/MI_intro.mid");
+
+    MIDParser midParser(midFile->getMIDI(), mixer);
+    midParser.display();
+
+    
+
+    spdlog::info("SDLMixer quitting...");
+    SDL_Delay(1000);
+    spdlog::info("SDLMixer quit");
+
+    return 0;
+
+}
+
+int xmi_parser()
+{
+    using namespace audio::scummvm;
+    using  drivers::miles::XMIParser;
+
+    SdlMixerManager mixerManager;
+    mixerManager.init();
+
+    std::shared_ptr<Mixer> mixer = mixerManager.getMixer();
+
+    //spdlog::set_level(spdlog::level::debug);
+    std::shared_ptr<files::miles::XMIFile> xmiFile = std::make_shared<files::miles::XMIFile>("test/fixtures/AIL2_14_DEMO.XMI");
+
+    XMIParser xmiParser(xmiFile->getMIDI(), mixer);
+    xmiParser.displayAllTracks();
+
+
+
+    spdlog::info("SDLMixer quitting...");
+    SDL_Delay(1000);
+    spdlog::info("SDLMixer quit");
+
+    return 0;
+
+}
+
 int main(int argc, char* argv[])
 {
+    //sdlMixer();
+    //SDL_Delay(100);
+    //renderMixer();
+
+    //mid_parser();
+    xmi_parser();
+
     SDL_Init(SDL_INIT_TIMER | SDL_INIT_AUDIO);
 
     int numAudioDevices = SDL_GetNumAudioDevices(0);
@@ -253,19 +386,21 @@ int main(int argc, char* argv[])
     SDL_CloseAudio();
 
     //drivers::miles::XMidi::readDriver("ALGDIG.ADV");
-
-    //adl();
-   
+    //files::XMIFile f("SPKRDEMO.XMI");
+    //files::ADLFile f("EOBSOUND.ADL");
+    //cout << "ADL VERSION: " << f.getVersion() << endl;
+        
+    
     // TODO: 32 bit audio
     //pcspkr(44100, AUDIO_S32, 2, 1024);
     //pcspkr(44100, AUDIO_F32, 2, 1024);
-    pcspkr(44100, AUDIO_S16, 2, 1024);
-    pcspkr(44100, AUDIO_S8, 2, 1024);
-    pcspkr(44100, AUDIO_U16, 2, 1024);
-    pcspkr(44100, AUDIO_U8, 2, 1024);
+    //pcspkr(44100, AUDIO_S16, 2, 1024);
+    //pcspkr(44100, AUDIO_S8, 2, 1024);
+    //pcspkr(44100, AUDIO_U16, 2, 1024);
+    //pcspkr(44100, AUDIO_U8, 2, 1024);
 
-    teen();
-    song();
+    //teen();
+    //song();
 
 
     SDL_Quit();

@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <hardware/PCSpeaker.hpp>
-#include <iostream>
 
 namespace hardware
 {
