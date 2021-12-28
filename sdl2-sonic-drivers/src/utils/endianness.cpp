@@ -2,12 +2,14 @@
 
 namespace utils
 {
-    typedef union bytes2 {
+    typedef union bytes2
+    {
         int16_t i;
         char c[sizeof(int16_t)];
     } bytes2;
 
-    typedef union bytes4 {
+    typedef union bytes4
+    {
         int32_t i;
         char c[sizeof(int32_t)];
     } bytes4;
@@ -21,7 +23,8 @@ namespace utils
 #endif
     }
 
-     void swap4(bytes4& n) {
+     void swap4(bytes4& n)
+     {
         /*for (int j = 4 - 1, i = 0; i < j; i++, j--) {
             char c = n.c[i];
             n.c[i] = n.c[j];

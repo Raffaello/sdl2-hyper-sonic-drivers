@@ -38,6 +38,7 @@ namespace utils
         return b;
     }
 
+    // TODO replace with std::clamp
     template <class T>
     static inline T CLIP(const T& value, const T& min, const T& max)
     {
@@ -46,6 +47,7 @@ namespace utils
 
     /**
      * Clear an array using the default or provided value.
+     * TODO replace with std::fill and std::array
      */
     template<typename T, size_t N>
     inline void ARRAYCLEAR(T(&array)[N], const T& value = T()) {
@@ -79,19 +81,22 @@ namespace utils
     }
 
     /// <summary>
+    /// return the value of 2^coeff
+    /// </summary>
+    /// <param name="coeff">coefficient to elevate 2</param>
+    /// <returns>2^coeff</returns>
+    inline int powerOf2(const int coeff)
+    {
+        return 1 << coeff;
+    }
+
+    /// <summary>
     /// Variable length quantity decoding algorithm
     /// </summary>
     /// <param name="buf">the max 4 bytes array to decode</param>
     /// <param name="out_value">the resulting decoded value</param>
     /// <returns>byte reads</returns>
     int decode_VLQ(const uint8_t buf[], uint32_t& out_value);
-
-    /// <summary>
-    /// return the value of 2^coeff
-    /// </summary>
-    /// <param name="coeff">coefficient to elevate 2</param>
-    /// <returns>2^coeff</returns>
-    int powerOf2(const int coeff);
 
     /// <summary>
     /// XMI Variable length quantuty decoding algorithm

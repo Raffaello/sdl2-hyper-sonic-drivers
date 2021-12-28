@@ -162,7 +162,6 @@ namespace drivers
                     delayMicro(dd); // not precise
                     start += dd;
                 }
-                
             }
         }
     }
@@ -196,7 +195,7 @@ namespace drivers
             case -30:
                 break;
             default:
-                spdlog::warn("Division SMPTE not know = {}", smpte);
+                spdlog::warn("Division SMPTE not known = {}", smpte);
             }
 
             spdlog::debug("Division: Ticks per frame = {}, smpte", ticksPerFrame, smpte);

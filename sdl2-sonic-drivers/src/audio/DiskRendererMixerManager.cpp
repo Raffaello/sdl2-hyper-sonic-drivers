@@ -47,7 +47,7 @@ namespace audio
 
     void DiskRendererMixerManager::callbackHandler(uint8_t* samples, int len)
     {
-        // this force to have stereo 16 bits...
+        // this forces to have stereo 16 bits...
         //_mixer->mixCallback(samples, len);
         //write samples to disk
         if (_file.is_open()) {

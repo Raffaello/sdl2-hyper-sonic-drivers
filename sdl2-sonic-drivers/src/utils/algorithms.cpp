@@ -21,18 +21,6 @@ namespace utils
         return i;
     }
 
-    int powerOf2(const int coeff)
-    {
-        /*int res = 1;
-        for (int i = 0; i < coeff; i++) {
-            res *= 2;
-        }
-
-        return res;*/
-
-        return 1 << coeff;
-    }
-
     int decode_xmi_VLQ(const uint8_t buf[], uint32_t& out_value)
     {
         int i = 0;
