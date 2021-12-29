@@ -38,6 +38,52 @@ namespace files
         return _midi;
     }
 
+    std::shared_ptr<audio::MIDI> MIDFile::convertToSingleTrackMIDI() const noexcept
+    {
+        if (_midi->format == audio::midi::MIDI_FORMAT::SINGLE_TRACK)
+            return getMIDI();
+        if (_midi->format == audio::midi::MIDI_FORMAT::MULTI_TRACK)
+            throw std::runtime_error("MIDI MULTI_TRACK not supported yet");
+
+        auto midi = std::make_shared<audio::MIDI>(audio::midi::MIDI_FORMAT::SINGLE_TRACK, 1, _midi->division);
+        audio::midi::MIDITrack single_track;
+
+        // 1. with absolute time just copy all the events as they are into 1 single track
+        for (int n = 0; n < _midi->numTracks; n++)
+        {
+            for (const auto& te : _midi->getTrack(n).events)
+            {
+                single_track.addEvent(te);
+            }
+        }
+
+        // 2. then sort them by absolute time
+        std::sort(
+            single_track.events.begin(),
+            single_track.events.end(),
+            [](const audio::midi::MIDIEvent& e1, const audio::midi::MIDIEvent& e2)
+            {
+                return e1.abs_time < e2.abs_time;
+            }
+        );
+
+        // 3. recompute delta time from absolute time
+        // todo
+        uint32_t abs_time = 0;
+        for (auto& e : single_track.events)
+        {
+            e.delta_time = e.abs_time - abs_time;
+            if (e.abs_time > abs_time)
+                abs_time = e.abs_time;
+
+        }
+
+        midi->addTrack(single_track);
+        assert(midi->getTrack(0).events.size() == single_track.events.size());
+
+        return midi;
+    }
+
     int MIDFile::decode_VLQ(uint32_t& out_value)
     {
         uint8_t buf[4] = { 0, 0, 0, 0 };
@@ -108,12 +154,15 @@ namespace files
 
         // events
         int offs = 0;
+        uint32_t abs_time = 0;
         while (!endTrack)
         {
             // MTrck Event:
             MIDIEvent e;
             // delta time encoded in VRQ
             offs += decode_VLQ(e.delta_time);
+            abs_time += e.delta_time;
+            e.abs_time = abs_time;
             e.type.val = readU8();
 
             if (e.type.high < 0x8) {
