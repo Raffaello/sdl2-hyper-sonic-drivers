@@ -44,7 +44,7 @@ int main(int argc, char* argv[])
     }
     std::cout << endl;
 
-
+    cout << "Midi note test...";
     // Open first available port.
     midiout->openPort(0);
     // Send out a series of MIDI messages.
@@ -69,6 +69,11 @@ int main(int argc, char* argv[])
     message[1] = 64;
     message[2] = 40;
     midiout->sendMessage(&message);
+
+    cout << "OK" << endl;
+
+    // Reproducing MIDI file
+
 
     return 0;
 }
