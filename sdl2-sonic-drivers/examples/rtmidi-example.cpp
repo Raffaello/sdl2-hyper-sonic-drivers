@@ -11,6 +11,7 @@
 
 #include <files/MIDFile.hpp>
 #include <drivers/MIDParser.hpp>
+#include <spdlog/spdlog.h>
 
 
 using namespace audio::scummvm;
@@ -93,8 +94,8 @@ int main(int argc, char* argv[])
     // screen stream for the visualization.
 
 
-
-    //midParser.display();
+    spdlog::set_level(spdlog::level::debug);
+    midParser.display(midiout);
 
     return 0;
 }

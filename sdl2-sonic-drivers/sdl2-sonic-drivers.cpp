@@ -305,7 +305,7 @@ int mid_parser()
     std::shared_ptr<files::MIDFile> midFile = std::make_shared<files::MIDFile>("test/fixtures/MI_intro.mid");
 
     MIDParser midParser(midFile->getMIDI(), mixer);
-    midParser.display();
+    //midParser.display();
 
     
 

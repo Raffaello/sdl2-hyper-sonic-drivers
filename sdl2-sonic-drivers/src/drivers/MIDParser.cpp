@@ -28,14 +28,16 @@ namespace drivers
     {
     }
 
-    void MIDParser::processTrack(audio::midi::MIDITrack& track, const int i)
+    void MIDParser::processTrack(audio::midi::MIDITrack& track, const int i, std::shared_ptr<RtMidiOut> midiout)
     {
+        std::vector<uint8_t> midi_msg;
         int cur_time = 0; // ticks
         // TODO: the timer should be inside the MIDI object when play it?
         //track.reset();
         unsigned int start = utils::getMicro<unsigned int>();
         for (auto& e : track.events)
         {
+            midi_msg.clear();
             //unsigned int start = utils::getMicro<unsigned int>();
             spdlog::debug("MIDI Track#={:3}, Event: dt={:4}, type={:#04x}", i, e.delta_time, e.type.val);
             switch (e.type.high)
@@ -124,25 +126,51 @@ namespace drivers
                 // 2 data values
             case 0x8: // note off
                 spdlog::debug("Channel #{} Note OFF: note={}, velocity={}", (int)e.type.low, e.data[0], e.data[1]);
+                midi_msg.push_back(e.type.val);
+                midi_msg.push_back(e.data[0]);
+                midi_msg.push_back(e.data[1]);
+                midiout->sendMessage(&midi_msg);
                 break;
             case 0x9: // note on
                 spdlog::debug("Channel #{} Note ON: note={}, velocity={}", (int)e.type.low, e.data[0], e.data[1]);
+                midi_msg.push_back(e.type.val);
+                midi_msg.push_back(e.data[0]);
+                midi_msg.push_back(e.data[1]);
+                midiout->sendMessage(&midi_msg);
                 break;
             case 0xA: // note aftertouch
                 spdlog::debug("Channel #{} Note Aftertouch: note={}, ater touch value={}", (int)e.type.low, e.data[0], e.data[1]);
+                midi_msg.push_back(e.type.val);
+                midi_msg.push_back(e.data[0]);
+                midi_msg.push_back(e.data[1]);
+                midiout->sendMessage(&midi_msg);
                 break;
             case 0xB: // controller
                 spdlog::debug("Channel #{} Controller: number={}, value={}", (int)e.type.low, e.data[0], e.data[1]);
+                midi_msg.push_back(e.type.val);
+                midi_msg.push_back(e.data[0]);
+                midi_msg.push_back(e.data[1]);
+                midiout->sendMessage(&midi_msg);
                 break;
             case 0xE: // pitch bend
                 spdlog::debug("Channel #{} Pitch Bend: value={}", (int)e.type.low, (e.data[0]) | (e.data[1] << 8));
+                midi_msg.push_back(e.type.val);
+                midi_msg.push_back(e.data[0]);
+                midi_msg.push_back(e.data[1]);
+                midiout->sendMessage(&midi_msg);
                 break;
                 // 1 data values
             case 0xC: // program change
                 spdlog::debug("Channel #{} Program change: number={}", (int)e.type.low, e.data[0]);
+                midi_msg.push_back(e.type.val);
+                midi_msg.push_back(e.data[0]);
+                midiout->sendMessage(&midi_msg);
                 break;
             case 0xD: // channel aftertouch
                 spdlog::debug("Channel #{} Channel after touch: value={}", (int)e.type.low, e.data[0]);
+                midi_msg.push_back(e.type.val);
+                midi_msg.push_back(e.data[0]);
+                midiout->sendMessage(&midi_msg);
                 break;
             default:
                 spdlog::critical("event type={:#04x} parsing not implemented", (int)e.type.low, e.type.val);
@@ -166,7 +194,7 @@ namespace drivers
         }
     }
 
-    void MIDParser::display()
+    void MIDParser::display(std::shared_ptr<RtMidiOut> midiout)
     {
         if (_midi->format == MIDI_FORMAT::MULTI_TRACK) {
             spdlog::critical("MIDI format 2 not supported yet");
@@ -222,7 +250,7 @@ namespace drivers
             audio::midi::MIDITrack track = _midi->getTrack(i);
 
             // TODO do without threads
-            processTrack(track, i);
+            //processTrack(track, i, midiout);
 
             // TODO: in this way no need to convert to format 0
             // BODY: but there is no synchornization, missing a
@@ -232,13 +260,13 @@ namespace drivers
             // BODY: an extra delay that is not considered.
             // BODY: so it requires a callback that
             // BODY: is called exactly every tick
-            //threads[i] = std::thread(&MIDParser::processTrack, this, track, i);
+            threads[i] = std::thread(&MIDParser::processTrack, this, track, i, midiout);
             
         }
 
-        /*for (auto& t : threads) {
+        for (auto& t : threads) {
             t.join();
-        }*/
+        }
 
         // TODO: this works only with a constant tempo during all the sequence
         // BODY: also should be computed in float and ceiled for integer.

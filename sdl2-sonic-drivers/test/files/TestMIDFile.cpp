@@ -27,6 +27,12 @@ namespace files
     {
         EXPECT_THROW(MIDFile f(""), std::system_error);
     }
+
+    TEST(MIDFile, midifile_sample)
+    {
+        MIDFile f("fixtures/midifile_sample.mid");
+
+    }
 }
 
 int main(int argc, char** argv)

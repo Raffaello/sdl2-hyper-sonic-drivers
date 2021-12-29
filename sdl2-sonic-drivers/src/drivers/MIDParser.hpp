@@ -6,6 +6,8 @@
 #include <memory>
 #include <cstdint>
 
+#include <RtMidi.h> // todo remove
+
 namespace drivers
 {
     // Test class/experimental to understand midi events
@@ -15,9 +17,9 @@ namespace drivers
         MIDParser(std::shared_ptr<audio::MIDI> midi, std::shared_ptr<audio::scummvm::Mixer> mixer);
         virtual ~MIDParser();
 
-        void processTrack(audio::midi::MIDITrack& track, const int i);
+        void processTrack(audio::midi::MIDITrack& track, const int i, std::shared_ptr<RtMidiOut> midiout);
         //void incTicks();
-        void display();
+        void display(std::shared_ptr<RtMidiOut> midiout);
     private:
         std::shared_ptr<audio::scummvm::Mixer> _mixer;
         std::shared_ptr<audio::MIDI> _midi;

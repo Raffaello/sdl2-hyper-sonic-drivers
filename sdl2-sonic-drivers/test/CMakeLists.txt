@@ -94,7 +94,9 @@ macro_test(
     EXE TestMIDFile
     FILES "files/TestMIDFile.cpp"
     LINKS_PRIVATE sonic-drivers-static
-    FIXTURES "fixtures/MI_intro.mid"
+    FIXTURES
+        "fixtures/MI_intro.mid"
+        "fixtures/midifile_sample.mid"
 )
 
 macro_test(
@@ -167,7 +169,6 @@ macro_test(
         "fixtures/header_no_xdir.xmi"
         "fixtures/AIL2_14_DEMO.XMI"
 )
-
 
 macro_test(
     EXE TestXMidi
