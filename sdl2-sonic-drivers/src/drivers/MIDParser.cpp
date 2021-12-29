@@ -32,6 +32,7 @@ namespace drivers
     {
         std::vector<uint8_t> midi_msg;
         int cur_time = 0; // ticks
+        unsigned int tempo_micros = static_cast<unsigned int>(static_cast<float>(tempo) / static_cast<float>(division));
         // TODO: the timer should be inside the MIDI object when play it?
         //track.reset();
         unsigned int start = utils::getMicro<unsigned int>();
@@ -95,7 +96,8 @@ namespace drivers
                     case audio::midi::MIDI_META_EVENT::SET_TEMPO:
                     {
                         tempo = (e.data[skip] << 16) + (e.data[skip + 1] << 8) + (e.data[skip + 2]);
-                        spdlog::debug("Tempo {}, ({} bpm)", tempo, 60000000 / tempo);
+                        tempo_micros = static_cast<unsigned int>(static_cast<float>(tempo) / static_cast<float>(division));
+                        spdlog::debug("Tempo {}, ({} bpm) -- microseconds/tick", tempo, 60000000 / tempo, tempo_micros);
                         break;
                     }
                     case audio::midi::MIDI_META_EVENT::SMPTE_OFFSET:
@@ -177,19 +179,22 @@ namespace drivers
                 return;
             }
 
+
+            if (e.delta_time == 0)
+                continue;
+
             cur_time += e.delta_time;
-            //if (cur_time > _ticks)
-            {
-                float tt = static_cast<float>(tempo) / static_cast<float>(division);
-                unsigned int end = utils::getMicro<unsigned int>();
-                float delta_delay = e.delta_time * tt;
-                float dd = std::roundf(delta_delay -(end - start));
-                start = end;
-                spdlog::info("#{} --- cur_time={}, delta_delay={}, dd={}, end-start={}",i, cur_time, delta_delay, dd, delta_delay-dd);
-                if (dd >= 1.0f) {
-                    delayMicro(dd); // not precise
-                    start += dd;
-                }
+            const unsigned int end = utils::getMicro<unsigned int>();
+            const unsigned int delta_delay = tempo_micros * e.delta_time;
+            const long dd = static_cast<long>(delta_delay - (end - start));
+            start = end;
+            
+            if (dd > 0) {
+                delayMicro(dd); // not precise
+                start += dd;
+            }
+            else {
+                spdlog::warn("#{} --- cur_time={}, delta_delay={}, micro_delay_time={}", i, cur_time, delta_delay, dd);
             }
         }
     }
