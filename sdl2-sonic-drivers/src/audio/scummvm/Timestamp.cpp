@@ -10,18 +10,18 @@ namespace audio
                 assert(fr > 0);
 
                 _secs = ms / 1000;
-                _framerateFactor = 1000 / std::gcd(1000U, fr);
+                _framerateFactor = 1000U / std::gcd(1000U, fr);
                 _framerate = fr * _framerateFactor;
 
                 // Note that _framerate is always divisible by 1000.
-                _numFrames = (ms % 1000) * (_framerate / 1000);
+                _numFrames = (ms % 1000) * (_framerate / 1000U);
             }
 
             Timestamp::Timestamp(unsigned int s, unsigned int frames, unsigned int fr) {
                 assert(fr > 0);
 
                 _secs = s + (frames / fr);
-                _framerateFactor = 1000 / std::gcd(1000U, fr);
+                _framerateFactor = 1000U / std::gcd(1000U, fr);
                 _framerate = fr * _framerateFactor;
                 _numFrames = (frames % fr) * _framerateFactor;
             }
@@ -30,7 +30,7 @@ namespace audio
                 Timestamp ts(*this);
 
                 if (ts.framerate() != newFramerate) {
-                    ts._framerateFactor = 1000 / std::gcd<unsigned int>(1000U, newFramerate);
+                    ts._framerateFactor = 1000U / std::gcd<unsigned int>(1000U, newFramerate);
                     ts._framerate = newFramerate * ts._framerateFactor;
 
                     const unsigned int g = std::gcd(_framerate, ts._framerate);
@@ -151,8 +151,8 @@ namespace audio
                 return result;
             }
 
-            int Timestamp::frameDiff(const Timestamp& ts) const {
-
+            int Timestamp::frameDiff(const Timestamp& ts) const
+            {
                 int delta = 0;
                 if (_secs != ts._secs)
                     delta = (_secs - ts._secs) * _framerate;
@@ -166,6 +166,7 @@ namespace audio
                     // We need to multiply by the quotient of the two framerates.
                     // We cancel the GCD in this fraction to reduce the risk of
                     // overflows.
+                    assert(ts._framerate > 0);
                     const unsigned int g = std::gcd(_framerate, ts._framerate);
                     const unsigned int p = _framerate / g;
                     const unsigned int q = ts._framerate / g;
