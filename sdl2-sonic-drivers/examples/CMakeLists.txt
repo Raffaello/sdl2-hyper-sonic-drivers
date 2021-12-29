@@ -1,5 +1,8 @@
 cmake_minimum_required (VERSION 3.15)
 
+ find_package(RtMidi CONFIG REQUIRED) ## used for debugging midi parsing
+#target_link_libraries(RtMidi_example PRIVATE RtMidi::rtmidi)
+
 ### Macro ###
 macro(macro_example) # ${ARGN} link libraries
     set(prefix EXAMPLE)
@@ -80,5 +83,15 @@ macro_example(
     FIXTURES 
       "../test/fixtures/Wav_868kb.wav"
       "../test/fixtures/DUNE.VOC"
+    NONE
+)
+
+macro_example(
+    EXE RtMidi_example
+    FILE "rtmidi-example.cpp"
+    DEPS sonic-drivers-static
+    LINKS ${LIB_SDL2main} sonic-drivers-static RtMidi::rtmidi
+    FIXTURES 
+      "../test/fixtures/MI_intro.mid"
     NONE
 )
