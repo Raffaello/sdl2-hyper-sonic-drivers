@@ -1,7 +1,12 @@
 #include <utils/endianness.hpp>
+#include <algorithm>
 
+// using c++20 could use std::endianness
 namespace utils
 {
+    // could use std::variant and then std::get to access the value.
+    // at the moment looks more straightforward in this way.
+    // it is an internal union just for helping doing the swap.
     typedef union bytes2
     {
         int16_t i;
@@ -23,63 +28,64 @@ namespace utils
 #endif
     }
 
-     void swap4(bytes4& n)
+     inline void swap4(bytes4& n)
      {
-        /*for (int j = 4 - 1, i = 0; i < j; i++, j--) {
-            char c = n.c[i];
-            n.c[i] = n.c[j];
-            n.c[j] = c;
-        }*/
-        char c = n.c[0];
-        n.c[0] = n.c[3]; n.c[3] = c;
-        c = n.c[1];
-        n.c[1] = n.c[2]; n.c[2] = c;
+        //0,1,2,3 => 3,2,1,0
+        std::swap(n.c[0], n.c[3]);
+        std::swap(n.c[1], n.c[2]);
     }
 
-    void swap2(bytes2& n)
+    inline void swap2(bytes2& n)
     {
-        char c = n.c[0];
-        n.c[0] = n.c[1]; n.c[1] = c;
+        std::swap(n.c[0], n.c[1]);
     }
 
     int32_t swapLE32(const int32_t num)
     {
-        bytes4 n = { num };
-        if constexpr (is_big_endian()) {
+        if constexpr (is_big_endian())
+        {
+            bytes4 n = { num };
             swap4(n);
+            return n.i;
         }
-
-        return n.i;
+        else
+            return num;
     }
 
     int32_t swapBE32(const int32_t num)
     {
-        bytes4 n = { num };
-        if constexpr (!is_big_endian()) {
+        if constexpr (!is_big_endian())
+        {
+            bytes4 n = { num };
             swap4(n);
+            return n.i;
         }
-
-        return n.i;
+        else
+            return num;
     }
 
     int16_t swapLE16(const int16_t num)
     {
-        bytes2 n = { num };
-        if constexpr (is_big_endian()) {
+        if constexpr (is_big_endian())
+        {
+            bytes2 n = { num };
             swap2(n);
+            return n.i;
         }
-
-        return n.i;
+        else
+            return num;
     }
 
     int16_t swapBE16(const int16_t num)
     {
-        bytes2 n = { num };
-        if constexpr (!is_big_endian()) {
+        if constexpr (!is_big_endian())
+        {
+            bytes2 n = { num };
             swap2(n);
+            return n.i;
         }
-
-        return n.i;
+        else
+            return num;
     }
 
     uint16_t READ_LE_UINT16(const void* ptr)
