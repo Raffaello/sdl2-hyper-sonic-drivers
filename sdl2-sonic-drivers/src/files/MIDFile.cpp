@@ -68,7 +68,6 @@ namespace files
         );
 
         // 3. recompute delta time from absolute time
-        // todo
         uint32_t abs_time = 0;
         for (auto& e : single_track.events)
         {

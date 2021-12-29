@@ -79,7 +79,7 @@ int main(int argc, char* argv[])
 
     // Reproducing MIDI file
     auto midFile = std::make_shared<files::MIDFile>("MI_intro.mid");
-    auto midi = midFile->getMIDI();
+    auto midi = midFile->convertToSingleTrackMIDI();
     drivers::MIDParser midParser(midi, mixer);
 
     // quantizing to send messages to midiout from the midi file:

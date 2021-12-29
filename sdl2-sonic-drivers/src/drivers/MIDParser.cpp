@@ -196,17 +196,10 @@ namespace drivers
 
     void MIDParser::display(std::shared_ptr<RtMidiOut> midiout)
     {
-        if (_midi->format == MIDI_FORMAT::MULTI_TRACK) {
-            spdlog::critical("MIDI format 2 not supported yet");
+        if (_midi->format != MIDI_FORMAT::SINGLE_TRACK) {
+            spdlog::critical("MIDI format single track only supported");
             return;
         }
-
-        //spdlog::set_level(spdlog::level::debug);
-
-        // TODO: consider to use a priority queue by current_track_ticks
-        // (to be compute from the summation of delta ticks)
-        // BODY: to enqueue the parsed events as midi messages
-        // BODY: consider to use a better structure for midi msg
 
         num_tracks = _midi->numTracks;
         division = _midi->division;
@@ -242,30 +235,10 @@ namespace drivers
         
         auto start_time = std::chrono::system_clock::now();
 
-        std::vector<std::thread> threads;
-        threads.resize(num_tracks);
-
         for (int i = 0; i < num_tracks; i++)
         {
             audio::midi::MIDITrack track = _midi->getTrack(i);
-
-            // TODO do without threads
-            //processTrack(track, i, midiout);
-
-            // TODO: in this way no need to convert to format 0
-            // BODY: but there is no synchornization, missing a
-            // BODY: common clock/ticks to synchronize
-            // BODY: that should run independenty
-            // BODY: at the moment also the log info are adding
-            // BODY: an extra delay that is not considered.
-            // BODY: so it requires a callback that
-            // BODY: is called exactly every tick
-            threads[i] = std::thread(&MIDParser::processTrack, this, track, i, midiout);
-            
-        }
-
-        for (auto& t : threads) {
-            t.join();
+            processTrack(track, i, midiout);
         }
 
         // TODO: this works only with a constant tempo during all the sequence
