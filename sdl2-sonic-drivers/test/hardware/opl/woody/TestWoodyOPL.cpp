@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <hardware/opl/woody/WoodyOPL.hpp>
-#include "../test/audio/mocks/MockMixer.hpp"
+#include "../test/audio/stubs/StubMixer.hpp"
 #include <memory>
 #include <cstdint>
 #include <files/File.hpp>
@@ -12,11 +12,11 @@ namespace hardware
     {
         namespace woody
         {
-            using audio::mocks::MockMixer;
+            using audio::stubs::StubMixer;
 
             TEST(OPL, cstorDefaultFalse)
             {
-                std::shared_ptr<MockMixer> mixer = std::make_shared<MockMixer>();
+                std::shared_ptr<StubMixer> mixer = std::make_shared<StubMixer>();
                 EXPECT_EQ(mixer.use_count(), 1);
                 WoodyOPL opl(mixer, false);
                 EXPECT_EQ(mixer.use_count(), 2);
@@ -27,7 +27,7 @@ namespace hardware
 
             TEST(OPL, cstorDefaultTrue)
             {
-                std::shared_ptr<MockMixer> mixer = std::make_shared<MockMixer>();
+                std::shared_ptr<StubMixer> mixer = std::make_shared<StubMixer>();
                 EXPECT_EQ(mixer.use_count(), 1);
                 WoodyOPL opl(mixer, true);
                 EXPECT_EQ(mixer.use_count(), 2);
@@ -38,7 +38,7 @@ namespace hardware
 
             TEST(OPL, share_ptrDefault)
             {
-                std::shared_ptr<MockMixer> mixer = std::make_shared<MockMixer>();
+                std::shared_ptr<StubMixer> mixer = std::make_shared<StubMixer>();
                 EXPECT_EQ(mixer.use_count(), 1);
 
                 std::shared_ptr<WoodyOPL> opl = std::make_shared<woody::WoodyOPL>(mixer, false);
@@ -51,7 +51,7 @@ namespace hardware
 
             TEST(DISABLED_OPL, Table440Hz)
             {
-                std::shared_ptr<MockMixer> mixer = std::make_shared<MockMixer>();
+                std::shared_ptr<StubMixer> mixer = std::make_shared<StubMixer>();
                 mixer->rate = 22050;
                 std::shared_ptr<WoodyOPL> opl = std::make_shared<WoodyOPL>(mixer, false);
                 opl->init();

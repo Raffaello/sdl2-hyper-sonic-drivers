@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <hardware/opl/scummvm/dosbox/dosbox.hpp>
-#include "../test/audio/mocks/MockMixer.hpp"
+#include "../test/audio/stubs/StubMixer.hpp"
 #include <memory>
 #include <cstdint>
 #include <files/File.hpp>
@@ -16,7 +16,7 @@ namespace hardware
             {
                 // TODO: refactor these tests as they are the same of the one in mame.
 
-                using audio::mocks::MockMixer;
+                using audio::stubs::StubMixer;
 
                 class OPLType : public  ::testing::TestWithParam<std::tuple<Config::OplType, bool>>
                 {
@@ -26,7 +26,7 @@ namespace hardware
                 };
                 TEST_P(OPLType, cstorDefault)
                 {
-                    std::shared_ptr<MockMixer> mixer = std::make_shared<MockMixer>();
+                    std::shared_ptr<StubMixer> mixer = std::make_shared<StubMixer>();
                     EXPECT_EQ(mixer.use_count(), 1);
                     OPL dosbox(mixer, this->opl_type);
                     EXPECT_EQ(mixer.use_count(), 2);
@@ -38,7 +38,7 @@ namespace hardware
                 TEST_P(OPLType, share_ptrDefault)
                 {
 
-                    std::shared_ptr<MockMixer> mixer = std::make_shared<MockMixer>();
+                    std::shared_ptr<StubMixer> mixer = std::make_shared<StubMixer>();
                     EXPECT_EQ(mixer.use_count(), 1);
 
                     std::shared_ptr<OPL> dosbox = std::make_shared<OPL>(mixer, this->opl_type);
@@ -61,7 +61,7 @@ namespace hardware
 
                 TEST(DISABLED_OPL, Table440Hz)
                 {
-                    std::shared_ptr<MockMixer> mixer = std::make_shared<MockMixer>();
+                    std::shared_ptr<StubMixer> mixer = std::make_shared<StubMixer>();
                     mixer->rate = 22050;
                     std::shared_ptr<hardware::opl::scummvm::dosbox::OPL> opl = std::make_shared<hardware::opl::scummvm::dosbox::OPL>(mixer, Config::OplType::OPL2);
                     opl->init();
