@@ -94,7 +94,7 @@ int main(int argc, char* argv[])
     // can be done easily in the console like guitar hero
     // screen stream for the visualization.
 
-    spdlog::set_level(spdlog::level::debug);
+    //spdlog::set_level(spdlog::level::debug);
     midParser.display(midiout);
 
     return 0;
