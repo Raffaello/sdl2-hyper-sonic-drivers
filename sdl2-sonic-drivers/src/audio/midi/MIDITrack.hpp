@@ -45,7 +45,6 @@ namespace audio
             /// specifies a minor key.
             /// </summary>
             //uint8_t _scale;
-
         };
 
         inline const std::vector<MIDIEvent>& MIDITrack::getEvents() const noexcept

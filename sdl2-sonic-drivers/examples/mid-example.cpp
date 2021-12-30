@@ -2,7 +2,7 @@
 #include <audio/scummvm/SDLMixerManager.hpp>
 #include <files/MIDFile.hpp>
 #include <drivers/MIDDriver.hpp>
-#include <drivers/midi/DeviceNative.hpp>
+#include <drivers/midi/devices/Native.hpp>
 
 #include <spdlog/spdlog.h>
 #include <fmt/chrono.h>
@@ -18,7 +18,7 @@ int main(int argc, char* argv[])
     auto midFile = std::make_shared<files::MIDFile>("MI_intro.mid");
     //auto midFile = std::make_shared<files::MIDFile>("midifile_sample.mid");
     auto midi = midFile->convertToSingleTrackMIDI();
-    auto nativeMidi = std::make_shared<drivers::midi::DeviceNative>();
+    auto nativeMidi = std::make_shared<drivers::midi::devices::Native>();
     
     drivers::MIDDriver mid_drv(mixer, nativeMidi);
     auto start_time = std::chrono::system_clock::now();

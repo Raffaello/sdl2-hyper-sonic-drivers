@@ -44,7 +44,7 @@ install(FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/PCMDriver.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/MIDDriver.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/Device.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/NativeDevice.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/Native.hpp
     
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/westwood/ADLFile.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/MIDFile.hpp
@@ -111,7 +111,7 @@ target_sources(${LIB_NAME} PRIVATE
     #${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/miles/XMidi.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/MIDParser.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/MIDDriver.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/DeviceNative.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/Native.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/miles/XMIParser.cpp
     # --- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/westwood/ADLFile.cpp
