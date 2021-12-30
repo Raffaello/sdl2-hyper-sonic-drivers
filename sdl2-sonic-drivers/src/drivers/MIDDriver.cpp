@@ -6,7 +6,8 @@
 
 namespace drivers
 {
-    constexpr unsigned int tempo_to_micros(const uint32_t tempo, const uint16_t division) {
+    constexpr unsigned int tempo_to_micros(const uint32_t tempo, const uint16_t division)
+    {
         return static_cast<unsigned int>(static_cast<float>(tempo) / static_cast<float>(division));
     }
 
@@ -49,8 +50,6 @@ namespace drivers
             spdlog::debug("Division: Ticks per quarter note = {}", midi->division & 0x7FFF);
         }
 
-        // TODO time signature used for what?
-
         processTrack(midi->getTrack(0), midi->division);
     }
 
@@ -80,10 +79,9 @@ namespace drivers
                         tempo_micros = tempo_to_micros(tempo, division);
                         spdlog::debug("Tempo {}, ({} bpm) -- microseconds/tick {}", tempo, 60000000 / tempo, tempo_micros);
                     }
-                    continue;
                 }
+                continue;
                 break;
-
             case 0x8:
             case 0x9:
             case 0xA:
@@ -111,7 +109,7 @@ namespace drivers
                 start = end;
 
                 if (dd > 0) {
-                    utils::delayMicro(dd); // not precise
+                    utils::delayMicro(dd);
                     start += dd;
                 }
                 else {
@@ -120,7 +118,7 @@ namespace drivers
             }
 
             _device->sendMessage(msg.data(), msg_size);
-
+            //_device->sendEvent(e);
         }
     }
 }

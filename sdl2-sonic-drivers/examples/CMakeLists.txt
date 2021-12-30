@@ -1,8 +1,5 @@
 cmake_minimum_required (VERSION 3.15)
 
-# find_package(RtMidi CONFIG REQUIRED) ## used for debugging midi parsing
-#target_link_libraries(RtMidi_example PRIVATE RtMidi::rtmidi)
-
 ### Macro ###
 macro(macro_example) # ${ARGN} link libraries
     set(prefix EXAMPLE)
