@@ -62,7 +62,7 @@ namespace drivers
             tempo = 500000; //120 BPM;
             int cur_time = 0; // ticks
             unsigned int start = utils::getMicro<unsigned int>();
-            for (auto& e : track.events)
+            for (auto& e : track.getEvents())
             {
                 //unsigned int start = utils::getMicro<unsigned int>();
                 spdlog::debug("MIDI Track#={:3}, Event: dt={:4}, type={:#04x}", num_track, e.delta_time, e.type.val);

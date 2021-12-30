@@ -20,6 +20,9 @@ using std::endl;
 
 int main(int argc, char* argv[])
 {
+    // not initing the mixer will results in delay reproducing the midi file.
+    // not sure what is special in SDL2 when init audio to make not lagging
+    // the midi.
     SdlMixerManager mixerManager;
     mixerManager.init();
 
@@ -78,10 +81,10 @@ int main(int argc, char* argv[])
     cout << "OK" << endl;
 
     // Reproducing MIDI file
-    //auto midFile = std::make_shared<files::MIDFile>("MI_intro.mid");
-    auto midFile = std::make_shared<files::MIDFile>("midifile_sample.mid");
+    auto midFile = std::make_shared<files::MIDFile>("MI_intro.mid");
+    //auto midFile = std::make_shared<files::MIDFile>("midifile_sample.mid");
     auto midi = midFile->convertToSingleTrackMIDI();
-    drivers::MIDParser midParser(midi, mixer);
+    drivers::MIDParser midParser(midi);
 
     // quantizing to send messages to midiout from the midi file:
     // at the moment can be done within the parser in a "raw mode",

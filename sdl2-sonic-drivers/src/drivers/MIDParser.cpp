@@ -19,8 +19,8 @@ namespace drivers
         return std::string(++e.begin(), e.end());
     }
 
-    MIDParser::MIDParser(std::shared_ptr<audio::MIDI> midi, std::shared_ptr<audio::scummvm::Mixer> mixer)
-        : _midi(midi), _mixer(mixer)
+    MIDParser::MIDParser(std::shared_ptr<audio::MIDI> midi)
+        : _midi(midi)
     {
     }
 
@@ -31,11 +31,9 @@ namespace drivers
     void MIDParser::processTrack(audio::midi::MIDITrack& track, const int i, std::shared_ptr<RtMidiOut> midiout)
     {
         int cur_time = 0; // ticks
-        unsigned int tempo_micros = static_cast<unsigned int>(static_cast<float>(tempo) / static_cast<float>(division));
-        // TODO: the timer should be inside the MIDI object when play it?
-        //track.reset();
+        unsigned int tempo_micros = static_cast<unsigned int>(static_cast<float>(tempo) / static_cast<float>(_midi->division));
         unsigned int start = utils::getMicro<unsigned int>();
-        for (auto& e : track.events)
+        for (auto& e : track.getEvents())
         {
             std::vector<uint8_t> midi_msg;
             spdlog::debug("MIDI Track#={:3}, Event: dt={:4}, type={:#04x}", i, e.delta_time, e.type.val);
@@ -98,7 +96,7 @@ namespace drivers
                     case audio::midi::MIDI_META_EVENT::SET_TEMPO:
                     {
                         tempo = (e.data[skip] << 16) + (e.data[skip + 1] << 8) + (e.data[skip + 2]);
-                        tempo_micros = static_cast<unsigned int>(static_cast<float>(tempo) / static_cast<float>(division));
+                        tempo_micros = static_cast<unsigned int>(static_cast<float>(tempo) / static_cast<float>(_midi->division));
                         spdlog::debug("Tempo {}, ({} bpm) -- microseconds/tick", tempo, 60000000 / tempo, tempo_micros);
                         break;
                     }
@@ -205,18 +203,15 @@ namespace drivers
 
     void MIDParser::display(std::shared_ptr<RtMidiOut> midiout)
     {
-        if (_midi->format != MIDI_FORMAT::SINGLE_TRACK) {
+        if (_midi->format != MIDI_FORMAT::SINGLE_TRACK && _midi->numTracks != 1) {
             spdlog::critical("MIDI format single track only supported");
             return;
         }
 
-        num_tracks = _midi->numTracks;
-        division = _midi->division;
-        // TODO: division to update after processed is missing.
-        if (division & 0x8000) {
+        if (_midi->division & 0x8000) {
             // ticks per frame
-            int smpte = (division & 0x7FFF) >> 8;
-            int ticksPerFrame = division & 0xFF;
+            int smpte = (_midi->division & 0x7FFF) >> 8;
+            int ticksPerFrame = _midi->division & 0xFF;
             switch (smpte)
             {
             case -24:
@@ -233,24 +228,20 @@ namespace drivers
         }
         else {
             // ticks per quarter note
-            spdlog::debug("Division: Ticks per quarter note = {}", division & 0x7FFF);
+            spdlog::debug("Division: Ticks per quarter note = {}", _midi->division & 0x7FFF);
         }
 
         // TODO time signature used for what?
 
         tempo = 500000; //120 BPM;
 
-        
         auto start_time = std::chrono::system_clock::now();
 
-        for (int i = 0; i < num_tracks; i++)
-        {
-            audio::midi::MIDITrack track = _midi->getTrack(i);
-            processTrack(track, i, midiout);
-        }
+        audio::midi::MIDITrack track = _midi->getTrack(0);
+        processTrack(track, 0, midiout);
 
         // this works only with a constant tempo during the song, and it is ok for an expected value.
-        float exp_time_seconds = static_cast<float>(_midi->getTrack(0).events.back().abs_time) / static_cast<float>(division) * (static_cast<float>(tempo) / 1000000.0f);
+        float exp_time_seconds = static_cast<float>(_midi->getTrack(0).getEvents().back().abs_time) / static_cast<float>(_midi->division) * (static_cast<float>(tempo) / 1000000.0f);
         auto end_time = std::chrono::system_clock::now();
         auto tot_time = end_time - start_time;
         spdlog::info("Total Running Time: {:%M:%S}, expected={}:{}",

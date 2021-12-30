@@ -47,21 +47,19 @@ namespace files
             throw std::runtime_error("MIDI MULTI_TRACK not supported yet");
 
         auto midi = std::make_shared<audio::MIDI>(audio::midi::MIDI_FORMAT::SINGLE_TRACK, 1, _midi->division);
-        audio::midi::MIDITrack single_track;
+        std::vector<audio::midi::MIDIEvent> events;
 
         // 1. with absolute time just copy all the events as they are into 1 single track
-        for (int n = 0; n < _midi->numTracks; n++)
+        for (uint16_t n = 0; n < _midi->numTracks; n++)
         {
-            for (const auto& te : _midi->getTrack(n).events)
-            {
-                single_track.addEvent(te);
-            }
+            for (const auto& te : _midi->getTrack(n).getEvents())
+                events.push_back(te);
         }
 
         // 2. then sort them by absolute time
         std::sort(
-            single_track.events.begin(),
-            single_track.events.end(),
+            events.begin(),
+            events.end(),
             [](const audio::midi::MIDIEvent& e1, const audio::midi::MIDIEvent& e2)
             {
                 return e1.abs_time < e2.abs_time;
@@ -70,15 +68,16 @@ namespace files
 
         // 3. recompute delta time from absolute time
         uint32_t abs_time = 0;
-        for (auto& e : single_track.events)
+        for (auto& e : events)
         {
             e.delta_time = e.abs_time - abs_time;
             if (e.abs_time > abs_time)
                 abs_time = e.abs_time;
         }
 
+        audio::midi::MIDITrack single_track(events);
         midi->addTrack(single_track);
-        assert(midi->getTrack(0).events.size() == single_track.events.size());
+        assert(midi->getTrack(0).getEvents().size() == single_track.getEvents().size());
 
         return midi;
     }
@@ -248,7 +247,7 @@ namespace files
                 }
             }
 
-            e.data.resize(e.data.size());
+            e.data.shrink_to_fit();
             track.addEvent(e);
             lastStatus = e.type;
         }

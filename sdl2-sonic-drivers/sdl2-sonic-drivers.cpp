@@ -304,7 +304,7 @@ int mid_parser()
     //spdlog::set_level(spdlog::level::debug);
     std::shared_ptr<files::MIDFile> midFile = std::make_shared<files::MIDFile>("test/fixtures/MI_intro.mid");
 
-    MIDParser midParser(midFile->getMIDI(), mixer);
+    MIDParser midParser(midFile->getMIDI());
     //midParser.display();
 
     

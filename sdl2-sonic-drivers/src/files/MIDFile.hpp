@@ -18,9 +18,9 @@ namespace files
 
         std::shared_ptr<audio::MIDI> getMIDI() const noexcept;
         /**
-         * @brief if not a single track convert the file to a single track
-         *        and return it.
-         * @return 
+         * @brief if the file is not a single track, it will return a
+         *        converted equivalent with single track
+         * @return
         */
         std::shared_ptr<audio::MIDI> convertToSingleTrackMIDI() const noexcept;
     private:
