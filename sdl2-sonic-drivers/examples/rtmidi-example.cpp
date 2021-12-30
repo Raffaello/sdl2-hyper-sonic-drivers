@@ -81,7 +81,7 @@ int main(int argc, char* argv[])
     auto midFile = std::make_shared<files::MIDFile>("MI_intro.mid");
     //auto midFile = std::make_shared<files::MIDFile>("midifile_sample.mid");
     auto midi = midFile->convertToSingleTrackMIDI();
-    drivers::MIDParser midParser(midi, mixer);
+    drivers::MIDParser midParser(midi);
 
     // quantizing to send messages to midiout from the midi file:
     // at the moment can be done within the parser in a "raw mode",

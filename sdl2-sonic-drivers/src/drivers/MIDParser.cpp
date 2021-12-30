@@ -19,8 +19,8 @@ namespace drivers
         return std::string(++e.begin(), e.end());
     }
 
-    MIDParser::MIDParser(std::shared_ptr<audio::MIDI> midi, std::shared_ptr<audio::scummvm::Mixer> mixer)
-        : _midi(midi), _mixer(mixer)
+    MIDParser::MIDParser(std::shared_ptr<audio::MIDI> midi)
+        : _midi(midi)
     {
     }
 
@@ -208,8 +208,6 @@ namespace drivers
             return;
         }
 
-        //division = _midi->division;
-        // TODO: division to update after processed is missing.
         if (_midi->division & 0x8000) {
             // ticks per frame
             int smpte = (_midi->division & 0x7FFF) >> 8;

@@ -6,6 +6,7 @@ set(CMAKE_DEBUG_POSTFIX d)
 find_package(SDL2 CONFIG REQUIRED)
 find_package(sdl2-mixer CONFIG REQUIRED)
 find_package(spdlog 1.9.0 CONFIG REQUIRED)
+find_package(RtMidi CONFIG REQUIRED)
 
 configure_file("version.h.in" "version.h")
 
@@ -149,7 +150,7 @@ target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/algorithms.cpp
 )
 
-target_link_libraries(${LIB_NAME} PUBLIC ${LIB_SDL2} spdlog::spdlog)
+target_link_libraries(${LIB_NAME} PUBLIC ${LIB_SDL2} spdlog::spdlog RtMidi::rtmidi)
 if(NOT (WITH_SDL2_STATIC))
     install(FILES
         $<TARGET_FILE:SDL2::SDL2>

@@ -1,5 +1,6 @@
 #include <drivers/midi/DeviceNative.hpp>
 #include <vector>
+#include <cassert>
 
 namespace drivers
 {
@@ -25,6 +26,7 @@ namespace drivers
 
         inline void DeviceNative::sendMessage(const uint8_t msg[], const uint8_t size) noexcept
         {
+            assert(size >= 2 && size <= 3);
             _midiout->sendMessage(msg, size);
         }
     }
