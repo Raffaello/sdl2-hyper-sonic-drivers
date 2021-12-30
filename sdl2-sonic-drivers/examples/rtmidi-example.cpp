@@ -78,7 +78,8 @@ int main(int argc, char* argv[])
     cout << "OK" << endl;
 
     // Reproducing MIDI file
-    auto midFile = std::make_shared<files::MIDFile>("MI_intro.mid");
+    //auto midFile = std::make_shared<files::MIDFile>("MI_intro.mid");
+    auto midFile = std::make_shared<files::MIDFile>("midifile_sample.mid");
     auto midi = midFile->convertToSingleTrackMIDI();
     drivers::MIDParser midParser(midi, mixer);
 
@@ -93,8 +94,6 @@ int main(int argc, char* argv[])
     // can be done easily in the console like guitar hero
     // screen stream for the visualization.
 
-    auto tot_run_time = midi->getTrack(0).events[midi->getTrack(0).events.size() - 1].abs_time;
-    spdlog::info("Total expected running time in ticks: {} --- {} seconds", tot_run_time, (tot_run_time * 500000.f / 192.f)/1000000.f);
     //spdlog::set_level(spdlog::level::debug);
     midParser.display(midiout);
 

@@ -4,6 +4,8 @@
 #include <audio/midi/types.hpp>
 #include <audio/MIDI.hpp>
 #include <audio/midi/MIDITrack.hpp>
+#include <array>
+#include <cstdint>
 
 namespace files
 {
@@ -63,6 +65,16 @@ namespace files
         EXPECT_EQ(t.events[30].abs_time, 1920);
     }
 
+    void cmp_midievent(const audio::midi::MIDIEvent& e, const uint32_t exp_abs_time, const uint32_t exp_delta_time, const std::vector<uint8_t>& exp_data)
+    {
+        EXPECT_EQ(e.abs_time, exp_abs_time);
+        EXPECT_EQ(e.delta_time, exp_delta_time);
+
+        EXPECT_EQ(e.data.size(), exp_data.size());
+        for (int i = 0; i < e.data.size(); i++)
+            EXPECT_EQ(e.data[i], exp_data[i]);
+    }
+
     TEST(MIDFile, midifile_sample_convert_to_single_track)
     {
         MIDFile f("fixtures/midifile_sample.mid");
@@ -75,30 +87,41 @@ namespace files
         EXPECT_EQ(m->division, 120);
         EXPECT_EQ(m->getTrack(0).events.size(), 1 + 29 + 31);
         
-        auto t = m->getTrack(0);
-        EXPECT_EQ(t.events[0].abs_time, 0);
-        EXPECT_EQ(t.events[1].abs_time, 0);
-        EXPECT_EQ(t.events[2].abs_time, 0);
-        EXPECT_EQ(t.events[3].abs_time, 120);
-        EXPECT_EQ(t.events[4].abs_time, 120);
-        EXPECT_EQ(t.events[5].abs_time, 120);
-        EXPECT_EQ(t.events[6].abs_time, 120);
-        EXPECT_EQ(t.events[7].abs_time, 240);
+        const std::array<uint32_t, 61> exp_abs_times = {
+            0, 0, 0, 120, 120, 120, 120, 240, 240, 240, 240, 360, 360, 360,
+            360, 480, 480, 480, 480, 600, 600, 600, 600, 720, 720, 720, 720, 840, 840,
+            960,  960, 960, 960, 1080, 1080, 1080, 1080, 1200,1200,1200,1200,1320,1320,
+            1320,1320,1440,1440,1440,1440,1560,1560,1560,1560,1680,1680,1680,1680,1920,
+            1920,1920,1920 };
 
-        // check delta times
-        EXPECT_EQ(t.events[0].delta_time, 0);
-        EXPECT_EQ(t.events[1].delta_time, 0);
-        EXPECT_EQ(t.events[2].delta_time, 0);
-        EXPECT_EQ(t.events[3].delta_time, 120);
-        EXPECT_EQ(t.events[4].delta_time, 0);
-        EXPECT_EQ(t.events[5].delta_time, 0);
-        EXPECT_EQ(t.events[6].delta_time, 0);
-        EXPECT_EQ(t.events[7].delta_time, 120);
-        // ...
-        EXPECT_EQ(t.events[57].delta_time, 240);
-        EXPECT_EQ(t.events[58].delta_time, 0);
-        EXPECT_EQ(t.events[59].delta_time, 0);
-        EXPECT_EQ(t.events[60].delta_time, 0);
+        const std::array<uint32_t, 1 + 29 + 31> exp_delta_times = {
+            0,0,0,120,0,0,0,120,0,0,0,120,0,0,0,120,0,0,0,120,0,0,0,120,0,0,0,120,0,120,
+            0,0,0,120,0,0,0,120,0,0,0,120,0,0,0,120,0,0,0,120,0,0,0,120,0,0,0,240,0,0,0
+        };
+
+        std::vector<std::vector<uint8_t>> v = { { 1,2,3 } };
+
+        const std::vector<std::vector<uint8_t>> exp_datas = {
+            {0x90, 0x48, 0x40},{0x90, 0x30, 0x40},{0xff, 0x2f, 0},{0x80, 0x48, 0x40},
+{0x80, 0x30, 0x40},{0x90, 0x3c, 0x40},{0x90, 0x48, 0x40},{0x80, 0x3c, 0x40},{0x80, 0x48, 0x40},
+{0x90, 0x40, 0x40},{0x90, 0x4f, 0x40},{0x80, 0x40, 0x40},{0x80, 0x4f, 0x40},{0x90, 0x4f, 0x40},
+{0x90, 0x3c, 0x40},{0x80, 0x3c, 0x40},{0x80, 0x4f, 0x40},{0x90, 0x41, 0x40},{0x90, 0x51, 0x40},
+{0x80, 0x41, 0x40},{0x80, 0x51, 0x40},{0x90, 0x51, 0x40},{0x90, 0x3c, 0x40},{0x80, 0x51, 0x40},
+{0x80, 0x3c, 0x40},{0x90, 0x40, 0x40},{0x90, 0x4f, 0x40},{0x80, 0x40, 0x40},{0x90, 0x3c, 0x40},
+{0x80, 0x3c, 0x40},{0x80, 0x4f, 0x40},{0x90, 0x3e, 0x40},{0x90, 0x4d, 0x40},{0x80, 0x4d, 0x40},
+{0x80, 0x3e, 0x40},{0x90, 0x3b, 0x40},{0x90, 0x4d, 0x40},{0x80, 0x4d, 0x40},{0x80, 0x3b, 0x40},
+{0x90, 0x3c, 0x40},{0x90, 0x4c, 0x40},{0x80, 0x4c, 0x40},{0x80, 0x3c, 0x40},{0x90, 0x4c, 0x40},
+{0x90, 0x39, 0x40},{0x80, 0x4c, 0x40},{0x80, 0x39, 0x40},{0x90, 0x4a, 0x40},{0x90, 0x35, 0x40},
+{0x80, 0x4a, 0x40},{0x80, 0x35, 0x40},{0x90, 0x37, 0x40},{0x90, 0x4a, 0x40},{0x80, 0x4a, 0x40},
+{0x80, 0x37, 0x40},{0x90, 0x30, 0x40},{0x90, 0x48, 0x40},{0x80, 0x48, 0x40},{0x80, 0x30, 0x40},
+{0xff, 0x2f, 0},{0xff, 0x2f, 0}
+        };
+
+        auto t = m->getTrack(0);
+
+        for (int i = 0; i < 61; i++) {
+            cmp_midievent(t.events[i], exp_abs_times[i], exp_delta_times[i], exp_datas[i]);
+        }
     }
 }
 

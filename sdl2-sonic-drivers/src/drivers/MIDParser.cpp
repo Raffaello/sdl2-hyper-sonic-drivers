@@ -179,13 +179,12 @@ namespace drivers
                 return;
             }
 
-
             if (e.delta_time == 0)
                 continue;
 
             cur_time += e.delta_time;
-            const unsigned int end = utils::getMicro<unsigned int>();
             const unsigned int delta_delay = tempo_micros * e.delta_time;
+            const unsigned int end = utils::getMicro<unsigned int>();
             const long dd = static_cast<long>(delta_delay - (end - start));
             start = end;
             
@@ -234,7 +233,6 @@ namespace drivers
 
         // TODO time signature used for what?
 
-        //std::vector<audio::midi::MIDI_track_t> tracks = _mid_file->getTracks();
         tempo = 500000; //120 BPM;
 
         
@@ -248,7 +246,7 @@ namespace drivers
 
         // TODO: this works only with a constant tempo during all the sequence
         // BODY: also should be computed in float and ceiled for integer.
-        float exp_time_seconds = static_cast<float>(_midi->getMaxTicks()) / static_cast<float>(division) * (static_cast<float>(tempo) / 1000000.0f);
+        float exp_time_seconds = static_cast<float>(_midi->getTrack(0).events.back().abs_time) / static_cast<float>(division) * (static_cast<float>(tempo) / 1000000.0f);
         auto end_time = std::chrono::system_clock::now();
         auto tot_time = end_time - start_time;
         spdlog::info("Total Running Time: {:%M:%S}, expected={}:{}",
