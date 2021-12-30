@@ -78,8 +78,8 @@ int main(int argc, char* argv[])
     cout << "OK" << endl;
 
     // Reproducing MIDI file
-    //auto midFile = std::make_shared<files::MIDFile>("MI_intro.mid");
-    auto midFile = std::make_shared<files::MIDFile>("midifile_sample.mid");
+    auto midFile = std::make_shared<files::MIDFile>("MI_intro.mid");
+    //auto midFile = std::make_shared<files::MIDFile>("midifile_sample.mid");
     auto midi = midFile->convertToSingleTrackMIDI();
     drivers::MIDParser midParser(midi, mixer);
 

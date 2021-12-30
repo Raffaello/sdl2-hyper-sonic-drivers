@@ -1,22 +1,21 @@
 #pragma once
 
-#include <audio/scummvm/Mixer.hpp>
 #include <audio/MIDI.hpp>
 #include <audio/midi/types.hpp>
 #include <memory>
 #include <cstdint>
+#include <drivers/midi/Device.hpp>
 
 namespace drivers
 {
     class MIDDriver
     {
     public:
-        MIDDriver(std::shared_ptr<audio::scummvm::Mixer> mixer);
+        MIDDriver() = default;
         ~MIDDriver() = default;
-        
-        bool playMidi(const std::shared_ptr<audio::MIDI> midi);
+        // TODO for now just OPL, later on all others
+        // TODO need to be async
+        bool playMidi(const std::shared_ptr<audio::MIDI> midi, const midi::Device& device);
     private:
-        std::shared_ptr<audio::scummvm::Mixer> _mixer;
-        //std::shared_ptr<audio::MIDI> _midi;
     };
 }

@@ -96,3 +96,14 @@ macro_example(
       "../test/fixtures/midifile_sample.mid"
     NONE
 )
+
+macro_example(
+    EXE MIDexample
+    FILE "mid-example.cpp"
+    DEPS sonic-drivers-static
+    LINKS ${LIB_SDL2main} sonic-drivers-static RtMidi::rtmidi
+    FIXTURES 
+      "../test/fixtures/MI_intro.mid"
+      "../test/fixtures/midifile_sample.mid"
+    NONE
+)

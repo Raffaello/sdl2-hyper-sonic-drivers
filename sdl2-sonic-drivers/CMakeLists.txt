@@ -108,6 +108,7 @@ target_sources(${LIB_NAME} PRIVATE
     #${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/miles/XMidi.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/MIDParser.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/MIDDriver.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/DeviceNative.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/miles/XMIParser.cpp
     # --- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/westwood/ADLFile.cpp
