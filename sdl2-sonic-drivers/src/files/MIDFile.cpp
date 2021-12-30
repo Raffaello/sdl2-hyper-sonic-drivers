@@ -50,12 +50,10 @@ namespace files
         std::vector<audio::midi::MIDIEvent> events;
 
         // 1. with absolute time just copy all the events as they are into 1 single track
-        for (int n = 0; n < _midi->numTracks; n++)
+        for (uint16_t n = 0; n < _midi->numTracks; n++)
         {
             for (const auto& te : _midi->getTrack(n).getEvents())
-            {
                 events.push_back(te);
-            }
         }
 
         // 2. then sort them by absolute time

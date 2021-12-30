@@ -16,7 +16,7 @@ namespace drivers
     {
     }
 
-    void MIDDriver::play(const std::shared_ptr<audio::MIDI> midi)
+    void MIDDriver::play(const std::shared_ptr<audio::MIDI> midi) const noexcept
     {
         using audio::midi::MIDI_FORMAT;
 

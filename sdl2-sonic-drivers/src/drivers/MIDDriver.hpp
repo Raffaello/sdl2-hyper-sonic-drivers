@@ -15,7 +15,7 @@ namespace drivers
         explicit MIDDriver(std::shared_ptr<audio::scummvm::Mixer> mixer, std::shared_ptr<midi::Device> device);
         ~MIDDriver() = default;
         // TODO need to be async
-        void play(const std::shared_ptr<audio::MIDI> midi);
+        void play(const std::shared_ptr<audio::MIDI> midi) const noexcept;
     private:
         void processTrack(const audio::midi::MIDITrack& track, const uint16_t division) const noexcept;
 
