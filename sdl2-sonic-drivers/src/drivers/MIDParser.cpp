@@ -30,7 +30,6 @@ namespace drivers
 
     void MIDParser::processTrack(audio::midi::MIDITrack& track, const int i, std::shared_ptr<RtMidiOut> midiout)
     {
-        std::vector<uint8_t> midi_msg;
         int cur_time = 0; // ticks
         unsigned int tempo_micros = static_cast<unsigned int>(static_cast<float>(tempo) / static_cast<float>(division));
         // TODO: the timer should be inside the MIDI object when play it?
@@ -38,8 +37,7 @@ namespace drivers
         unsigned int start = utils::getMicro<unsigned int>();
         for (auto& e : track.events)
         {
-            midi_msg.clear();
-            //unsigned int start = utils::getMicro<unsigned int>();
+            std::vector<uint8_t> midi_msg;
             spdlog::debug("MIDI Track#={:3}, Event: dt={:4}, type={:#04x}", i, e.delta_time, e.type.val);
             switch (e.type.high)
             {
@@ -66,6 +64,10 @@ namespace drivers
                         break;
                     case audio::midi::MIDI_META_EVENT::END_OF_TRACK:
                         spdlog::debug("End Of Track");
+                        /*midi_msg.push_back(e.type.val);
+                        midi_msg.push_back(e.data[0]);
+                        midi_msg.push_back(0);
+                        midiout->sendMessage(&midi_msg);*/
                         break;
                     case audio::midi::MIDI_META_EVENT::INSTRUMENT_NAME:
                         spdlog::debug("Instrument Name {}", &e.data[skip]);
@@ -131,70 +133,73 @@ namespace drivers
                 midi_msg.push_back(e.type.val);
                 midi_msg.push_back(e.data[0]);
                 midi_msg.push_back(e.data[1]);
-                midiout->sendMessage(&midi_msg);
+                //midiout->sendMessage(&midi_msg);
                 break;
             case 0x9: // note on
                 spdlog::debug("Channel #{} Note ON: note={}, velocity={}", (int)e.type.low, e.data[0], e.data[1]);
                 midi_msg.push_back(e.type.val);
                 midi_msg.push_back(e.data[0]);
                 midi_msg.push_back(e.data[1]);
-                midiout->sendMessage(&midi_msg);
+                //midiout->sendMessage(&midi_msg);
                 break;
             case 0xA: // note aftertouch
                 spdlog::debug("Channel #{} Note Aftertouch: note={}, ater touch value={}", (int)e.type.low, e.data[0], e.data[1]);
                 midi_msg.push_back(e.type.val);
                 midi_msg.push_back(e.data[0]);
                 midi_msg.push_back(e.data[1]);
-                midiout->sendMessage(&midi_msg);
+                //midiout->sendMessage(&midi_msg);
                 break;
             case 0xB: // controller
                 spdlog::debug("Channel #{} Controller: number={}, value={}", (int)e.type.low, e.data[0], e.data[1]);
                 midi_msg.push_back(e.type.val);
                 midi_msg.push_back(e.data[0]);
                 midi_msg.push_back(e.data[1]);
-                midiout->sendMessage(&midi_msg);
+                //midiout->sendMessage(&midi_msg);
                 break;
             case 0xE: // pitch bend
                 spdlog::debug("Channel #{} Pitch Bend: value={}", (int)e.type.low, (e.data[0]) | (e.data[1] << 8));
                 midi_msg.push_back(e.type.val);
                 midi_msg.push_back(e.data[0]);
                 midi_msg.push_back(e.data[1]);
-                midiout->sendMessage(&midi_msg);
+                //midiout->sendMessage(&midi_msg);
                 break;
                 // 1 data values
             case 0xC: // program change
                 spdlog::debug("Channel #{} Program change: number={}", (int)e.type.low, e.data[0]);
                 midi_msg.push_back(e.type.val);
                 midi_msg.push_back(e.data[0]);
-                midiout->sendMessage(&midi_msg);
+                //midiout->sendMessage(&midi_msg);
                 break;
             case 0xD: // channel aftertouch
                 spdlog::debug("Channel #{} Channel after touch: value={}", (int)e.type.low, e.data[0]);
                 midi_msg.push_back(e.type.val);
                 midi_msg.push_back(e.data[0]);
-                midiout->sendMessage(&midi_msg);
+                //midiout->sendMessage(&midi_msg);
                 break;
             default:
                 spdlog::critical("event type={:#04x} parsing not implemented", (int)e.type.low, e.type.val);
                 return;
             }
 
-            if (e.delta_time == 0)
-                continue;
+            if (e.delta_time != 0)
+            {
+                cur_time += e.delta_time;
+                const unsigned int delta_delay = tempo_micros * e.delta_time;
+                const unsigned int end = utils::getMicro<unsigned int>();
+                const long dd = static_cast<long>(delta_delay - (end - start));
+                start = end;
 
-            cur_time += e.delta_time;
-            const unsigned int delta_delay = tempo_micros * e.delta_time;
-            const unsigned int end = utils::getMicro<unsigned int>();
-            const long dd = static_cast<long>(delta_delay - (end - start));
-            start = end;
-            
-            if (dd > 0) {
-                delayMicro(dd); // not precise
-                start += dd;
+                if (dd > 0) {
+                    delayMicro(dd); // not precise
+                    start += dd;
+                }
+                else {
+                    spdlog::warn("#{} --- cur_time={}, delta_delay={}, micro_delay_time={}", i, cur_time, delta_delay, dd);
+                }
             }
-            else {
-                spdlog::warn("#{} --- cur_time={}, delta_delay={}, micro_delay_time={}", i, cur_time, delta_delay, dd);
-            }
+
+            if (midi_msg.size() > 0)
+                midiout->sendMessage(&midi_msg);
         }
     }
 
@@ -244,8 +249,7 @@ namespace drivers
             processTrack(track, i, midiout);
         }
 
-        // TODO: this works only with a constant tempo during all the sequence
-        // BODY: also should be computed in float and ceiled for integer.
+        // this works only with a constant tempo during the song, and it is ok for an expected value.
         float exp_time_seconds = static_cast<float>(_midi->getTrack(0).events.back().abs_time) / static_cast<float>(division) * (static_cast<float>(tempo) / 1000000.0f);
         auto end_time = std::chrono::system_clock::now();
         auto tot_time = end_time - start_time;

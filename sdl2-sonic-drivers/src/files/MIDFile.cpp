@@ -7,6 +7,7 @@
 #include <utils/algorithms.hpp>
 #include <audio/midi/MIDITrack.hpp>
 #include <audio/midi/MIDIEvent.hpp>
+#include <algorithm>
 
 
 namespace files
@@ -74,7 +75,6 @@ namespace files
             e.delta_time = e.abs_time - abs_time;
             if (e.abs_time > abs_time)
                 abs_time = e.abs_time;
-
         }
 
         midi->addTrack(single_track);
