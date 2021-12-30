@@ -1,25 +1,31 @@
 #include <drivers/midi/DeviceNative.hpp>
 #include <vector>
-#include <cstdint>
-#include <array>
 
 namespace drivers
 {
     namespace midi
     {
-        DeviceNative::DeviceNative(const int port) : Device(), _midiout(std::make_shared<RtMidiOut>())
+        DeviceNative::DeviceNative(const int port) : Device(),
+            _midiout(std::make_shared<RtMidiOut>())
         {
             // default open port 0
             _midiout->openPort(port);
         }
 
-        void DeviceNative::sendEvent(const audio::midi::MIDIEvent& e) const noexcept
+        inline void DeviceNative::sendEvent(const audio::midi::MIDIEvent& e) noexcept
         {
-            std::array<uint8_t, 3> m = { e.type.val, e.data[0] };
-            if(e.data.size() == 2)
-                m[2] = e.data[1];
+            const int size = e.data.size() + 1;
+            _m[0] = e.type.val;
+            _m[1] = e.data[0];
+            if (size == 3)
+                _m[2] = e.data[1];
 
-            _midiout->sendMessage(m.data(), e.data.size() + 1);
+            _midiout->sendMessage(_m.data(), size);
+        }
+
+        inline void DeviceNative::sendMessage(const uint8_t msg[], const uint8_t size) noexcept
+        {
+            _midiout->sendMessage(msg, size);
         }
     }
 }

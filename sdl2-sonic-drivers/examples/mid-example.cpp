@@ -15,7 +15,7 @@ int main(int argc, char* argv[])
     
     drivers::MIDDriver mid_drv;
     auto start_time = std::chrono::system_clock::now();
-    
+    //spdlog::set_level(spdlog::level::debug);
     mid_drv.playMidi(midi, nativeMidi);
     /*while (mid_drv.isPlayng()) {
         utils::
