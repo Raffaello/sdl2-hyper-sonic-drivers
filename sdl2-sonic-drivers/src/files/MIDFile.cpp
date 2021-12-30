@@ -154,6 +154,7 @@ namespace files
         // events
         int offs = 0;
         uint32_t abs_time = 0;
+        uint32_t prev_abs_time = 0;
         while (!endTrack)
         {
             // MTrck Event:
@@ -161,6 +162,16 @@ namespace files
             // delta time encoded in VRQ
             offs += decode_VLQ(e.delta_time);
             abs_time += e.delta_time;
+            if (prev_abs_time > abs_time)
+            {
+                // uint32_t abs_time overflow
+                // it shoulnd't happen in "small midi" files
+                // but just a sanity check just in case...
+                // to figure it out when it might happen.
+                // in theory never for small midi files.
+                throw std::runtime_error("MIDI file too long, absolute time overflowed");
+            }
+
             e.abs_time = abs_time;
             e.type.val = readU8();
 
