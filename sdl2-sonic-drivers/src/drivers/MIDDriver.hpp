@@ -12,12 +12,12 @@ namespace drivers
     class MIDDriver
     {
     public:
-        MIDDriver(std::shared_ptr<audio::scummvm::Mixer> mixer, std::shared_ptr<midi::Device> device);
+        explicit MIDDriver(std::shared_ptr<audio::scummvm::Mixer> mixer, std::shared_ptr<midi::Device> device);
         ~MIDDriver() = default;
         // TODO need to be async
-        bool play(const std::shared_ptr<audio::MIDI> midi);
+        void play(const std::shared_ptr<audio::MIDI> midi);
     private:
-        void processTrack(const audio::midi::MIDITrack& track, const uint16_t division);
+        void processTrack(const audio::midi::MIDITrack& track, const uint16_t division) const noexcept;
 
         // mixer is not used, but ensuring is initialized
         // if not initialized there are delays otherwise

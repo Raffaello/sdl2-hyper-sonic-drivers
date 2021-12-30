@@ -13,7 +13,7 @@ namespace drivers
     class MIDParser
     {
     public:
-        MIDParser(std::shared_ptr<audio::MIDI> midi);
+        explicit MIDParser(std::shared_ptr<audio::MIDI> midi);
         virtual ~MIDParser();
 
         void processTrack(audio::midi::MIDITrack& track, const int i, std::shared_ptr<RtMidiOut> midiout);

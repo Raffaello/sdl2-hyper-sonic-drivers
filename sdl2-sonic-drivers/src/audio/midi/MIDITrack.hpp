@@ -10,7 +10,7 @@ namespace audio
         class MIDITrack
         {
         public:
-            MIDITrack();
+            MIDITrack() = default;
             MIDITrack(const std::vector<MIDIEvent> events);
             void addEvent(const MIDIEvent& e);
 

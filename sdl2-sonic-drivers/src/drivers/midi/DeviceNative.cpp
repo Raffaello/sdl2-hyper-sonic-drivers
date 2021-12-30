@@ -13,18 +13,19 @@ namespace drivers
             _midiout->openPort(port);
         }
 
-        inline void DeviceNative::sendEvent(const audio::midi::MIDIEvent& e) noexcept
+        inline void DeviceNative::sendEvent(const audio::midi::MIDIEvent& e) const noexcept
         {
-            const int size = e.data.size() + 1;
-            _m[0] = e.type.val;
-            _m[1] = e.data[0];
+            std::array<uint8_t, 3> m;
+            const size_t size = e.data.size() + 1;
+            m[0] = e.type.val;
+            m[1] = e.data[0];
             if (size == 3)
-                _m[2] = e.data[1];
+                m[2] = e.data[1];
 
-            _midiout->sendMessage(_m.data(), size);
+            _midiout->sendMessage(m.data(), size);
         }
 
-        inline void DeviceNative::sendMessage(const uint8_t msg[], const uint8_t size) noexcept
+        inline void DeviceNative::sendMessage(const uint8_t msg[], const uint8_t size) const noexcept
         {
             assert(size >= 2 && size <= 3);
             _midiout->sendMessage(msg, size);

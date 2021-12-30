@@ -16,13 +16,13 @@ namespace drivers
     {
     }
 
-    bool MIDDriver::play(const std::shared_ptr<audio::MIDI> midi)
+    void MIDDriver::play(const std::shared_ptr<audio::MIDI> midi)
     {
         using audio::midi::MIDI_FORMAT;
 
         if (midi->format != MIDI_FORMAT::SINGLE_TRACK && midi->numTracks != 1) {
             spdlog::critical("MIDI format single track only supported");
-            return false;
+            return;
         }
 
         if (midi->division & 0x8000)
@@ -53,7 +53,7 @@ namespace drivers
         processTrack(midi->getTrack(0), midi->division);
     }
 
-    void MIDDriver::processTrack(const audio::midi::MIDITrack& track, const uint16_t division)
+    void MIDDriver::processTrack(const audio::midi::MIDITrack& track, const uint16_t division) const noexcept
     {
         uint32_t tempo = 500000; //120 BPM;
         int cur_time = 0; // ticks
@@ -62,7 +62,7 @@ namespace drivers
         unsigned int start = utils::getMicro<unsigned int>();
         const auto& tes = track.events;
         std::array<uint8_t, 3> msg = {};
-        int msg_size = 0;
+        uint8_t msg_size = 0;
         for (const auto& e : tes)
         {
             switch (e.type.high)
@@ -73,7 +73,6 @@ namespace drivers
                     const uint8_t type = e.data[0]; // must be < 128
                     if (static_cast<audio::midi::MIDI_META_EVENT>(type) == audio::midi::MIDI_META_EVENT::SET_TEMPO)
                     {
-                        const uint32_t length = e.data.size() - 1; // previously decoded
                         const int skip = 1;
                         tempo = (e.data[skip] << 16) + (e.data[skip + 1] << 8) + (e.data[skip + 2]);
                         tempo_micros = tempo_to_micros(tempo, division);
@@ -81,7 +80,6 @@ namespace drivers
                     }
                 }
                 continue;
-                break;
             case 0x8:
             case 0x9:
             case 0xA:

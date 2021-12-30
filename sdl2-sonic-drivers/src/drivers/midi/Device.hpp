@@ -13,8 +13,8 @@ namespace drivers
             Device() = default;
             ~Device() = default;
 
-            virtual inline void sendEvent(const audio::midi::MIDIEvent& e) noexcept = 0;
-            virtual inline void sendMessage(const uint8_t msg[], const uint8_t size) noexcept = 0;
+            virtual inline void sendEvent(const audio::midi::MIDIEvent& e) const noexcept = 0;
+            virtual inline void sendMessage(const uint8_t msg[], const uint8_t size) const noexcept = 0;
         };
     }
 }
