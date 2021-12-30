@@ -5,6 +5,7 @@
 #include <thread>
 #include <vector>
 #include <algorithm>
+#include <string>
 
 namespace utils
 {
@@ -78,4 +79,9 @@ namespace utils
     /// <param name="out_value">the resulting decoded value</param>
     /// <returns>byte reads</returns>
     int decode_xmi_VLQ(const uint8_t buf[], uint32_t& out_value);
+
+    inline std::string midi_event_to_string(const std::vector<uint8_t>& e)
+    {
+        return std::string(++e.begin(), e.end());
+    }
 }

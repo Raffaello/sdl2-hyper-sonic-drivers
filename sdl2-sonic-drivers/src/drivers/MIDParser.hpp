@@ -24,9 +24,6 @@ namespace drivers
         std::shared_ptr<audio::scummvm::Mixer> _mixer;
         std::shared_ptr<audio::MIDI> _midi;
 
-        // TODO remove those
-        int num_tracks;
-        int division;
         uint32_t tempo;
     };
 }

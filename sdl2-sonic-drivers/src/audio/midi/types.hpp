@@ -15,6 +15,7 @@ namespace audio
             //TODO: add XMI_FORMAT?
         };
 
+        // move to MIDIEvent class ?
         typedef union MIDI_EVENT_type_u
         {
             uint8_t val;

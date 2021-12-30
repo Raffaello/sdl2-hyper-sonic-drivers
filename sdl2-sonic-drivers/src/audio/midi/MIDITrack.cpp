@@ -4,7 +4,7 @@ namespace audio
 {
     namespace midi
     {
-        MIDITrack::MIDITrack() : _curPos(0), _ticks(0)
+        MIDITrack::MIDITrack() /* : _curPos(0), _ticks(0) */
         {
         }
 
