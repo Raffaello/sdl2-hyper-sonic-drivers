@@ -14,14 +14,9 @@ namespace audio
             MIDITrack(const std::vector<MIDIEvent> events);
             void addEvent(const MIDIEvent& e);
 
-            //const MIDIEvent& nextEvent() noexcept;
-            //void reset() noexcept;
-            //void setTempo() noexcept;
-            //int getBPM();
-
-            // TODO move to protected later on..
-            std::vector<MIDIEvent> events;
+            inline const std::vector<MIDIEvent>& getEvents() const noexcept;
         private:
+            std::vector<MIDIEvent> _events;
             /**
             * This tempo is in microseconds per minute, default 120BPM = 500000
             * MICROSECONDS_PER_MINUTE / _temp = Beats per minute.
@@ -37,7 +32,7 @@ namespace audio
             //uint8_t _midi_clocks_per_metronome_click;
             //uint8_t _tickPerMetronomeClick; // notated 32nd notes in what MIDI thinks of a quarter note???
             
-            // TODO: SMPTE? 
+            // SMPTE?
 
 
             /// <summary>
@@ -51,8 +46,11 @@ namespace audio
             /// </summary>
             //uint8_t _scale;
 
-            //uint32_t _curPos;
-            //uint32_t _ticks;
         };
+
+        inline const std::vector<MIDIEvent>& MIDITrack::getEvents() const noexcept
+        {
+            return _events;
+        }
     }
 }

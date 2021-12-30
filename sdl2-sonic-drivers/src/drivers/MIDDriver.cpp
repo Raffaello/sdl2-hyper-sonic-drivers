@@ -60,7 +60,7 @@ namespace drivers
         unsigned int tempo_micros = tempo_to_micros(tempo, division);
         spdlog::debug("tempo_micros = {}", tempo_micros);
         unsigned int start = utils::getMicro<unsigned int>();
-        const auto& tes = track.events;
+        const auto& tes = track.getEvents();
         std::array<uint8_t, 3> msg = {};
         uint8_t msg_size = 0;
         for (const auto& e : tes)

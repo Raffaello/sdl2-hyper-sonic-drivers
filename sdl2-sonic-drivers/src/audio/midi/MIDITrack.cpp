@@ -6,12 +6,12 @@ namespace audio
     {
         MIDITrack::MIDITrack(const std::vector<MIDIEvent> events) : MIDITrack()
         {
-            this->events = events;
+            _events = events;
         }
 
         void MIDITrack::addEvent(const MIDIEvent& e)
         {
-            events.push_back(e);
+            _events.push_back(e);
         }
     }
 }

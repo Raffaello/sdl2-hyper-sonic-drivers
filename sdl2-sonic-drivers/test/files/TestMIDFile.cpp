@@ -18,11 +18,11 @@ namespace files
         EXPECT_EQ(f.getMIDI()->division, 192);
 
         auto track0 = f.getMIDI()->getTrack(0);
-        EXPECT_EQ(track0.events.size(), 4);
-        EXPECT_EQ(track0.events[3].type.val, 0xFF);
-        EXPECT_EQ(track0.events[3].data.size(), 1);
-        EXPECT_EQ(track0.events[3].data[0], (int)audio::midi::MIDI_META_EVENT::END_OF_TRACK);
-        EXPECT_EQ(track0.events[3].delta_time, 0);
+        EXPECT_EQ(track0.getEvents().size(), 4);
+        EXPECT_EQ(track0.getEvents()[3].type.val, 0xFF);
+        EXPECT_EQ(track0.getEvents()[3].data.size(), 1);
+        EXPECT_EQ(track0.getEvents()[3].data[0], (int)audio::midi::MIDI_META_EVENT::END_OF_TRACK);
+        EXPECT_EQ(track0.getEvents()[3].delta_time, 0);
     }
 
     TEST(MIDFile, file_not_found)
@@ -40,30 +40,30 @@ namespace files
         EXPECT_EQ(m->numTracks, 3);
         EXPECT_EQ(m->division, 120);
         
-        EXPECT_EQ(m->getTrack(0).events.size(), 1);
-        EXPECT_EQ(m->getTrack(1).events.size(), 29);
-        EXPECT_EQ(m->getTrack(2).events.size(), 31);
+        EXPECT_EQ(m->getTrack(0).getEvents().size(), 1);
+        EXPECT_EQ(m->getTrack(1).getEvents().size(), 29);
+        EXPECT_EQ(m->getTrack(2).getEvents().size(), 31);
 
         // absolute time checks
         auto t = m->getTrack(0);
-        EXPECT_EQ(t.events[0].abs_time, 0);
-        EXPECT_EQ(t.events[0].delta_time, 0);
+        EXPECT_EQ(t.getEvents()[0].abs_time, 0);
+        EXPECT_EQ(t.getEvents()[0].delta_time, 0);
         
         t = m->getTrack(1);
-        EXPECT_EQ(t.events[0].abs_time, 0);
-        EXPECT_EQ(t.events[1].abs_time, 120);
-        EXPECT_EQ(t.events[2].abs_time, 120);
-        EXPECT_EQ(t.events[3].abs_time, 240);
+        EXPECT_EQ(t.getEvents()[0].abs_time, 0);
+        EXPECT_EQ(t.getEvents()[1].abs_time, 120);
+        EXPECT_EQ(t.getEvents()[2].abs_time, 120);
+        EXPECT_EQ(t.getEvents()[3].abs_time, 240);
         // ... 
-        EXPECT_EQ(t.events[28].abs_time, 1920);
+        EXPECT_EQ(t.getEvents()[28].abs_time, 1920);
 
         t = m->getTrack(2);
-        EXPECT_EQ(t.events[0].abs_time, 0);
-        EXPECT_EQ(t.events[1].abs_time, 120);
-        EXPECT_EQ(t.events[2].abs_time, 120);
-        EXPECT_EQ(t.events[3].abs_time, 240);
+        EXPECT_EQ(t.getEvents()[0].abs_time, 0);
+        EXPECT_EQ(t.getEvents()[1].abs_time, 120);
+        EXPECT_EQ(t.getEvents()[2].abs_time, 120);
+        EXPECT_EQ(t.getEvents()[3].abs_time, 240);
         // ... 
-        EXPECT_EQ(t.events[30].abs_time, 1920);
+        EXPECT_EQ(t.getEvents()[30].abs_time, 1920);
     }
 
     void cmp_midievent(const int i, const audio::midi::MIDIEvent& e, const uint32_t exp_abs_time, const uint32_t exp_delta_time)
@@ -82,7 +82,7 @@ namespace files
         EXPECT_EQ(m->format, audio::midi::MIDI_FORMAT::SINGLE_TRACK);
         EXPECT_EQ(m->numTracks, 1);
         EXPECT_EQ(m->division, 120);
-        EXPECT_EQ(m->getTrack(0).events.size(), 1 + 29 + 31);
+        EXPECT_EQ(m->getTrack(0).getEvents().size(), 1 + 29 + 31);
         
         const std::array<uint32_t, 61> exp_abs_times = {
             0, 0, 0, 120, 120, 120, 120, 240, 240, 240, 240, 360, 360, 360,
@@ -113,7 +113,7 @@ namespace files
         std::vector<std::vector<uint8_t>> v = { { 1,2,3 } };
 
         // This checks isn't working as it is too strict.
-        // it should compare the same absolute time events data instead.
+        // it should compare the same absolute time getEvents() data instead.
         // anyway the error is not on reading the file
         //const std::vector<std::vector<uint8_t>> exp_datas = {
         //    {0xff, 0x2f},      {0x90, 0x48, 0x40},{0x90, 0x30, 0x40},                    // 2
@@ -137,7 +137,7 @@ namespace files
         auto t = m->getTrack(0);
 
         for (int i = 0; i < 61; i++) {
-            cmp_midievent(i, t.events[i], exp_abs_times[i], exp_delta_times[i]);
+            cmp_midievent(i, t.getEvents()[i], exp_abs_times[i], exp_delta_times[i]);
         }
     }
 }

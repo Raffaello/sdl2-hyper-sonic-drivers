@@ -33,7 +33,7 @@ namespace drivers
         int cur_time = 0; // ticks
         unsigned int tempo_micros = static_cast<unsigned int>(static_cast<float>(tempo) / static_cast<float>(_midi->division));
         unsigned int start = utils::getMicro<unsigned int>();
-        for (auto& e : track.events)
+        for (auto& e : track.getEvents())
         {
             std::vector<uint8_t> midi_msg;
             spdlog::debug("MIDI Track#={:3}, Event: dt={:4}, type={:#04x}", i, e.delta_time, e.type.val);
@@ -241,7 +241,7 @@ namespace drivers
         processTrack(track, 0, midiout);
 
         // this works only with a constant tempo during the song, and it is ok for an expected value.
-        float exp_time_seconds = static_cast<float>(_midi->getTrack(0).events.back().abs_time) / static_cast<float>(_midi->division) * (static_cast<float>(tempo) / 1000000.0f);
+        float exp_time_seconds = static_cast<float>(_midi->getTrack(0).getEvents().back().abs_time) / static_cast<float>(_midi->division) * (static_cast<float>(tempo) / 1000000.0f);
         auto end_time = std::chrono::system_clock::now();
         auto tot_time = end_time - start_time;
         spdlog::info("Total Running Time: {:%M:%S}, expected={}:{}",
