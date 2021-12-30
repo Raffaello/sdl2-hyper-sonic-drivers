@@ -20,6 +20,9 @@ using std::endl;
 
 int main(int argc, char* argv[])
 {
+    // not initing the mixer will results in delay reproducing the midi file.
+    // not sure what is special in SDL2 when init audio to make not lagging
+    // the midi.
     SdlMixerManager mixerManager;
     mixerManager.init();
 

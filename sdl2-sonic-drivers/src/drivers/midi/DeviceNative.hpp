@@ -23,6 +23,5 @@ namespace drivers
         private:
             std::shared_ptr<RtMidiOut> _midiout;
         };
-
     }
 }

@@ -43,6 +43,8 @@ install(FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/westwood/ADLDriver.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/PCMDriver.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/MIDDriver.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/Device.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/NativeDevice.hpp
     
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/westwood/ADLFile.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/MIDFile.hpp
