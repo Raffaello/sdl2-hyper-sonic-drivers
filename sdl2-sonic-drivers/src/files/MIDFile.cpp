@@ -77,7 +77,7 @@ namespace files
 
         audio::midi::MIDITrack single_track(events);
         midi->addTrack(single_track);
-        assert(midi->getTrack(0).getEvents().size() == single_track.getEvents().size());
+        assert(midi->getTrack().getEvents().size() == single_track.getEvents().size());
 
         return midi;
     }

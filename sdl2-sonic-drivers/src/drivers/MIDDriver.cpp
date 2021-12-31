@@ -50,7 +50,7 @@ namespace drivers
             spdlog::debug("Division: Ticks per quarter note = {}", midi->division & 0x7FFF);
         }
 
-        processTrack(midi->getTrack(0), midi->division);
+        processTrack(midi->getTrack(), midi->division);
     }
 
     void MIDDriver::processTrack(const audio::midi::MIDITrack& track, const uint16_t division) const noexcept

@@ -13,7 +13,7 @@ namespace audio
         MIDI(const midi::MIDI_FORMAT format, const uint16_t num_tracks, const uint16_t division);
 
         void addTrack(const midi::MIDITrack& track);
-        const midi::MIDITrack& getTrack(const uint16_t track) const;
+        const midi::MIDITrack& getTrack(const uint16_t track = 0) const;
 
         /**
         * Specifies the overall organization of the file. Only three values of
