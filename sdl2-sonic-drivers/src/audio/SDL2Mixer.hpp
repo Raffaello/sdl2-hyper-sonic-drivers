@@ -9,6 +9,7 @@
 namespace audio
 {
     // TODO rename MixMixerManager (using SDL_Mixer)
+    // This Class is not included in the library
     class SDL2Mixer : public scummvm::Mixer
     {
     private:

@@ -4,7 +4,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_DEBUG_POSTFIX d)
 
 find_package(SDL2 CONFIG REQUIRED)
-find_package(sdl2-mixer CONFIG REQUIRED)
+find_package(sdl2-mixer CONFIG REQUIRED) # TODO remove this dependency
 find_package(spdlog 1.9.0 CONFIG REQUIRED)
 find_package(RtMidi CONFIG REQUIRED)
 
@@ -91,7 +91,7 @@ target_include_directories(${LIB_NAME} PUBLIC
     $<INSTALL_INTERFACE:"static/include">
 )
 target_sources(${LIB_NAME} PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/SDL2Mixer.cpp
+    #${CMAKE_CURRENT_SOURCE_DIR}/src/audio/SDL2Mixer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/DiskRendererMixerManager.cpp
     
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/MIDI.cpp
@@ -167,13 +167,13 @@ unset(LIB_VER)
 
 # Add source to this project's executable.
 add_executable(sdl2-sonic-drivers "sdl2-sonic-drivers.cpp")
-target_sources(sdl2-sonic-drivers PUBLIC
+#target_sources(sdl2-sonic-drivers PUBLIC
     #${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/miles/XMidi.cpp
     # --- #
     #${CMAKE_CURRENT_SOURCE_DIR}/src/files/IFFFile.cpp
     #${CMAKE_CURRENT_SOURCE_DIR}/src/files/XMIFile.cpp
     #${CMAKE_CURRENT_SOURCE_DIR}/src/files/MIDFile.cpp
-)
+#)
 
 target_link_libraries(sdl2-sonic-drivers PRIVATE ${LIB_SDL2main} SDL2::SDL2_mixer)
 target_link_libraries(sdl2-sonic-drivers PRIVATE sonic-drivers-static)
