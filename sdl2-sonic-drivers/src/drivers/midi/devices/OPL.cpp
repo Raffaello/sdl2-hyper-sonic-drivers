@@ -12,6 +12,10 @@ namespace drivers
 
             inline void OPL::sendEvent(const audio::midi::MIDIEvent& e) const noexcept
             {
+                switch (e.type.high) {
+                case 0x8:
+                    break;
+                }
             }
 
             inline void OPL::sendMessage(const uint8_t msg[], const uint8_t size) const noexcept
