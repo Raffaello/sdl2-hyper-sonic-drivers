@@ -370,8 +370,9 @@ int midi_adlib()
 
     //spdlog::set_level(spdlog::level::debug);
     std::shared_ptr<files::MIDFile> midFile = std::make_shared<files::MIDFile>("test/fixtures/MI_intro.mid");
+    //auto midFile = std::make_shared<files::MIDFile>("test/fixtures/midifile_sample.mid");
     auto midi = midFile->convertToSingleTrackMIDI();
-    auto scumm_midi = std::make_shared<drivers::midi::devices::ScummVM>(opl);
+    auto scumm_midi = std::make_shared<drivers::midi::devices::ScummVM>(opl, true);
     drivers::MIDDriver midDrv(mixer, scumm_midi);
 
 

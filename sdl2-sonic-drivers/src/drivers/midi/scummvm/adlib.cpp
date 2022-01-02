@@ -1072,12 +1072,12 @@ void AdLibPercussionChannel::sysEx_customInstrument(uint32_t type, const uint8_t
 
 // MidiDriver method implementations
 
-MidiDriver_ADLIB::MidiDriver_ADLIB(std::shared_ptr<hardware::opl::OPL> opl): _opl(opl)  {
+MidiDriver_ADLIB::MidiDriver_ADLIB(std::shared_ptr<hardware::opl::OPL> opl, const bool opl3mode): _opl(opl) {
     unsigned int i;
 
     _scummSmallHeader = false;
 #ifdef ENABLE_OPL3
-    _opl3Mode = false;
+    _opl3Mode = opl3mode;
 #endif
 
     _regCache = 0;
@@ -1116,7 +1116,7 @@ int MidiDriver_ADLIB::open() {
         voice->_s11a.s10 = &voice->_s10b;
         voice->_s11b.s10 = &voice->_s10a;
     }
-
+    
     // Try to use OPL3 when requested.
 #ifdef ENABLE_OPL3
     //if (_opl3Mode) {
@@ -1131,8 +1131,9 @@ int MidiDriver_ADLIB::open() {
     //  _opl3Mode = false;
     //}
 #endif
-    _opl->init();
 
+    _opl->init();
+    
     _regCache = (uint8_t*)calloc(256, 1);
 
     adlibWrite(8, 0x40);

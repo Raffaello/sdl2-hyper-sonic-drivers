@@ -8,9 +8,9 @@ namespace drivers
     {
         namespace devices
         {
-            ScummVM::ScummVM(std::shared_ptr<hardware::opl::OPL> opl) : Device()
+            ScummVM::ScummVM(std::shared_ptr<hardware::opl::OPL> opl, const bool opl3mode) : Device()
             {
-                _adlib = std::make_shared<MidiDriver_ADLIB>(opl);
+                _adlib = std::make_shared<MidiDriver_ADLIB>(opl, opl3mode);
                 _adlib->open();
             }
 

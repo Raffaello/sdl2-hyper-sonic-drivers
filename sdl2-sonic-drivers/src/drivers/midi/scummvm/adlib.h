@@ -244,7 +244,7 @@ class MidiDriver_ADLIB : public MidiDriver {
     friend class AdLibPercussionChannel;
 
 public:
-    MidiDriver_ADLIB(std::shared_ptr<hardware::opl::OPL> opl);
+    MidiDriver_ADLIB(std::shared_ptr<hardware::opl::OPL> opl, const bool opl3mode);
 
     int open() override;
     void close() override;
