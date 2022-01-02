@@ -15,7 +15,7 @@ namespace drivers
         : _mixer(mixer), _device(device)
     {
     }
-
+    
     void MIDDriver::play(const std::shared_ptr<audio::MIDI> midi) const noexcept
     {
         using audio::midi::MIDI_FORMAT;

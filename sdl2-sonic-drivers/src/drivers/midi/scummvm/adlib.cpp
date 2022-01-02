@@ -1097,7 +1097,6 @@ MidiDriver_ADLIB::MidiDriver_ADLIB(std::shared_ptr<hardware::opl::OPL> opl): _op
     _percussion.init(this, 9);
     _timerIncrease = 0xD69;
     _timerThreshold = 0x411B;
-    _opl = 0;
     _adlibTimerProc = 0;
     _adlibTimerParam = 0;
     _isOpen = false;
@@ -1222,7 +1221,7 @@ void MidiDriver_ADLIB::send(int8_t chan, uint32_t b) {
         break;
 
     default:
-        spdlog::warn("MidiDriver_ADLIB: Unknown send() command {#x}", cmd);
+        spdlog::warn("MidiDriver_ADLIB: Unknown send() command {0:#x}", cmd);
     }
 }
 

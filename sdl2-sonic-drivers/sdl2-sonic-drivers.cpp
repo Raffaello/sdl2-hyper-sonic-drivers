@@ -27,6 +27,8 @@
 
 
 #include <drivers/midi/scummvm/adlib.h>
+#include <drivers/midi/devices/ScummVM.hpp>
+#include <drivers/MIDDriver.hpp>
 
 using namespace std;
 
@@ -363,23 +365,34 @@ int midi_adlib()
     auto type = Config::OplType::OPL2;
     
     auto opl = Config::create(emu, type, mixer);
-    if (opl == nullptr)
+    if (opl.get() == nullptr)
         return -1;
 
     
 
     //spdlog::set_level(spdlog::level::debug);
     std::shared_ptr<files::MIDFile> midFile = std::make_shared<files::MIDFile>("test/fixtures/MI_intro.mid");
+    auto midi = midFile->convertToSingleTrackMIDI();
 
     MidiDriver_ADLIB mididrv(opl);
 
     cout << "mididrv is open: " << mididrv.isOpen() << endl;
     cout << "mididrv is ready: " << mididrv.isReady() << endl;
 
-    mididrv.send(0, 100);
+    mididrv.open();
+    mididrv.send(0, 0x9045);
     SDL_Delay(1000);
     
     mididrv.close();
+
+    auto scumm_midi = std::make_shared<drivers::midi::devices::ScummVM>(opl);
+    drivers::MIDDriver midDrv(mixer, scumm_midi);
+
+
+    cout << "playing midi..." << endl;
+    midDrv.play(midi);
+
+    cout << "over." << endl;
 
     return 0;
 }
