@@ -1151,6 +1151,10 @@ int MidiDriver_ADLIB::open() {
 #endif
 
     //_opl->start(new Common::Functor0Mem<void, MidiDriver_ADLIB>(this, &MidiDriver_ADLIB::onTimer));
+    hardware::opl::TimerCallBack cb = std::bind(&MidiDriver_ADLIB::onTimer, this);
+    auto p = std::make_shared<hardware::opl::TimerCallBack>(cb);
+    _opl->start(p);
+    
     return 0;
 }
 

@@ -361,38 +361,23 @@ int midi_adlib()
 
     std::shared_ptr<Mixer> mixer = mixerManager.getMixer();
 
-    auto emu = OplEmulator::MAME;
-    auto type = Config::OplType::OPL2;
+    auto emu = OplEmulator::NUKED;
+    auto type = Config::OplType::OPL3;
     
     auto opl = Config::create(emu, type, mixer);
     if (opl.get() == nullptr)
         return -1;
 
-    
-
     //spdlog::set_level(spdlog::level::debug);
     std::shared_ptr<files::MIDFile> midFile = std::make_shared<files::MIDFile>("test/fixtures/MI_intro.mid");
     auto midi = midFile->convertToSingleTrackMIDI();
-
-    MidiDriver_ADLIB mididrv(opl);
-
-    cout << "mididrv is open: " << mididrv.isOpen() << endl;
-    cout << "mididrv is ready: " << mididrv.isReady() << endl;
-
-    mididrv.open();
-    mididrv.send(0, 0x9045);
-    SDL_Delay(1000);
-    
-    mididrv.close();
-
     auto scumm_midi = std::make_shared<drivers::midi::devices::ScummVM>(opl);
     drivers::MIDDriver midDrv(mixer, scumm_midi);
 
 
-    cout << "playing midi..." << endl;
+    spdlog::info("playing midi...");
     midDrv.play(midi);
-
-    cout << "over." << endl;
+    spdlog::info("end.");
 
     return 0;
 }
