@@ -26,7 +26,7 @@
 #include <spdlog/spdlog.h>
 
 
-
+#include <drivers/midi/scummvm/adlib.h>
 
 using namespace std;
 
@@ -346,6 +346,45 @@ int xmi_parser()
 
 }
 
+
+int midi_adlib()
+{
+    using namespace audio::scummvm;
+    using  drivers::MIDParser;
+    using hardware::opl::scummvm::Config;
+    using hardware::opl::scummvm::OplEmulator;
+
+    SdlMixerManager mixerManager;
+    mixerManager.init();
+
+    std::shared_ptr<Mixer> mixer = mixerManager.getMixer();
+
+    auto emu = OplEmulator::MAME;
+    auto type = Config::OplType::OPL2;
+    
+    auto opl = Config::create(emu, type, mixer);
+    if (opl == nullptr)
+        return -1;
+
+    
+
+    //spdlog::set_level(spdlog::level::debug);
+    std::shared_ptr<files::MIDFile> midFile = std::make_shared<files::MIDFile>("test/fixtures/MI_intro.mid");
+
+    MidiDriver_ADLIB mididrv(opl);
+
+    cout << "mididrv is open: " << mididrv.isOpen() << endl;
+    cout << "mididrv is ready: " << mididrv.isReady() << endl;
+
+    mididrv.send(0, 100);
+    SDL_Delay(1000);
+    
+    mididrv.close();
+
+    return 0;
+}
+
+
 int main(int argc, char* argv[])
 {
     //sdlMixer();
@@ -353,7 +392,8 @@ int main(int argc, char* argv[])
     //renderMixer();
 
     //mid_parser();
-    xmi_parser();
+    //xmi_parser();
+    midi_adlib();
 
     SDL_Init(SDL_INIT_TIMER | SDL_INIT_AUDIO);
 
