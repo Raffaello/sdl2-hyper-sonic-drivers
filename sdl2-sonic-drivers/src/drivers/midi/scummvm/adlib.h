@@ -3,6 +3,7 @@
 #include "mididrv.h"
 #include <cstdint>
 #include <hardware/opl/OPL.hpp>
+#include <cstring>
 
 #define ENABLE_OPL3
 
