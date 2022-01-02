@@ -10,13 +10,14 @@
 class MidiDriver_ADLIB;
 struct AdLibVoice;
 
-struct InstrumentExtra {
+#pragma pack(push)
 #pragma pack(1)
+struct InstrumentExtra {
+
     uint8_t a, b, c, d, e, f, g, h;
 };
 
 struct AdLibInstrument {
-#pragma pack(1)
     uint8_t modCharacteristic;
     uint8_t modScalingOutputLevel;
     uint8_t modAttackDecay;
@@ -34,6 +35,7 @@ struct AdLibInstrument {
     InstrumentExtra extraB;
     uint8_t duration;
 };
+#pragma pack(pop)
 
 
 
