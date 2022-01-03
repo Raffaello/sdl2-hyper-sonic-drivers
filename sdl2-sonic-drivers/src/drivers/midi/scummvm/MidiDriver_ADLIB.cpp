@@ -122,11 +122,16 @@ namespace drivers
                 //_adlibTimerProc = 0;
                 //_adlibTimerParam = 0;
                 //_isOpen = false;
-
-
             }
 
-            int MidiDriver_ADLIB::open() {
+            MidiDriver_ADLIB::~MidiDriver_ADLIB()
+            {
+                if (_isOpen)
+                    close();
+            }
+
+            int MidiDriver_ADLIB::open()
+            {
                 if (_isOpen)
                     return 4; //MERR_ALREADY_OPEN;
 
@@ -164,7 +169,8 @@ namespace drivers
                 return 0;
             }
 
-            void MidiDriver_ADLIB::close() {
+            void MidiDriver_ADLIB::close()
+            {
                 if (!_isOpen)
                     return;
                 _isOpen = false;

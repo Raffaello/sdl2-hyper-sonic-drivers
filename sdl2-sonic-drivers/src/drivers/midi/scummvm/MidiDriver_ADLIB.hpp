@@ -32,6 +32,7 @@ namespace drivers
 
             public:
                 MidiDriver_ADLIB(std::shared_ptr<hardware::opl::OPL> opl, const bool opl3mode);
+                ~MidiDriver_ADLIB() override;
 
                 int open() override;
                 void close() override;
