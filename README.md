@@ -56,8 +56,6 @@ Most of the core emulation code is part of these projects:
 
 ## TODO
 
-- decouple emultation to SDL2
-- Adlib (OPL2, dualOPL2, OPL3)
 - GM
 - GUS
 - PC Speaker (8 bit, 16 bit, 32-bit processing)

@@ -33,6 +33,7 @@ namespace hardware
             public:
                 /**
                  * OPL type to emulate.
+                 * TODO remove
                  */
                 enum class OplType
                 {
