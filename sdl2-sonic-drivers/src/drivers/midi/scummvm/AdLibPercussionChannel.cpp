@@ -1,6 +1,7 @@
 #include <drivers/midi/scummvm/AdLibPercussionChannel.hpp>
 #include <spdlog/spdlog.h>
 #include <drivers/midi/scummvm/MidiDriver_ADLIB.hpp>
+#include <cstring>
 
 namespace drivers
 {
@@ -81,7 +82,8 @@ namespace drivers
                     return;
                 }
 
-                if (type == 'ADLP') {
+                if (type == static_cast<int>('ADLP'))
+                {
                     uint8_t note = instr[0];
                     _notes[note] = instr[1];
 
@@ -105,7 +107,6 @@ namespace drivers
                     _customInstruments[note]->feedback = instr[12];
                 }
             }
-
         }
     }
 }

@@ -14,24 +14,24 @@ namespace drivers
             /**
             * Music types that music drivers can implement and engines can rely on.
             */
-            enum MusicType {
-                MT_INVALID = -1,	// Invalid output
-                MT_AUTO = 0,		// Auto
-                MT_NULL,			// Null
-                MT_PCSPK,			// PC Speaker
-                MT_PCJR,			// PCjr
-                MT_CMS,				// CMS
-                MT_ADLIB,			// AdLib
-                MT_C64,				// C64
-                MT_AMIGA,			// Amiga
-                MT_APPLEIIGS,		// Apple IIGS
-                MT_TOWNS,			// FM-TOWNS
-                MT_PC98,			// PC98
-                MT_SEGACD,			// SegaCD
-                MT_GM,				// General MIDI
-                MT_MT32,			// MT-32
-                MT_GS				// Roland GS
-            };
+            //enum MusicType {
+            //    MT_INVALID = -1,	// Invalid output
+            //    MT_AUTO = 0,		// Auto
+            //    MT_NULL,			// Null
+            //    MT_PCSPK,			// PC Speaker
+            //    MT_PCJR,			// PCjr
+            //    MT_CMS,				// CMS
+            //    MT_ADLIB,			// AdLib
+            //    MT_C64,				// C64
+            //    MT_AMIGA,			// Amiga
+            //    MT_APPLEIIGS,		// Apple IIGS
+            //    MT_TOWNS,			// FM-TOWNS
+            //    MT_PC98,			// PC98
+            //    MT_SEGACD,			// SegaCD
+            //    MT_GM,				// General MIDI
+            //    MT_MT32,			// MT-32
+            //    MT_GS				// Roland GS
+            //};
 
             /**
              * A set of flags to be passed to detectDevice() which can be used to
@@ -48,23 +48,23 @@ namespace drivers
              *
              * @todo Rename MidiDriverFlags to MusicDriverFlags
              */
-            enum MidiDriverFlags {
-                MDT_NONE = 0,
-                MDT_PCSPK = 1 << 0,		// PC Speaker: Maps to MT_PCSPK and MT_PCJR
-                MDT_CMS = 1 << 1,		// Creative Music System / Gameblaster: Maps to MT_CMS
-                MDT_PCJR = 1 << 2,		// Tandy/PC Junior driver
-                MDT_ADLIB = 1 << 3,		// AdLib: Maps to MT_ADLIB
-                MDT_C64 = 1 << 4,
-                MDT_AMIGA = 1 << 5,
-                MDT_APPLEIIGS = 1 << 6,
-                MDT_TOWNS = 1 << 7,		// FM-TOWNS: Maps to MT_TOWNS
-                MDT_PC98 = 1 << 8,		// PC-98: Maps to MT_PC98
-                MDT_SEGACD = 1 << 9,
-                MDT_MIDI = 1 << 10,		// Real MIDI
-                MDT_PREFER_MT32 = 1 << 11,		// MT-32 output is preferred
-                MDT_PREFER_GM = 1 << 12,		// GM output is preferred
-                MDT_PREFER_FLUID = 1 << 13		// FluidSynth driver is preferred
-            };
+            //enum MidiDriverFlags {
+            //    MDT_NONE = 0,
+            //    MDT_PCSPK = 1 << 0,		// PC Speaker: Maps to MT_PCSPK and MT_PCJR
+            //    MDT_CMS = 1 << 1,		// Creative Music System / Gameblaster: Maps to MT_CMS
+            //    MDT_PCJR = 1 << 2,		// Tandy/PC Junior driver
+            //    MDT_ADLIB = 1 << 3,		// AdLib: Maps to MT_ADLIB
+            //    MDT_C64 = 1 << 4,
+            //    MDT_AMIGA = 1 << 5,
+            //    MDT_APPLEIIGS = 1 << 6,
+            //    MDT_TOWNS = 1 << 7,		// FM-TOWNS: Maps to MT_TOWNS
+            //    MDT_PC98 = 1 << 8,		// PC-98: Maps to MT_PC98
+            //    MDT_SEGACD = 1 << 9,
+            //    MDT_MIDI = 1 << 10,		// Real MIDI
+            //    MDT_PREFER_MT32 = 1 << 11,		// MT-32 output is preferred
+            //    MDT_PREFER_GM = 1 << 12,		// GM output is preferred
+            //    MDT_PREFER_FLUID = 1 << 13		// FluidSynth driver is preferred
+            //};
 
 
             /**
@@ -82,41 +82,41 @@ namespace drivers
                  * TODO: Maybe we should use -1 (i.e. 0xFFFFFFFF) as
                  * invalid device?
                  */
-                typedef uint32_t DeviceHandle;
+                //typedef uint32_t DeviceHandle;
 
-                enum DeviceStringType {
+                /*enum DeviceStringType {
                     kDriverName,
                     kDriverId,
                     kDeviceName,
                     kDeviceId
-                };
+                };*/
 
                 //static Common::String musicType2GUIO(uint32_t musicType);
-                static std::string musicType2GUIO(uint32_t musicType);
+                //static std::string musicType2GUIO(uint32_t musicType);
 
                 /** Create music driver matching the given device handle, or NULL if there is no match. */
-                static MidiDriver* createMidi(DeviceHandle handle);
+                //static MidiDriver* createMidi(DeviceHandle handle);
 
                 /** Returns device handle based on the present devices and the flags parameter. */
-                static DeviceHandle detectDevice(int flags);
+                //static DeviceHandle detectDevice(int flags);
 
                 /** Find the music driver matching the given driver name/description. */
-                static DeviceHandle getDeviceHandle(const std::string& identifier);
+                //static DeviceHandle getDeviceHandle(const std::string& identifier);
 
                 /** Check whether the device with the given handle is available. */
-                static bool checkDevice(DeviceHandle handle);
+                //static bool checkDevice(DeviceHandle handle);
 
                 /** Get the music type matching the given device handle, or MT_AUTO if there is no match. */
-                static MusicType getMusicType(DeviceHandle handle);
+                //static MusicType getMusicType(DeviceHandle handle);
 
                 /** Get the device description string matching the given device handle and the given type. */
-                static std::string getDeviceString(DeviceHandle handle, DeviceStringType type);
+                //static std::string getDeviceString(DeviceHandle handle, DeviceStringType type);
 
                 /** Common operations to be done by all drivers on start of send */
-                void midiDriverCommonSend(uint32_t b);
+                //void midiDriverCommonSend(uint32_t b);
 
                 /** Common operations to be done by all drivers on start of sysEx */
-                void midiDriverCommonSysEx(const uint8_t* msg, uint16_t length);
+                //void midiDriverCommonSysEx(const uint8_t* msg, uint16_t length);
 
             private:
                 // If detectDevice() detects MT32 and we have a preferred MT32 device
@@ -124,7 +124,7 @@ namespace drivers
                 // have to rely on the 'True Roland MT-32' config manager setting (since nobody
                 // would possibly think about activating 'True Roland MT-32' when he has set
                 // 'Music Driver' to '<default>')
-                static bool _forceTypeMT32;
+                //static bool _forceTypeMT32;
 
             public:
                 virtual ~MidiDriver() { }
@@ -136,12 +136,12 @@ namespace drivers
                  * Error codes returned by open.
                  * Can be converted to a string with getErrorName().
                  */
-                enum {
-                    MERR_CANNOT_CONNECT = 1,
-                    //		MERR_STREAMING_NOT_AVAILABLE = 2,
-                    MERR_DEVICE_NOT_AVAILABLE = 3,
-                    MERR_ALREADY_OPEN = 4
-                };
+                //enum {
+                //    MERR_CANNOT_CONNECT = 1,
+                //    //		MERR_STREAMING_NOT_AVAILABLE = 2,
+                //    MERR_DEVICE_NOT_AVAILABLE = 3,
+                //    MERR_ALREADY_OPEN = 4
+                //};
 
                 enum {
                     //		PROP_TIMEDIV = 1,
@@ -238,10 +238,10 @@ namespace drivers
                 virtual void close() = 0;
 
                 /** Get or set a property. */
-                virtual uint32_t property(int prop, uint32_t param) { return 0; }
+                virtual uint32_t property(int prop, uint32_t param) = 0;
 
                 /** Retrieve a string representation of an error code. */
-                static const char* getErrorName(int error_code);
+                //static const char* getErrorName(int error_code);
 
                 // HIGH-LEVEL SEMANTIC METHODS
                 virtual void setPitchBendRange(uint8_t channel, unsigned int range) {
@@ -267,7 +267,7 @@ namespace drivers
 
                 // Timing functions - MidiDriver now operates timers
                 //virtual void setTimerCallback(void* timer_param, Common::TimerManager::TimerProc timer_proc) = 0;
-                virtual void setTimerCallback(void* timer_param, /*Common::TimerManager::TimerProc*/void* timer_proc) = 0;
+                //virtual void setTimerCallback(void* timer_param, /*Common::TimerManager::TimerProc*/void* timer_proc) = 0;
 
                 /** The time in microseconds between invocations of the timer callback. */
                 virtual uint32_t getBaseTempo() = 0;
@@ -278,10 +278,10 @@ namespace drivers
 
                 // Allow an engine to supply its own soundFont data. This stream will be destroyed after use.
                 //virtual void setEngineSoundFont(Common::SeekableReadStream* soundFontData) { }
-                virtual void setEngineSoundFont(/*Common::SeekableReadStream* */ void* soundFontData) { }
+                //virtual void setEngineSoundFont(/*Common::SeekableReadStream* */ void* soundFontData) { }
 
                 // Does this driver accept soundFont data?
-                virtual bool acceptsSoundFontData() { return false; }
+                //virtual bool acceptsSoundFontData() { return false; }
             };
 
         }

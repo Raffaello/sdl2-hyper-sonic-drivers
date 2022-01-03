@@ -1,6 +1,7 @@
 #include <drivers/midi/scummvm/AdLibPart.hpp>
 #include <drivers/midi/scummvm/MidiDriver_ADLIB.hpp>
 #include <spdlog/spdlog.h>
+#include <cstring>
 
 namespace drivers
 {
@@ -15,8 +16,45 @@ namespace drivers
                 programChange(0);
             }
 
+            void AdLibPart::allocate()
+            {
+                _allocated = true;
+            }
+
+            AdLibPart::AdLibPart()
+            {
+                _voice = 0;
+                _pitchBend = 0;
+                _pitchBendFactor = 2;
+                //_transposeEff = 0;
+                _volEff = 0;
+                _detuneEff = 0;
+                _modWheel = 0;
+                _pedal = 0;
+                _program = 0;
+                _priEff = 0;
+                _pan = 64;
+
+                _owner = 0;
+                _allocated = false;
+                _channel = 0;
+
+                memset(&_partInstr, 0, sizeof(_partInstr));
+                memset(&_partInstrSecondary, 0, sizeof(_partInstrSecondary));
+            }
+
             MidiDriver* AdLibPart::device() {
                 return _owner;
+            }
+
+            uint8_t AdLibPart::getNumber()
+            {
+                return _channel;
+            }
+
+            void AdLibPart::release()
+            {
+                _allocated = false;
             }
 
             void AdLibPart::send(uint32_t b) {

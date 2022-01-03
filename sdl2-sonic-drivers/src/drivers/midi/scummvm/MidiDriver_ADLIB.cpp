@@ -12,8 +12,8 @@ namespace drivers
     {
         namespace scummvm
         {
-            // TODO: review it / remove / replace / refactor
-            #define ARRAYSIZE(x) ((int)(sizeof(x) / sizeof(x[0])))
+// TODO: review it / remove / replace / refactor
+#define ARRAYSIZE(x) ((int)(sizeof(x) / sizeof(x[0])))
 
             static const uint8_t g_operator1Offsets[9] = {
                 0, 1, 2, 8,
@@ -46,10 +46,10 @@ namespace drivers
             };
 
             static const uint8_t g_paramTable1[16] = {
-    29, 28, 27, 0,
-    3, 4, 7, 8,
-    13, 16, 17, 20,
-    21, 30, 31, 0
+                29, 28, 27, 0,
+                3, 4, 7, 8,
+                13, 16, 17, 20,
+                21, 30, 31, 0
             };
 
             static const uint16_t g_maxValTable[16] = {
@@ -91,17 +91,19 @@ namespace drivers
                 242, 243, 245, 247, 249, 251, 252, 254
             };
 
-            MidiDriver_ADLIB::MidiDriver_ADLIB(std::shared_ptr<hardware::opl::OPL> opl, const bool opl3mode) : _opl(opl) {
+            MidiDriver_ADLIB::MidiDriver_ADLIB(std::shared_ptr<hardware::opl::OPL> opl, const bool opl3mode)
+                : _opl(opl), _opl3Mode(opl3mode)
+            {
                 unsigned int i;
 
-                _scummSmallHeader = false;
-                _opl3Mode = opl3mode;
+                //_scummSmallHeader = false;
+                //_opl3Mode = opl3mode;
 
-                _regCache = 0;
-                _regCacheSecondary = 0;
+                //_regCache = 0;
+                //_regCacheSecondary = 0;
 
-                _timerCounter = 0;
-                _voiceIndex = -1;
+                //_timerCounter = 0;
+                //_voiceIndex = -1;
                 for (i = 0; i < ARRAYSIZE(_curNotTable); ++i) {
                     _curNotTable[i] = 0;
                 }
@@ -109,12 +111,15 @@ namespace drivers
                 for (i = 0; i < ARRAYSIZE(_parts); ++i) {
                     _parts[i].init(this, i + ((i >= 9) ? 1 : 0));
                 }
+
                 _percussion.init(this, 9);
-                _timerIncrease = 0xD69;
-                _timerThreshold = 0x411B;
-                _adlibTimerProc = 0;
-                _adlibTimerParam = 0;
-                _isOpen = false;
+                //_timerIncrease = 0xD69;
+                //_timerThreshold = 0x411B;
+                //_adlibTimerProc = 0;
+                //_adlibTimerParam = 0;
+                //_isOpen = false;
+
+
             }
 
             int MidiDriver_ADLIB::open() {
@@ -131,17 +136,6 @@ namespace drivers
                     voice->_s11a.s10 = &voice->_s10b;
                     voice->_s11b.s10 = &voice->_s10a;
                 }
-
-                // Try to use OPL3 when requested.
-    //if (_opl3Mode) {
-    //	_opl = OPL::Config::create(OPL::Config::kOpl3);
-    //}
-
-    // Initialize plain OPL2 when no OPL3 is intiailized already.
-    //if (!_opl) {
-    //	_opl = OPL::Config::create();
-    //  _opl3Mode = false;
-    //}
 
                 _opl->init();
 
@@ -181,8 +175,6 @@ namespace drivers
                 }
 
                 // Turn off the OPL emulation
-                //delete _opl;
-                //_opl = 0;
 
                 free(_regCache);
                 free(_regCacheSecondary);
@@ -353,10 +345,10 @@ namespace drivers
                 }
             }
 
-            void MidiDriver_ADLIB::setTimerCallback(void* timerParam, /*Common::TimerManager::TimerProc*/ void* timerProc) {
-                _adlibTimerProc = timerProc;
-                _adlibTimerParam = timerParam;
-            }
+            //void MidiDriver_ADLIB::setTimerCallback(void* timerParam, /*Common::TimerManager::TimerProc*/ void* timerProc) {
+            //    _adlibTimerProc = timerProc;
+            //    _adlibTimerParam = timerParam;
+            //}
 
             void MidiDriver_ADLIB::mcOff(AdLibVoice* voice) {
                 AdLibVoice* tmp;
@@ -836,6 +828,16 @@ namespace drivers
 #else
                 adlibWriteSecondary((uint8_t)chan + 0xC0, instr->feedback | ((pan > 64) ? 0x20 : 0x10));
 #endif
+            }
+
+            uint8_t MidiDriver_ADLIB::adlibGetRegValue(uint8_t reg) const noexcept
+            {
+                return _regCache[reg];
+            }
+
+            uint8_t MidiDriver_ADLIB::adlibGetRegValueSecondary(uint8_t reg) const noexcept
+            {
+                return _regCacheSecondary[reg];
             }
 
             void MidiDriver_ADLIB::mcInitStuff(AdLibVoice* voice, Struct10* s10,

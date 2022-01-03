@@ -47,31 +47,31 @@ namespace drivers
                 MidiChannel* allocateChannel() override;
                 MidiChannel* getPercussionChannel() override { return &_percussion; } // Percussion partially supported
 
-                virtual void setTimerCallback(void* timerParam, /*Common::TimerManager::TimerProc*/ void* timerProc);
+                //virtual void setTimerCallback(void* timerParam, /*Common::TimerManager::TimerProc*/ void* timerProc);
 
             private:
-                bool _scummSmallHeader; // FIXME: This flag controls a special mode for SCUMM V3 games
+                bool _scummSmallHeader = false; // FIXME: This flag controls a special mode for SCUMM V3 games
                 bool _opl3Mode;
 
                 std::shared_ptr<hardware::opl::OPL> _opl;
-                uint8_t* _regCache;
-                uint8_t* _regCacheSecondary;
+                uint8_t* _regCache = nullptr;
+                uint8_t* _regCacheSecondary = nullptr;
 
-                /*Common::TimerManager::TimerProc*/ void* _adlibTimerProc;
-                void* _adlibTimerParam;
+                //Common::TimerManager::TimerProc _adlibTimerProc;
+                //void* _adlibTimerParam = nullptr;
 
-                int _timerCounter;
+                int _timerCounter = 0;
 
                 uint16_t _channelTable2[9];
-                int _voiceIndex;
-                int _timerIncrease;
-                int _timerThreshold;
+                int _voiceIndex = -1;
+                int _timerIncrease = 0xD69;
+                int _timerThreshold = 0x411B;
                 uint16_t _curNotTable[9];
                 AdLibVoice _voices[9];
                 AdLibPart _parts[32];
                 AdLibPercussionChannel _percussion;
 
-                bool _isOpen;
+                bool _isOpen = false;
 
                 void onTimer();
                 void partKeyOn(AdLibPart* part, const AdLibInstrument* instr, uint8_t note, uint8_t velocity, const AdLibInstrument* second, uint8_t pan);
@@ -83,12 +83,8 @@ namespace drivers
                 int adlibGetRegValueParam(int chan, uint8_t data);
                 void adlibSetupChannel(int chan, const AdLibInstrument* instr, uint8_t vol1, uint8_t vol2);
                 void adlibSetupChannelSecondary(int chan, const AdLibInstrument* instr, uint8_t vol1, uint8_t vol2, uint8_t pan);
-                uint8_t adlibGetRegValue(uint8_t reg) {
-                    return _regCache[reg];
-                }
-                uint8_t adlibGetRegValueSecondary(uint8_t reg) {
-                    return _regCacheSecondary[reg];
-                }
+                uint8_t adlibGetRegValue(uint8_t reg) const noexcept;
+                uint8_t adlibGetRegValueSecondary(uint8_t reg) const noexcept;
                 void adlibSetParam(int channel, uint8_t param, int value, bool primary = true);
                 void adlibKeyOnOff(int channel);
                 void adlibWrite(uint8_t reg, uint8_t value);

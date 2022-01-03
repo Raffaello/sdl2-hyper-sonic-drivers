@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstdint>
-#include <cstring>
+
 #include <drivers/midi/scummvm/MidiChannel.hpp>
 #include <drivers/midi/scummvm/MidiDriver.hpp>
 #include <drivers/midi/scummvm/AdLibInstrument.h>
@@ -41,33 +41,14 @@ namespace drivers
                 uint8_t _channel;
 
                 void init(MidiDriver_ADLIB* owner, uint8_t channel);
-                void allocate() { _allocated = true; }
+                void allocate();
 
             public:
-                AdLibPart() {
-                    _voice = 0;
-                    _pitchBend = 0;
-                    _pitchBendFactor = 2;
-                    //_transposeEff = 0;
-                    _volEff = 0;
-                    _detuneEff = 0;
-                    _modWheel = 0;
-                    _pedal = 0;
-                    _program = 0;
-                    _priEff = 0;
-                    _pan = 64;
-
-                    _owner = 0;
-                    _allocated = false;
-                    _channel = 0;
-
-                    memset(&_partInstr, 0, sizeof(_partInstr));
-                    memset(&_partInstrSecondary, 0, sizeof(_partInstrSecondary));
-                }
+                AdLibPart();
 
                 MidiDriver* device();
-                uint8_t getNumber() { return _channel; }
-                void release() { _allocated = false; }
+                uint8_t getNumber();
+                void release();
 
                 void send(uint32_t b);
 
