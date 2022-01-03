@@ -26,7 +26,6 @@
 #include <spdlog/spdlog.h>
 
 
-#include <drivers/midi/scummvm/adlib.h>
 #include <drivers/midi/devices/ScummVM.hpp>
 #include <drivers/MIDDriver.hpp>
 

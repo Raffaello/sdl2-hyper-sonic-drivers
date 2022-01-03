@@ -1,7 +1,7 @@
 #pragma once
 
 #include <drivers/midi/Device.hpp>
-#include <drivers/midi/scummvm/adlib.h>
+#include <drivers/midi/scummvm/MidiDriver_ADLIB.hpp>
 #include <memory>
 #include <cstdint>
 #include <hardware/opl/OPL.hpp>
@@ -29,7 +29,7 @@ namespace drivers
                 inline void sendMessage(const uint8_t msg[], const uint8_t size) const noexcept override;
 
             private:
-                std::shared_ptr<MidiDriver_ADLIB> _adlib;
+                std::shared_ptr<drivers::midi::scummvm::MidiDriver_ADLIB> _adlib;
             };
         }
     }
