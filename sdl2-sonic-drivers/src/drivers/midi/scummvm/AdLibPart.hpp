@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+#include <cstring>
 #include <drivers/midi/scummvm/MidiChannel.hpp>
 #include <drivers/midi/scummvm/MidiDriver.hpp>
 #include <drivers/midi/scummvm/AdLibInstrument.h>

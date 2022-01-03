@@ -1,7 +1,8 @@
 #pragma once
 
-#include <cstdint>
 #include <drivers/midi/scummvm/AdLibPart.hpp>
+#include <cstdint>
+#include <cstring>
 
 namespace drivers
 {
