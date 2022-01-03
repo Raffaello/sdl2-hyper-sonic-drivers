@@ -10,9 +10,10 @@ namespace drivers
         namespace scummvm
         {
             /**
- * TODO: Document this, give it a better name.
- */
-            class MidiDriver_BASE {
+             * TODO: Document this, give it a better name.
+             */
+            class MidiDriver_BASE
+            {
             public:
                 static const uint8_t MIDI_CHANNEL_COUNT = 16;
                 static const uint8_t MIDI_RHYTHM_CHANNEL = 9;
@@ -160,39 +161,6 @@ namespace drivers
                  * receive MIDI events.
                  */
                 virtual bool isReady() { return true; }
-
-            protected:
-
-                /**
-                 * Enables midi dumping to a 'dump.mid' file and to debug messages on screen
-                 * It's set by '--dump-midi' command line parameter
-                 */
-                //bool _midiDumpEnable;
-
-                /** Used for MIDI dumping delta calculation */
-                //uint32_t _prevMillis;
-
-                /** Stores all MIDI events, will be written to disk after an engine quits */
-                //Common::Array<uint8_t> _midiDumpCache;
-                //std::vector<uint8_t> _midiDumpCache;
-
-                /** Initialize midi dumping mechanism, called only if enabled */
-                //void midiDumpInit();
-
-                /** Handles MIDI file variable length dumping */
-                //int midiDumpVarLength(const uint32_t& delta);
-
-                /** Handles MIDI file time delta dumping */
-                //void midiDumpDelta();
-
-                /** Performs dumping of MIDI commands, called only if enabled */
-                //void midiDumpDo(uint32_t b);
-
-                /** Performs dumping of MIDI SysEx commands, called only if enabled */
-                //void midiDumpSysEx(const uint8_t* msg, uint16_t length);
-
-                /** Writes the captured MIDI events to disk, called only if enabled */
-                //void midiDumpFinish();
             };
         }
     }

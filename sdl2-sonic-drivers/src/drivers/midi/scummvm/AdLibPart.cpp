@@ -23,22 +23,6 @@ namespace drivers
 
             AdLibPart::AdLibPart()
             {
-                //_voice = 0;
-                //_pitchBend = 0;
-                //_pitchBendFactor = 2;
-                //_transposeEff = 0;
-                //_volEff = 0;
-                //_detuneEff = 0;
-                //_modWheel = 0;
-                //_pedal = 0;
-                //_program = 0;
-                //_priEff = 0;
-                //_pan = 64;
-
-                //_owner = 0;
-                //_allocated = false;
-                //_channel = 0;
-
                 memset(&_partInstr, 0, sizeof(_partInstr));
                 memset(&_partInstrSecondary, 0, sizeof(_partInstrSecondary));
             }
@@ -81,14 +65,6 @@ namespace drivers
                 if (program > 127)
                     return;
 
-                /*
-                unsigned int i;
-                unsigned int count = 0;
-                for (i = 0; i < ARRAYSIZE(g_gmInstruments[0]); ++i)
-                    count += g_gmInstruments[program][i];
-                if (!count)
-                    warning("No AdLib instrument defined for GM program %d", (int)program);
-                */
                 _program = program;
                 if (!_owner->_opl3Mode) {
                     memcpy(&_partInstr, &g_gmInstruments[program], sizeof(AdLibInstrument));
@@ -145,9 +121,11 @@ namespace drivers
                     break;
                 case 91:
                     // Effects level. Not supported.
+                    effectLevel(value);
                     break;
                 case 93:
                     // Chorus level. Not supported.
+                    chorusLevel(value);
                     break;
                 case 119:
                     // Unknown, used in Simon the Sorcerer 2
@@ -163,7 +141,6 @@ namespace drivers
                     allNotesOff();
                     break;
                 default:
-
                     spdlog::warn("AdLib: Unknown control change message {} {}", (int)control, (int)value);
                 }
             }

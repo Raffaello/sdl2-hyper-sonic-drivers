@@ -9,7 +9,7 @@ namespace drivers
     {
         namespace scummvm
         {
-            // TODO: review it / remove / replace / refactor
+// TODO: review it / remove / replace / refactor
 #define ARRAYSIZE(x) ((int)(sizeof(x) / sizeof(x[0])))
 
             AdLibPercussionChannel::~AdLibPercussionChannel() {

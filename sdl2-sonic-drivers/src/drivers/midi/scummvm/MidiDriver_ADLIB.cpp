@@ -96,14 +96,6 @@ namespace drivers
             {
                 unsigned int i;
 
-                //_scummSmallHeader = false;
-                //_opl3Mode = opl3mode;
-
-                //_regCache = 0;
-                //_regCacheSecondary = 0;
-
-                //_timerCounter = 0;
-                //_voiceIndex = -1;
                 for (i = 0; i < ARRAYSIZE(_curNotTable); ++i) {
                     _curNotTable[i] = 0;
                 }
@@ -117,11 +109,6 @@ namespace drivers
                 }
 
                 _percussion.init(this, 9);
-                //_timerIncrease = 0xD69;
-                //_timerThreshold = 0x411B;
-                //_adlibTimerProc = 0;
-                //_adlibTimerParam = 0;
-                //_isOpen = false;
             }
 
             MidiDriver_ADLIB::~MidiDriver_ADLIB()
@@ -161,7 +148,6 @@ namespace drivers
                     adlibWriteSecondary(5, 1);
                 }
 
-                //_opl->start(new Common::Functor0Mem<void, MidiDriver_ADLIB>(this, &MidiDriver_ADLIB::onTimer));
                 hardware::opl::TimerCallBack cb = std::bind(&MidiDriver_ADLIB::onTimer, this);
                 auto p = std::make_shared<hardware::opl::TimerCallBack>(cb);
                 _opl->start(p);
@@ -183,8 +169,6 @@ namespace drivers
                         mcOff(&_voices[i]);
                 }
 
-                // Turn off the OPL emulation
-
                 free(_regCache);
                 free(_regCacheSecondary);
             }
@@ -194,7 +178,6 @@ namespace drivers
             }
 
             void MidiDriver_ADLIB::send(int8_t chan, uint32_t b) {
-                //uint8_t param3 = (uint8_t) ((b >> 24) & 0xFF);
                 uint8_t param2 = (uint8_t)((b >> 16) & 0xFF);
                 uint8_t param1 = (uint8_t)((b >> 8) & 0xFF);
                 uint8_t cmd = (uint8_t)(b & 0xF0);
