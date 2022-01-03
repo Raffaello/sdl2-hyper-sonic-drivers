@@ -14,10 +14,8 @@ namespace drivers
         namespace devices
         {
             /**
-             * @brief This is using OS Midi devices
-             * It is outside the internal Mixer at the moment.
-             * It wasn't neither planned to use it, but it could
-             * be useful to have it.
+             * @brief Wrapper around ScummVM MidiDriver
+             * At the moment support only OPL
             */
             class ScummVM : public Device
             {
