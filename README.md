@@ -20,7 +20,7 @@ Partially reading these types of files, depending of their format.
 
 - [x] ADL files
 - [ ] XMI files
-- [ ] MID files
+- [x] MID files
 
 ### MIDI files
 
