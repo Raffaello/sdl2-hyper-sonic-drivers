@@ -1,4 +1,3 @@
-#include "ScummVM.hpp"
 #include <drivers/midi/devices/ScummVM.hpp>
 #include <cassert>
 
@@ -10,7 +9,7 @@ namespace drivers
         {
             ScummVM::ScummVM(std::shared_ptr<hardware::opl::OPL> opl, const bool opl3mode) : Device()
             {
-                _adlib = std::make_shared<MidiDriver_ADLIB>(opl, opl3mode);
+                _adlib = std::make_shared<drivers::midi::scummvm::MidiDriver_ADLIB>(opl, opl3mode);
                 _adlib->open();
             }
 
