@@ -92,7 +92,7 @@ namespace drivers
             };
 
             MidiDriver_ADLIB::MidiDriver_ADLIB(std::shared_ptr<hardware::opl::OPL> opl, const bool opl3mode)
-                : _opl(opl), _opl3Mode(opl3mode)
+                : _opl3Mode(opl3mode), _opl(opl)
             {
                 unsigned int i;
 
@@ -109,7 +109,11 @@ namespace drivers
                 }
 
                 for (i = 0; i < ARRAYSIZE(_parts); ++i) {
-                    _parts[i].init(this, i + ((i >= 9) ? 1 : 0));
+                    _parts[i].init(this, static_cast<uint8_t>(i + ((i >= 9) ? 1 : 0)));
+                }
+
+                for (i = 0; i < ARRAYSIZE(_channelTable2); ++i) {
+                    _channelTable2[i] = 0;
                 }
 
                 _percussion.init(this, 9);
@@ -132,7 +136,7 @@ namespace drivers
                 AdLibVoice* voice;
 
                 for (i = 0, voice = _voices; i != ARRAYSIZE(_voices); i++, voice++) {
-                    voice->_channel = i;
+                    voice->_channel = static_cast<uint8_t>(i);
                     voice->_s11a.s10 = &voice->_s10b;
                     voice->_s11b.s10 = &voice->_s10a;
                 }
@@ -168,8 +172,7 @@ namespace drivers
                 // Stop the OPL timer
                 _opl->stop();
 
-                unsigned int i;
-                for (i = 0; i < ARRAYSIZE(_voices); ++i) {
+                for (unsigned int i = 0; i < ARRAYSIZE(_voices); ++i) {
                     if (_voices[i]._part)
                         mcOff(&_voices[i]);
                 }
@@ -214,7 +217,7 @@ namespace drivers
                 case 0xD0: // Channel Pressure
                     break; // Not supported.
                 case 0xE0: // Pitch Bend
-                    part->pitchBend((param1 | (param2 << 7)) - 0x2000);
+                    part->pitchBend(static_cast<int16_t>((param1 | (param2 << 7)) - 0x2000));
                     break;
                 case 0xF0: // SysEx
                     // We should never get here! SysEx information has to be
@@ -258,32 +261,32 @@ namespace drivers
                     return;
                 }
 
-                AdLibVoice* voice;
                 AdLibPart* part = &_parts[channel];
-
                 part->_pitchBendFactor = range;
-                for (voice = part->_voice; voice; voice = voice->_next) {
+                for (AdLibVoice* voice = part->_voice; voice; voice = voice->_next)
+                {
                     adlibNoteOn(voice->_channel, voice->_note/* + part->_transposeEff*/,
                         (part->_pitchBend * part->_pitchBendFactor >> 6) + part->_detuneEff);
                 }
             }
 
-            void MidiDriver_ADLIB::sysEx_customInstrument(uint8_t channel, uint32_t type, const uint8_t* instr) {
+            void MidiDriver_ADLIB::sysEx_customInstrument(uint8_t channel, uint32_t type, const uint8_t* instr)
+            {
                 _parts[channel].sysEx_customInstrument(type, instr);
             }
 
-            MidiChannel* MidiDriver_ADLIB::allocateChannel() {
-                AdLibPart* part;
-                unsigned int i;
-
-                for (i = 0; i < ARRAYSIZE(_parts); ++i) {
-                    part = &_parts[i];
-                    if (!part->_allocated) {
+            MidiChannel* MidiDriver_ADLIB::allocateChannel()
+            {
+                for (unsigned int i = 0; i < ARRAYSIZE(_parts); ++i)
+                {
+                    AdLibPart* part = &_parts[i];
+                    if (!part->_allocated)
+                    {
                         part->allocate();
                         return part;
                     }
                 }
-                return NULL;
+                return nullptr;
             }
 
             // All the code brought over from IMuseAdLib
@@ -325,21 +328,22 @@ namespace drivers
                     g_tick++;
 #endif
                     // Sam&Max's OPL3 driver does not have any timer handling like this.
-                    if (!_opl3Mode) {
-                        AdLibVoice* voice = _voices;
-                        for (int i = 0; i != ARRAYSIZE(_voices); i++, voice++) {
-                            if (!voice->_part)
-                                continue;
-                            if (voice->_duration && (voice->_duration -= 0x11) <= 0) {
-                                mcOff(voice);
-                                return;
-                            }
-                            if (voice->_s10a.active) {
-                                mcIncStuff(voice, &voice->_s10a, &voice->_s11a);
-                            }
-                            if (voice->_s10b.active) {
-                                mcIncStuff(voice, &voice->_s10b, &voice->_s11b);
-                            }
+                    if (_opl3Mode)
+                        continue;
+
+                    AdLibVoice* voice = _voices;
+                    for (int i = 0; i != ARRAYSIZE(_voices); i++, voice++) {
+                        if (!voice->_part)
+                            continue;
+                        if (voice->_duration && (voice->_duration -= 0x11) <= 0) {
+                            mcOff(voice);
+                            return;
+                        }
+                        if (voice->_s10a.active) {
+                            mcIncStuff(voice, &voice->_s10a, &voice->_s11a);
+                        }
+                        if (voice->_s10b.active) {
+                            mcIncStuff(voice, &voice->_s10b, &voice->_s11b);
                         }
                     }
                 }
@@ -350,7 +354,8 @@ namespace drivers
             //    _adlibTimerParam = timerParam;
             //}
 
-            void MidiDriver_ADLIB::mcOff(AdLibVoice* voice) {
+            void MidiDriver_ADLIB::mcOff(AdLibVoice* voice)
+            {
                 AdLibVoice* tmp;
 
                 adlibKeyOff(voice->_channel);
@@ -363,10 +368,12 @@ namespace drivers
                     tmp->_next = voice->_next;
                 else
                     voice->_part->_voice = voice->_next;
-                voice->_part = NULL;
+
+                voice->_part = nullptr;
             }
 
-            void MidiDriver_ADLIB::mcIncStuff(AdLibVoice* voice, Struct10* s10, Struct11* s11) {
+            void MidiDriver_ADLIB::mcIncStuff(AdLibVoice* voice, Struct10* s10, Struct11* s11)
+            {
                 uint8_t code;
                 AdLibPart* part = voice->_part;
 
@@ -522,7 +529,8 @@ namespace drivers
                 adlibWrite(reg, val | 0x20);
             }
 
-            void MidiDriver_ADLIB::struct10Setup(Struct10* s10) {
+            void MidiDriver_ADLIB::struct10Setup(Struct10* s10)
+            {
                 int b, c, d, e, f, g, h;
                 uint8_t t;
 
@@ -623,11 +631,12 @@ namespace drivers
                 return _randSeed * a >> 8;
             }
 
-            void MidiDriver_ADLIB::partKeyOff(AdLibPart* part, uint8_t note) {
-                AdLibVoice* voice;
-
-                for (voice = part->_voice; voice; voice = voice->_next) {
-                    if (voice->_note == note) {
+            void MidiDriver_ADLIB::partKeyOff(AdLibPart* part, uint8_t note)
+            {
+                for (AdLibVoice* voice = part->_voice; voice; voice = voice->_next)
+                {
+                    if (voice->_note == note)
+                    {
                         if (part->_pedal)
                             voice->_waitForPedal = true;
                         else
@@ -647,11 +656,13 @@ namespace drivers
                 mcKeyOn(voice, instr, note, velocity, second, pan);
             }
 
-            AdLibVoice* MidiDriver_ADLIB::allocateVoice(uint8_t pri) {
-                AdLibVoice* ac, * best = NULL;
-                int i;
+            AdLibVoice* MidiDriver_ADLIB::allocateVoice(uint8_t pri)
+            {
+                AdLibVoice* ac = nullptr;
+                AdLibVoice* best = nullptr;
 
-                for (i = 0; i < 9; i++) {
+                for (int i = 0; i < 9; i++)
+                {
                     if (++_voiceIndex >= 9)
                         _voiceIndex = 0;
                     ac = &_voices[_voiceIndex];
@@ -667,18 +678,19 @@ namespace drivers
 
                 /* SCUMM V3 games don't have note priorities, first comes wins. */
                 if (_scummSmallHeader)
-                    return NULL;
+                    return nullptr;
 
                 if (best)
                     mcOff(best);
                 return best;
             }
 
-            void MidiDriver_ADLIB::linkMc(AdLibPart* part, AdLibVoice* voice) {
+            void MidiDriver_ADLIB::linkMc(AdLibPart* part, AdLibVoice* voice)
+            {
                 voice->_part = part;
-                voice->_next = (AdLibVoice*)part->_voice;
+                voice->_next = part->_voice;
                 part->_voice = voice;
-                voice->_prev = NULL;
+                voice->_prev = nullptr;
 
                 if (voice->_next)
                     voice->_next->_prev = voice;
@@ -696,20 +708,25 @@ namespace drivers
                 if (voice->_duration != 0)
                     voice->_duration *= 63;
 
-                if (!_scummSmallHeader) {
+                if (!_scummSmallHeader)
+                {
                     if (_opl3Mode)
                         vol1 = (instr->modScalingOutputLevel & 0x3F) + (velocity * ((instr->modWaveformSelect >> 3) + 1)) / 64;
                     else
                         vol1 = (instr->modScalingOutputLevel & 0x3F) + g_volumeLookupTable[velocity >> 1][instr->modWaveformSelect >> 2];
                 }
-                else {
+                else
+                {
                     vol1 = 0x3f - (instr->modScalingOutputLevel & 0x3F);
                 }
+
                 if (vol1 > 0x3F)
                     vol1 = 0x3F;
+                
                 voice->_vol1 = vol1;
 
-                if (!_scummSmallHeader) {
+                if (!_scummSmallHeader)
+                {
                     if (_opl3Mode)
                         vol2 = (instr->carScalingOutputLevel & 0x3F) + (velocity * ((instr->carWaveformSelect >> 3) + 1)) / 64;
                     else
@@ -718,11 +735,13 @@ namespace drivers
                 else {
                     vol2 = 0x3f - (instr->carScalingOutputLevel & 0x3F);
                 }
+
                 if (vol2 > 0x3F)
                     vol2 = 0x3F;
                 voice->_vol2 = vol2;
 
-                if (_opl3Mode) {
+                if (_opl3Mode)
+                {
                     voice->_secTwoChan = second->feedback & 1;
                     secVol1 = (second->modScalingOutputLevel & 0x3F) + (velocity * ((second->modWaveformSelect >> 3) + 1)) / 64;
                     if (secVol1 > 0x3F) {
@@ -736,7 +755,8 @@ namespace drivers
                     voice->_secVol2 = secVol2;
                 }
 
-                if (!_scummSmallHeader) {
+                if (!_scummSmallHeader)
+                {
                     if (!_opl3Mode) {
                         int c = part->_volEff >> 2;
                         vol2 = g_volumeTable[g_volumeLookupTable[vol2][c]];
@@ -754,7 +774,8 @@ namespace drivers
                 }
 
                 adlibSetupChannel(voice->_channel, instr, vol1, vol2);
-                if (!_opl3Mode) {
+                if (!_opl3Mode)
+                {
                     adlibNoteOnEx(voice->_channel, /*part->_transposeEff + */note, part->_detuneEff + (part->_pitchBend * part->_pitchBendFactor >> 6));
 
                     if (instr->flagsA & 0x80) {

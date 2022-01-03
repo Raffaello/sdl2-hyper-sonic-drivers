@@ -42,8 +42,8 @@ namespace drivers
             }
 
             void AdLibPercussionChannel::noteOn(uint8_t note, uint8_t velocity) {
-                const AdLibInstrument* inst = NULL;
-                const AdLibInstrument* sec = NULL;
+                const AdLibInstrument* inst = nullptr;
+                const AdLibInstrument* sec = nullptr;
 
                 // The custom instruments have priority over the default mapping
                 // We do not support custom instruments in OPL3 mode though.
@@ -82,7 +82,7 @@ namespace drivers
                     return;
                 }
 
-                if (type == static_cast<int>('ADLP'))
+                if (type == static_cast<uint32_t>('ADLP'))
                 {
                     uint8_t note = instr[0];
                     _notes[note] = instr[1];

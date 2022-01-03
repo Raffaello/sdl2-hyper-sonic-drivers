@@ -23,21 +23,21 @@ namespace drivers
 
             AdLibPart::AdLibPart()
             {
-                _voice = 0;
-                _pitchBend = 0;
-                _pitchBendFactor = 2;
+                //_voice = 0;
+                //_pitchBend = 0;
+                //_pitchBendFactor = 2;
                 //_transposeEff = 0;
-                _volEff = 0;
-                _detuneEff = 0;
-                _modWheel = 0;
-                _pedal = 0;
-                _program = 0;
-                _priEff = 0;
-                _pan = 64;
+                //_volEff = 0;
+                //_detuneEff = 0;
+                //_modWheel = 0;
+                //_pedal = 0;
+                //_program = 0;
+                //_priEff = 0;
+                //_pan = 64;
 
-                _owner = 0;
-                _allocated = false;
-                _channel = 0;
+                //_owner = 0;
+                //_allocated = false;
+                //_channel = 0;
 
                 memset(&_partInstr, 0, sizeof(_partInstr));
                 memset(&_partInstrSecondary, 0, sizeof(_partInstrSecondary));
@@ -99,16 +99,18 @@ namespace drivers
                 }
             }
 
-            void AdLibPart::pitchBend(int16_t bend) {
-                AdLibVoice* voice;
-
+            void AdLibPart::pitchBend(int16_t bend)
+            {
                 _pitchBend = bend;
-                for (voice = _voice; voice; voice = voice->_next) {
-                    if (!_owner->_opl3Mode) {
+                for (AdLibVoice* voice = _voice; voice; voice = voice->_next)
+                {
+                    if (!_owner->_opl3Mode)
+                    {
                         _owner->adlibNoteOn(voice->_channel, voice->_note/* + _transposeEff*/,
                             (_pitchBend * _pitchBendFactor >> 6) + _detuneEff);
                     }
-                    else {
+                    else
+                    {
                         _owner->adlibNoteOn(voice->_channel, voice->_note, _pitchBend >> 1);
                     }
                 }
@@ -155,7 +157,7 @@ namespace drivers
                     modulationWheel(0);
                     pitchBendFactor(0);
                     detune(0);
-                    sustain(0);
+                    sustain(false);
                     break;
                 case 123:
                     allNotesOff();
@@ -166,11 +168,11 @@ namespace drivers
                 }
             }
 
-            void AdLibPart::modulationWheel(uint8_t value) {
-                AdLibVoice* voice;
-
+            void AdLibPart::modulationWheel(uint8_t value)
+            {
                 _modWheel = value;
-                for (voice = _voice; voice; voice = voice->_next) {
+                for (AdLibVoice* voice = _voice; voice; voice = voice->_next)
+                {
                     if (voice->_s10a.active && voice->_s11a.flag0x40)
                         voice->_s10a.modWheel = _modWheel >> 2;
                     if (voice->_s10b.active && voice->_s11b.flag0x40)
@@ -178,18 +180,20 @@ namespace drivers
                 }
             }
 
-            void AdLibPart::volume(uint8_t value) {
-                AdLibVoice* voice;
-
+            void AdLibPart::volume(uint8_t value)
+            {
                 _volEff = value;
-                for (voice = _voice; voice; voice = voice->_next) {
-                    if (!_owner->_opl3Mode) {
+                for (AdLibVoice* voice = _voice; voice; voice = voice->_next)
+                {
+                    if (!_owner->_opl3Mode)
+                    {
                         _owner->adlibSetParam(voice->_channel, 0, g_volumeTable[g_volumeLookupTable[voice->_vol2][_volEff >> 2]]);
                         if (voice->_twoChan) {
                             _owner->adlibSetParam(voice->_channel, 13, g_volumeTable[g_volumeLookupTable[voice->_vol1][_volEff >> 2]]);
                         }
                     }
-                    else {
+                    else
+                    {
                         _owner->adlibSetParam(voice->_channel, 0, g_volumeTable[((voice->_vol2 + 1) * _volEff) >> 7], true);
                         _owner->adlibSetParam(voice->_channel, 0, g_volumeTable[((voice->_secVol2 + 1) * _volEff) >> 7], false);
                         if (voice->_twoChan) {
@@ -206,22 +210,23 @@ namespace drivers
                 _pan = value;
             }
 
-            void AdLibPart::pitchBendFactor(uint8_t value) {
+            void AdLibPart::pitchBendFactor(uint8_t value)
+            {
                 // Not supported in OPL3 mode.
                 if (_owner->_opl3Mode) {
                     return;
                 }
 
-                AdLibVoice* voice;
-
                 _pitchBendFactor = value;
-                for (voice = _voice; voice; voice = voice->_next) {
+                for (AdLibVoice* voice = _voice; voice; voice = voice->_next)
+                {
                     _owner->adlibNoteOn(voice->_channel, voice->_note/* + _transposeEff*/,
                         (_pitchBend * _pitchBendFactor >> 6) + _detuneEff);
                 }
             }
 
-            void AdLibPart::detune(uint8_t value) {
+            void AdLibPart::detune(uint8_t value)
+            {
                 // Sam&Max's OPL3 driver uses this for a completly different purpose. It
                 // is related to voice allocation. We ignore this for now.
                 // TODO: We probably need to look how the interpreter side of Sam&Max's
@@ -232,10 +237,9 @@ namespace drivers
                     return;
                 }
 
-                AdLibVoice* voice;
-
                 _detuneEff = value;
-                for (voice = _voice; voice; voice = voice->_next) {
+                for (AdLibVoice* voice = _voice; voice; voice = voice->_next)
+                {
                     _owner->adlibNoteOn(voice->_channel, voice->_note/* + _transposeEff*/,
                         (_pitchBend * _pitchBendFactor >> 6) + _detuneEff);
                 }
@@ -245,24 +249,26 @@ namespace drivers
                 _priEff = value;
             }
 
-            void AdLibPart::sustain(bool value) {
-                AdLibVoice* voice;
-
+            void AdLibPart::sustain(bool value)
+            {
                 _pedal = value;
                 if (!value) {
-                    for (voice = _voice; voice; voice = voice->_next) {
+                    for (AdLibVoice* voice = _voice; voice; voice = voice->_next)
+                    {
                         if (voice->_waitForPedal)
                             _owner->mcOff(voice);
                     }
                 }
             }
 
-            void AdLibPart::allNotesOff() {
+            void AdLibPart::allNotesOff()
+            {
                 while (_voice)
                     _owner->mcOff(_voice);
             }
 
-            void AdLibPart::sysEx_customInstrument(uint32_t type, const uint8_t* instr) {
+            void AdLibPart::sysEx_customInstrument(uint32_t type, const uint8_t* instr)
+            {
                 // Sam&Max allows for instrument overwrites, but we will not support it
                 // until we can find any track actually using it.
                 if (_owner->_opl3Mode) {
@@ -270,7 +276,7 @@ namespace drivers
                     return;
                 }
 
-                if (type == 'ADL ') {
+                if (type == static_cast<uint32_t>('ADL ')) {
                     memcpy(&_partInstr, instr, sizeof(AdLibInstrument));
                 }
             }

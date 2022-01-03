@@ -145,7 +145,7 @@ namespace drivers
                 { 0x00, 0x3F, 0x4C, 0xFB, 0x00, 0x00, 0x3F, 0x0A, 0xE9, 0x7C, 0x0E, 0, { 0, 0, 0, 0, 0, 0, 0, 0 }, 0, { 0, 0, 0, 0, 0, 0, 0, 0 }, 0x05 }
             };
 
-            AdLibInstrument g_gmPercussionInstruments[39] = {
+            const AdLibInstrument g_gmPercussionInstruments[39] = {
                 { 0x1A, 0x3F, 0x15, 0x05, 0x7C, 0x02, 0x21, 0x2B, 0xE4, 0x7C, 0x0E, 0, { 0, 0, 0, 0, 0, 0, 0, 0 }, 0, { 0, 0, 0, 0, 0, 0, 0, 0 }, 0x06 },
                 { 0x11, 0x12, 0x04, 0x07, 0x7C, 0x02, 0x23, 0x0B, 0xE5, 0x7C, 0x0E, 0, { 0, 0, 0, 0, 0, 0, 0, 0 }, 0, { 0, 0, 0, 0, 0, 0, 0, 0 }, 0x05 },
                 { 0x0A, 0x3F, 0x0B, 0x01, 0x7C, 0x1F, 0x1C, 0x46, 0xD0, 0x7C, 0x0E, 0, { 0, 0, 0, 0, 0, 0, 0, 0 }, 0, { 0, 0, 0, 0, 0, 0, 0, 0 }, 0x01 },
@@ -590,13 +590,13 @@ namespace drivers
             uint8_t g_volumeLookupTable[64][32];
             void createLookupTable()
             {
-                int i, j;
+                int i;
                 int sum;
 
                 for (i = 0; i < 64; i++) {
                     sum = i;
-                    for (j = 0; j < 32; j++) {
-                        g_volumeLookupTable[i][j] = sum >> 5;
+                    for (int j = 0; j < 32; j++) {
+                        g_volumeLookupTable[i][j] = static_cast<uint8_t>(sum >> 5);
                         sum += i;
                     }
                 }

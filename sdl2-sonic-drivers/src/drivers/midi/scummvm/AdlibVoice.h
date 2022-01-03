@@ -10,7 +10,8 @@ namespace drivers
     {
         namespace scummvm
         {
-            struct Struct10 {
+            struct Struct10
+            {
                 uint8_t active;
                 int16_t curVal;
                 int16_t count;
@@ -30,13 +31,17 @@ namespace drivers
                 uint16_t speedLoCounter;
             };
 
-            struct Struct11 {
+            struct Struct11
+            {
                 int16_t modifyVal;
-                uint8_t param, flag0x40, flag0x10;
+                uint8_t param;
+                uint8_t flag0x40;
+                uint8_t flag0x10;
                 Struct10* s10;
             };
 
-            struct AdLibVoice {
+            struct AdLibVoice
+            {
                 AdLibPart* _part;
                 AdLibVoice* _next, * _prev;
                 uint8_t _waitForPedal;

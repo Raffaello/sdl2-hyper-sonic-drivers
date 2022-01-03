@@ -74,7 +74,7 @@ namespace drivers
              */
             class MidiDriver : public MidiDriver_BASE
             {
-            public:
+            //public:
                 /**
                  * The device handle.
                  *
@@ -118,7 +118,7 @@ namespace drivers
                 /** Common operations to be done by all drivers on start of sysEx */
                 //void midiDriverCommonSysEx(const uint8_t* msg, uint16_t length);
 
-            private:
+            //private:
                 // If detectDevice() detects MT32 and we have a preferred MT32 device
                 // we use this to force getMusicType() to return MT_MT32 so that we don't
                 // have to rely on the 'True Roland MT-32' config manager setting (since nobody
@@ -127,7 +127,7 @@ namespace drivers
                 //static bool _forceTypeMT32;
 
             public:
-                virtual ~MidiDriver() { }
+                ~MidiDriver() override = default;
 
                 static const uint8_t _mt32ToGm[128];
                 static const uint8_t _gmToMt32[128];
@@ -267,7 +267,6 @@ namespace drivers
 
                 // Timing functions - MidiDriver now operates timers
                 //virtual void setTimerCallback(void* timer_param, Common::TimerManager::TimerProc timer_proc) = 0;
-                //virtual void setTimerCallback(void* timer_param, /*Common::TimerManager::TimerProc*/void* timer_proc) = 0;
 
                 /** The time in microseconds between invocations of the timer callback. */
                 virtual uint32_t getBaseTempo() = 0;
@@ -278,7 +277,6 @@ namespace drivers
 
                 // Allow an engine to supply its own soundFont data. This stream will be destroyed after use.
                 //virtual void setEngineSoundFont(Common::SeekableReadStream* soundFontData) { }
-                //virtual void setEngineSoundFont(/*Common::SeekableReadStream* */ void* soundFontData) { }
 
                 // Does this driver accept soundFont data?
                 //virtual bool acceptsSoundFontData() { return false; }

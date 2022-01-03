@@ -12,7 +12,7 @@ namespace drivers
             class MidiChannel
             {
             public:
-                virtual ~MidiChannel() {}
+                virtual ~MidiChannel() = default;
 
                 virtual MidiDriver* device() = 0;
                 virtual uint8_t getNumber() = 0;

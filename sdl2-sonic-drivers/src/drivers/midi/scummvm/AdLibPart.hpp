@@ -21,24 +21,23 @@ namespace drivers
 
             protected:
                 //	AdLibPart *_prev, *_next;
-                AdLibVoice* _voice;
-                int16_t _pitchBend;
-                uint8_t _pitchBendFactor;
+                AdLibVoice* _voice = nullptr;
+                int16_t _pitchBend = 0;
+                uint8_t _pitchBendFactor = 2;
                 //int8_t _transposeEff;
-                uint8_t _volEff;
-                int8_t _detuneEff;
-                uint8_t _modWheel;
-                bool _pedal;
-                uint8_t _program;
-                uint8_t _priEff;
-                uint8_t _pan;
+                uint8_t _volEff = 0;
+                int8_t _detuneEff = 0;
+                uint8_t _modWheel = 0;
+                bool _pedal = false;
+                uint8_t _program = 0;
+                uint8_t _priEff = 0;
+                uint8_t _pan = 64;
                 AdLibInstrument _partInstr;
                 AdLibInstrument _partInstrSecondary;
 
-            protected:
-                MidiDriver_ADLIB* _owner;
-                bool _allocated;
-                uint8_t _channel;
+                MidiDriver_ADLIB* _owner = nullptr;
+                bool _allocated = false;
+                uint8_t _channel = 0;
 
                 void init(MidiDriver_ADLIB* owner, uint8_t channel);
                 void allocate();
@@ -46,33 +45,33 @@ namespace drivers
             public:
                 AdLibPart();
 
-                MidiDriver* device();
-                uint8_t getNumber();
-                void release();
+                MidiDriver* device() override;
+                uint8_t getNumber() override;
+                void release() override;
 
-                void send(uint32_t b);
+                void send(uint32_t b) override;
 
                 // Regular messages
-                void noteOff(uint8_t note);
-                void noteOn(uint8_t note, uint8_t velocity);
-                void programChange(uint8_t program);
-                void pitchBend(int16_t bend);
+                void noteOff(uint8_t note) override;
+                void noteOn(uint8_t note, uint8_t velocity) override;
+                void programChange(uint8_t program) override;
+                void pitchBend(int16_t bend) override;
 
                 // Control Change messages
-                void controlChange(uint8_t control, uint8_t value);
-                void modulationWheel(uint8_t value);
-                void volume(uint8_t value);
-                void panPosition(uint8_t value);
-                void pitchBendFactor(uint8_t value);
-                void detune(uint8_t value);
-                void priority(uint8_t value);
-                void sustain(bool value);
-                void effectLevel(uint8_t value) { return; } // Not supported
-                void chorusLevel(uint8_t value) { return; } // Not supported
-                void allNotesOff();
+                void controlChange(uint8_t control, uint8_t value) override;
+                void modulationWheel(uint8_t value) override;
+                void volume(uint8_t value) override;
+                void panPosition(uint8_t value) override;
+                void pitchBendFactor(uint8_t value) override;
+                void detune(uint8_t value) override;
+                void priority(uint8_t value) override;
+                void sustain(bool value) override;
+                void effectLevel(uint8_t value) override { return; } // Not supported
+                void chorusLevel(uint8_t value) override { return; } // Not supported
+                void allNotesOff() override;
 
                 // SysEx messages
-                void sysEx_customInstrument(uint32_t type, const uint8_t* instr);
+                void sysEx_customInstrument(uint32_t type, const uint8_t* instr) override;
             };
         }
     }
