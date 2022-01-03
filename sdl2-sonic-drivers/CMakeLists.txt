@@ -114,7 +114,10 @@ target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/Native.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/miles/XMIParser.cpp
     
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/scummvm/mididrv.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/scummvm/MidiDriver_BASE.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/scummvm/MidiDriver.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/scummvm/MidiChannel.cpp
+    #${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/scummvm/mididrv.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/scummvm/adlib.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/ScummVM.cpp
 
