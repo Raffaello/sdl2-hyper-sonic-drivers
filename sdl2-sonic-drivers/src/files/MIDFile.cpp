@@ -258,6 +258,7 @@ namespace files
             spdlog::warn("MIDFile: Fileanme '{}' track {} length mismatch real length {}", _filename, chunk.length, offs);
         }
 
+        track.lock();
         _midi->addTrack(track);
     }
 }

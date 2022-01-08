@@ -14,7 +14,16 @@ namespace audio
             return;
         }
 
-        _tracks.emplace_back(track);
+        if (track.isLocked())
+        {
+            _tracks.push_back(track);
+            return;
+        }
+
+        midi::MIDITrack t = track;
+
+        t.lock();
+        _tracks.push_back(t);
     }
 
     const midi::MIDITrack& MIDI::getTrack(const uint16_t track) const

@@ -11,7 +11,19 @@ namespace audio
 
         void MIDITrack::addEvent(const MIDIEvent& e)
         {
-            _events.push_back(e);
+            if (_lock)
+                return;
+
+            MIDIEvent ev = e;
+
+            ev.data.shrink_to_fit();
+            _events.push_back(ev);
+        }
+
+        void MIDITrack::lock() noexcept
+        {
+            _events.shrink_to_fit();
+            _lock = true;
         }
     }
 }
