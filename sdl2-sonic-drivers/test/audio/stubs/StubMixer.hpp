@@ -7,9 +7,9 @@
 
 namespace audio
 {
-    namespace mocks
+    namespace stubs
     {
-        class MockMixer : public scummvm::Mixer
+        class StubMixer : public scummvm::Mixer
         {
         public:
             int rate = 44100;

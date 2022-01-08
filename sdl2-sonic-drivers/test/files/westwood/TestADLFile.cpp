@@ -103,11 +103,6 @@ namespace files
             ADLFile f("fixtures/EOBSOUND.ADL");
             EXPECT_THROW(f.getInstrumentOffset(151), std::out_of_range);
         }
-
-        TEST(ADLFile, shared_ptr)
-        {
-            std::shared_ptr<ADLFile> adlFile = std::make_shared<ADLFile>("fixtures/DUNE19.ADL");
-        }
     }
 }
 

@@ -4,7 +4,7 @@ namespace audio
 {
     namespace midi
     {
-        MIDIEvent::MIDIEvent() : delta_time(0)
+        MIDIEvent::MIDIEvent()
         {
             type.val = 0;
         }

@@ -17,6 +17,12 @@ namespace files
         virtual ~MIDFile();
 
         std::shared_ptr<audio::MIDI> getMIDI() const noexcept;
+        /**
+         * @brief if the file is not a single track, it will return a
+         *        converted equivalent with single track
+         * @return
+        */
+        std::shared_ptr<audio::MIDI> convertToSingleTrackMIDI() const noexcept;
     private:
         /// <summary>
         /// Variable length quantity decoding algorithm to read from file

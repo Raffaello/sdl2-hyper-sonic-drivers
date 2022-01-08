@@ -4,8 +4,9 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_DEBUG_POSTFIX d)
 
 find_package(SDL2 CONFIG REQUIRED)
-find_package(sdl2-mixer CONFIG REQUIRED)
+find_package(sdl2-mixer CONFIG REQUIRED) # TODO remove this dependency
 find_package(spdlog 1.9.0 CONFIG REQUIRED)
+find_package(RtMidi CONFIG REQUIRED)
 
 configure_file("version.h.in" "version.h")
 
@@ -41,6 +42,9 @@ install(FILES
     
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/westwood/ADLDriver.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/PCMDriver.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/MIDDriver.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/Device.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/Native.hpp
     
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/westwood/ADLFile.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/MIDFile.hpp
@@ -87,7 +91,7 @@ target_include_directories(${LIB_NAME} PUBLIC
     $<INSTALL_INTERFACE:"static/include">
 )
 target_sources(${LIB_NAME} PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/SDL2Mixer.cpp
+    #${CMAKE_CURRENT_SOURCE_DIR}/src/audio/SDL2Mixer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/DiskRendererMixerManager.cpp
     
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/MIDI.cpp
@@ -106,7 +110,18 @@ target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/PCMDriver.cpp
     #${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/miles/XMidi.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/MIDParser.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/MIDDriver.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/Native.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/miles/XMIParser.cpp
+    
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/scummvm/MidiDriver_BASE.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/scummvm/MidiDriver.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/scummvm/AdLibInstrument.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/scummvm/AdLibPart.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/scummvm/AdLibPercussionChannel.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/scummvm/MidiDriver_ADLIB.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/ScummVM.cpp
+
     # --- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/westwood/ADLFile.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/MIDFile.cpp
@@ -146,7 +161,7 @@ target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/algorithms.cpp
 )
 
-target_link_libraries(${LIB_NAME} PUBLIC ${LIB_SDL2} spdlog::spdlog)
+target_link_libraries(${LIB_NAME} PUBLIC ${LIB_SDL2} spdlog::spdlog RtMidi::rtmidi)
 if(NOT (WITH_SDL2_STATIC))
     install(FILES
         $<TARGET_FILE:SDL2::SDL2>
@@ -161,13 +176,13 @@ unset(LIB_VER)
 
 # Add source to this project's executable.
 add_executable(sdl2-sonic-drivers "sdl2-sonic-drivers.cpp")
-target_sources(sdl2-sonic-drivers PUBLIC
+#target_sources(sdl2-sonic-drivers PUBLIC
     #${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/miles/XMidi.cpp
     # --- #
     #${CMAKE_CURRENT_SOURCE_DIR}/src/files/IFFFile.cpp
     #${CMAKE_CURRENT_SOURCE_DIR}/src/files/XMIFile.cpp
     #${CMAKE_CURRENT_SOURCE_DIR}/src/files/MIDFile.cpp
-)
+#)
 
 target_link_libraries(sdl2-sonic-drivers PRIVATE ${LIB_SDL2main} SDL2::SDL2_mixer)
 target_link_libraries(sdl2-sonic-drivers PRIVATE sonic-drivers-static)

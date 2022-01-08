@@ -7,6 +7,7 @@
 #include <utils/algorithms.hpp>
 #include <audio/midi/MIDITrack.hpp>
 #include <audio/midi/MIDIEvent.hpp>
+#include <algorithm>
 
 
 namespace files
@@ -36,6 +37,49 @@ namespace files
     std::shared_ptr<audio::MIDI> MIDFile::getMIDI() const noexcept
     {
         return _midi;
+    }
+
+    std::shared_ptr<audio::MIDI> MIDFile::convertToSingleTrackMIDI() const noexcept
+    {
+        if (_midi->format == audio::midi::MIDI_FORMAT::SINGLE_TRACK)
+            return getMIDI();
+        if (_midi->format == audio::midi::MIDI_FORMAT::MULTI_TRACK)
+            throw std::runtime_error("MIDI MULTI_TRACK not supported yet");
+
+        auto midi = std::make_shared<audio::MIDI>(audio::midi::MIDI_FORMAT::SINGLE_TRACK, 1, _midi->division);
+        std::vector<audio::midi::MIDIEvent> events;
+
+        // 1. with absolute time just copy all the events as they are into 1 single track
+        for (uint16_t n = 0; n < _midi->numTracks; n++)
+        {
+            for (const auto& te : _midi->getTrack(n).getEvents())
+                events.push_back(te);
+        }
+
+        // 2. then sort them by absolute time
+        std::sort(
+            events.begin(),
+            events.end(),
+            [](const audio::midi::MIDIEvent& e1, const audio::midi::MIDIEvent& e2)
+            {
+                return e1.abs_time < e2.abs_time;
+            }
+        );
+
+        // 3. recompute delta time from absolute time
+        uint32_t abs_time = 0;
+        for (auto& e : events)
+        {
+            e.delta_time = e.abs_time - abs_time;
+            if (e.abs_time > abs_time)
+                abs_time = e.abs_time;
+        }
+
+        audio::midi::MIDITrack single_track(events);
+        midi->addTrack(single_track);
+        assert(midi->getTrack().getEvents().size() == single_track.getEvents().size());
+
+        return midi;
     }
 
     int MIDFile::decode_VLQ(uint32_t& out_value)
@@ -108,12 +152,26 @@ namespace files
 
         // events
         int offs = 0;
+        uint32_t abs_time = 0;
+        uint32_t prev_abs_time = 0;
         while (!endTrack)
         {
             // MTrck Event:
             MIDIEvent e;
             // delta time encoded in VRQ
             offs += decode_VLQ(e.delta_time);
+            abs_time += e.delta_time;
+            if (prev_abs_time > abs_time)
+            {
+                // uint32_t abs_time overflow
+                // it shoulnd't happen in "small midi" files
+                // but just a sanity check just in case...
+                // to figure it out when it might happen.
+                // in theory never for small midi files.
+                throw std::runtime_error("MIDI file too long, absolute time overflowed");
+            }
+
+            e.abs_time = abs_time;
             e.type.val = readU8();
 
             if (e.type.high < 0x8) {
@@ -189,7 +247,7 @@ namespace files
                 }
             }
 
-            e.data.resize(e.data.size());
+            e.data.shrink_to_fit();
             track.addEvent(e);
             lastStatus = e.type;
         }

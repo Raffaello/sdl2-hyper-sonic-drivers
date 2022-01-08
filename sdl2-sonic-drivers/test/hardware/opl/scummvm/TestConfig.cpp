@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <hardware/opl/scummvm/Config.hpp>
-#include "../test/audio/mocks/MockMixer.hpp"
+#include "../test/audio/stubs/StubMixer.hpp"
 #include <hardware/opl/woody/WoodyOPL.hpp>
 #include <hardware/opl/scummvm/dosbox/dosbox.hpp>
 #include <hardware/opl/scummvm/mame/mame.hpp>
@@ -14,9 +14,9 @@ namespace hardware
     {
         namespace scummvm
         {
-            using audio::mocks::MockMixer;
+            using audio::stubs::StubMixer;
 
-            const static std::shared_ptr<MockMixer> mixer = std::make_shared<MockMixer>();
+            const static std::shared_ptr<StubMixer> mixer = std::make_shared<StubMixer>();
 
             class ConfigTest : public ::testing::TestWithParam<std::tuple<OplEmulator, Config::OplType>>{};
             TEST_P(ConfigTest, create)

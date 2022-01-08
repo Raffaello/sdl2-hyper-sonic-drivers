@@ -94,16 +94,20 @@ macro_test(
     EXE TestMIDFile
     FILES "files/TestMIDFile.cpp"
     LINKS_PRIVATE sonic-drivers-static
-    FIXTURES "fixtures/MI_intro.mid"
+    FIXTURES
+        "fixtures/MI_intro.mid"
+        "fixtures/midifile_sample.mid"
 )
 
 macro_test(
     EXE TestSDL2Mixer
-    FILES "audio/TestSDL2Mixer.cpp"
-    LINKS_PRIVATE 
+    FILES
+        "audio/TestSDL2Mixer.cpp"
+        "${CMAKE_SOURCE_DIR}/sdl2-sonic-drivers/src/audio/SDL2Mixer.cpp" 
+    LINKS_PRIVATE
         sonic-drivers-static
         SDL2::SDL2_mixer
-        ${LIB_SDL2} 
+        ${LIB_SDL2}
         ${LIB_SDL2main}
 )
 
@@ -167,7 +171,6 @@ macro_test(
         "fixtures/header_no_xdir.xmi"
         "fixtures/AIL2_14_DEMO.XMI"
 )
-
 
 macro_test(
     EXE TestXMidi

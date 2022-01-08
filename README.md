@@ -16,12 +16,18 @@ Partially reading these types of files, depending of their format.
 - [x] VOC files
 - [x] WAV files
 
-
 ## Music sound files
 
 - [x] ADL files
 - [ ] XMI files
-- [ ] MID files
+- [x] MID files
+
+### MIDI files
+
+MIDI files must be converted to single track before playing them.
+
+Format 2 file type is not supported as there is no sample available,
+but each tracks should be like a format 0 file (single track).
 
 ## Emulators
 At the moment the only implemented emulators are OPL chips.
@@ -50,8 +56,6 @@ Most of the core emulation code is part of these projects:
 
 ## TODO
 
-- decouple emultation to SDL2
-- Adlib (OPL2, dualOPL2, OPL3)
 - GM
 - GUS
 - PC Speaker (8 bit, 16 bit, 32-bit processing)

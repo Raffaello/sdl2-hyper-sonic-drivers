@@ -13,12 +13,7 @@ namespace audio
         MIDI(const midi::MIDI_FORMAT format, const uint16_t num_tracks, const uint16_t division);
 
         void addTrack(const midi::MIDITrack& track);
-        const midi::MIDITrack& getTrack(const uint16_t track) const;
-
-        void reset() noexcept;
-        
-        int getMaxTicks() noexcept;
-        //int getTotalTime() const noexcept;
+        const midi::MIDITrack& getTrack(const uint16_t track = 0) const;
 
         /**
         * Specifies the overall organization of the file. Only three values of
@@ -54,8 +49,7 @@ namespace audio
         */
         const uint16_t division;
 
-    protected:
+    private:
         std::vector<midi::MIDITrack> _tracks;
-        int _maxTicks;
     };
 }

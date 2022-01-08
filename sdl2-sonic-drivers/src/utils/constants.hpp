@@ -4,6 +4,7 @@
 
 namespace utils
 {
+    // TODO remove M_PI and M_2PI replace them with PI and PI2
 #ifdef M_PI
     #undef M_PI
 #endif // M_PI

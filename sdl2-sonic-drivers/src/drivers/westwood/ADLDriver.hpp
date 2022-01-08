@@ -1,6 +1,5 @@
 #pragma once
 
-#include <audio/scummvm/Mixer.hpp>
 #include <cstdint>
 #include <memory>
 #include <mutex>

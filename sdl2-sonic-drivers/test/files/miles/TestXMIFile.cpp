@@ -26,8 +26,8 @@ namespace files
             EXPECT_EQ(f.getMIDI()->numTracks, 1);
             EXPECT_EQ(f.getMIDI()->format, audio::midi::MIDI_FORMAT::SINGLE_TRACK);
             auto t = f.getMIDI()->getTrack(0);
-            EXPECT_EQ(t.events.size(), 1);
-            EXPECT_EQ(t.events[0].type.val, 0xFF);
+            EXPECT_EQ(t.getEvents().size(), 1);
+            EXPECT_EQ(t.getEvents()[0].type.val, 0xFF);
         }
 
         TEST(XMIFile, headerNoXdirXmi)
@@ -37,8 +37,8 @@ namespace files
             EXPECT_EQ(f.getMIDI()->numTracks, 1);
             EXPECT_EQ(f.getMIDI()->format, audio::midi::MIDI_FORMAT::SINGLE_TRACK);
             auto t = f.getMIDI()->getTrack(0);
-            EXPECT_EQ(t.events.size(), 1);
-            EXPECT_EQ(t.events[0].type.val, 0xFF);
+            EXPECT_EQ(t.getEvents().size(), 1);
+            EXPECT_EQ(t.getEvents()[0].type.val, 0xFF);
         }
 
         TEST(XMIFile, AIL2_14_DEMOXmi)

@@ -232,7 +232,7 @@ namespace files
                     throw std::runtime_error("XMIFile: midi event type not recognized.");
                 }
 
-                e.data.resize(e.data.size());
+                e.data.shrink_to_fit();
                 t.addEvent(e);
             }
 

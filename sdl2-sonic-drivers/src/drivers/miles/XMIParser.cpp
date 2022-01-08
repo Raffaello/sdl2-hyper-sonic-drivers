@@ -62,7 +62,7 @@ namespace drivers
             tempo = 500000; //120 BPM;
             int cur_time = 0; // ticks
             unsigned int start = utils::getMicro<unsigned int>();
-            for (auto& e : track.events)
+            for (auto& e : track.getEvents())
             {
                 //unsigned int start = utils::getMicro<unsigned int>();
                 spdlog::debug("MIDI Track#={:3}, Event: dt={:4}, type={:#04x}", num_track, e.delta_time, e.type.val);
@@ -196,13 +196,13 @@ namespace drivers
 
             // TODO: this works only with a constant tempo during all the sequence
             // BODY: also should be computed in float and ceiled for integer.
-            float exp_time_seconds = static_cast<float>(_midi->getMaxTicks()) / static_cast<float>(_midi->division) * (static_cast<float>(tempo) / 1000000.0f);
+            //float exp_time_seconds = static_cast<float>(_midi->getMaxTicks()) / static_cast<float>(_midi->division) * (static_cast<float>(tempo) / 1000000.0f);
             auto end_time = std::chrono::system_clock::now();
             auto tot_time = end_time - start_time;
-            spdlog::info("Total Running Time: {:%M:%S}, expected={}:{}",
-                tot_time,
-                std::floor(exp_time_seconds / 60.0f),
-                exp_time_seconds - (std::floor(exp_time_seconds / 60.f) * 60.f));
+            //spdlog::info("Total Running Time: {:%M:%S}, expected={}:{}",
+             //   tot_time,
+                //std::floor(exp_time_seconds / 60.0f),
+                //exp_time_seconds - (std::floor(exp_time_seconds / 60.f) * 60.f));
         }
 
 

@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <hardware/opl/scummvm/mame/mame.hpp>
-#include "../test/audio/mocks/MockMixer.hpp"
+#include "../test/audio/stubs/StubMixer.hpp"
 #include <memory>
 #include <cstdint>
 #include <files/File.hpp>
@@ -15,10 +15,10 @@ namespace hardware
         {
             namespace mame
             {
-                using audio::mocks::MockMixer;
+                using audio::stubs::StubMixer;
                 TEST(OPL, cstorDefault)
                 {
-                    std::shared_ptr<MockMixer> mixer = std::make_shared<MockMixer>();
+                    std::shared_ptr<StubMixer> mixer = std::make_shared<StubMixer>();
                     EXPECT_EQ(mixer.use_count(), 1);
                     OPL mame(mixer);
                     EXPECT_EQ(mixer.use_count(), 2);
@@ -29,7 +29,7 @@ namespace hardware
 
                 TEST(OPL, share_ptrDefault)
                 {
-                    std::shared_ptr<MockMixer> mixer = std::make_shared<MockMixer>();
+                    std::shared_ptr<StubMixer> mixer = std::make_shared<StubMixer>();
                     EXPECT_EQ(mixer.use_count(), 1);
 
                     std::shared_ptr<OPL> mame = std::make_shared<OPL>(mixer);
@@ -42,7 +42,7 @@ namespace hardware
 
                 TEST(DISABLED_OPL, Table440Hz)
                 {
-                    std::shared_ptr<MockMixer> mixer = std::make_shared<MockMixer>();
+                    std::shared_ptr<StubMixer> mixer = std::make_shared<StubMixer>();
                     mixer->rate = 22050;
                     std::shared_ptr<hardware::opl::scummvm::mame::OPL> opl = std::make_shared<hardware::opl::scummvm::mame::OPL>(mixer);
                     opl->init();

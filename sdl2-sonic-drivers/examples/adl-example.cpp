@@ -29,7 +29,7 @@ void adl_test(const OplEmulator emu, const Config::OplType type, std::shared_ptr
     if (opl == nullptr)
         return;
 
-    std::shared_ptr<ADLFile> adlFile = std::make_shared<ADLFile>(filename);
+    auto adlFile = std::make_shared<ADLFile>(filename);
     ADLDriver adlDrv(opl, adlFile);
     adlDrv.play(track, 0xFF);
 
