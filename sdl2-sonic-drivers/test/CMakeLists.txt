@@ -100,6 +100,14 @@ macro_test(
 )
 
 macro_test(
+    EXE TestMUSFile
+    FILES "files/dmx/TestMUSFile.cpp"
+    LINKS_PRIVATE sonic-drivers-static
+    FIXTURES
+        "fixtures/D_E1M1.MUS"
+)
+
+macro_test(
     EXE TestSDL2Mixer
     FILES
         "audio/TestSDL2Mixer.cpp"
