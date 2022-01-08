@@ -55,6 +55,8 @@ namespace drivers
 
     void MIDDriver::processTrack(const audio::midi::MIDITrack& track, const uint16_t division) const noexcept
     {
+        using audio::midi::MIDI_EVENT_TYPES_HIGH;
+
         uint32_t tempo = 500000; //120 BPM;
         int cur_time = 0; // ticks
         unsigned int tempo_micros = tempo_to_micros(tempo, division);
@@ -65,9 +67,9 @@ namespace drivers
         uint8_t msg_size = 0;
         for (const auto& e : tes)
         {
-            switch (e.type.high)
+            switch (static_cast<MIDI_EVENT_TYPES_HIGH>(e.type.high))
             {
-            case 0xF:
+            case MIDI_EVENT_TYPES_HIGH::META:
                 if (e.type.low == 0xF)
                 {
                     const uint8_t type = e.data[0]; // must be < 128
@@ -80,18 +82,18 @@ namespace drivers
                     }
                 }
                 continue;
-            case 0x8:
-            case 0x9:
-            case 0xA:
-            case 0xB:
-            case 0xE:
+            case MIDI_EVENT_TYPES_HIGH::NOTE_OFF:
+            case MIDI_EVENT_TYPES_HIGH::NOTE_ON:
+            case MIDI_EVENT_TYPES_HIGH::AFTERTOUCH:
+            case MIDI_EVENT_TYPES_HIGH::CONTROLLER:
+            case MIDI_EVENT_TYPES_HIGH::PITCH_BEND:
                 msg[0] = e.type.val;
                 msg[1] = e.data[0];
                 msg[2] = e.data[1];
                 msg_size = 3;
                 break;
-            case 0xC:
-            case 0xD:
+            case MIDI_EVENT_TYPES_HIGH::PROGRAM_CHANGE:
+            case MIDI_EVENT_TYPES_HIGH::CHANNEL_AFTERTOUCH:
                 msg[0] = e.type.val;
                 msg[1] = e.data[0];
                 msg_size = 2;

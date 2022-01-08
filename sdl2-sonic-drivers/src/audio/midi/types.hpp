@@ -25,7 +25,7 @@ namespace audio
             };
         } MIDI_EVENT_type_u;
 
-        enum class MIDI_META_EVENT
+        enum class MIDI_META_EVENT : uint8_t
         {
             SEQUENCE_NUMBER = 0x00,
             TEXT = 0x01,
@@ -44,5 +44,19 @@ namespace audio
             KEY_SIGNATURE = 0x59,
             SEQUENCER_SPECIFIC = 0x7F
         };
+
+        // MIDI event types high values
+        enum class MIDI_EVENT_TYPES_HIGH : uint8_t
+        {
+            NOTE_OFF = 0x8,
+            NOTE_ON = 0x9,
+            AFTERTOUCH = 0xA,
+            CONTROLLER = 0xB,
+            PROGRAM_CHANGE = 0xC,
+            CHANNEL_AFTERTOUCH = 0xD,
+            PITCH_BEND = 0xE,
+            META = 0xF
+        };
+        
     }
 }

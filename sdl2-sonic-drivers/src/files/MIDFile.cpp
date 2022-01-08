@@ -142,6 +142,7 @@ namespace files
         using audio::midi::MIDI_META_EVENT;
         using audio::midi::MIDITrack;
         using audio::midi::MIDIEvent;
+        using audio::midi::MIDI_EVENT_TYPES_HIGH;
 
         MIDITrack track;
         bool endTrack = false;
@@ -182,9 +183,9 @@ namespace files
                 offs++;
             }
 
-            switch (e.type.high)
+            switch (static_cast<MIDI_EVENT_TYPES_HIGH>(e.type.high))
             {
-            case 0xF:
+            case MIDI_EVENT_TYPES_HIGH::META:
                 // special event
                 switch (e.type.low)
                 {
@@ -222,17 +223,17 @@ namespace files
 
                 }
                 break;
-            case 0xC:
-            case 0xD:
+            case MIDI_EVENT_TYPES_HIGH::PROGRAM_CHANGE:
+            case MIDI_EVENT_TYPES_HIGH::CHANNEL_AFTERTOUCH:
                 e.data.reserve(1);
                 e.data.push_back(readU8());
                 offs++;
                 break;
-            case 0x8:
-            case 0x9:
-            case 0xA:
-            case 0xB:
-            case 0xE:
+            case MIDI_EVENT_TYPES_HIGH::NOTE_OFF:
+            case MIDI_EVENT_TYPES_HIGH::NOTE_ON:
+            case MIDI_EVENT_TYPES_HIGH::AFTERTOUCH:
+            case MIDI_EVENT_TYPES_HIGH::CONTROLLER:
+            case MIDI_EVENT_TYPES_HIGH::PITCH_BEND:
                 e.data.reserve(2);
                 e.data.push_back(readU8());
                 e.data.push_back(readU8());
