@@ -105,6 +105,7 @@ macro_test(
     LINKS_PRIVATE sonic-drivers-static
     FIXTURES
         "fixtures/D_E1M1.MUS"
+        "fixtures/D_E1M1.mid"
 )
 
 macro_test(

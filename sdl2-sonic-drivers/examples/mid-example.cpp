@@ -57,6 +57,7 @@ int main(int argc, char* argv[])
 
     // Reproducing MIDI file
     auto midFile = std::make_shared<files::MIDFile>("MI_intro.mid");
+    //auto midFile = std::make_shared<files::MIDFile>("D_E1M1.mid");
     //auto midFile = std::make_shared<files::MIDFile>("midifile_sample.mid");
     auto midi = midFile->convertToSingleTrackMIDI();
 

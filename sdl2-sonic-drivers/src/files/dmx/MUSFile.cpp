@@ -1,6 +1,7 @@
 #include <files/dmx/MUSFile.hpp>
 #include <utils/endianness.hpp>
 #include <audio/midi/types.hpp>
+#include <cstring>
 
 namespace files
 {
@@ -128,6 +129,7 @@ namespace files
                     // approximation
                     //pitch = d1 * 64;
                     pitch = d1 << 6;
+                    //pitch = ((d1 & 1) >> 6) + ((d1 >> 1) & 127);
                     d1 = pitch & 0xFF;
                     d2 = pitch >> 8;
                     me.data.push_back(d1);
@@ -238,24 +240,33 @@ namespace files
 
                 me.type.low = event.e.channel;
                 me.data.shrink_to_fit();
+                me.delta_time = delta_time;
                 if (me.data.size() > 0)
                     track.addEvent(me);
 
-                if(event.e.last != 0) {
+                if(event.e.last != 0)
+                {
                     // compute delay
-                    // TODO
                     uint32_t dd = 0;
-                    event_u e2;
                     do {
-                        e2.val = readU8();
-                        //dd += e2.val * 128;
-                    } while (e2.e.last != 0);
+                        d1 = readU8();
+                        dd *= 128;
+                        dd += d1 & 0x7F;
+                        
+                    } while ((d1 & 0x80) > 0);
 
+                    delta_time = dd;
                 }
             }
 
             track.lock();
-            _midi = std::make_shared<audio::MIDI>(MIDI_FORMAT::SINGLE_TRACK, 1, playback_speed);
+            // division is 120BPM tempo by default so
+            // 120 quarter note per minute
+            // playback_speed is ticks per quarter note
+            // 120 / 60 = 2 quarter notes per seconds
+            // playback speed is ticks per quarter note
+            // playback_speed / 2 is the division value at 120BMP
+            _midi = std::make_shared<audio::MIDI>(MIDI_FORMAT::SINGLE_TRACK, 1, playback_speed / 2);
             _midi->addTrack(track);
         }
     }

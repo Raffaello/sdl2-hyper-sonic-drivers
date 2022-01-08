@@ -102,5 +102,6 @@ macro_example(
     FIXTURES 
       "../test/fixtures/MI_intro.mid"
       "../test/fixtures/midifile_sample.mid"
+      "../test/fixtures/D_E1M1.mid"
     NONE
 )

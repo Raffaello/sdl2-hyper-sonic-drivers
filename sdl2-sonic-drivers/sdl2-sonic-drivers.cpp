@@ -29,6 +29,8 @@
 #include <drivers/midi/devices/ScummVM.hpp>
 #include <drivers/MIDDriver.hpp>
 
+#include <files/dmx/MUSFile.hpp>
+
 using namespace std;
 
 void playNotes(hardware::PCSpeaker *pcSpeaker, const hardware::PCSpeaker::eWaveForm waveForm, const int freq, const int length)
@@ -403,13 +405,13 @@ int midi_adlib_mus_file()
 
     //spdlog::set_level(spdlog::level::debug);
     //std::shared_ptr<files::MIDFile> midFile = std::make_shared<files::MIDFile>("test/fixtures/MI_intro.mid");
-    auto midFile = std::make_shared<files::MIDFile>("test/fixtures/midifile_sample.mid");
-    auto midi = midFile->convertToSingleTrackMIDI();
+    auto musFile = std::make_shared<files::dmx::MUSFile>("test/fixtures/D_E1M1.MUS");
+    auto midi = musFile->getMIDI();
     auto scumm_midi = std::make_shared<drivers::midi::devices::ScummVM>(opl, true);
     drivers::MIDDriver midDrv(mixer, scumm_midi);
 
 
-    spdlog::info("playing midi...");
+    spdlog::info("playing midi D_E1M1.MUS...");
     midDrv.play(midi);
     spdlog::info("end.");
 
