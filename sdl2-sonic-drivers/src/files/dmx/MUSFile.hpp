@@ -27,7 +27,7 @@ namespace files
             /**
              * channels 0-8, 9 is percussion
              * secondary_channels 10-14, 15 percussion
-             * percussion channels 9,15 are assigned to MIDI percussion channel 15
+             * percussion channels 9,15 are assigned to MIDI percussion channel 15 (actually at the moment 9)
              * percurssion is not consider as primary or secondary channel, but just a reserved one
              * 
             */

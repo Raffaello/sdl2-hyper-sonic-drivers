@@ -24,6 +24,35 @@ namespace files
         {
             EXPECT_THROW(MUSFile f(""), std::system_error);
         }
+
+        TEST(DISABLED_MUSFile, musfile_sample)
+        {
+            MUSFile f1("fixtures/D_E1M1.MUS");
+            MIDFile f2("fixtures/D_E1M1.mid"); // converted from MUS2MID (DOS) v1.0
+
+            auto m1 = f1.getMIDI();
+            auto m2 = f2.convertToSingleTrackMIDI();
+            EXPECT_EQ(m1->format, m2->format);
+            EXPECT_EQ(m1->division, m2->division);
+            EXPECT_EQ(m1->numTracks, m2->numTracks);
+
+            auto te1 = m1->getTrack().getEvents();
+            auto te2 = m2->getTrack().getEvents();
+            ASSERT_LE(te1.size(), te2.size());
+            
+            for(int i = 0; i<te1.size(); ++i)
+            {
+                auto e1 = te1.at(i);
+                auto e2 = te2.at(i);
+                    
+                EXPECT_EQ(e1.abs_time, e2.abs_time);
+                EXPECT_EQ(e1.delta_time, e2.delta_time);
+                EXPECT_EQ(e1.type.val, e2.type.val);
+                ASSERT_EQ(e1.data.size(), e2.data.size());
+                for (int j = 0; j < e1.data.size(); j++)
+                    EXPECT_EQ(e1.data.at(j), e2.data.at(j));
+            }
+        }
     }
 }
 
