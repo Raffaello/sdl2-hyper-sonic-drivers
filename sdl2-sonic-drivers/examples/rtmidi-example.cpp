@@ -80,9 +80,13 @@ int main(int argc, char* argv[])
     midiout->sendMessage(&message);
 
     cout << "OK" << endl;
+    midiout->closePort();
 
-    auto native = std::make_shared< drivers::midi::devices::Native>();
+    // Device Native is using RtMidi
+    auto native = std::make_shared<drivers::midi::devices::Native>();
     drivers::MIDDriver middrv(mixer, native);
+    auto midi = files::MIDFile("midifile_sample.mid").convertToSingleTrackMIDI();
+    middrv.play(midi);
 
     return 0;
 }

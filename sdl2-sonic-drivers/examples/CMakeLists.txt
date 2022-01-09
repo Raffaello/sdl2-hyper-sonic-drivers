@@ -89,7 +89,6 @@ macro_example(
     DEPS sonic-drivers-static
     LINKS ${LIB_SDL2main} sonic-drivers-static
     FIXTURES 
-      "../test/fixtures/MI_intro.mid"
       "../test/fixtures/midifile_sample.mid"
     NONE
 )
@@ -101,7 +100,7 @@ macro_example(
     LINKS ${LIB_SDL2main} sonic-drivers-static
     FIXTURES 
       "../test/fixtures/MI_intro.mid"
-      "../test/fixtures/midifile_sample.mid"
+      #"../test/fixtures/midifile_sample.mid"
     NONE
 )
 
