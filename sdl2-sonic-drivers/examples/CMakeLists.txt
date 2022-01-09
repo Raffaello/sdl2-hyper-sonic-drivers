@@ -104,3 +104,13 @@ macro_example(
       "../test/fixtures/midifile_sample.mid"
     NONE
 )
+
+macro_example(
+    EXE MUSexample
+    FILE "mus-example.cpp"
+    DEPS sonic-drivers-static
+    LINKS ${LIB_SDL2main} sonic-drivers-static
+    FIXTURES 
+      "../test/fixtures/D_E1M1.MUS"
+    NONE
+)

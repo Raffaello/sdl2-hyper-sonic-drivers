@@ -18,7 +18,6 @@
 #include <audio/DiskRendererMixerManager.hpp>
 
 #include <files/MIDFile.hpp>
-#include <drivers/MIDParser.hpp>
 #include <drivers/miles/XMIParser.hpp>
 
 #include <utils/algorithms.hpp>
@@ -28,6 +27,8 @@
 
 #include <drivers/midi/devices/ScummVM.hpp>
 #include <drivers/MIDDriver.hpp>
+
+#include <files/dmx/MUSFile.hpp>
 
 using namespace std;
 
@@ -295,32 +296,6 @@ int renderMixer()
     return 0;
 }
 
-int mid_parser()
-{
-    using namespace audio::scummvm;
-    using  drivers::MIDParser;
-
-    SdlMixerManager mixerManager;
-    mixerManager.init();
-
-    std::shared_ptr<Mixer> mixer = mixerManager.getMixer();
-
-    //spdlog::set_level(spdlog::level::debug);
-    std::shared_ptr<files::MIDFile> midFile = std::make_shared<files::MIDFile>("test/fixtures/MI_intro.mid");
-
-    MIDParser midParser(midFile->getMIDI());
-    //midParser.display();
-
-    
-
-    spdlog::info("SDLMixer quitting...");
-    SDL_Delay(1000);
-    spdlog::info("SDLMixer quit");
-
-    return 0;
-
-}
-
 int xmi_parser()
 {
     using namespace audio::scummvm;
@@ -347,11 +322,9 @@ int xmi_parser()
 
 }
 
-
 int midi_adlib()
 {
     using namespace audio::scummvm;
-    using  drivers::MIDParser;
     using hardware::opl::scummvm::Config;
     using hardware::opl::scummvm::OplEmulator;
 
@@ -368,8 +341,8 @@ int midi_adlib()
         return -1;
 
     //spdlog::set_level(spdlog::level::debug);
-    std::shared_ptr<files::MIDFile> midFile = std::make_shared<files::MIDFile>("test/fixtures/MI_intro.mid");
-    //auto midFile = std::make_shared<files::MIDFile>("test/fixtures/midifile_sample.mid");
+    //std::shared_ptr<files::MIDFile> midFile = std::make_shared<files::MIDFile>("test/fixtures/MI_intro.mid");
+    auto midFile = std::make_shared<files::MIDFile>("test/fixtures/midifile_sample.mid");
     auto midi = midFile->convertToSingleTrackMIDI();
     auto scumm_midi = std::make_shared<drivers::midi::devices::ScummVM>(opl, true);
     drivers::MIDDriver midDrv(mixer, scumm_midi);
@@ -382,6 +355,40 @@ int midi_adlib()
     return 0;
 }
 
+int midi_adlib_mus_file()
+{
+    using namespace audio::scummvm;
+    using hardware::opl::scummvm::Config;
+    using hardware::opl::scummvm::OplEmulator;
+
+    SdlMixerManager mixerManager;
+    mixerManager.init();
+
+    std::shared_ptr<Mixer> mixer = mixerManager.getMixer();
+
+    auto emu = OplEmulator::MAME;
+    auto type = Config::OplType::OPL2;
+
+    auto opl = Config::create(emu, type, mixer);
+    if (opl.get() == nullptr)
+        return -1;
+
+    //spdlog::set_level(spdlog::level::debug);
+    //std::shared_ptr<files::MIDFile> midFile = std::make_shared<files::MIDFile>("test/fixtures/MI_intro.mid");
+    auto musFile = std::make_shared<files::dmx::MUSFile>("test/fixtures/D_E1M1.MUS");
+    auto midi = musFile->getMIDI();
+    auto scumm_midi = std::make_shared<drivers::midi::devices::ScummVM>(opl, false);
+    drivers::MIDDriver midDrv(mixer, scumm_midi);
+
+
+    spdlog::info("playing midi D_E1M1.MUS...");
+    midDrv.play(midi);
+    spdlog::info("end.");
+
+    return 0;
+}
+
+
 
 int main(int argc, char* argv[])
 {
@@ -391,7 +398,7 @@ int main(int argc, char* argv[])
 
     //mid_parser();
     //xmi_parser();
-    midi_adlib();
+    midi_adlib_mus_file();
 
     SDL_Init(SDL_INIT_TIMER | SDL_INIT_AUDIO);
 

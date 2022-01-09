@@ -15,7 +15,12 @@ namespace audio
             void addEvent(const MIDIEvent& e);
 
             inline const std::vector<MIDIEvent>& getEvents() const noexcept;
+            void lock() noexcept;
+            inline bool isLocked() const noexcept;
         private:
+            // TODO: instead of lock mechanism can use a builder (pattern) MIDI/MIDITrack
+            //       to build an already "locked" track/midi.
+            bool _lock = false;
             std::vector<MIDIEvent> _events;
             /**
             * This tempo is in microseconds per minute, default 120BPM = 500000
@@ -50,6 +55,11 @@ namespace audio
         inline const std::vector<MIDIEvent>& MIDITrack::getEvents() const noexcept
         {
             return _events;
+        }
+
+        inline bool MIDITrack::isLocked() const noexcept
+        {
+            return _lock;
         }
     }
 }

@@ -36,18 +36,20 @@ install(
 )
 install(FILES 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/scummvm/SDLMixerManager.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/SDL2Mixer.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/MIDI.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/Sound.hpp
     
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/westwood/ADLDriver.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/PCMDriver.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/MIDDriver.hpp
+
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/Device.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/Native.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/ScummVM.hpp
     
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/westwood/ADLFile.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/MIDFile.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/dmx/MUSFile.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/miles/XMIFile.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/miles/AILDriverFile.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/WAVFile.hpp
@@ -91,7 +93,6 @@ target_include_directories(${LIB_NAME} PUBLIC
     $<INSTALL_INTERFACE:"static/include">
 )
 target_sources(${LIB_NAME} PRIVATE
-    #${CMAKE_CURRENT_SOURCE_DIR}/src/audio/SDL2Mixer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/DiskRendererMixerManager.cpp
     
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/MIDI.cpp
@@ -109,7 +110,6 @@ target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/westwood/ADLDriver.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/PCMDriver.cpp
     #${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/miles/XMidi.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/MIDParser.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/MIDDriver.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/Native.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/miles/XMIParser.cpp
@@ -123,14 +123,15 @@ target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/ScummVM.cpp
 
     # --- #
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/westwood/ADLFile.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/MIDFile.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/File.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/IFFFile.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/westwood/ADLFile.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/MIDFile.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/dmx/MUSFile.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/miles/XMIFile.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/miles/AILDriverFile.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/WAVFile.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/RIFFFile.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/WAVFile.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/VOCFile.cpp
     # --- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/OPL.cpp

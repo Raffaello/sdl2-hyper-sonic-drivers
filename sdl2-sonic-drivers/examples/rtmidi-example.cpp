@@ -1,5 +1,8 @@
 #include <audio/scummvm/Mixer.hpp>
 #include <audio/scummvm/SDLMixerManager.hpp>
+#include <files/MIDFile.hpp>
+#include <drivers/MIDDriver.hpp>
+#include <drivers/midi/devices/Native.hpp>
 #include <utils/algorithms.hpp>
 
 #include <iostream>
@@ -9,8 +12,6 @@
 #include <memory>
 #include <vector>
 
-#include <files/MIDFile.hpp>
-#include <drivers/MIDParser.hpp>
 #include <spdlog/spdlog.h>
 
 
@@ -80,25 +81,8 @@ int main(int argc, char* argv[])
 
     cout << "OK" << endl;
 
-    // Reproducing MIDI file
-    auto midFile = std::make_shared<files::MIDFile>("MI_intro.mid");
-    //auto midFile = std::make_shared<files::MIDFile>("midifile_sample.mid");
-    auto midi = midFile->convertToSingleTrackMIDI();
-    drivers::MIDParser midParser(midi);
-
-    // quantizing to send messages to midiout from the midi file:
-    // at the moment can be done within the parser in a "raw mode",
-    // injecting the rtmidiout object; then creating an abstract
-    // "device::midiOut" interface to send messages etc that will
-    // be implemented for each hardware emulators.
-
-    // also it would be nice to have a sort of "callback" functionality
-    // to display in real time the notes (messages) being played.
-    // can be done easily in the console like guitar hero
-    // screen stream for the visualization.
-
-    //spdlog::set_level(spdlog::level::debug);
-    midParser.display(midiout);
+    auto native = std::make_shared< drivers::midi::devices::Native>();
+    drivers::MIDDriver middrv(mixer, native);
 
     return 0;
 }

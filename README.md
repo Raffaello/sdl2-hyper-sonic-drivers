@@ -21,6 +21,7 @@ Partially reading these types of files, depending of their format.
 - [x] ADL files
 - [ ] XMI files
 - [x] MID files
+- [x] MUS files
 
 ### MIDI files
 
@@ -28,6 +29,10 @@ MIDI files must be converted to single track before playing them.
 
 Format 2 file type is not supported as there is no sample available,
 but each tracks should be like a format 0 file (single track).
+
+### MUS Files
+
+Are converted to MIDI.
 
 ## Emulators
 At the moment the only implemented emulators are OPL chips.
@@ -41,6 +46,10 @@ At the moment the only implemented emulators are OPL chips.
 - [x] Nuked OPL3
 - [x] "woody" OPL2/Surround OPL2 (adding a sort of chrous effect)
 
+
+## Usage
+
+see the `example` folder for some basic usage.
 
 ## Credits
 

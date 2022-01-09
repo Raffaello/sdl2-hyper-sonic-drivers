@@ -100,15 +100,12 @@ macro_test(
 )
 
 macro_test(
-    EXE TestSDL2Mixer
-    FILES
-        "audio/TestSDL2Mixer.cpp"
-        "${CMAKE_SOURCE_DIR}/sdl2-sonic-drivers/src/audio/SDL2Mixer.cpp" 
-    LINKS_PRIVATE
-        sonic-drivers-static
-        SDL2::SDL2_mixer
-        ${LIB_SDL2}
-        ${LIB_SDL2main}
+    EXE TestMUSFile
+    FILES "files/dmx/TestMUSFile.cpp"
+    LINKS_PRIVATE sonic-drivers-static
+    FIXTURES
+        "fixtures/D_E1M1.MUS"
+        #"fixtures/D_E1M1.mid"
 )
 
 macro_test(
