@@ -1,6 +1,6 @@
 #include <audio/scummvm/Mixer.hpp>
 #include <audio/scummvm/SDLMixerManager.hpp>
-#include <files/MIDFile.hpp>
+#include <files/dmx/MUSFile.hpp>
 #include <drivers/MIDDriver.hpp>
 #include <drivers/midi/devices/Native.hpp>
 #include <drivers/midi/devices/ScummVM.hpp>
@@ -56,10 +56,8 @@ int main(int argc, char* argv[])
     auto mixer = mixerManager.getMixer();
 
     // Reproducing MIDI file
-    auto midFile = std::make_shared<files::MIDFile>("MI_intro.mid");
-    //auto midFile = std::make_shared<files::MIDFile>("D_E1M1.mid");
-    //auto midFile = std::make_shared<files::MIDFile>("midifile_sample.mid");
-    auto midi = midFile->convertToSingleTrackMIDI();
+    auto midFile = std::make_shared<files::dmx::MUSFile>("D_E1M1.MUS");
+    auto midi = midFile->getMIDI();
 
     std::map<OplEmulator, std::string> emus = {
        { OplEmulator::DOS_BOX, "DOS_BOX" },
@@ -75,7 +73,7 @@ int main(int argc, char* argv[])
     };
 
     std::string m = "##### {} {} #####";
-
+    
     // Emulators
     for (auto& emu : emus)
     {

@@ -111,10 +111,10 @@ namespace files
 
             _assertValid(_header.channels + _header.secondary_channels < MIDI_MAX_CHANNELS);
 
-            // Map channel 15 to 9 (percussions)
-            channelMap[15] = 9;
             channelMap.fill(-1);
             channelVol.fill(64);
+            // Map channel 15 to 9 (percussions)
+            channelMap[15] = 9;
 
             MIDITrack track;
             bool quit = false;
@@ -129,7 +129,6 @@ namespace files
                 event_u event;
                 uint8_t d1 = 0;
                 uint8_t d2 = 0;
-                uint16_t pitch = 0;
 
                 event.val = readU8();
 
@@ -139,14 +138,14 @@ namespace files
                     MIDIEvent ce;
 
                     ce.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::CONTROLLER);
-                    ce.type.low = event.e.channel;
+                    ce.type.low = curChannel;
                     ce.delta_time = delta_time;
                     ce.abs_time = abs_time;
                     ce.data.push_back(0x07); // MIDI Main Volume
                     ce.data.push_back(127);
                     track.addEvent(ce);
 
-                    // adjust channel tracking and skip percussion if the case
+                    // adjust channel tracking and skip percussion if it is the case
                     channelMap[event.e.channel] = curChannel++;
                     if (curChannel == 9)
                         ++curChannel;
@@ -182,12 +181,9 @@ namespace files
                     me.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::PITCH_BEND);
                     d1 = readU8();
                     // convert to uint16_t value and mapped to +/- 2 semi-tones
-                    // approximation
-                    //pitch = d1 * 64;
-                    pitch = d1 << 6;
-                    //pitch = ((d1 & 1) >> 6) + ((d1 >> 1) & 127);
-                    d1 = pitch & 0xFF;
-                    d2 = pitch >> 8;
+                    d2 = d1;
+                    d1 = (d1 & 1) >> 6; // isn't it always 0 ?
+                    d2 = (d2 >> 1) & 127;
                     me.data.push_back(d1);
                     me.data.push_back(d2);
                     break;
@@ -211,8 +207,7 @@ namespace files
                     {
                         // Change instrument, MIDI event 0xC0
                         me.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::PROGRAM_CHANGE);
-                        d1 = d2;
-                        me.data.push_back(d1);
+                        me.data.push_back(d2);
                     }
                     else {
                         // Controller event
@@ -232,7 +227,7 @@ namespace files
                     break;
                 }
 
-                me.type.low = event.e.channel;
+                me.type.low = channelMap[event.e.channel];
                 me.data.shrink_to_fit();
                 me.delta_time = delta_time;
                 me.abs_time = abs_time;
@@ -247,15 +242,13 @@ namespace files
                         d1 = readU8();
                         dd *= 128;
                         dd += d1 & 0x7F;
-                        
                     } while ((d1 & 0x80) > 0);
 
                     delta_time = dd;
                     abs_time += delta_time;
                 }
-                else {
+                else
                     delta_time = 0;
-                }
             }
 
             track.lock();

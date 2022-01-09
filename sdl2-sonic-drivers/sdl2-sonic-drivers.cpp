@@ -366,8 +366,8 @@ int midi_adlib_mus_file()
 
     std::shared_ptr<Mixer> mixer = mixerManager.getMixer();
 
-    auto emu = OplEmulator::NUKED;
-    auto type = Config::OplType::OPL3;
+    auto emu = OplEmulator::MAME;
+    auto type = Config::OplType::OPL2;
 
     auto opl = Config::create(emu, type, mixer);
     if (opl.get() == nullptr)
@@ -377,7 +377,7 @@ int midi_adlib_mus_file()
     //std::shared_ptr<files::MIDFile> midFile = std::make_shared<files::MIDFile>("test/fixtures/MI_intro.mid");
     auto musFile = std::make_shared<files::dmx::MUSFile>("test/fixtures/D_E1M1.MUS");
     auto midi = musFile->getMIDI();
-    auto scumm_midi = std::make_shared<drivers::midi::devices::ScummVM>(opl, true);
+    auto scumm_midi = std::make_shared<drivers::midi::devices::ScummVM>(opl, false);
     drivers::MIDDriver midDrv(mixer, scumm_midi);
 
 
