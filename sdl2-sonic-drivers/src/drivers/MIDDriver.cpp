@@ -98,6 +98,8 @@ namespace drivers
                 msg[1] = e.data[0];
                 msg_size = 2;
                 break;
+            default:
+                break;
             }
 
             if (e.delta_time != 0)

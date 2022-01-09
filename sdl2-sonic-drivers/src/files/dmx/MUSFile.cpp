@@ -31,11 +31,12 @@ namespace files
         const int MUSFile::MUS_PLAYBACK_SPEED_ALTERNATE = 70;
 
         MUSFile::MUSFile(const std::string& filename, const int playback_speed) : File(filename),
-            playback_speed(playback_speed), _header({0})
+            playback_speed(playback_speed)
         {
             _assertValid(size() <= MAX_SIZE);
             readHeader();
             readTrack();
+            memset(&_header, 0, sizeof(header_t));
         }
 
         std::shared_ptr<audio::MIDI> MUSFile::getMIDI() const noexcept
@@ -105,9 +106,9 @@ namespace files
                 //0    // 15
             };
 
-            std::array<int, MIDI_MAX_CHANNELS> channelMap;
-            std::array<int, MIDI_MAX_CHANNELS> channelVol;
-            int curChannel = 0;
+            std::array<int8_t, MIDI_MAX_CHANNELS> channelMap;
+            std::array<int8_t, MIDI_MAX_CHANNELS> channelVol;
+            int8_t curChannel = 0;
 
             _assertValid(_header.channels + _header.secondary_channels < MIDI_MAX_CHANNELS);
 
@@ -231,7 +232,7 @@ namespace files
                 me.data.shrink_to_fit();
                 me.delta_time = delta_time;
                 me.abs_time = abs_time;
-                if (me.data.size() > 0)
+                if (!me.data.empty())
                     track.addEvent(me);
 
                 if(event.e.last != 0)
@@ -259,7 +260,6 @@ namespace files
             // playback speed is ticks per quarter note
             // playback_speed / 2 is the division value at 120BMP
             _midi = std::make_shared<audio::MIDI>(MIDI_FORMAT::SINGLE_TRACK, 1, playback_speed / 2);
-            //_midi = std::make_shared<audio::MIDI>(MIDI_FORMAT::SINGLE_TRACK, 1, playback_speed);
             _midi->addTrack(track);
         }
     }
