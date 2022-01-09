@@ -191,7 +191,7 @@ namespace files
                 case MUS_EVENT_TYPE_SYS_EVENT:
                     me.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::CONTROLLER);
                     d1 = readU8();
-                    d2 = readU8() == 12 ? _header.channels + 1 : 0; // ?
+                    d2 = readU8() == 12 ? static_cast<uint8_t>(_header.channels + 1) : 0; // ?
                     
                     _assertValid(d1 < 0x80);
                     

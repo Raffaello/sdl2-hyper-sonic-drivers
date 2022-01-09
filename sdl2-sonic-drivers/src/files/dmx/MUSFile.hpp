@@ -18,7 +18,7 @@ namespace files
             static const int MUS_PLAYBACK_SPEED_ALTERNATE;
 
             explicit MUSFile(const std::string& filename, const int playback_speed = MUS_PLAYBACK_SPEED_DEFAULT);
-            virtual ~MUSFile() = default;
+            ~MUSFile() override = default;
 
             std::shared_ptr<audio::MIDI> getMIDI() const noexcept;
 
