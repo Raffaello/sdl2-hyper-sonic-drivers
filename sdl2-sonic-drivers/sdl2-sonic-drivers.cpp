@@ -18,7 +18,6 @@
 #include <audio/DiskRendererMixerManager.hpp>
 
 #include <files/MIDFile.hpp>
-#include <drivers/MIDParser.hpp>
 #include <drivers/miles/XMIParser.hpp>
 
 #include <utils/algorithms.hpp>
@@ -297,32 +296,6 @@ int renderMixer()
     return 0;
 }
 
-int mid_parser()
-{
-    using namespace audio::scummvm;
-    using  drivers::MIDParser;
-
-    SdlMixerManager mixerManager;
-    mixerManager.init();
-
-    std::shared_ptr<Mixer> mixer = mixerManager.getMixer();
-
-    //spdlog::set_level(spdlog::level::debug);
-    std::shared_ptr<files::MIDFile> midFile = std::make_shared<files::MIDFile>("test/fixtures/MI_intro.mid");
-
-    MIDParser midParser(midFile->getMIDI());
-    //midParser.display();
-
-    
-
-    spdlog::info("SDLMixer quitting...");
-    SDL_Delay(1000);
-    spdlog::info("SDLMixer quit");
-
-    return 0;
-
-}
-
 int xmi_parser()
 {
     using namespace audio::scummvm;
@@ -349,11 +322,9 @@ int xmi_parser()
 
 }
 
-
 int midi_adlib()
 {
     using namespace audio::scummvm;
-    using  drivers::MIDParser;
     using hardware::opl::scummvm::Config;
     using hardware::opl::scummvm::OplEmulator;
 
@@ -387,7 +358,6 @@ int midi_adlib()
 int midi_adlib_mus_file()
 {
     using namespace audio::scummvm;
-    using  drivers::MIDParser;
     using hardware::opl::scummvm::Config;
     using hardware::opl::scummvm::OplEmulator;
 

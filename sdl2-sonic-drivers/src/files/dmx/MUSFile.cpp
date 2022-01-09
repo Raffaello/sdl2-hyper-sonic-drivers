@@ -105,14 +105,16 @@ namespace files
                 //0    // 15
             };
 
-            std::array<int, MIDI_MAX_CHANNELS> channelMap = { -1 };
-            std::array<int, MIDI_MAX_CHANNELS> channelVol = { 64 };
+            std::array<int, MIDI_MAX_CHANNELS> channelMap;
+            std::array<int, MIDI_MAX_CHANNELS> channelVol;
             int curChannel = 0;
 
             _assertValid(_header.channels + _header.secondary_channels < MIDI_MAX_CHANNELS);
 
             // Map channel 15 to 9 (percussions)
             channelMap[15] = 9;
+            channelMap.fill(-1);
+            channelVol.fill(64);
 
             MIDITrack track;
             bool quit = false;
@@ -140,7 +142,7 @@ namespace files
                     ce.type.low = event.e.channel;
                     ce.delta_time = delta_time;
                     ce.abs_time = abs_time;
-                    ce.data.push_back(0x07);
+                    ce.data.push_back(0x07); // MIDI Main Volume
                     ce.data.push_back(127);
                     track.addEvent(ce);
 
