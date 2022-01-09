@@ -57,6 +57,5 @@ namespace audio
             PITCH_BEND = 0xE,
             META = 0xF
         };
-        
     }
 }

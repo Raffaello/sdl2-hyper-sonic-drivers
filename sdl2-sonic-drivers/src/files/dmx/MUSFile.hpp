@@ -11,7 +11,7 @@ namespace files
 {
     namespace dmx
     {
-        class MUSFile : public File
+        class MUSFile : protected File
         {
         public:
             static const int MUS_PLAYBACK_SPEED_DEFAULT;
@@ -42,8 +42,9 @@ namespace files
                 uint16_t padding;
             } header_t;
             static_assert(sizeof(header_t) == 16);
+           
             header_t _header;
-            std::vector<uint16_t> instruments;
+            std::vector<uint16_t> instruments; // not used for MIDI
 
             void readHeader();
             void readTrack();

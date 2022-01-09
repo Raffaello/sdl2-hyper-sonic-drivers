@@ -18,6 +18,8 @@ namespace audio
             void lock() noexcept;
             inline bool isLocked() const noexcept;
         private:
+            // TODO: instead of lock mechanism can use a builder (pattern) MIDI/MIDITrack
+            //       to build an already "locked" track/midi.
             bool _lock = false;
             std::vector<MIDIEvent> _events;
             /**

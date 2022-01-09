@@ -2,6 +2,7 @@
 #include <utils/endianness.hpp>
 #include <audio/midi/types.hpp>
 #include <cstring>
+#include <array>
 
 namespace files
 {
@@ -20,10 +21,11 @@ namespace files
         constexpr int MUS_EVENT_TYPE_FINISH = 6;
         constexpr int MUS_EVENT_TYPE_UNUSED = 7;
 
+        constexpr int MIDI_MAX_CHANNELS = 16;
+
         constexpr uint8_t MUS_NOTE_VELOCITY_DEFAULT = 64;
 
         using utils::READ_LE_UINT16;
-
 
         const int MUSFile::MUS_PLAYBACK_SPEED_DEFAULT = 140;
         const int MUSFile::MUS_PLAYBACK_SPEED_ALTERNATE = 70;
@@ -31,13 +33,6 @@ namespace files
         MUSFile::MUSFile(const std::string& filename, const int playback_speed) : File(filename),
             playback_speed(playback_speed), _header({0})
         {
-            // reading similar to a standard midi.
-
-            // now due the MUS compatibility checking:
-            // 1. using 9 channels.
-            // 2. files size max 64KB
-            // 3. format of size is 16 bit (probably i can read from midifile directly then as it is uses 32bits)
-
             _assertValid(size() <= MAX_SIZE);
             readHeader();
             readTrack();
@@ -90,9 +85,42 @@ namespace files
             } event_u;
             static_assert(sizeof(event_u) == sizeof(uint8_t));
 
+            // Mapping MUS to MIDI Controls
+            std::array<uint8_t,15> ctrlMap = {
+                0,   // 0 program change
+                0,   // 1 Bank Select
+                1,   // 2 Modulation
+                7,   // 3 Volume (0=silent, ~100=normal, 127=loud)
+                10,  // 4 Pan (0=left, 64=center, 127=right)
+                11,  // 5 Expression
+                91,  // 6 Reverb Depth
+                93,  // 7 Chorus Depth
+                64,  // 8 Sustain Pedal (Hold)
+                67,  // 9 Soft Pedal
+                120, // 10
+                123, // 11
+                126, // 12
+                127, // 13
+                121, // 14
+                //0    // 15
+            };
+
+            std::array<int, MIDI_MAX_CHANNELS> channelMap = { -1 };
+            std::array<int, MIDI_MAX_CHANNELS> channelVol = { 64 };
+            int curChannel = 0;
+
+            _assertValid(_header.channels + _header.secondary_channels < MIDI_MAX_CHANNELS);
+
+            // Map channel 15 to 9 (percussions)
+            channelMap[15] = 9;
+
             MIDITrack track;
             bool quit = false;
             uint32_t delta_time = 0;
+            uint32_t abs_time = 0;
+            // could add the current size to end size of the file reported from the header
+            // as a 2ndry check
+            //tell() < (_header.score_start + _header.score_len)
             while (!quit)
             {
                 MIDIEvent me;
@@ -102,6 +130,26 @@ namespace files
                 uint16_t pitch = 0;
 
                 event.val = readU8();
+
+                if (channelMap[event.e.channel] < 0)
+                {
+                    // inject init channel to max volume first time that is used
+                    MIDIEvent ce;
+
+                    ce.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::CONTROLLER);
+                    ce.type.low = event.e.channel;
+                    ce.delta_time = delta_time;
+                    ce.abs_time = abs_time;
+                    ce.data.push_back(0x07);
+                    ce.data.push_back(127);
+                    track.addEvent(ce);
+
+                    // adjust channel tracking and skip percussion if the case
+                    channelMap[event.e.channel] = curChannel++;
+                    if (curChannel == 9)
+                        ++curChannel;
+                }
+
                 switch (event.e.type)
                 {
                 case MUS_EVENT_TYPE_RELEASE_NOTE:
@@ -114,14 +162,16 @@ namespace files
                     break;
                 case MUS_EVENT_TYPE_PLAY_NOTE:
                     me.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::NOTE_ON);
-                    d2 = MUS_NOTE_VELOCITY_DEFAULT;
                     d1 = readU8();
                     if ((d1 & 0x80) > 0)
                     {
                         d1 &= 0x7F;
                         d2 = readU8();
                         _assertValid((d2 & 0x80) == 0);
+                        channelVol[channelMap[event.e.channel]] = d2;
                     }
+
+                    d2 = channelVol[channelMap[event.e.channel]];
 
                     me.data.push_back(d1);
                     me.data.push_back(d2);
@@ -142,94 +192,32 @@ namespace files
                 case MUS_EVENT_TYPE_SYS_EVENT:
                     me.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::CONTROLLER);
                     d1 = readU8();
-                    d2 = 0;
-                    _assertValid(d1 < 0x80);
-                    switch (d1)
-                    {
-                    case 10:
-                        d1 = 120;
-                        break;
-                    case 11:
-                        d1 = 123;
-                        break;
-                    case 12:
-                        // this might have another byte?
-                        d1 = 126;
-                        break;
-                    case 13:
-                        d1 = 127;
-                        break;
-                    case 14:
-                        d1 = 121;
-                        break;
-                    case 15:
-                        //break;
-                    default:
-                        d1 = 0;
-                        break;
-                    }
+                    d2 = readU8() == 12 ? _header.channels + 1 : 0; // ?
                     
-                    if (d1 != 0) {
-                        me.data.push_back(d1);
-                        me.data.push_back(d2);
-                    }
-
+                    _assertValid(d1 < 0x80);
+                    
+                    me.data.push_back(ctrlMap.at(d1));
+                    me.data.push_back(d2);
                     break;
                 case MUS_EVENT_TYPE_CONTROLLER:
-                    me.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::CONTROLLER);
                     d1 = readU8();
                     d2 = readU8();
                     _assertValid(d1 < 128);
                     _assertValid(d2 < 128);
-                    switch (d1)
-                    {
-                    case 0:
-                        // Change instrument, MIDI event 0xC0
-                        // TODO
-                        break;
-                    case 1:
-                        // Bank Select 0 or 32
-                        // how to determine it?
-                        d1 = 0;
-                        break;
-                    case 2:
-                        // Modulation
-                        d1 = 1;
-                        break;
-                    case 3:
-                        // Volume (0=silent, ~100=normal, 127=loud)
-                        d1 = 7;
-                        break;
-                    case 4:
-                        // Pan (0=left, 64=center, 127=right)
-                        d1 = 10;
-                        break;
-                    case 5:
-                        // Expression
-                        d1 = 11;
-                        break;
-                    case 6:
-                        // Reverb depth
-                        d1 = 91;
-                        break;
-                    case 7:
-                        // Chorus depth
-                        d1 = 93;
-                        break;
-                    case 8:
-                        // Sustain pedal (hold)
-                        d1 = 64;
-                        break;
-                    case 9:
-                        // soft pedal
-                        d1 = 67;
-                        break;
-                    default:
-                        break;
-                    }
 
-                    me.data.push_back(d1);
-                    me.data.push_back(d2);
+                    if (d1 == 0)
+                    {
+                        // Change instrument, MIDI event 0xC0
+                        me.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::PROGRAM_CHANGE);
+                        d1 = d2;
+                        me.data.push_back(d1);
+                    }
+                    else {
+                        // Controller event
+                        me.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::CONTROLLER);
+                        me.data.push_back(ctrlMap.at(d1));
+                        me.data.push_back(d2);
+                    }
                     break;
                 case MUS_EVENT_TYPE_END_OF_MEASURE:
                     break;
@@ -245,6 +233,7 @@ namespace files
                 me.type.low = event.e.channel;
                 me.data.shrink_to_fit();
                 me.delta_time = delta_time;
+                me.abs_time = abs_time;
                 if (me.data.size() > 0)
                     track.addEvent(me);
 
@@ -260,6 +249,10 @@ namespace files
                     } while ((d1 & 0x80) > 0);
 
                     delta_time = dd;
+                    abs_time += delta_time;
+                }
+                else {
+                    delta_time = 0;
                 }
             }
 
@@ -271,6 +264,7 @@ namespace files
             // playback speed is ticks per quarter note
             // playback_speed / 2 is the division value at 120BMP
             _midi = std::make_shared<audio::MIDI>(MIDI_FORMAT::SINGLE_TRACK, 1, playback_speed / 2);
+            //_midi = std::make_shared<audio::MIDI>(MIDI_FORMAT::SINGLE_TRACK, 1, playback_speed);
             _midi->addTrack(track);
         }
     }
