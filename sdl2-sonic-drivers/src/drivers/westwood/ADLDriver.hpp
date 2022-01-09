@@ -19,7 +19,7 @@ namespace drivers
         /// and they were not using Miles driver for musics in OPL Chips
         /// as those were only for .XMI files and only used for MT-32/GM
         /// ------------------------------------------------------------
-        /// AdLib implementation of the sound output device.
+        /// AdLib implementation of the sound output device (OPL2).
         ///
         /// It uses a sound file format special to EoB I, II, Dune II,
         /// Kyrandia 1 and 2, and LoL.There are slightly different

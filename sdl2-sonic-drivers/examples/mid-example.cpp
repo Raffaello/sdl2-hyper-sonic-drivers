@@ -3,7 +3,7 @@
 
 int main(int argc, char* argv[])
 {
-    auto midFile = std::make_shared<files::MIDFile>("MI_intr.mid");
+    auto midFile = std::make_shared<files::MIDFile>("MI_intro.mid");
     auto midi = midFile->convertToSingleTrackMIDI();
     return run(midi);
 }

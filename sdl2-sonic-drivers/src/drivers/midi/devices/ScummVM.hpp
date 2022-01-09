@@ -16,6 +16,7 @@ namespace drivers
             /**
              * @brief Wrapper around ScummVM MidiDriver
              * At the moment support only OPL
+             * Better rename to OPL?
             */
             class ScummVM : public Device
             {
