@@ -24,6 +24,10 @@ namespace files
 
         using utils::READ_LE_UINT16;
 
+
+        const int MUSFile::MUS_PLAYBACK_SPEED_DEFAULT = 140;
+        const int MUSFile::MUS_PLAYBACK_SPEED_ALTERNATE = 70;
+
         MUSFile::MUSFile(const std::string& filename, const int playback_speed) : File(filename),
             playback_speed(playback_speed), _header({0})
         {

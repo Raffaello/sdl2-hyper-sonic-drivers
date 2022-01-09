@@ -11,13 +11,11 @@ namespace files
 {
     namespace dmx
     {
-        
-
         class MUSFile : public File
         {
         public:
-            static const int MUS_PLAYBACK_SPEED_DEFAULT = 140;
-            static const int MUS_PLAYBACK_SPEED_ALTERNATE = 70;
+            static const int MUS_PLAYBACK_SPEED_DEFAULT;
+            static const int MUS_PLAYBACK_SPEED_ALTERNATE;
 
             explicit MUSFile(const std::string& filename, const int playback_speed = MUS_PLAYBACK_SPEED_DEFAULT);
             virtual ~MUSFile() = default;
