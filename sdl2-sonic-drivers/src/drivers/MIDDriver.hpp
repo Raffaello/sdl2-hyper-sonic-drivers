@@ -1,11 +1,12 @@
 #pragma once
 
 #include <audio/scummvm/Mixer.hpp>
-#include <audio/MIDI.hpp>
 #include <audio/midi/types.hpp>
+#include <audio/MIDI.hpp>
+#include <drivers/midi/Device.hpp>
 #include <memory>
 #include <cstdint>
-#include <drivers/midi/Device.hpp>
+#include <thread>
 #include <atomic>
 
 namespace drivers
@@ -28,6 +29,7 @@ namespace drivers
         // if not initialized there are delays otherwise
         std::shared_ptr<audio::scummvm::Mixer> _mixer;
         std::shared_ptr<midi::Device> _device;
+
         std::thread _player;
         std::atomic<bool> _isPlaying = false;
         std::atomic<bool> _force_stop = false;
