@@ -7,6 +7,7 @@
 #include <drivers/midi/devices/ScummVM.hpp>
 
 #include <hardware/opl/scummvm/Config.hpp>
+#include <utils/algorithms.hpp>
 
 #include <memory>
 #include <spdlog/spdlog.h>
@@ -30,6 +31,9 @@ void mid_test(const OplEmulator emu, const Config::OplType type, std::shared_ptr
     spdlog::info("playing midi OPL3={}...", isOpl3);
     auto start_time = std::chrono::system_clock::now();
     midDrv.play(midi);
+    while (midDrv.isPlaying()) {
+        utils::delayMillis(1000);
+    }
     auto end_time = std::chrono::system_clock::now();
     auto tot_time = end_time - start_time;
     spdlog::info("Total Running Time: {:%M:%S}", tot_time);

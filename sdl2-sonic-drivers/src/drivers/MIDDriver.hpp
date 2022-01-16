@@ -6,6 +6,7 @@
 #include <memory>
 #include <cstdint>
 #include <drivers/midi/Device.hpp>
+#include <atomic>
 
 namespace drivers
 {
@@ -13,18 +14,23 @@ namespace drivers
     {
     public:
         explicit MIDDriver(std::shared_ptr<audio::scummvm::Mixer> mixer, std::shared_ptr<midi::Device> device);
-        ~MIDDriver() = default;
+        ~MIDDriver();
         // TODO need to be async
-        void play(const std::shared_ptr<audio::MIDI> midi) const noexcept;
-        void stop();
-        void pause();
-        bool isPlaying();
+        void play(const std::shared_ptr<audio::MIDI> midi) noexcept;
+        void stop() noexcept;
+        void pause() noexcept;
+        void resume() noexcept;
+        bool isPlaying() const noexcept;
     private:
-        void processTrack(const audio::midi::MIDITrack& track, const uint16_t division) const noexcept;
+        void processTrack(const audio::midi::MIDITrack& track, const uint16_t division);
 
         // mixer is not used, but ensuring is initialized
         // if not initialized there are delays otherwise
         std::shared_ptr<audio::scummvm::Mixer> _mixer;
         std::shared_ptr<midi::Device> _device;
+        std::thread _player;
+        std::atomic<bool> _isPlaying = false;
+        std::atomic<bool> _force_stop = false;
+        std::atomic<bool> _paused = false;
     };
 }

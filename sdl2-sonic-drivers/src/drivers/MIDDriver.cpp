@@ -15,8 +15,13 @@ namespace drivers
         : _mixer(mixer), _device(device)
     {
     }
+
+    MIDDriver::~MIDDriver()
+    {
+        stop();
+    }
     
-    void MIDDriver::play(const std::shared_ptr<audio::MIDI> midi) const noexcept
+    void MIDDriver::play(const std::shared_ptr<audio::MIDI> midi) noexcept
     {
         using audio::midi::MIDI_FORMAT;
 
@@ -50,13 +55,46 @@ namespace drivers
             spdlog::debug("Division: Ticks per quarter note = {}", midi->division & 0x7FFF);
         }
 
-        processTrack(midi->getTrack(), midi->division);
+        if (_isPlaying)
+            stop();
+
+        _isPlaying = true;
+        _player = std::thread(&MIDDriver::processTrack, this, midi->getTrack(), midi->division & 0x7FFF);
     }
 
-    void MIDDriver::processTrack(const audio::midi::MIDITrack& track, const uint16_t division) const noexcept
+    void MIDDriver::stop() noexcept
+    {
+        if (!_isPlaying)
+            return;
+
+        _force_stop = true;
+        _player.join();
+        _force_stop = false;
+        _isPlaying = false;
+    }
+
+    void MIDDriver::pause() noexcept
+    {
+        if (_isPlaying)
+            _paused = true;
+    }
+
+    void MIDDriver::resume() noexcept
+    {
+        if (_isPlaying)
+            _paused = false;
+    }
+
+    bool MIDDriver::isPlaying() const noexcept
+    {
+        return _isPlaying;
+    }
+
+    void MIDDriver::processTrack(const audio::midi::MIDITrack& track, const uint16_t division)
     {
         using audio::midi::MIDI_EVENT_TYPES_HIGH;
 
+        _isPlaying = true;
         uint32_t tempo = 500000; //120 BPM;
         int cur_time = 0; // ticks
         unsigned int tempo_micros = tempo_to_micros(tempo, division);
@@ -67,6 +105,14 @@ namespace drivers
         uint8_t msg_size = 0;
         for (const auto& e : tes)
         {
+            if (_force_stop)
+                break;
+
+            while(_paused) {
+                utils::delayMillis(100);
+                start = utils::getMicro<unsigned int>();
+            }
+
             switch (static_cast<MIDI_EVENT_TYPES_HIGH>(e.type.high))
             {
             case MIDI_EVENT_TYPES_HIGH::META:
@@ -122,5 +168,7 @@ namespace drivers
             _device->sendMessage(msg.data(), msg_size);
             //_device->sendEvent(e);
         }
+
+        _isPlaying = false;
     }
 }
