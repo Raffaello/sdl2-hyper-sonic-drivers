@@ -78,7 +78,7 @@ int run(const std::shared_ptr<audio::MIDI> midi)
     std::string m = "##### {} {} #####";
 
     // Emulators
-   /* for (const auto& emu : emus)
+    for (const auto& emu : emus)
     {
         for (const auto& type : types)
         {
@@ -89,7 +89,7 @@ int run(const std::shared_ptr<audio::MIDI> midi)
 
             mid_test(emu.first, type.first, mixer, midi);
         }
-    }*/
+    }
 
     // Native Midi
     for (auto& c : { fmt::color::white_smoke, fmt::color::yellow,      fmt::color::aqua,
