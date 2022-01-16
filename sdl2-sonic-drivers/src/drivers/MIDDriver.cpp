@@ -6,6 +6,8 @@
 
 namespace drivers
 {
+    constexpr int DEFAULT_MIDI_TEMPO = 500000;
+    constexpr int PAUSE_MILLIS = 100;
     constexpr unsigned int tempo_to_micros(const uint32_t tempo, const uint16_t division)
     {
         return static_cast<unsigned int>(static_cast<float>(tempo) / static_cast<float>(division));
@@ -55,20 +57,17 @@ namespace drivers
             spdlog::debug("Division: Ticks per quarter note = {}", midi->division & 0x7FFF);
         }
 
-        if (_isPlaying)
-            stop();
-
+        stop();
         _isPlaying = true;
         _player = std::thread(&MIDDriver::processTrack, this, midi->getTrack(), midi->division & 0x7FFF);
     }
 
     void MIDDriver::stop() noexcept
     {
-        if (!_isPlaying)
-            return;
-
         _force_stop = true;
-        _player.join();
+        _paused = false;
+        if(_player.joinable())
+            _player.join();
         _force_stop = false;
         _isPlaying = false;
     }
@@ -95,7 +94,7 @@ namespace drivers
         using audio::midi::MIDI_EVENT_TYPES_HIGH;
 
         _isPlaying = true;
-        uint32_t tempo = 500000; //120 BPM;
+        uint32_t tempo = DEFAULT_MIDI_TEMPO; //120 BPM;
         int cur_time = 0; // ticks
         unsigned int tempo_micros = tempo_to_micros(tempo, division);
         spdlog::debug("tempo_micros = {}", tempo_micros);
@@ -105,13 +104,13 @@ namespace drivers
         uint8_t msg_size = 0;
         for (const auto& e : tes)
         {
-            if (_force_stop)
-                break;
-
             while(_paused) {
-                utils::delayMillis(100);
+                utils::delayMillis(PAUSE_MILLIS);
                 start = utils::getMicro<unsigned int>();
             }
+
+            if (_force_stop)
+                break;
 
             switch (static_cast<MIDI_EVENT_TYPES_HIGH>(e.type.high))
             {
