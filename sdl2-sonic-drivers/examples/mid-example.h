@@ -7,6 +7,7 @@
 #include <drivers/midi/devices/ScummVM.hpp>
 
 #include <hardware/opl/scummvm/Config.hpp>
+#include <utils/algorithms.hpp>
 
 #include <memory>
 #include <spdlog/spdlog.h>
@@ -16,6 +17,18 @@
 
 using hardware::opl::scummvm::Config;
 using hardware::opl::scummvm::OplEmulator;
+
+void mid_test_run(drivers::MIDDriver& midDrv, const std::shared_ptr<audio::MIDI> midi)
+{
+    auto start_time = std::chrono::system_clock::now();
+    midDrv.play(midi);
+    while (midDrv.isPlaying()) {
+        utils::delayMillis(1000);
+    }
+    auto end_time = std::chrono::system_clock::now();
+    auto tot_time = end_time - start_time;
+    spdlog::info("Total Running Time: {:%M:%S}", tot_time);
+}
 
 void mid_test(const OplEmulator emu, const Config::OplType type, std::shared_ptr<audio::scummvm::Mixer> mixer, const std::shared_ptr<audio::MIDI> midi)
 {
@@ -28,11 +41,7 @@ void mid_test(const OplEmulator emu, const Config::OplType type, std::shared_ptr
     drivers::MIDDriver midDrv(mixer, scumm_midi_device);
 
     spdlog::info("playing midi OPL3={}...", isOpl3);
-    auto start_time = std::chrono::system_clock::now();
-    midDrv.play(midi);
-    auto end_time = std::chrono::system_clock::now();
-    auto tot_time = end_time - start_time;
-    spdlog::info("Total Running Time: {:%M:%S}", tot_time);
+    mid_test_run(midDrv, midi);
 }
 
 void mid_test_native(std::shared_ptr<audio::scummvm::Mixer> mixer, const std::shared_ptr<audio::MIDI> midi)
@@ -42,11 +51,7 @@ void mid_test_native(std::shared_ptr<audio::scummvm::Mixer> mixer, const std::sh
     drivers::MIDDriver mid_drv(mixer, nativeMidi);
 
     spdlog::info("playing midi...");
-    auto start_time = std::chrono::system_clock::now();
-    mid_drv.play(midi);
-    auto end_time = std::chrono::system_clock::now();
-    auto tot_time = end_time - start_time;
-    spdlog::info("Total Running Time: {:%M:%S}", tot_time);
+    mid_test_run(mid_drv, midi);
 }
 
 int run(const std::shared_ptr<audio::MIDI> midi)
