@@ -8,7 +8,7 @@ if(DEFINED ENV{VCPKG_ROOT} AND NOT DEFINED CMAKE_TOOLCHAIN_FILE)
 endif()
 
 
-project ("sdl2-sonic-drivers" VERSION 0.3.1 DESCRIPTION "SDL2 Sonic Drivers for emulating old soundcards")
+project ("sdl2-sonic-drivers" VERSION 0.4.0 DESCRIPTION "SDL2 Sonic Drivers for emulating old soundcards")
 include (TestBigEndian)
 TEST_BIG_ENDIAN(IS_BIG_ENDIAN)
 if(IS_BIG_ENDIAN)
