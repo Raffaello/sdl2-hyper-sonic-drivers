@@ -89,6 +89,11 @@ namespace drivers
         return _isPlaying;
     }
 
+    bool MIDDriver::isPaused() const noexcept
+    {
+        return _paused;
+    }
+
     void MIDDriver::processTrack(const audio::midi::MIDITrack& track, const uint16_t division)
     {
         using audio::midi::MIDI_EVENT_TYPES_HIGH;

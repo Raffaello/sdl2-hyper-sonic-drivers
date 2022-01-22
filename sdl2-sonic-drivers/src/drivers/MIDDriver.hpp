@@ -22,6 +22,7 @@ namespace drivers
         void pause() noexcept;
         void resume() noexcept;
         bool isPlaying() const noexcept;
+        bool isPaused() const noexcept;
     private:
         void processTrack(const audio::midi::MIDITrack& track, const uint16_t division);
 

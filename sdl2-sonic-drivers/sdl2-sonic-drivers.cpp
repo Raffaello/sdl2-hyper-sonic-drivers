@@ -374,17 +374,64 @@ int midi_adlib_mus_file()
         return -1;
 
     //spdlog::set_level(spdlog::level::debug);
-    //std::shared_ptr<files::MIDFile> midFile = std::make_shared<files::MIDFile>("test/fixtures/MI_intro.mid");
+    auto midFile = std::make_shared<files::MIDFile>("test/fixtures/MI_intro.mid");
     auto musFile = std::make_shared<files::dmx::MUSFile>("test/fixtures/D_E1M1.MUS");
     auto midi = musFile->getMIDI();
     auto scumm_midi = std::make_shared<drivers::midi::devices::ScummVM>(opl, false);
     drivers::MIDDriver midDrv(mixer, scumm_midi);
-
+    drivers::MIDDriver midDrv2(mixer, scumm_midi);
 
     spdlog::info("playing midi D_E1M1.MUS...");
     midDrv.play(midi);
+    utils::delayMillis(9000);
+    spdlog::info("playing midi2 D_E1M1.MUS... (this should not be possible with the same device)");
+    midDrv2.play(midFile->convertToSingleTrackMIDI());
     spdlog::info("end.");
+    while (midDrv.isPlaying() || midDrv2.isPlaying())
+    {
+        utils::delayMillis(1000);
+    }
 
+    return 0;
+}
+
+int midi_adlib_xmi()
+{
+    // Working but in a reduced way as there are specific XMI midi messages not interpreted
+    // also it has been hacked through the xmifile get midi to build a single track midi
+
+    using namespace audio::scummvm;
+    using hardware::opl::scummvm::Config;
+    using hardware::opl::scummvm::OplEmulator;
+
+    SdlMixerManager mixerManager;
+    mixerManager.init();
+
+    std::shared_ptr<Mixer> mixer = mixerManager.getMixer();
+
+    auto emu = OplEmulator::MAME;
+    auto type = Config::OplType::OPL2;
+
+    auto opl = Config::create(emu, type, mixer);
+    if (opl.get() == nullptr)
+        return -1;
+
+    //spdlog::set_level(spdlog::level::debug);
+    std::shared_ptr<files::miles::XMIFile> xmiFile = std::make_shared<files::miles::XMIFile>("test/fixtures/AIL2_14_DEMO.XMI");
+    auto m = xmiFile->getMIDI();
+    auto midi = std::make_shared<audio::MIDI>(audio::midi::MIDI_FORMAT::SINGLE_TRACK, 1, m->division);
+    midi->addTrack(m->getTrack(0));
+    
+    auto scumm_midi = std::make_shared<drivers::midi::devices::ScummVM>(opl, false);
+    drivers::MIDDriver midDrv(mixer, scumm_midi);
+
+    spdlog::info("playing midi AIL2_14_DEMO...");
+    midDrv.play(midi);
+    
+    while (midDrv.isPlaying())
+    {
+        utils::delayMillis(1000);
+    }
     return 0;
 }
 
@@ -396,9 +443,9 @@ int main(int argc, char* argv[])
     //SDL_Delay(100);
     //renderMixer();
 
-    //mid_parser();
     //xmi_parser();
-    midi_adlib_mus_file();
+    //midi_adlib_mus_file();
+    //midi_adlib_xmi();
 
     SDL_Init(SDL_INIT_TIMER | SDL_INIT_AUDIO);
 
