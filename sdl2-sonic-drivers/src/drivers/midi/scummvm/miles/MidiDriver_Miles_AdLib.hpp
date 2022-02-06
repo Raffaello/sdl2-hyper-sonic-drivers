@@ -1,7 +1,9 @@
 #pragma once
 
 #include <cstdint>
+#include <memory>
 #include <drivers/midi/scummvm/MidiDriver_Multisource.hpp>
+#include <hardware/opl/scummvm/Config.hpp>
 
 namespace drivers
 {
@@ -22,10 +24,29 @@ namespace drivers
                 constexpr int MILES_ADLIB_VIRTUAL_FMVOICES_COUNT_MAX = 20;
                 constexpr int MILES_ADLIB_PHYSICAL_FMVOICES_COUNT_MAX = 18;
 
+                struct InstrumentEntry
+                {
+                    uint8_t bankId;
+                    uint8_t patchId;
+                    int16_t transposition;
+                    uint8_t reg20op1;
+                    uint8_t reg40op1;
+                    uint8_t reg60op1;
+                    uint8_t reg80op1;
+                    uint8_t regE0op1;
+                    uint8_t reg20op2;
+                    uint8_t reg40op2;
+                    uint8_t reg60op2;
+                    uint8_t reg80op2;
+                    uint8_t regE0op2;
+                    uint8_t regC0;
+                };
+
                 class MidiDriver_Miles_AdLib : public MidiDriver_Multisource
                 {
                 public:
-                    MidiDriver_Miles_AdLib(InstrumentEntry* instrumentTablePtr, uint16_t instrumentTableCount);
+                    //MidiDriver_Miles_AdLib(InstrumentEntry* instrumentTablePtr, uint16_t instrumentTableCount);
+                    MidiDriver_Miles_AdLib(std::shared_ptr<InstrumentEntry> instrumentTablePtr, uint16_t instrumentTableCount);
                     virtual ~MidiDriver_Miles_AdLib();
 
                     // MidiDriver
@@ -146,7 +167,8 @@ namespace drivers
                     PhysicalFmVoiceEntry _physicalFmVoices[MILES_ADLIB_PHYSICAL_FMVOICES_COUNT_MAX];
 
                     // holds all instruments
-                    InstrumentEntry* _instrumentTablePtr;
+                    //InstrumentEntry* _instrumentTablePtr;
+                    std::shared_ptr<InstrumentEntry> _instrumentTablePtr;
                     uint16_t           _instrumentTableCount;
 
                     bool circularPhysicalAssignment;

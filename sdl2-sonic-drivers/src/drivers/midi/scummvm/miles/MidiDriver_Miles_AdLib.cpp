@@ -2,7 +2,7 @@
 #include <string>
 #include <spdlog/spdlog.h>
 #include <drivers/midi/scummvm/miles/miles.h>
-#include <drivers/midi/scummvm/miles/Adlib.hpp>
+#include <drivers/midi/scummvm/miles/MidiDriver_Miles_AdLib.hpp>
 #include <hardware/opl/OPL.hpp>
 #include <hardware/opl/scummvm/Config.hpp>
 #include <utils/algorithms.hpp>
@@ -51,22 +51,7 @@ namespace drivers
                     0x0100, 0x0101, 0x0102, 0x0103, 0x0104, 0x0105, 0x0106, 0x0107, 0x0108
                 };
 
-                struct InstrumentEntry {
-                    uint8_t bankId;
-                    uint8_t patchId;
-                    int16_t transposition;
-                    uint8_t reg20op1;
-                    uint8_t reg40op1;
-                    uint8_t reg60op1;
-                    uint8_t reg80op1;
-                    uint8_t regE0op1;
-                    uint8_t reg20op2;
-                    uint8_t reg40op2;
-                    uint8_t reg60op2;
-                    uint8_t reg80op2;
-                    uint8_t regE0op2;
-                    uint8_t regC0;
-                };
+                
 
                 // hardcoded, dumped from ADLIB.MDI
                 uint16_t milesAdLibFrequencyLookUpTable[] = {
@@ -106,7 +91,8 @@ namespace drivers
                     127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127
                 };
 
-                MidiDriver_Miles_AdLib::MidiDriver_Miles_AdLib(InstrumentEntry* instrumentTablePtr, uint16_t instrumentTableCount)
+                //MidiDriver_Miles_AdLib::MidiDriver_Miles_AdLib(InstrumentEntry* instrumentTablePtr, uint16_t instrumentTableCount)
+                MidiDriver_Miles_AdLib::MidiDriver_Miles_AdLib(std::shared_ptr<InstrumentEntry> instrumentTablePtr, uint16_t instrumentTableCount)
                     : _masterVolume(15), _opl(nullptr), _isOpen(false) {
 
                     _instrumentTablePtr = instrumentTablePtr;
@@ -131,27 +117,28 @@ namespace drivers
                 }
 
                 MidiDriver_Miles_AdLib::~MidiDriver_Miles_AdLib() {
-                    delete[] _instrumentTablePtr; // is created in factory MidiDriver_Miles_AdLib_create()
+                    //delete[] _instrumentTablePtr; // is created in factory MidiDriver_Miles_AdLib_create()
                 }
 
                 int MidiDriver_Miles_AdLib::open() {
-                    if (_oplType == Config::OplType::OPL3) {
-                        // Try to create OPL3 first
-                        _opl = OPL::Config::create(OPL::Config::kOpl3);
-                    }
-                    if (!_opl) {
-                        // not created yet, downgrade to dual OPL2
-                        _oplType = Config::OplType::DUAL_OPL2;
-                        _opl = OPL::Config::create(OPL::Config::kDualOpl2);
-                    }
-                    if (!_opl) {
-                        // not created yet, downgrade to OPL2
-                        _oplType = Config::OplType::OPL2;
-                        _opl = OPL::Config::create(OPL::Config::kOpl2);
-                    }
+                    //if (_oplType == Config::OplType::OPL3) {
+                    //    // Try to create OPL3 first
+                    //    _opl = OPL::Config::create(OPL::Config::kOpl3);
+                    //}
+                    //if (!_opl) {
+                    //    // not created yet, downgrade to dual OPL2
+                    //    _oplType = Config::OplType::DUAL_OPL2;
+                    //    _opl = OPL::Config::create(OPL::Config::kDualOpl2);
+                    //}
+                    //if (!_opl) {
+                    //    // not created yet, downgrade to OPL2
+                    //    _oplType = Config::OplType::OPL2;
+                    //    _opl = OPL::Config::create(OPL::Config::kOpl2);
+                    //}
 
                     if (!_opl) {
                         // We still got nothing -> can't do anything anymore
+                        throw std::exception("forgot OPL");
                         return -1;
                     }
 
@@ -205,7 +192,6 @@ namespace drivers
                         _midiChannels[midiChannel].currentPitchBender = MIDI_PITCH_BEND_DEFAULT;
                         _midiChannels[midiChannel].currentPitchRange = _milesVersion == MILES_VERSION_3 ? 2 : 12;
                     }
-
                 }
 
                 void MidiDriver_Miles_AdLib::resetAdLib() {
@@ -994,7 +980,7 @@ namespace drivers
                 }
 
                 const InstrumentEntry* MidiDriver_Miles_AdLib::searchInstrument(uint8_t bankId, uint8_t patchId) {
-                    const InstrumentEntry* instrumentPtr = _instrumentTablePtr;
+                    const InstrumentEntry* instrumentPtr = _instrumentTablePtr.get();
 
                     for (uint16_t instrumentNr = 0; instrumentNr < _instrumentTableCount; instrumentNr++) {
                         if ((instrumentPtr->bankId == bankId) && (instrumentPtr->patchId == patchId)) {
@@ -1097,15 +1083,17 @@ namespace drivers
                     _opl->write(0x222, reg);
                     _opl->write(0x223, valueRight);
                 }
-
-                MidiDriver_Multisource* MidiDriver_Miles_AdLib_create(const std::string filenameAdLib, const std::string& filenameOPL3, Common::SeekableReadStream* streamAdLib, Common::SeekableReadStream* streamOPL3) {
+/*
+                //MidiDriver_Multisource* MidiDriver_Miles_AdLib_create(const std::string filenameAdLib, const std::string& filenameOPL3, Common::SeekableReadStream* streamAdLib, Common::SeekableReadStream* streamOPL3) {
+                MidiDriver_Multisource* MidiDriver_Miles_AdLib_create()
+                {
                     // Load adlib instrument data from file SAMPLE.AD (OPL3: SAMPLE.OPL)
                     std::string              timbreFilename;
-                    Common::SeekableReadStream* timbreStream = nullptr;
+                    //Common::SeekableReadStream* timbreStream = nullptr;
 
                     bool          preferOPL3 = false;
 
-                    Common::File* fileStream = new Common::File();
+                    //Common::File* fileStream = new Common::File();
                     uint32_t        fileSize = 0;
                     uint32_t        fileDataOffset = 0;
                     uint32_t        fileDataLeft = 0;
@@ -1136,118 +1124,118 @@ namespace drivers
                     //       a game that uses it, which is why I haven't implemented it yet.
 
                     
-                    if (OPL::Config::detect(OPL::Config::kOpl3) >= 0) {
-                        // OPL3 available, prefer OPL3 timbre data because of this
-                        preferOPL3 = true;
-                    }
+                    //if (OPL::Config::detect(OPL::Config::kOpl3) >= 0) {
+                    //    // OPL3 available, prefer OPL3 timbre data because of this
+                    //    preferOPL3 = true;
+                    //}
 
-                    // Check if streams were passed to us and select one of them
-                    if ((streamAdLib) || (streamOPL3)) {
-                        // At least one stream was passed by caller
-                        if (preferOPL3) {
-                            // Prefer OPL3 timbre stream in case OPL3 is available
-                            timbreStream = streamOPL3;
-                        }
-                        if (!timbreStream) {
-                            // Otherwise prefer AdLib timbre stream first
-                            if (streamAdLib) {
-                                timbreStream = streamAdLib;
-                            }
-                            else {
-                                // If not available, use OPL3 timbre stream
-                                if (streamOPL3) {
-                                    timbreStream = streamOPL3;
-                                }
-                            }
-                        }
-                    }
+                    //// Check if streams were passed to us and select one of them
+                    //if ((streamAdLib) || (streamOPL3)) {
+                    //    // At least one stream was passed by caller
+                    //    if (preferOPL3) {
+                    //        // Prefer OPL3 timbre stream in case OPL3 is available
+                    //        timbreStream = streamOPL3;
+                    //    }
+                    //    if (!timbreStream) {
+                    //        // Otherwise prefer AdLib timbre stream first
+                    //        if (streamAdLib) {
+                    //            timbreStream = streamAdLib;
+                    //        }
+                    //        else {
+                    //            // If not available, use OPL3 timbre stream
+                    //            if (streamOPL3) {
+                    //                timbreStream = streamOPL3;
+                    //            }
+                    //        }
+                    //    }
+                    //}
 
-                    // Now check if any filename was passed to us
-                    if ((!filenameAdLib.empty()) || (!filenameOPL3.empty())) {
-                        // If that's the case, check if one of those exists
-                        if (preferOPL3) {
-                            // OPL3 available
-                            if (!filenameOPL3.empty()) {
-                                if (fileStream->exists(filenameOPL3)) {
-                                    // If OPL3 available, prefer OPL3 timbre file in case file exists
-                                    timbreFilename = filenameOPL3;
-                                }
-                            }
-                            if (timbreFilename.empty()) {
-                                if (!filenameAdLib.empty()) {
-                                    if (fileStream->exists(filenameAdLib)) {
-                                        // otherwise use AdLib timbre file, if it exists
-                                        timbreFilename = filenameAdLib;
-                                    }
-                                }
-                            }
-                        }
-                        else {
-                            // OPL3 not available
-                            // Prefer the AdLib one for now
-                            if (!filenameAdLib.empty()) {
-                                if (fileStream->exists(filenameAdLib)) {
-                                    // if AdLib file exists, use it
-                                    timbreFilename = filenameAdLib;
-                                }
-                            }
-                            if (timbreFilename.empty()) {
-                                if (!filenameOPL3.empty()) {
-                                    if (fileStream->exists(filenameOPL3)) {
-                                        // if OPL3 file exists, use it
-                                        timbreFilename = filenameOPL3;
-                                    }
-                                }
-                            }
-                        }
-                        if (timbreFilename.empty() && (!timbreStream)) {
-                            // If none of them exists and also no stream was passed, we can't do anything about it
-                            if (!filenameAdLib.empty()) {
-                                if (!filenameOPL3.empty()) {
-                                    spdlog::error("MILES-ADLIB: could not open timbre file ({} or {})", filenameAdLib.c_str(), filenameOPL3.c_str());
-                                }
-                                else {
-                                    spdlog::error("MILES-ADLIB: could not open timbre file ({})", filenameAdLib.c_str());
-                                }
-                            }
-                            else {
-                                spdlog::error("MILES-ADLIB: could not open timbre file ({})", filenameOPL3.c_str());
-                            }
-                        }
-                    }
+                    //// Now check if any filename was passed to us
+                    //if ((!filenameAdLib.empty()) || (!filenameOPL3.empty())) {
+                    //    // If that's the case, check if one of those exists
+                    //    if (preferOPL3) {
+                    //        // OPL3 available
+                    //        if (!filenameOPL3.empty()) {
+                    //            if (fileStream->exists(filenameOPL3)) {
+                    //                // If OPL3 available, prefer OPL3 timbre file in case file exists
+                    //                timbreFilename = filenameOPL3;
+                    //            }
+                    //        }
+                    //        if (timbreFilename.empty()) {
+                    //            if (!filenameAdLib.empty()) {
+                    //                if (fileStream->exists(filenameAdLib)) {
+                    //                    // otherwise use AdLib timbre file, if it exists
+                    //                    timbreFilename = filenameAdLib;
+                    //                }
+                    //            }
+                    //        }
+                    //    }
+                    //    else {
+                    //        // OPL3 not available
+                    //        // Prefer the AdLib one for now
+                    //        if (!filenameAdLib.empty()) {
+                    //            if (fileStream->exists(filenameAdLib)) {
+                    //                // if AdLib file exists, use it
+                    //                timbreFilename = filenameAdLib;
+                    //            }
+                    //        }
+                    //        if (timbreFilename.empty()) {
+                    //            if (!filenameOPL3.empty()) {
+                    //                if (fileStream->exists(filenameOPL3)) {
+                    //                    // if OPL3 file exists, use it
+                    //                    timbreFilename = filenameOPL3;
+                    //                }
+                    //            }
+                    //        }
+                    //    }
+                    //    if (timbreFilename.empty() && (!timbreStream)) {
+                    //        // If none of them exists and also no stream was passed, we can't do anything about it
+                    //        if (!filenameAdLib.empty()) {
+                    //            if (!filenameOPL3.empty()) {
+                    //                spdlog::error("MILES-ADLIB: could not open timbre file ({} or {})", filenameAdLib.c_str(), filenameOPL3.c_str());
+                    //            }
+                    //            else {
+                    //                spdlog::error("MILES-ADLIB: could not open timbre file ({})", filenameAdLib.c_str());
+                    //            }
+                    //        }
+                    //        else {
+                    //            spdlog::error("MILES-ADLIB: could not open timbre file ({})", filenameOPL3.c_str());
+                    //        }
+                    //    }
+                    //}
 
-                    if (!timbreFilename.empty()) {
-                        // Filename was passed to us and file exists (this is the common case for most games)
-                        // We prefer this situation
+                    //if (!timbreFilename.empty()) {
+                    //    // Filename was passed to us and file exists (this is the common case for most games)
+                    //    // We prefer this situation
 
-                        if (!fileStream->open(timbreFilename))
-                            spdlog::error("MILES-ADLIB: could not open timbre file ({})", timbreFilename.c_str());
+                    //    if (!fileStream->open(timbreFilename))
+                    //        spdlog::error("MILES-ADLIB: could not open timbre file ({})", timbreFilename.c_str());
 
-                        streamSize = fileStream->size();
+                    //    streamSize = fileStream->size();
 
-                        streamDataPtr = new uint8_t[streamSize];
+                    //    streamDataPtr = new uint8_t[streamSize];
 
-                        if (fileStream->read(streamDataPtr, streamSize) != streamSize)
-                            spdlog::error("MILES-ADLIB: error while reading timbre file ({})", timbreFilename.c_str());
-                        fileStream->close();
+                    //    if (fileStream->read(streamDataPtr, streamSize) != streamSize)
+                    //        spdlog::error("MILES-ADLIB: error while reading timbre file ({})", timbreFilename.c_str());
+                    //    fileStream->close();
 
-                    }
-                    else if (timbreStream) {
-                        // Timbre data was passed directly (possibly read from resource file by caller)
-                        // Currently used by "Amazon Guardians of Eden", "Simon 2" and "Return To Zork"
-                        streamSize = timbreStream->size();
+                    //}
+                    //else if (timbreStream) {
+                    //    // Timbre data was passed directly (possibly read from resource file by caller)
+                    //    // Currently used by "Amazon Guardians of Eden", "Simon 2" and "Return To Zork"
+                    //    streamSize = timbreStream->size();
 
-                        streamDataPtr = new uint8_t[streamSize];
+                    //    streamDataPtr = new uint8_t[streamSize];
 
-                        if (timbreStream->read(streamDataPtr, streamSize) != streamSize)
-                            spdlog::error("MILES-ADLIB: error while reading timbre stream");
+                    //    if (timbreStream->read(streamDataPtr, streamSize) != streamSize)
+                    //        spdlog::error("MILES-ADLIB: error while reading timbre stream");
 
-                    }
-                    else {
-                        spdlog::error("MILES-ADLIB: timbre filenames nor timbre stream were passed");
-                    }
+                    //}
+                    //else {
+                    //    spdlog::error("MILES-ADLIB: timbre filenames nor timbre stream were passed");
+                    //}
 
-                    delete fileStream;
+                    //delete fileStream;
 
                     // File is like this:
                     // [patch:BYTE] [bank:BYTE] [patchoffset:UINT32]
@@ -1321,6 +1309,7 @@ namespace drivers
 
                     return new MidiDriver_Miles_AdLib(instrumentTablePtr, instrumentTableCount);
                 }
+*/
             }
         }
     }

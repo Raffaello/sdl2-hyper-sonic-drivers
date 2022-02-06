@@ -75,23 +75,23 @@ namespace drivers
                  * the XMIDI timbres specified in the timbre chunks of
                  * an XMIDI file.
                  */
-                class MidiDriver_Miles_Xmidi_Timbres {
-                public:
-                    virtual ~MidiDriver_Miles_Xmidi_Timbres() { }
+                //class MidiDriver_Miles_Xmidi_Timbres {
+                //public:
+                //    virtual ~MidiDriver_Miles_Xmidi_Timbres() { }
 
-                    /**
-                     * Processes the timbre chunk specified for a track
-                     * in an XMIDI file. This will load the necessary
-                     * timbres into the MIDI device using SysEx messages.
-                     *
-                     * This function will likely return before all SysEx
-                     * messages have been sent. Use the isReady method to
-                     * check if the driver has finished preparing for
-                     * playback. Playback should not be started before
-                     * this process has finished.
-                     */
-                    virtual void processXMIDITimbreChunk(const uint8_t* timbreListPtr, uint32_t timbreListSize) = 0;
-                };
+                //    /**
+                //     * Processes the timbre chunk specified for a track
+                //     * in an XMIDI file. This will load the necessary
+                //     * timbres into the MIDI device using SysEx messages.
+                //     *
+                //     * This function will likely return before all SysEx
+                //     * messages have been sent. Use the isReady method to
+                //     * check if the driver has finished preparing for
+                //     * playback. Playback should not be started before
+                //     * this process has finished.
+                //     */
+                //    virtual void processXMIDITimbreChunk(const uint8_t* timbreListPtr, uint32_t timbreListSize) = 0;
+                //};
 
                 //class MidiDriver_Miles_Midi : public MidiDriver_MT32GM, public MidiDriver_Miles_Xmidi_Timbres {
                 //public:
@@ -278,7 +278,8 @@ namespace drivers
                 //};
 
                 //extern MidiDriver_Multisource* MidiDriver_Miles_AdLib_create(const Common::String& filenameAdLib, const Common::String& filenameOPL3, Common::SeekableReadStream* streamAdLib = nullptr, Common::SeekableReadStream* streamOPL3 = nullptr);
-                extern MidiDriver_Multisource* MidiDriver_Miles_AdLib_create(const std::string& filenameAdLib, const std::string& filenameOPL3, Common::SeekableReadStream* streamAdLib = nullptr, Common::SeekableReadStream* streamOPL3 = nullptr);
+                //extern MidiDriver_Multisource* MidiDriver_Miles_AdLib_create(const std::string& filenameAdLib, const std::string& filenameOPL3, Common::SeekableReadStream* streamAdLib = nullptr, Common::SeekableReadStream* streamOPL3 = nullptr);
+                //extern MidiDriver_Multisource* MidiDriver_Miles_AdLib_create();
 
                 //extern MidiDriver_Miles_Midi* MidiDriver_Miles_MT32_create(const Common::String& instrumentDataFilename);
 
