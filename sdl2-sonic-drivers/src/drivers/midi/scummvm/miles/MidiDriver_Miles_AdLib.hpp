@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <drivers/midi/scummvm/miles/miles.h>
 #include <drivers/midi/scummvm/MidiDriver_Multisource.hpp>
 #include <hardware/opl/scummvm/Config.hpp>
 
@@ -47,6 +48,7 @@ namespace drivers
                 public:
                     //MidiDriver_Miles_AdLib(InstrumentEntry* instrumentTablePtr, uint16_t instrumentTableCount);
                     MidiDriver_Miles_AdLib(std::shared_ptr<InstrumentEntry> instrumentTablePtr, uint16_t instrumentTableCount);
+                    MidiDriver_Miles_AdLib(std::shared_ptr<hardware::opl::OPL> opl, const bool opl3mode);
                     virtual ~MidiDriver_Miles_AdLib();
 
                     // MidiDriver
@@ -152,7 +154,8 @@ namespace drivers
                             virtualFmVoice(0),
                             currentB0hReg(0) { }
                     };
-                    hardware::opl::OPL* _opl;
+                   // hardware::opl::OPL* _opl;
+                    std::shared_ptr<hardware::opl::OPL> _opl;
                     int _masterVolume;
 
                     bool _isOpen;

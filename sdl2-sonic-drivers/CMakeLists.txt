@@ -123,6 +123,7 @@ target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/scummvm/MidiDriver_Multisource.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/scummvm/miles/MidiDriver_Miles_AdLib.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/ScummVM.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/ScummVMXMI.cpp
 
     # --- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/File.cpp

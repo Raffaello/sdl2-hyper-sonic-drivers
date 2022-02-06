@@ -26,6 +26,8 @@
 
 
 #include <drivers/midi/devices/ScummVM.hpp>
+#include <drivers/midi/devices/ScummVMXMI.hpp>
+
 #include <drivers/MIDDriver.hpp>
 
 #include <files/dmx/MUSFile.hpp>
@@ -435,6 +437,41 @@ int midi_adlib_xmi()
     return 0;
 }
 
+int midi_adlib_xmi_file()
+{
+    using namespace audio::scummvm;
+    using hardware::opl::scummvm::Config;
+    using hardware::opl::scummvm::OplEmulator;
+
+    SdlMixerManager mixerManager;
+    mixerManager.init();
+
+    std::shared_ptr<Mixer> mixer = mixerManager.getMixer();
+
+    auto emu = OplEmulator::NUKED;
+    auto type = Config::OplType::OPL3;
+
+    auto opl = Config::create(emu, type, mixer);
+    if (opl.get() == nullptr)
+        return -1;
+
+    //spdlog::set_level(spdlog::level::debug);
+    auto xmiFile = std::make_shared<files::miles::XMIFile>("test/fixtures/AIL2_14_DEMO.XMI");
+    auto m = xmiFile->getMIDI();
+    auto midi = std::make_shared<audio::MIDI>(audio::midi::MIDI_FORMAT::SINGLE_TRACK, 1, m->division);
+    midi->addTrack(m->getTrack(0));
+    auto scumm_midi = std::make_shared<drivers::midi::devices::ScummVMXMI>(opl, true);
+    drivers::MIDDriver midDrv(mixer, scumm_midi);
+
+    spdlog::info("playing xmi demo...");
+    midDrv.play(midi);
+    while (midDrv.isPlaying())
+    {
+        utils::delayMillis(1000);
+    }
+
+    return 0;
+}
 
 
 int main(int argc, char* argv[])
@@ -446,7 +483,7 @@ int main(int argc, char* argv[])
     //xmi_parser();
     //midi_adlib_mus_file();
     //midi_adlib_xmi();
-
+    midi_adlib_xmi_file();
     SDL_Init(SDL_INIT_TIMER | SDL_INIT_AUDIO);
 
     int numAudioDevices = SDL_GetNumAudioDevices(0);

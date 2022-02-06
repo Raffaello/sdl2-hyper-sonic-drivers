@@ -117,6 +117,34 @@ namespace drivers
                     circularPhysicalAssignmentFmVoice = MILES_ADLIB_PHYSICAL_FMVOICES_COUNT_MAX;
                 }
 
+                MidiDriver_Miles_AdLib::MidiDriver_Miles_AdLib(std::shared_ptr<hardware::opl::OPL> opl, const bool opl3mode)
+                {
+                    _masterVolume = 15;
+                    _isOpen = false;
+
+                    _opl = opl;
+
+                    _instrumentTablePtr = nullptr;
+                    _instrumentTableCount = 0;
+
+                    _oplType = opl3mode ?
+                        hardware::opl::scummvm::Config::OplType::OPL3 :
+                        hardware::opl::scummvm::Config::OplType::OPL2;
+
+                    _modeVirtualFmVoicesCount = 20;
+                    _modePhysicalFmVoicesCount = 18;
+                    _modeStereo = true;
+
+                    // Default to Miles v2
+                    _milesVersion = MILES_VERSION_2;
+
+                    // Older Miles Audio drivers did not do a circular assign for physical FM-voices
+                    // Sherlock Holmes 2 used the circular assign
+                    circularPhysicalAssignment = true;
+                    // this way the first circular physical FM-voice search will start at FM-voice 0
+                    circularPhysicalAssignmentFmVoice = MILES_ADLIB_PHYSICAL_FMVOICES_COUNT_MAX;
+                }
+
                 MidiDriver_Miles_AdLib::~MidiDriver_Miles_AdLib() {
                     //delete[] _instrumentTablePtr; // is created in factory MidiDriver_Miles_AdLib_create()
                 }
@@ -168,7 +196,7 @@ namespace drivers
                 }
 
                 void MidiDriver_Miles_AdLib::close() {
-                    delete _opl;
+                    //delete _opl;
                     _isOpen = false;
                 }
 

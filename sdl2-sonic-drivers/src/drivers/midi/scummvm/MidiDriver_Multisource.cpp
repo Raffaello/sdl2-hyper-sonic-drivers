@@ -65,8 +65,8 @@ namespace drivers
                         return _userVolumeScaling ? 1 : 0;
                     _userVolumeScaling = param > 0;
                     break;
-                default:
-                    return MidiDriver::property(prop, param);
+                //default:
+                    //return MidiDriver::property(prop, param);
                 }
                 return 0;
             }

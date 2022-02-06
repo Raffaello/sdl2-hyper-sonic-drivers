@@ -9,7 +9,7 @@ namespace drivers
         {
             ScummVMXMI::ScummVMXMI(std::shared_ptr<hardware::opl::OPL> opl, const bool opl3mode) : Device()
             {
-                //_adlib = std::make_shared<drivers::midi::scummvm::miles::MidiDriver_Miles_AdLib>(opl, opl3mode);
+                _adlib = std::make_shared<drivers::midi::scummvm::miles::MidiDriver_Miles_AdLib>(opl, opl3mode);
                 _adlib->open();
             }
 
