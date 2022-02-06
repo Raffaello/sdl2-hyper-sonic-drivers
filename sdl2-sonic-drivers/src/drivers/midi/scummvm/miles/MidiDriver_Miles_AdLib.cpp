@@ -1,5 +1,6 @@
 #include <cstdint>
 #include <string>
+#include <exception>
 #include <spdlog/spdlog.h>
 #include <drivers/midi/scummvm/miles/miles.h>
 #include <drivers/midi/scummvm/miles/MidiDriver_Miles_AdLib.hpp>
@@ -138,7 +139,7 @@ namespace drivers
 
                     if (!_opl) {
                         // We still got nothing -> can't do anything anymore
-                        throw std::exception("forgot OPL");
+                        throw std::runtime_error("forgot OPL");
                         return -1;
                     }
 
