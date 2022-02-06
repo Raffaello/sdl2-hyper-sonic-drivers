@@ -49,7 +49,7 @@ At the moment the only implemented emulators are OPL chips.
 
 ## Usage
 
-see the `example` folder for some basic usage.
+see the `./sdl2-sonic-drivers/examples` folder for some basic usage.
 
 ## Credits
 
