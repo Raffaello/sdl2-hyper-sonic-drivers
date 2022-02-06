@@ -120,6 +120,8 @@ target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/scummvm/AdLibPart.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/scummvm/AdLibPercussionChannel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/scummvm/MidiDriver_ADLIB.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/scummvm/MidiDriver_Multisource.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/scummvm/miles/Adlib.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/ScummVM.cpp
 
     # --- #

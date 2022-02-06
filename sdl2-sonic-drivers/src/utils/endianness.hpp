@@ -13,4 +13,6 @@ namespace utils
 
     uint16_t READ_LE_UINT16(const void* ptr);
     uint16_t READ_BE_UINT16(const void* ptr);
+
+    uint32_t READ_LE_UINT32(const void* ptr);
 }

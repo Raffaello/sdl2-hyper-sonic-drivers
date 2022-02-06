@@ -37,6 +37,13 @@ namespace utils
         const void* ptr = &i;
         EXPECT_EQ(READ_BE_UINT16(ptr), swapBE16(i));
     }
+
+    TEST(Endianness, READ_LE_UINT32)
+    {
+        uint32_t i = 1;
+        const void* ptr = &i;
+        EXPECT_EQ(READ_LE_UINT32(ptr), swapLE32(i));
+    }
 }
 
 int main(int argc, char** argv)

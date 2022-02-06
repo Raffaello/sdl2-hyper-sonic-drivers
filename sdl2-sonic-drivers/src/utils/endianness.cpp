@@ -90,15 +90,38 @@ namespace utils
 
     uint16_t READ_LE_UINT16(const void* ptr)
     {
-        const uint8_t* b = reinterpret_cast<const uint8_t*>(ptr);
+        if constexpr (is_big_endian()) {
+            const uint8_t* b = reinterpret_cast<const uint8_t*>(ptr);
 
-        return (b[1] << 8) + b[0];
+            return (b[1] << 8) + b[0];
+        }
+        else {
+            return *reinterpret_cast<const uint16_t*>(ptr);
+        }
     }
 
     uint16_t READ_BE_UINT16(const void* ptr)
     {
-        const uint8_t* b = reinterpret_cast<const uint8_t*>(ptr);
+        if constexpr (!is_big_endian()) {
+            const uint8_t* b = reinterpret_cast<const uint8_t*>(ptr);
 
-        return (b[0] << 8) + b[1];
+            return (b[0] << 8) + b[1];
+        }
+        else {
+            return *reinterpret_cast<const uint16_t*>(ptr);
+        }
+    }
+
+    uint32_t READ_LE_UINT32(const void* ptr)
+    {
+        if constexpr (is_big_endian()) {
+            const uint8_t* b = reinterpret_cast<const uint8_t*>(ptr);
+
+            return (b[3] << 24) | (b[2] << 16) | (b[1] << 8) | (b[0]);
+        }
+        else {
+            return *reinterpret_cast<const uint32_t*>(ptr);
+
+        }
     }
 }
