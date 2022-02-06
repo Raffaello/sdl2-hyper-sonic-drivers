@@ -66,9 +66,9 @@ namespace hardware
                 SurroundOPL(const int rate, const bool use16bit) noexcept;
                 ~SurroundOPL();
 
-                void update(short* buf, int samples);
-                void write(int reg, int val);
-                virtual int32_t getSampleRate() const noexcept;
+                void update(short* buf, int samples) override;
+                void write(int reg, int val) override;
+                virtual int32_t getSampleRate() const noexcept override;
 
                 virtual void init() override;
                 bool isStereo() const override;
