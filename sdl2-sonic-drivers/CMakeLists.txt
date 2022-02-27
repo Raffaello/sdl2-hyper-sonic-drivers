@@ -50,6 +50,7 @@ install(FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/westwood/ADLFile.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/MIDFile.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/dmx/MUSFile.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/dmx/OP2File.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/miles/XMIFile.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/miles/AILDriverFile.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/WAVFile.hpp
@@ -128,6 +129,7 @@ target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/westwood/ADLFile.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/MIDFile.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/dmx/MUSFile.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/dmx/OP2File.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/miles/XMIFile.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/miles/AILDriverFile.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/RIFFFile.cpp
