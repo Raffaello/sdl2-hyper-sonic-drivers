@@ -41,7 +41,7 @@ namespace hardware
                     return std::make_shared<woody::WoodyOPL>(mixer, type == OplType::OPL2 ? false : true);
                     
                 default:
-                    spdlog::error("Unsupported OPL emulator {}", oplEmulator);
+                    spdlog::error("Unsupported OPL emulator {:d}", static_cast<int>(oplEmulator));
                 }
 
                 return nullptr;
