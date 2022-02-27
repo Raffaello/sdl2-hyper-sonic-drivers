@@ -1,4 +1,5 @@
 #include <files/dmx/OP2File.hpp>
+#include <cstring>
 
 namespace files
 {
@@ -63,7 +64,7 @@ namespace files
                 _instrument_names[i].reserve(OP2FILE_INSTRUMENT_NAME_MAX_SIZE);
                 _instrument_names[i] = _readStringFromFile();
                 _instrument_names[i].shrink_to_fit();
-                seek(OP2FILE_INSTRUMENT_NAME_MAX_SIZE - 1 - _instrument_names[i].size(), std::ios::_Seekcur);
+                seek(OP2FILE_INSTRUMENT_NAME_MAX_SIZE - 1 - _instrument_names[i].size(), std::ios::cur);
             }
         }
     }
