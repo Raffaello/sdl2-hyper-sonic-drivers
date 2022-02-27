@@ -312,6 +312,12 @@ bool detect_opl3(const OplEmulator emu, const Config::OplType type, std::shared_
         return false;
 
     opl->init();
+    
+    // NOTE:
+    // TODO:
+    // it can do the detet_opl2 in the base_port+2 (as it is the register of the bank1 opl3 or 2nd opl)
+    // that can work for dual opl2
+
 
     //fm(4, 0x60, opl);
     //fm(4, 0x80, opl);

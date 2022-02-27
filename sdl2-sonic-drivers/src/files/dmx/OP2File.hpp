@@ -11,6 +11,27 @@ namespace files
     {
         constexpr int OP2FILE_NUM_INSTRUMENTS = 175;
 
+        /*
+        * NOTE: TODO
+        * the instruments array need the MUSFile instruments array
+        * to get retrieved correctly.
+        * the MIDI event change instrument is a value of MUS instrument array value,
+        * the MUS instrument array index is the same for the instrument specified in the OP2 Bank.
+        * I think.
+        * so with those 2 arrays
+        * can create a map with the instrument value and the associated instrument bank
+        * those are valido only for OPL chip.
+        * For midi driver, need to be possible to apply only to OPL device(s).
+        * 
+        * so the Device should have an interface to load a sound bank?
+        * and use the sound bank on the instrument change midi event?
+        * 
+        * then the instrument_t can be mapped in the struct AdLibInstrument? maybe not
+        * it is more complicated as it uses 2 voices:
+        * The 2 voices is like writing twice the same note to play,
+        * but in 2 different channel with the 2 different voices.
+        * 
+        */
         class OP2File : protected File
         {
         public:

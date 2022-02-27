@@ -36,7 +36,6 @@ namespace files
             _assertValid(size() <= MAX_SIZE);
             readHeader();
             readTrack();
-            memset(&_header, 0, sizeof(header_t));
         }
 
         std::shared_ptr<audio::MIDI> MUSFile::getMIDI() const noexcept

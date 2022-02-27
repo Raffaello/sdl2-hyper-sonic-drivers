@@ -19,7 +19,6 @@ namespace files
             _assertValid(strncmp(buf, OP2FILE_MAGIC_HEADER, OP2FILE_MAGIC_HEADER_SIZE) == 0);
 
             // instruments
-            //read(_instruments.data(), _instruments.size() * sizeof(instrument_t));
             _readInstruments();
 
             // instrument names
