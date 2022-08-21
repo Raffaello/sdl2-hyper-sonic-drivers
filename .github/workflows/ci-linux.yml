@@ -33,10 +33,12 @@ jobs:
         run: |
           echo "ARCH=64" >> $GITHUB_ENV
           #echo "CMAKE_A=x64" >> $GITHUB_ENV
+      - name: create build dir
+        run: mkdir build
       - uses: actions/cache@v2
         id: dep-cache
         with:
-            path: /usr/local/share/vcpkg/installed
+            path: build/vcpkg_installed
             key: ${{ runner.os }}-${{ matrix.triplet }}-dep-cache-${{ hashFiles('**/*') }}
             restore-keys: ${{ runner.os }}-${{ matrix.triplet }}-dep-cache
       - name: fetch vcpkg
@@ -47,8 +49,6 @@ jobs:
       #  run: |
       #    vcpkg --triplet=${{ matrix.triplet }} install sdl2 sdl2[x11] sdl2-mixer spdlog gtest rtmidi
       - uses: actions/checkout@v2
-      - name: create build dir
-        run: mkdir build
       - name: cmake generator
         run: |
           cmake -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }} -DCMAKE_TOOLCHAIN_FILE=/usr/local/share/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ..
