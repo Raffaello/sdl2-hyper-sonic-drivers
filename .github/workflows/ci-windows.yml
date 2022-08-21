@@ -54,6 +54,11 @@ jobs:
           } else {
             echo "VS_PATH=C:\Program Files\Microsoft Visual Studio\${{ matrix.os }}\Enterprise" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           }
+      - name: fetch vcpkg
+        run: |
+          cd C:\vcpkg
+          git fetch
+      - uses: actions/checkout@v2
       - name: create build dir
         run: mkdir build
       - uses: actions/cache@v2
@@ -62,16 +67,6 @@ jobs:
             path: build\vcpkg_installed
             key: ${{ runner.os }}-${{ matrix.os }}-${{ matrix.triplet }}-dep-cache-${{ hashFiles('**/*') }}
             restore-keys: ${{ runner.os }}-${{ matrix.triplet }}-dep-cache
-      - name: fetch vcpkg
-        run: |
-          cd C:\vcpkg
-          git fetch
-      #- name: vcpkg
-        #if: steps.dep-cache.outputs.cache-hit != 'true'
-      #  run: |
-      #    . "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars${{ env.ARCH }}.bat"
-      #    vcpkg --triplet=${{ matrix.triplet }} install sdl2 sdl2-mixer spdlog gtest rtmidi
-      - uses: actions/checkout@v2
       - name: cmake generator
         run: |
           . "${{ env.VS_PATH }}\VC\Auxiliary\Build\vcvars${{ env.ARCH }}.bat"

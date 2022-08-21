@@ -31,26 +31,21 @@ jobs:
         # https://docs.github.com/en/free-pro-team@latest/github/finding-security-vulnerabilities-and-errors-in-your-code/configuring-code-scanning#changing-the-languages-that-are-analyzed
 
     steps:
-      - uses: actions/cache@v2
-        id: dep-cache
-        with:
-            path: C:\vcpkg\installed
-            key: ${{ runner.os }}-x64-windows-dep-cache-${{ hashFiles('**/*') }}
-            restore-keys: ${{ runner.os }}-x64-windows-dep-cache
       - name: fetch vcpkg
         run: |
           cd C:\vcpkg
           git fetch
-      #- name: vcpkg
-        #if: steps.dep-cache.outputs.cache-hit != 'true'
-      #  run: |
-      #    . "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-      #    vcpkg --triplet=x64-windows install sdl2 sdl2-mixer spdlog gtest rtmidi
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
       - name: create build dir
         run: mkdir build
+      - uses: actions/cache@v2
+        id: dep-cache
+        with:
+            path: build\vcpkg_installed
+            key: ${{ runner.os }}-x64-windows-dep-cache-${{ hashFiles('**/*') }}
+            restore-keys: ${{ runner.os }}-x64-windows-dep-cache
       - name: cmake generator
         run: |
           . "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
