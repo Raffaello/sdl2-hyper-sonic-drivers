@@ -42,10 +42,10 @@ jobs:
       - name: fetch vcpkg
         run: |
           cd /usr/local/share/vcpkg && git fetch
-      - name: vcpkg
+      #- name: vcpkg
         #if: steps.dep-cache.outputs.cache-hit != 'true'
-        run: |
-          vcpkg --triplet=${{ matrix.triplet }} install sdl2 sdl2[x11] sdl2-mixer spdlog gtest rtmidi
+      #  run: |
+      #    vcpkg --triplet=${{ matrix.triplet }} install sdl2 sdl2[x11] sdl2-mixer spdlog gtest rtmidi
       - uses: actions/checkout@v2
       - name: create build dir
         run: mkdir build
