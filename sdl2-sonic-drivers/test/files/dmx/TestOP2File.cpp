@@ -18,6 +18,13 @@ namespace files
         {
             EXPECT_THROW(OP2File f(""), std::system_error);
         }
+
+        TEST(OP2File, out_of_bound)
+        {
+            OP2File f("fixtures/GENMIDI.OP2");
+
+            EXPECT_THROW(f.getInstrument(255), std::runtime_error);
+        }
     }
 }
 

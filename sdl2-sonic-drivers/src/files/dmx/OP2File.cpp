@@ -25,14 +25,14 @@ namespace files
             _readInstrumentNames();
         }
 
-        OP2File::instrument_t OP2File::getInstrument(const int i) const noexcept
+        OP2File::instrument_t OP2File::getInstrument(const uint8_t i) const
         {
-            return _instruments[i];
+            return _instruments.at(i);
         }
 
-        std::string OP2File::getInstrumentName(const int i) const noexcept
+        std::string OP2File::getInstrumentName(const uint8_t i) const
         {
-            return _instrument_names[i];
+            return _instrument_names.at(i);
         }
 
         void OP2File::_readInstrumentVoice(instrument_voice_t* buf)

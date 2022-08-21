@@ -65,8 +65,8 @@ namespace files
             explicit OP2File(const std::string& filename);
             ~OP2File() override = default;
 
-            instrument_t getInstrument(const int i) const noexcept;
-            std::string getInstrumentName(const int i) const noexcept;
+            instrument_t getInstrument(const uint8_t i) const;
+            std::string getInstrumentName(const uint8_t i) const;
 
         private:
             std::array<instrument_t, OP2FILE_NUM_INSTRUMENTS> _instruments;
