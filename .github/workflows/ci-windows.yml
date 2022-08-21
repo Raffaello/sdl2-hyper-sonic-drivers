@@ -58,7 +58,7 @@ jobs:
         id: dep-cache
         with:
             path: C:\vcpkg\installed
-            key: ${{ runner.os }}-${{ matrix.triplet }}-dep-cache-${{ hashFiles('**/*') }}
+            key: ${{ runner.os }}-${{ matrix.os }}-${{ matrix.triplet }}-dep-cache-${{ hashFiles('**/*') }}
             restore-keys: ${{ runner.os }}-${{ matrix.triplet }}-dep-cache
       - name: fetch vcpkg
         run: |
