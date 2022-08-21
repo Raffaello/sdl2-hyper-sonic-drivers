@@ -4,7 +4,6 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_DEBUG_POSTFIX d)
 
 find_package(SDL2 CONFIG REQUIRED)
-#find_package(SDL2_mixer CONFIG REQUIRED)
 find_package(spdlog 1.9.0 CONFIG REQUIRED)
 find_package(rtmidi CONFIG REQUIRED)
 

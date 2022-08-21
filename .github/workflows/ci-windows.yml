@@ -31,11 +31,6 @@ jobs:
             os: [ '2019', '2022' ]
     name: Build Windows
     runs-on: windows-${{ matrix.os }}
-    #strategy:
-    #  fail-fast: false
-    #  matrix:
-    #    triplet: [ x86-windows, x64-windows ]
-    #    build_type: [ Debug, Release ]
     steps:
       - name: set-up environment variables
         run: |
@@ -64,7 +59,7 @@ jobs:
       - uses: actions/cache@v2
         id: dep-cache
         with:
-            path: build\x${{env.ARCH}}-${{ matrix.build_type }}\vcpkg_installed
+            path: build\vcpkg_installed
             key: ${{ runner.os }}-${{ matrix.os }}-${{ matrix.triplet }}-dep-cache-${{ hashFiles('**/*') }}
             restore-keys: ${{ runner.os }}-${{ matrix.triplet }}-dep-cache
       - name: cmake generator

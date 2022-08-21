@@ -4,7 +4,6 @@
 #include <iostream>
 
 #include <SDL2/SDL.h>
-//#include <SDL2/SDL_mixer.h>
 
 #include <audio/scummvm/SDLMixerManager.hpp>
 #include <drivers/westwood/ADLDriver.hpp>
