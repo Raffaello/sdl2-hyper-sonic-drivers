@@ -28,7 +28,7 @@ jobs:
         matrix:
             triplet: [ x86-windows, x64-windows ]
             build_type: [ Debug, Release ]
-            os: [ '2019' ]
+            os: [ '2019', '2022' ]
     name: Build Windows
     runs-on: windows-${{ matrix.os }}
     #strategy:
