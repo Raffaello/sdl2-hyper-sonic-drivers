@@ -1,7 +1,7 @@
 #pragma once
 
 #include <drivers/midi/Device.hpp>
-#include <RtMidi.h>
+#include <rtmidi/RtMidi.h>
 #include <memory>
 #include <cstdint>
 
