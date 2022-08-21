@@ -23,13 +23,18 @@ on:
 
 jobs:
   build:
-    name: Build Windows
-    runs-on: windows-2019
     strategy:
-      fail-fast: false
-      matrix:
-        triplet: [ x86-windows, x64-windows ]
-        build_type: [ Debug, Release ]
+        fail-fast: false
+        matrix:
+            triplet: [ x86-windows, x64-windows ]
+            os: [ windows-2019 ]
+    name: Build Windows
+    runs-on: ${{ matrix.os }}
+    #strategy:
+    #  fail-fast: false
+    #  matrix:
+    #    triplet: [ x86-windows, x64-windows ]
+    #    build_type: [ Debug, Release ]
     steps:
       - name: set-up environment variables
         run: |

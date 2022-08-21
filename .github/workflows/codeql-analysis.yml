@@ -37,11 +37,15 @@ jobs:
             path: C:\vcpkg\installed
             key: ${{ runner.os }}-x64-windows-dep-cache-${{ hashFiles('**/*') }}
             restore-keys: ${{ runner.os }}-x64-windows-dep-cache
-      - name: vcpkg
-        #if: steps.dep-cache.outputs.cache-hit != 'true'
+      - name: fetch vcpkg
         run: |
-          . "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-          vcpkg --triplet=x64-windows install sdl2 sdl2-mixer spdlog gtest rtmidi
+          cd C:\vcpkg
+          git fetch
+      #- name: vcpkg
+        #if: steps.dep-cache.outputs.cache-hit != 'true'
+      #  run: |
+      #    . "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+      #    vcpkg --triplet=x64-windows install sdl2 sdl2-mixer spdlog gtest rtmidi
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
