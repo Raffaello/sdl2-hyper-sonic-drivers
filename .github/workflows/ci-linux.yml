@@ -39,6 +39,9 @@ jobs:
             path: /usr/local/share/vcpkg/installed
             key: ${{ runner.os }}-${{ matrix.triplet }}-dep-cache-${{ hashFiles('**/*') }}
             restore-keys: ${{ runner.os }}-${{ matrix.triplet }}-dep-cache
+      - name: fetch vcpkg
+        run: |
+          cd /usr/local/share/vcpkg && git fetch
       - name: vcpkg
         #if: steps.dep-cache.outputs.cache-hit != 'true'
         run: |
