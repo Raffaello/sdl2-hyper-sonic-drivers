@@ -4,7 +4,7 @@
 #include <iostream>
 
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_mixer.h>
+//#include <SDL2/SDL_mixer.h>
 
 #include <audio/scummvm/SDLMixerManager.hpp>
 #include <drivers/westwood/ADLDriver.hpp>
@@ -44,6 +44,7 @@ void playNotes(hardware::PCSpeaker *pcSpeaker, const hardware::PCSpeaker::eWaveF
     std::cout << "Elapsed Time (s) = " << elapsed_seconds.count() << " --- Expected (s) ~=" << length + length * 2 << "\n";
 }
 
+/*
 int pcspkr(const int freq, const uint16_t audio, const int channels,const int chunksize)
 {
     using hardware::PCSpeaker;
@@ -130,7 +131,8 @@ int pcspkr(const int freq, const uint16_t audio, const int channels,const int ch
     Mix_Quit();
     return 0;
 }
-
+*/
+/*
 int teen()
 {
     using hardware::PCSpeaker;
@@ -172,7 +174,7 @@ int teen()
         cout << "note: " << notes[major[n]] << endl;
         pcSpeaker.play(PCSpeaker::eWaveForm::PULSE, notes[major[n]], 500);
         while (pcSpeaker.isPlaying()) { SDL_Delay(10); }
-    }*/
+    }* /
     
     SDL_Delay(500);
     cout << "isPlaying: " << pcSpeaker.isPlaying();
@@ -188,7 +190,9 @@ int teen()
     Mix_Quit();
     return 0;
 }
+*/
 
+/*
 int song()
 {
     using hardware::PCSpeaker;
@@ -240,6 +244,7 @@ int song()
     Mix_Quit();
     return 0;
 }
+*/
 
 int renderMixer()
 {

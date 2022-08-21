@@ -4,7 +4,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_DEBUG_POSTFIX d)
 
 find_package(SDL2 CONFIG REQUIRED)
-find_package(SDL2_mixer CONFIG REQUIRED)
+#find_package(SDL2_mixer CONFIG REQUIRED)
 find_package(spdlog 1.9.0 CONFIG REQUIRED)
 find_package(rtmidi CONFIG REQUIRED)
 
@@ -187,7 +187,7 @@ add_executable(sdl2-sonic-drivers "sdl2-sonic-drivers.cpp")
 #)
 
 target_link_libraries(sdl2-sonic-drivers PRIVATE ${LIB_SDL2main} )
-target_link_libraries(sdl2-sonic-drivers PRIVATE sonic-drivers-static $<IF:$<TARGET_EXISTS:SDL2_mixer::SDL2_mixer>,SDL2_mixer::SDL2_mixer,SDL2_mixer::SDL2_mixer-static>)
+target_link_libraries(sdl2-sonic-drivers PRIVATE sonic-drivers-static)
 
 if(BUILD_TESTING)
     add_subdirectory("test")

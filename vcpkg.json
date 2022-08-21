@@ -4,7 +4,6 @@
   "builtin-baseline": "9259a0719d94c402aae2ab7975bc096afdec15df",
   "dependencies": [
     "sdl2",
-    "sdl2-mixer",
     "spdlog",
     "gtest",
     "rtmidi"
