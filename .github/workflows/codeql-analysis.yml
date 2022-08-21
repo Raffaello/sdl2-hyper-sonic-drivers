@@ -3,15 +3,15 @@
 
 name: "CodeQL Analysis"
 
-on:
-  push:
-    paths-ignore:
-      - 'doc/**'
-      - '.gitignore'
-      - '.gitattributes'
-      - 'README.md'
-      - 'LICENSE'
-      - 'wave_generators.r'
+#on:
+#  push:
+#    paths-ignore:
+#      - 'doc/**'
+#      - '.gitignore'
+#      - '.gitattributes'
+#      - 'README.md'
+#      - 'LICENSE'
+#      - 'wave_generators.r'
 
 jobs:
   analyze:
