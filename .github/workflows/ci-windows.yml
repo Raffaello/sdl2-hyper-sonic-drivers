@@ -27,9 +27,9 @@ jobs:
         fail-fast: false
         matrix:
             triplet: [ x86-windows, x64-windows ]
-            os: [ windows-2019 ]
+            os: [ '2019' ]
     name: Build Windows
-    runs-on: ${{ matrix.os }}
+    runs-on: windows-${{ matrix.os }}
     #strategy:
     #  fail-fast: false
     #  matrix:
@@ -67,12 +67,12 @@ jobs:
         run: mkdir build
       - name: cmake generator
         run: |
-          . "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars${{ env.ARCH }}.bat"
+          . "C:\Program Files (x86)\Microsoft Visual Studio\${{ matrix.os }}\Enterprise\VC\Auxiliary\Build\vcvars${{ env.ARCH }}.bat"
           cmake -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }} -A ${{ env.CMAKE_A }} -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ..
         working-directory: build
       - name: cmake build
         run: |
-          . "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars${{ env.ARCH }}.bat"
+          . "C:\Program Files (x86)\Microsoft Visual Studio\${{ matrix.os }}\Enterprise\VC\Auxiliary\Build\vcvars${{ env.ARCH }}.bat"
           cmake --build . --config=${{ matrix.build_type }}
         working-directory: build
       - name: CTest
