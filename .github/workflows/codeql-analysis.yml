@@ -61,7 +61,12 @@ jobs:
         uses: github/codeql-action/init@v2
         with:
           languages: cpp
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v2
+      #- name: Autobuild
+      #  uses: github/codeql-action/autobuild@v2
+      - name: cmake build
+        run: |
+          . "C:\Program Files (x86)\Microsoft Visual Studio\${{ matrix.os }}\Enterprise\VC\Auxiliary\Build\vcvars${{ env.ARCH }}.bat"
+          cmake --build . --config=${{ matrix.build_type }}
+        working-directory: build
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2
