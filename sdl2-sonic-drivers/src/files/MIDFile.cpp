@@ -39,7 +39,7 @@ namespace files
         return _midi;
     }
 
-    std::shared_ptr<audio::MIDI> MIDFile::convertToSingleTrackMIDI() const noexcept
+    std::shared_ptr<audio::MIDI> MIDFile::convertToSingleTrackMIDI() const
     {
         if (_midi->format == audio::midi::MIDI_FORMAT::SINGLE_TRACK)
             return getMIDI();

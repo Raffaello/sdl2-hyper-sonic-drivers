@@ -8,7 +8,7 @@
 #include <iostream>
 #include <SDL2/SDL.h>
 
-#include <RtMidi.h>
+#include <rtmidi/RtMidi.h>
 #include <memory>
 #include <vector>
 

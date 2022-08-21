@@ -22,7 +22,7 @@ namespace files
          *        converted equivalent with single track
          * @return
         */
-        std::shared_ptr<audio::MIDI> convertToSingleTrackMIDI() const noexcept;
+        std::shared_ptr<audio::MIDI> convertToSingleTrackMIDI() const;
     private:
         /// <summary>
         /// Variable length quantity decoding algorithm to read from file

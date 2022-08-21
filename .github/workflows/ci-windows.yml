@@ -23,13 +23,14 @@ on:
 
 jobs:
   build:
-    name: Build Windows
-    runs-on: windows-2019
     strategy:
-      fail-fast: false
-      matrix:
-        triplet: [ x86-windows, x64-windows ]
-        build_type: [ Debug, Release ]
+        fail-fast: false
+        matrix:
+            triplet: [ x86-windows, x64-windows ]
+            build_type: [ Debug, Release ]
+            os: [ '2019', '2022' ]
+    name: Build Windows
+    runs-on: windows-${{ matrix.os }}
     steps:
       - name: set-up environment variables
         run: |
@@ -42,28 +43,33 @@ jobs:
             echo "ARCH=64" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
             echo "CMAKE_A=x64" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           }
-      - uses: actions/cache@v2
-        id: dep-cache
-        with:
-            path: C:\vcpkg\installed
-            key: ${{ runner.os }}-${{ matrix.triplet }}-dep-cache-${{ hashFiles('**/*') }}
-            restore-keys: ${{ runner.os }}-${{ matrix.triplet }}-dep-cache
-      - name: vcpkg
-        #if: steps.dep-cache.outputs.cache-hit != 'true'
+
+          if ( "${{ matrix.os}}".startsWith('2019')) {
+            echo "VS_PATH=C:\Program Files (x86)\Microsoft Visual Studio\${{ matrix.os}}\Enterprise" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          } else {
+            echo "VS_PATH=C:\Program Files\Microsoft Visual Studio\${{ matrix.os }}\Enterprise" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          }
+      - name: fetch vcpkg
         run: |
-          . "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars${{ env.ARCH }}.bat"
-          vcpkg --triplet=${{ matrix.triplet }} install sdl2 sdl2-mixer spdlog gtest rtmidi
+          cd C:\vcpkg
+          git fetch
       - uses: actions/checkout@v2
       - name: create build dir
         run: mkdir build
+      - uses: actions/cache@v2
+        id: dep-cache
+        with:
+            path: build\vcpkg_installed
+            key: ${{ runner.os }}-${{ matrix.os }}-${{ matrix.triplet }}-dep-cache-${{ hashFiles('**/*') }}
+            restore-keys: ${{ runner.os }}-${{ matrix.triplet }}-dep-cache
       - name: cmake generator
         run: |
-          . "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars${{ env.ARCH }}.bat"
+          . "${{ env.VS_PATH }}\VC\Auxiliary\Build\vcvars${{ env.ARCH }}.bat"
           cmake -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }} -A ${{ env.CMAKE_A }} -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ..
         working-directory: build
       - name: cmake build
         run: |
-          . "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars${{ env.ARCH }}.bat"
+          . "${{ env.VS_PATH }}\VC\Auxiliary\Build\vcvars${{ env.ARCH }}.bat"
           cmake --build . --config=${{ matrix.build_type }}
         working-directory: build
       - name: CTest
@@ -82,85 +88,3 @@ jobs:
             generate_release_notes: true
             prerelease: false
             files: "build/*.zip"
-
-  sonarcloud:
-    name: SonarCloud Analysis (x64-windows, Debug)
-    runs-on: windows-2019
-    env:
-      SONAR_SCANNER_VERSION: 4.4.0.2170
-      SONAR_SERVER_URL: "https://sonarcloud.io"
-      BUILD_WRAPPER_OUT_DIR: build # Directory where build-wrapper output will be placed
-      HOME: c:\
-    steps:
-      - name: Set up JDK 11
-        uses: actions/setup-java@v1
-        with:
-          java-version: 11
-
-      - uses: actions/cache@v2
-        id: dep-cache
-        with:
-            path: C:\vcpkg\installed
-            key: ${{ runner.os }}-x64-windows-dep-cache-${{ hashFiles('**/*') }}
-            restore-keys: ${{ runner.os }}-x64-windows-dep-cache
-      - name: vcpkg
-        #if: steps.dep-cache.outputs.cache-hit != 'true'
-        run: |
-          . "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-          vcpkg --triplet=x64-windows install sdl2 sdl2-mixer spdlog gtest rtmidi
-
-      - uses: actions/cache@v2
-        id: sonar-cache
-        with:
-            path: |
-             ${{ env.HOME }}\sonar\
-             # ${{ env.HOME }}\.sonar\/sonar-scanner-${{ env.SONAR_SCANNER_VERSION }}-windows
-             # ${{ env.HOME }}\.sonar\/build-wrapper-win-x86
-            key: ${{ runner.os }}-sonar-cache-${{ hashFiles('**/*') }}
-            restore-keys: ${{ runner.os }}-sonar-cache
-      - name: Download and set up sonar-scanner
-        if: steps.sonar-cache.outputs.cache-hit != 'true'
-        env:
-          SONAR_SCANNER_DOWNLOAD_URL: https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-${{ env.SONAR_SCANNER_VERSION }}-windows.zip
-        run: |
-          New-Item -Force -ItemType directory -Path ${{ env.HOME }}\sonar
-          curl -sSLo ${{ env.HOME }}\sonar\sonar-scanner.zip ${{ env.SONAR_SCANNER_DOWNLOAD_URL }}
-          unzip -o ${{ env.HOME }}\sonar\sonar-scanner.zip -d ${{ env.HOME }}\sonar\
-          rm ${{ env.HOME }}\sonar\sonar-scanner.zip
-      - name: Download and set up build-wrapper
-        if: steps.sonar-cache.outputs.cache-hit != 'true'
-        env:
-          BUILD_WRAPPER_DOWNLOAD_URL: ${{ env.SONAR_SERVER_URL }}/static/cpp/build-wrapper-win-x86.zip
-        run: |
-          curl -sSLo ${{ env.HOME }}\sonar\build-wrapper.zip ${{ env.BUILD_WRAPPER_DOWNLOAD_URL }}
-          unzip -o ${{ env.HOME }}\sonar\build-wrapper.zip -d ${{ env.HOME }}\sonar\
-          rm ${{ env.HOME }}\sonar\build-wrapper.zip
-      - name: set up PATH
-        run: |
-          echo "${{ env.HOME }}\sonar\sonar-scanner-${{ env.SONAR_SCANNER_VERSION }}-windows\bin" | Out-File -Append -FilePath $env:GITHUB_PATH -Encoding utf8
-          echo "${{ env.HOME }}\sonar\build-wrapper-win-x86" | Out-File -Append -FilePath $env:GITHUB_PATH -Encoding utf8
-
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - name: create build dir
-        run: mkdir build
-      - name: cmake generator
-        run: |
-          . "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-          cmake -DVCPKG_TARGET_TRIPLET=x64-windows -A x64 -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake -DCMAKE_BUILD_TYPE=Debug ..
-        working-directory: build
-      - name: cmake build sonar wrapper
-        run: |
-          . "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-          build-wrapper-win-x86-64 --out-dir . cmake --build . --config=Debug
-        working-directory: build
-      #- name: CTest
-      #  run: ctest --output-on-failure
-      #  working-directory: build
-      - name: Run sonar-scanner
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          sonar-scanner --define sonar.host.url="${{ env.SONAR_SERVER_URL }}" --define sonar.cfamily.build-wrapper-output="${{ env.BUILD_WRAPPER_OUT_DIR }}"

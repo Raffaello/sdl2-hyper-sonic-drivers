@@ -4,9 +4,9 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_DEBUG_POSTFIX d)
 
 find_package(SDL2 CONFIG REQUIRED)
-find_package(sdl2-mixer CONFIG REQUIRED) # TODO remove this dependency
 find_package(spdlog 1.9.0 CONFIG REQUIRED)
-find_package(RtMidi CONFIG REQUIRED)
+find_package(rtmidi CONFIG REQUIRED)
+
 
 configure_file("version.h.in" "version.h")
 
@@ -185,7 +185,7 @@ add_executable(sdl2-sonic-drivers "sdl2-sonic-drivers.cpp")
     #${CMAKE_CURRENT_SOURCE_DIR}/src/files/MIDFile.cpp
 #)
 
-target_link_libraries(sdl2-sonic-drivers PRIVATE ${LIB_SDL2main} SDL2::SDL2_mixer)
+target_link_libraries(sdl2-sonic-drivers PRIVATE ${LIB_SDL2main} )
 target_link_libraries(sdl2-sonic-drivers PRIVATE sonic-drivers-static)
 
 if(BUILD_TESTING)
