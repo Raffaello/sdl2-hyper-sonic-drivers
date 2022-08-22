@@ -76,14 +76,14 @@ jobs:
         run: ctest --output-on-failure
         working-directory: build
       - name: cmake install
-        run: cmake --build . --target install
+        run: cmake --build . --target install --config ${{ matrix.build_type }}
         working-directory: build
       - name: cmake package
-        run: cmake --build . --target package
+        run: cmake --build . --target package --config ${{ matrix.build_type }}
         working-directory: build
       - name: Release
         uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
+        if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.os == '2019' }}
         with:
             generate_release_notes: true
             prerelease: false
