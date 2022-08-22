@@ -23,7 +23,7 @@ namespace files
         {
             OP2File f("fixtures/GENMIDI.OP2");
 
-            EXPECT_THROW(f.getInstrument(255), std::runtime_error);
+            EXPECT_THROW(f.getInstrument(255), std::out_of_range);
         }
     }
 }
