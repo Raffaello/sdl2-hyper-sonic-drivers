@@ -26,6 +26,7 @@ namespace drivers
 
                 inline void sendEvent(const audio::midi::MIDIEvent& e) const noexcept override;
                 inline void sendMessage(const uint8_t msg[], const uint8_t size) const noexcept override;
+                inline void sendSysEx(const audio::midi::MIDIEvent& e) const noexcept override;
 
             private:
                 std::shared_ptr<RtMidiOut> _midiout;

@@ -154,19 +154,17 @@ namespace drivers
                 }
                 case MIDI_META_EVENT_TYPES_LOW::SYS_EX0: {
                     spdlog::debug("SYS_EX0 META event...");
-                    msg[0] = e.type.val;
-                    msg[1] = 'O';
-                    msg[2] = 'P';
-                    msg_size = 3;
-                    break;
+                    // First byte length encoded in VLQ, remaining data is the sysEx data
+                    //uint8_t vlq_length = e.data[0];
+
+                    _device->sendSysEx(e);
+                    continue;
                 }
                 case MIDI_META_EVENT_TYPES_LOW::SYS_EX7: {
-                    spdlog::debug("SYS_EX7 META event..");
-                    msg[0] = e.type.val;
-                    msg[1] = 'O';
-                    msg[2] = 'P';
-                    msg_size = 3;
-                    break;
+                    spdlog::debug("SYS_EX7 META event...");
+                    _device->sendSysEx(e);
+                    continue;
+                    //break;
                 }
                 default: {
                     break;

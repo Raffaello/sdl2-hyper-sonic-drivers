@@ -32,6 +32,11 @@ namespace drivers
                 assert(size >= 2 && size <= 3);
                 _midiout->sendMessage(msg, size);
             }
+
+            inline void Native::sendSysEx(const audio::midi::MIDIEvent& e) const noexcept
+            {
+                // TODO
+            }
         }
     }
 }

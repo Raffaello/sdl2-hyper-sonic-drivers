@@ -125,7 +125,7 @@ namespace files
             //tell() < (_header.score_start + _header.score_len)
 
             // TEST remove after, just send a custom instrument to midi adlib driver
-            /*
+            
             {
                 // THIS IS A META EVENT
                 using audio::midi::MIDI_META_EVENT;
@@ -168,7 +168,7 @@ namespace files
                 e.delta_time = 0;
                 track.addEvent(e);
             }
-            */
+            
             // END TEST
 
 

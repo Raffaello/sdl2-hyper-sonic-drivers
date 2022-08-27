@@ -26,13 +26,27 @@ namespace drivers
                 _adlib->send(b);
             }
 
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="msg">Always 3 size, if it is 2 in size, 3rd value must be zero</param>
+            /// <param name="size"></param>
+            /// <returns></returns>
             inline void ScummVM::sendMessage(const uint8_t msg[], const uint8_t size) const noexcept
             {
                 assert(size >= 2 && size <= 3);
                 uint32_t b = msg[0] + (msg[1] << 8);
-                if (size == 3)
+                // the if below should be commented out
+                //if (size == 3)
                     b += (msg[2] << 16);
                 _adlib->send(b);
+            }
+
+            void ScummVM::sendSysEx(const audio::midi::MIDIEvent& e) const noexcept
+            {
+                // expected that the data has 4 byte type, 1 byte channel, and the adlib instrument data struct
+                // TODO: TEST
+                _adlib->sysEx_customInstrument(0, 'OP2 ', nullptr);
             }
         }
     }
