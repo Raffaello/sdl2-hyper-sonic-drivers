@@ -87,6 +87,7 @@ namespace files
 
             void readHeader();
             void readTrack();
+            void convertToMidi();
 
             std::shared_ptr<audio::MIDI> _midi;
             std::vector<mus_event_t> _mus;

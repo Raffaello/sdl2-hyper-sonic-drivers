@@ -36,13 +36,157 @@ namespace files
             _assertValid(size() <= MAX_SIZE);
             readHeader();
             readTrack();
+            convertToMidi();
         }
 
         std::shared_ptr<audio::MIDI> MUSFile::getMIDI() const noexcept
-        { 
-            /*
-            // TODO: refactor, read track should read in MUS format.
-            //       getMidi should transfrom the read MUS format into MIDI
+        {
+            return _midi;
+        }
+
+        void MUSFile::readHeader()
+        {
+            read(_header.id, sizeof(ID_MAGIC));
+            _assertValid(strncmp(_header.id, ID_MAGIC, sizeof(ID_MAGIC)) == 0);
+            _header.score_len = readLE16();
+            _header.score_start = readLE16();
+            _header.channels = readLE16();
+            _assertValid(_header.channels <= MAX_CHANNELS);
+            _header.secondary_channels = readLE16();
+            //_assertValid(header.secondary_channels <= MAX_CHANNELS + 10);
+            _header.instrument_counts = readLE16();
+            _header.padding = readLE16();
+            _assertValid(_header.padding == 0);
+
+            instruments.reserve(_header.instrument_counts);
+
+            // reading instruments
+            instruments.reserve(_header.instrument_counts);
+            for (int i = 0; i < _header.instrument_counts; i++)
+                instruments.push_back(readLE16());
+            
+            instruments.shrink_to_fit();
+            _assertValid(tell() == _header.score_start);
+            _assertValid(_header.channels + _header.secondary_channels < MIDI_MAX_CHANNELS);
+        }
+
+        void MUSFile::readTrack()
+        {
+            std::array<int8_t, MIDI_MAX_CHANNELS> channelMap;
+            std::array<int8_t, MIDI_MAX_CHANNELS> channelVol;
+            int8_t curChannel = 0;
+
+            channelMap.fill(-1);
+            channelVol.fill(127);
+            // Map channel 15 to 9 (percussions)
+            channelMap[15] = 9;
+
+            bool quit = false;
+            uint32_t delta_time = 0;
+            // could add the current size to end size of the file reported from the header
+            // as a 2ndry check
+            //tell() < (_header.score_start + _header.score_len)
+
+            while (!quit)
+            {
+                mus_event_t event;
+                uint8_t d1 = 0;
+                uint8_t d2 = 0;
+
+                event.desc.val = readU8();
+                switch (event.desc.e.type)
+                {
+                case MUS_EVENT_TYPE_RELEASE_NOTE:
+                    d1 = readU8();
+                    _assertValid(d1 < 128);
+                    event.data.push_back(d1);
+                    break;
+                case MUS_EVENT_TYPE_PLAY_NOTE:
+                    d1 = readU8();
+                    if ((d1 & 0x80) > 0)
+                    {
+                        d1 &= 0x7F;
+                        d2 = readU8();
+                        _assertValid((d2 & 0x80) == 0);
+                        channelVol[event.desc.e.channel] = d2;
+                    }
+
+                    d2 = channelVol[event.desc.e.channel];
+
+                    event.data.push_back(d1);
+                    event.data.push_back(d2);
+                    break;
+                case MUS_EVENT_TYPE_PITCH_BEND:
+                    d1 = readU8();
+                    //// convert to uint16_t value and mapped to +/- 2 semi-tones
+                    //d2 = d1;
+                    //d1 = (d1 & 1) >> 6; // isn't it always 0 ?
+                    //d2 = (d2 >> 1) & 127;
+                    event.data.push_back(d1);
+                    //event.data.push_back(d2);
+                    break;
+                case MUS_EVENT_TYPE_SYS_EVENT:
+                    d1 = readU8();
+                    // TODO: is required this one below or not?
+                    d2 = readU8() == 12 ? static_cast<uint8_t>(_header.channels + 1) : 0; // ?
+
+                    _assertValid(d1 < 0x80);
+
+                    event.data.push_back(/*ctrlMap.at(*/d1/*)*/);
+                    event.data.push_back(d2);
+                    break;
+                case MUS_EVENT_TYPE_CONTROLLER:
+                    d1 = readU8();
+                    d2 = readU8();
+                    _assertValid(d1 < 128); // bit 2^7 always 0
+                    _assertValid(d2 < 128); // bit 2^7 always 0
+
+                    //if (d1 == 0)
+                    //{
+                        event.data.push_back(d1);
+                        event.data.push_back(d2);
+                    //}
+                    //else {
+                        // Controller event
+                        //event.data.push_back(/*ctrlMap.at(*/d1/*)*/);
+                        //event.data.push_back(d2);
+                    //}
+                    break;
+                case MUS_EVENT_TYPE_END_OF_MEASURE:
+                    break;
+                case MUS_EVENT_TYPE_FINISH:
+                    quit = true;
+                    break;
+                case MUS_EVENT_TYPE_UNUSED:
+                    break;
+                default:
+                    break;
+                }
+
+                event.data.shrink_to_fit();
+                event.delta_time = delta_time;
+                if (!event.data.empty())
+                    _mus.push_back(event);
+
+                if(event.desc.e.last != 0)
+                {
+                    // compute delay
+                    uint32_t dd = 0;
+                    do {
+                        d1 = readU8();
+                        dd *= 128;
+                        dd += d1 & 0x7F;
+                    } while ((d1 & 0x80) > 0);
+
+                    delta_time = dd;
+                }
+                else
+                    delta_time = 0;
+            }
+        }
+
+        void MUSFile::convertToMidi()
+        {
             using audio::midi::MIDI_FORMAT;
             using audio::midi::MIDIEvent;
             using audio::midi::MIDI_EVENT_TYPES_HIGH;
@@ -50,13 +194,12 @@ namespace files
 
 
             std::array<int8_t, MIDI_MAX_CHANNELS> channelMap;
-            std::array<int8_t, MIDI_MAX_CHANNELS> channelVol;
+            //std::array<int8_t, MIDI_MAX_CHANNELS> channelVol;
             int8_t curChannel = 0;
 
-            _assertValid(_header.channels + _header.secondary_channels < MIDI_MAX_CHANNELS);
 
             channelMap.fill(-1);
-            channelVol.fill(64);
+            //channelVol.fill(127);
             // Map channel 15 to 9 (percussions)
             channelMap[15] = 9;
 
@@ -69,7 +212,7 @@ namespace files
             //tell() < (_header.score_start + _header.score_len)
 
             // TEST remove after, just send a custom instrument to midi adlib driver
-
+            /*
             {
                 // THIS IS A META EVENT
                 using audio::midi::MIDI_META_EVENT;
@@ -114,21 +257,16 @@ namespace files
                 e.delta_time = 0;
                 track.addEvent(e);
             }
-            * /
+            */
 
             // END TEST
 
-
-            while (!quit)
-            {
+            for (auto& event : _mus) {
                 MIDIEvent me;
-                mus_event_u event;
+
                 uint8_t d1 = 0;
                 uint8_t d2 = 0;
-
-                event.val = readU8();
-
-                if (channelMap[event.e.channel] < 0)
+                if (channelMap[event.desc.e.channel] < 0)
                 {
                     // inject init channel to max volume first time that is used
                     MIDIEvent ce;
@@ -142,16 +280,16 @@ namespace files
                     track.addEvent(ce);
 
                     // adjust channel tracking and skip percussion if it is the case
-                    channelMap[event.e.channel] = curChannel++;
+                    channelMap[event.desc.e.channel] = curChannel++;
                     if (curChannel == 9)
                         ++curChannel;
                 }
 
-                switch (event.e.type)
+                switch (event.desc.e.type)
                 {
                 case MUS_EVENT_TYPE_RELEASE_NOTE:
                     me.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::NOTE_OFF);
-                    d1 = readU8();
+                    d1 = event.data[0];
                     d2 = MUS_NOTE_VELOCITY_DEFAULT;
                     _assertValid(d1 < 128);
                     me.data.push_back(d1);
@@ -159,23 +297,23 @@ namespace files
                     break;
                 case MUS_EVENT_TYPE_PLAY_NOTE:
                     me.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::NOTE_ON);
-                    d1 = readU8();
-                    if ((d1 & 0x80) > 0)
+                    //d1 = event.data[0];
+                    /*if ((d1 & 0x80) > 0)
                     {
                         d1 &= 0x7F;
-                        d2 = readU8();
+                        d2 = event.data[1];
                         _assertValid((d2 & 0x80) == 0);
-                        channelVol[channelMap[event.e.channel]] = d2;
+                        channelVol[event.desc.e.channel] = d2;
                     }
 
-                    d2 = channelVol[channelMap[event.e.channel]];
+                    d2 = channelVol[event.desc.e.channel];*/
 
-                    me.data.push_back(d1);
-                    me.data.push_back(d2);
+                    me.data.push_back(event.data[0]);
+                    me.data.push_back(event.data[1]);
                     break;
                 case MUS_EVENT_TYPE_PITCH_BEND:
                     me.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::PITCH_BEND);
-                    d1 = readU8();
+                    d1 = event.data[0];
                     // convert to uint16_t value and mapped to +/- 2 semi-tones
                     d2 = d1;
                     d1 = (d1 & 1) >> 6; // isn't it always 0 ?
@@ -184,9 +322,11 @@ namespace files
                     me.data.push_back(d2);
                     break;
                 case MUS_EVENT_TYPE_SYS_EVENT:
+                    // TODO try to skip this event too..
                     me.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::CONTROLLER);
-                    d1 = readU8();
-                    d2 = readU8() == 12 ? static_cast<uint8_t>(_header.channels + 1) : 0; // ?
+                    d1 = event.data[0];
+                    //d2 = 0;
+                    d2 = event.data[1];
 
                     _assertValid(d1 < 0x80);
 
@@ -194,8 +334,8 @@ namespace files
                     me.data.push_back(d2);
                     break;
                 case MUS_EVENT_TYPE_CONTROLLER:
-                    d1 = readU8();
-                    d2 = readU8();
+                    d1 = event.data[0];
+                    d2 = event.data[1];
                     _assertValid(d1 < 128); // bit 2^7 always 0
                     _assertValid(d2 < 128); // bit 2^7 always 0
 
@@ -233,28 +373,15 @@ namespace files
                     break;
                 }
 
-                me.type.low = channelMap[event.e.channel];
+                me.type.low = event.desc.e.channel;
                 me.data.shrink_to_fit();
                 me.delta_time = delta_time;
                 me.abs_time = abs_time;
                 if (!me.data.empty())
                     track.addEvent(me);
 
-                if (event.e.last != 0)
-                {
-                    // compute delay
-                    uint32_t dd = 0;
-                    do {
-                        d1 = readU8();
-                        dd *= 128;
-                        dd += d1 & 0x7F;
-                    } while ((d1 & 0x80) > 0);
-
-                    delta_time = dd;
-                    abs_time += delta_time;
-                }
-                else
-                    delta_time = 0;
+                delta_time = event.delta_time;
+                abs_time += delta_time;
             }
 
             track.lock();
@@ -266,162 +393,6 @@ namespace files
             // playback_speed / 2 is the division value at 120BMP
             _midi = std::make_shared<audio::MIDI>(MIDI_FORMAT::SINGLE_TRACK, 1, playback_speed / 2);
             _midi->addTrack(track);
-            */
-            return _midi;
-        }
-
-        void MUSFile::readHeader()
-        {
-            read(_header.id, sizeof(ID_MAGIC));
-            _assertValid(strncmp(_header.id, ID_MAGIC, sizeof(ID_MAGIC)) == 0);
-            _header.score_len = readLE16();
-            _header.score_start = readLE16();
-            _header.channels = readLE16();
-            _assertValid(_header.channels <= MAX_CHANNELS);
-            _header.secondary_channels = readLE16();
-            //_assertValid(header.secondary_channels <= MAX_CHANNELS + 10);
-            _header.instrument_counts = readLE16();
-            _header.padding = readLE16();
-            _assertValid(_header.padding == 0);
-
-            instruments.reserve(_header.instrument_counts);
-
-            // reading instruments
-            instruments.reserve(_header.instrument_counts);
-            for (int i = 0; i < _header.instrument_counts; i++)
-                instruments.push_back(readLE16());
-            
-            instruments.shrink_to_fit();
-            _assertValid(tell() == _header.score_start);
-            _assertValid(_header.channels + _header.secondary_channels < MIDI_MAX_CHANNELS);
-        }
-
-        void MUSFile::readTrack()
-        {
-            // TODO: refactor, read track should read in MUS format.
-            //       getMidi should transfrom the read MUS format into MIDI
-            using audio::midi::MIDI_FORMAT;
-            using audio::midi::MIDIEvent;
-            using audio::midi::MIDI_EVENT_TYPES_HIGH;
-            using audio::midi::MIDITrack;
-
-
-            //std::array<int8_t, MIDI_MAX_CHANNELS> channelMap;
-            std::array<int8_t, MIDI_MAX_CHANNELS> channelVol;
-            //int8_t curChannel = 0;
-
-            
-
-            //channelMap.fill(-1);
-            channelVol.fill(127); // or 64?
-            // Map channel 15 to 9 (percussions)
-            //channelMap[15] = 9;
-
-           // MIDITrack track;
-            bool quit = false;
-            uint32_t delta_time = 0;
-            //uint32_t abs_time = 0;
-            // could add the current size to end size of the file reported from the header
-            // as a 2ndry check
-            //tell() < (_header.score_start + _header.score_len)
-
-            while (!quit)
-            {
-                mus_event_t event;
-                uint8_t d1 = 0;
-                uint8_t d2 = 0;
-
-                event.desc.val = readU8();
-                switch (event.desc.e.type)
-                {
-                case MUS_EVENT_TYPE_RELEASE_NOTE:
-                    d1 = readU8();
-                    d2 = MUS_NOTE_VELOCITY_DEFAULT;
-                    _assertValid(d1 < 128);
-                    event.data.push_back(d1);
-                    event.data.push_back(d2);
-                    break;
-                case MUS_EVENT_TYPE_PLAY_NOTE:
-                    d1 = readU8();
-                    if ((d1 & 0x80) > 0)
-                    {
-                        d1 &= 0x7F;
-                        d2 = readU8();
-                        _assertValid((d2 & 0x80) == 0);
-                        channelVol[event.desc.e.channel] = d2;
-                    }
-
-                    d2 = channelVol[event.desc.e.channel];
-
-                    event.data.push_back(d1);
-                    event.data.push_back(d2);
-                    break;
-                case MUS_EVENT_TYPE_PITCH_BEND:
-                    d1 = readU8();
-                    // convert to uint16_t value and mapped to +/- 2 semi-tones
-                    d2 = d1;
-                    d1 = (d1 & 1) >> 6; // isn't it always 0 ?
-                    d2 = (d2 >> 1) & 127;
-                    event.data.push_back(d1);
-                    event.data.push_back(d2);
-                    break;
-                case MUS_EVENT_TYPE_SYS_EVENT:
-                    d1 = readU8();
-                    d2 = readU8() == 12 ? static_cast<uint8_t>(_header.channels + 1) : 0; // ?
-
-                    _assertValid(d1 < 0x80);
-
-                    event.data.push_back(/*ctrlMap.at(*/d1/*)*/);
-                    event.data.push_back(d2);
-                    break;
-                case MUS_EVENT_TYPE_CONTROLLER:
-                    d1 = readU8();
-                    d2 = readU8();
-                    _assertValid(d1 < 128); // bit 2^7 always 0
-                    _assertValid(d2 < 128); // bit 2^7 always 0
-
-                    if (d1 == 0)
-                    {
-                        event.data.push_back(d1);
-                        event.data.push_back(d2);
-                    }
-                    else {
-                        // Controller event
-                        event.data.push_back(/*ctrlMap.at(*/d1/*)*/);
-                        event.data.push_back(d2);
-                    }
-                    break;
-                case MUS_EVENT_TYPE_END_OF_MEASURE:
-                    break;
-                case MUS_EVENT_TYPE_FINISH:
-                    quit = true;
-                    break;
-                case MUS_EVENT_TYPE_UNUSED:
-                    break;
-                default:
-                    break;
-                }
-
-                event.data.shrink_to_fit();
-                event.delta_time = delta_time;
-                if (!event.data.empty())
-                    _mus.push_back(event);
-
-                if(event.desc.e.last != 0)
-                {
-                    // compute delay
-                    uint32_t dd = 0;
-                    do {
-                        d1 = readU8();
-                        dd *= 128;
-                        dd += d1 & 0x7F;
-                    } while ((d1 & 0x80) > 0);
-
-                    delta_time = dd;
-                }
-                else
-                    delta_time = 0;
-            }
         }
     }
 }
