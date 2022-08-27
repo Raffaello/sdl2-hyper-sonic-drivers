@@ -66,12 +66,12 @@ namespace files
                 instruments.push_back(readLE16());
             
             instruments.shrink_to_fit();
-            _assertValid(tell() == _header.score_start);
             _assertValid(_header.channels + _header.secondary_channels < MIDI_MAX_CHANNELS);
         }
 
         void MUSFile::readTrack()
         {
+            _assertValid(tell() == _header.score_start);
             //std::array<int8_t, MIDI_MAX_CHANNELS> channelMap;
             std::array<int8_t, MIDI_MAX_CHANNELS> channelVol;
             //int8_t curChannel = 0;
@@ -192,21 +192,19 @@ namespace files
             using audio::midi::MIDI_EVENT_TYPES_HIGH;
             using audio::midi::MIDITrack;
 
+            // TODO: this is a test
+            seek(_header.score_start);
+            _assertValid(tell() == _header.score_start);
 
-            //std::array<int8_t, MIDI_MAX_CHANNELS> channelMap;
             std::array<bool, MIDI_MAX_CHANNELS> channelInit;
-            //std::array<int8_t, MIDI_MAX_CHANNELS> channelVol;
-            //int8_t curChannel = 0;
+            std::array<int8_t, MIDI_MAX_CHANNELS> channelVol;
 
 
             //channelMap.fill(-1);
             channelInit.fill(false);
-            //channelVol.fill(127);
-            // Map channel 15 to 9 (percussions)
-            //channelMap[15] = 9;
+            channelVol.fill(127);
 
             MIDITrack track;
-            bool quit = false;
             uint32_t delta_time = 0;
             uint32_t abs_time = 0;
             // could add the current size to end size of the file reported from the header
@@ -264,6 +262,7 @@ namespace files
             // END TEST
 
             channelInit[9] = true;
+            
             for (auto& event : _mus) {
                 MIDIEvent me;
 
@@ -298,25 +297,11 @@ namespace files
                 {
                 case MUS_EVENT_TYPE_RELEASE_NOTE:
                     me.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::NOTE_OFF);
-                    d1 = event.data[0];
-                    d2 = MUS_NOTE_VELOCITY_DEFAULT;
-                    _assertValid(d1 < 128);
-                    me.data.push_back(d1);
-                    me.data.push_back(d2);
+                    me.data.push_back(event.data[0]);
+                    me.data.push_back(MUS_NOTE_VELOCITY_DEFAULT);
                     break;
                 case MUS_EVENT_TYPE_PLAY_NOTE:
                     me.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::NOTE_ON);
-                    //d1 = event.data[0];
-                    /*if ((d1 & 0x80) > 0)
-                    {
-                        d1 &= 0x7F;
-                        d2 = event.data[1];
-                        _assertValid((d2 & 0x80) == 0);
-                        channelVol[event.desc.e.channel] = d2;
-                    }
-
-                    d2 = channelVol[event.desc.e.channel];*/
-
                     me.data.push_back(event.data[0]);
                     me.data.push_back(event.data[1]);
                     break;
@@ -333,9 +318,125 @@ namespace files
                 case MUS_EVENT_TYPE_SYS_EVENT:
                     // TODO try to skip this event too..
                     me.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::CONTROLLER);
+                    me.data.push_back(ctrlMap.at(event.data[0]));
+                    me.data.push_back(event.data[1]);
+                    break;
+                case MUS_EVENT_TYPE_CONTROLLER:
                     d1 = event.data[0];
-                    //d2 = 0;
                     d2 = event.data[1];
+                    _assertValid(d1 < 128); // bit 2^7 always 0
+                    _assertValid(d2 < 128); // bit 2^7 always 0
+
+                    if (d1 == 0)
+                    {
+                        // NOTE:
+                        // Here changes the instrument type, need to preload GENMIDI.OP2?
+                        // in the Midi drv? as OPL as 4 voices and during a song
+                        // the instruments may change, therefore need to load the instrument patch
+                        // when it is played.
+                        // How can be done instead a preload of all instrument with MIDI and send,
+                        // the instrument to play to the adlib channel? 
+                        // need to do through a "MIDI AdLib Driver" ...
+                        // So not sure now.. i should read a MUS file normally then doing in midi
+
+                        // Change instrument, MIDI event 0xC0
+                        me.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::PROGRAM_CHANGE);
+                        me.data.push_back(d2);
+                    }
+                    else {
+                        // Controller event
+                        me.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::CONTROLLER);
+                        me.data.push_back(ctrlMap.at(d1));
+                        me.data.push_back(d2);
+                    }
+                    break;
+                default:
+                    break;
+                }
+
+                me.type.low = event.desc.e.channel;
+                me.data.shrink_to_fit();
+                me.delta_time = delta_time;
+                me.abs_time = abs_time;
+                if (!me.data.empty())
+                    track.addEvent(me);
+
+                delta_time = event.delta_time;
+                abs_time += delta_time;
+            }
+
+            track.lock();
+
+
+            MIDITrack track2;
+            bool quit = false;
+            channelInit.fill(false);
+            channelInit[9] = true;
+            while (!quit)
+            {
+                MIDIEvent me;
+                mus_event_desc_u event;
+                uint8_t d1 = 0;
+                uint8_t d2 = 0;
+
+                event.val = readU8();
+
+                if (!channelInit[event.e.channel] < 0)
+                {
+                    // inject init channel to max volume first time that is used
+                    MIDIEvent ce;
+
+                    ce.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::CONTROLLER);
+                    ce.type.low = event.e.channel;
+                    ce.delta_time = delta_time;
+                    ce.abs_time = abs_time;
+                    ce.data.push_back(0x07); // MIDI Main Volume
+                    ce.data.push_back(127);
+                    track2.addEvent(ce);
+
+                    channelInit[event.e.channel] = true;
+                }
+
+                switch (event.e.type)
+                {
+                case MUS_EVENT_TYPE_RELEASE_NOTE:
+                    me.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::NOTE_OFF);
+                    d1 = readU8();
+                    d2 = MUS_NOTE_VELOCITY_DEFAULT;
+                    _assertValid(d1 < 128);
+                    me.data.push_back(d1);
+                    me.data.push_back(d2);
+                    break;
+                case MUS_EVENT_TYPE_PLAY_NOTE:
+                    me.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::NOTE_ON);
+                    d1 = readU8();
+                    if ((d1 & 0x80) > 0)
+                    {
+                        d1 &= 0x7F;
+                        d2 = readU8();
+                        _assertValid((d2 & 0x80) == 0);
+                        channelVol[event.e.channel] = d2;
+                    }
+
+                    d2 = channelVol[event.e.channel];
+
+                    me.data.push_back(d1);
+                    me.data.push_back(d2);
+                    break;
+                case MUS_EVENT_TYPE_PITCH_BEND:
+                    me.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::PITCH_BEND);
+                    d1 = readU8();
+                    // convert to uint16_t value and mapped to +/- 2 semi-tones
+                    d2 = d1;
+                    d1 = (d1 & 1) >> 6; // isn't it always 0 ?
+                    d2 = (d2 >> 1) & 127;
+                    me.data.push_back(d1);
+                    me.data.push_back(d2);
+                    break;
+                case MUS_EVENT_TYPE_SYS_EVENT:
+                    me.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::CONTROLLER);
+                    d1 = readU8();
+                    d2 = readU8() == 12 ? static_cast<uint8_t>(_header.channels + 1) : 0; // ?
 
                     _assertValid(d1 < 0x80);
 
@@ -343,8 +444,8 @@ namespace files
                     me.data.push_back(d2);
                     break;
                 case MUS_EVENT_TYPE_CONTROLLER:
-                    d1 = event.data[0];
-                    d2 = event.data[1];
+                    d1 = readU8();
+                    d2 = readU8();
                     _assertValid(d1 < 128); // bit 2^7 always 0
                     _assertValid(d2 < 128); // bit 2^7 always 0
 
@@ -382,18 +483,35 @@ namespace files
                     break;
                 }
 
-                me.type.low = event.desc.e.channel;
+                me.type.low = event.e.channel;
                 me.data.shrink_to_fit();
                 me.delta_time = delta_time;
                 me.abs_time = abs_time;
                 if (!me.data.empty())
-                    track.addEvent(me);
+                    track2.addEvent(me);
 
-                delta_time = event.delta_time;
-                abs_time += delta_time;
+                if(event.e.last != 0)
+                {
+                    // compute delay
+                    uint32_t dd = 0;
+                    do {
+                        d1 = readU8();
+                        dd *= 128;
+                        dd += d1 & 0x7F;
+                    } while ((d1 & 0x80) > 0);
+
+                    delta_time = dd;
+                    abs_time += delta_time;
+                }
+                else
+                    delta_time = 0;
             }
+            
 
-            track.lock();
+            track2.lock();
+            // END READ FILE - TEST
+            
+            
             // division is 120BPM tempo by default so
             // 120 quarter note per minute
             // playback_speed is ticks per quarter note
@@ -401,7 +519,7 @@ namespace files
             // playback speed is ticks per quarter note
             // playback_speed / 2 is the division value at 120BMP
             _midi = std::make_shared<audio::MIDI>(MIDI_FORMAT::SINGLE_TRACK, 1, playback_speed / 2);
-            _midi->addTrack(track);
+            _midi->addTrack(track2);
         }
     }
 }

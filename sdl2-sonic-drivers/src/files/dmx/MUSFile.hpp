@@ -62,7 +62,7 @@ namespace files
                 std::vector<uint8_t> data;
             } mus_event_t;
 
-            // Mapping MUS to MIDI Controls
+            // Mapping MUS to MIDI Controls (TODO: make it static)
             std::array<uint8_t, 15> ctrlMap = {
                 0,   // 0 program change
                 0,   // 1 Bank Select
