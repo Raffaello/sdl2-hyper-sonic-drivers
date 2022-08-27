@@ -46,11 +46,29 @@ namespace drivers
 #include<drivers/midi/scummvm/AdLibInstrument.h> // TODO remove the include just for testing
             void ScummVM::sendSysEx(const audio::midi::MIDIEvent& e) const noexcept
             {
-                static int chan = 1;
+                // NOTE: TODO: here is replacing an instrument and it should work but it doesnt.
+                //             it looks like the OP2 format is not compatible with imuse adlib instr format
+                // TODO: Must do a simple MIDI Adlib driver 
+                static int chan = 0;
                 // expected that the data has 4 byte type, 1 byte channel, and the adlib instrument data struct
                 // TODO: TEST
                 drivers::midi::scummvm::AdLibInstrument adlib;
                 if (chan == 0) {
+                    /*
+                adlibWrite(channel + 0x20, instr->modCharacteristic);
+                adlibWrite(channel + 0x40, (instr->modScalingOutputLevel | 0x3F) - vol1);
+                adlibWrite(channel + 0x60, 0xff & (~instr->modAttackDecay));
+                adlibWrite(channel + 0x80, 0xff & (~instr->modSustainRelease));
+                adlibWrite(channel + 0xE0, instr->modWaveformSelect);
+
+                channel = g_operator2Offsets[chan];
+                adlibWrite(channel + 0x20, instr->carCharacteristic);
+                adlibWrite(channel + 0x40, (instr->carScalingOutputLevel | 0x3F) - vol2);
+                adlibWrite(channel + 0x60, 0xff & (~instr->carAttackDecay));
+                adlibWrite(channel + 0x80, 0xff & (~instr->carSustainRelease));
+                adlibWrite(channel + 0xE0, instr->carWaveformSelect);
+                    * 
+                    */
                     adlib.modCharacteristic = 0x10;
                     adlib.modScalingOutputLevel = 0x0;
                     adlib.modAttackDecay = 241;
