@@ -205,7 +205,15 @@ namespace files
 
                     if (d1 == 0)
                     {
-                        // TODO: Here change the instrument type with GENMIDI.OP2?
+                        // NOTE:
+                        // Here changes the instrument type, need to preload GENMIDI.OP2?
+                        // in the Midi drv? as OPL as 4 voices and during a song
+                        // the instruments may change, therefore need to load the instrument patch
+                        // when it is played. 
+                        // How can be done instead a preload of all instrument with MIDI and send,
+                        // the instrument to play to the adlib channel? 
+                        // need to do through a "MIDI AdLib Driver" ...
+                        // So not sure now.. i should read a MUS file normally then doing in midi
 
                         // Change instrument, MIDI event 0xC0
                         me.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::PROGRAM_CHANGE);
