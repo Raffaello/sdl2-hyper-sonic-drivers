@@ -72,14 +72,14 @@ namespace files
 
         void MUSFile::readTrack()
         {
-            std::array<int8_t, MIDI_MAX_CHANNELS> channelMap;
+            //std::array<int8_t, MIDI_MAX_CHANNELS> channelMap;
             std::array<int8_t, MIDI_MAX_CHANNELS> channelVol;
-            int8_t curChannel = 0;
+            //int8_t curChannel = 0;
 
-            channelMap.fill(-1);
+            //channelMap.fill(-1);
             channelVol.fill(127);
             // Map channel 15 to 9 (percussions)
-            channelMap[15] = 9;
+            //channelMap[15] = 9;
 
             bool quit = false;
             uint32_t delta_time = 0;
