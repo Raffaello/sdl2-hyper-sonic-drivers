@@ -43,6 +43,23 @@ namespace utils
         } while (true);
 
         return i;
+    }
 
+    std::string midi_event_to_string(std::vector<uint8_t>::const_iterator begin, std::vector<uint8_t>::const_iterator end)
+    {
+        uint8_t size = *begin;
+        std::string str(++begin, end);
+
+        if (size != str.size()) {
+            throw std::runtime_error("midi_Event_to_string size mismatch");
+        }
+
+        str.shrink_to_fit();
+        return str;
+    }
+
+    std::string midi_event_to_string(const std::vector<uint8_t>& e)
+    {
+        return midi_event_to_string(e.begin(), e.end());
     }
 }

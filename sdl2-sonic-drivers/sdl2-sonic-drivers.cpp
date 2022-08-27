@@ -29,6 +29,7 @@
 
 #include <files/dmx/MUSFile.hpp>
 #include <files/dmx/OP2File.hpp>
+#include <drivers/midi/devices/Native.hpp>
 
 using namespace std;
 
@@ -424,7 +425,10 @@ int midi_adlib_mus_file_genmidi()
     auto midi = musFile->getMIDI();
     auto scumm_midi = std::make_shared<drivers::midi::devices::ScummVM>(opl, false);
     drivers::MIDDriver midDrv(mixer, scumm_midi);
+    //auto native_midi = std::make_shared<drivers::midi::devices::Native>();
+    //drivers::MIDDriver midDrv(mixer, native_midi);
 
+    spdlog::set_level(spdlog::level::debug);
     spdlog::info("playing midi D_E1M1.MUS...");
     midDrv.play(midi);
     while (midDrv.isPlaying())

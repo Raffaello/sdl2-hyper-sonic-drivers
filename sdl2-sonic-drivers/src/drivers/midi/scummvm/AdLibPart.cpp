@@ -256,6 +256,12 @@ namespace drivers
                 if (type == static_cast<uint32_t>('ADL ')) {
                     memcpy(&_partInstr, instr, sizeof(AdLibInstrument));
                 }
+
+                if (type == static_cast<uint32_t>('OP2 ')) {
+                    // TODO map the op2 instrument to an Adlib instrument
+                    spdlog::info("OP2 instrument detected");
+
+                }
             }
         }
     }

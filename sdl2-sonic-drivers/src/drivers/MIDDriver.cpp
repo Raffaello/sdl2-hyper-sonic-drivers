@@ -97,6 +97,8 @@ namespace drivers
     void MIDDriver::processTrack(const audio::midi::MIDITrack& track, const uint16_t division)
     {
         using audio::midi::MIDI_EVENT_TYPES_HIGH;
+        using audio::midi::MIDI_META_EVENT_TYPES_LOW;
+        using audio::midi::MIDI_META_EVENT;
 
         _isPlaying = true;
         uint32_t tempo = DEFAULT_MIDI_TEMPO; //120 BPM;
@@ -120,16 +122,42 @@ namespace drivers
             switch (static_cast<MIDI_EVENT_TYPES_HIGH>(e.type.high))
             {
             case MIDI_EVENT_TYPES_HIGH::META:
-                if (e.type.low == 0xF)
+                switch (static_cast<MIDI_META_EVENT_TYPES_LOW>(e.type.low))
                 {
+                case MIDI_META_EVENT_TYPES_LOW::META: {
                     const uint8_t type = e.data[0]; // must be < 128
-                    if (static_cast<audio::midi::MIDI_META_EVENT>(type) == audio::midi::MIDI_META_EVENT::SET_TEMPO)
+                    switch (static_cast<audio::midi::MIDI_META_EVENT>(type))
                     {
+                    case MIDI_META_EVENT::SET_TEMPO : {
                         const int skip = 1;
                         tempo = (e.data[skip] << 16) + (e.data[skip + 1] << 8) + (e.data[skip + 2]);
                         tempo_micros = tempo_to_micros(tempo, division);
                         spdlog::debug("Tempo {}, ({} bpm) -- microseconds/tick {}", tempo, 60000000 / tempo, tempo_micros);
+                        break;
                     }
+                    case MIDI_META_EVENT::SEQUENCE_NAME: {
+                        std::string name = utils::midi_event_to_string(++(e.data.begin()), e.data.end());
+                        spdlog::info("SEQUENCE NAME: {}", name);
+
+                        break;
+                    }
+                    default: {
+                        spdlog::error("MIDI_META_EVENT_TYPES_LOW not recognized: {:#02x}", type);
+                        break;
+                    }
+                    }
+                    break;
+                }
+                case MIDI_META_EVENT_TYPES_LOW::SYS_EX0: {
+                    spdlog::debug("SYS_EX0 META event...");
+                    break;
+                }
+                case MIDI_META_EVENT_TYPES_LOW::SYS_EX7: {
+                    spdlog::debug("SYS_EX7 META event..");
+                    break;
+                }
+                default:
+                    break;
                 }
                 continue;
             case MIDI_EVENT_TYPES_HIGH::NOTE_OFF:

@@ -14,7 +14,7 @@ namespace drivers
         using utils::powerOf2;
         using utils::delayMicro;
         
-        std::string midi_event_to_string(const std::vector<uint8_t>& e)
+        std::string xmi_midi_event_to_string(const std::vector<uint8_t>& e)
         {
             return std::string(++e.begin(), e.end());
         }
@@ -112,7 +112,7 @@ namespace drivers
                             break;
                         case audio::midi::MIDI_META_EVENT::SEQUENCE_NAME:
                         {
-                            spdlog::debug("Sequence Name '{}'", midi_event_to_string(e.data));
+                            spdlog::debug("Sequence Name '{}'", xmi_midi_event_to_string(e.data));
                             break;
                         }
                         case audio::midi::MIDI_META_EVENT::SEQUENCE_NUMBER:
@@ -129,7 +129,7 @@ namespace drivers
                                 e.data[skip], e.data[skip + 1], e.data[skip + 2], e.data[skip + 3], e.data[skip + 4]);
                             break;
                         case audio::midi::MIDI_META_EVENT::TEXT:
-                            spdlog::debug("Text {}", midi_event_to_string(e.data));
+                            spdlog::debug("Text {}", xmi_midi_event_to_string(e.data));
                             break;
                         case audio::midi::MIDI_META_EVENT::TIME_SIGNATURE:
                         {

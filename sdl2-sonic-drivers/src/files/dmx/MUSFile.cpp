@@ -123,6 +123,54 @@ namespace files
             // could add the current size to end size of the file reported from the header
             // as a 2ndry check
             //tell() < (_header.score_start + _header.score_len)
+
+            // TEST remove after, just send a custom instrument to midi adlib driver
+            {
+                // THIS IS A META EVENT
+                using audio::midi::MIDI_META_EVENT;
+                using audio::midi::MIDI_META_EVENT_TYPES_LOW;
+                MIDIEvent e;
+                e.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::META);
+                e.type.low = static_cast<uint8_t>(MIDI_META_EVENT_TYPES_LOW::META);
+                e.abs_time = 0;
+                e.delta_time = 0;
+                e.data.push_back(static_cast<uint8_t>(MIDI_META_EVENT::SEQUENCE_NAME));
+                std::string name = "MUSFILE2MIDI";
+                e.data.push_back(static_cast<uint8_t>(name.length()));
+                
+                // encode in VLQ (as 7 bit always zero just copy over the string into uint8_t[])
+                for (auto& s : name) {
+                    e.data.push_back(s);
+                }
+                e.data.shrink_to_fit();
+                track.addEvent(e);
+            }
+            {
+                // THIS IS A META EVENT
+                using audio::midi::MIDI_META_EVENT;
+                using audio::midi::MIDI_META_EVENT_TYPES_LOW;
+                MIDIEvent e;
+                e.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::META);
+                e.type.low = static_cast<uint8_t>(MIDI_META_EVENT_TYPES_LOW::SYS_EX0);
+                e.abs_time = 0;
+                e.delta_time = 0;
+                track.addEvent(e);
+            }
+            {
+                // THIS IS A META EVENT
+                using audio::midi::MIDI_META_EVENT;
+                using audio::midi::MIDI_META_EVENT_TYPES_LOW;
+                MIDIEvent e;
+                e.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::META);
+                e.type.low = static_cast<uint8_t>(MIDI_META_EVENT_TYPES_LOW::SYS_EX7);
+                e.abs_time = 0;
+                e.delta_time = 0;
+                track.addEvent(e);
+            }
+
+            // END TEST
+
+
             while (!quit)
             {
                 MIDIEvent me;
@@ -209,7 +257,7 @@ namespace files
                         // Here changes the instrument type, need to preload GENMIDI.OP2?
                         // in the Midi drv? as OPL as 4 voices and during a song
                         // the instruments may change, therefore need to load the instrument patch
-                        // when it is played. 
+                        // when it is played.
                         // How can be done instead a preload of all instrument with MIDI and send,
                         // the instrument to play to the adlib channel? 
                         // need to do through a "MIDI AdLib Driver" ...

@@ -76,6 +76,39 @@ namespace utils
             std::make_tuple<std::vector<uint8_t>, uint32_t, int>({ 0x7F, 0x22, 0x80, 0xFF }, 0xA1, 2)
         )
     );
+
+    TEST(Algorithms, midi_event_to_string)
+    {
+        std::vector<uint8_t> v{ 4, 'T','E','S','T' };
+        std::string str = utils::midi_event_to_string(v);
+        EXPECT_STRCASEEQ(str.c_str(), "TEST");
+    }
+
+    TEST(Algorithms, midi_event_to_string_)
+    {
+        std::vector<uint8_t> v{ 3, 'T','E','S','T' };
+        EXPECT_THROW(utils::midi_event_to_string(v), std::runtime_error);
+    }
+
+    TEST_P(VLQTest, encode_variable_length_quantities)
+    {
+        // encode TODO
+        /*auto values = std::get<0>(GetParam());
+        uint32_t exp_value = std::get<1>(GetParam());
+        int exp_reads = std::get<2>(GetParam());
+        const uint8_t* buf = values.data();
+        uint32_t value = 0;
+
+        int reads = utils::decode_VLQ(buf, value);
+        EXPECT_EQ(value, exp_value);
+        EXPECT_EQ(reads, exp_reads);*/
+
+   }
+
+    TEST(Algorithms, decode_encode_same_input)
+    {
+        // TODO
+    }
 }
 
 int main(int argc, char** argv)

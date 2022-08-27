@@ -25,6 +25,14 @@ namespace audio
             };
         } MIDI_EVENT_type_u;
 
+        enum class MIDI_META_EVENT_TYPES_LOW : uint8_t
+        {
+            SYS_EX0 = 0x00, // ???
+            SYS_EX7 = 0x07, // ???
+            META = 0xF   // MIDI META Event
+
+        };
+
         enum class MIDI_META_EVENT : uint8_t
         {
             SEQUENCE_NUMBER = 0x00,
@@ -43,6 +51,11 @@ namespace audio
             TIME_SIGNATURE = 0x58,
             KEY_SIGNATURE = 0x59,
             SEQUENCER_SPECIFIC = 0x7F
+        };
+
+        enum class MIDI_META_META_EVENT_TYPE : uint8_t
+        {
+
         };
 
         // MIDI event types high values (Channel Voice Messages types)
