@@ -185,7 +185,7 @@ namespace files
 
             switch (static_cast<MIDI_EVENT_TYPES_HIGH>(e.type.high))
             {
-            case MIDI_EVENT_TYPES_HIGH::META:
+            case MIDI_EVENT_TYPES_HIGH::META_SYSEX:
                 // special event
                 switch (e.type.low)
                 {

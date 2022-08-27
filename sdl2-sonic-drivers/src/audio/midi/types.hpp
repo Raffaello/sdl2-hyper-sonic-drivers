@@ -68,7 +68,7 @@ namespace audio
             PROGRAM_CHANGE = 0xC,
             CHANNEL_AFTERTOUCH = 0xD,
             PITCH_BEND = 0xE,
-            META = 0xF
+            META_SYSEX = 0xF
         };
     }
 }

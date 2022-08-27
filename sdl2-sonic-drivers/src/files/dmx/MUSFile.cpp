@@ -125,12 +125,13 @@ namespace files
             //tell() < (_header.score_start + _header.score_len)
 
             // TEST remove after, just send a custom instrument to midi adlib driver
+            /*
             {
                 // THIS IS A META EVENT
                 using audio::midi::MIDI_META_EVENT;
                 using audio::midi::MIDI_META_EVENT_TYPES_LOW;
                 MIDIEvent e;
-                e.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::META);
+                e.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::META_SYSEX);
                 e.type.low = static_cast<uint8_t>(MIDI_META_EVENT_TYPES_LOW::META);
                 e.abs_time = 0;
                 e.delta_time = 0;
@@ -150,7 +151,7 @@ namespace files
                 using audio::midi::MIDI_META_EVENT;
                 using audio::midi::MIDI_META_EVENT_TYPES_LOW;
                 MIDIEvent e;
-                e.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::META);
+                e.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::META_SYSEX);
                 e.type.low = static_cast<uint8_t>(MIDI_META_EVENT_TYPES_LOW::SYS_EX0);
                 e.abs_time = 0;
                 e.delta_time = 0;
@@ -161,13 +162,13 @@ namespace files
                 using audio::midi::MIDI_META_EVENT;
                 using audio::midi::MIDI_META_EVENT_TYPES_LOW;
                 MIDIEvent e;
-                e.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::META);
+                e.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::META_SYSEX);
                 e.type.low = static_cast<uint8_t>(MIDI_META_EVENT_TYPES_LOW::SYS_EX7);
                 e.abs_time = 0;
                 e.delta_time = 0;
                 track.addEvent(e);
             }
-
+            */
             // END TEST
 
 

@@ -107,10 +107,11 @@ namespace drivers
         spdlog::debug("tempo_micros = {}", tempo_micros);
         unsigned int start = utils::getMicro<unsigned int>();
         const auto& tes = track.getEvents();
-        std::array<uint8_t, 3> msg = {};
-        uint8_t msg_size = 0;
+        
         for (const auto& e : tes)
         {
+            std::array<uint8_t, 3> msg = {};
+            uint8_t msg_size = 0;
             while(_paused) {
                 utils::delayMillis(PAUSE_MILLIS);
                 start = utils::getMicro<unsigned int>();
@@ -121,14 +122,15 @@ namespace drivers
 
             switch (static_cast<MIDI_EVENT_TYPES_HIGH>(e.type.high))
             {
-            case MIDI_EVENT_TYPES_HIGH::META:
+            case MIDI_EVENT_TYPES_HIGH::META_SYSEX:
+            {
                 switch (static_cast<MIDI_META_EVENT_TYPES_LOW>(e.type.low))
                 {
                 case MIDI_META_EVENT_TYPES_LOW::META: {
                     const uint8_t type = e.data[0]; // must be < 128
                     switch (static_cast<audio::midi::MIDI_META_EVENT>(type))
                     {
-                    case MIDI_META_EVENT::SET_TEMPO : {
+                    case MIDI_META_EVENT::SET_TEMPO: {
                         const int skip = 1;
                         tempo = (e.data[skip] << 16) + (e.data[skip + 1] << 8) + (e.data[skip + 2]);
                         tempo_micros = tempo_to_micros(tempo, division);
@@ -146,20 +148,32 @@ namespace drivers
                         break;
                     }
                     }
-                    break;
+
+                    continue; // META event processed, go on next MIDI event
+                    //break;
                 }
                 case MIDI_META_EVENT_TYPES_LOW::SYS_EX0: {
                     spdlog::debug("SYS_EX0 META event...");
+                    msg[0] = e.type.val;
+                    msg[1] = 'O';
+                    msg[2] = 'P';
+                    msg_size = 3;
                     break;
                 }
                 case MIDI_META_EVENT_TYPES_LOW::SYS_EX7: {
                     spdlog::debug("SYS_EX7 META event..");
+                    msg[0] = e.type.val;
+                    msg[1] = 'O';
+                    msg[2] = 'P';
+                    msg_size = 3;
                     break;
                 }
-                default:
+                default: {
                     break;
                 }
-                continue;
+                }
+                break;
+            }
             case MIDI_EVENT_TYPES_HIGH::NOTE_OFF:
             case MIDI_EVENT_TYPES_HIGH::NOTE_ON:
             case MIDI_EVENT_TYPES_HIGH::AFTERTOUCH:
