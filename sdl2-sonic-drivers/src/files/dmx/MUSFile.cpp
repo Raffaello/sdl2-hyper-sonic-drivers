@@ -193,15 +193,17 @@ namespace files
             using audio::midi::MIDITrack;
 
 
-            std::array<int8_t, MIDI_MAX_CHANNELS> channelMap;
+            //std::array<int8_t, MIDI_MAX_CHANNELS> channelMap;
+            std::array<bool, MIDI_MAX_CHANNELS> channelInit;
             //std::array<int8_t, MIDI_MAX_CHANNELS> channelVol;
-            int8_t curChannel = 0;
+            //int8_t curChannel = 0;
 
 
-            channelMap.fill(-1);
+            //channelMap.fill(-1);
+            channelInit.fill(false);
             //channelVol.fill(127);
             // Map channel 15 to 9 (percussions)
-            channelMap[15] = 9;
+            //channelMap[15] = 9;
 
             MIDITrack track;
             bool quit = false;
@@ -261,18 +263,24 @@ namespace files
 
             // END TEST
 
+            channelInit[9] = true;
             for (auto& event : _mus) {
                 MIDIEvent me;
 
                 uint8_t d1 = 0;
                 uint8_t d2 = 0;
-                if (channelMap[event.desc.e.channel] < 0)
+                if (event.desc.e.channel == 15) {
+                    event.desc.e.channel = 9;
+                }
+
+                //if (channelMap[event.desc.e.channel] < 0)
+                if(!channelInit[event.desc.e.channel])
                 {
                     // inject init channel to max volume first time that is used
                     MIDIEvent ce;
 
                     ce.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::CONTROLLER);
-                    ce.type.low = curChannel;
+                    ce.type.low = event.desc.e.channel;
                     ce.delta_time = delta_time;
                     ce.abs_time = abs_time;
                     ce.data.push_back(0x07); // MIDI Main Volume
@@ -280,9 +288,10 @@ namespace files
                     track.addEvent(ce);
 
                     // adjust channel tracking and skip percussion if it is the case
-                    channelMap[event.desc.e.channel] = curChannel++;
-                    if (curChannel == 9)
-                        ++curChannel;
+                    channelInit[event.desc.e.channel] = true;
+                    //channelMap[event.desc.e.channel] = curChannel++;
+                    //if (curChannel == 9)
+                    //    ++curChannel;
                 }
 
                 switch (event.desc.e.type)
