@@ -401,6 +401,88 @@ int midi_adlib_mus_file_CONCURRENCY_ERROR_ON_SAME_DEVICE()
     return 0;
 }
 
+template <> struct fmt::formatter<files::dmx::OP2File::instrument_voice_t> {
+    char presentation = 'f';
+    // Parses format specifications of the form ['f' | 'e'].
+    constexpr auto parse(format_parse_context& ctx) -> decltype(ctx.begin()) {
+        // [ctx.begin(), ctx.end()) is a character range that contains a part of
+        // the format string starting from the format specifications to be parsed,
+        // e.g. in
+        //
+        //   fmt::format("{:f} - point of interest", point{1, 2});
+        //
+        // the range will contain "f} - point of interest". The formatter should
+        // parse specifiers until '}' or the end of the range. In this example
+        // the formatter should parse the 'f' specifier and return an iterator
+        // pointing to '}'.
+
+        // Please also note that this character range may be empty, in case of
+        // the "{}" format string, so therefore you should check ctx.begin()
+        // for equality with ctx.end().
+
+        // Parse the presentation format and store it in the formatter:
+        auto it = ctx.begin(), end = ctx.end();
+        if (it != end && (*it == 'f' || *it == 'e')) presentation = *it++;
+
+        // Check if reached the end of the range:
+        if (it != end && *it != '}') throw format_error("invalid format");
+
+        // Return an iterator past the end of the parsed range:
+        return it;
+    }
+
+    // Formats the point p using the parsed format specification (presentation)
+  // stored in this formatter.
+    template <typename FormatContext>
+    auto format(const files::dmx::OP2File::instrument_voice_t& voice, FormatContext& ctx) const -> decltype(ctx.out()) {
+        // ctx.out() is an output iterator to write to.
+        return presentation == 'f'
+            ? fmt::format_to(ctx.out(), "({:x})", voice.iModAttack)
+            : fmt::format_to(ctx.out(), "use :f format type to dispaly it");
+    }
+};
+
+template <> struct fmt::formatter<files::dmx::OP2File::instrument_t> {
+    char presentation = 'f';
+    // Parses format specifications of the form ['f' | 'e'].
+    constexpr auto parse(format_parse_context& ctx) -> decltype(ctx.begin()) {
+        // [ctx.begin(), ctx.end()) is a character range that contains a part of
+        // the format string starting from the format specifications to be parsed,
+        // e.g. in
+        //
+        //   fmt::format("{:f} - point of interest", point{1, 2});
+        //
+        // the range will contain "f} - point of interest". The formatter should
+        // parse specifiers until '}' or the end of the range. In this example
+        // the formatter should parse the 'f' specifier and return an iterator
+        // pointing to '}'.
+
+        // Please also note that this character range may be empty, in case of
+        // the "{}" format string, so therefore you should check ctx.begin()
+        // for equality with ctx.end().
+
+        // Parse the presentation format and store it in the formatter:
+        auto it = ctx.begin(), end = ctx.end();
+        if (it != end && (*it == 'f' || *it == 'e')) presentation = *it++;
+
+        // Check if reached the end of the range:
+        if (it != end && *it != '}') throw format_error("invalid format");
+
+        // Return an iterator past the end of the parsed range:
+        return it;
+    }
+
+    // Formats the point p using the parsed format specification (presentation)
+  // stored in this formatter.
+    template <typename FormatContext>
+    auto format(const files::dmx::OP2File::instrument_t& inst, FormatContext& ctx) const -> decltype(ctx.out()) {
+        // ctx.out() is an output iterator to write to.
+        return presentation == 'f'
+            ? fmt::format_to(ctx.out(), "(flags: {:x}, noteNum: {:d}, fineTune: {:d}, voicesSize: {:d}) -- voice1: {:f}", inst.flags, inst.noteNum, inst.fineTune, inst.voices.size(),inst.voices[0])
+            : fmt::format_to(ctx.out(), "use :f format type to dispaly it");
+    }
+};
+
 int midi_adlib_mus_file_genmidi()
 {
     using namespace audio::scummvm;
@@ -427,8 +509,18 @@ int midi_adlib_mus_file_genmidi()
     drivers::MIDDriver midDrv(mixer, scumm_midi);
     //auto native_midi = std::make_shared<drivers::midi::devices::Native>();
     //drivers::MIDDriver midDrv(mixer, native_midi);
+    std::array<uint8_t, 4> instrument_values = { 30,29,34,0 };
+    for (int i = 0; i < instrument_values.size(); i++) {
+        int j = instrument_values[i];
 
+        spdlog::info("{:d} instr name: {}", j, op2File->getInstrumentName(j));
+        auto adlibInstr1 = op2File->getInstrumentToAdlib(j);
+        spdlog::info("{:d} instr vars: {:f}", j, op2File->getInstrument(j));
+    }
     spdlog::set_level(spdlog::level::debug);
+    spdlog::info("instr name: {}", op2File->getInstrumentName(29));
+    spdlog::info("instr vars: {:f}", op2File->getInstrument(29));
+    
     spdlog::info("playing midi D_E1M1.MUS...");
     midDrv.play(midi);
     while (midDrv.isPlaying())

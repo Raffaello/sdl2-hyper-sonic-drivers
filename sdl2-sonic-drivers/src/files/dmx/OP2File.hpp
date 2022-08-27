@@ -4,6 +4,7 @@
 #include <string>
 #include <array>
 #include <cstdint>
+#include <drivers/midi/scummvm/AdLibInstrument.h>
 
 namespace files
 {
@@ -67,6 +68,8 @@ namespace files
 
             instrument_t getInstrument(const uint8_t i) const;
             std::string getInstrumentName(const uint8_t i) const;
+            drivers::midi::scummvm::AdLibInstrument getInstrumentToAdlib(const uint8_t i) const;
+
 
         private:
             std::array<instrument_t, OP2FILE_NUM_INSTRUMENTS> _instruments;

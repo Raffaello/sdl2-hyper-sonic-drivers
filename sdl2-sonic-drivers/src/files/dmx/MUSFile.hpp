@@ -14,6 +14,7 @@ namespace files
         class MUSFile : protected File
         {
         public:
+            // TODO: check the MUS_FORM.txt for how to compute ticks speed
             static const int MUS_PLAYBACK_SPEED_DEFAULT;
             static const int MUS_PLAYBACK_SPEED_ALTERNATE;
 

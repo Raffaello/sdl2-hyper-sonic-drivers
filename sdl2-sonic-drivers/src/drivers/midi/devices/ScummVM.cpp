@@ -42,11 +42,75 @@ namespace drivers
                 _adlib->send(b);
             }
 
+
+#include<drivers/midi/scummvm/AdLibInstrument.h> // TODO remove the include just for testing
             void ScummVM::sendSysEx(const audio::midi::MIDIEvent& e) const noexcept
             {
+                static int chan = 1;
                 // expected that the data has 4 byte type, 1 byte channel, and the adlib instrument data struct
                 // TODO: TEST
-                _adlib->sysEx_customInstrument(0, 'OP2 ', nullptr);
+                drivers::midi::scummvm::AdLibInstrument adlib;
+                if (chan == 0) {
+                    adlib.modCharacteristic = 0x10;
+                    adlib.modScalingOutputLevel = 0x0;
+                    adlib.modAttackDecay = 241;
+                    adlib.modSustainRelease = 255;
+                    adlib.modWaveformSelect = 0;
+                    adlib.carCharacteristic = 81;
+                    adlib.carScalingOutputLevel = 0;
+                    adlib.carAttackDecay = 240;
+                    adlib.carSustainRelease = 255;
+                    adlib.carWaveformSelect = 1;
+                    adlib.feedback = 12;
+                    adlib.flagsA = 0;
+                    adlib.extraA = { 0, 0, 0, 0, 0, 0, 0, 0 };
+                    adlib.flagsB = 0;
+                    adlib.extraB = { 0, 0, 0, 0, 0, 0, 0, 0 };
+                    adlib.duration = 0; // instr.voices[0].noteOffset;
+                }
+                else if (chan==1) {
+                    adlib.modCharacteristic = 0x10;
+                    adlib.modScalingOutputLevel = 0x0;
+                    adlib.modAttackDecay = 241;
+                    adlib.modSustainRelease = 255;
+                    adlib.modWaveformSelect = 0;
+                    adlib.carCharacteristic = 81;
+                    adlib.carScalingOutputLevel = 0;
+                    adlib.carAttackDecay = 240;
+                    adlib.carSustainRelease = 255;
+                    adlib.carWaveformSelect = 1;
+                    adlib.feedback = 2;
+                    adlib.flagsA = 0;
+                    adlib.extraA = { 0, 0, 0, 0, 0, 0, 0, 0 };
+                    adlib.flagsB = 0;
+                    adlib.extraB = { 0, 0, 0, 0, 0, 0, 0, 0 };
+                    adlib.duration = 0; // instr.voices[0].noteOffset;
+                }
+                else {
+                    // 30
+                    //adlib = { 0xC2, 0x30, 0x4F, 0xCA, 0x01, 0xC4, 0x0D, 0x0E, 0xB8, 0x7F, 0x08, 0, { 0, 0, 0, 0, 0, 0, 0, 0 }, 0, { 0, 0, 0, 0, 0, 0, 0, 0 }, 0x00 };
+
+                    adlib.modCharacteristic = 0xC2;
+                    adlib.modScalingOutputLevel = 0x30;
+                    adlib.modAttackDecay = 0x4F;
+                    adlib.modSustainRelease = 0xCA;
+                    adlib.modWaveformSelect = 1;
+                    adlib.carCharacteristic = 0xC4;
+                    adlib.carScalingOutputLevel = 0x0D;
+                    adlib.carAttackDecay = 0x0E;
+                    adlib.carSustainRelease = 0xB8;
+                    adlib.carWaveformSelect = 0x7F;
+                    adlib.feedback =0x08;
+                    adlib.flagsA = 0;
+                    adlib.extraA = { 0, 0, 0, 0, 0, 0, 0, 0 };
+                    adlib.flagsB = 0;
+                    adlib.extraB = { 0, 0, 0, 0, 0, 0, 0, 0 };
+                    adlib.duration = 0; // instr.voices[0].noteOffset;
+                }
+
+
+                _adlib->sysEx_customInstrument(chan, 'OP2 ', reinterpret_cast<uint8_t*>(& adlib));
+                chan++;
             }
         }
     }

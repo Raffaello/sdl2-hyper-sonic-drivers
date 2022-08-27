@@ -249,7 +249,7 @@ namespace drivers
                 // Sam&Max allows for instrument overwrites, but we will not support it
                 // until we can find any track actually using it.
                 if (_owner->_opl3Mode) {
-                    spdlog::warn("AdLibPart::sysEx_customInstrument: Used in OPL3 mode");
+                    spdlog::warn("AdLibPart::sysEx_customInstrument: Used in OPL3 mode, not supported");
                     return;
                 }
 
@@ -260,7 +260,8 @@ namespace drivers
                 if (type == static_cast<uint32_t>('OP2 ')) {
                     // TODO map the op2 instrument to an Adlib instrument
                     spdlog::info("OP2 instrument detected");
-
+                    memcpy((void*)(&(g_gmInstruments[29])), instr, sizeof(AdLibInstrument));
+                    //memcpy(&_partInstr, instr, sizeof(AdLibInstrument));
                 }
             }
         }

@@ -69,11 +69,14 @@ namespace files
 
         void MUSFile::readTrack()
         {
+            // TODO: refactor, read track should read in MUS format.
+            //       getMidi should transfrom the read MUS format into MIDI
             using audio::midi::MIDI_FORMAT;
             using audio::midi::MIDIEvent;
             using audio::midi::MIDI_EVENT_TYPES_HIGH;
             using audio::midi::MIDITrack;
 
+            // MUS event Type
             typedef union event_u
             {
                 uint8_t val;
@@ -156,7 +159,9 @@ namespace files
                 e.abs_time = 0;
                 e.delta_time = 0;
                 track.addEvent(e);
+                //track.addEvent(e);
             }
+            /*
             {
                 // THIS IS A META EVENT
                 using audio::midi::MIDI_META_EVENT;
@@ -168,7 +173,8 @@ namespace files
                 e.delta_time = 0;
                 track.addEvent(e);
             }
-            
+            */
+
             // END TEST
 
 

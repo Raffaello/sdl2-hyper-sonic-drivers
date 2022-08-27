@@ -35,6 +35,31 @@ namespace files
             return _instrument_names.at(i);
         }
 
+        drivers::midi::scummvm::AdLibInstrument OP2File::getInstrumentToAdlib(const uint8_t i) const
+        {
+            auto instr = _instruments.at(i);
+            drivers::midi::scummvm::AdLibInstrument adlib;
+
+            adlib.modCharacteristic = instr.voices[0].iModChar;
+            adlib.modScalingOutputLevel = instr.voices[0].iModScale;
+            adlib.modAttackDecay = instr.voices[0].iModAttack;
+            adlib.modSustainRelease = instr.voices[0].iModSustain;
+            adlib.modWaveformSelect = instr.voices[0].iModWaveSel;
+            adlib.carCharacteristic = instr.voices[0].iCarChar;
+            adlib.carScalingOutputLevel = instr.voices[0].iCarScale;
+            adlib.carAttackDecay = instr.voices[0].iCarAttack;
+            adlib.carSustainRelease = instr.voices[0].iCarSustain;
+            adlib.carWaveformSelect = instr.voices[0].iCarWaveSel;
+            adlib.feedback = instr.voices[0].iFeedback;
+            adlib.flagsA = instr.voices[0].reserved;
+            adlib.extraA = { 0, 0, 0, 0, 0, 0, 0, 0 };
+            adlib.flagsB = 0;
+            adlib.extraB = { 0, 0, 0, 0, 0, 0, 0, 0 };
+            adlib.duration = 0; // instr.voices[0].noteOffset;
+            
+            return adlib;
+        }
+
         void OP2File::_readInstrumentVoice(instrument_voice_t* buf)
         {
             read(buf, sizeof(instrument_voice_t));
