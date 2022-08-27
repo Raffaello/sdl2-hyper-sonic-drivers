@@ -97,11 +97,11 @@ namespace files
                 93,  // 7 Chorus Depth
                 64,  // 8 Sustain Pedal (Hold)
                 67,  // 9 Soft Pedal
-                120, // 10
-                123, // 11
-                126, // 12
-                127, // 13
-                121, // 14
+                120, // 10 all sounds off
+                123, // 11 all notes off
+                126, // 12 mono
+                127, // 13 poly
+                121, // 14 reset all controllers
                 //0    // 15
             };
 
@@ -191,20 +191,22 @@ namespace files
                     me.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::CONTROLLER);
                     d1 = readU8();
                     d2 = readU8() == 12 ? static_cast<uint8_t>(_header.channels + 1) : 0; // ?
-                    
+
                     _assertValid(d1 < 0x80);
-                    
+
                     me.data.push_back(ctrlMap.at(d1));
                     me.data.push_back(d2);
                     break;
                 case MUS_EVENT_TYPE_CONTROLLER:
                     d1 = readU8();
                     d2 = readU8();
-                    _assertValid(d1 < 128);
-                    _assertValid(d2 < 128);
+                    _assertValid(d1 < 128); // bit 2^7 always 0
+                    _assertValid(d2 < 128); // bit 2^7 always 0
 
                     if (d1 == 0)
                     {
+                        // TODO: Here change the instrument type with GENMIDI.OP2?
+
                         // Change instrument, MIDI event 0xC0
                         me.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::PROGRAM_CHANGE);
                         me.data.push_back(d2);

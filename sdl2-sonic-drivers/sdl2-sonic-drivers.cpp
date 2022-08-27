@@ -28,6 +28,7 @@
 #include <drivers/MIDDriver.hpp>
 
 #include <files/dmx/MUSFile.hpp>
+#include <files/dmx/OP2File.hpp>
 
 using namespace std;
 
@@ -359,7 +360,7 @@ int midi_adlib()
     return 0;
 }
 
-int midi_adlib_mus_file()
+int midi_adlib_mus_file_CONCURRENCY_ERROR_ON_SAME_DEVICE()
 {
     using namespace audio::scummvm;
     using hardware::opl::scummvm::Config;
@@ -398,6 +399,42 @@ int midi_adlib_mus_file()
 
     return 0;
 }
+
+int midi_adlib_mus_file_genmidi()
+{
+    using namespace audio::scummvm;
+    using hardware::opl::scummvm::Config;
+    using hardware::opl::scummvm::OplEmulator;
+
+    SdlMixerManager mixerManager;
+    mixerManager.init();
+
+    std::shared_ptr<Mixer> mixer = mixerManager.getMixer();
+
+    auto emu = OplEmulator::MAME;
+    auto type = Config::OplType::OPL2;
+
+    auto opl = Config::create(emu, type, mixer);
+    if (opl.get() == nullptr)
+        return -1;
+
+    auto op2File = std::make_shared<files::dmx::OP2File>("test/fixtures/GENMIDI.OP2");
+    auto musFile = std::make_shared<files::dmx::MUSFile>("test/fixtures/D_E1M1.MUS");
+
+    auto midi = musFile->getMIDI();
+    auto scumm_midi = std::make_shared<drivers::midi::devices::ScummVM>(opl, false);
+    drivers::MIDDriver midDrv(mixer, scumm_midi);
+
+    spdlog::info("playing midi D_E1M1.MUS...");
+    midDrv.play(midi);
+    while (midDrv.isPlaying())
+    {
+        utils::delayMillis(1000);
+    }
+
+    return 0;
+}
+
 
 int midi_adlib_xmi()
 {
@@ -448,7 +485,8 @@ int main(int argc, char* argv[])
     //renderMixer();
 
     //xmi_parser();
-    //midi_adlib_mus_file();
+    //midi_adlib_mus_file_CONCURRENCY_ERROR_ON_SAME_DEVICE()
+    midi_adlib_mus_file_genmidi();
     //midi_adlib_xmi();
 
     SDL_Init(SDL_INIT_TIMER | SDL_INIT_AUDIO);

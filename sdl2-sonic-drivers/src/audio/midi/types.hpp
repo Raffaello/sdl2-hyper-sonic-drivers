@@ -45,7 +45,7 @@ namespace audio
             SEQUENCER_SPECIFIC = 0x7F
         };
 
-        // MIDI event types high values
+        // MIDI event types high values (Channel Voice Messages types)
         enum class MIDI_EVENT_TYPES_HIGH : uint8_t
         {
             NOTE_OFF = 0x8,
