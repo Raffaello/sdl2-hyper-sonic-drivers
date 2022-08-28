@@ -333,6 +333,7 @@ namespace files
                             spdlog::info("change to instrument: {}", op2file->getInstrumentName(d2));
                             auto instr = op2file->getInstrument(d2);
                             // TODO: create a SysEx event here to set the MIDI channel instrument
+
                         }
                     }
                     else {
