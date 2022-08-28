@@ -144,7 +144,7 @@ namespace drivers
                         break;
                     }
                     default: {
-                        spdlog::error("MIDI_META_EVENT_TYPES_LOW not recognized: {:#02x}", type);
+                        spdlog::warn("MIDI_META_EVENT_TYPES_LOW not recognized: {:#02x}", type);
                         break;
                     }
                     }

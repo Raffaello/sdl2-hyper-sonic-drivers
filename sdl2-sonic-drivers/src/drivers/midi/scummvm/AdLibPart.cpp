@@ -259,9 +259,10 @@ namespace drivers
 
                 if (type == static_cast<uint32_t>('OP2 ')) {
                     // TODO map the op2 instrument to an Adlib instrument
-                    spdlog::info("OP2 instrument detected");
-                    memcpy((void*)(&(g_gmInstruments[29])), instr, sizeof(AdLibInstrument));
-                    //memcpy(&_partInstr, instr, sizeof(AdLibInstrument));
+                    spdlog::warn("OP2 instrument detected, NOT SUPPORTED with ScummVM MidiDrvier_ADLIB");
+                    //const AdLibInstrument* a = reinterpret_cast<const AdLibInstrument*>(instr);
+                    //memcpy((void*)(&(g_gmInstruments[29])), instr, sizeof(AdLibInstrument));
+                    memcpy(&_partInstr, instr, sizeof(AdLibInstrument));
                 }
             }
         }

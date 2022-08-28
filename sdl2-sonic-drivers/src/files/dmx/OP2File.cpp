@@ -37,9 +37,14 @@ namespace files
 
         drivers::midi::scummvm::AdLibInstrument OP2File::getInstrumentToAdlib(const uint8_t i) const
         {
+            // TODO this is not working with the current ScummVM:MidiDriver_Adlib (need a general adlib midi driver)
             auto instr = _instruments.at(i);
             drivers::midi::scummvm::AdLibInstrument adlib;
 
+            // e.g. of a current instrument vs op2 file (both overdrive gtr):
+            // { 0xC2, 0x2E, 0x4F, 0x77, 0x00, 0xC4, 0x08, 0x0E, 0x98, 0x59, 0x0A, 0, { 0, 0, 0, 0, 0, 0, 0, 0 }, 0, { 0, 0, 0, 0, 0, 0, 0, 0 }, 0x00 },
+            // { 0x10, 0x00, 0xF1, 0xFF, 0x00, 0x51, 0x00, 0xF0, 0xFF, 0x01, 0x0C, 0, { 0, 0, 0, 0, 0, 0, 0, 0 }, 0, { 0, 0, 0, 0, 0, 0, 0, 0 }, 0x00 },
+               
             adlib.modCharacteristic = instr.voices[0].iModChar;
             adlib.modScalingOutputLevel = instr.voices[0].iModScale;
             adlib.modAttackDecay = instr.voices[0].iModAttack;
@@ -51,7 +56,7 @@ namespace files
             adlib.carSustainRelease = instr.voices[0].iCarSustain;
             adlib.carWaveformSelect = instr.voices[0].iCarWaveSel;
             adlib.feedback = instr.voices[0].iFeedback;
-            adlib.flagsA = instr.voices[0].reserved;
+            adlib.flagsA = 0; //instr.voices[0].reserved;
             adlib.extraA = { 0, 0, 0, 0, 0, 0, 0, 0 };
             adlib.flagsB = 0;
             adlib.extraB = { 0, 0, 0, 0, 0, 0, 0, 0 };

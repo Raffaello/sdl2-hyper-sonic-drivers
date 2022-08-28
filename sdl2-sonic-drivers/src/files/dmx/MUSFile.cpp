@@ -183,11 +183,44 @@ namespace files
             }
         }
 
+        /*
+        audio::midi::MIDIEvent MUSFile::getSysExEvent(const uint8_t* instr, const uint32_t instr_size, const uint32_t delta_time, const uint32_t abs_time, const uint8_t channel) noexcept
+        {
+            using audio::midi::MIDIEvent;
+            using audio::midi::MIDI_EVENT_TYPES_HIGH;
+            using audio::midi::MIDI_META_EVENT;
+            using audio::midi::MIDI_META_EVENT_TYPES_LOW;
+
+            MIDIEvent e;
+
+            e.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::META_SYSEX);
+            e.type.low = static_cast<uint8_t>(MIDI_META_EVENT_TYPES_LOW::SYS_EX0);
+            e.delta_time = delta_time;
+            e.abs_time = abs_time + delta_time;
+
+            static const uint32_t instr_type = 'OP2 ';
+            // TODO: instr_size is a constant no need to pass as a parameter
+            e.data.resize(sizeof(uint32_t) + instr_size);
+            e.data.push_back(instr_type & 0xFF);
+            e.data.push_back((instr_type >> 8) & 0xFF);
+            e.data.push_back((instr_type >> 16) & 0xFF);
+            e.data.push_back((instr_type >> 24) & 0xFF);
+            e.data.push_back(channel);
+
+            uint8_t* pInstr = reinterpret_cast<uint8_t*>(&instr);
+            // TODO better to do with a memcpy instead...
+            for (int i = 0; i < sizeof(OP2File::instrument_t); i++) {
+                e.data.push_back(pInstr[i]);
+            }
+
+            return e;
+        }
+        */
+
         std::shared_ptr<audio::MIDI> MUSFile::convertToMidi(std::shared_ptr<files::dmx::OP2File> op2file)
         {
-            // TODO: use the op2file if not null to push the instruments
-
-
+            //  used the op2file if not null to push the instruments 
+            // TODO: but a better approach is required to load banks instead
             using audio::midi::MIDI_FORMAT;
             using audio::midi::MIDIEvent;
             using audio::midi::MIDI_EVENT_TYPES_HIGH;
@@ -200,56 +233,6 @@ namespace files
             MIDITrack track;
             uint32_t delta_time = 0;
             uint32_t abs_time = 0;
-
-            // TEST remove after, just send a custom instrument to midi adlib driver
-            /*
-            {
-                // THIS IS A META EVENT
-                using audio::midi::MIDI_META_EVENT;
-                using audio::midi::MIDI_META_EVENT_TYPES_LOW;
-                MIDIEvent e;
-                e.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::META_SYSEX);
-                e.type.low = static_cast<uint8_t>(MIDI_META_EVENT_TYPES_LOW::META);
-                e.abs_time = 0;
-                e.delta_time = 0;
-                e.data.push_back(static_cast<uint8_t>(MIDI_META_EVENT::SEQUENCE_NAME));
-                std::string name = "MUSFILE2MIDI";
-                e.data.push_back(static_cast<uint8_t>(name.length()));
-
-                // encode in VLQ (as 7 bit always zero just copy over the string into uint8_t[])
-                for (auto& s : name) {
-                    e.data.push_back(s);
-                }
-                e.data.shrink_to_fit();
-                track.addEvent(e);
-            }
-            {
-                // THIS IS A META EVENT
-                using audio::midi::MIDI_META_EVENT;
-                using audio::midi::MIDI_META_EVENT_TYPES_LOW;
-                MIDIEvent e;
-                e.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::META_SYSEX);
-                e.type.low = static_cast<uint8_t>(MIDI_META_EVENT_TYPES_LOW::SYS_EX0);
-                e.abs_time = 0;
-                e.delta_time = 0;
-                track.addEvent(e);
-                //track.addEvent(e);
-            }
-            /*
-            {
-                // THIS IS A META EVENT
-                using audio::midi::MIDI_META_EVENT;
-                using audio::midi::MIDI_META_EVENT_TYPES_LOW;
-                MIDIEvent e;
-                e.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::META_SYSEX);
-                e.type.low = static_cast<uint8_t>(MIDI_META_EVENT_TYPES_LOW::SYS_EX7);
-                e.abs_time = 0;
-                e.delta_time = 0;
-                track.addEvent(e);
-            }
-            */
-
-            // END TEST
 
             channelInit[9] = channelInit[15] = true;
             for (auto& event : _mus)
@@ -329,10 +312,50 @@ namespace files
                         // Change instrument, MIDI event 0xC0
                         me.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::PROGRAM_CHANGE);
                         me.data.push_back(d2);
+
+                        // TODO review, as pre-loading an instrument bank file would be better.
                         if (op2file != nullptr) {
                             spdlog::info("change to instrument: {}", op2file->getInstrumentName(d2));
-                            auto instr = op2file->getInstrument(d2);
+                            //auto instr = op2file->getInstrument(d2);
+                            auto instr = op2file->getInstrumentToAdlib(d2);
+                            //auto sysexe = getSysExEvent();
                             // TODO: create a SysEx event here to set the MIDI channel instrument
+                            {
+                                // THIS IS A META EVENT
+                                using audio::midi::MIDI_META_EVENT;
+                                using audio::midi::MIDI_META_EVENT_TYPES_LOW;
+                                MIDIEvent e;
+                                e.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::META_SYSEX);
+                                e.type.low = static_cast<uint8_t>(MIDI_META_EVENT_TYPES_LOW::SYS_EX0);
+                                e.abs_time = 0;
+                                e.delta_time = event.delta_time;
+                                e.abs_time = abs_time + e.delta_time;
+
+                                // what to put in the data? serializing the adlib instrument?
+
+                                // type & channel
+                                uint32_t instr_type = 'OP2 ';
+                                e.data.push_back(instr_type & 0xFF);
+                                e.data.push_back((instr_type >> 8) & 0xFF);
+                                e.data.push_back((instr_type >> 16) & 0xFF);
+                                e.data.push_back((instr_type >> 24) & 0xFF);
+                                e.data.push_back(event.desc.e.channel);
+
+                                /*uint32_t a = 'OP2 ';
+                                uint32_t b = e.data[0] + (e.data[1] << 8) + (e.data[2] << 16) + (e.data[3] << 24);
+                                uint32_t c = e.data[3] + (e.data[2] << 8) + (e.data[1] << 16) + (e.data[0] << 24);*/
+                                // instr data
+                                uint8_t* pInstr = reinterpret_cast<uint8_t*>(&instr);
+                                for (int i = 0; i < sizeof(instr); i++) {
+                                    e.data.push_back(pInstr[i]);
+                                }
+
+                                track.addEvent(e);
+                                // TODO: in this way skip the program change that is override again this sysEx event.
+                                //       it should be done with a load Bank instead and not used hardcoded
+                                //       gm_Instruments table like in ScummVM that is copy over the gmInstruments
+                                continue;
+                            }
                         }
                     }
                     else {
