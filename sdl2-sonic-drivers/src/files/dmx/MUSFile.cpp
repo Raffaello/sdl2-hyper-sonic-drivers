@@ -331,9 +331,45 @@ namespace files
                         me.data.push_back(d2);
                         if (op2file != nullptr) {
                             spdlog::info("change to instrument: {}", op2file->getInstrumentName(d2));
-                            auto instr = op2file->getInstrument(d2);
+                            //auto instr = op2file->getInstrument(d2);
+                            auto instr = op2file->getInstrumentToAdlib(d2);
                             // TODO: create a SysEx event here to set the MIDI channel instrument
+                            {
+                                // THIS IS A META EVENT
+                                using audio::midi::MIDI_META_EVENT;
+                                using audio::midi::MIDI_META_EVENT_TYPES_LOW;
+                                MIDIEvent e;
+                                e.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::META_SYSEX);
+                                e.type.low = static_cast<uint8_t>(MIDI_META_EVENT_TYPES_LOW::SYS_EX0);
+                                e.abs_time = 0;
+                                e.delta_time = event.delta_time;
+                                e.abs_time = abs_time + e.delta_time;
 
+                                // what to put in the data? serializing the adlib instrument?
+
+                                // type & channel
+                                uint8_t instr_type[4] = { 'O','P','2',' ' };
+                                e.data.push_back(instr_type[0]);
+                                e.data.push_back(instr_type[1]);
+                                e.data.push_back(instr_type[2]);
+                                e.data.push_back(instr_type[3]);
+                                e.data.push_back(event.desc.e.channel);
+
+                                /*uint32_t a = 'OP2 ';
+                                uint32_t b = e.data[0] + (e.data[1] << 8) + (e.data[2] << 16) + (e.data[3] << 24);
+                                uint32_t c = e.data[3] + (e.data[2] << 8) + (e.data[1] << 16) + (e.data[0] << 24);*/
+                                // instr data
+                                uint8_t* pInstr = reinterpret_cast<uint8_t*>(&instr);
+                                for (int i = 0; i < sizeof(OP2File::instrument_t); i++) {
+                                    e.data.push_back(pInstr[i]);
+                                }
+
+                                track.addEvent(e);
+                                // TODO: in this way skip the program change that is override again this sysEx event.
+                                //       it should be done with a load Bank instead and not used hardcoded
+                                //       gm_Instruments table like in ScummVM that is copy over the gmInstruments
+                                continue;
+                            }
                         }
                     }
                     else {
