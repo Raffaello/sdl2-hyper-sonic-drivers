@@ -506,6 +506,8 @@ int midi_adlib_mus_file_genmidi()
 
     // not supported but working ok without op2file (wrong instrument sounds though)
     auto midi = musFile->getMIDI(/*op2File*/);
+    // TODO: create a new device instead of ScummVM like Adlip or OPL (opl can be both 2 or 3, adlib only 2)
+    // TODO: start with doing Adlib? than eventually refactor in a general OPL etc..
     auto scumm_midi = std::make_shared<drivers::midi::devices::ScummVM>(opl, false);
     drivers::MIDDriver midDrv(mixer, scumm_midi);
     //auto native_midi = std::make_shared<drivers::midi::devices::Native>();
