@@ -112,14 +112,16 @@ namespace drivers
                 /*
                  * Write frequency/octave/keyon data to a channel
                  */
-                void writeFreq(const uint8_t channel, const uint8_t freq, const uint8_t octave, uint8_t keyon) const noexcept;
+                void writeFreq(const uint8_t channel, const uint8_t freq, const uint8_t octave, const bool keyon) const noexcept;
 
 
                 /*
                 * Write a Note
                 */
-                void MidiDriver::writeNote(const uint8_t channel, const uint8_t note, int pitch, const uint8_t keyOn) const noexcept;
+                void writeNote(const uint8_t channel, const uint8_t note, int pitch) const noexcept;
 
+                // todo remove
+                void adlibSetupChannel(int chan, const OPL2instrument* instr, uint8_t vol1, uint8_t vol2) const noexcept;
             };
         }
     }

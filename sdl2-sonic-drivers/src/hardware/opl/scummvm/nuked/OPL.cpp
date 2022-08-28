@@ -25,6 +25,7 @@ namespace hardware
 
                 bool OPL::init()
                 {
+                    address[0] = address[1] = 0;
                     _rate = _mixer->getOutputRate();
                     OPL3_Reset(chip.get(), _rate);
 
@@ -117,8 +118,7 @@ namespace hardware
 
                 uint8_t OPL::read(int port)
                 {
-                    int i = 0;
-                    return 0;
+                    return address[port % 2];
                 }
 
                 void OPL::generateSamples(int16_t* buffer, int length) {

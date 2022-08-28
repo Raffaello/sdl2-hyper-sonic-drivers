@@ -36,7 +36,7 @@ namespace drivers
             inline void Adlib::sendSysEx(const audio::midi::MIDIEvent& e) const noexcept
             {
                 // TODO
-                _adlib->send(e);
+                //_adlib->send(e);
             }
         }
     }

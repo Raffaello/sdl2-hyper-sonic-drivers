@@ -351,6 +351,7 @@ namespace files
                                 for (int i = 0; i < sizeof(instr); i++) {
                                     e.data.push_back(pInstr[i]);
                                 }
+                                //e.data.push_back(0xF7); // final SysEx char ? (how if there is a data that is 0xF7?)
 
                                 track.addEvent(e);
                                 // TODO: in this way skip the program change that is override again this sysEx event.

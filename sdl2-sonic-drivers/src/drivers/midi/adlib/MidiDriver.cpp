@@ -1,5 +1,6 @@
 #include <drivers/midi/adlib/MidiDriver.hpp>
 #include <spdlog/spdlog.h>
+#include <utils/algorithms.hpp>
 
 namespace drivers
 {
@@ -72,6 +73,9 @@ namespace drivers
 
             MidiDriver::MidiDriver(std::shared_ptr<hardware::opl::OPL> opl) : _opl(opl)
             {
+                // TODO: need to initialize the channels with the instruments
+                // TODO: need to pass the GENMIDI.OP2 read file to init the instruments
+                // TODO: otherwise looks there is no sound.
                 init();
             }
 
@@ -94,13 +98,18 @@ namespace drivers
                 {
                     uint8_t chan = e.type.low;
                     uint8_t note = e.data[0];
-                    //writeValue(0xB0, chan, 0);  // KEY-OFF
+                    writeValue(0xB0, chan, 0);  // KEY-OFF
                     _channels[chan].noteOff(note);
                 }
                     break;
                 case MIDI_EVENT_TYPES_HIGH::NOTE_ON:
                 {
+                    //writeInstrument(chan, instr);
+
                     _channels[e.type.low].noteOn(e.data[0], e.data[1]);
+                    writeNote(e.type.low, e.data[0], 0);
+                    utils::delayMillis(3000);
+
                     // TODO
                     //uint8_t chan = e.type.low;
                     //uint8_t d1 = e.data[0];
@@ -274,13 +283,13 @@ namespace drivers
                     (volume * (pan + 64)) >> 6; // / 64;
             }
 
-            void MidiDriver::writeFreq(const uint8_t channel, const uint8_t freq, const uint8_t octave, uint8_t keyon) const noexcept
+            void MidiDriver::writeFreq(const uint8_t channel, const uint8_t freq, const uint8_t octave, const bool keyon) const noexcept
             {
                 writeValue(0xA0, channel, freq);
-                writeValue(0xB0, channel, (freq >> 8) | (octave << 2) | (keyon << 5));
+                writeValue(0xB0, channel, (freq >> 8) | (octave << 2) | (static_cast<uint8_t>(keyon) << 5));
             }
 
-            void MidiDriver::writeNote(const uint8_t channel, const uint8_t note, int pitch, const uint8_t keyOn) const noexcept
+            void MidiDriver::writeNote(const uint8_t channel, const uint8_t note, int pitch) const noexcept
             {
                 uint16_t freq = freqtable[note];
                 uint8_t octave = octavetable[note];
@@ -304,7 +313,16 @@ namespace drivers
                     octave = 7;
                 }
                 
-                writeFreq(channel, freq, octave, keyOn);
+                writeFreq(channel, freq, octave, true);
+            }
+
+
+            // TODO: remove
+            void MidiDriver::adlibSetupChannel(int chan, const OPL2instrument* instr, uint8_t vol1, uint8_t vol2) const noexcept
+            {
+                assert(chan >= 0 && chan < 9);
+                
+                writeInstrument(chan, instr);
             }
         }
     }
