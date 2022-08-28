@@ -57,11 +57,13 @@ namespace drivers
                  * Stop all sounds
                  */
                 void stopAll() const noexcept;
+                
                 /*
                  * Write to an operator pair.
                  * To be used for register bases of 0x20, 0x40, 0x60, 0x80 and 0xE0.
                  */
                 void writeChannel(const uint16_t regbase, const uint8_t channel, const uint8_t data1, const uint8_t data2) const noexcept;
+                
                 /*
                  * Write to channel a single value. To be used for register bases of
                  * 0xA0, 0xB0 and 0xC0.
@@ -82,7 +84,35 @@ namespace drivers
                  *    data[5]    data[12]  reg. 0x40 - output level (bottom 6 bits only)
                  *          data[6]        reg. 0xC0 - feedback/AM-FM (both operators)
                  */
-                void writeInstrument(const uint8_t channel, struct OPL2instrument* instr) const noexcept;
+                void writeInstrument(const uint8_t channel, const OPL2instrument* instr) const noexcept;
+
+                /*
+                 * Write pan (balance) data to a channel
+                 */
+                void writePan(const uint8_t channel, const OPL2instrument* instr, const int8_t pan) const noexcept;
+               
+                /*
+                 * Write volume data to a channel
+                 */
+                void writeVolume(const uint8_t channel, const OPL2instrument* instr, const uint8_t volume) const noexcept;
+
+                /*
+                 * Adjust volume value (register 0x40)
+                 */
+                uint8_t convertVolume(const uint8_t data, const uint8_t volume) const noexcept;
+
+                uint8_t panVolume(const uint8_t volume, int8_t pan) const noexcept;
+
+                /*
+                 * Write frequency/octave/keyon data to a channel
+                 */
+                void writeFreq(const uint8_t channel, const uint8_t freq, const uint8_t octave, uint8_t keyon) const noexcept;
+
+
+                /*
+                * Write a Note
+                */
+                void MidiDriver::writeNote(const uint8_t channel, const uint8_t note, int pitch, const uint8_t keyOn) const noexcept;
 
             };
         }

@@ -12,7 +12,8 @@ namespace files
     {
         constexpr const char ID_MAGIC[4] = { 'M','U','S','\x1A' };
         constexpr int MAX_SIZE = 1024 * 64;
-        constexpr int MAX_CHANNELS = 9;
+        // TODO: review MAX_CHANNELS logic
+        constexpr int MAX_CHANNELS = 9; // OPL2 (OPL3 18 instead)
 
         constexpr int MUS_EVENT_TYPE_RELEASE_NOTE = 0;
         constexpr int MUS_EVENT_TYPE_PLAY_NOTE = 1;
@@ -24,6 +25,7 @@ namespace files
         constexpr int MUS_EVENT_TYPE_UNUSED = 7;
 
         constexpr int MIDI_MAX_CHANNELS = 16;
+        constexpr int MIDI_PERCUSSION_CHANNEL = 9; // standard MIDI percussion channel
 
         constexpr uint8_t MUS_NOTE_VELOCITY_DEFAULT = 64;
 
@@ -234,7 +236,7 @@ namespace files
             uint32_t delta_time = 0;
             uint32_t abs_time = 0;
 
-            channelInit[9] = channelInit[15] = true;
+            channelInit[MIDI_PERCUSSION_CHANNEL] = channelInit[15] = true;
             for (auto& event : _mus)
             {
                 MIDIEvent me;
@@ -243,9 +245,9 @@ namespace files
 
                 // swap percurssion channel with OPL2 percussion channel
                 if (event.desc.e.channel == 15) {
-                    event.desc.e.channel = 9;
+                    event.desc.e.channel = MIDI_PERCUSSION_CHANNEL;
                 }
-                else if (event.desc.e.channel == 9) {
+                else if (event.desc.e.channel == MIDI_PERCUSSION_CHANNEL) {
                     event.desc.e.channel = 15;
                 }
 
