@@ -127,7 +127,7 @@ namespace drivers
                 }
 
 
-                //_adlib->sysEx_customInstrument(chan, 'OP2 ', reinterpret_cast<uint8_t*>(& adlib));
+                _adlib->sysEx_customInstrument(chan, 'OP2 ', reinterpret_cast<uint8_t*>(& adlib));
                 chan++;
             }
         }

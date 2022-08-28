@@ -62,26 +62,9 @@ namespace files
                 std::vector<uint8_t> data;
             } mus_event_t;
 
-            // Mapping MUS to MIDI Controls (TODO: make it static)
-            std::array<uint8_t, 15> ctrlMap = {
-                0,   // 0 program change
-                0,   // 1 Bank Select
-                1,   // 2 Modulation
-                7,   // 3 Volume (0=silent, ~100=normal, 127=loud)
-                10,  // 4 Pan (0=left, 64=center, 127=right)
-                11,  // 5 Expression
-                91,  // 6 Reverb Depth
-                93,  // 7 Chorus Depth
-                64,  // 8 Sustain Pedal (Hold)
-                67,  // 9 Soft Pedal
-                120, // 10 all sounds off
-                123, // 11 all notes off
-                126, // 12 mono
-                127, // 13 poly
-                121, // 14 reset all controllers
-                //0    // 15
-            };
-           
+            // Mapping MUS to MIDI Controls
+            static const std::array<uint8_t, 15> ctrlMap;
+
             header_t _header;
             std::vector<uint16_t> instruments; // not used for MIDI
 
