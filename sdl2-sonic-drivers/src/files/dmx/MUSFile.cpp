@@ -38,11 +38,15 @@ namespace files
             _assertValid(size() <= MAX_SIZE);
             readHeader();
             readTrack();
-            convertToMidi();
+            
         }
 
-        std::shared_ptr<audio::MIDI> MUSFile::getMIDI() const noexcept
+        std::shared_ptr<audio::MIDI> MUSFile::getMIDI() noexcept
         {
+            if (_midi == nullptr) {
+                convertToMidi();
+            }
+
             return _midi;
         }
 
@@ -74,21 +78,14 @@ namespace files
         void MUSFile::readTrack()
         {
             _assertValid(tell() == _header.score_start);
-            //std::array<int8_t, MIDI_MAX_CHANNELS> channelMap;
+
             std::array<int8_t, MIDI_MAX_CHANNELS> channelVol;
-            //int8_t curChannel = 0;
-
-            //channelMap.fill(-1);
             channelVol.fill(127);
-            // Map channel 15 to 9 (percussions)
-            //channelMap[15] = 9;
-
             bool quit = false;
             uint32_t delta_time = 0;
             // could add the current size to end size of the file reported from the header
             // as a 2ndry check
             //tell() < (_header.score_start + _header.score_len)
-
             while (!quit)
             {
                 mus_event_t event;
@@ -112,30 +109,18 @@ namespace files
                         _assertValid((d2 & 0x80) == 0);
                         channelVol[event.desc.e.channel] = d2;
                     }
-
                     d2 = channelVol[event.desc.e.channel];
-
                     event.data.push_back(d1);
                     event.data.push_back(d2);
                     break;
                 case MUS_EVENT_TYPE_PITCH_BEND:
                     d1 = readU8();
-                    //// convert to uint16_t value and mapped to +/- 2 semi-tones
-                    //d2 = d1;
-                    //d1 = (d1 & 1) >> 6; // isn't it always 0 ?
-                    //d2 = (d2 >> 1) & 127;
                     event.data.push_back(d1);
-                    //event.data.push_back(d2);
                     break;
                 case MUS_EVENT_TYPE_SYS_EVENT:
                     d1 = readU8();
-                    // TODO: is required this one below or not?
-                    d2 = readU8() == 12 ? static_cast<uint8_t>(_header.channels + 1) : 0; // ?
-
                     _assertValid(d1 < 0x80);
-
-                    event.data.push_back(/*ctrlMap.at(*/d1/*)*/);
-                    event.data.push_back(d2);
+                    event.data.push_back(d1);
                     break;
                 case MUS_EVENT_TYPE_CONTROLLER:
                     d1 = readU8();
@@ -143,16 +128,8 @@ namespace files
                     _assertValid(d1 < 128); // bit 2^7 always 0
                     _assertValid(d2 < 128); // bit 2^7 always 0
 
-                    //if (d1 == 0)
-                    //{
-                        event.data.push_back(d1);
-                        event.data.push_back(d2);
-                    //}
-                    //else {
-                        // Controller event
-                        //event.data.push_back(/*ctrlMap.at(*/d1/*)*/);
-                        //event.data.push_back(d2);
-                    //}
+                    event.data.push_back(d1);
+                    event.data.push_back(d2);
                     break;
                 case MUS_EVENT_TYPE_END_OF_MEASURE:
                     break;
@@ -194,24 +171,13 @@ namespace files
             using audio::midi::MIDI_EVENT_TYPES_HIGH;
             using audio::midi::MIDITrack;
 
-            // TODO: this is a test
-            seek(_header.score_start);
-            _assertValid(tell() == _header.score_start);
-
             std::array<bool, MIDI_MAX_CHANNELS> channelInit;
-            std::array<int8_t, MIDI_MAX_CHANNELS> channelVol;
 
-
-            //channelMap.fill(-1);
             channelInit.fill(false);
-            channelVol.fill(127);
 
             MIDITrack track;
             uint32_t delta_time = 0;
             uint32_t abs_time = 0;
-            // could add the current size to end size of the file reported from the header
-            // as a 2ndry check
-            //tell() < (_header.score_start + _header.score_len)
 
             // TEST remove after, just send a custom instrument to midi adlib driver
             /*
@@ -263,18 +229,16 @@ namespace files
 
             // END TEST
 
-            channelInit[9] = true;
-            
-            for (auto& event : _mus) {
+            channelInit[9] = channelInit[15] = true;
+            for (auto& event : _mus)
+            {
                 MIDIEvent me;
-
                 uint8_t d1 = 0;
                 uint8_t d2 = 0;
                 if (event.desc.e.channel == 15) {
                     event.desc.e.channel = 9;
                 }
 
-                //if (channelMap[event.desc.e.channel] < 0)
                 if(!channelInit[event.desc.e.channel])
                 {
                     // inject init channel to max volume first time that is used
@@ -290,9 +254,6 @@ namespace files
 
                     // adjust channel tracking and skip percussion if it is the case
                     channelInit[event.desc.e.channel] = true;
-                    //channelMap[event.desc.e.channel] = curChannel++;
-                    //if (curChannel == 9)
-                    //    ++curChannel;
                 }
 
                 switch (event.desc.e.type)
@@ -318,16 +279,13 @@ namespace files
                     me.data.push_back(d2);
                     break;
                 case MUS_EVENT_TYPE_SYS_EVENT:
-                    // TODO try to skip this event too..
                     me.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::CONTROLLER);
                     me.data.push_back(ctrlMap.at(event.data[0]));
-                    me.data.push_back(event.data[1]);
+                    me.data.push_back(0);
                     break;
                 case MUS_EVENT_TYPE_CONTROLLER:
                     d1 = event.data[0];
                     d2 = event.data[1];
-                    _assertValid(d1 < 128); // bit 2^7 always 0
-                    _assertValid(d2 < 128); // bit 2^7 always 0
 
                     if (d1 == 0)
                     {

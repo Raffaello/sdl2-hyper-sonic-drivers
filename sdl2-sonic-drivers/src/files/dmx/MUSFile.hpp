@@ -22,7 +22,7 @@ namespace files
             explicit MUSFile(const std::string& filename, const int playback_speed = MUS_PLAYBACK_SPEED_DEFAULT);
             ~MUSFile() override = default;
 
-            std::shared_ptr<audio::MIDI> getMIDI() const noexcept;
+            std::shared_ptr<audio::MIDI> getMIDI() noexcept;
 
             const int playback_speed;
         private:
