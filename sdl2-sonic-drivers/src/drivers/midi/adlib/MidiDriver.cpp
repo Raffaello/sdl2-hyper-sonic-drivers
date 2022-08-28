@@ -87,39 +87,42 @@ namespace drivers
             void MidiDriver::send(const audio::midi::MIDIEvent& e) const noexcept
             {
                 using audio::midi::MIDI_EVENT_TYPES_HIGH;
-
+                
                 switch (static_cast<MIDI_EVENT_TYPES_HIGH>(e.type.high))
                 {
                 case MIDI_EVENT_TYPES_HIGH::NOTE_OFF:
                 {
                     uint8_t chan = e.type.low;
-                    uint8_t d1 = e.data[0];
-                    writeValue(0xB0, chan, 0);             // KEY-OFF
+                    uint8_t note = e.data[0];
+                    //writeValue(0xB0, chan, 0);  // KEY-OFF
+                    _channels[chan].noteOff(note);
                 }
                     break;
                 case MIDI_EVENT_TYPES_HIGH::NOTE_ON:
                 {
+                    _channels[e.type.low].noteOn(e.data[0], e.data[1]);
                     // TODO
-                    uint8_t chan = e.type.low;
-                    uint8_t d1 = e.data[0];
-                    uint8_t d2 = e.data[1];
+                    //uint8_t chan = e.type.low;
+                    //uint8_t d1 = e.data[0];
+                    //uint8_t d2 = e.data[1];
 
-                    int note2;
-                    int i;
-                    uint8_t notex, oct;
-                    uint8_t note = d1;
+                    //int note2;
+                    //int i;
+                    //uint8_t notex, oct;
+                    //uint8_t note = d1;
 
-                    note2 = (note >> 7) - 4;
-                    note2 = (note2 < 128) ? note2 : 0;
+                    //note2 = (note >> 7) - 4;
+                    //note2 = (note2 < 128) ? note2 : 0;
 
-                    oct = (note2 / 12);
-                    if (oct > 7)
-                        oct = 7 << 2;
-                    else
-                        oct <<= 2;
-                    notex = note2 % 12 + 3;
+                    //oct = (note2 / 12);
+                    //if (oct > 7)
+                    //    oct = 7 << 2;
+                    //else
+                    //    oct <<= 2;
+                    //notex = note2 % 12 + 3;
 
-                    writeNote(chan, notex, 0, d2);
+                    //writeNote(chan, notex, 0, d2);
+
                 }
                     break;
                 case MIDI_EVENT_TYPES_HIGH::AFTERTOUCH:

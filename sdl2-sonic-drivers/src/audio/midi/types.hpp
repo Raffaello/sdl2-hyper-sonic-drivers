@@ -7,6 +7,9 @@ namespace audio
 {
     namespace midi
     {
+        constexpr uint8_t MIDI_MAX_CHANNELS = 16;
+        constexpr uint8_t MIDI_PERCUSSION_CHANNEL = 9; // standard MIDI percussion channel
+
         enum class MIDI_FORMAT
         {
             SINGLE_TRACK = 0,
@@ -30,7 +33,6 @@ namespace audio
             SYS_EX0 = 0x00, // ???
             SYS_EX7 = 0x07, // ???
             META = 0xF   // MIDI META Event
-
         };
 
         enum class MIDI_META_EVENT : uint8_t
@@ -51,11 +53,6 @@ namespace audio
             TIME_SIGNATURE = 0x58,
             KEY_SIGNATURE = 0x59,
             SEQUENCER_SPECIFIC = 0x7F
-        };
-
-        enum class MIDI_META_META_EVENT_TYPE : uint8_t
-        {
-
         };
 
         // MIDI event types high values (Channel Voice Messages types)

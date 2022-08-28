@@ -24,10 +24,10 @@ namespace files
         constexpr int MUS_EVENT_TYPE_FINISH = 6;
         constexpr int MUS_EVENT_TYPE_UNUSED = 7;
 
-        constexpr int MIDI_MAX_CHANNELS = 16;
-        constexpr int MIDI_PERCUSSION_CHANNEL = 9; // standard MIDI percussion channel
-
         constexpr uint8_t MUS_NOTE_VELOCITY_DEFAULT = 64;
+
+        using audio::midi::MIDI_MAX_CHANNELS;
+        using audio::midi::MIDI_PERCUSSION_CHANNEL;
 
         using utils::READ_LE_UINT16;
 

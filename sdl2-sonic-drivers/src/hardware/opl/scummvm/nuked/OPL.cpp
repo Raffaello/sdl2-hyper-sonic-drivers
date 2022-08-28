@@ -117,6 +117,7 @@ namespace hardware
 
                 uint8_t OPL::read(int port)
                 {
+                    int i = 0;
                     return 0;
                 }
 

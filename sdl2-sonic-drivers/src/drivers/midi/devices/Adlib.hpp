@@ -1,3 +1,5 @@
+#pragma once
+
 #include <drivers/midi/Device.hpp>
 #include <memory>
 #include <hardware/opl/OPL.hpp>

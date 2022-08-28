@@ -1,7 +1,11 @@
-#include <memory>
-#include <hardware/opl/OPL.hpp>
+#pragma once
+
 #include <audio/midi/MIDIEvent.hpp>
-#include <stdint.h>
+#include <audio/midi/types.hpp>
+#include <drivers/midi/adlib/MidiChannel.hpp>
+#include <hardware/opl/OPL.hpp>
+#include <memory>
+#include <cstdint>
 
 namespace drivers
 {
@@ -50,6 +54,8 @@ namespace drivers
                 void send(const audio::midi::MIDIEvent& e) const noexcept;
 
             private:
+                MidiChannel _channels[audio::midi::MIDI_MAX_CHANNELS];
+
                 std::shared_ptr<hardware::opl::OPL> _opl;
                 void init() const noexcept;
 
