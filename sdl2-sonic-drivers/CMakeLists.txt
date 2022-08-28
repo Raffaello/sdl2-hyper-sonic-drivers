@@ -46,6 +46,7 @@ install(FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/Device.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/Native.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/ScummVM.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/Adlib.hpp
     
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/westwood/ADLFile.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/MIDFile.hpp
@@ -112,8 +113,9 @@ target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/PCMDriver.cpp
     #${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/miles/XMidi.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/MIDDriver.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/Native.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/miles/XMIParser.cpp
+   
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/Native.cpp
     
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/scummvm/MidiDriver_BASE.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/scummvm/MidiDriver.cpp
@@ -124,6 +126,8 @@ target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/ScummVM.cpp
 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/adlib/MidiDriver.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/Adlib.cpp
+
 
     # --- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/File.cpp
