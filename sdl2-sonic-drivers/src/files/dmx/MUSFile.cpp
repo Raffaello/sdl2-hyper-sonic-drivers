@@ -4,6 +4,8 @@
 #include <cstring>
 #include <array>
 
+#include <spdlog/spdlog.h>
+
 namespace files
 {
     namespace dmx
@@ -327,6 +329,11 @@ namespace files
                         // Change instrument, MIDI event 0xC0
                         me.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::PROGRAM_CHANGE);
                         me.data.push_back(d2);
+                        if (op2file != nullptr) {
+                            spdlog::info("change to instrument: {}", op2file->getInstrumentName(d2));
+                            auto instr = op2file->getInstrument(d2);
+                            // TODO: create a SysEx event here to set the MIDI channel instrument
+                        }
                     }
                     else {
                         // Controller event
