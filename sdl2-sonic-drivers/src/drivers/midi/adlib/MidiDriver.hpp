@@ -81,6 +81,7 @@ namespace drivers
                  *
                  * Instrument layout:
                  *
+                 *   (chan+0)   (chan+3)
                  *   Operator1  Operator2  Descr.
                  *    data[0]    data[7]   reg. 0x20 - tremolo/vibrato/sustain/KSR/multi
                  *    data[1]    data[8]   reg. 0x60 - attack rate/decay rate
@@ -114,14 +115,10 @@ namespace drivers
                  */
                 void writeFreq(const uint8_t channel, const uint8_t freq, const uint8_t octave, const bool keyon) const noexcept;
 
-
                 /*
                 * Write a Note
                 */
                 void writeNote(const uint8_t channel, const uint8_t note, int pitch) const noexcept;
-
-                // todo remove
-                void adlibSetupChannel(int chan, const OPL2instrument* instr, uint8_t vol1, uint8_t vol2) const noexcept;
             };
         }
     }

@@ -315,15 +315,6 @@ namespace drivers
                 
                 writeFreq(channel, freq, octave, true);
             }
-
-
-            // TODO: remove
-            void MidiDriver::adlibSetupChannel(int chan, const OPL2instrument* instr, uint8_t vol1, uint8_t vol2) const noexcept
-            {
-                assert(chan >= 0 && chan < 9);
-                
-                writeInstrument(chan, instr);
-            }
         }
     }
 }
