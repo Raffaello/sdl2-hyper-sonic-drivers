@@ -1,12 +1,14 @@
 #pragma once
 
-#include <files/File.hpp>
 #include <audio/MIDI.hpp>
+#include <files/File.hpp>
+#include <files/dmx/OP2File.hpp>
 #include <string>
 #include <cstdint>
 #include <vector>
 #include <memory>
 #include <array>
+
 
 namespace files
 {
@@ -22,6 +24,7 @@ namespace files
             explicit MUSFile(const std::string& filename, const int playback_speed = MUS_PLAYBACK_SPEED_DEFAULT);
             ~MUSFile() override = default;
 
+            std::shared_ptr<audio::MIDI> getMIDI(std::shared_ptr<files::dmx::OP2File> op2file) noexcept;
             std::shared_ptr<audio::MIDI> getMIDI() noexcept;
 
             const int playback_speed;
@@ -70,9 +73,9 @@ namespace files
 
             void readHeader();
             void readTrack();
-            void convertToMidi();
+            std::shared_ptr<audio::MIDI> convertToMidi(std::shared_ptr<files::dmx::OP2File> op2file);
 
-            std::shared_ptr<audio::MIDI> _midi;
+            //std::shared_ptr<audio::MIDI> _midi;
             std::vector<mus_event_t> _mus;
         };
     }

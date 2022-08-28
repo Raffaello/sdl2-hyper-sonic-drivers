@@ -57,13 +57,14 @@ namespace files
             readTrack();
         }
 
+        std::shared_ptr<audio::MIDI> MUSFile::getMIDI(std::shared_ptr<files::dmx::OP2File> op2file) noexcept
+        {
+            return convertToMidi(op2file);
+        }
+
         std::shared_ptr<audio::MIDI> MUSFile::getMIDI() noexcept
         {
-            if (_midi == nullptr) {
-                convertToMidi();
-            }
-
-            return _midi;
+            return convertToMidi(nullptr);
         }
 
         void MUSFile::readHeader()
@@ -180,8 +181,11 @@ namespace files
             }
         }
 
-        void MUSFile::convertToMidi()
+        std::shared_ptr<audio::MIDI> MUSFile::convertToMidi(std::shared_ptr<files::dmx::OP2File> op2file)
         {
+            // TODO: use the op2file if not null to push the instruments
+
+
             using audio::midi::MIDI_FORMAT;
             using audio::midi::MIDIEvent;
             using audio::midi::MIDI_EVENT_TYPES_HIGH;
@@ -251,8 +255,13 @@ namespace files
                 MIDIEvent me;
                 uint8_t d1 = 0;
                 uint8_t d2 = 0;
+
+                // swap percurssion channel with OPL2 percussion channel
                 if (event.desc.e.channel == 15) {
                     event.desc.e.channel = 9;
+                }
+                else if (event.desc.e.channel == 9) {
+                    event.desc.e.channel = 15;
                 }
 
                 if(!channelInit[event.desc.e.channel])
@@ -348,8 +357,11 @@ namespace files
             // 120 / 60 = 2 quarter notes per seconds
             // playback speed is ticks per quarter note
             // playback_speed / 2 is the division value at 120BMP
-            _midi = std::make_shared<audio::MIDI>(MIDI_FORMAT::SINGLE_TRACK, 1, playback_speed / 2);
-            _midi->addTrack(track);
+            std::shared_ptr<audio::MIDI> midi;
+            midi = std::make_shared<audio::MIDI>(MIDI_FORMAT::SINGLE_TRACK, 1, playback_speed / 2);
+            midi->addTrack(track);
+
+            return midi;
         }
     }
 }
