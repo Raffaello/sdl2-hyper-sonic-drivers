@@ -2,6 +2,7 @@
 #include <memory>
 #include <hardware/opl/OPL.hpp>
 #include <drivers/midi/adlib/MidiDriver.hpp>
+#include <audio/midi/MIDIEvent.hpp>
 
 namespace drivers
 {
@@ -14,6 +15,10 @@ namespace drivers
             public:
                 Adlib(std::shared_ptr<hardware::opl::OPL> opl);
                 ~Adlib() = default;
+
+                inline void sendEvent(const audio::midi::MIDIEvent& e) const noexcept override;
+                inline void sendMessage(const uint8_t msg[], const uint8_t size) const noexcept override;
+                inline void sendSysEx(const audio::midi::MIDIEvent& e) const noexcept override;
 
             private:
                 std::shared_ptr<drivers::midi::adlib::MidiDriver> _adlib;

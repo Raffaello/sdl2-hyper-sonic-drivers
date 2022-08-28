@@ -31,6 +31,9 @@
 #include <files/dmx/OP2File.hpp>
 #include <drivers/midi/devices/Native.hpp>
 
+#include <drivers/midi/devices/Adlib.hpp>
+
+
 using namespace std;
 
 void playNotes(hardware::PCSpeaker *pcSpeaker, const hardware::PCSpeaker::eWaveForm waveForm, const int freq, const int length)
@@ -508,8 +511,8 @@ int midi_adlib_mus_file_genmidi()
     auto midi = musFile->getMIDI(/*op2File*/);
     // TODO: create a new device instead of ScummVM like Adlip or OPL (opl can be both 2 or 3, adlib only 2)
     // TODO: start with doing Adlib? than eventually refactor in a general OPL etc..
-    auto scumm_midi = std::make_shared<drivers::midi::devices::ScummVM>(opl, false);
-    drivers::MIDDriver midDrv(mixer, scumm_midi);
+    auto adlib_midi = std::make_shared<drivers::midi::devices::Adlib>(opl);
+    drivers::MIDDriver midDrv(mixer, adlib_midi);
     //auto native_midi = std::make_shared<drivers::midi::devices::Native>();
     //drivers::MIDDriver midDrv(mixer, native_midi);
     std::array<uint8_t, 4> instrument_values = { 30,29,34,0 };
