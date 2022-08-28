@@ -512,6 +512,7 @@ int midi_adlib_mus_file_genmidi()
     // TODO: create a new device instead of ScummVM like Adlip or OPL (opl can be both 2 or 3, adlib only 2)
     // TODO: start with doing Adlib? than eventually refactor in a general OPL etc..
     auto adlib_midi = std::make_shared<drivers::midi::devices::Adlib>(opl);
+    //auto scumm_midi = std::make_shared<drivers::midi::devices::ScummVM>(opl, false);
     drivers::MIDDriver midDrv(mixer, adlib_midi);
     //auto native_midi = std::make_shared<drivers::midi::devices::Native>();
     //drivers::MIDDriver midDrv(mixer, native_midi);
