@@ -504,7 +504,8 @@ int midi_adlib_mus_file_genmidi()
     auto op2File = std::make_shared<files::dmx::OP2File>("test/fixtures/GENMIDI.OP2");
     auto musFile = std::make_shared<files::dmx::MUSFile>("test/fixtures/D_E1M1.MUS");
 
-    auto midi = musFile->getMIDI(op2File);
+    // not supported but working ok without op2file (wrong instrument sounds though)
+    auto midi = musFile->getMIDI(/*op2File*/);
     auto scumm_midi = std::make_shared<drivers::midi::devices::ScummVM>(opl, false);
     drivers::MIDDriver midDrv(mixer, scumm_midi);
     //auto native_midi = std::make_shared<drivers::midi::devices::Native>();

@@ -73,6 +73,7 @@ namespace files
             void readHeader();
             void readTrack();
             std::shared_ptr<audio::MIDI> convertToMidi(std::shared_ptr<files::dmx::OP2File> op2file);
+            //audio::midi::MIDIEvent getSysExEvent(const std::shared_ptr<files::dmx::OP2File> op2file, const uint8_t instrIndex, const MUSFile::mus_event_t& event, const uint32_t abs_time) noexcept;
 
             //std::shared_ptr<audio::MIDI> _midi;
             std::vector<mus_event_t> _mus;
