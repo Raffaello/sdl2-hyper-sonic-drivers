@@ -234,8 +234,8 @@ namespace files
                     me.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::PITCH_BEND);
                     // convert to uint16_t value and mapped to +/- 2 semi-tones (14 bits number to be divided)
                     uint16_t bend = event.data[0]*64;
-                    d1 = (event.data[0] & 0x7F);
-                    d2 = (event.data[0] >> 7) & 0x7F;
+                    d1 = (bend & 0x7F);
+                    d2 = (bend >> 7) & 0x7F;
                     me.data.push_back(d1);
                     me.data.push_back(d2);
                     break;

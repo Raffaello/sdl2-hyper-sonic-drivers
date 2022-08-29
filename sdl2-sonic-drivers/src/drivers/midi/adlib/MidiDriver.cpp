@@ -350,7 +350,7 @@ namespace drivers
                 {
                     uint8_t chan = e.type.low;
                     uint16_t bend = (e.data[0] | (e.data[1] << 7));
-                    spdlog::debug("PITCH_BEND {}", bend);
+                    spdlog::debug("PITCH_BEND {} {}", bend, bend/64);
 
                     // OPLPitchWheel
                     //uint i;
@@ -362,7 +362,7 @@ namespace drivers
                     {
                         channelEntry* ch = &_oplChannels[i];
                         //if (CHANNEL_ID(*ch) == id)
-                        if (ch->channel == chan)
+                        if (ch->channel == chan && (ch->flags & CH_FREE) == 0)
                         {
                             ch->time = e.abs_time;
                             ch->pitch = ch->finetune + bend;
