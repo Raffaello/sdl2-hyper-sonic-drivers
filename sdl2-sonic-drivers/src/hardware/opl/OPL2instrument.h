@@ -5,7 +5,7 @@ namespace hardware
     namespace opl
     {
         /* OPL2 instrument */
-        typedef struct OPL2instrument
+        typedef struct OPL2instrument_t
         {
             /*00*/  uint8_t     trem_vibr_1;    /* OP 1: tremolo/vibrato/sustain/KSR/multi */
             /*01*/  uint8_t     att_dec_1;      /* OP 1: attack rate/decay rate */
@@ -22,6 +22,6 @@ namespace hardware
             /*0C*/  uint8_t     level_2;        /* OP 2: output level */
             /*0D*/  uint8_t     unused;
             /*0E*/  uint16_t    basenote;       /* base note offset */
-        } OPL2instrument;
+        } OPL2instrument_t;
     }
 }

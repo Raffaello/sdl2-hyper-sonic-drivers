@@ -15,6 +15,50 @@ namespace drivers
     {
         namespace adlib
         {
+            constexpr uint8_t OPL2_NUM_CHANNELS = 9;
+            //constexpr uint8_t OPL3_NUM_CHANNELS = 18;
+
+#define CH_SECONDARY	0x01
+#define CH_SUSTAIN	0x02
+#define CH_VIBRATO	0x04		/* set if modulation >= MOD_MIN */
+#define CH_FREE		0x80
+#define MOD_MIN		40		/* vibrato threshold */
+
+#define FL_FIXED_PITCH	0x0001		// note has fixed pitch (see below)
+//#define FL_UNKNOWN	0x0002		// ??? (used in instrument #65 only)
+#define FL_DOUBLE_VOICE	0x0004		// use two voices instead of one
+
+#define HIGHEST_NOTE 127
+
+            /* OPL channel (voice) data */
+            // TODO make a class and move to MidiChannel(rename to OPLChannel?) as OPLVoice?
+            typedef struct channelEntry {
+                uint8_t channel;		/* MUS channel number */
+                //uint8_t musnumber;		/* MUS handle number */
+                uint8_t note;			/* note number */
+                uint8_t flags;			/* see CH_xxx below */
+                uint8_t realnote;		/* adjusted note number */
+                int8_t  finetune;		/* frequency fine-tune */
+                int16_t pitch;			/* pitch-wheel value */
+                uint8_t volume;			/* note volume */
+                uint8_t realvolume;		/* adjusted note volume */
+                hardware::opl::OPL2instrument_t* instr;	/* current instrument */
+                uint32_t	time;			/* note start time */
+            } channelEntry;
+
+            /* Internal variables */
+            // ??? MidiChannel ????
+            // TODO merge with channelEntry  / MidiChannel
+            typedef struct OPLdata {
+                uint8_t	channelInstr[audio::midi::MIDI_MAX_CHANNELS];		// instrument #
+                uint8_t	channelVolume[audio::midi::MIDI_MAX_CHANNELS];	// volume
+                uint8_t	channelLastVolume[audio::midi::MIDI_MAX_CHANNELS];	// last volume
+                int8_t	channelPan[audio::midi::MIDI_MAX_CHANNELS];		// pan, 0=normal
+                int8_t	channelPitch[audio::midi::MIDI_MAX_CHANNELS];		// pitch wheel, 0=normal
+                uint8_t	channelSustain[audio::midi::MIDI_MAX_CHANNELS];	// sustain pedal value
+                uint8_t	channelModulation[audio::midi::MIDI_MAX_CHANNELS];	// modulation pot value
+            } OPLdata;
+
             /// <summary>
             /// OPL2 MidiDriver.
             /// TODO: OPL3 later
@@ -32,16 +76,20 @@ namespace drivers
                 void send(const audio::midi::MIDIEvent& e) /*const*/ noexcept;
 
             private:
+                uint8_t _oplNumChannels = OPL2_NUM_CHANNELS;
+                channelEntry _oplChannels[OPL2_NUM_CHANNELS];
+                OPLdata _oplData;
 
                 MidiChannel _channels[audio::midi::MIDI_MAX_CHANNELS];
                 files::dmx::OP2File::instrument_t _instruments[audio::midi::MIDI_MAX_CHANNELS];
                 std::shared_ptr<files::dmx::OP2File> _op2file;
 
                 std::shared_ptr<hardware::opl::OPL> _opl;
-                
-                
+
+                uint8_t _playingChannels = 0;
+
                 void onTimer();
-                
+
                 void init() const noexcept;
 
                 /*
@@ -49,7 +97,18 @@ namespace drivers
                  */
                 void stopAll() const noexcept;
 
-                const files::dmx::OP2File::instrument_t* getInstrument(const uint8_t chan, const uint8_t note) const;
+                uint8_t calcVolume(const uint8_t channelVolume,/* const uint8_t MUSvolume,*/ uint8_t noteVolume) const noexcept;
+                
+
+                void releaseSustain(const uint8_t channel);
+               
+                uint8_t releaseChannel(const uint8_t slot, const bool killed);
+                int occupyChannel(const uint8_t slot, const uint8_t channel, uint8_t note, uint8_t volume, files::dmx::OP2File::instrument_t* instrument, const uint8_t secondary, const uint32_t abs_time);
+                
+
+                int8_t findFreeOplChannel(const uint8_t flag,  const uint32_t abs_time);
+
+                files::dmx::OP2File::instrument_t* getInstrument(const uint8_t chan, const uint8_t note);
                 
                 /*
                  * Write to an operator pair.
@@ -78,17 +137,20 @@ namespace drivers
                  *    data[5]    data[12]  reg. 0x40 - output level (bottom 6 bits only)
                  *          data[6]        reg. 0xC0 - feedback/AM-FM (both operators)
                  */
-                void writeInstrument(const uint8_t channel, const hardware::opl::OPL2instrument* instr) const noexcept;
+                void writeInstrument(const uint8_t channel, const hardware::opl::OPL2instrument_t* instr) const noexcept;
+
+
+                void writeModulation(const uint8_t slot, const hardware::opl::OPL2instrument_t* instr, uint8_t state);
 
                 /*
                  * Write pan (balance) data to a channel
                  */
-                void writePan(const uint8_t channel, const hardware::opl::OPL2instrument* instr, const int8_t pan) const noexcept;
+                void writePan(const uint8_t channel, const hardware::opl::OPL2instrument_t* instr, const int8_t pan) const noexcept;
                
                 /*
                  * Write volume data to a channel
                  */
-                void writeVolume(const uint8_t channel, const hardware::opl::OPL2instrument* instr, const uint8_t volume) const noexcept;
+                void writeVolume(const uint8_t channel, const hardware::opl::OPL2instrument_t* instr, const uint8_t volume) const noexcept;
 
                 /*
                  * Adjust volume value (register 0x40)
@@ -105,7 +167,7 @@ namespace drivers
                 /*
                 * Write a Note
                 */
-                void writeNote(const uint8_t channel, const uint8_t note, int pitch) const noexcept;
+                void writeNote(const uint8_t channel, const uint8_t note, int pitch, const bool keyOn) const noexcept;
             };
         }
     }

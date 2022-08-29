@@ -65,9 +65,9 @@ namespace files
             return adlib;
         }
 
-        void OP2File::_readInstrumentVoice(hardware::opl::OPL2instrument* buf)
+        void OP2File::_readInstrumentVoice(hardware::opl::OPL2instrument_t* buf)
         {
-            read(buf, sizeof(hardware::opl::OPL2instrument));
+            read(buf, sizeof(hardware::opl::OPL2instrument_t));
         }
 
         void OP2File::_readInstrument(instrument_t* buf)

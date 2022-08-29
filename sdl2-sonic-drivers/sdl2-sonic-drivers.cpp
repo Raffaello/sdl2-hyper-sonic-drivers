@@ -404,7 +404,7 @@ int midi_adlib_mus_file_CONCURRENCY_ERROR_ON_SAME_DEVICE()
     return 0;
 }
 
-template <> struct fmt::formatter<hardware::opl::OPL2instrument> {
+template <> struct fmt::formatter<hardware::opl::OPL2instrument_t> {
     char presentation = 'f';
     // Parses format specifications of the form ['f' | 'e'].
     constexpr auto parse(format_parse_context& ctx) -> decltype(ctx.begin()) {
@@ -437,7 +437,7 @@ template <> struct fmt::formatter<hardware::opl::OPL2instrument> {
     // Formats the point p using the parsed format specification (presentation)
   // stored in this formatter.
     template <typename FormatContext>
-    auto format(const hardware::opl::OPL2instrument& voice, FormatContext& ctx) const -> decltype(ctx.out()) {
+    auto format(const hardware::opl::OPL2instrument_t& voice, FormatContext& ctx) const -> decltype(ctx.out()) {
         // ctx.out() is an output iterator to write to.
         return presentation == 'f'
             ? fmt::format_to(ctx.out(), "({:x})", voice.trem_vibr_1)
@@ -513,7 +513,7 @@ int midi_adlib_mus_file_genmidi()
     // TODO: start with doing Adlib? than eventually refactor in a general OPL etc..
     auto adlib_midi = std::make_shared<drivers::midi::devices::Adlib>(opl, op2File);
     auto scumm_midi = std::make_shared<drivers::midi::devices::ScummVM>(opl, false);
-    drivers::MIDDriver midDrv(mixer, scumm_midi);
+    drivers::MIDDriver midDrv(mixer, adlib_midi);
     //auto native_midi = std::make_shared<drivers::midi::devices::Native>();
     //drivers::MIDDriver midDrv(mixer, native_midi);
     std::array<uint8_t, 4> instrument_values = { 30,29,34,0 };

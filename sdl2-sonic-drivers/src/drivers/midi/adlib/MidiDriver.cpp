@@ -1,5 +1,6 @@
 #include <drivers/midi/adlib/MidiDriver.hpp>
 #include <spdlog/spdlog.h>
+#include<utils/algorithms.hpp>
 
 namespace drivers
 {
@@ -7,7 +8,8 @@ namespace drivers
     {
         namespace adlib
         {
-            constexpr uint8_t NUM_CHANNELS = 9; // OPL2
+            using audio::midi::MIDI_PERCUSSION_CHANNEL;
+            using hardware::opl::OPL2instrument_t;
 
             static uint16_t freqtable[] = {                                 /* note # */
                 345, 365, 387, 410, 435, 460, 488, 517, 547, 580, 615, 651, /*  0 */
@@ -77,6 +79,24 @@ namespace drivers
                 // TODO: need to pass the GENMIDI.OP2 read file to init the instruments
                 // TODO: otherwise looks there is no sound.
                 init();
+
+                for (int i = 0; i < _oplNumChannels; ++i) {
+                    memset(&_oplChannels[i], 0, sizeof(channelEntry));
+                    _oplChannels->flags = CH_FREE;
+                    _oplChannels->instr = &_op2file->getInstrument(0).voices[0];
+                }
+
+                for (int i = 0; i < audio::midi::MIDI_MAX_CHANNELS; ++i) {
+                    _oplData.channelInstr[i] = 0;
+                    _oplData.channelLastVolume[i] = 0;
+                    _oplData.channelModulation[i] = 0;
+                    _oplData.channelPan[i] = 0;
+                    _oplData.channelPitch[i] = 0;
+                    _oplData.channelSustain[i] = 0;
+                    _oplData.channelVolume[i] = 0;
+                }
+
+                
                 
                 // TODO: not sure the callback is required yet...
                 hardware::opl::TimerCallBack cb = std::bind(&MidiDriver::onTimer, this);
@@ -111,8 +131,26 @@ namespace drivers
                 {
                     uint8_t chan = e.type.low;
                     uint8_t note = e.data[0];
-                    writeValue(0xB0, chan, 0);  // KEY-OFF
+                    //writeValue(0xB0, chan, 0);  // KEY-OFF
                     //_channels[chan].noteOff(note);
+
+
+                    //uint i;
+                    //uint id = MAKE_ID(channel, mus->number);
+                    OPLdata* data = &_oplData;
+                    uint8_t sustain = data->channelSustain[chan];
+
+                    for (int i = 0; i < _oplNumChannels; i++) {
+                        //if (CHANNEL_ID(channels[i]) == id && channels[i].note == note)
+                        if (_oplChannels[i].note == note && _oplChannels[i].channel == chan)
+                        {
+                            if (sustain < 0x40)
+                                releaseChannel(i, 0);
+                            else
+                                _oplChannels[i].flags |= CH_SUSTAIN;
+                        }
+                    }
+
                     spdlog::debug("noteOff {} {}", chan, note);
                 }
                     break;
@@ -121,36 +159,28 @@ namespace drivers
                     uint8_t chan = e.type.low;
                     uint8_t note = e.data[0];
                     uint8_t volume = e.data[1];
-
+                    int8_t freeSlot = 0;
                     auto instr = getInstrument(chan, note);
-                    writeInstrument(chan, &instr->voices[0]);
+                    if ((freeSlot = findFreeOplChannel((chan == MIDI_PERCUSSION_CHANNEL) ? 2 : 0, e.abs_time)) != -1)
+                    {
+                        occupyChannel(freeSlot, chan, note, volume, instr, 0, e.abs_time);
+
+                        // TODO: OPL3
+                        //if (!OPLsinglevoice && instr->flags == FL_DOUBLE_VOICE)
+                        //{
+                        //    if ((i = findFreeChannel(mus, (channel == PERCUSSION) ? 3 : 1)) != -1)
+                        //        occupyChannel(mus, i, channel, note, volume, instr, 1);
+                        //}
+                    }
+
+
+
+                    //writeInstrument(chan, &instr->voices[0]);
 
 
                     //_channels[e.type.low].noteOn(e.data[0], e.data[1]);
-                    writeNote(e.type.low, e.data[0], 0);
+                    //writeNote(e.type.low, e.data[0], 0, true);
                     spdlog::warn("noteOn {} {} {} pitch ???", e.type.low, e.data[0],e.data[1]);
-                    // TODO
-                    //uint8_t chan = e.type.low;
-                    //uint8_t d1 = e.data[0];
-                    //uint8_t d2 = e.data[1];
-
-                    //int note2;
-                    //int i;
-                    //uint8_t notex, oct;
-                    //uint8_t note = d1;
-
-                    //note2 = (note >> 7) - 4;
-                    //note2 = (note2 < 128) ? note2 : 0;
-
-                    //oct = (note2 / 12);
-                    //if (oct > 7)
-                    //    oct = 7 << 2;
-                    //else
-                    //    oct <<= 2;
-                    //notex = note2 % 12 + 3;
-
-                    //writeNote(chan, notex, 0, d2);
-
                 }
                     break;
                 case MIDI_EVENT_TYPES_HIGH::AFTERTOUCH:
@@ -158,6 +188,7 @@ namespace drivers
                     break;
                 case MIDI_EVENT_TYPES_HIGH::CONTROLLER:
                 {
+                    uint8_t chan = e.type.low;
                     uint8_t control = e.data[0];
                     uint8_t value = e.data[1];
                     // MIDI_EVENT_CONTROLLER_TYPES
@@ -168,18 +199,69 @@ namespace drivers
                         spdlog::warn("bank select value {}", value);
                         // Bank select. Not supported
                         break;
-                    case 1:
+                    case 1: 
+                    {
+                        _oplData.channelModulation[chan] = value;
+                        for (int i = 0; i < _oplNumChannels; i++)
+                        {
+                            channelEntry* ch = &_oplChannels[i];
+                            //if (CHANNEL_ID(*ch) == id)
+                            if (ch->channel == i)
+                            {
+                                uint8_t flags = ch->flags;
+                                ch->time = e.abs_time;
+                                if (value >= MOD_MIN)
+                                {
+                                    ch->flags |= CH_VIBRATO;
+                                    if (ch->flags != flags)
+                                        writeModulation(i, ch->instr, 1);
+                                }
+                                else {
+                                    ch->flags &= ~CH_VIBRATO;
+                                    if (ch->flags != flags)
+                                        writeModulation(i, ch->instr, 0);
+                                }
+                            }
+                        }
+                    }
                         spdlog::debug("modwheel value {}", value);
                         //modulationWheel(value);
                         break;
                     case 7:
                         spdlog::debug("volume value {}", value);
-                        writeVolume(e.type.low, &(_instruments[e.type.low].voices[0]), value);
+                        //writeVolume(e.type.low, &(_instruments[e.type.low].voices[0]), value);
                         //volume(value);
+                        {
+                            _oplData.channelVolume[chan] = value;
+                            for (int i = 0; i < _oplNumChannels; i++)
+                            {
+                                channelEntry* ch = &_oplChannels[i];
+                                //if (CHANNEL_ID(*ch) == id)
+                                if (ch->channel == i)
+                                {
+                                    ch->time = e.abs_time;
+                                    ch->realvolume = calcVolume(value, ch->volume);
+                                    writeVolume(i, ch->instr, ch->realvolume);
+                                }
+                            }
+                        }
                         break;
                     case 10:
                         spdlog::warn("panPosition value {}", value);
                         //panPosition(value);
+                        {
+                            _oplData.channelPan[chan] = value -= 64;
+                            for (int i = 0; i < _oplNumChannels; i++)
+                            {
+                                channelEntry* ch = &_oplChannels[i];
+                                //if (CHANNEL_ID(*ch) == id)
+                                if (ch->channel == i)
+                                {
+                                    ch->time = e.abs_time;
+                                    writePan(i, ch->instr, value);
+                                }
+                            }
+                        }
                         break;
                     case 16:
                         spdlog::warn("pitchBendFactor value {}", value);
@@ -196,6 +278,12 @@ namespace drivers
                     case 64:
                         spdlog::warn("sustain value {}", value);
                         //sustain(value > 0);
+                        {
+                            _oplData.channelSustain[chan] = value;
+                            if (value < 0x40) {
+                                releaseSustain(chan);
+                            }
+                        }
                         break;
                     case 91:
                         // Effects level. Not supported.
@@ -236,9 +324,9 @@ namespace drivers
 
                     //if (program > 127)
                     //    return;
-                    _instruments[chan] = _op2file->getInstrument(program);
-                    writeInstrument(chan, &_instruments[chan].voices[0]);
-
+                    //_instruments[chan] = _op2file->getInstrument(program);
+                    //writeInstrument(chan, &_instruments[chan].voices[0]);
+                    _oplData.channelInstr[chan] = program;
                     
                     // TODO with channels, later
                     //_channels[chan].programChange(program, _op2file->getInstrument(program));
@@ -252,8 +340,27 @@ namespace drivers
                     break;
                 case MIDI_EVENT_TYPES_HIGH::PITCH_BEND:
                 {
+                    uint8_t chan = e.type.low;
                     int16_t bend = (e.data[0] | (e.data[1] << 7)) - 0x2000;
                     spdlog::debug("PITCH_BEND {}", bend);
+
+                    // OPLPitchWheel
+                    //uint i;
+                    // uint id = MAKE_ID(channel, mus->number);
+                    //struct OPLdata* data = (struct OPLdata*)mus->driverdata;
+
+                    _oplData.channelPitch[chan] = bend;
+                    for (int i = 0; i < _oplNumChannels; i++)
+                    {
+                        channelEntry* ch = &_oplChannels[i];
+                        //if (CHANNEL_ID(*ch) == id)
+                        if (ch->channel == chan)
+                        {
+                            ch->time = e.abs_time;
+                            ch->pitch = ch->finetune + bend;
+                            writeNote(i, ch->realnote, ch->pitch, 1);
+                        }
+                    }
                 }
                     break;
                 case MIDI_EVENT_TYPES_HIGH::META_SYSEX:
@@ -306,7 +413,7 @@ namespace drivers
 
             void MidiDriver::stopAll() const noexcept
             {
-                for (int i = 0; i < NUM_CHANNELS; i++)
+                for (int i = 0; i < _oplNumChannels; i++)
                 {
                     writeChannel(0x40, i, 0x3F, 0x3F);  // turn off volume
                     writeChannel(0x60, i, 0xFF, 0xFF);  // the fastest attack, decay
@@ -315,11 +422,149 @@ namespace drivers
                 }
             }
 
-            const files::dmx::OP2File::instrument_t* MidiDriver::getInstrument(const uint8_t chan, const uint8_t note) const
+            uint8_t MidiDriver::calcVolume(const uint8_t channelVolume, uint8_t noteVolume) const noexcept
+            {
+                noteVolume = ((uint32_t)channelVolume * noteVolume) / (127);
+                // TODO replace with Math.Min(noteVolume,127)
+                if (noteVolume > 127)
+                    return 127;
+                else
+                    return noteVolume;
+            }
+
+            void MidiDriver::releaseSustain(const uint8_t channel)
+            {
+                //uint i;
+                //uint id = MAKE_ID(channel, mus->number);
+
+                for (int i = 0; i < _oplNumChannels; i++)
+                {
+                    //if (CHANNEL_ID(channels[i]) == id && channels[i].flags & CH_SUSTAIN)
+                    if (_oplChannels[i].channel == i && _oplChannels[i].flags & CH_SUSTAIN) {
+                        releaseChannel(i, 0);
+                    }
+                }
+            }
+
+            uint8_t MidiDriver::releaseChannel(const uint8_t slot, const bool killed)
+            {
+                struct channelEntry* ch = &_oplChannels[slot];
+
+                _playingChannels--;
+                writeNote(slot, ch->realnote, ch->pitch, 0);
+                ch->channel |= CH_FREE;
+                ch->flags = CH_FREE;
+                if (killed)
+                {
+                    writeChannel(0x80, slot, 0x0F, 0x0F);  // release rate - fastest
+                    writeChannel(0x40, slot, 0x3F, 0x3F);  // no volume
+                }
+                return slot;
+            }
+
+            int MidiDriver::occupyChannel(const uint8_t slot, const uint8_t channel, uint8_t note, uint8_t volume, files::dmx::OP2File::instrument_t* instrument, const uint8_t secondary, const uint32_t abs_time)
+            {
+                OPL2instrument_t* instr;
+                OPLdata* data = &_oplData;
+                channelEntry* ch = &_oplChannels[slot];
+
+                _playingChannels++;
+
+                ch->channel = channel;
+                //ch->musnumber = mus->number;
+                ch->note = note;
+                ch->flags = secondary ? CH_SECONDARY : 0;
+                if (data->channelModulation[channel] >= MOD_MIN)
+                    ch->flags |= CH_VIBRATO;
+                ch->time = abs_time;
+                if (volume == -1)
+                    volume = data->channelLastVolume[channel]; // TODO: unreachabel as midi always has volume
+                else
+                    data->channelLastVolume[channel] = volume;
+                ch->realvolume = calcVolume(data->channelVolume[channel], ch->volume = volume);
+                if (instrument->flags & FL_FIXED_PITCH)
+                    note = instrument->noteNum;
+                else if (channel == MIDI_PERCUSSION_CHANNEL)
+                    note = 60;			// C-5
+                if (secondary && (instrument->flags & FL_DOUBLE_VOICE))
+                    ch->finetune = instrument->fineTune - 0x80;
+                else
+                    ch->finetune = 0;
+                ch->pitch = ch->finetune + data->channelPitch[channel];
+                if (secondary)
+                    instr = &instrument->voices[1];
+                else
+                    instr = &instrument->voices[0];
+                ch->instr = instr;
+                if ((note += instr->basenote) < 0)
+                    while ((note += 12) < 0);
+                else if (note > HIGHEST_NOTE)
+                    while ((note -= 12) > HIGHEST_NOTE);
+                ch->realnote = note;
+
+                writeInstrument(slot, instr);
+                if (ch->flags & CH_VIBRATO)
+                    writeModulation(slot, instr, 1);
+                writePan(slot, instr, data->channelPan[channel]);
+                writeVolume(slot, instr, ch->realvolume);
+                writeNote(slot, note, ch->pitch, 1);
+                
+                return slot;
+            }
+
+            int8_t MidiDriver::findFreeOplChannel(const uint8_t flag, const uint32_t abs_time)
+            {
+                //uint8_t last = -1U;
+                uint8_t i;
+                uint8_t oldest = -1U;
+                uint32_t oldesttime = abs_time;
+
+                /* find free channel */
+                for (i = 0; i < _oplNumChannels; i++)
+                {
+                    //(++last) %= _oplNumChannels;
+                    //if (++last == _oplNumChannels) {
+                    //    /* use cyclic `Next Fit' algorithm */
+                    //    last = 0;
+                    //}
+                    if (_oplChannels[i].flags & CH_FREE)
+                        return i;
+                }
+
+                if (flag & 1)
+                    return -1;			/* stop searching if bit 0 is set */
+
+                /* find some 2nd-voice channel and determine the oldest */
+                for (i = 0; i < _oplNumChannels; i++)
+                {
+                    if (_oplChannels[i].flags & CH_SECONDARY)
+                    {
+                        releaseChannel(i, true);
+                        return i;
+                    }
+                    else
+                        if (_oplChannels[i].time < oldesttime)
+                        {
+                            oldesttime = _oplChannels[i].time;
+                            oldest = i;
+                        }
+                }
+
+                /* if possible, kill the oldest channel */
+                if (!(flag & 2) && oldest != -1U)
+                {
+                    releaseChannel(oldest, true);
+                    return oldest;
+                }
+
+                return -1;
+            }
+
+            files::dmx::OP2File::instrument_t* MidiDriver::getInstrument(const uint8_t chan, const uint8_t note)
             {
                 //uint8_t i;
 
-                if (chan == audio::midi::MIDI_PERCUSSION_CHANNEL)
+                if (chan == MIDI_PERCUSSION_CHANNEL)
                 {
                     if (note < 35 || note > 81) {
                         spdlog::error("wrong percussion number {}", note);
@@ -329,7 +574,7 @@ namespace drivers
                 }
                 else {
                     // TODO: this might not be correct, would be better store the instrument number instead of the structure?
-                    return &_instruments[chan];
+                    return &_op2file->getInstrument(_oplData.channelInstr[chan]);
                 }
             }
 
@@ -356,7 +601,7 @@ namespace drivers
                 _opl->writeReg(regbase + reg_num[channel], value);
             }
 
-            void MidiDriver::writeInstrument(const uint8_t channel, const hardware::opl::OPL2instrument* instr) const noexcept
+            void MidiDriver::writeInstrument(const uint8_t channel, const hardware::opl::OPL2instrument_t* instr) const noexcept
             {
                 writeChannel(0x40, channel, 0x3F, 0x3F);    // no volume
                 writeChannel(0x20, channel, instr->trem_vibr_1, instr->trem_vibr_2);
@@ -366,7 +611,16 @@ namespace drivers
                 writeValue(0xC0, channel, instr->feedback | 0x30);
             }
 
-            void MidiDriver::writePan(const uint8_t channel, const hardware::opl::OPL2instrument* instr, const int8_t pan) const noexcept
+            void MidiDriver::writeModulation(const uint8_t slot, const hardware::opl::OPL2instrument_t* instr, uint8_t state)
+            {
+                if (state)
+                    state = 0x40;	/* enable Frequency Vibrato */
+                writeChannel(0x20, slot,
+                    (instr->feedback & 1) ? (instr->trem_vibr_1 | state) : instr->trem_vibr_1,
+                    instr->trem_vibr_2 | state);
+            }
+
+            void MidiDriver::writePan(const uint8_t channel, const hardware::opl::OPL2instrument_t* instr, const int8_t pan) const noexcept
             {
                 uint8_t bits;
                 if (pan < -36) bits = 0x10;     // left
@@ -376,7 +630,7 @@ namespace drivers
                 writeValue(0xC0, channel, instr->feedback | bits);
             }
 
-            void MidiDriver::writeVolume(const uint8_t channel, const hardware::opl::OPL2instrument* instr, const uint8_t volume) const noexcept
+            void MidiDriver::writeVolume(const uint8_t channel, const hardware::opl::OPL2instrument_t* instr, const uint8_t volume) const noexcept
             {
                 writeChannel(0x40, channel, ((instr->feedback & 1) ?
                     convertVolume(instr->level_1, volume) : instr->level_1) | instr->scale_1,
@@ -420,19 +674,21 @@ namespace drivers
                 writeValue(0xB0, channel, (freq >> 8) | (octave << 2) | (static_cast<uint8_t>(keyon) << 5));
             }
 
-            void MidiDriver::writeNote(const uint8_t channel, const uint8_t note, int pitch) const noexcept
+            void MidiDriver::writeNote(const uint8_t channel, const uint8_t note, int pitch, const bool keyOn) const noexcept
             {
                 uint16_t freq = freqtable[note];
                 uint8_t octave = octavetable[note];
 
                 if (pitch != 0)
                 {
+                    // TODO: replace with std::clamp
                     if (pitch > 127) {
                         pitch = 127;
                     }
                     else if (pitch < -128) {
                         pitch = -128;
                     }
+
                     freq = static_cast<uint16_t>((static_cast<uint32_t>(freq) * pitchtable[pitch + 128]) >> 15);
                     if (freq >= 1024)
                     {
@@ -444,7 +700,7 @@ namespace drivers
                     octave = 7;
                 }
                 
-                writeFreq(channel, freq, octave, true);
+                writeFreq(channel, freq, octave, keyOn);
             }
         }
     }
