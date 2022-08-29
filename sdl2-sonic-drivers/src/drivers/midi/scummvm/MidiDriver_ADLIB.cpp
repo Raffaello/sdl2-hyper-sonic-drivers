@@ -199,9 +199,11 @@ namespace drivers
                 switch (static_cast<MIDI_EVENT_TYPES_HIGH>(cmd.high)) {
                 case MIDI_EVENT_TYPES_HIGH::NOTE_OFF:// Note Off
                     part->noteOff(param1);
+                    spdlog::debug("noteOff {} {}", chan, param1);
                     break;
                 case MIDI_EVENT_TYPES_HIGH::NOTE_ON: // Note On
                     part->noteOn(param1, param2);
+                    spdlog::debug("noteOn {} {}", param1, param2);
                     break;
                 case MIDI_EVENT_TYPES_HIGH::AFTERTOUCH: // Aftertouch
                     break; // Not supported.
@@ -770,6 +772,7 @@ namespace drivers
                     }
                 }
 
+                spdlog::debug("channel {} vol1 {} vol2 {} note {}", voice->_channel, vol1, vol2, note);
                 adlibSetupChannel(voice->_channel, instr, vol1, vol2);
                 if (!_opl3Mode)
                 {

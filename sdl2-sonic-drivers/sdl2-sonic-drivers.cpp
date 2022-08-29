@@ -514,6 +514,7 @@ int midi_adlib_mus_file_genmidi()
     auto adlib_midi = std::make_shared<drivers::midi::devices::Adlib>(opl, op2File);
     auto scumm_midi = std::make_shared<drivers::midi::devices::ScummVM>(opl, false);
     drivers::MIDDriver midDrv(mixer, adlib_midi);
+    //drivers::MIDDriver midDrv(mixer, scumm_midi);
     //auto native_midi = std::make_shared<drivers::midi::devices::Native>();
     //drivers::MIDDriver midDrv(mixer, native_midi);
     std::array<uint8_t, 4> instrument_values = { 30,29,34,0 };

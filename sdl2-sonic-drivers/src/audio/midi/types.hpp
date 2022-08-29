@@ -69,7 +69,7 @@ namespace audio
         };
 
         /*
-        // TODO: too many repetition to be an enum
+        // TODO: too many repetitions to be an enum
         enum class MIDI_EVENT_CONTROLLER_TYPES : uint8_t
         {
             BANK_SELECT = 0,

@@ -1,6 +1,7 @@
 #include <drivers/midi/adlib/MidiDriver.hpp>
 #include <spdlog/spdlog.h>
 #include<utils/algorithms.hpp>
+#include <algorithm>
 
 namespace drivers
 {
@@ -96,13 +97,10 @@ namespace drivers
                     _oplData.channelVolume[i] = 0;
                 }
 
-                
-                
                 // TODO: not sure the callback is required yet...
                 hardware::opl::TimerCallBack cb = std::bind(&MidiDriver::onTimer, this);
                 auto p = std::make_shared<hardware::opl::TimerCallBack>(cb);
                 _opl->start(p);
-
             }
 
             MidiDriver::~MidiDriver()
@@ -175,15 +173,6 @@ namespace drivers
                     else {
                         spdlog::critical("NO FREE CHANNEL?");
                     }
-
-
-
-                    //writeInstrument(chan, &instr->voices[0]);
-
-
-                    //_channels[e.type.low].noteOn(e.data[0], e.data[1]);
-                    //writeNote(e.type.low, e.data[0], 0, true);
-                    
                 }
                     break;
                 case MIDI_EVENT_TYPES_HIGH::AFTERTOUCH:
@@ -202,14 +191,14 @@ namespace drivers
                         spdlog::warn("bank select value {}", value);
                         // Bank select. Not supported
                         break;
-                    case 1: 
+                    case 1:
                     {
                         _oplData.channelModulation[chan] = value;
                         for (int i = 0; i < _oplNumChannels; i++)
                         {
                             channelEntry* ch = &_oplChannels[i];
                             //if (CHANNEL_ID(*ch) == id)
-                            if (ch->channel == i)
+                            if (ch->channel == chan && (ch->flags & CH_FREE) == 0)
                             {
                                 uint8_t flags = ch->flags;
                                 ch->time = e.abs_time;
@@ -231,22 +220,22 @@ namespace drivers
                         //modulationWheel(value);
                         break;
                     case 7:
-                        spdlog::debug("volume value {}", value);
-                        //writeVolume(e.type.low, &(_instruments[e.type.low].voices[0]), value);
-                        //volume(value);
                         {
+                            int i;
                             _oplData.channelVolume[chan] = value;
-                            for (int i = 0; i < _oplNumChannels; i++)
+                            for (i = 0; i < _oplNumChannels; i++)
                             {
                                 channelEntry* ch = &_oplChannels[i];
                                 //if (CHANNEL_ID(*ch) == id)
-                                if (ch->channel == i)
+                                if (ch->channel == chan && (ch->flags & CH_FREE) == 0)
                                 {
                                     ch->time = e.abs_time;
                                     ch->realvolume = calcVolume(value, ch->volume);
                                     writeVolume(i, ch->instr, ch->realvolume);
                                 }
                             }
+                            spdlog::debug("volume value {} -ch={}", value, i);
+
                         }
                         break;
                     case 10:
@@ -258,7 +247,7 @@ namespace drivers
                             {
                                 channelEntry* ch = &_oplChannels[i];
                                 //if (CHANNEL_ID(*ch) == id)
-                                if (ch->channel == i)
+                                if (ch->channel == chan && (ch->flags & CH_FREE) == 0)
                                 {
                                     ch->time = e.abs_time;
                                     writePan(i, ch->instr, value);
@@ -383,28 +372,6 @@ namespace drivers
                     spdlog::error("[MidiDriver] unable to initialize OPL");
                 }
 
-                // detect OPL2 (not working with emulator, see OPLExample.cpp results)
-                /*
-                uint8_t stat1, stat2;
-
-                _opl->writeReg(0x04, 0x60);
-                _opl->writeReg(0x04, 0x80);
-                stat1 = _opl->read(1) & 0xE0; // default to "port = 0x220 | 0x388
-                _opl->writeReg(0x02, 0xFF);
-                _opl->writeReg(0x04, 0x21);
-                for (int i = 512; --i; ) {
-                    _opl->read(0);
-                }
-
-                stat2 = _opl->read(1) & 0xE0;
-                _opl->writeReg(0x04, 0x60);
-                _opl->writeReg(0x04, 0x80);
-                //OPLport = origPort;
-
-                bool result = (stat1 == 0 && stat2 == 0xC0);
-                */
-
-
                 // Init Adlib
                 _opl->writeReg(0x01, 0x20); // enable Waveform Select
                 _opl->writeReg(0x08, 0x40); // turn off CSW mode
@@ -509,7 +476,7 @@ namespace drivers
                     writeModulation(slot, instr, 1);
                 writePan(slot, instr, data->channelPan[channel]);
                 writeVolume(slot, instr, ch->realvolume);
-                writeNote(slot, note, ch->pitch, 1);
+                writeNote(slot, note, ch->pitch, true);
                 
                 return slot;
             }
@@ -671,7 +638,7 @@ namespace drivers
                     (volume * (pan + 64)) >> 6; // / 64;
             }
 
-            void MidiDriver::writeFreq(const uint8_t channel, const uint8_t freq, const uint8_t octave, const bool keyon) const noexcept
+            void MidiDriver::writeFreq(const uint8_t channel, const uint16_t freq, const uint8_t octave, const bool keyon) const noexcept
             {
                 writeValue(0xA0, channel, freq);
                 writeValue(0xB0, channel, (freq >> 8) | (octave << 2) | (static_cast<uint8_t>(keyon) << 5));
@@ -684,14 +651,7 @@ namespace drivers
 
                 if (pitch != 0)
                 {
-                    // TODO: replace with std::clamp
-                    if (pitch > 127) {
-                        pitch = 127;
-                    }
-                    else if (pitch < -128) {
-                        pitch = -128;
-                    }
-
+                    pitch = std::clamp(pitch, -128, 127);
                     freq = static_cast<uint16_t>((static_cast<uint32_t>(freq) * pitchtable[pitch + 128]) >> 15);
                     if (freq >= 1024)
                     {

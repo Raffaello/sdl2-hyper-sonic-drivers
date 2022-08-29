@@ -2,7 +2,7 @@
 
 #include <audio/midi/MIDIEvent.hpp>
 #include <audio/midi/types.hpp>
-#include <drivers/midi/adlib/MidiChannel.hpp>
+//#include <drivers/midi/adlib/MidiChannel.hpp>
 #include <hardware/opl/OPL.hpp>
 #include <memory>
 #include <cstdint>
@@ -47,8 +47,8 @@ namespace drivers
             } channelEntry;
 
             /* Internal variables */
-            // ??? MidiChannel ????
-            // TODO merge with channelEntry  / MidiChannel
+            // like a MidiChannel 
+            // TODO merge with MidiChannel
             typedef struct OPLdata {
                 uint8_t	channelInstr[audio::midi::MIDI_MAX_CHANNELS];		// instrument #
                 uint8_t	channelVolume[audio::midi::MIDI_MAX_CHANNELS];	// volume
@@ -76,15 +76,15 @@ namespace drivers
                 void send(const audio::midi::MIDIEvent& e) /*const*/ noexcept;
 
             private:
+                std::shared_ptr<files::dmx::OP2File> _op2file;
+                std::shared_ptr<hardware::opl::OPL> _opl;
+
                 uint8_t _oplNumChannels = OPL2_NUM_CHANNELS;
                 channelEntry _oplChannels[OPL2_NUM_CHANNELS];
-                OPLdata _oplData;
 
-                MidiChannel _channels[audio::midi::MIDI_MAX_CHANNELS];
+                //MidiChannel _channels[audio::midi::MIDI_MAX_CHANNELS];
                 files::dmx::OP2File::instrument_t _instruments[audio::midi::MIDI_MAX_CHANNELS];
-                std::shared_ptr<files::dmx::OP2File> _op2file;
-
-                std::shared_ptr<hardware::opl::OPL> _opl;
+                OPLdata _oplData;
 
                 uint8_t _playingChannels = 0;
 
@@ -98,24 +98,23 @@ namespace drivers
                 void stopAll() const noexcept;
 
                 uint8_t calcVolume(const uint8_t channelVolume,/* const uint8_t MUSvolume,*/ uint8_t noteVolume) const noexcept;
-                
 
                 void releaseSustain(const uint8_t channel);
-               
+
                 uint8_t releaseChannel(const uint8_t slot, const bool killed);
+
                 int occupyChannel(const uint8_t slot, const uint8_t channel, uint8_t note, uint8_t volume, files::dmx::OP2File::instrument_t* instrument, const uint8_t secondary, const uint32_t abs_time);
-                
 
                 int8_t findFreeOplChannel(const uint8_t flag,  const uint32_t abs_time);
 
                 files::dmx::OP2File::instrument_t* getInstrument(const uint8_t chan, const uint8_t note);
-                
+
                 /*
                  * Write to an operator pair.
                  * To be used for register bases of 0x20, 0x40, 0x60, 0x80 and 0xE0.
                  */
                 void writeChannel(const uint16_t regbase, const uint8_t channel, const uint8_t data1, const uint8_t data2) const noexcept;
-                
+
                 /*
                  * Write to channel a single value. To be used for register bases of
                  * 0xA0, 0xB0 and 0xC0.
@@ -139,7 +138,6 @@ namespace drivers
                  */
                 void writeInstrument(const uint8_t channel, const hardware::opl::OPL2instrument_t* instr) const noexcept;
 
-
                 void writeModulation(const uint8_t slot, const hardware::opl::OPL2instrument_t* instr, uint8_t state);
 
                 /*
@@ -162,7 +160,7 @@ namespace drivers
                 /*
                  * Write frequency/octave/keyon data to a channel
                  */
-                void writeFreq(const uint8_t channel, const uint8_t freq, const uint8_t octave, const bool keyon) const noexcept;
+                void writeFreq(const uint8_t channel, const uint16_t freq, const uint8_t octave, const bool keyon) const noexcept;
 
                 /*
                 * Write a Note
