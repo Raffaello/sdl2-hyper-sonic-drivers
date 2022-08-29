@@ -31,7 +31,7 @@ namespace files
 
             audio::opl::banks::Op2BankInstrument_t getInstrument(const uint8_t i) const;
             std::string getInstrumentName(const uint8_t i) const;
-            std::shared_ptr<audio::opl::banks::Op2Bank_t> getBank() const noexcept;
+            const std::shared_ptr<audio::opl::banks::Op2Bank_t> getBank() const noexcept;
         private:
             std::shared_ptr<audio::opl::banks::Op2Bank_t> _bank;
             //std::array<std::string, audio::opl::banks::OP2BANK_NUM_INSTRUMENTS> _instrument_names;

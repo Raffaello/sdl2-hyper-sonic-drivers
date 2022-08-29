@@ -79,7 +79,7 @@ namespace files
             EXPECT_EQ(instr.voices[1].basenote, 0);
         }
 
-        TEST(OP2File, getBank_As_Copy)
+        TEST(OP2File, getBank)
         {
             OP2File f("fixtures/GENMIDI.OP2");
 

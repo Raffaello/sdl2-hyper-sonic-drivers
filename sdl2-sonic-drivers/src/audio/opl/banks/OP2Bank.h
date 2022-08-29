@@ -25,7 +25,30 @@ namespace audio
                 std::array<hardware::opl::OPL2instrument_t, OP2BANK_INSTRUMENT_NUM_VOICES> voices;
             } Op2BankInstrument_t;
 
-            // TODO: promote to a class...
+            // TODO: replace with this class and remove Op2Bank_t
+            class OP2Bank
+            {
+            public:
+                OP2Bank(
+                    const std::array<Op2BankInstrument_t, OP2BANK_NUM_INSTRUMENTS> instruments,
+                    const std::array<std::string, OP2BANK_NUM_INSTRUMENTS> names
+                ) : _instruments(instruments), _names(names) {}
+                ~OP2Bank() = default;
+
+                inline Op2BankInstrument_t getInstrument(const uint8_t i) const {
+                    return _instruments.at(i);
+                }
+
+                inline std::string getInstrumentName(const uint8_t i) const {
+                    return _names.at(i);
+                }
+
+            private:
+                std::array<Op2BankInstrument_t, OP2BANK_NUM_INSTRUMENTS> _instruments;
+                std::array<std::string, OP2BANK_NUM_INSTRUMENTS> _names;
+            };
+
+            // TODO: deprecated
             typedef struct Op2Bank_t
             {
                 std::array<Op2BankInstrument_t, OP2BANK_NUM_INSTRUMENTS> instruments;

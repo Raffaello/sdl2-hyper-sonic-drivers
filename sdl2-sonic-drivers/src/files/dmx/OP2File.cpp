@@ -42,7 +42,7 @@ namespace files
             return _bank->names.at(i);
         }
 
-        std::shared_ptr<audio::opl::banks::Op2Bank_t> OP2File::getBank() const noexcept
+        const std::shared_ptr<audio::opl::banks::Op2Bank_t> OP2File::getBank() const noexcept
         {
             return _bank;
         }
