@@ -94,8 +94,8 @@ namespace drivers
             /// TODO: this whole can just become the device::AdLib ....
 
 
-            MidiDriver::MidiDriver(std::shared_ptr<hardware::opl::OPL> opl, std::shared_ptr<files::dmx::OP2File> op2file) :
-                _opl(opl), _op2file(op2file)
+            MidiDriver::MidiDriver(std::shared_ptr<hardware::opl::OPL> opl, std::shared_ptr<files::dmx::OP2File> op2File) :
+                _opl(opl), _op2file(op2File)
             {
                 // TODO: need to initialize the channels with the instruments
                 // TODO: need to pass the GENMIDI.OP2 read file to init the instruments
@@ -448,7 +448,7 @@ namespace drivers
                 return slot;
             }
 
-            int MidiDriver::occupyChannel(const uint8_t slot, const uint8_t channel, uint8_t note, uint8_t volume, files::dmx::OP2File::instrument_t* instrument, const uint8_t secondary, const uint32_t abs_time)
+            int MidiDriver::occupyChannel(const uint8_t slot, const uint8_t channel, uint8_t note, uint8_t volume, audio::opl::banks::Op2BankInstrument_t* instrument, const uint8_t secondary, const uint32_t abs_time)
             {
                 OPL2instrument_t* instr;
                 OPLdata* data = &_oplData;
@@ -536,7 +536,7 @@ namespace drivers
                 return -1;
             }
 
-            files::dmx::OP2File::instrument_t* MidiDriver::getInstrument(const uint8_t chan, const uint8_t note)
+            audio::opl::banks::Op2BankInstrument_t* MidiDriver::getInstrument(const uint8_t chan, const uint8_t note)
             {
                 if (chan == MIDI_PERCUSSION_CHANNEL)
                 {

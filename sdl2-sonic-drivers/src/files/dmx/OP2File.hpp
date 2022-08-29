@@ -4,15 +4,14 @@
 #include <string>
 #include <array>
 #include <cstdint>
-#include <drivers/midi/scummvm/AdLibInstrument.h>
 #include <hardware/opl/OPL2instrument.h>
+#include <audio/opl/banks/OP2Bank.h>
 
 namespace files
 {
     namespace dmx
     {
-        constexpr int OP2FILE_NUM_INSTRUMENTS = 175;
-        constexpr int OP2FILE_INSTRUMENT_NUM_VOICES = 2;
+       
 
         /*
         * NOTE:
@@ -24,26 +23,20 @@ namespace files
         class OP2File : protected File
         {
         public:
-            // TODO: make its own file instead OP2Bank_T
-            typedef struct instrument_t
-            {
-                uint16_t flags;   /// Instrument flags: 0x01 - fixed pitch, 0x02 - delayed vibrato (unused),0x04 - Double-voice mode
-                uint8_t fineTune; /// Second voice detune level
-                uint8_t noteNum;  /// Percussion note number (between 0 and 128)
-                std::array<hardware::opl::OPL2instrument_t, OP2FILE_INSTRUMENT_NUM_VOICES> voices;
-            } instrument_t;
+           
 
             explicit OP2File(const std::string& filename);
             ~OP2File() override = default;
 
-            instrument_t getInstrument(const uint8_t i) const;
+            audio::opl::banks::Op2BankInstrument_t getInstrument(const uint8_t i) const;
             std::string getInstrumentName(const uint8_t i) const;
+            audio::opl::banks::Op2Bank_t getBank() const noexcept;
         private:
-            std::array<instrument_t, OP2FILE_NUM_INSTRUMENTS> _instruments;
-            std::array<std::string, OP2FILE_NUM_INSTRUMENTS> _instrument_names;
+            audio::opl::banks::Op2Bank_t _bank;
+            //std::array<std::string, audio::opl::banks::OP2BANK_NUM_INSTRUMENTS> _instrument_names;
 
             void _readInstrumentVoice(hardware::opl::OPL2instrument_t* buf);
-            void _readInstrument(instrument_t* buf);
+            void _readInstrument(audio::opl::banks::Op2BankInstrument_t* buf);
             void _readInstruments();
             void _readInstrumentNames();
         };
