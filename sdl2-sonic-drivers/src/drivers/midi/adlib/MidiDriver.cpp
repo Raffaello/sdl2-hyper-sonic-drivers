@@ -349,7 +349,7 @@ namespace drivers
                 case MIDI_EVENT_TYPES_HIGH::PITCH_BEND:
                 {
                     uint8_t chan = e.type.low;
-                    uint16_t bend = (e.data[0] | (e.data[1] << 7) - 0x2000) / 64;
+                    uint16_t bend = (e.data[0] | (e.data[1] << 7) - 0x2000) >> 6;
                     spdlog::debug("PITCH_BEND {}", bend);
 
                     // OPLPitchWheel
