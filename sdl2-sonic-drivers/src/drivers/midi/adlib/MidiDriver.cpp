@@ -1,6 +1,5 @@
 #include <drivers/midi/adlib/MidiDriver.hpp>
 #include <spdlog/spdlog.h>
-#include <utils/algorithms.hpp>
 
 namespace drivers
 {
@@ -71,12 +70,18 @@ namespace drivers
                  36516U,36549U,36582U,36615U,36648U,36681U,36715U,36748U }; /*  120 */
 
 
-            MidiDriver::MidiDriver(std::shared_ptr<hardware::opl::OPL> opl) : _opl(opl)
+            MidiDriver::MidiDriver(std::shared_ptr<hardware::opl::OPL> opl, std::shared_ptr<files::dmx::OP2File> op2file) :
+                _opl(opl), _op2file(op2file)
             {
                 // TODO: need to initialize the channels with the instruments
                 // TODO: need to pass the GENMIDI.OP2 read file to init the instruments
                 // TODO: otherwise looks there is no sound.
                 init();
+
+                // TODO: not sure the callback is required yet...
+                hardware::opl::TimerCallBack cb = std::bind(&MidiDriver::onTimer, this);
+                auto p = std::make_shared<hardware::opl::TimerCallBack>(cb);
+                _opl->start(p);
             }
 
             MidiDriver::~MidiDriver()
@@ -88,7 +93,11 @@ namespace drivers
                 _opl->writeReg(0xBD, 0x00); // set vibrato/tremolo depth to low, set melodic mode
             }
 
-            void MidiDriver::send(const audio::midi::MIDIEvent& e) const noexcept
+            void MidiDriver::onTimer()
+            {
+            }
+
+            void MidiDriver::send(const audio::midi::MIDIEvent& e) noexcept
             {
                 using audio::midi::MIDI_EVENT_TYPES_HIGH;
                 
@@ -99,17 +108,17 @@ namespace drivers
                     uint8_t chan = e.type.low;
                     uint8_t note = e.data[0];
                     writeValue(0xB0, chan, 0);  // KEY-OFF
-                    _channels[chan].noteOff(note);
+                    //_channels[chan].noteOff(note);
+                    spdlog::warn("noteOff {} {}", chan, note);
                 }
                     break;
                 case MIDI_EVENT_TYPES_HIGH::NOTE_ON:
                 {
                     //writeInstrument(chan, instr);
 
-                    _channels[e.type.low].noteOn(e.data[0], e.data[1]);
+                    //_channels[e.type.low].noteOn(e.data[0], e.data[1]);
                     writeNote(e.type.low, e.data[0], 0);
-                    utils::delayMillis(3000);
-
+                    spdlog::warn("noteOn {} {} {} pitch ???", e.type.low, e.data[0],e.data[1]);
                     // TODO
                     //uint8_t chan = e.type.low;
                     //uint8_t d1 = e.data[0];
@@ -135,16 +144,104 @@ namespace drivers
                 }
                     break;
                 case MIDI_EVENT_TYPES_HIGH::AFTERTOUCH:
+                    spdlog::warn("AFTERTOUCH not supported");
                     break;
                 case MIDI_EVENT_TYPES_HIGH::CONTROLLER:
+                {
+                    uint8_t control = e.data[0];
+                    uint8_t value = e.data[1];
+                    // MIDI_EVENT_CONTROLLER_TYPES
+                    switch (control)
+                    {
+                    case 0:
+                    case 32:
+                        spdlog::warn("bank select value {}", value);
+                        // TODO: Bank select. Not supported
+                        break;
+                    case 1:
+                        spdlog::warn("modwheel value {}", value);
+                        //modulationWheel(value);
+                        break;
+                    case 7:
+                        spdlog::debug("volume value {}", value);
+                        writeVolume(e.type.low, &(_instruments[e.type.low].voices[0]), value);
+                        //volume(value);
+                        break;
+                    case 10:
+                        spdlog::warn("panPosition value {}", value);
+                        //panPosition(value);
+                        break;
+                    case 16:
+                        spdlog::warn("pitchBendFactor value {}", value);
+                        //pitchBendFactor(value);
+                        break;
+                    case 17:
+                        spdlog::warn("detune value {}", value);
+                        //detune(value);
+                        break;
+                    case 18:
+                        spdlog::warn("priority value {}", value);
+                        //priority(value);
+                        break;
+                    case 64:
+                        spdlog::warn("sustain value {}", value);
+                        //sustain(value > 0);
+                        break;
+                    case 91:
+                        // Effects level. Not supported.
+                        spdlog::warn("effect level value {}", value);
+                        //effectLevel(value);
+                        break;
+                    case 93:
+                        // Chorus level. Not supported.
+                        spdlog::warn("chorus level value {}", value);
+                        //chorusLevel(value);
+                        break;
+                    case 119:
+                        // Unknown, used in Simon the Sorcerer 2
+                        spdlog::warn("unkwon value {}", value);
+                        break;
+                    case 121:
+                        // reset all controllers
+                        spdlog::warn("reset all controllers value");
+                        //modulationWheel(0);
+                        //pitchBendFactor(0);
+                        //detune(0);
+                        //sustain(false);
+                        break;
+                    case 123:
+                        spdlog::warn("all notes off");
+                        //allNotesOff();
+                        break;
+                    default:
+                        spdlog::warn("AdLib: Unknown control change message {:d} {:d}", control, value);
+                    }
+                }
                     break;
                 case MIDI_EVENT_TYPES_HIGH::PROGRAM_CHANGE:
+                {
+                    uint8_t chan = e.type.low;
+                    uint8_t program = e.data[0];
+
+                    if (program > 127)
+                        return;
+
+                    //_program = program;
+                    memcpy(&(_instruments[chan]), &(_op2file->getInstrument(program)), sizeof(hardware::opl::OPL2instrument));
+                    spdlog::debug("program change {} {}", chan, program);
+                }
                     break;
                 case MIDI_EVENT_TYPES_HIGH::CHANNEL_AFTERTOUCH:
+                    spdlog::warn("CHANNEL_AFTERTOUCH not supported");
                     break;
                 case MIDI_EVENT_TYPES_HIGH::PITCH_BEND:
+                {
+                    int16_t bend = (e.data[0] | (e.data[1] << 7)) - 0x2000;
+                    spdlog::debug("PITCH_BEND {}", bend);
+                }
                     break;
                 case MIDI_EVENT_TYPES_HIGH::META_SYSEX:
+                    spdlog::warn("META_SYSEX not supported");
                     break;
 
                 default:
@@ -225,7 +322,7 @@ namespace drivers
                 _opl->writeReg(regbase + reg_num[channel], value);
             }
 
-            void MidiDriver::writeInstrument(const uint8_t channel, const OPL2instrument* instr) const noexcept
+            void MidiDriver::writeInstrument(const uint8_t channel, const hardware::opl::OPL2instrument* instr) const noexcept
             {
                 writeChannel(0x40, channel, 0x3F, 0x3F);    // no volume
                 writeChannel(0x20, channel, instr->trem_vibr_1, instr->trem_vibr_2);
@@ -235,7 +332,7 @@ namespace drivers
                 writeValue(0xC0, channel, instr->feedback | 0x30);
             }
 
-            void MidiDriver::writePan(const uint8_t channel, const OPL2instrument* instr, const int8_t pan) const noexcept
+            void MidiDriver::writePan(const uint8_t channel, const hardware::opl::OPL2instrument* instr, const int8_t pan) const noexcept
             {
                 uint8_t bits;
                 if (pan < -36) bits = 0x10;     // left
@@ -245,7 +342,7 @@ namespace drivers
                 writeValue(0xC0, channel, instr->feedback | bits);
             }
 
-            void MidiDriver::writeVolume(const uint8_t channel, const OPL2instrument* instr, const uint8_t volume) const noexcept
+            void MidiDriver::writeVolume(const uint8_t channel, const hardware::opl::OPL2instrument* instr, const uint8_t volume) const noexcept
             {
                 writeChannel(0x40, channel, ((instr->feedback & 1) ?
                     convertVolume(instr->level_1, volume) : instr->level_1) | instr->scale_1,

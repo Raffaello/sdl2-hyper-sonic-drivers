@@ -67,5 +67,32 @@ namespace audio
             PITCH_BEND = 0xE,
             META_SYSEX = 0xF
         };
+
+        /*
+        // TODO: too many repetition to be an enum
+        enum class MIDI_EVENT_CONTROLLER_TYPES : uint8_t
+        {
+            BANK_SELECT = 0,
+            MODULATION_WHEEL = 1,
+            BREATH_CONTROL = 2,
+            FOOT_CONTROLLER = 4,
+            PORTAMENTO_TIME = 5,
+            DATA_ENTRY = 6,
+            CHANNEL_VOLUME = 7, // (MAIN VOLUME)
+            BALANCE = 8,         // (PAN)
+            PAN = 10,
+            EXPRESSION_CONTROLLER = 11,
+            EFFECT_CONTROL_1 = 12,
+            EFFECT_CONTROL_2 = 13,
+            GENERAL_PURPOSE_CONTROLLER_1 = 16,
+            GENERAL_PURPOSE_CONTROLLER_2 = 17,
+            GENERAL_PURPOSE_CONTROLLER_3 = 18,
+            GENERAL_PURPOSE_CONTROLLER_4 = 19,
+            BANK_SELECT_2 = 32,
+            MODULATION_WHEEL_2 = 33,
+            BREATH_CONTROL_2 = 34,
+
+        };
+        */
     }
 }

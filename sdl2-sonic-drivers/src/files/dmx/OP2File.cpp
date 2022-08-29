@@ -45,17 +45,17 @@ namespace files
             // { 0xC2, 0x2E, 0x4F, 0x77, 0x00, 0xC4, 0x08, 0x0E, 0x98, 0x59, 0x0A, 0, { 0, 0, 0, 0, 0, 0, 0, 0 }, 0, { 0, 0, 0, 0, 0, 0, 0, 0 }, 0x00 },
             // { 0x10, 0x00, 0xF1, 0xFF, 0x00, 0x51, 0x00, 0xF0, 0xFF, 0x01, 0x0C, 0, { 0, 0, 0, 0, 0, 0, 0, 0 }, 0, { 0, 0, 0, 0, 0, 0, 0, 0 }, 0x00 },
                
-            adlib.modCharacteristic = instr.voices[0].iModChar;
-            adlib.modScalingOutputLevel = instr.voices[0].iModScale;
-            adlib.modAttackDecay = instr.voices[0].iModAttack;
-            adlib.modSustainRelease = instr.voices[0].iModSustain;
-            adlib.modWaveformSelect = instr.voices[0].iModWaveSel;
-            adlib.carCharacteristic = instr.voices[0].iCarChar;
-            adlib.carScalingOutputLevel = instr.voices[0].iCarScale;
-            adlib.carAttackDecay = instr.voices[0].iCarAttack;
-            adlib.carSustainRelease = instr.voices[0].iCarSustain;
-            adlib.carWaveformSelect = instr.voices[0].iCarWaveSel;
-            adlib.feedback = instr.voices[0].iFeedback;
+            adlib.modCharacteristic = instr.voices[0].trem_vibr_1;
+            adlib.modScalingOutputLevel = instr.voices[0].scale_1;
+            adlib.modAttackDecay = instr.voices[0].att_dec_1;
+            adlib.modSustainRelease = instr.voices[0].sust_rel_1;
+            adlib.modWaveformSelect = instr.voices[0].wave_1;
+            adlib.carCharacteristic = instr.voices[0].trem_vibr_2;
+            adlib.carScalingOutputLevel = instr.voices[0].scale_2;
+            adlib.carAttackDecay = instr.voices[0].att_dec_2;
+            adlib.carSustainRelease = instr.voices[0].sust_rel_2;
+            adlib.carWaveformSelect = instr.voices[0].wave_2;
+            adlib.feedback = instr.voices[0].feedback;
             adlib.flagsA = 0; //instr.voices[0].reserved;
             adlib.extraA = { 0, 0, 0, 0, 0, 0, 0, 0 };
             adlib.flagsB = 0;
@@ -65,9 +65,9 @@ namespace files
             return adlib;
         }
 
-        void OP2File::_readInstrumentVoice(instrument_voice_t* buf)
+        void OP2File::_readInstrumentVoice(hardware::opl::OPL2instrument* buf)
         {
-            read(buf, sizeof(instrument_voice_t));
+            read(buf, sizeof(hardware::opl::OPL2instrument));
         }
 
         void OP2File::_readInstrument(instrument_t* buf)

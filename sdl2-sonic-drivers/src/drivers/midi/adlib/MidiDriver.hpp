@@ -6,6 +6,8 @@
 #include <hardware/opl/OPL.hpp>
 #include <memory>
 #include <cstdint>
+#include <files/dmx/OP2File.hpp>
+#include <hardware/opl/OPL2instrument.h>
 
 namespace drivers
 {
@@ -13,50 +15,37 @@ namespace drivers
     {
         namespace adlib
         {
-            /* OPL2 instrument */
-            // TODO: This is OP2File::instrument_t related
-            typedef struct OPL2instrument
-            {
-                /*00*/  uint8_t     trem_vibr_1;    /* OP 1: tremolo/vibrato/sustain/KSR/multi */
-                /*01*/  uint8_t     att_dec_1;      /* OP 1: attack rate/decay rate */
-                /*02*/  uint8_t     sust_rel_1;     /* OP 1: sustain level/release rate */
-                /*03*/  uint8_t     wave_1;         /* OP 1: waveform select */
-                /*04*/  uint8_t     scale_1;        /* OP 1: key scale level */
-                /*05*/  uint8_t     level_1;        /* OP 1: output level */
-                /*06*/  uint8_t     feedback;       /* feedback/AM-FM (both operators) */
-                /*07*/  uint8_t     trem_vibr_2;    /* OP 2: tremolo/vibrato/sustain/KSR/multi */
-                /*08*/  uint8_t     att_dec_2;      /* OP 2: attack rate/decay rate */
-                /*09*/  uint8_t     sust_rel_2;     /* OP 2: sustain level/release rate */
-                /*0A*/  uint8_t     wave_2;         /* OP 2: waveform select */
-                /*0B*/  uint8_t     scale_2;        /* OP 2: key scale level */
-                /*0C*/  uint8_t     level_2;        /* OP 2: output level */
-                /*0D*/  uint8_t     unused;
-                /*0E*/  uint16_t    basenote;       /* base note offset */
-            } OPL2instrument;
-
             /* OP2 instrument file entry */
             // TODO: This is OP2File:instrument_t related
-            typedef struct OP2instrEntry
-            {
-                /*00*/	uint16_t                flags;      // see FL_xxx below
-                /*02*/	uint8_t                 finetune;   // finetune value for 2-voice sounds
-                /*03*/	uint8_t                 note;       // note # for fixed instruments
-                /*04*/	struct OPL2instrument   instr[2];   // instruments
-            } OP2instrEntry;
+            //typedef struct OP2instrEntry
+            //{
+            //    /*00*/	uint16_t                flags;      // see FL_xxx below
+            //    /*02*/	uint8_t                 finetune;   // finetune value for 2-voice sounds
+            //    /*03*/	uint8_t                 note;       // note # for fixed instruments
+            //    /*04*/	struct OPL2instrument   instr[2];   // instruments
+            ////} OP2instrEntry;
 
+            //static_assert(sizeof(OP2instrEntry) == sizeof(files::dmx::OP2File::instrument_t));
 
             class MidiDriver
             {
             public:
-                MidiDriver(std::shared_ptr<hardware::opl::OPL> opl);
+                MidiDriver(std::shared_ptr<hardware::opl::OPL> opl, std::shared_ptr<files::dmx::OP2File> op2file);
                 ~MidiDriver();
 
-                void send(const audio::midi::MIDIEvent& e) const noexcept;
+                void send(const audio::midi::MIDIEvent& e) /*const*/ noexcept;
 
             private:
                 MidiChannel _channels[audio::midi::MIDI_MAX_CHANNELS];
+                files::dmx::OP2File::instrument_t _instruments[audio::midi::MIDI_MAX_CHANNELS];
+                //OPL2instrument _instruments[128];
+                std::shared_ptr<files::dmx::OP2File> _op2file;
 
                 std::shared_ptr<hardware::opl::OPL> _opl;
+                
+                
+                void onTimer();
+                
                 void init() const noexcept;
 
                 /*
@@ -91,17 +80,17 @@ namespace drivers
                  *    data[5]    data[12]  reg. 0x40 - output level (bottom 6 bits only)
                  *          data[6]        reg. 0xC0 - feedback/AM-FM (both operators)
                  */
-                void writeInstrument(const uint8_t channel, const OPL2instrument* instr) const noexcept;
+                void writeInstrument(const uint8_t channel, const hardware::opl::OPL2instrument* instr) const noexcept;
 
                 /*
                  * Write pan (balance) data to a channel
                  */
-                void writePan(const uint8_t channel, const OPL2instrument* instr, const int8_t pan) const noexcept;
+                void writePan(const uint8_t channel, const hardware::opl::OPL2instrument* instr, const int8_t pan) const noexcept;
                
                 /*
                  * Write volume data to a channel
                  */
-                void writeVolume(const uint8_t channel, const OPL2instrument* instr, const uint8_t volume) const noexcept;
+                void writeVolume(const uint8_t channel, const hardware::opl::OPL2instrument* instr, const uint8_t volume) const noexcept;
 
                 /*
                  * Adjust volume value (register 0x40)
