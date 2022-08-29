@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <hardware/opl/OPL2instrument.h>
 #include <audio/opl/banks/OP2Bank.h>
+#include <memory>
 
 namespace files
 {
@@ -30,9 +31,9 @@ namespace files
 
             audio::opl::banks::Op2BankInstrument_t getInstrument(const uint8_t i) const;
             std::string getInstrumentName(const uint8_t i) const;
-            audio::opl::banks::Op2Bank_t getBank() const noexcept;
+            std::shared_ptr<audio::opl::banks::Op2Bank_t> getBank() const noexcept;
         private:
-            audio::opl::banks::Op2Bank_t _bank;
+            std::shared_ptr<audio::opl::banks::Op2Bank_t> _bank;
             //std::array<std::string, audio::opl::banks::OP2BANK_NUM_INSTRUMENTS> _instrument_names;
 
             void _readInstrumentVoice(hardware::opl::OPL2instrument_t* buf);

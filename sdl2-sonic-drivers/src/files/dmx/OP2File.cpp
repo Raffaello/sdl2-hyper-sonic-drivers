@@ -9,6 +9,7 @@ namespace files
         constexpr int OP2FILE_MAGIC_HEADER_SIZE = 8;
         constexpr int OP2FILE_INSTRUMENT_NAME_MAX_SIZE = 32;
         
+        using audio::opl::banks::Op2Bank_t;
         using audio::opl::banks::Op2BankInstrument_t;
         using audio::opl::banks::OP2BANK_INSTRUMENT_NUM_VOICES;
         using audio::opl::banks::OP2BANK_NUM_INSTRUMENTS;
@@ -21,6 +22,9 @@ namespace files
             buf[OP2FILE_MAGIC_HEADER_SIZE] = 0;
             _assertValid(strncmp(buf, OP2FILE_MAGIC_HEADER, OP2FILE_MAGIC_HEADER_SIZE) == 0);
 
+            _bank = std::make_shared<Op2Bank_t>();
+            memset(_bank.get(), 0, sizeof(Op2Bank_t));
+
             // instruments
             _readInstruments();
 
@@ -30,15 +34,15 @@ namespace files
 
         Op2BankInstrument_t OP2File::getInstrument(const uint8_t i) const
         {
-            return _bank.instruments.at(i);
+            return _bank->instruments.at(i);
         }
 
         std::string OP2File::getInstrumentName(const uint8_t i) const
         {
-            return _bank.names.at(i);
+            return _bank->names.at(i);
         }
 
-        audio::opl::banks::Op2Bank_t OP2File::getBank() const noexcept
+        std::shared_ptr<audio::opl::banks::Op2Bank_t> OP2File::getBank() const noexcept
         {
             return _bank;
         }
@@ -61,17 +65,17 @@ namespace files
         void OP2File::_readInstruments()
         {
             for (int i = 0; i < OP2BANK_NUM_INSTRUMENTS; i++) {
-                _readInstrument(&_bank.instruments[i]);
+                _readInstrument(&_bank->instruments[i]);
             }
         }
 
         void OP2File::_readInstrumentNames()
         {
             for (int i = 0; i < OP2BANK_NUM_INSTRUMENTS; i++) {
-                _bank.names[i].reserve(OP2FILE_INSTRUMENT_NAME_MAX_SIZE);
-                _bank.names[i] = _readStringFromFile();
-                _bank.names[i].shrink_to_fit();
-                seek(OP2FILE_INSTRUMENT_NAME_MAX_SIZE - 1 - _bank.names[i].size(), std::ios::cur);
+                _bank->names[i].reserve(OP2FILE_INSTRUMENT_NAME_MAX_SIZE);
+                _bank->names[i] = _readStringFromFile();
+                _bank->names[i].shrink_to_fit();
+                seek(OP2FILE_INSTRUMENT_NAME_MAX_SIZE - 1 - _bank->names[i].size(), std::ios::cur);
             }
         }
     }

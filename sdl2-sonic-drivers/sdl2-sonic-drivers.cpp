@@ -428,7 +428,7 @@ int midi_adlib_mus_op2_file()
     auto op2File = std::make_shared<files::dmx::OP2File>("test/fixtures/GENMIDI.OP2");
     auto musFile = std::make_shared<files::dmx::MUSFile>("test/fixtures/D_E1M1.MUS");
     auto midi = musFile->getMIDI();
-    auto adlib_midi = std::make_shared<drivers::midi::devices::Adlib>(opl, op2File);
+    auto adlib_midi = std::make_shared<drivers::midi::devices::Adlib>(opl, op2File->getBank());
     drivers::MIDDriver midDrv(mixer, adlib_midi);
     
     spdlog::info("playing midi D_E1M1.MUS...");

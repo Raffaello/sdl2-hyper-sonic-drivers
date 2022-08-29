@@ -5,7 +5,7 @@
 #include <hardware/opl/OPL.hpp>
 #include <drivers/midi/adlib/MidiDriver.hpp>
 #include <audio/midi/MIDIEvent.hpp>
-#include <files/dmx/OP2File.hpp> // TODO remove/replace with OPL2Instrument array or something...
+#include <audio/opl/banks/OP2Bank.h>
 
 namespace drivers
 {
@@ -17,7 +17,7 @@ namespace drivers
             {
             public:
                 // TOOD review the constructor and use a load bank instead..
-                Adlib(std::shared_ptr<hardware::opl::OPL> opl, std::shared_ptr<files::dmx::OP2File> op2file);
+                Adlib(std::shared_ptr<hardware::opl::OPL> opl, std::shared_ptr<audio::opl::banks::Op2Bank_t> op2Bank);
                 ~Adlib() = default;
 
                 inline void sendEvent(const audio::midi::MIDIEvent& e) const noexcept override;

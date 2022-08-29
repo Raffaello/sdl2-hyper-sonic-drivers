@@ -2,6 +2,7 @@
 #include <gmock/gmock.h>
 #include <files/dmx/OP2File.hpp>
 #include <audio/opl/banks/OP2Bank.h>
+#include <memory>
 
 namespace files
 {
@@ -83,17 +84,17 @@ namespace files
             OP2File f("fixtures/GENMIDI.OP2");
 
             auto b1 = f.getBank();
-            b1.names[0] = "b1";
-            b1.instruments[0].fineTune = 255;
+            b1->names[0] = "b1";
+            b1->instruments[0].fineTune = 255;
             auto b2 = f.getBank();
             
-            EXPECT_STRCASEEQ(b1.names[0].c_str(), "b1");
-            EXPECT_STRCASEEQ(b2.names[0].c_str(), "Acoustic Grand Piano");
+            EXPECT_STRCASEEQ(b1->names[0].c_str(), "b1");
+            EXPECT_STRCASEEQ(b2->names[0].c_str(), "Acoustic Grand Piano");
 
-            EXPECT_EQ(b1.instruments[0].fineTune, 255);
-            EXPECT_EQ(b2.instruments[0].fineTune, 0x80);
+            EXPECT_EQ(b1->instruments[0].fineTune, 255);
+            EXPECT_EQ(b2->instruments[0].fineTune, 0x80);
 
-            expectInstrumentZero(b2.instruments[0]);
+            expectInstrumentZero(b2->instruments[0]);
         }
 
         TEST(OP2File, grandPiano)
