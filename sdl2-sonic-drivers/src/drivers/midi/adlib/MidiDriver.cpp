@@ -160,7 +160,7 @@ namespace drivers
                     case 0:
                     case 32:
                         spdlog::warn("bank select value {}", value);
-                        // TODO: Bank select. Not supported
+                        // Bank select. Not supported
                         break;
                     case 1:
                         spdlog::debug("modwheel value {}", value);
@@ -214,8 +214,9 @@ namespace drivers
                         //sustain(false);
                         break;
                     case 123:
-                        spdlog::warn("all notes off");
+                        spdlog::debug("all notes off");
                         //allNotesOff();
+                        stopAll();
                         break;
                     default:
                         spdlog::warn("AdLib: Unknown control change message {:d} {:d}", control, value);

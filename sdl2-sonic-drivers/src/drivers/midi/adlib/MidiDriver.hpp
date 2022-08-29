@@ -36,6 +36,7 @@ namespace drivers
                 void send(const audio::midi::MIDIEvent& e) /*const*/ noexcept;
 
             private:
+
                 MidiChannel _channels[audio::midi::MIDI_MAX_CHANNELS];
                 files::dmx::OP2File::instrument_t _instruments[audio::midi::MIDI_MAX_CHANNELS];
                 //OPL2instrument _instruments[128];
