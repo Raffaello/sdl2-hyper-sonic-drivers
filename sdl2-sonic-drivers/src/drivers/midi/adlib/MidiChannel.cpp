@@ -24,7 +24,7 @@ namespace drivers
                 //    return;
 
                 _program = program;
-                _instrument = _instrument;
+                _instrument = instrument;
             }
             const files::dmx::OP2File::instrument_t* MidiChannel::getInstrument() const noexcept
             {

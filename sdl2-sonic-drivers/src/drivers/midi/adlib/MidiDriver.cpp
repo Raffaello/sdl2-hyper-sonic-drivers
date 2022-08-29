@@ -2,6 +2,7 @@
 #include <spdlog/spdlog.h>
 #include<utils/algorithms.hpp>
 #include <algorithm>
+#include <cassert>
 
 namespace drivers
 {
@@ -90,6 +91,9 @@ namespace drivers
 
 
 
+            /// TODO: this whole can just become the device::AdLib ....
+
+
             MidiDriver::MidiDriver(std::shared_ptr<hardware::opl::OPL> opl, std::shared_ptr<files::dmx::OP2File> op2file) :
                 _opl(opl), _op2file(op2file)
             {
@@ -101,6 +105,7 @@ namespace drivers
                 for (int i = 0; i < _oplNumChannels; ++i) {
                     memset(&_oplChannels[i], 0, sizeof(channelEntry));
                     _oplChannels[i].flags = CH_FREE;
+                    _oplChannels[i].channel = CH_FREE;
                     _oplChannels[i].instr = &_op2file->getInstrument(0).voices[0];
                 }
 
@@ -115,14 +120,15 @@ namespace drivers
                 }
 
                 // TODO: not sure the callback is required yet...
-                hardware::opl::TimerCallBack cb = std::bind(&MidiDriver::onTimer, this);
-                auto p = std::make_shared<hardware::opl::TimerCallBack>(cb);
-                _opl->start(p);
+                //hardware::opl::TimerCallBack cb = std::bind(&MidiDriver::onTimer, this);
+                //auto p = std::make_shared<hardware::opl::TimerCallBack>(cb);
+                //_opl->start(p);
             }
 
             MidiDriver::~MidiDriver()
             {
                 // deinit
+                _opl->stop();
                 stopAll();
                 _opl->writeReg(0x01, 0x20); // enable Waveform Select
                 _opl->writeReg(0x08, 0x00); // turn off CSW mode
@@ -131,7 +137,6 @@ namespace drivers
 
             void MidiDriver::onTimer()
             {
-                int i = 0;
             }
 
             void MidiDriver::send(const audio::midi::MIDIEvent& e) noexcept
@@ -144,17 +149,10 @@ namespace drivers
                 {
                     uint8_t chan = e.type.low;
                     uint8_t note = e.data[0];
-                    //writeValue(0xB0, chan, 0);  // KEY-OFF
-                    //_channels[chan].noteOff(note);
-
-
-                    //uint i;
-                    //uint id = MAKE_ID(channel, mus->number);
                     OPLdata* data = &_oplData;
                     uint8_t sustain = data->channelSustain[chan];
 
                     for (int i = 0; i < _oplNumChannels; i++) {
-                        //if (CHANNEL_ID(channels[i]) == id && channels[i].note == note)
                         if (_oplChannels[i].note == note && _oplChannels[i].channel == chan)
                         {
                             if (sustain < 0x40)
@@ -434,11 +432,13 @@ namespace drivers
 
             uint8_t MidiDriver::releaseChannel(const uint8_t slot, const bool killed)
             {
-                struct channelEntry* ch = &_oplChannels[slot];
+                assert(slot >= 0 && slot < _oplNumChannels);
+
+                channelEntry* ch = &_oplChannels[slot];
 
                 _playingChannels--;
                 writeNote(slot, ch->realnote, ch->pitch, 0);
-                //ch->channel |= CH_FREE;
+                ch->channel |= CH_FREE;
                 ch->flags = CH_FREE;
                 if (killed)
                 {
@@ -463,9 +463,9 @@ namespace drivers
                 if (data->channelModulation[channel] >= MOD_MIN)
                     ch->flags |= CH_VIBRATO;
                 ch->time = abs_time;
-                if (volume == -1)
-                    volume = data->channelLastVolume[channel]; // TODO: unreachabel as midi always has volume
-                else
+                //if (volume == -1)
+                //    volume = data->channelLastVolume[channel]; // TODO: unreachabel as midi always has volume
+                //else
                     data->channelLastVolume[channel] = volume;
                 ch->realvolume = calcVolume(data->channelVolume[channel], ch->volume = volume);
                 if (instrument->flags & FL_FIXED_PITCH)
@@ -500,47 +500,37 @@ namespace drivers
 
             int8_t MidiDriver::findFreeOplChannel(const uint8_t flag, const uint32_t abs_time)
             {
-                //uint8_t last = -1U;
                 uint8_t i;
-                uint8_t oldest = -1U;
+                uint8_t oldest = 255;
                 uint32_t oldesttime = abs_time;
 
                 /* find free channel */
                 for (i = 0; i < _oplNumChannels; i++)
                 {
-                    //(++last) %= _oplNumChannels;
-                    //if (++last == _oplNumChannels) {
-                    //    /* use cyclic `Next Fit' algorithm */
-                    //    last = 0;
-                    //}
                     if (_oplChannels[i].flags & CH_FREE)
                         return i;
                 }
 
                 if (flag & 1)
-                    return -1;			/* stop searching if bit 0 is set */
+                    return -1;  /* stop searching if bit 0 is set */
 
                 /* find some 2nd-voice channel and determine the oldest */
                 for (i = 0; i < _oplNumChannels; i++)
                 {
-                    if (_oplChannels[i].flags & CH_SECONDARY)
-                    {
+                    if (_oplChannels[i].flags & CH_SECONDARY) {
                         releaseChannel(i, true);
                         return i;
                     }
-                    else
-                        if (_oplChannels[i].time < oldesttime)
-                        {
-                            oldesttime = _oplChannels[i].time;
-                            oldest = i;
-                        }
+                    else if (_oplChannels[i].time < oldesttime) {
+                        oldesttime = _oplChannels[i].time;
+                        oldest = i;
+                    }
                 }
 
                 /* if possible, kill the oldest channel */
-                if (!(flag & 2) && oldest != -1U)
+                if (!(flag & 2) && oldest != 255)
                 {
-                    releaseChannel(oldest, true);
-                    return oldest;
+                    return releaseChannel(oldest, true);
                 }
 
                 return -1;

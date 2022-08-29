@@ -107,6 +107,7 @@ namespace drivers
 
                 int8_t findFreeOplChannel(const uint8_t flag,  const uint32_t abs_time);
 
+                // TODO: what about this "OP2 Bank?" better a "Bank format?"
                 files::dmx::OP2File::instrument_t* getInstrument(const uint8_t chan, const uint8_t note);
 
                 /*
