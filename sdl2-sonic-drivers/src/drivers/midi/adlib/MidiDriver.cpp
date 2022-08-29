@@ -82,8 +82,8 @@ namespace drivers
 
                 for (int i = 0; i < _oplNumChannels; ++i) {
                     memset(&_oplChannels[i], 0, sizeof(channelEntry));
-                    _oplChannels->flags = CH_FREE;
-                    _oplChannels->instr = &_op2file->getInstrument(0).voices[0];
+                    _oplChannels[i].flags = CH_FREE;
+                    _oplChannels[i].instr = &_op2file->getInstrument(0).voices[0];
                 }
 
                 for (int i = 0; i < audio::midi::MIDI_MAX_CHANNELS; ++i) {
@@ -171,6 +171,9 @@ namespace drivers
                         //    if ((i = findFreeChannel(mus, (channel == PERCUSSION) ? 3 : 1)) != -1)
                         //        occupyChannel(mus, i, channel, note, volume, instr, 1);
                         //}
+                    }
+                    else {
+                        spdlog::critical("NO FREE CHANNEL?");
                     }
 
 
@@ -324,10 +327,9 @@ namespace drivers
 
                     //if (program > 127)
                     //    return;
-                    //_instruments[chan] = _op2file->getInstrument(program);
+                    _instruments[chan] = _op2file->getInstrument(program);
                     //writeInstrument(chan, &_instruments[chan].voices[0]);
                     _oplData.channelInstr[chan] = program;
-                    
                     // TODO with channels, later
                     //_channels[chan].programChange(program, _op2file->getInstrument(program));
                     //writeInstrument(chan, &_channels[chan].getInstrument()->voices[0]);
@@ -574,7 +576,7 @@ namespace drivers
                 }
                 else {
                     // TODO: this might not be correct, would be better store the instrument number instead of the structure?
-                    return &_op2file->getInstrument(_oplData.channelInstr[chan]);
+                    return &_instruments[chan];
                 }
             }
 
