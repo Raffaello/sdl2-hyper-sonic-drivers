@@ -401,7 +401,7 @@ int main(int argc, char* argv[])
                 else spdlog::error(msg);
             }
 
-            //opl_test(emu.first, type.first, mixer);
+            opl_test(emu.first, type.first, mixer);
         }
     }
 

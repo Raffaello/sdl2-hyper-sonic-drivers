@@ -77,11 +77,14 @@ namespace drivers
                 // TODO: need to pass the GENMIDI.OP2 read file to init the instruments
                 // TODO: otherwise looks there is no sound.
                 init();
-
+                
                 // TODO: not sure the callback is required yet...
                 hardware::opl::TimerCallBack cb = std::bind(&MidiDriver::onTimer, this);
                 auto p = std::make_shared<hardware::opl::TimerCallBack>(cb);
                 _opl->start(p);
+
+                // TEST NOTE ON:
+
             }
 
             MidiDriver::~MidiDriver()
@@ -95,6 +98,7 @@ namespace drivers
 
             void MidiDriver::onTimer()
             {
+                int i = 0;
             }
 
             void MidiDriver::send(const audio::midi::MIDIEvent& e) noexcept
@@ -109,7 +113,7 @@ namespace drivers
                     uint8_t note = e.data[0];
                     writeValue(0xB0, chan, 0);  // KEY-OFF
                     //_channels[chan].noteOff(note);
-                    spdlog::warn("noteOff {} {}", chan, note);
+                    spdlog::debug("noteOff {} {}", chan, note);
                 }
                     break;
                 case MIDI_EVENT_TYPES_HIGH::NOTE_ON:
@@ -159,7 +163,7 @@ namespace drivers
                         // TODO: Bank select. Not supported
                         break;
                     case 1:
-                        spdlog::warn("modwheel value {}", value);
+                        spdlog::debug("modwheel value {}", value);
                         //modulationWheel(value);
                         break;
                     case 7:
@@ -227,7 +231,9 @@ namespace drivers
                         return;
 
                     //_program = program;
-                    memcpy(&(_instruments[chan]), &(_op2file->getInstrument(program)), sizeof(hardware::opl::OPL2instrument));
+                    _instruments[chan] = _op2file->getInstrument(program);
+                    writeInstrument(chan, &_instruments[chan].voices[0]);
+                    //memcpy(&(_instruments[chan]), &(_op2file->getInstrument(program)), sizeof(files::dmx::OP2File::instrument_t));
                     spdlog::debug("program change {} {}", chan, program);
                 }
                     break;
