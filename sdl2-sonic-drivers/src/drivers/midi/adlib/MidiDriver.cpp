@@ -332,7 +332,8 @@ namespace drivers
                 case MIDI_EVENT_TYPES_HIGH::PITCH_BEND:
                 {
                     uint8_t chan = e.type.low;
-                    int16_t bend = (e.data[0] | (e.data[1] << 7)) - 0x2000;
+                    //int16_t bend = (e.data[0] | (e.data[1] << 7)) - 0x2000;
+                    int8_t bend = e.data[0];
                     spdlog::debug("PITCH_BEND {}", bend);
 
                     // OPLPitchWheel
@@ -529,24 +530,23 @@ namespace drivers
                 return -1;
             }
 
-
-
             files::dmx::OP2File::instrument_t* MidiDriver::getInstrument(const uint8_t chan, const uint8_t note)
             {
-                //uint8_t i;
-
                 if (chan == MIDI_PERCUSSION_CHANNEL)
                 {
                     if (note < 35 || note > 81) {
                         spdlog::error("wrong percussion number {}", note);
                     }
                     //i = note + (128 - 35);
-                    return &_op2file->getInstrument(note + (128 - 35));
+                    auto instr = _op2file->getInstrument(note + (128 - 35));
+                    memcpy(&_instruments[chan], &instr, sizeof(OPL2instrument_t));
+                    //return &_instruments[chan];
                 }
                 else {
-                    // TODO: this might not be correct, would be better store the instrument number instead of the structure?
-                    return &_instruments[chan];
+                    //return &_instruments[chan];
                 }
+
+                return &_instruments[chan];
             }
 
             void MidiDriver::writeChannel(const uint16_t regbase, const uint8_t channel, const uint8_t data1, const uint8_t data2) const noexcept
