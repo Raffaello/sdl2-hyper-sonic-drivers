@@ -349,8 +349,7 @@ namespace drivers
                 case MIDI_EVENT_TYPES_HIGH::PITCH_BEND:
                 {
                     uint8_t chan = e.type.low;
-                    //int16_t bend = (e.data[0] | (e.data[1] << 7)) - 0x2000;
-                    int8_t bend = e.data[0];
+                    uint16_t bend = (e.data[0] | (e.data[1] << 7));
                     spdlog::debug("PITCH_BEND {}", bend);
 
                     // OPLPitchWheel
@@ -358,7 +357,7 @@ namespace drivers
                     // uint id = MAKE_ID(channel, mus->number);
                     //struct OPLdata* data = (struct OPLdata*)mus->driverdata;
 
-                    _oplData.channelPitch[chan] = bend;
+                    _oplData.channelPitch[chan] = static_cast<int8_t>(bend/64);
                     for (int i = 0; i < _oplNumChannels; i++)
                     {
                         channelEntry* ch = &_oplChannels[i];

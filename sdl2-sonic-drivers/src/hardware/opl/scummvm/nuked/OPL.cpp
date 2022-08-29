@@ -119,7 +119,7 @@ namespace hardware
 
                 uint8_t OPL::read(int port)
                 {
-                    return address[port % 2];
+                    return address[port & 1];
                 }
 
                 void OPL::generateSamples(int16_t* buffer, int length) {

@@ -8,7 +8,7 @@ namespace files
         constexpr const char* OP2FILE_MAGIC_HEADER = "#OPL_II#";
         constexpr int OP2FILE_MAGIC_HEADER_SIZE = 8;
         constexpr int OP2FILE_INSTRUMENT_NAME_MAX_SIZE = 32;
-        constexpr int OP2FILE_INSTRUMENT_NUM_VOICES = 2;
+        
 
         OP2File::OP2File(const std::string& filename) : File(filename)
         {
@@ -33,36 +33,6 @@ namespace files
         std::string OP2File::getInstrumentName(const uint8_t i) const
         {
             return _instrument_names.at(i);
-        }
-
-        drivers::midi::scummvm::AdLibInstrument OP2File::getInstrumentToAdlib(const uint8_t i) const
-        {
-            // TODO this is not working with the current ScummVM:MidiDriver_Adlib (need a general adlib midi driver)
-            auto instr = _instruments.at(i);
-            drivers::midi::scummvm::AdLibInstrument adlib;
-
-            // e.g. of a current instrument vs op2 file (both overdrive gtr):
-            // { 0xC2, 0x2E, 0x4F, 0x77, 0x00, 0xC4, 0x08, 0x0E, 0x98, 0x59, 0x0A, 0, { 0, 0, 0, 0, 0, 0, 0, 0 }, 0, { 0, 0, 0, 0, 0, 0, 0, 0 }, 0x00 },
-            // { 0x10, 0x00, 0xF1, 0xFF, 0x00, 0x51, 0x00, 0xF0, 0xFF, 0x01, 0x0C, 0, { 0, 0, 0, 0, 0, 0, 0, 0 }, 0, { 0, 0, 0, 0, 0, 0, 0, 0 }, 0x00 },
-               
-            adlib.modCharacteristic = instr.voices[0].trem_vibr_1;
-            adlib.modScalingOutputLevel = instr.voices[0].scale_1;
-            adlib.modAttackDecay = instr.voices[0].att_dec_1;
-            adlib.modSustainRelease = instr.voices[0].sust_rel_1;
-            adlib.modWaveformSelect = instr.voices[0].wave_1;
-            adlib.carCharacteristic = instr.voices[0].trem_vibr_2;
-            adlib.carScalingOutputLevel = instr.voices[0].scale_2;
-            adlib.carAttackDecay = instr.voices[0].att_dec_2;
-            adlib.carSustainRelease = instr.voices[0].sust_rel_2;
-            adlib.carWaveformSelect = instr.voices[0].wave_2;
-            adlib.feedback = instr.voices[0].feedback;
-            adlib.flagsA = 0; //instr.voices[0].reserved;
-            adlib.extraA = { 0, 0, 0, 0, 0, 0, 0, 0 };
-            adlib.flagsB = 0;
-            adlib.extraB = { 0, 0, 0, 0, 0, 0, 0, 0 };
-            adlib.duration = 0; // instr.voices[0].noteOffset;
-            
-            return adlib;
         }
 
         void OP2File::_readInstrumentVoice(hardware::opl::OPL2instrument_t* buf)

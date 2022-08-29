@@ -12,9 +12,10 @@ namespace files
     {
         constexpr const char ID_MAGIC[4] = { 'M','U','S','\x1A' };
         constexpr int MAX_SIZE = 1024 * 64;
-        // TODO: review MAX_CHANNELS logic
-        constexpr int MAX_CHANNELS = 9; // OPL2 (OPL3 18 instead)
-
+        
+        constexpr int MUS_PRIMARY_CHANNELS = 9; // OPL2 9, OPL3 18 instead
+        constexpr int MUS_SECONDARY_CHANNLES = 16 - MUS_PRIMARY_CHANNELS;
+        constexpr int MUS_PERCURSION_CHANNEL = 15;
         constexpr int MUS_EVENT_TYPE_RELEASE_NOTE = 0;
         constexpr int MUS_EVENT_TYPE_PLAY_NOTE = 1;
         constexpr int MUS_EVENT_TYPE_PITCH_BEND = 2;
@@ -23,7 +24,6 @@ namespace files
         constexpr int MUS_EVENT_TYPE_END_OF_MEASURE = 5;
         constexpr int MUS_EVENT_TYPE_FINISH = 6;
         constexpr int MUS_EVENT_TYPE_UNUSED = 7;
-
         constexpr uint8_t MUS_NOTE_VELOCITY_DEFAULT = 64;
 
         using audio::midi::MIDI_MAX_CHANNELS;
@@ -61,14 +61,9 @@ namespace files
             readTrack();
         }
 
-        std::shared_ptr<audio::MIDI> MUSFile::getMIDI(std::shared_ptr<files::dmx::OP2File> op2file) noexcept
-        {
-            return convertToMidi(op2file);
-        }
-
         std::shared_ptr<audio::MIDI> MUSFile::getMIDI() noexcept
         {
-            return convertToMidi(nullptr);
+            return convertToMidi();
         }
 
         void MUSFile::readHeader()
@@ -78,9 +73,9 @@ namespace files
             _header.score_len = readLE16();
             _header.score_start = readLE16();
             _header.channels = readLE16();
-            _assertValid(_header.channels <= MAX_CHANNELS);
+            _assertValid(_header.channels <= MUS_PRIMARY_CHANNELS);
             _header.secondary_channels = readLE16();
-            //_assertValid(header.secondary_channels <= MAX_CHANNELS + 10);
+            _assertValid(_header.secondary_channels <= MUS_SECONDARY_CHANNLES);
             _header.instrument_counts = readLE16();
             _header.padding = readLE16();
             _assertValid(_header.padding == 0);
@@ -104,9 +99,7 @@ namespace files
             channelVol.fill(127);
             bool quit = false;
             uint32_t delta_time = 0;
-            // could add the current size to end size of the file reported from the header
-            // as a 2ndry check
-            //tell() < (_header.score_start + _header.score_len)
+            
             while (!quit)
             {
                 mus_event_t event;
@@ -185,44 +178,8 @@ namespace files
             }
         }
 
-        /*
-        audio::midi::MIDIEvent MUSFile::getSysExEvent(const uint8_t* instr, const uint32_t instr_size, const uint32_t delta_time, const uint32_t abs_time, const uint8_t channel) noexcept
+        std::shared_ptr<audio::MIDI> MUSFile::convertToMidi()
         {
-            using audio::midi::MIDIEvent;
-            using audio::midi::MIDI_EVENT_TYPES_HIGH;
-            using audio::midi::MIDI_META_EVENT;
-            using audio::midi::MIDI_META_EVENT_TYPES_LOW;
-
-            MIDIEvent e;
-
-            e.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::META_SYSEX);
-            e.type.low = static_cast<uint8_t>(MIDI_META_EVENT_TYPES_LOW::SYS_EX0);
-            e.delta_time = delta_time;
-            e.abs_time = abs_time + delta_time;
-
-            static const uint32_t instr_type = 'OP2 ';
-            // TODO: instr_size is a constant no need to pass as a parameter
-            e.data.resize(sizeof(uint32_t) + instr_size);
-            e.data.push_back(instr_type & 0xFF);
-            e.data.push_back((instr_type >> 8) & 0xFF);
-            e.data.push_back((instr_type >> 16) & 0xFF);
-            e.data.push_back((instr_type >> 24) & 0xFF);
-            e.data.push_back(channel);
-
-            uint8_t* pInstr = reinterpret_cast<uint8_t*>(&instr);
-            // TODO better to do with a memcpy instead...
-            for (int i = 0; i < sizeof(OP2File::instrument_t); i++) {
-                e.data.push_back(pInstr[i]);
-            }
-
-            return e;
-        }
-        */
-
-        std::shared_ptr<audio::MIDI> MUSFile::convertToMidi(std::shared_ptr<files::dmx::OP2File> op2file)
-        {
-            //  used the op2file if not null to push the instruments 
-            // TODO: but a better approach is required to load banks instead
             using audio::midi::MIDI_FORMAT;
             using audio::midi::MIDIEvent;
             using audio::midi::MIDI_EVENT_TYPES_HIGH;
@@ -236,20 +193,12 @@ namespace files
             uint32_t delta_time = 0;
             uint32_t abs_time = 0;
 
-            channelInit[MIDI_PERCUSSION_CHANNEL] = channelInit[15] = true;
+            channelInit[MUS_PERCURSION_CHANNEL] = true;
             for (auto& event : _mus)
             {
                 MIDIEvent me;
                 uint8_t d1 = 0;
                 uint8_t d2 = 0;
-
-                // swap percurssion channel with OPL2 percussion channel
-                if (event.desc.e.channel == 15) {
-                    event.desc.e.channel = MIDI_PERCUSSION_CHANNEL;
-                }
-                else if (event.desc.e.channel == MIDI_PERCUSSION_CHANNEL) {
-                    event.desc.e.channel = 15;
-                }
 
                 if(!channelInit[event.desc.e.channel])
                 {
@@ -260,11 +209,11 @@ namespace files
                     ce.type.low = event.desc.e.channel;
                     ce.delta_time = delta_time;
                     ce.abs_time = abs_time;
-                    ce.data.push_back(0x07); // MIDI Main Volume
+                    ce.data.push_back(0x07); // MIDI Channel (a.k.a. Main) Volume
                     ce.data.push_back(127);
                     track.addEvent(ce);
 
-                    // adjust channel tracking and skip percussion if it is the case
+                    // inited
                     channelInit[event.desc.e.channel] = true;
                 }
 
@@ -281,15 +230,16 @@ namespace files
                     me.data.push_back(event.data[1]);
                     break;
                 case MUS_EVENT_TYPE_PITCH_BEND:
+                {
                     me.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::PITCH_BEND);
-                    d1 = event.data[0];
-                    // convert to uint16_t value and mapped to +/- 2 semi-tones
-                    d2 = d1;
-                    d1 = (d1 & 1) >> 6; // isn't it always 0 ?
-                    d2 = (d2 >> 1) & 127;
+                    // convert to uint16_t value and mapped to +/- 2 semi-tones (14 bits number to be divided)
+                    uint16_t bend = event.data[0]*64;
+                    d1 = (event.data[0] & 0x7F);
+                    d2 = (event.data[0] >> 7) & 0x7F;
                     me.data.push_back(d1);
                     me.data.push_back(d2);
                     break;
+                }
                 case MUS_EVENT_TYPE_SYS_EVENT:
                     me.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::CONTROLLER);
                     me.data.push_back(ctrlMap.at(event.data[0]));
@@ -314,52 +264,10 @@ namespace files
                         // Change instrument, MIDI event 0xC0
                         me.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::PROGRAM_CHANGE);
                         me.data.push_back(d2);
-
-                        // TODO review, as pre-loading an instrument bank file would be better.
-                        if (op2file != nullptr) {
-                            spdlog::info("change to instrument: {}", op2file->getInstrumentName(d2));
-                            //auto instr = op2file->getInstrument(d2);
-                            auto instr = op2file->getInstrumentToAdlib(d2);
-                            //auto sysexe = getSysExEvent();
-                            // TODO: create a SysEx event here to set the MIDI channel instrument
-                            {
-                                // THIS IS A META EVENT
-                                using audio::midi::MIDI_META_EVENT;
-                                using audio::midi::MIDI_META_EVENT_TYPES_LOW;
-                                MIDIEvent e;
-                                e.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::META_SYSEX);
-                                e.type.low = static_cast<uint8_t>(MIDI_META_EVENT_TYPES_LOW::SYS_EX0);
-                                e.abs_time = 0;
-                                e.delta_time = event.delta_time;
-                                e.abs_time = abs_time + e.delta_time;
-
-                                // what to put in the data? serializing the adlib instrument?
-
-                                // type & channel
-                                uint32_t instr_type = 'OP2 ';
-                                e.data.push_back(instr_type & 0xFF);
-                                e.data.push_back((instr_type >> 8) & 0xFF);
-                                e.data.push_back((instr_type >> 16) & 0xFF);
-                                e.data.push_back((instr_type >> 24) & 0xFF);
-                                e.data.push_back(event.desc.e.channel);
-
-                                /*uint32_t a = 'OP2 ';
-                                uint32_t b = e.data[0] + (e.data[1] << 8) + (e.data[2] << 16) + (e.data[3] << 24);
-                                uint32_t c = e.data[3] + (e.data[2] << 8) + (e.data[1] << 16) + (e.data[0] << 24);*/
-                                // instr data
-                                uint8_t* pInstr = reinterpret_cast<uint8_t*>(&instr);
-                                for (int i = 0; i < sizeof(instr); i++) {
-                                    e.data.push_back(pInstr[i]);
-                                }
-                                //e.data.push_back(0xF7); // final SysEx char ? (how if there is a data that is 0xF7?)
-
-                                track.addEvent(e);
-                                // TODO: in this way skip the program change that is override again this sysEx event.
-                                //       it should be done with a load Bank instead and not used hardcoded
-                                //       gm_Instruments table like in ScummVM that is copy over the gmInstruments
-                                continue;
-                            }
-                        }
+                        //auto d3 = instruments[event.desc.e.channel];
+                        /*if (d2 != d3) {
+                            spdlog::error("instrument d2 {:d} => d3 {:d}", d2, d3);
+                        }*/
                     }
                     else {
                         // Controller event
@@ -375,7 +283,19 @@ namespace files
                 delta_time = event.delta_time;
                 abs_time += delta_time;
 
-                me.type.low = event.desc.e.channel;
+                // swap percurssion channel with OPL2 percussion channel
+                switch (event.desc.e.channel) {
+                case MUS_PERCURSION_CHANNEL:
+                    me.type.low = MIDI_PERCUSSION_CHANNEL;
+                    break;
+                case MIDI_PERCUSSION_CHANNEL:
+                    me.type.low = MUS_PERCURSION_CHANNEL;
+                    break;
+                default:
+                    me.type.low = event.desc.e.channel;
+                    break;
+                }
+
                 me.data.shrink_to_fit();
                 me.delta_time = delta_time;
                 me.abs_time = abs_time;

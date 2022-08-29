@@ -486,7 +486,7 @@ template <> struct fmt::formatter<files::dmx::OP2File::instrument_t> {
     }
 };
 
-int midi_adlib_mus_file_genmidi()
+int midi_adlib_mus_op2_file()
 {
     using namespace audio::scummvm;
     using hardware::opl::scummvm::Config;
@@ -494,6 +494,9 @@ int midi_adlib_mus_file_genmidi()
 
     SdlMixerManager mixerManager;
     mixerManager.init();
+
+    spdlog::set_level(spdlog::level::debug);
+
 
     std::shared_ptr<Mixer> mixer = mixerManager.getMixer();
 
@@ -506,28 +509,10 @@ int midi_adlib_mus_file_genmidi()
 
     auto op2File = std::make_shared<files::dmx::OP2File>("test/fixtures/GENMIDI.OP2");
     auto musFile = std::make_shared<files::dmx::MUSFile>("test/fixtures/D_E1M1.MUS");
-
-    // not supported but working ok without op2file (wrong instrument sounds though)
-    auto midi = musFile->getMIDI(/*op2File*/);
-    // TODO: create a new device instead of ScummVM like Adlip or OPL (opl can be both 2 or 3, adlib only 2)
-    // TODO: start with doing Adlib? than eventually refactor in a general OPL etc..
+    spdlog::info("insturment name 147 {}", op2File->getInstrumentName(147));
+    auto midi = musFile->getMIDI();
     auto adlib_midi = std::make_shared<drivers::midi::devices::Adlib>(opl, op2File);
-    auto scumm_midi = std::make_shared<drivers::midi::devices::ScummVM>(opl, false);
     drivers::MIDDriver midDrv(mixer, adlib_midi);
-    //drivers::MIDDriver midDrv(mixer, scumm_midi);
-    //auto native_midi = std::make_shared<drivers::midi::devices::Native>();
-    //drivers::MIDDriver midDrv(mixer, native_midi);
-    std::array<uint8_t, 4> instrument_values = { 30,29,34,0 };
-    for (int i = 0; i < instrument_values.size(); i++) {
-        int j = instrument_values[i];
-
-        spdlog::info("{:d} instr name: {}", j, op2File->getInstrumentName(j));
-        auto adlibInstr1 = op2File->getInstrumentToAdlib(j);
-        spdlog::info("{:d} instr vars: {:f}", j, op2File->getInstrument(j));
-    }
-    spdlog::set_level(spdlog::level::debug);
-    spdlog::info("instr name: {}", op2File->getInstrumentName(29));
-    spdlog::info("instr vars: {:f}", op2File->getInstrument(29));
     
     spdlog::info("playing midi D_E1M1.MUS...");
     midDrv.play(midi);
@@ -590,7 +575,7 @@ int main(int argc, char* argv[])
 
     //xmi_parser();
     //midi_adlib_mus_file_CONCURRENCY_ERROR_ON_SAME_DEVICE()
-    midi_adlib_mus_file_genmidi();
+    midi_adlib_mus_op2_file();
     //midi_adlib_xmi();
 
     SDL_Init(SDL_INIT_TIMER | SDL_INIT_AUDIO);

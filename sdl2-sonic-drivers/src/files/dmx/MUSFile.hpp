@@ -2,7 +2,6 @@
 
 #include <audio/MIDI.hpp>
 #include <files/File.hpp>
-#include <files/dmx/OP2File.hpp>
 #include <string>
 #include <cstdint>
 #include <vector>
@@ -23,17 +22,15 @@ namespace files
             explicit MUSFile(const std::string& filename, const int playback_speed = MUS_PLAYBACK_SPEED_DEFAULT);
             ~MUSFile() override = default;
 
-            std::shared_ptr<audio::MIDI> getMIDI(std::shared_ptr<files::dmx::OP2File> op2file) noexcept;
             std::shared_ptr<audio::MIDI> getMIDI() noexcept;
 
             const int playback_speed;
         private:
             /**
              * channels 0-8, 9 is percussion
-             * secondary_channels 10-14, 15 percussion
-             * percussion channels 9,15 are assigned to MIDI percussion channel 15 (actually at the moment 9)
+             * secondary_channels 10-15, (15 percussion?)
+             * percussion channel 9 is assigned to MIDI percussion channel 15
              * percurssion is not consider as primary or secondary channel, but just a reserved one
-             * 
             */
             typedef struct header_t
             {
@@ -68,14 +65,16 @@ namespace files
             static const std::array<uint8_t, 15> ctrlMap;
 
             header_t _header;
-            std::vector<uint16_t> instruments; // not used for MIDI
+
+            // This is the instrument used relative to the MUS Channels, total instruments.
+            // problably considering all the different percussions too.
+            // It might be used for pre load sounds into memory.
+            // not used as all the sounds will be loaded to memory and retrieve as needed.
+            std::vector<uint16_t> instruments;
 
             void readHeader();
             void readTrack();
-            std::shared_ptr<audio::MIDI> convertToMidi(std::shared_ptr<files::dmx::OP2File> op2file);
-            //audio::midi::MIDIEvent getSysExEvent(const std::shared_ptr<files::dmx::OP2File> op2file, const uint8_t instrIndex, const MUSFile::mus_event_t& event, const uint32_t abs_time) noexcept;
-
-            //std::shared_ptr<audio::MIDI> _midi;
+            std::shared_ptr<audio::MIDI> convertToMidi();
             std::vector<mus_event_t> _mus;
         };
     }
