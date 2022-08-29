@@ -1,7 +1,7 @@
 #pragma once
 
 #include <hardware/opl/woody/OPL.hpp>
-#include "OPLChip.hpp"
+#include <hardware/opl/woody/OPLChip.hpp>
 
 namespace hardware
 {

@@ -34,20 +34,20 @@ namespace hardware
             }
             bool MameOPL::init()
             {
-                if (_opl != nullptr) {
+                _init = _opl != nullptr;
+                if (_init) {
                     return true;
                 }
 
                 _opl = new ymfm::ymf262(_ymfm);
-                
 
                 //auto rate = _opl->sample_rate(OPL3_INTERNAL_FREQ);
                 //_opl->sample_rate(_mixer->getOutputRate());
-                
 
                 _chip = ymf262_init(0, OPL3_INTERNAL_FREQ, _mixer->getOutputRate());
-
-                return _opl != nullptr;
+                _init = _opl != nullptr;
+                
+                return _init;
             }
             void MameOPL::reset()
             {

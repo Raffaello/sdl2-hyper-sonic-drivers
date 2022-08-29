@@ -21,6 +21,10 @@ namespace hardware
             OPL();
             virtual ~OPL();
 
+            bool isInit() const noexcept
+            {
+                return _init;
+            }
             /**
              * Initializes the OPL emulator.
              *
@@ -77,6 +81,7 @@ namespace hardware
             virtual void setCallbackFrequency(int timerFrequency) = 0;
 
         protected:
+            bool _init = false;
             /**
              * Start the callbacks.
              */

@@ -66,6 +66,12 @@ install(FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/woody/WoodyOPL.hpp
     
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/PCSpeaker.hpp
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/algorithms.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/constants.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/endianness.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/opl.hpp
+
     DESTINATION "static/include"
 )
 
@@ -169,6 +175,7 @@ target_sources(${LIB_NAME} PRIVATE
     # --- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/endianness.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/algorithms.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/opl.cpp
 )
 
 target_link_libraries(${LIB_NAME} PUBLIC ${LIB_SDL2} spdlog::spdlog RtMidi::rtmidi)

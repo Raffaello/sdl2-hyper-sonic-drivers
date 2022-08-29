@@ -29,7 +29,8 @@ namespace hardware
                     _opl = new WoodyEmuOPL(_mixer->getOutputRate(), false);
                 }
 
-                if (_opl == nullptr)
+                _init = _opl != nullptr;
+                if (!_init)
                     return false;
 
                 _opl->init();

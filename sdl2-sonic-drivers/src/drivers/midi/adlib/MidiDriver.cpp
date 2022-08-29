@@ -103,8 +103,6 @@ namespace drivers
                 auto p = std::make_shared<hardware::opl::TimerCallBack>(cb);
                 _opl->start(p);
 
-                // TEST NOTE ON:
-
             }
 
             MidiDriver::~MidiDriver()
@@ -163,7 +161,7 @@ namespace drivers
                     auto instr = getInstrument(chan, note);
                     if ((freeSlot = findFreeOplChannel((chan == MIDI_PERCUSSION_CHANNEL) ? 2 : 0, e.abs_time)) != -1)
                     {
-                        occupyChannel(freeSlot, chan, note, volume, instr, 0, e.abs_time);
+                        int chi = occupyChannel(freeSlot, chan, note, volume, instr, 0, e.abs_time);
 
                         // TODO: OPL3
                         //if (!OPLsinglevoice && instr->flags == FL_DOUBLE_VOICE)
@@ -171,6 +169,8 @@ namespace drivers
                         //    if ((i = findFreeChannel(mus, (channel == PERCUSSION) ? 3 : 1)) != -1)
                         //        occupyChannel(mus, i, channel, note, volume, instr, 1);
                         //}
+
+                        spdlog::debug("noteOn note={:d} ({:d}) - vol={:d} ({:d}) - pitch={:d} - ch={:d}", _oplChannels[chi].note, _oplChannels[chi].realnote, _oplChannels[chi].volume, _oplChannels[chi].realvolume, _oplChannels[chi].pitch, _oplChannels[chi].channel);
                     }
                     else {
                         spdlog::critical("NO FREE CHANNEL?");
@@ -183,7 +183,7 @@ namespace drivers
 
                     //_channels[e.type.low].noteOn(e.data[0], e.data[1]);
                     //writeNote(e.type.low, e.data[0], 0, true);
-                    spdlog::warn("noteOn {} {} {} pitch ???", e.type.low, e.data[0],e.data[1]);
+                    
                 }
                     break;
                 case MIDI_EVENT_TYPES_HIGH::AFTERTOUCH:
@@ -454,7 +454,7 @@ namespace drivers
 
                 _playingChannels--;
                 writeNote(slot, ch->realnote, ch->pitch, 0);
-                ch->channel |= CH_FREE;
+                //ch->channel |= CH_FREE;
                 ch->flags = CH_FREE;
                 if (killed)
                 {
@@ -562,6 +562,8 @@ namespace drivers
                 return -1;
             }
 
+
+
             files::dmx::OP2File::instrument_t* MidiDriver::getInstrument(const uint8_t chan, const uint8_t note)
             {
                 //uint8_t i;
@@ -591,7 +593,6 @@ namespace drivers
                 _opl->writeReg(reg, data1);
                 _opl->writeReg(reg + 3, data2);
             }
-
 
             void MidiDriver::writeValue(const uint16_t regbase, const uint8_t channel, const uint8_t value) const noexcept
             {

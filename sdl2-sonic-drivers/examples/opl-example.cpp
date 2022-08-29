@@ -4,6 +4,7 @@
 #include <hardware/opl/mame/MameOPL.hpp>
 
 #include <utils/algorithms.hpp>
+#include <utils/opl.hpp>
 #include <audio/scummvm/SDLMixerManager.hpp>
 
 #include <spdlog/spdlog.h>
@@ -20,52 +21,12 @@ using hardware::opl::scummvm::Config;
 using hardware::opl::scummvm::OplEmulator;
 using utils::delayMillis;
 
-
-/* These are offsets from the base I/O address. */
-constexpr int FM = 8;       // SB (mono) ports (e.g. 228H and 229H)
-constexpr int PROFM1 = 0;   // On CT-1330, this is left OPL-2.  On CT-1600 and
-                            // later cards, it's OPL-3 bank 0.
-constexpr int PROFM2 = 2;   // On CT-1330, this is right OPL-2.  On CT-1600 and
-                            // later cards, it's OPL-3 bank 1.
-
-/* This outputs a value to a specified FM register at a specified FM port. */
-void FMoutput(unsigned port, int reg, int val, std::shared_ptr<hardware::opl::OPL> opl)
-
-{
-    opl->write(port, reg);
-    //wait 8 microsec;
-    utils::delayMicro(8);
-    opl->write(port + 1, val);
-    //wait 55 microsec
-    utils::delayMicro(55);
-}
-
-/* This function outputs a value to a specified FM register at the Sound
- * Blaster (mono) port address.
- */
-void fm(int reg, int val, std::shared_ptr<hardware::opl::OPL> opl)
-/* This function outputs a value to a specified FM register at the Sound
- * Blaster (mono) port address.
- */
-{
-    FMoutput(FM, reg, val, opl);
-}
-
-/* This function outputs a value to a specified FM register at the Sound
- * Blaster Pro left FM port address (or OPL-3 bank 0).
- */
-void Profm1(int reg, int val, std::shared_ptr<hardware::opl::OPL> opl)
-{
-    FMoutput(PROFM1, reg, val, opl);
-}
-
-/* This function outputs a value to a specified FM register at the Sound
- * Blaster Pro right FM port address (or OPL-3 bank 1).
- */
-void Profm2(int reg, int val, std::shared_ptr<hardware::opl::OPL> opl)
-{
-    FMoutput(PROFM2, reg, val, opl);
-}
+using utils::FMoutput;
+using utils::fm;
+using utils::Profm1;
+using utils::Profm2;
+//using utils::detectOPL2;
+//using utils::detectOPL3;
 
 void opl_test(const OplEmulator emu, const Config::OplType type, std::shared_ptr<audio::scummvm::Mixer> mixer)
 {
@@ -269,36 +230,7 @@ bool detect_opl2(const OplEmulator emu, const Config::OplType type, std::shared_
     if (opl == nullptr)
         return false;
 
-    opl->init();
-    //opl->start(nullptr);
-    utils::delayMillis(100);
-
-    // Note: Steps 1 and 2 can't be combined together.
-    // Reset Timer 1 and Timer 2: write 60h to register 4.
-    fm(4, 0x60, opl);
-    // Reset the IRQ: write 80h to register 4.
-    fm(4, 0x80, opl);
-    // Read status register: read port base+0 (388h). Save the result.
-    uint8_t status1 = opl->read(0) & 0xE0;
-    // Set Timer 1 to FFh: write FFh to register 2.
-    fm(2, 0xFF, opl);
-    // Unmask and start Timer 1: write 21h to register 4.
-    fm(4, 0x21, opl);
-    // Wait in a delay loop for at least 80 usec.
-    for (int i = 0; i < 130; i++) {
-        opl->read(0);
-        utils::delayMicro(100);
-    }
-    // Read status register: read port base+0 (388h). Save the result.
-    uint8_t status2 = opl->read(0) & 0xE0;
-    // Reset Timer 1, Timer 2 and IRQ as in steps 1 and 2.
-    fm(4, 0x60, opl);
-    fm(4, 0x80, opl);
-
-    opl->stop();
-    // Test the results of the two reads: the first should be 0, the second should be C0h. If either is incorrect, then the OPL2 is not present.
-    return status1 == 0 && status2 == 0xC0;
-
+    return utils::detectOPL2(opl);
 }
 
 bool detect_opl3(const OplEmulator emu, const Config::OplType type, std::shared_ptr<audio::scummvm::Mixer> mixer)
@@ -308,44 +240,7 @@ bool detect_opl3(const OplEmulator emu, const Config::OplType type, std::shared_
     if (opl == nullptr)
         return false;
 
-    opl->init();
-    //opl->start(nullptr);
-    utils::delayMillis(100);
-
-    // Note: Steps 1 and 2 can't be combined together.
-    // Reset Timer 1 and Timer 2: write 60h to register 4.
-    fm(4, 0x60, opl);
-    // Reset the IRQ: write 80h to register 4.
-    fm(4, 0x80, opl);
-    // Read status register: read port base+0 (388h). Save the result.
-    uint8_t status1 = opl->read(0) & 0xE0;
-    // Set Timer 1 to FFh: write FFh to register 2.
-    fm(2, 0xFF, opl);
-    // Unmask and start Timer 1: write 21h to register 4.
-    fm(4, 0x21, opl);
-    // Wait in a delay loop for at least 80 usec.
-    for (int i = 0; i < 130; i++) {
-        opl->read(0);
-        utils::delayMicro(100);
-    }
-    // Read status register: read port base+0 (388h). Save the result.
-    uint8_t status2 = opl->read(0) & 0xE0;
-    // Reset Timer 1, Timer 2 and IRQ as in steps 1 and 2.
-    fm(4, 0x60, opl);
-    fm(4, 0x80, opl);
-
-    opl->stop();
-    // Test the results of the two reads: the first should be 0, the second should be C0h. If either is incorrect, then the OPL2 is not present.
-    if (status1 == 0 && status2 == 0xC0) {}
-    else {
-        return false;
-    }
-
-    uint8_t status3 = opl->read(0) & 0xE0;
-    
-    // AND the result with 06h.
-    // If the result is zero, you have OPL3, otherwise OPL2.
-    return (status3 & 0x6) == 0;
+    return utils::detectOPL3(opl);
 }
 
 int main(int argc, char* argv[])
@@ -357,15 +252,15 @@ int main(int argc, char* argv[])
     auto mixer = mixerManager.getMixer();
 
     std::map<OplEmulator, std::string> emus = {
-        //{ OplEmulator::DOS_BOX, "DOS_BOX" },
-        //{ OplEmulator::MAME, "MAME" },
+        { OplEmulator::DOS_BOX, "DOS_BOX" },
+        { OplEmulator::MAME, "MAME" },
         { OplEmulator::NUKED, "NUKED" },
-       // { OplEmulator::WOODY, "WOODY" },
+        { OplEmulator::WOODY, "WOODY" },
     };
 
     std::map<Config::OplType, std::string> types = {
-        //{Config::OplType::OPL2, "OPL2"},
-        //{Config::OplType::DUAL_OPL2, "DUAL_OPL2"},
+        {Config::OplType::OPL2, "OPL2"},
+        {Config::OplType::DUAL_OPL2, "DUAL_OPL2"},
         {Config::OplType::OPL3, "OPL3"},
     };
 

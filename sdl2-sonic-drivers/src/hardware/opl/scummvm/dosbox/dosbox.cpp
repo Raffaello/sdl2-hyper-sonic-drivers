@@ -151,6 +151,7 @@ namespace hardware
 
                 bool OPL::init()
                 {
+                    _init = false;
                     free();
 
                     memset(&_reg, 0, sizeof(_reg));
@@ -169,6 +170,7 @@ namespace hardware
                         _emulator->WriteReg(0x105, 1);
                     }
 
+                    _init = true;
                     return true;
                 }
 

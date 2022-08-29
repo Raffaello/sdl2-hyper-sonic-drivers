@@ -33,7 +33,8 @@ namespace hardware
                         OPL3_WriteReg(chip.get(), 0x105, 0x01);
                     }
 
-                    return true;
+                    _init = true;
+                    return _init;
                 }
 
                 void OPL::reset()
