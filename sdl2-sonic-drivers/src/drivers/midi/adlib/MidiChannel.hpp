@@ -1,6 +1,8 @@
 #pragma once
 
 #include <cstdint>
+//#include <hardware/opl/OPL2instrument.h>
+#include <files/dmx/OP2File.hpp>
 
 namespace drivers
 {
@@ -22,7 +24,8 @@ namespace drivers
                 // Regular messages
                 void noteOff(const uint8_t note) const;
                 void noteOn(const uint8_t note, const uint8_t velocity) const;
-
+                void programChange(const uint8_t program, const files::dmx::OP2File::instrument_t& instrument);
+                const files::dmx::OP2File::instrument_t* getInstrument() const noexcept;
                 //void programChange(uint8_t program) override;
                 //void pitchBend(int16_t bend) override;
 
@@ -38,6 +41,11 @@ namespace drivers
                 //void effectLevel(uint8_t value) override { return; } // Not supported
                 //void chorusLevel(uint8_t value) override { return; } // Not supported
                 //void allNotesOff() override;
+
+            private:
+                uint8_t _program;
+                //hardware::opl::OPL2instrument _instrument;
+                files::dmx::OP2File::instrument_t _instrument;
             };
         }
     }

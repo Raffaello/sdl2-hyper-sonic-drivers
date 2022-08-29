@@ -15,18 +15,14 @@ namespace drivers
     {
         namespace adlib
         {
-            /* OP2 instrument file entry */
-            // TODO: This is OP2File:instrument_t related
-            //typedef struct OP2instrEntry
-            //{
-            //    /*00*/	uint16_t                flags;      // see FL_xxx below
-            //    /*02*/	uint8_t                 finetune;   // finetune value for 2-voice sounds
-            //    /*03*/	uint8_t                 note;       // note # for fixed instruments
-            //    /*04*/	struct OPL2instrument   instr[2];   // instruments
-            ////} OP2instrEntry;
-
-            //static_assert(sizeof(OP2instrEntry) == sizeof(files::dmx::OP2File::instrument_t));
-
+            /// <summary>
+            /// OPL2 MidiDriver.
+            /// TODO: OPL3 later
+            /// 
+            /// Requires instruments as input.
+            /// OP2File based data bank. (It is specific to this file how to play notes and take out instruments)
+            /// TODO: generalize later on...
+            /// </summary>
             class MidiDriver
             {
             public:
@@ -39,7 +35,6 @@ namespace drivers
 
                 MidiChannel _channels[audio::midi::MIDI_MAX_CHANNELS];
                 files::dmx::OP2File::instrument_t _instruments[audio::midi::MIDI_MAX_CHANNELS];
-                //OPL2instrument _instruments[128];
                 std::shared_ptr<files::dmx::OP2File> _op2file;
 
                 std::shared_ptr<hardware::opl::OPL> _opl;
@@ -53,6 +48,8 @@ namespace drivers
                  * Stop all sounds
                  */
                 void stopAll() const noexcept;
+
+                const files::dmx::OP2File::instrument_t* getInstrument(const uint8_t chan, const uint8_t note) const;
                 
                 /*
                  * Write to an operator pair.

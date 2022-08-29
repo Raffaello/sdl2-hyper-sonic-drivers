@@ -118,7 +118,13 @@ namespace drivers
                     break;
                 case MIDI_EVENT_TYPES_HIGH::NOTE_ON:
                 {
-                    //writeInstrument(chan, instr);
+                    uint8_t chan = e.type.low;
+                    uint8_t note = e.data[0];
+                    uint8_t volume = e.data[1];
+
+                    auto instr = getInstrument(chan, note);
+                    writeInstrument(chan, &instr->voices[0]);
+
 
                     //_channels[e.type.low].noteOn(e.data[0], e.data[1]);
                     writeNote(e.type.low, e.data[0], 0);
@@ -228,14 +234,17 @@ namespace drivers
                     uint8_t chan = e.type.low;
                     uint8_t program = e.data[0];
 
-                    if (program > 127)
-                        return;
-
-                    //_program = program;
+                    //if (program > 127)
+                    //    return;
                     _instruments[chan] = _op2file->getInstrument(program);
                     writeInstrument(chan, &_instruments[chan].voices[0]);
-                    //memcpy(&(_instruments[chan]), &(_op2file->getInstrument(program)), sizeof(files::dmx::OP2File::instrument_t));
-                    spdlog::debug("program change {} {}", chan, program);
+
+                    
+                    // TODO with channels, later
+                    //_channels[chan].programChange(program, _op2file->getInstrument(program));
+                    //writeInstrument(chan, &_channels[chan].getInstrument()->voices[0]);
+
+                    spdlog::debug("program change {} {} ({})", chan, program, _op2file->getInstrumentName(program));
                 }
                     break;
                 case MIDI_EVENT_TYPES_HIGH::CHANNEL_AFTERTOUCH:
@@ -288,9 +297,9 @@ namespace drivers
 
 
                 // Init Adlib
-                _opl->writeReg(0x01, 0x20);		// enable Waveform Select
-                _opl->writeReg(0x08, 0x40);		// turn off CSW mode
-                _opl->writeReg(0xBD, 0x00);		// set vibrato/tremolo depth to low, set melodic mode
+                _opl->writeReg(0x01, 0x20); // enable Waveform Select
+                _opl->writeReg(0x08, 0x40); // turn off CSW mode
+                _opl->writeReg(0xBD, 0x00); // set vibrato/tremolo depth to low, set melodic mode
 
                 stopAll();
             }
@@ -303,6 +312,24 @@ namespace drivers
                     writeChannel(0x60, i, 0xFF, 0xFF);  // the fastest attack, decay
                     writeChannel(0x80, i, 0x0F, 0x0F);  // ... and release
                     writeValue(0xB0, i, 0);             // KEY-OFF
+                }
+            }
+
+            const files::dmx::OP2File::instrument_t* MidiDriver::getInstrument(const uint8_t chan, const uint8_t note) const
+            {
+                //uint8_t i;
+
+                if (chan == audio::midi::MIDI_PERCUSSION_CHANNEL)
+                {
+                    if (note < 35 || note > 81) {
+                        spdlog::error("wrong percussion number {}", note);
+                    }
+                    //i = note + (128 - 35);
+                    return &_op2file->getInstrument(note + (128 - 35));
+                }
+                else {
+                    // TODO: this might not be correct, would be better store the instrument number instead of the structure?
+                    return &_instruments[chan];
                 }
             }
 
