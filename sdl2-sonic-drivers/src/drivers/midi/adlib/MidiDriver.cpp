@@ -119,10 +119,9 @@ namespace drivers
                     _oplData.channelVolume[i] = 0;
                 }
 
-                // TODO: not sure the callback is required yet...
-                //hardware::opl::TimerCallBack cb = std::bind(&MidiDriver::onTimer, this);
-                //auto p = std::make_shared<hardware::opl::TimerCallBack>(cb);
-                //_opl->start(p);
+                hardware::opl::TimerCallBack cb = std::bind(&MidiDriver::onTimer, this);
+                auto p = std::make_shared<hardware::opl::TimerCallBack>(cb);
+                _opl->start(p);
             }
 
             MidiDriver::~MidiDriver()
