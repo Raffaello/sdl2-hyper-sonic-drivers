@@ -38,7 +38,9 @@ install(FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/scummvm/SDLMixerManager.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/MIDI.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/Sound.hpp
-    
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/opl/banks/OP2Bank.hpp
+
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/westwood/ADLDriver.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/PCMDriver.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/MIDDriver.hpp
@@ -47,7 +49,7 @@ install(FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/Native.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/ScummVM.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/Adlib.hpp
-    
+
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/westwood/ADLFile.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/MIDFile.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/dmx/MUSFile.hpp
@@ -115,6 +117,8 @@ target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/scummvm/RateConverter.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/scummvm/Timestamp.cpp
     # --- #
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/opl/banks/OP2Bank.cpp
+    # --- # 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/westwood/ADLDriver.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/PCMDriver.cpp
     #${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/miles/XMidi.cpp
@@ -134,8 +138,6 @@ target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/adlib/MidiDriver.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/adlib/MidiChannel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/Adlib.cpp
-
-
     # --- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/File.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/IFFFile.cpp

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstdint>
-#include <audio/opl/banks/OP2Bank.h>
+#include <audio/opl/banks/OP2Bank.hpp>
 
 namespace drivers
 {

@@ -171,10 +171,10 @@ namespace drivers
                     uint8_t note = e.data[0];
                     uint8_t volume = e.data[1];
                     int8_t freeSlot = 0;
-                    auto instr = getInstrument(chan, note);
+                    
                     if ((freeSlot = findFreeOplChannel((chan == MIDI_PERCUSSION_CHANNEL) ? 2 : 0, e.abs_time)) != -1)
                     {
-                        int chi = occupyChannel(freeSlot, chan, note, volume, instr, 0, e.abs_time);
+                        int chi = occupyChannel(freeSlot, chan, note, volume, getInstrument(chan, note), 0, e.abs_time);
 
                         // TODO: OPL3
                         //if (!OPLsinglevoice && instr->flags == FL_DOUBLE_VOICE)
@@ -544,8 +544,9 @@ namespace drivers
                         spdlog::error("wrong percussion number {}", note);
                     }
                     //i = note + (128 - 35);
-                    auto instr = _op2Bank->getInstrument(note + (128 - 35));
-                    memcpy(&_instruments[chan], &instr, sizeof(OPL2instrument_t));
+                    //auto instr = _op2Bank->getInstrument(note + (128 - 35));
+                    _instruments[chan] = _op2Bank->getInstrument(note + (128 - 35));
+                    //memcpy(&_instruments[chan], &instr, sizeof(OPL2instrument_t));
                     //return &_instruments[chan];
                 }
                 else {
@@ -646,7 +647,7 @@ namespace drivers
 
             void MidiDriver::writeFreq(const uint8_t channel, const uint16_t freq, const uint8_t octave, const bool keyon) const noexcept
             {
-                writeValue(0xA0, channel, freq);
+                writeValue(0xA0, channel, freq & 0xFF);
                 writeValue(0xB0, channel, (freq >> 8) | (octave << 2) | (static_cast<uint8_t>(keyon) << 5));
             }
 

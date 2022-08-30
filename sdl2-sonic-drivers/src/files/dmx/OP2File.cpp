@@ -9,7 +9,6 @@ namespace files
         constexpr int OP2FILE_MAGIC_HEADER_SIZE = 8;
         constexpr int OP2FILE_INSTRUMENT_NAME_MAX_SIZE = 32;
         
-        //using audio::opl::banks::Op2Bank_t;
         using audio::opl::banks::Op2BankInstrument_t;
         using audio::opl::banks::OP2BANK_INSTRUMENT_NUM_VOICES;
         using audio::opl::banks::OP2BANK_NUM_INSTRUMENTS;
@@ -32,15 +31,15 @@ namespace files
             _bank = std::make_shared<OP2Bank>(_instruments, _instrument_names);
         }
 
-        Op2BankInstrument_t OP2File::getInstrument(const uint8_t i) const
+        /*Op2BankInstrument_t OP2File::getInstrument(const uint8_t i) const
         {
             return _instruments.at(i);
-        }
+        }*/
 
-        std::string OP2File::getInstrumentName(const uint8_t i) const
+        /*std::string OP2File::getInstrumentName(const uint8_t i) const
         {
             return _instrument_names.at(i);
-        }
+        }*/
 
         const std::shared_ptr<audio::opl::banks::OP2Bank> OP2File::getBank() const noexcept
         {

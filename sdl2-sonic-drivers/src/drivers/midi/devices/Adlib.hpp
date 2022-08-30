@@ -5,7 +5,7 @@
 #include <hardware/opl/OPL.hpp>
 #include <drivers/midi/adlib/MidiDriver.hpp>
 #include <audio/midi/MIDIEvent.hpp>
-#include <audio/opl/banks/OP2Bank.h>
+#include <audio/opl/banks/OP2Bank.hpp>
 
 namespace drivers
 {

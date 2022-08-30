@@ -5,7 +5,7 @@
 #include <array>
 #include <cstdint>
 #include <hardware/opl/OPL2instrument.h>
-#include <audio/opl/banks/OP2Bank.h>
+#include <audio/opl/banks/OP2Bank.hpp>
 #include <memory>
 
 namespace files
@@ -27,8 +27,8 @@ namespace files
             explicit OP2File(const std::string& filename);
             ~OP2File() override = default;
 
-            audio::opl::banks::Op2BankInstrument_t getInstrument(const uint8_t i) const;
-            std::string getInstrumentName(const uint8_t i) const;
+            //audio::opl::banks::Op2BankInstrument_t getInstrument(const uint8_t i) const;
+            //std::string getInstrumentName(const uint8_t i) const;
             const std::shared_ptr<audio::opl::banks::OP2Bank> getBank() const noexcept;
         private:
             std::array<audio::opl::banks::Op2BankInstrument_t, audio::opl::banks::OP2BANK_NUM_INSTRUMENTS> _instruments;

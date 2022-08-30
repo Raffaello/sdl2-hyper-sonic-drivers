@@ -8,7 +8,7 @@
 #include <cstdint>
 //#include <files/dmx/OP2File.hpp>
 #include <hardware/opl/OPL2instrument.h>
-#include <audio/opl/banks/OP2Bank.h>
+#include <audio/opl/banks/OP2Bank.hpp>
 
 namespace drivers
 {
@@ -84,6 +84,7 @@ namespace drivers
                 channelEntry _oplChannels[OPL2_NUM_CHANNELS];
 
                 //MidiChannel _channels[audio::midi::MIDI_MAX_CHANNELS];
+                // TODO: use pointer / share_ptr instead of copying the struct
                 audio::opl::banks::Op2BankInstrument_t _instruments[audio::midi::MIDI_MAX_CHANNELS];
                 OPLdata _oplData;
 
@@ -108,7 +109,7 @@ namespace drivers
 
                 int8_t findFreeOplChannel(const uint8_t flag,  const uint32_t abs_time);
 
-                // TODO: what about this "OP2 Bank?" better a "Bank format?"
+                // TOOD use a shared_ptr instead?
                 audio::opl::banks::Op2BankInstrument_t* getInstrument(const uint8_t chan, const uint8_t note);
 
                 /*

@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <files/dmx/OP2File.hpp>
-#include <audio/opl/banks/OP2Bank.h>
+#include <audio/opl/banks/OP2Bank.hpp>
 #include <memory>
 
 namespace files
@@ -15,9 +15,9 @@ namespace files
         TEST(OP2File, cstorDefault)
         {
             OP2File f("fixtures/GENMIDI.OP2");
-
-            EXPECT_STRCASEEQ("Acoustic Grand Piano", f.getInstrumentName(0).c_str());
-            EXPECT_STRCASEEQ("Open Triangle", f.getInstrumentName(OP2BANK_NUM_INSTRUMENTS - 1).c_str());
+            auto b = f.getBank();
+            EXPECT_STRCASEEQ("Acoustic Grand Piano", b->getInstrumentName(0).c_str());
+            EXPECT_STRCASEEQ("Open Triangle", b->getInstrumentName(OP2BANK_NUM_INSTRUMENTS - 1).c_str());
         }
 
         TEST(OP2File, file_not_found)
@@ -28,15 +28,15 @@ namespace files
         TEST(OP2File, getInstruments_out_of_bound)
         {
             OP2File f("fixtures/GENMIDI.OP2");
-
-            EXPECT_THROW(f.getInstrument(255), std::out_of_range);
+            auto b = f.getBank();
+            EXPECT_THROW(b->getInstrument(255), std::out_of_range);
         }
 
         TEST(OP2File, getInstrumentsName_out_of_bound)
         {
             OP2File f("fixtures/GENMIDI.OP2");
-
-            EXPECT_THROW(f.getInstrumentName(255), std::out_of_range);
+            auto b = f.getBank();
+            EXPECT_THROW(b->getInstrumentName(255), std::out_of_range);
         }
 
         void expectInstrumentZero(Op2BankInstrument_t& instr)
@@ -100,9 +100,8 @@ namespace files
         TEST(OP2File, grandPiano)
         {
             OP2File f("fixtures/GENMIDI.OP2");
-            Op2BankInstrument_t expInstr;
-
-            expectInstrumentZero(f.getInstrument(0));
+            auto b = f.getBank();
+            expectInstrumentZero(b->getInstrument(0));
         }
     }
 }
