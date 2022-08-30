@@ -17,7 +17,7 @@ namespace drivers
             {
             public:
                 // TOOD review the constructor and use a load bank instead..
-                Adlib(std::shared_ptr<hardware::opl::OPL> opl, std::shared_ptr<audio::opl::banks::OP2Bank> op2Bank);
+                Adlib(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank);
                 ~Adlib() = default;
 
                 inline void sendEvent(const audio::midi::MIDIEvent& e) const noexcept override;

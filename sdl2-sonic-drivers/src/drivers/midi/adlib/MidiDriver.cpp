@@ -92,7 +92,7 @@ namespace drivers
             /// TODO: this whole can just become the device::AdLib ....
 
 
-            MidiDriver::MidiDriver(std::shared_ptr<hardware::opl::OPL> opl, std::shared_ptr<audio::opl::banks::OP2Bank> op2Bank) :
+            MidiDriver::MidiDriver(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank) :
                 _opl(opl), _op2Bank(op2Bank)
             {
                 init();
@@ -168,7 +168,8 @@ namespace drivers
                     
                     if ((freeSlot = findFreeOplChannel((chan == MIDI_PERCUSSION_CHANNEL) ? 2 : 0, e.abs_time)) != -1)
                     {
-                        int chi = occupyChannel(freeSlot, chan, note, volume, getInstrument(chan, note), 0, e.abs_time);
+                        auto instr = getInstrument(chan, note);
+                        int chi = occupyChannel(freeSlot, chan, note, volume, instr, 0, e.abs_time);
 
                         // TODO: OPL3
                         //if (!OPLsinglevoice && instr->flags == FL_DOUBLE_VOICE)

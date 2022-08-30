@@ -8,7 +8,7 @@ namespace hardware
     {
         namespace woody
         {
-            WoodyOPL::WoodyOPL(const std::shared_ptr<audio::scummvm::Mixer> mixer, const bool surround)
+            WoodyOPL::WoodyOPL(const std::shared_ptr<audio::scummvm::Mixer>& mixer, const bool surround)
                 : EmulatedOPL(mixer), _opl(nullptr), _surround(surround)
             {
             }

@@ -3,8 +3,7 @@
 #include <cstdint>
 #include <array>
 #include <string>
-#include <hardware/opl/OPL2instrument.h> // <- TODO: is this hardware or should be audio? 
-                                         //          (hardware as it is strictly related to opl hardware)
+#include <hardware/opl/OPL2instrument.h> 
 
 namespace audio
 {
@@ -29,12 +28,13 @@ namespace audio
             {
             public:
                 OP2Bank(
-                    const std::array<Op2BankInstrument_t, OP2BANK_NUM_INSTRUMENTS> instruments,
-                    const std::array<std::string, OP2BANK_NUM_INSTRUMENTS> names
+                    const std::array<Op2BankInstrument_t, OP2BANK_NUM_INSTRUMENTS>& instruments,
+                    const std::array<std::string, OP2BANK_NUM_INSTRUMENTS>& names
                 );
                 ~OP2Bank() = default;
 
-                // TODO replace with a shared pointer
+                // TODO replace with a shared pointer!!!
+                
                 /*inline Op2BankInstrument_t* getInstrumentPtr(const uint8_t i) const {
                     return &_instruments.at(i);
                 }*/

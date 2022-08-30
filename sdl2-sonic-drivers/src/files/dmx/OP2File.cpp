@@ -31,17 +31,7 @@ namespace files
             _bank = std::make_shared<OP2Bank>(_instruments, _instrument_names);
         }
 
-        /*Op2BankInstrument_t OP2File::getInstrument(const uint8_t i) const
-        {
-            return _instruments.at(i);
-        }*/
-
-        /*std::string OP2File::getInstrumentName(const uint8_t i) const
-        {
-            return _instrument_names.at(i);
-        }*/
-
-        const std::shared_ptr<audio::opl::banks::OP2Bank> OP2File::getBank() const noexcept
+        std::shared_ptr<audio::opl::banks::OP2Bank> OP2File::getBank() const noexcept
         {
             return _bank;
         }

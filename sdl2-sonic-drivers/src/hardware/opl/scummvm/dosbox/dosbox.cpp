@@ -132,7 +132,7 @@ namespace hardware
                     return ret;
                 }
 
-                OPL::OPL(const std::shared_ptr<audio::scummvm::Mixer> mixer, Config::OplType type)
+                OPL::OPL(const std::shared_ptr<audio::scummvm::Mixer>& mixer, Config::OplType type)
                     : EmulatedOPL(mixer), _type(type), _rate(0), _emulator(nullptr), _reg({ 0 })
                 {
                 }

@@ -8,8 +8,8 @@ namespace audio
         namespace banks
         {
             OP2Bank::OP2Bank(
-                const std::array<Op2BankInstrument_t, OP2BANK_NUM_INSTRUMENTS> instruments,
-                const std::array<std::string, OP2BANK_NUM_INSTRUMENTS> names
+                const std::array<Op2BankInstrument_t, OP2BANK_NUM_INSTRUMENTS>& instruments,
+                const std::array<std::string, OP2BANK_NUM_INSTRUMENTS>& names
             ) : _instruments(instruments), _names(names)
             {
             }

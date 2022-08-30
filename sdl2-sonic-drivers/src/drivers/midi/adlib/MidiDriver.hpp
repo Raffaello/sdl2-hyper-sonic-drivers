@@ -6,7 +6,6 @@
 #include <hardware/opl/OPL.hpp>
 #include <memory>
 #include <cstdint>
-//#include <files/dmx/OP2File.hpp>
 #include <hardware/opl/OPL2instrument.h>
 #include <audio/opl/banks/OP2Bank.hpp>
 
@@ -71,7 +70,7 @@ namespace drivers
             class MidiDriver
             {
             public:
-                MidiDriver(std::shared_ptr<hardware::opl::OPL> opl, std::shared_ptr<audio::opl::banks::OP2Bank> op2Bank);
+                MidiDriver(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank);
                 ~MidiDriver();
 
                 void send(const audio::midi::MIDIEvent& e) /*const*/ noexcept;
