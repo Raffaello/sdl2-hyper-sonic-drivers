@@ -39,7 +39,7 @@ namespace hardware
                     bool isStereo() const override { return true; }
 
                 protected:
-                    void generateSamples(int16_t* buffer, int length);
+                    void generateSamples(int16_t* buffer, int length) override;
                 };
             }
         }

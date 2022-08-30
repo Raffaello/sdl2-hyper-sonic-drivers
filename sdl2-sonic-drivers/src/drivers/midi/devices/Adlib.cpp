@@ -13,12 +13,12 @@ namespace drivers
                 _adlib = std::make_shared<drivers::midi::adlib::MidiDriver>(opl,op2Bank);
             }
 
-            inline void Adlib::sendEvent(const audio::midi::MIDIEvent& e) const noexcept
+            void Adlib::sendEvent(const audio::midi::MIDIEvent& e) const noexcept
             {
                 _adlib->send(e);
             }
 
-            inline void Adlib::sendMessage(const uint8_t msg[], const uint8_t size) const noexcept
+            void Adlib::sendMessage(const uint8_t msg[], const uint8_t size) const noexcept
             {
                 assert(size >= 2 && size <= 3);
                 audio::midi::MIDIEvent e;
@@ -32,7 +32,7 @@ namespace drivers
                 sendEvent(e);
             }
 
-            inline void Adlib::sendSysEx(const audio::midi::MIDIEvent& e) const noexcept
+            void Adlib::sendSysEx(const audio::midi::MIDIEvent& e) const noexcept
             {
                 // TODO
                 //_adlib->send(e);

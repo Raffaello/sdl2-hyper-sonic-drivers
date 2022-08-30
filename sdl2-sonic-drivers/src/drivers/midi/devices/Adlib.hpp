@@ -20,9 +20,9 @@ namespace drivers
                 Adlib(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank);
                 ~Adlib() = default;
 
-                inline void sendEvent(const audio::midi::MIDIEvent& e) const noexcept override;
-                inline void sendMessage(const uint8_t msg[], const uint8_t size) const noexcept override;
-                inline void sendSysEx(const audio::midi::MIDIEvent& e) const noexcept override;
+                void sendEvent(const audio::midi::MIDIEvent& e) const noexcept override;
+                void sendMessage(const uint8_t msg[], const uint8_t size) const noexcept override;
+                void sendSysEx(const audio::midi::MIDIEvent& e) const noexcept override;
                 
                 //void loadBankOP2();
             private:
