@@ -93,15 +93,18 @@ namespace files
             EXPECT_NE(b1->getInstrument(0).fineTune, 255);
             EXPECT_EQ(b2->getInstrument(0).fineTune, 0x80);
 
-            expectInstrumentZero(b2->getInstrument(0));
-            expectInstrumentZero(b1->getInstrument(0));
+            auto i2 = b2->getInstrument(0);
+            auto i1 = b1->getInstrument(0);
+            expectInstrumentZero(i2);
+            expectInstrumentZero(i1);
         }
 
         TEST(OP2File, grandPiano)
         {
             OP2File f("fixtures/GENMIDI.OP2");
             auto b = f.getBank();
-            expectInstrumentZero(b->getInstrument(0));
+            auto i = b->getInstrument(0);
+            expectInstrumentZero(i);
         }
     }
 }
