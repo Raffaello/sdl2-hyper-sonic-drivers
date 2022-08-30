@@ -79,22 +79,23 @@ namespace files
             EXPECT_EQ(instr.voices[1].basenote, 0);
         }
 
-        TEST(OP2File, getBank)
+        TEST(OP2File, getBank_check_immutability)
         {
             OP2File f("fixtures/GENMIDI.OP2");
 
             auto b1 = f.getBank();
-            b1->names[0] = "b1";
-            b1->instruments[0].fineTune = 255;
+            b1->getInstrumentName(0) = "b1";
+            b1->getInstrument(0) = b1->getInstrument(2);
             auto b2 = f.getBank();
             
-            EXPECT_STRCASEEQ(b1->names[0].c_str(), "b1");
-            EXPECT_STRCASEEQ(b2->names[0].c_str(), "Acoustic Grand Piano");
+            EXPECT_STRCASENE(b1->getInstrumentName(0).c_str(), "b1");
+            EXPECT_STRCASEEQ(b2->getInstrumentName(0).c_str(), "Acoustic Grand Piano");
 
-            EXPECT_EQ(b1->instruments[0].fineTune, 255);
-            EXPECT_EQ(b2->instruments[0].fineTune, 0x80);
+            EXPECT_NE(b1->getInstrument(0).fineTune, 255);
+            EXPECT_EQ(b2->getInstrument(0).fineTune, 0x80);
 
-            expectInstrumentZero(b2->instruments[0]);
+            expectInstrumentZero(b2->getInstrument(0));
+            expectInstrumentZero(b1->getInstrument(0));
         }
 
         TEST(OP2File, grandPiano)

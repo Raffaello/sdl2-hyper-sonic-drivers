@@ -44,8 +44,8 @@ namespace audio
                 }
 
             private:
-                std::array<Op2BankInstrument_t, OP2BANK_NUM_INSTRUMENTS> _instruments;
-                std::array<std::string, OP2BANK_NUM_INSTRUMENTS> _names;
+                const std::array<Op2BankInstrument_t, OP2BANK_NUM_INSTRUMENTS> _instruments;
+                const std::array<std::string, OP2BANK_NUM_INSTRUMENTS> _names;
             };
 
             // TODO: deprecated

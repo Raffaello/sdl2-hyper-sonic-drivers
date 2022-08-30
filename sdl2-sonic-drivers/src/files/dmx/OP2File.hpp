@@ -24,17 +24,16 @@ namespace files
         class OP2File : protected File
         {
         public:
-           
-
             explicit OP2File(const std::string& filename);
             ~OP2File() override = default;
 
             audio::opl::banks::Op2BankInstrument_t getInstrument(const uint8_t i) const;
             std::string getInstrumentName(const uint8_t i) const;
-            const std::shared_ptr<audio::opl::banks::Op2Bank_t> getBank() const noexcept;
+            const std::shared_ptr<audio::opl::banks::OP2Bank> getBank() const noexcept;
         private:
-            std::shared_ptr<audio::opl::banks::Op2Bank_t> _bank;
-            //std::array<std::string, audio::opl::banks::OP2BANK_NUM_INSTRUMENTS> _instrument_names;
+            std::array<audio::opl::banks::Op2BankInstrument_t, audio::opl::banks::OP2BANK_NUM_INSTRUMENTS> _instruments;
+            std::array<std::string, audio::opl::banks::OP2BANK_NUM_INSTRUMENTS> _instrument_names;
+            std::shared_ptr<audio::opl::banks::OP2Bank> _bank;
 
             void _readInstrumentVoice(hardware::opl::OPL2instrument_t* buf);
             void _readInstrument(audio::opl::banks::Op2BankInstrument_t* buf);
