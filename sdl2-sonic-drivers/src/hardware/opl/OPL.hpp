@@ -67,7 +67,7 @@ namespace hardware
             /**
              * Start the OPL with callbacks.
              */
-            void start(std::shared_ptr<TimerCallBack> callback, int timerFrequency = DEFAULT_CALLBACK_FREQUENCY);
+            void start(const std::shared_ptr<TimerCallBack>& callback, int timerFrequency = DEFAULT_CALLBACK_FREQUENCY);
 
             /**
              * Stop the OPL

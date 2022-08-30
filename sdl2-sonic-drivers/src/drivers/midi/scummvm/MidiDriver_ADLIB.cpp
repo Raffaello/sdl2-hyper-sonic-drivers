@@ -94,7 +94,7 @@ namespace drivers
                 242, 243, 245, 247, 249, 251, 252, 254
             };
 
-            MidiDriver_ADLIB::MidiDriver_ADLIB(std::shared_ptr<hardware::opl::OPL> opl, const bool opl3mode)
+            MidiDriver_ADLIB::MidiDriver_ADLIB(const std::shared_ptr<hardware::opl::OPL>& opl, const bool opl3mode)
                 : _opl3Mode(opl3mode), _opl(opl)
             {
                 unsigned int i;

@@ -283,7 +283,7 @@ namespace files
                 delta_time = event.delta_time;
                 abs_time += delta_time;
 
-                // swap percurssion channel with OPL2 percussion channel
+                // swap percurssion channel with MIDI percussion channel
                 switch (event.desc.e.channel) {
                 case MUS_PERCURSION_CHANNEL:
                     me.type.low = MIDI_PERCUSSION_CHANNEL;

@@ -18,8 +18,8 @@ namespace files
 
         const std::string getVersion() const noexcept;
         const int getChannels() const noexcept;
-        const int getSampleRate() const noexcept;
-        const int getBitsDepth() const noexcept;
+        const uint32_t getSampleRate() const noexcept;
+        const uint8_t getBitsDepth() const noexcept;
         const int getDataSize() const noexcept;
         const std::shared_ptr<uint8_t[]> getData() const noexcept;
 

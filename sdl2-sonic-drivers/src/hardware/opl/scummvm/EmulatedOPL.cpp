@@ -10,7 +10,7 @@ namespace hardware
             constexpr int FIXP_SHIFT = 16;
 
 
-            EmulatedOPL::EmulatedOPL(const std::shared_ptr<audio::scummvm::Mixer> mixer) : OPL(),
+            EmulatedOPL::EmulatedOPL(const std::shared_ptr<audio::scummvm::Mixer>& mixer) : OPL(),
                 _mixer(mixer)
             {
                 _handle = new audio::scummvm::SoundHandle();

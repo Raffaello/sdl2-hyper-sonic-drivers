@@ -22,7 +22,7 @@ namespace hardware
             _hasInstance = false;
         }
 
-        void OPL::start(std::shared_ptr<TimerCallBack> callback, int timerFrequency)
+        void OPL::start(const std::shared_ptr<TimerCallBack>& callback, int timerFrequency)
         {
             _callback = callback;
             startCallbacks(timerFrequency);

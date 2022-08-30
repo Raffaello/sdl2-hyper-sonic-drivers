@@ -6,8 +6,8 @@
 #include <hardware/opl/OPL.hpp>
 #include <memory>
 #include <cstdint>
-#include <files/dmx/OP2File.hpp>
 #include <hardware/opl/OPL2instrument.h>
+#include <audio/opl/banks/OP2Bank.hpp>
 
 namespace drivers
 {
@@ -70,20 +70,21 @@ namespace drivers
             class MidiDriver
             {
             public:
-                MidiDriver(std::shared_ptr<hardware::opl::OPL> opl, std::shared_ptr<files::dmx::OP2File> op2file);
+                MidiDriver(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank);
                 ~MidiDriver();
 
                 void send(const audio::midi::MIDIEvent& e) /*const*/ noexcept;
 
             private:
-                std::shared_ptr<files::dmx::OP2File> _op2file;
+                std::shared_ptr<audio::opl::banks::OP2Bank> _op2Bank;
                 std::shared_ptr<hardware::opl::OPL> _opl;
 
                 uint8_t _oplNumChannels = OPL2_NUM_CHANNELS;
                 channelEntry _oplChannels[OPL2_NUM_CHANNELS];
 
                 //MidiChannel _channels[audio::midi::MIDI_MAX_CHANNELS];
-                files::dmx::OP2File::instrument_t _instruments[audio::midi::MIDI_MAX_CHANNELS];
+                // TODO: use pointer / share_ptr instead of copying the struct
+                audio::opl::banks::Op2BankInstrument_t _instruments[audio::midi::MIDI_MAX_CHANNELS];
                 OPLdata _oplData;
 
                 uint8_t _playingChannels = 0;
@@ -103,12 +104,12 @@ namespace drivers
 
                 uint8_t releaseChannel(const uint8_t slot, const bool killed);
 
-                int occupyChannel(const uint8_t slot, const uint8_t channel, uint8_t note, uint8_t volume, files::dmx::OP2File::instrument_t* instrument, const uint8_t secondary, const uint32_t abs_time);
+                int occupyChannel(const uint8_t slot, const uint8_t channel, uint8_t note, uint8_t volume, audio::opl::banks::Op2BankInstrument_t* instrument, const uint8_t secondary, const uint32_t abs_time);
 
                 int8_t findFreeOplChannel(const uint8_t flag,  const uint32_t abs_time);
 
-                // TODO: what about this "OP2 Bank?" better a "Bank format?"
-                files::dmx::OP2File::instrument_t* getInstrument(const uint8_t chan, const uint8_t note);
+                // TOOD use a shared_ptr instead?
+                audio::opl::banks::Op2BankInstrument_t* getInstrument(const uint8_t chan, const uint8_t note);
 
                 /*
                  * Write to an operator pair.

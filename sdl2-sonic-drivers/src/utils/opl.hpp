@@ -20,13 +20,13 @@ namespace utils
     /// <param name="reg"></param>
     /// <param name="val"></param>
     /// <param name="opl"></param>
-    void FMoutput(unsigned port, int reg, int val, std::shared_ptr<hardware::opl::OPL> opl);
+    void FMoutput(unsigned port, int reg, int val, const std::shared_ptr<hardware::opl::OPL>& opl);
     
     /// <summary>
     /// This function outputs a value to a specified FM register at the Sound
     /// Blaster/Adlib (mono) port address.
     /// </summary>
-    void fm(int reg, int val, std::shared_ptr<hardware::opl::OPL> opl);
+    void fm(int reg, int val, const std::shared_ptr<hardware::opl::OPL>& opl);
 
     /// <summary>
     /// This function outputs a value to a specified FM register at the Sound
@@ -34,7 +34,7 @@ namespace utils
     /// </summary>
     /// <param name="opl"></param>
     /// <returns></returns>
-    void Profm1(int reg, int val, std::shared_ptr<hardware::opl::OPL> opl);
+    void Profm1(int reg, int val, const std::shared_ptr<hardware::opl::OPL>& opl);
     
     /// <summary>
     /// This function outputs a value to a specified FM register at the Sound
@@ -42,14 +42,14 @@ namespace utils
     /// </summary>
     /// <param name="opl"></param>
     /// <returns></returns>
-    void Profm2(int reg, int val, std::shared_ptr<hardware::opl::OPL> opl);
+    void Profm2(int reg, int val, const std::shared_ptr<hardware::opl::OPL>& opl);
 
     /// <summary>
     /// detect OPL2: not exactly working with emulators
     /// It init the opl if it wasn't already
     /// It reset the opl
     /// </summary>
-    bool detectOPL2(std::shared_ptr<hardware::opl::OPL> opl);
+    bool detectOPL2(const std::shared_ptr<hardware::opl::OPL>& opl);
 
     /// <summary>
     /// detect OPL3: not exactly working with emulators
@@ -57,5 +57,5 @@ namespace utils
     /// It reset the opl
     /// It calls detectOPL2
     /// </summary>
-    bool detectOPL3(std::shared_ptr<hardware::opl::OPL> opl);
+    bool detectOPL3(const std::shared_ptr<hardware::opl::OPL>& opl);
 }

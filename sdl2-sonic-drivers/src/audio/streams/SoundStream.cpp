@@ -9,7 +9,7 @@ namespace audio
         using utils::READ_LE_UINT16;
         using audio::scummvm::SoundHandle;
 
-        SoundStream::SoundStream(const std::shared_ptr<Sound> sound)
+        SoundStream::SoundStream(const std::shared_ptr<Sound>& sound)
             : _sound(sound)
         {
             _handle = SoundHandle();

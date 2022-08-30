@@ -404,88 +404,6 @@ int midi_adlib_mus_file_CONCURRENCY_ERROR_ON_SAME_DEVICE()
     return 0;
 }
 
-template <> struct fmt::formatter<hardware::opl::OPL2instrument_t> {
-    char presentation = 'f';
-    // Parses format specifications of the form ['f' | 'e'].
-    constexpr auto parse(format_parse_context& ctx) -> decltype(ctx.begin()) {
-        // [ctx.begin(), ctx.end()) is a character range that contains a part of
-        // the format string starting from the format specifications to be parsed,
-        // e.g. in
-        //
-        //   fmt::format("{:f} - point of interest", point{1, 2});
-        //
-        // the range will contain "f} - point of interest". The formatter should
-        // parse specifiers until '}' or the end of the range. In this example
-        // the formatter should parse the 'f' specifier and return an iterator
-        // pointing to '}'.
-
-        // Please also note that this character range may be empty, in case of
-        // the "{}" format string, so therefore you should check ctx.begin()
-        // for equality with ctx.end().
-
-        // Parse the presentation format and store it in the formatter:
-        auto it = ctx.begin(), end = ctx.end();
-        if (it != end && (*it == 'f' || *it == 'e')) presentation = *it++;
-
-        // Check if reached the end of the range:
-        if (it != end && *it != '}') throw format_error("invalid format");
-
-        // Return an iterator past the end of the parsed range:
-        return it;
-    }
-
-    // Formats the point p using the parsed format specification (presentation)
-  // stored in this formatter.
-    template <typename FormatContext>
-    auto format(const hardware::opl::OPL2instrument_t& voice, FormatContext& ctx) const -> decltype(ctx.out()) {
-        // ctx.out() is an output iterator to write to.
-        return presentation == 'f'
-            ? fmt::format_to(ctx.out(), "({:x})", voice.trem_vibr_1)
-            : fmt::format_to(ctx.out(), "use :f format type to dispaly it");
-    }
-};
-
-template <> struct fmt::formatter<files::dmx::OP2File::instrument_t> {
-    char presentation = 'f';
-    // Parses format specifications of the form ['f' | 'e'].
-    constexpr auto parse(format_parse_context& ctx) -> decltype(ctx.begin()) {
-        // [ctx.begin(), ctx.end()) is a character range that contains a part of
-        // the format string starting from the format specifications to be parsed,
-        // e.g. in
-        //
-        //   fmt::format("{:f} - point of interest", point{1, 2});
-        //
-        // the range will contain "f} - point of interest". The formatter should
-        // parse specifiers until '}' or the end of the range. In this example
-        // the formatter should parse the 'f' specifier and return an iterator
-        // pointing to '}'.
-
-        // Please also note that this character range may be empty, in case of
-        // the "{}" format string, so therefore you should check ctx.begin()
-        // for equality with ctx.end().
-
-        // Parse the presentation format and store it in the formatter:
-        auto it = ctx.begin(), end = ctx.end();
-        if (it != end && (*it == 'f' || *it == 'e')) presentation = *it++;
-
-        // Check if reached the end of the range:
-        if (it != end && *it != '}') throw format_error("invalid format");
-
-        // Return an iterator past the end of the parsed range:
-        return it;
-    }
-
-    // Formats the point p using the parsed format specification (presentation)
-  // stored in this formatter.
-    template <typename FormatContext>
-    auto format(const files::dmx::OP2File::instrument_t& inst, FormatContext& ctx) const -> decltype(ctx.out()) {
-        // ctx.out() is an output iterator to write to.
-        return presentation == 'f'
-            ? fmt::format_to(ctx.out(), "(flags: {:x}, noteNum: {:d}, fineTune: {:d}, voicesSize: {:d}) -- voice1: {:f}", inst.flags, inst.noteNum, inst.fineTune, inst.voices.size(),inst.voices[0])
-            : fmt::format_to(ctx.out(), "use :f format type to dispaly it");
-    }
-};
-
 int midi_adlib_mus_op2_file()
 {
     using namespace audio::scummvm;
@@ -510,7 +428,7 @@ int midi_adlib_mus_op2_file()
     auto op2File = std::make_shared<files::dmx::OP2File>("test/fixtures/GENMIDI.OP2");
     auto musFile = std::make_shared<files::dmx::MUSFile>("test/fixtures/D_E1M1.MUS");
     auto midi = musFile->getMIDI();
-    auto adlib_midi = std::make_shared<drivers::midi::devices::Adlib>(opl, op2File);
+    auto adlib_midi = std::make_shared<drivers::midi::devices::Adlib>(opl, op2File->getBank());
     drivers::MIDDriver midDrv(mixer, adlib_midi);
     
     spdlog::info("playing midi D_E1M1.MUS...");

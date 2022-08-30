@@ -18,7 +18,7 @@ namespace drivers
                    
             }
 
-            void MidiChannel::programChange(const uint8_t program, const files::dmx::OP2File::instrument_t& instrument)
+            void MidiChannel::programChange(const uint8_t program, const audio::opl::banks::Op2BankInstrument_t& instrument)
             {
                 //if (program > 127)
                 //    return;
@@ -26,7 +26,7 @@ namespace drivers
                 _program = program;
                 _instrument = instrument;
             }
-            const files::dmx::OP2File::instrument_t* MidiChannel::getInstrument() const noexcept
+            const audio::opl::banks::Op2BankInstrument_t* MidiChannel::getInstrument() const noexcept
             {
                 return &_instrument;
             }

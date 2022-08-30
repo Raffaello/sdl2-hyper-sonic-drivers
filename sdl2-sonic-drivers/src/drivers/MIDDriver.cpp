@@ -13,7 +13,7 @@ namespace drivers
         return static_cast<unsigned int>(static_cast<float>(tempo) / static_cast<float>(division));
     }
 
-    MIDDriver::MIDDriver(std::shared_ptr<audio::scummvm::Mixer> mixer, std::shared_ptr<midi::Device> device)
+    MIDDriver::MIDDriver(const std::shared_ptr<audio::scummvm::Mixer>& mixer, const std::shared_ptr<midi::Device>& device)
         : _mixer(mixer), _device(device)
     {
     }
@@ -23,7 +23,7 @@ namespace drivers
         stop();
     }
     
-    void MIDDriver::play(const std::shared_ptr<audio::MIDI> midi) noexcept
+    void MIDDriver::play(const std::shared_ptr<audio::MIDI>& midi) noexcept
     {
         using audio::midi::MIDI_FORMAT;
 

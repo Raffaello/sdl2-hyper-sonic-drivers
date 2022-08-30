@@ -18,7 +18,7 @@ namespace hardware
                 ymfm::ymfm_interface _ymfm;
                 void* _chip;
             public:
-                MameOPL(const std::shared_ptr<audio::scummvm::Mixer> mixer);
+                MameOPL(const std::shared_ptr<audio::scummvm::Mixer>& mixer);
                 virtual ~MameOPL();
 
                 bool init() override;

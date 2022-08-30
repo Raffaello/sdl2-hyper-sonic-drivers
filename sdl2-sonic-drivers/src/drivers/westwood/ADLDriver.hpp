@@ -31,9 +31,9 @@ namespace drivers
         class ADLDriver
         {
         public:
-            ADLDriver(std::shared_ptr<hardware::opl::OPL> opl, std::shared_ptr<files::westwood::ADLFile> adl_file);
+            ADLDriver(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<files::westwood::ADLFile>& adl_file);
             virtual ~ADLDriver();
-            void setADLFile(const std::shared_ptr<files::westwood::ADLFile> adl_file) noexcept;
+            void setADLFile(const std::shared_ptr<files::westwood::ADLFile>& adl_file) noexcept;
             
             bool isChannelPlaying(const int channel);
             void stopAllChannels();

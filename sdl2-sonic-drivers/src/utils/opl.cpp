@@ -3,7 +3,7 @@
 
 namespace utils
 {
-    void FMoutput(unsigned port, int reg, int val, std::shared_ptr<hardware::opl::OPL> opl)
+    void FMoutput(unsigned port, int reg, int val, const std::shared_ptr<hardware::opl::OPL>& opl)
     {
         opl->write(port, reg);
         //wait 8 microsec;
@@ -13,22 +13,22 @@ namespace utils
         utils::delayMicro(55);
     }
 
-    void fm(int reg, int val, std::shared_ptr<hardware::opl::OPL> opl)
+    void fm(int reg, int val, const std::shared_ptr<hardware::opl::OPL>& opl)
     {
         FMoutput(FM, reg, val, opl);
     }
 
-    void Profm1(int reg, int val, std::shared_ptr<hardware::opl::OPL> opl)
+    void Profm1(int reg, int val, const std::shared_ptr<hardware::opl::OPL>& opl)
     {
         FMoutput(PROFM1, reg, val, opl);
     }
 
-    void Profm2(int reg, int val, std::shared_ptr<hardware::opl::OPL> opl)
+    void Profm2(int reg, int val, const std::shared_ptr<hardware::opl::OPL>& opl)
     {
         FMoutput(PROFM2, reg, val, opl);
     }
 
-    bool detectOPL2(std::shared_ptr<hardware::opl::OPL> opl)
+    bool detectOPL2(const std::shared_ptr<hardware::opl::OPL>& opl)
     {
         if (!opl->isInit()) {
             if (!opl->init())
@@ -36,6 +36,7 @@ namespace utils
         }
 
         opl->reset();
+        opl->start(nullptr);
 
         //opl->start(nullptr);
         utils::delayMillis(100);
@@ -64,19 +65,23 @@ namespace utils
         fm(4, 0x60, opl);
         fm(4, 0x80, opl);
 
-        //opl->stop();
+        opl->stop();
         // Test the results of the two reads: the first should be 0, the second should be C0h. If either is incorrect, then the OPL2 is not present.
         return status1 == 0 && status2 == 0xC0;
     }
 
-    bool detectOPL3(std::shared_ptr<hardware::opl::OPL> opl)
+    bool detectOPL3(const std::shared_ptr<hardware::opl::OPL>& opl)
     {
         // Detect OPL2. If present, continue.
         if (!detectOPL2(opl))
             return false;
-
+        
+        opl->start(nullptr);
         // AND the result with 06h. (or E0h?)
         // If the result is zero, you have OPL3, otherwise OPL2.
-        return (opl->read(0) &0x6) == 0;
+        bool status = (opl->read(0) &0x6) == 0;
+        opl->stop();
+
+        return status;
     }
 }
