@@ -8,7 +8,7 @@ namespace drivers
     {
         namespace devices
         {
-            Adlib::Adlib(std::shared_ptr<hardware::opl::OPL> opl, std::shared_ptr<audio::opl::banks::Op2Bank_t> op2Bank)
+            Adlib::Adlib(std::shared_ptr<hardware::opl::OPL> opl, std::shared_ptr<audio::opl::banks::OP2Bank> op2Bank)
             {
                 _adlib = std::make_shared<drivers::midi::adlib::MidiDriver>(opl,op2Bank);
             }

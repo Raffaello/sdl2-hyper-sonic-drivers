@@ -94,7 +94,7 @@ namespace drivers
             /// TODO: this whole can just become the device::AdLib ....
 
 
-            MidiDriver::MidiDriver(std::shared_ptr<hardware::opl::OPL> opl, std::shared_ptr<audio::opl::banks::Op2Bank_t> op2Bank) :
+            MidiDriver::MidiDriver(std::shared_ptr<hardware::opl::OPL> opl, std::shared_ptr<audio::opl::banks::OP2Bank> op2Bank) :
                 _opl(opl), _op2Bank(op2Bank)
             {
                 // TODO: need to initialize the channels with the instruments
@@ -106,7 +106,7 @@ namespace drivers
                     memset(&_oplChannels[i], 0, sizeof(channelEntry));
                     _oplChannels[i].flags = CH_FREE;
                     _oplChannels[i].channel = CH_FREE;
-                    _oplChannels[i].instr = &_op2Bank->instruments[0].voices[0];
+                    _oplChannels[i].instr = &_op2Bank->getInstrument(0).voices[0];
                 }
 
                 for (int i = 0; i < audio::midi::MIDI_MAX_CHANNELS; ++i) {
@@ -331,14 +331,14 @@ namespace drivers
 
                     //if (program > 127)
                     //    return;
-                    _instruments[chan] = _op2Bank->instruments[program];
+                    _instruments[chan] = _op2Bank->getInstrument(program);
                     //writeInstrument(chan, &_instruments[chan].voices[0]);
                     _oplData.channelInstr[chan] = program;
                     // TODO with channels, later
                     //_channels[chan].programChange(program, _op2file->getInstrument(program));
                     //writeInstrument(chan, &_channels[chan].getInstrument()->voices[0]);
 
-                    spdlog::debug("program change {} {} ({})", chan, program, _op2Bank->names[program]);
+                    spdlog::debug("program change {} {} ({})", chan, program, _op2Bank->getInstrumentName(program));
                 }
                     break;
                 case MIDI_EVENT_TYPES_HIGH::CHANNEL_AFTERTOUCH:
@@ -544,7 +544,7 @@ namespace drivers
                         spdlog::error("wrong percussion number {}", note);
                     }
                     //i = note + (128 - 35);
-                    auto instr = _op2Bank->instruments[note + (128 - 35)];
+                    auto instr = _op2Bank->getInstrument(note + (128 - 35));
                     memcpy(&_instruments[chan], &instr, sizeof(OPL2instrument_t));
                     //return &_instruments[chan];
                 }

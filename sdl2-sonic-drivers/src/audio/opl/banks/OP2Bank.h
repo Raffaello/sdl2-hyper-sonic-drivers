@@ -47,13 +47,6 @@ namespace audio
                 const std::array<Op2BankInstrument_t, OP2BANK_NUM_INSTRUMENTS> _instruments;
                 const std::array<std::string, OP2BANK_NUM_INSTRUMENTS> _names;
             };
-
-            // TODO: deprecated
-            typedef struct Op2Bank_t
-            {
-                std::array<Op2BankInstrument_t, OP2BANK_NUM_INSTRUMENTS> instruments;
-                std::array<std::string, OP2BANK_NUM_INSTRUMENTS> names;
-            } Op2Bank_t;
         }
     }
 }

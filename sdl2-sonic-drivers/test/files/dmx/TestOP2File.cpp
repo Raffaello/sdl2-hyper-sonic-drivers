@@ -11,7 +11,6 @@ namespace files
         using audio::opl::banks::OP2BANK_NUM_INSTRUMENTS;
         using audio::opl::banks::OP2BANK_INSTRUMENT_NUM_VOICES;
         using audio::opl::banks::Op2BankInstrument_t;
-        using audio::opl::banks::Op2Bank_t;
 
         TEST(OP2File, cstorDefault)
         {

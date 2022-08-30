@@ -71,13 +71,13 @@ namespace drivers
             class MidiDriver
             {
             public:
-                MidiDriver(std::shared_ptr<hardware::opl::OPL> opl, std::shared_ptr<audio::opl::banks::Op2Bank_t> op2Bank);
+                MidiDriver(std::shared_ptr<hardware::opl::OPL> opl, std::shared_ptr<audio::opl::banks::OP2Bank> op2Bank);
                 ~MidiDriver();
 
                 void send(const audio::midi::MIDIEvent& e) /*const*/ noexcept;
 
             private:
-                std::shared_ptr<audio::opl::banks::Op2Bank_t> _op2Bank;
+                std::shared_ptr<audio::opl::banks::OP2Bank> _op2Bank;
                 std::shared_ptr<hardware::opl::OPL> _opl;
 
                 uint8_t _oplNumChannels = OPL2_NUM_CHANNELS;
