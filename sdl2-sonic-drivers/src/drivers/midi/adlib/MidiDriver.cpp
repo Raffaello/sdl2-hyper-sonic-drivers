@@ -74,18 +74,16 @@ namespace drivers
                  36516U,36549U,36582U,36615U,36648U,36681U,36715U,36748U }; /*  120 */
 
 
-            // TODO: there is a bug that cannot find a channel when max channel shoudl be just 5
-            //       infact there is no gtr2 playing ... looks like
-            //       probably is due during the initialization
-
-
             // TODO: clean up and refactor the class
             // TODO: split up in MidiChannel and MidiVoice etc.. (AdlibChannel, AdlibVoice ??)
 
             // TODO: when no channel is allocated having a for loop to search for nothing is silly.
-            // TODO: would make sense to use an hashmap instead no for loop if it is present in the hashmap
-            //       ok, if not present is not in use
-
+            
+            // !!!!!!!!!!!!!!!!!!!!!!!!!
+            // TODO: would make sense to use a doubly linked list as the oldest, front, will be removed
+            //       as a if it was like a Queue for channels
+            //       otherwise a Set to search the oldest, better than an arary
+            // !!!!!!!!!!!!!!!!!!!!!!!!!
 
             // TODO: review the old C logic of the #define and FLAGS using bool instead for e.g.
 
@@ -97,16 +95,13 @@ namespace drivers
             MidiDriver::MidiDriver(std::shared_ptr<hardware::opl::OPL> opl, std::shared_ptr<audio::opl::banks::OP2Bank> op2Bank) :
                 _opl(opl), _op2Bank(op2Bank)
             {
-                // TODO: need to initialize the channels with the instruments
-                // TODO: need to pass the GENMIDI.OP2 read file to init the instruments
-                // TODO: otherwise looks there is no sound.
                 init();
 
                 for (int i = 0; i < _oplNumChannels; ++i) {
                     memset(&_oplChannels[i], 0, sizeof(channelEntry));
                     _oplChannels[i].flags = CH_FREE;
                     _oplChannels[i].channel = CH_FREE;
-                    _oplChannels[i].instr = &_op2Bank->getInstrument(0).voices[0];
+                    //_oplChannels[i].instr = &_op2Bank->getInstrument(0).voices[0];
                 }
 
                 for (int i = 0; i < audio::midi::MIDI_MAX_CHANNELS; ++i) {
