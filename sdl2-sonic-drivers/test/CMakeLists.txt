@@ -62,6 +62,12 @@ macro_test(
 )
 
 macro_test(
+    EXE TestOpl
+    FILES "utils/TestOpl.cpp"
+    LINKS_PRIVATE sonic-drivers-static
+)
+
+macro_test(
     EXE TestPCSpeaker
     FILES "hardware/TestPCSpeaker.cpp"
     LINKS_PRIVATE sonic-drivers-static

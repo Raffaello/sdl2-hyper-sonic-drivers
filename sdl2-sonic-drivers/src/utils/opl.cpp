@@ -36,6 +36,7 @@ namespace utils
         }
 
         opl->reset();
+        opl->start(nullptr);
 
         //opl->start(nullptr);
         utils::delayMillis(100);
@@ -64,7 +65,7 @@ namespace utils
         fm(4, 0x60, opl);
         fm(4, 0x80, opl);
 
-        //opl->stop();
+        opl->stop();
         // Test the results of the two reads: the first should be 0, the second should be C0h. If either is incorrect, then the OPL2 is not present.
         return status1 == 0 && status2 == 0xC0;
     }
@@ -74,9 +75,13 @@ namespace utils
         // Detect OPL2. If present, continue.
         if (!detectOPL2(opl))
             return false;
-
+        
+        opl->start(nullptr);
         // AND the result with 06h. (or E0h?)
         // If the result is zero, you have OPL3, otherwise OPL2.
-        return (opl->read(0) &0x6) == 0;
+        bool status = (opl->read(0) &0x6) == 0;
+        opl->stop();
+
+        return status;
     }
 }
