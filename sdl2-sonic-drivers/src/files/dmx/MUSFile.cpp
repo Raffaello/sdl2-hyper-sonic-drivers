@@ -63,7 +63,11 @@ namespace files
 
         std::shared_ptr<audio::MIDI> MUSFile::getMIDI() noexcept
         {
-            return convertToMidi();
+            if (_midi == nullptr) {
+                _midi = convertToMidi();
+            }
+
+            return _midi;
         }
 
         void MUSFile::readHeader()
