@@ -76,6 +76,7 @@ namespace files
             void readTrack();
             std::shared_ptr<audio::MIDI> convertToMidi();
             std::vector<mus_event_t> _mus;
+            std::shared_ptr<audio::MIDI> _midi = nullptr;
         };
     }
 }

@@ -45,6 +45,8 @@ namespace audio
             LYRICS = 0x05,
             MARKER = 0x06,
             CUE_POINT = 0x07,
+            PROGRAM_NAME = 0x08,
+            DEVICE_NAME = 0x09,
             CHANNEL_PREFIX = 0x20,
             MIDI_PORT = 0x21,
             END_OF_TRACK = 0x2F,

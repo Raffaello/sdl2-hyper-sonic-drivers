@@ -106,7 +106,6 @@ target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/DiskRendererMixerManager.cpp
     
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/MIDI.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/midi/MIDIEvent.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/midi/MIDITrack.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/Sound.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/streams/SoundStream.cpp
@@ -205,6 +204,17 @@ add_executable(sdl2-sonic-drivers "sdl2-sonic-drivers.cpp")
 
 target_link_libraries(sdl2-sonic-drivers PRIVATE ${LIB_SDL2main} )
 target_link_libraries(sdl2-sonic-drivers PRIVATE sonic-drivers-static)
+
+if(MSVC)
+# @see https://docs.microsoft.com/en-us/cpp/build/reference/compiler-options-listed-by-category?view=vs-2019
+    #add_compile_options(#/WX
+    #$<$<CONFIG:DEBUG>:"/W4">
+      #  $<$<CONFIG:RELEASE>:/O2 /Ot /GA /GL /Gw>
+    #)
+   
+    ## use static library ...
+    ##add_link_options($<$<CONFIG:Debug>:"/DEBUG">)
+endif()
 
 if(BUILD_TESTING)
     add_subdirectory("test")

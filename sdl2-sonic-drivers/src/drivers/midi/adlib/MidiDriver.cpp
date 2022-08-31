@@ -3,6 +3,7 @@
 #include<utils/algorithms.hpp>
 #include <algorithm>
 #include <cassert>
+#include <utils/algorithms.hpp>
 
 namespace drivers
 {
@@ -11,7 +12,9 @@ namespace drivers
         namespace adlib
         {
             using audio::midi::MIDI_PERCUSSION_CHANNEL;
+            using audio::midi::MIDI_EVENT_TYPES_HIGH;
             using hardware::opl::OPL2instrument_t;
+            using utils::getMillis;
 
             static uint16_t freqtable[] = {                                 /* note # */
                 345, 365, 387, 410, 435, 460, 488, 517, 547, 580, 615, 651, /*  0 */
@@ -133,10 +136,11 @@ namespace drivers
             {
             }
 
+          
             void MidiDriver::send(const audio::midi::MIDIEvent& e) noexcept
             {
-                using audio::midi::MIDI_EVENT_TYPES_HIGH;
-                
+                uint32_t abs_time = getMillis<uint32_t>();
+
                 switch (static_cast<MIDI_EVENT_TYPES_HIGH>(e.type.high))
                 {
                 case MIDI_EVENT_TYPES_HIGH::NOTE_OFF:
@@ -156,7 +160,7 @@ namespace drivers
                         }
                     }
 
-                    spdlog::debug("noteOff {} {}", chan, note);
+                    spdlog::debug("noteOff {} {} ({})", chan, note, _playingChannels);
                 }
                     break;
                 case MIDI_EVENT_TYPES_HIGH::NOTE_ON:
@@ -166,10 +170,10 @@ namespace drivers
                     uint8_t volume = e.data[1];
                     int8_t freeSlot = 0;
                     
-                    if ((freeSlot = findFreeOplChannel((chan == MIDI_PERCUSSION_CHANNEL) ? 2 : 0, e.abs_time)) != -1)
+                    if ((freeSlot = findFreeOplChannel((chan == MIDI_PERCUSSION_CHANNEL) ? 2 : 0, abs_time)) != -1)
                     {
                         auto instr = getInstrument(chan, note);
-                        int chi = occupyChannel(freeSlot, chan, note, volume, instr, 0, e.abs_time);
+                        int chi = occupyChannel(freeSlot, chan, note, volume, instr, 0, abs_time);
 
                         // TODO: OPL3
                         //if (!OPLsinglevoice && instr->flags == FL_DOUBLE_VOICE)
@@ -181,7 +185,10 @@ namespace drivers
                         spdlog::debug("noteOn note={:d} ({:d}) - vol={:d} ({:d}) - pitch={:d} - ch={:d}", _oplChannels[chi].note, _oplChannels[chi].realnote, _oplChannels[chi].volume, _oplChannels[chi].realvolume, _oplChannels[chi].pitch, _oplChannels[chi].channel);
                     }
                     else {
-                        spdlog::critical("NO FREE CHANNEL?");
+                        spdlog::critical("NO FREE CHANNEL? midi-ch={} - playingChannels={}", chan, _playingChannels);
+                        for (int i = 0; i < _oplNumChannels; i++) {
+                            spdlog::critical("OPL channels: {} - free? {}", i, _oplChannels[i].flags & CH_FREE == CH_FREE);
+                        }
                     }
                 }
                     break;
@@ -211,7 +218,7 @@ namespace drivers
                             if (ch->channel == chan && (ch->flags & CH_FREE) == 0)
                             {
                                 uint8_t flags = ch->flags;
-                                ch->time = e.abs_time;
+                                ch->time = abs_time;
                                 if (value >= MOD_MIN)
                                 {
                                     ch->flags |= CH_VIBRATO;
@@ -239,7 +246,7 @@ namespace drivers
                                 //if (CHANNEL_ID(*ch) == id)
                                 if (ch->channel == chan && (ch->flags & CH_FREE) == 0)
                                 {
-                                    ch->time = e.abs_time;
+                                    ch->time = abs_time;
                                     ch->realvolume = calcVolume(value, ch->volume);
                                     writeVolume(i, ch->instr, ch->realvolume);
                                 }
@@ -249,7 +256,6 @@ namespace drivers
                         }
                         break;
                     case 10:
-                        spdlog::warn("panPosition value {}", value);
                         //panPosition(value);
                         {
                             _oplData.channelPan[chan] = value -= 64;
@@ -259,11 +265,12 @@ namespace drivers
                                 //if (CHANNEL_ID(*ch) == id)
                                 if (ch->channel == chan && (ch->flags & CH_FREE) == 0)
                                 {
-                                    ch->time = e.abs_time;
+                                    ch->time = abs_time;
                                     writePan(i, ch->instr, value);
                                 }
                             }
                         }
+                        spdlog::debug("panPosition value {}", value);
                         break;
                     case 16:
                         spdlog::warn("pitchBendFactor value {}", value);
@@ -357,7 +364,7 @@ namespace drivers
                         //if (CHANNEL_ID(*ch) == id)
                         if (ch->channel == chan && (ch->flags & CH_FREE) == 0)
                         {
-                            ch->time = e.abs_time;
+                            ch->time = abs_time;
                             ch->pitch = ch->finetune + bend;
                             writeNote(i, ch->realnote, ch->pitch, 1);
                         }

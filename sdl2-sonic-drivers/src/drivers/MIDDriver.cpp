@@ -110,8 +110,6 @@ namespace drivers
         
         for (const auto& e : tes)
         {
-            std::array<uint8_t, 3> msg = {};
-            uint8_t msg_size = 0;
             while(_paused) {
                 utils::delayMillis(PAUSE_MILLIS);
                 start = utils::getMicro<unsigned int>();
@@ -144,7 +142,7 @@ namespace drivers
                         break;
                     }
                     default: {
-                        spdlog::warn("MIDI_META_EVENT_TYPES_LOW not recognized: {:#02x}", type);
+                        spdlog::warn("MIDI_META_EVENT_TYPES_LOW not implemented/recognized: {:#02x}", type);
                         break;
                     }
                     }
@@ -177,16 +175,16 @@ namespace drivers
             case MIDI_EVENT_TYPES_HIGH::AFTERTOUCH:
             case MIDI_EVENT_TYPES_HIGH::CONTROLLER:
             case MIDI_EVENT_TYPES_HIGH::PITCH_BEND:
-                msg[0] = e.type.val;
+                /*msg[0] = e.type.val;
                 msg[1] = e.data[0];
                 msg[2] = e.data[1];
-                msg_size = 3;
+                msg_size = 3;*/
                 break;
             case MIDI_EVENT_TYPES_HIGH::PROGRAM_CHANGE:
             case MIDI_EVENT_TYPES_HIGH::CHANNEL_AFTERTOUCH:
-                msg[0] = e.type.val;
+                /*msg[0] = e.type.val;
                 msg[1] = e.data[0];
-                msg_size = 2;
+                msg_size = 2;*/
                 break;
             default:
                 break;
@@ -209,8 +207,7 @@ namespace drivers
                 }
             }
 
-            _device->sendMessage(msg.data(), msg_size);
-            //_device->sendEvent(e);
+            _device->sendEvent(e);
         }
 
         _isPlaying = false;

@@ -413,7 +413,7 @@ int midi_adlib_mus_op2_file()
     SdlMixerManager mixerManager;
     mixerManager.init();
 
-    spdlog::set_level(spdlog::level::debug);
+    //spdlog::set_level(spdlog::level::debug);
 
 
     std::shared_ptr<Mixer> mixer = mixerManager.getMixer();

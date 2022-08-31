@@ -1,5 +1,6 @@
 #include <utils/algorithms.hpp>
 #include <stdexcept>
+#include <spdlog/spdlog.h>
 
 namespace utils
 {
@@ -47,13 +48,7 @@ namespace utils
 
     std::string midi_event_to_string(std::vector<uint8_t>::const_iterator begin, std::vector<uint8_t>::const_iterator end)
     {
-        uint8_t size = *begin;
-        std::string str(++begin, end);
-
-        if (size != str.size()) {
-            throw std::runtime_error("midi_Event_to_string size mismatch");
-        }
-
+        std::string str(begin, end);
         str.shrink_to_fit();
         return str;
     }
