@@ -212,7 +212,7 @@ namespace files
                     ce.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::CONTROLLER);
                     ce.type.low = event.desc.e.channel;
                     ce.delta_time = delta_time;
-                    ce.abs_time = abs_time;
+                    //ce.abs_time = abs_time;
                     ce.data.push_back(0x07); // MIDI Channel (a.k.a. Main) Volume
                     ce.data.push_back(127);
                     track.addEvent(ce);
@@ -302,7 +302,7 @@ namespace files
 
                 me.data.shrink_to_fit();
                 me.delta_time = delta_time;
-                me.abs_time = abs_time;
+                //me.abs_time = abs_time;
                 if (!me.data.empty())
                     track.addEvent(me);
             }

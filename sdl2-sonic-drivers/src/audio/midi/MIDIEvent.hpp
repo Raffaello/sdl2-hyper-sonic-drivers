@@ -12,6 +12,8 @@ namespace audio
         class MIDIEvent
         {
         public:
+            // TODO build from a message array of 3 or 2 char.
+            // TODO review the devices namespace to send only MIDIEvent
             MIDIEvent() = default;
             ~MIDIEvent() = default;
 

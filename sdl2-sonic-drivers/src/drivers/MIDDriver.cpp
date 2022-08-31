@@ -110,6 +110,8 @@ namespace drivers
         
         for (const auto& e : tes)
         {
+            // TODO create a MIDIEvent constructor from this 3 byte msg
+            //      or replace the driver array msg with a MIDIEvent.
             std::array<uint8_t, 3> msg = {};
             uint8_t msg_size = 0;
             while(_paused) {
