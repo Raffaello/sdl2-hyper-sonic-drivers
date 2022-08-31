@@ -106,7 +106,6 @@ target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/DiskRendererMixerManager.cpp
     
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/MIDI.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/midi/MIDIEvent.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/midi/MIDITrack.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/Sound.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/streams/SoundStream.cpp
