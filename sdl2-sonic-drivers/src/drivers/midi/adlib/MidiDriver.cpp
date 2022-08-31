@@ -181,7 +181,10 @@ namespace drivers
                         spdlog::debug("noteOn note={:d} ({:d}) - vol={:d} ({:d}) - pitch={:d} - ch={:d}", _oplChannels[chi].note, _oplChannels[chi].realnote, _oplChannels[chi].volume, _oplChannels[chi].realvolume, _oplChannels[chi].pitch, _oplChannels[chi].channel);
                     }
                     else {
-                        spdlog::critical("NO FREE CHANNEL?");
+                        spdlog::critical("NO FREE CHANNEL? midi-ch={} - playingChannels={}", chan, _playingChannels);
+                        for (int i = 0; i < _oplNumChannels; i++) {
+                            spdlog::critical("OPL channels: {} - free? {}", i, _oplChannels[i].flags & CH_FREE == CH_FREE);
+                        }
                     }
                 }
                     break;
@@ -249,7 +252,6 @@ namespace drivers
                         }
                         break;
                     case 10:
-                        spdlog::warn("panPosition value {}", value);
                         //panPosition(value);
                         {
                             _oplData.channelPan[chan] = value -= 64;
@@ -264,6 +266,7 @@ namespace drivers
                                 }
                             }
                         }
+                        spdlog::debug("panPosition value {}", value);
                         break;
                     case 16:
                         spdlog::warn("pitchBendFactor value {}", value);
