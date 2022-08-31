@@ -4,9 +4,9 @@ namespace audio
 {
     namespace midi
     {
-        MIDIEvent::MIDIEvent()
-        {
-            type.val = 0;
-        }
+        //MIDIEvent::MIDIEvent()
+        //{
+        //    //type.val = 0;
+        //}
     }
 }
