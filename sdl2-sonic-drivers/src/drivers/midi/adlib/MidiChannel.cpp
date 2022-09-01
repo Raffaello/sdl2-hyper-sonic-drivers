@@ -39,10 +39,10 @@ namespace drivers
                 // TODO
             }
 
-            const audio::opl::banks::Op2BankInstrument_t* MidiChannel::getInstrument() const noexcept
+            /*const audio::opl::banks::Op2BankInstrument_t* MidiChannel::getInstrument() const noexcept
             {
                 return &_instrument;
-            }
+            }*/
 
             const audio::opl::banks::Op2BankInstrument_t* MidiChannel::setInstrument(const uint8_t note) noexcept
             {
