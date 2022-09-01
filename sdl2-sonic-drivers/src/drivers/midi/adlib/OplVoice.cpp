@@ -30,6 +30,21 @@ namespace drivers
                 return _slot;
             }
 
+            ///*inline*/ const bool OplVoice::isFree() const noexcept
+            //{
+            //    return _free;
+            //}
+
+            ///*inline*/ const bool OplVoice::isSecondary() const noexcept
+            //{
+            //    return _secondary;
+            //}
+
+            ///*inline*/ const uint32_t OplVoice::getTime() const noexcept
+            //{
+            //    return _time;
+            //}
+
             /*inline*/ const bool OplVoice::isChannel(const uint8_t channel) const noexcept
             {
                 return _channel == channel;
@@ -45,14 +60,14 @@ namespace drivers
                 return isChannel(channel) && _free;
             }
 
-            /*inline*/ void OplVoice::noteOff(const uint8_t channel, const uint8_t note, const uint8_t sustain_) noexcept
+            /*inline*/ void OplVoice::noteOff(const uint8_t channel, const uint8_t note, const uint8_t sustain) noexcept
             {
                 if (isChannelBusy(channel) && _note == note)
                 {
-                    if (sustain_ < SUSTAIN_THRESHOLD)
+                    if (sustain < SUSTAIN_THRESHOLD)
                         release(0);
                     else
-                        sustain = true;
+                        _sustain = true;
                 }
             }
 
@@ -60,8 +75,8 @@ namespace drivers
             {
                 if (isChannelBusy(channel))
                 {
-                    time = abs_time;
-                    pitch = finetune + bend;
+                    _time = abs_time;
+                    _pitch = _finetune + bend;
                     playNote(true);
                 }
             }
@@ -70,18 +85,18 @@ namespace drivers
             {
                 if (isChannelBusy(channel))
                 {
-                    time = abs_time;
+                    _time = abs_time;
                     if (value >= VIBRATO_THRESHOLD)
                     {
-                        if (!vibrato)
+                        if (!_vibrato)
                             _oplWriter->writeModulation(_slot, _instr, 1);
-                        vibrato = true;
+                        _vibrato = true;
 
                     }
                     else {
-                        if (vibrato)
+                        if (_vibrato)
                             _oplWriter->writeModulation(_slot, _instr, 0);
-                        vibrato = false;
+                        _vibrato = false;
 
                     }
                 }
@@ -91,7 +106,7 @@ namespace drivers
             {
                 if (isChannelBusy(channel))
                 {
-                    time = abs_time;
+                    _time = abs_time;
                     setRealVolume(value);
                     _oplWriter->writeVolume(_slot, _instr, getRealVolume());
                 }
@@ -101,21 +116,21 @@ namespace drivers
             {
                 if (isChannelBusy(channel))
                 {
-                    time = abs_time;
+                    _time = abs_time;
                     _oplWriter->writePan(_slot, _instr, value);
                 }
             }
 
             /*inline*/ void OplVoice::releaseSustain(const uint8_t channel) noexcept
             {
-                if (isChannelBusy(channel) && sustain) {
+                if (isChannelBusy(channel) && _sustain) {
                     release(false);
                 }
             }
 
             void OplVoice::playNote(const bool keyOn) const noexcept
             {
-                _oplWriter->writeNote(_slot, _realnote, pitch, keyOn);
+                _oplWriter->writeNote(_slot, _realnote, _pitch, keyOn);
             }
 
             int OplVoice::allocate(
@@ -138,9 +153,9 @@ namespace drivers
                 _secondary = secondary;
                 
                 if (chan_modulation >= VIBRATO_THRESHOLD)
-                    vibrato = true;
+                    _vibrato = true;
                 
-                time = abs_time;
+                _time = abs_time;
                 setVolumes(chan_vol, volume);
                 
                 if (instrument->flags & OP2BANK_INSTRUMENT_FLAG_FIXED_PITCH)
@@ -150,11 +165,11 @@ namespace drivers
                 
                 // TODO: this is OPL3
                 if (secondary && (instrument->flags & OP2BANK_INSTRUMENT_FLAG_DOUBLE_VOICE))
-                    finetune = instrument->fineTune - 0x80;
+                    _finetune = instrument->fineTune - 0x80;
                 else
-                    finetune = 0;
+                    _finetune = 0;
                 
-                pitch = finetune + pitch;
+                _pitch = _finetune + chan_pitch;
                 
                 if (secondary)
                     instr = &instrument->voices[1];
@@ -171,7 +186,7 @@ namespace drivers
                 _realnote = note;
 
                 _oplWriter->writeInstrument(_slot, _instr);
-                if (vibrato)
+                if (_vibrato)
                     _oplWriter->writeModulation(_slot, _instr, 1);
                 _oplWriter->writePan(_slot, instr, chan_pan);
                 _oplWriter->writeVolume(_slot, instr, getRealVolume());

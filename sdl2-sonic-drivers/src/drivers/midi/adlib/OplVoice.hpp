@@ -20,12 +20,15 @@ namespace drivers
                 ~OplVoice() = default;
 
                 inline const uint8_t getSlot() const noexcept;
+                inline const bool isFree() const noexcept { return _free; }
+                inline const bool isSecondary() const noexcept { return _secondary; }
+                inline const uint32_t getTime() const noexcept { return _time; }
 
                 inline const bool isChannel(const uint8_t channel) const noexcept;
                 inline const bool isChannelBusy(const uint8_t channel) const noexcept;
                 inline const bool isChannelFree(uint8_t channel) const noexcept;
                 
-                /*inline*/ void noteOff(const uint8_t channel, const uint8_t note, const uint8_t sustain_) noexcept;
+                /*inline*/ void noteOff(const uint8_t channel, const uint8_t note, const uint8_t sustain) noexcept;
 
                 /*inline*/ void pitchBend(const uint8_t channel, const uint16_t bend, const uint32_t abs_time) noexcept;
 
@@ -35,7 +38,6 @@ namespace drivers
                 
                 /*inline*/ void releaseSustain(const uint8_t channel) noexcept;
 
-            public:
                 void playNote(const bool keyOn) const noexcept;
                 int allocate(const uint8_t channel,
                     const uint8_t note_, const uint8_t volume,
@@ -52,30 +54,27 @@ namespace drivers
                 void setVolumes(const uint8_t channelVolume, const uint8_t volume) noexcept;
                 void setRealVolume(const uint8_t channelVolume) noexcept;
 
-            public:
                 inline uint8_t getRealVolume() const noexcept;
-
-                uint8_t _channel = 0;                        // MIDI channel number
-                uint8_t _note = 0;                           /* note number */
-                uint8_t _realnote = 0;                       /* adjusted note number */
-                int8_t  finetune = 0;                       /* frequency fine-tune */
-                int16_t pitch = 0;                          /* pitch-wheel value */
-
-                // TODO: instead a MidiChannel should be Connected to a MidiVoice, i think...
-                // TODO: use pointer / share_ptr instead of copying the struct
-                const hardware::opl::OPL2instrument_t* _instr = nullptr; /* current instrument */
-                uint32_t time = 0;                                /* note start time */
-                // Channel flags
-                bool _free = true;
-                bool _secondary = false;
-                bool sustain = false;
-                bool vibrato = false;
 
             private:
                 const uint8_t _slot;                        /* OPL channel number */
+                
                 uint8_t _volume = 0;                        /* note volume */
                 uint8_t _realvolume = 0;                     /* adjusted note volume */
+                uint8_t _channel = 0;                        // MIDI channel number
+                uint8_t _note = 0;                           /* note number */
+                uint8_t _realnote = 0;                       /* adjusted note number */
+                int8_t  _finetune = 0;                       /* frequency fine-tune */
+                int16_t _pitch = 0;                          /* pitch-wheel value */
 
+                const hardware::opl::OPL2instrument_t* _instr = nullptr; /* current instrument */
+
+                uint32_t _time = 0;                                /* note start time */
+                // Channel flags
+                bool _free = true;
+                bool _secondary = false;
+                bool _sustain = false;
+                bool _vibrato = false;
 
                 const devices::opl::OplWriter* _oplWriter;
 

@@ -129,10 +129,6 @@ namespace drivers
                 }
                 else {
                     spdlog::critical("NO FREE CHANNEL? midi-ch={} - playingChannels={}", chan, _playingVoices);
-                    for (int i = 0; i < _oplNumChannels; i++) {
-                        OplVoice* voice = _voices[i].get();
-                        spdlog::critical("OPL channels: {} - free? {}", i, voice->_free);
-                    }
                 }
             }
 
@@ -296,11 +292,8 @@ namespace drivers
 
                 // find free channel
                 for (i = 0; i < _oplNumChannels; i++)
-                {
-                    OplVoice* voice = _voices[i].get();
-                    if (voice->_free)
+                    if(_voices[i]->isFree())
                         return i;
-                }
 
                 if (flag & 1)
                     return -1;  // stop searching if bit 0 is set 
@@ -309,11 +302,11 @@ namespace drivers
                 for (i = 0; i < _oplNumChannels; i++)
                 {
                     OplVoice* voice = _voices[i].get();
-                    if (voice->_secondary) {
+                    if (voice->isSecondary()) {
                         return releaseVoice(i, true);
                     }
-                    else if (voice->time < oldesttime) {
-                        oldesttime = voice->time;
+                    else if (voice->getTime() < oldesttime) {
+                        oldesttime = voice->getTime();
                         oldest = i;
                     }
                 }
