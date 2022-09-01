@@ -8,7 +8,7 @@
 #include <audio/midi/types.hpp>
 #include <audio/opl/banks/OP2Bank.hpp>
 #include <drivers/midi/adlib/OplChannel.hpp>
-#include <drivers/midi/adlib/MidiVoice.hpp>
+#include <drivers/midi/adlib/OplVoice.hpp>
 #include <drivers/midi/devices/opl/OplWriter.hpp>
 #include <hardware/opl/OPL.hpp>
 #include <hardware/opl/OPL2instrument.h>
@@ -40,7 +40,7 @@ namespace drivers
                 std::shared_ptr<hardware::opl::OPL> _opl;
                 uint8_t _oplNumChannels = devices::opl::OPL2_NUM_CHANNELS;
                 std::array<std::unique_ptr<OplChannel>, audio::midi::MIDI_MAX_CHANNELS>  _channels;
-                std::array<std::unique_ptr<MidiVoice>, devices::opl::OPL2_NUM_CHANNELS> _voices;
+                std::array<std::unique_ptr<OplVoice>, devices::opl::OPL2_NUM_CHANNELS> _voices;
 
                 std::unique_ptr<devices::opl::OplWriter> _oplWriter;
                 uint8_t _playingVoices = 0; // OPL Channels

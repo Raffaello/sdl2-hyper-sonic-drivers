@@ -12,11 +12,11 @@ namespace drivers
         namespace adlib
         {
             // TODO rename to AdlibVoice and AbstractMidiVoice as interface
-            class MidiVoice
+            class OplVoice
             {
             public:
-                MidiVoice(const uint8_t slot, const std::unique_ptr<devices::opl::OplWriter>& oplWriter);
-                ~MidiVoice() = default;
+                OplVoice(const uint8_t slot, const std::unique_ptr<devices::opl::OplWriter>& oplWriter);
+                ~OplVoice() = default;
 
                 void playNote(const bool keyOn) const noexcept;
                 int allocate(const uint8_t channel,

@@ -1,5 +1,5 @@
 #include <audio/midi/types.hpp>
-#include<drivers/midi/adlib/MidiVoice.hpp>
+#include<drivers/midi/adlib/OplVoice.hpp>
 #include <hardware/opl/OPL2instrument.h>
 
 namespace drivers
@@ -19,17 +19,17 @@ namespace drivers
             constexpr int8_t HIGHEST_NOTE = 127;
 
 
-            MidiVoice::MidiVoice(const uint8_t slot, const std::unique_ptr<devices::opl::OplWriter>& oplWriter) :
+            OplVoice::OplVoice(const uint8_t slot, const std::unique_ptr<devices::opl::OplWriter>& oplWriter) :
                 _slot(slot), _oplWriter(oplWriter.get())
             {
             }
 
-            void MidiVoice::playNote(const bool keyOn) const noexcept
+            void OplVoice::playNote(const bool keyOn) const noexcept
             {
                 _oplWriter->writeNote(_slot, _realnote, pitch, keyOn);
             }
 
-            int MidiVoice::allocate(
+            int OplVoice::allocate(
                 const uint8_t channel,
                 const uint8_t note_, const uint8_t volume,
                 const audio::opl::banks::Op2BankInstrument_t* instrument,
@@ -91,7 +91,7 @@ namespace drivers
                 return _slot;
             }
 
-            uint8_t MidiVoice::releaseVoice(const bool killed) noexcept
+            uint8_t OplVoice::releaseVoice(const bool killed) noexcept
             {
                 playNote(false);
                 _free = true;
@@ -103,18 +103,18 @@ namespace drivers
                 return _slot;
             }
 
-            void MidiVoice::setVolumes(const uint8_t channelVolume, const uint8_t volume) noexcept
+            void OplVoice::setVolumes(const uint8_t channelVolume, const uint8_t volume) noexcept
             {
                 _volume = volume;
                 setRealVolume(channelVolume);
             }
 
-            void MidiVoice::setRealVolume(const uint8_t channelVolume) noexcept
+            void OplVoice::setRealVolume(const uint8_t channelVolume) noexcept
             {
                 _realvolume = _calcVolume(channelVolume);
             }
 
-            uint8_t MidiVoice::_calcVolume(const uint8_t channelVolume) const noexcept
+            uint8_t OplVoice::_calcVolume(const uint8_t channelVolume) const noexcept
             {
                 return  std::min<uint8_t>((static_cast<uint32_t>(channelVolume) * _volume) / 127, 127);
             }

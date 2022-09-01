@@ -48,7 +48,7 @@ namespace drivers
                 }
 
                 for (int i = 0; i < _oplNumChannels; ++i) {
-                    _voices[i] = std::make_unique<MidiVoice>(i, _oplWriter);
+                    _voices[i] = std::make_unique<OplVoice>(i, _oplWriter);
                 }
 
                 hardware::opl::TimerCallBack cb = std::bind(&AdLibDriver::onTimer, this);
@@ -112,7 +112,7 @@ namespace drivers
 
                 for (int i = 0; i < _oplNumChannels; i++)
                 {
-                    MidiVoice* voice = _voices[i].get();
+                    OplVoice* voice = _voices[i].get();
                     if (voice->_note == note && voice->_channel == chan)
                     {
                         if (sustain < SUSTAIN_THRESHOLD)
@@ -147,7 +147,7 @@ namespace drivers
                 else {
                     spdlog::critical("NO FREE CHANNEL? midi-ch={} - playingChannels={}", chan, _playingVoices);
                     for (int i = 0; i < _oplNumChannels; i++) {
-                        MidiVoice* voice = _voices[i].get();
+                        OplVoice* voice = _voices[i].get();
                         spdlog::critical("OPL channels: {} - free? {}", i, voice->_free);
                     }
                 }
@@ -233,7 +233,7 @@ namespace drivers
                 _channels[chan]->pitch = static_cast<int8_t>(bend);
                 for (int i = 0; i < _oplNumChannels; i++)
                 {
-                    MidiVoice* voice = _voices[i].get();
+                    OplVoice* voice = _voices[i].get();
                     if (voice->_channel == chan && (!voice->_free))
                     {
                         voice->time = abs_time;
@@ -249,7 +249,7 @@ namespace drivers
                 _channels[chan]->modulation = value;
                 for (int i = 0; i < _oplNumChannels; i++)
                 {
-                    MidiVoice* voice = _voices[i].get();
+                    OplVoice* voice = _voices[i].get();
                     if (voice->_channel == chan && (!voice->_free))
                     {
                         bool vibrato = voice->vibrato;
@@ -276,7 +276,7 @@ namespace drivers
                 _channels[chan]->volume = value;
                 for (int i = 0; i < _oplNumChannels; i++)
                 {
-                    MidiVoice* voice = _voices[i].get();
+                    OplVoice* voice = _voices[i].get();
                     if (voice->_channel == chan && (!voice->_free))
                     {
                         voice->time = abs_time;
@@ -294,7 +294,7 @@ namespace drivers
                 _channels[chan]->pan = value -= 64;
                 for (int i = 0; i < _oplNumChannels; i++)
                 {
-                    MidiVoice* voice = _voices[i].get();
+                    OplVoice* voice = _voices[i].get();
                     if (voice->_channel == chan && (!voice->_free))
                     {
                         voice->time = abs_time;
@@ -315,7 +315,7 @@ namespace drivers
             {
                 for (int i = 0; i < _oplNumChannels; i++)
                 {
-                    MidiVoice* voice = _voices[i].get();
+                    OplVoice* voice = _voices[i].get();
                     if (voice->_channel == channel && voice->sustain) {
                         releaseVoice(i, 0);
                     }
@@ -363,7 +363,7 @@ namespace drivers
                 // find free channel
                 for (i = 0; i < _oplNumChannels; i++)
                 {
-                    MidiVoice* voice = _voices[i].get();
+                    OplVoice* voice = _voices[i].get();
                     if (voice->_free)
                         return i;
                 }
@@ -374,7 +374,7 @@ namespace drivers
                 // find some 2nd-voice channel and determine the oldest
                 for (i = 0; i < _oplNumChannels; i++)
                 {
-                    MidiVoice* voice = _voices[i].get();
+                    OplVoice* voice = _voices[i].get();
                     if (voice->_secondary) {
                         return releaseVoice(i, true);
                     }
