@@ -3,7 +3,7 @@
 #include <drivers/midi/Device.hpp>
 #include <memory>
 #include <hardware/opl/OPL.hpp>
-#include <drivers/midi/adlib/MidiDriver.hpp>
+#include <drivers/midi/adlib/AdLibDriver.hpp>
 #include <audio/midi/MIDIEvent.hpp>
 #include <audio/opl/banks/OP2Bank.hpp>
 
@@ -26,7 +26,7 @@ namespace drivers
                 
                 //void loadBankOP2();
             private:
-                std::shared_ptr<drivers::midi::adlib::MidiDriver> _adlib;
+                std::shared_ptr<drivers::midi::adlib::AdLibDriver> _adlib;
             };
         }
     }

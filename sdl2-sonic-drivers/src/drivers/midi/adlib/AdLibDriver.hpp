@@ -7,7 +7,7 @@
 #include <audio/midi/MIDIEvent.hpp>
 #include <audio/midi/types.hpp>
 #include <audio/opl/banks/OP2Bank.hpp>
-#include <drivers/midi/adlib/MidiChannel.hpp>
+#include <drivers/midi/adlib/OplChannel.hpp>
 #include <drivers/midi/adlib/MidiVoice.hpp>
 #include <drivers/midi/devices/opl/OplWriter.hpp>
 #include <hardware/opl/OPL.hpp>
@@ -28,11 +28,11 @@ namespace drivers
             /// OP2File based data bank. (It is specific to this file how to play notes and take out instruments)
             /// TODO: generalize later on...
             /// </summary>
-            class MidiDriver
+            class AdLibDriver
             {
             public:
-                MidiDriver(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank);
-                ~MidiDriver();
+                AdLibDriver(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank);
+                ~AdLibDriver();
 
                 void send(const audio::midi::MIDIEvent& e) /*const*/ noexcept;
 
@@ -40,7 +40,7 @@ namespace drivers
                 std::shared_ptr<audio::opl::banks::OP2Bank> _op2Bank;
                 std::shared_ptr<hardware::opl::OPL> _opl;
                 uint8_t _oplNumChannels = devices::opl::OPL2_NUM_CHANNELS;
-                std::array<std::unique_ptr<MidiChannel>, audio::midi::MIDI_MAX_CHANNELS>  _channels;
+                std::array<std::unique_ptr<OplChannel>, audio::midi::MIDI_MAX_CHANNELS>  _channels;
                 std::array<std::unique_ptr<MidiVoice>, devices::opl::OPL2_NUM_CHANNELS> _voices; // TODO shouldn't be connected to MidiChannel instead?
                 // TODO this variable is duplicated with OPLWriter... rethink of it..
                 std::unique_ptr<devices::opl::OplWriter> _oplWriter;
@@ -48,7 +48,7 @@ namespace drivers
 
                 void onTimer();
 
-                uint8_t calcVolume(const uint8_t channelVolume, uint8_t noteVolume) const noexcept;
+                static uint8_t _calcVolume(const uint8_t channelVolume, uint8_t noteVolume) noexcept;
 
                 void releaseSustain(const uint8_t channel);
 
@@ -62,7 +62,7 @@ namespace drivers
 
                 /// start opl methods
 
-                uint8_t panVolume(const uint8_t volume, int8_t pan) const noexcept;
+                static uint8_t panVolume(const uint8_t volume, int8_t pan) noexcept;
                 /*
                 /* Write a Note
                 */

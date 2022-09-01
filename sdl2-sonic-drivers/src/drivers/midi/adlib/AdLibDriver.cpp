@@ -1,4 +1,4 @@
-#include <drivers/midi/adlib/MidiDriver.hpp>
+#include <drivers/midi/adlib/AdLibDriver.hpp>
 #include <spdlog/spdlog.h>
 #include<utils/algorithms.hpp>
 #include <cassert>
@@ -43,7 +43,7 @@ namespace drivers
             // TODO: Adlib is mono so the PAN message/event/command can be skipped in OPL2
             // TODO: secondary channel in OPL2/AdLib won't be used so can be removed.
 
-            MidiDriver::MidiDriver(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank) :
+            AdLibDriver::AdLibDriver(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank) :
                 _opl(opl), _op2Bank(op2Bank)
             {
                 // TODO: force to be adlib now
@@ -53,30 +53,30 @@ namespace drivers
                     spdlog::error("[MidiDriver] Can't initialize AdLib Emulator OPL chip.'");
 
                 for (int i = 0; i < audio::midi::MIDI_MAX_CHANNELS; ++i) {
-                    _channels[i] = std::make_unique<MidiChannel>(i == MIDI_PERCUSSION_CHANNEL, _op2Bank);
+                    _channels[i] = std::make_unique<OplChannel>(i == MIDI_PERCUSSION_CHANNEL, _op2Bank);
                 }
 
                 for (int i = 0; i < _oplNumChannels; ++i) {
                     _voices[i] = std::make_unique<MidiVoice>(i);
                 }
 
-                hardware::opl::TimerCallBack cb = std::bind(&MidiDriver::onTimer, this);
+                hardware::opl::TimerCallBack cb = std::bind(&AdLibDriver::onTimer, this);
                 auto p = std::make_shared<hardware::opl::TimerCallBack>(cb);
                 _opl->start(p);
             }
 
-            MidiDriver::~MidiDriver()
+            AdLibDriver::~AdLibDriver()
             {
                 // deinit
                 _oplWriter.reset();
                 _opl->stop();
             }
 
-            void MidiDriver::onTimer()
+            void AdLibDriver::onTimer()
             {
             }
 
-            void MidiDriver::send(const audio::midi::MIDIEvent& e) noexcept
+            void AdLibDriver::send(const audio::midi::MIDIEvent& e) noexcept
             {
                 uint32_t abs_time = getMillis<uint32_t>();
 
@@ -86,7 +86,7 @@ namespace drivers
                 {
                     uint8_t chan = e.type.low;
                     uint8_t note = e.data[0];
-                    uint8_t sustain = _channels[chan]->_sustain;
+                    uint8_t sustain = _channels[chan]->sustain;
 
                     for (int i = 0; i < _oplNumChannels; i++)
                     {
@@ -154,7 +154,7 @@ namespace drivers
                     case 1:
                     {
                         //modulationWheel(value);
-                        _channels[chan]->_modulation = value;
+                        _channels[chan]->modulation = value;
                         for (int i = 0; i < _oplNumChannels; i++)
                         {
                             MidiVoice* voice = _voices[i].get();
@@ -184,33 +184,32 @@ namespace drivers
                         {
                         // Volume
                             int i;
-                            _channels[chan]->_volume = value;
+                            _channels[chan]->volume = value;
                             for (i = 0; i < _oplNumChannels; i++)
                             {
-                                MidiVoice* ch = _voices[i].get();
-                                if (ch->channel == chan && (!ch->free))
+                                MidiVoice* voice = _voices[i].get();
+                                if (voice->channel == chan && (!voice->free))
                                 {
-                                    ch->time = abs_time;
-                                    ch->realvolume = calcVolume(value, ch->volume);
-                                    _oplWriter->writeVolume(i, ch->instr, ch->realvolume);
+                                    voice->time = abs_time;
+                                    voice->realvolume = _calcVolume(value, voice->volume);
+                                    _oplWriter->writeVolume(i, voice->instr, voice->realvolume);
                                 }
                             }
                             spdlog::debug("volume value {} -ch={}", value, i);
-
                         }
                         break;
                     case 10:
                         // TODO: pan not available in Adlib/OPL2, can be removed/skipped
                         //panPosition(value);
                         {
-                        _channels[chan]->_pan = value -= 64;
+                        _channels[chan]->pan = value -= 64;
                             for (int i = 0; i < _oplNumChannels; i++)
                             {
-                                MidiVoice* ch = _voices[i].get();
-                                if (ch->channel == chan && (!ch->free))
+                                MidiVoice* voice = _voices[i].get();
+                                if (voice->channel == chan && (!voice->free))
                                 {
-                                    ch->time = abs_time;
-                                    _oplWriter->writePan(i, ch->instr, value);
+                                    voice->time = abs_time;
+                                    _oplWriter->writePan(i, voice->instr, value);
                                 }
                             }
                         }
@@ -232,7 +231,7 @@ namespace drivers
                         //sustain(value > 0);
                         spdlog::warn("sustain value {}", value);
                         {
-                            _channels[chan]->_sustain = value;
+                            _channels[chan]->sustain = value;
                             if (value < SUSTAIN_THRESHOLD) {
                                 releaseSustain(chan);
                             }
@@ -289,7 +288,7 @@ namespace drivers
                     spdlog::debug("PITCH_BEND {}", bend);
 
                     // OPLPitchWheel
-                    _channels[chan]->_pitch = static_cast<int8_t>(bend);
+                    _channels[chan]->pitch = static_cast<int8_t>(bend);
                     for (int i = 0; i < _oplNumChannels; i++)
                     {
                         //channelEntry* ch = &_oplChannels[i];
@@ -313,7 +312,7 @@ namespace drivers
                 }
             }
 
-            uint8_t MidiDriver::calcVolume(const uint8_t channelVolume, uint8_t noteVolume) const noexcept
+            uint8_t AdLibDriver::_calcVolume(const uint8_t channelVolume, uint8_t noteVolume) noexcept
             {
                 noteVolume = ((uint32_t)channelVolume * noteVolume) / (127);
                 // TODO replace with Math.Min(noteVolume,127)
@@ -323,7 +322,7 @@ namespace drivers
                     return noteVolume;
             }
 
-            void MidiDriver::releaseSustain(const uint8_t channel)
+            void AdLibDriver::releaseSustain(const uint8_t channel)
             {
                 for (int i = 0; i < _oplNumChannels; i++)
                 {
@@ -334,7 +333,7 @@ namespace drivers
                 }
             }
 
-            uint8_t MidiDriver::releaseVoice(const uint8_t slot, const bool killed)
+            uint8_t AdLibDriver::releaseVoice(const uint8_t slot, const bool killed)
             {
                 assert(slot >= 0 && slot < _oplNumChannels);
 
@@ -351,10 +350,10 @@ namespace drivers
                 return slot;
             }
 
-            int MidiDriver::allocateVoice(const uint8_t slot, const uint8_t channel, uint8_t note, uint8_t volume, const audio::opl::banks::Op2BankInstrument_t* instrument, const bool secondary, const uint32_t abs_time)
+            int AdLibDriver::allocateVoice(const uint8_t slot, const uint8_t channel, uint8_t note, uint8_t volume, const audio::opl::banks::Op2BankInstrument_t* instrument, const bool secondary, const uint32_t abs_time)
             {
                 const OPL2instrument_t* instr;
-                MidiChannel* data = _channels[channel].get();
+                OplChannel* data = _channels[channel].get();
                 MidiVoice* voice = _voices[slot].get();
 
                 _playingVoices++;
@@ -363,10 +362,10 @@ namespace drivers
                 voice->note = note;
                 voice->free = false;
                 voice->secondary = secondary;
-                if (data->_modulation >= VIBRATO_THRESHOLD)
+                if (data->modulation >= VIBRATO_THRESHOLD)
                     voice->vibrato = true;
                 voice->time = abs_time;
-                voice->realvolume = calcVolume(data->_volume, voice->volume = volume);
+                voice->realvolume = _calcVolume(data->volume, voice->volume = volume);
                 if (instrument->flags & OP2BANK_INSTRUMENT_FLAG_FIXED_PITCH)
                     note = instrument->noteNum;
                 else if (channel == MIDI_PERCUSSION_CHANNEL)
@@ -375,7 +374,7 @@ namespace drivers
                     voice->finetune = instrument->fineTune - 0x80;
                 else
                     voice->finetune = 0;
-                voice->pitch = voice->finetune + data->_pitch;
+                voice->pitch = voice->finetune + data->pitch;
                 if (secondary)
                     instr = &instrument->voices[1];
                 else
@@ -391,14 +390,14 @@ namespace drivers
                 _oplWriter->writeInstrument(slot, instr);
                 if (voice->vibrato)
                     _oplWriter->writeModulation(slot, instr, 1);
-                _oplWriter->writePan(slot, instr, data->_pan);
+                _oplWriter->writePan(slot, instr, data->pan);
                 _oplWriter->writeVolume(slot, instr, voice->realvolume);
                 writeNote(voice, true);
                 
                 return slot;
             }
 
-            int8_t MidiDriver::findFreeOplChannel(const uint8_t flag, const uint32_t abs_time)
+            int8_t AdLibDriver::findFreeOplChannel(const uint8_t flag, const uint32_t abs_time)
             {
                 uint8_t i;
                 uint8_t oldest = 255;
@@ -437,14 +436,14 @@ namespace drivers
                 return -1;
             }
 
-            uint8_t MidiDriver::panVolume(const uint8_t volume, int8_t pan) const noexcept
+            uint8_t AdLibDriver::panVolume(const uint8_t volume, int8_t pan) noexcept
             {
                 return (pan >= 0) ?
                     volume :
                     (volume * (pan + 64)) >> 6; // / 64;
             }
 
-            void MidiDriver::writeNote(const MidiVoice* voice, const bool keyOn) const noexcept
+            void AdLibDriver::writeNote(const MidiVoice* voice, const bool keyOn) const noexcept
             {
                 // TODO: keyOn put in MidiVoice?
                 _oplWriter->writeNote(voice->_slot, voice->realnote, voice->pitch, keyOn);
