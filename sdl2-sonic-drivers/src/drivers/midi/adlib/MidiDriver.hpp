@@ -43,9 +43,9 @@ namespace drivers
                 uint8_t _oplNumChannels = OPL2_NUM_CHANNELS;
 
                 std::array<std::unique_ptr<MidiChannel>, audio::midi::MIDI_MAX_CHANNELS>  _channels;
-                MidiVoice  _voices[OPL2_NUM_CHANNELS]; // TODO shouldn't be connected to MidiChannel instead?
+                //MidiVoice  _voices[OPL2_NUM_CHANNELS]; // TODO shouldn't be connected to MidiChannel instead?
                 // TODO allocate it on the heap...
-                //std::array<std::shared_ptr<MidiVoice>, OPL2_NUM_CHANNELS>  _voices; // TODO shouldn't be connected to MidiChannel instead?
+                std::array<std::unique_ptr<MidiVoice>, OPL2_NUM_CHANNELS> _voices; // TODO shouldn't be connected to MidiChannel instead?
 
                 uint8_t _playingVoices = 0; // OPL Channels
 

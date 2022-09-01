@@ -31,7 +31,8 @@ namespace drivers
                 inline bool isVoiceFree() const noexcept;
                 MidiVoice* _voice = nullptr; // the OPL Channel associated to this Midi Channel
 
-
+                //uint8_t release(const bool killed);
+                
                 /// review below later on...
                 //uint8_t getNumber() override;
                 //void release() override;
