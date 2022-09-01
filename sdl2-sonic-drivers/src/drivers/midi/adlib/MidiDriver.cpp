@@ -158,7 +158,6 @@ namespace drivers
             {
             }
 
-          
             void MidiDriver::send(const audio::midi::MIDIEvent& e) noexcept
             {
                 uint32_t abs_time = getMillis<uint32_t>();
@@ -227,17 +226,16 @@ namespace drivers
                     {
                     case 0:
                     case 32:
-                        spdlog::warn("bank select value {}", value);
                         // Bank select. Not supported
+                        spdlog::warn("bank select value {}", value);
                         break;
                     case 1:
                     {
-                        //_oplData.channelModulation[chan] = value;
+                        //modulationWheel(value);
                         _channels[chan]._modulation = value;
                         for (int i = 0; i < _oplNumChannels; i++)
                         {
                             channelEntry* ch = &_oplChannels[i];
-                            //if (CHANNEL_ID(*ch) == id)
                             if (ch->channel == chan && (!ch->free))
                             {
                                 //uint8_t flags = ch->flags;
@@ -251,7 +249,6 @@ namespace drivers
 
                                 }
                                 else {
-                                    //ch->flags &= ~CH_VIBRATO;
                                     if (ch->vibrato)
                                         writeModulation(i, ch->instr, 0);
                                     ch->vibrato = false;
@@ -261,17 +258,15 @@ namespace drivers
                         }
                     }
                         spdlog::debug("modwheel value {}", value);
-                        //modulationWheel(value);
                         break;
                     case 7:
                         {
+                        // Volume
                             int i;
-                            //_oplData.channelVolume[chan] = value;
                             _channels[chan]._volume = value;
                             for (i = 0; i < _oplNumChannels; i++)
                             {
                                 channelEntry* ch = &_oplChannels[i];
-                                //if (CHANNEL_ID(*ch) == id)
                                 if (ch->channel == chan && (!ch->free))
                                 {
                                     ch->time = abs_time;
@@ -303,37 +298,36 @@ namespace drivers
                         spdlog::debug("panPosition value {}", value);
                         break;
                     case 16:
-                        spdlog::warn("pitchBendFactor value {}", value);
                         //pitchBendFactor(value);
+                        spdlog::warn("pitchBendFactor value {}", value);
                         break;
                     case 17:
-                        spdlog::warn("detune value {}", value);
                         //detune(value);
+                        spdlog::warn("detune value {}", value);
                         break;
                     case 18:
-                        spdlog::warn("priority value {}", value);
                         //priority(value);
+                        spdlog::warn("priority value {}", value);
                         break;
                     case 64:
-                        spdlog::warn("sustain value {}", value);
                         //sustain(value > 0);
+                        spdlog::warn("sustain value {}", value);
                         {
-                            //_oplData.channelSustain[chan] = value;
                             _channels[chan]._sustain = value;
-                            if (value < 0x40) {
+                            if (value < SUSTAIN_THRESHOLD) {
                                 releaseSustain(chan);
                             }
                         }
                         break;
                     case 91:
                         // Effects level. Not supported.
-                        spdlog::warn("effect level value {}", value);
                         //effectLevel(value);
+                        spdlog::warn("effect level value {}", value);
                         break;
                     case 93:
                         // Chorus level. Not supported.
-                        spdlog::warn("chorus level value {}", value);
                         //chorusLevel(value);
+                        spdlog::warn("chorus level value {}", value);
                         break;
                     case 119:
                         // Unknown, used in Simon the Sorcerer 2
@@ -349,7 +343,6 @@ namespace drivers
                         break;
                     case 123:
                         spdlog::debug("all notes off");
-                        //allNotesOff();
                         stopAll();
                         break;
                     default:
@@ -362,15 +355,10 @@ namespace drivers
                     uint8_t chan = e.type.low;
                     uint8_t program = e.data[0];
 
-                    //if (program > 127)
-                    //    return;
-                    _channels[chan]._instrument = _op2Bank->getInstrument(program);
-                    //writeInstrument(chan, &_instruments[chan].voices[0]);
-                    //_oplData.channelInstr[chan] = program;
+                    _channels[chan].programChange(program, _op2Bank->getInstrument(program));
+                    //_channels[chan]._instrument = _op2Bank->getInstrument(program);
+                    //TODO remove this one below
                     _channels[chan]._instrument_number = program;
-                    // TODO with channels, later
-                    //_channels[chan].programChange(program, _op2file->getInstrument(program));
-                    //writeInstrument(chan, &_channels[chan].getInstrument()->voices[0]);
 
                     spdlog::debug("program change {} {} ({})", chan, program, _op2Bank->getInstrumentName(program));
                 }
@@ -385,7 +373,6 @@ namespace drivers
                     spdlog::debug("PITCH_BEND {}", bend);
 
                     // OPLPitchWheel
-                    //_oplData.channelPitch[chan] = static_cast<int8_t>(bend);
                     _channels[chan]._pitch = static_cast<int8_t>(bend);
                     for (int i = 0; i < _oplNumChannels; i++)
                     {

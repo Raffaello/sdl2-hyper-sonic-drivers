@@ -17,7 +17,7 @@ namespace drivers
                 ~MidiChannel() = default;
                 
 
-                uint8_t _instrument_number; // instrument # (rename to program)
+                uint8_t _instrument_number; // instrument # (rename to program/remove it ..)
                 uint8_t _volume;            // volume
                 uint8_t _pan;               // pan, 0=normal
                 uint8_t _pitch;             // pitch wheel, 0=normal
@@ -40,11 +40,11 @@ namespace drivers
                 void programChange(const uint8_t program, const audio::opl::banks::Op2BankInstrument_t& instrument);
                 const audio::opl::banks::Op2BankInstrument_t* getInstrument() const noexcept;
                 //void programChange(uint8_t program) override;
-                //void pitchBend(int16_t bend) override;
+                void pitchBend(const int16_t bend) noexcept;
 
                 // Control Change messages
                 //void controlChange(uint8_t control, uint8_t value) override;
-                //void modulationWheel(uint8_t value) override;
+                void modulationWheel(const uint8_t value) noexcept;
                 //void volume(uint8_t value) override;
                 //void panPosition(uint8_t value) override;
                 //void pitchBendFactor(uint8_t value) override;
@@ -56,7 +56,7 @@ namespace drivers
                 //void allNotesOff() override;
 
             private:
-                //uint8_t _program;
+                uint8_t _program;
                 //audio::opl::banks::Op2BankInstrument_t _instrument;
             };
         }
