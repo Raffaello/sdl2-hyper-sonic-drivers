@@ -80,7 +80,7 @@ namespace drivers
                  * Write to channel a single value. To be used for register bases of
                  * 0xA0, 0xB0 and 0xC0.
                  */
-                void writeValue(const uint16_t regbase, const uint8_t channel, const uint8_t value) const noexcept;
+                void _writeValue(const uint16_t regbase, const uint8_t channel, const uint8_t value) const noexcept;
 
                 /*
                  * TODO: this could be handled by the OplBank interface or soething (in OP2Bank for e.g)
@@ -122,12 +122,12 @@ namespace drivers
                 /*
                  * Write frequency/octave/keyon data to a channel
                  */
-                void writeFreq(const uint8_t slot, const uint16_t freq, const uint8_t octave, const bool keyon) const noexcept;
+                void _writeFreq(const uint8_t slot, const uint16_t freq, const uint8_t octave, const bool keyon) const noexcept;
 
                 /*
                 * Write a Note
                 */
-                void writeNote(const uint8_t slot, const uint8_t note, int pitch, const bool keyOn) const noexcept;
+                void _writeNote(const uint8_t slot, const uint8_t note, int pitch, const bool keyOn) const noexcept;
                 void writeNote(const MidiVoice* voice, const bool keyOn) const noexcept;
             };
         }

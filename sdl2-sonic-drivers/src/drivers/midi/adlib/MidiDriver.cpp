@@ -401,7 +401,7 @@ namespace drivers
                     writeChannel(0x40, i, 0x3F, 0x3F);  // turn off volume
                     writeChannel(0x60, i, 0xFF, 0xFF);  // the fastest attack, decay
                     writeChannel(0x80, i, 0x0F, 0x0F);  // ... and release
-                    writeValue(0xB0, i, 0);             // KEY-OFF
+                    _writeValue(0xB0, i, 0);             // KEY-OFF
                 }
             }
 
@@ -540,7 +540,7 @@ namespace drivers
                 _opl->writeReg(reg + 3, data2);
             }
 
-            void MidiDriver::writeValue(const uint16_t regbase, const uint8_t channel, const uint8_t value) const noexcept
+            void MidiDriver::_writeValue(const uint16_t regbase, const uint8_t channel, const uint8_t value) const noexcept
             {
                 // OPL3 compatible channels
                 static uint16_t reg_num[] = {
@@ -557,7 +557,7 @@ namespace drivers
                 writeChannel(0x60, channel, instr->att_dec_1, instr->att_dec_2);
                 writeChannel(0x80, channel, instr->sust_rel_1, instr->sust_rel_2);
                 writeChannel(0xE0, channel, instr->wave_1, instr->wave_2);
-                writeValue(0xC0, channel, instr->feedback | 0x30);
+                _writeValue(0xC0, channel, instr->feedback | 0x30);
             }
 
             void MidiDriver::writeModulation(const uint8_t slot, const hardware::opl::OPL2instrument_t* instr, uint8_t state)
@@ -576,7 +576,7 @@ namespace drivers
                 else if (pan > 36) bits = 0x20; // right
                 else bits = 0x30;               // both
 
-                writeValue(0xC0, channel, instr->feedback | bits);
+                _writeValue(0xC0, channel, instr->feedback | bits);
             }
 
             void MidiDriver::writeVolume(const uint8_t channel, const hardware::opl::OPL2instrument_t* instr, const uint8_t volume) const noexcept
@@ -617,13 +617,13 @@ namespace drivers
                     (volume * (pan + 64)) >> 6; // / 64;
             }
 
-            void MidiDriver::writeFreq(const uint8_t slot, const uint16_t freq, const uint8_t octave, const bool keyon) const noexcept
+            void MidiDriver::_writeFreq(const uint8_t slot, const uint16_t freq, const uint8_t octave, const bool keyon) const noexcept
             {
-                writeValue(0xA0, slot, freq & 0xFF);
-                writeValue(0xB0, slot, (freq >> 8) | (octave << 2) | (static_cast<uint8_t>(keyon) << 5));
+                _writeValue(0xA0, slot, freq & 0xFF);
+                _writeValue(0xB0, slot, (freq >> 8) | (octave << 2) | (static_cast<uint8_t>(keyon) << 5));
             }
 
-            void MidiDriver::writeNote(const uint8_t slot, const uint8_t note, int pitch, const bool keyOn) const noexcept
+            void MidiDriver::_writeNote(const uint8_t slot, const uint8_t note, int pitch, const bool keyOn) const noexcept
             {
                 uint16_t freq = freqtable[note];
                 uint8_t octave = octavetable[note];
@@ -642,13 +642,13 @@ namespace drivers
                     octave = 7;
                 }
                 
-                writeFreq(slot, freq, octave, keyOn);
+                _writeFreq(slot, freq, octave, keyOn);
             }
 
             void MidiDriver::writeNote(const MidiVoice* voice, const bool keyOn) const noexcept
             {
                 // TODO: keyOn put in MidiVoice
-                writeNote(voice->slot, voice->realnote, voice->pitch, keyOn);
+                _writeNote(voice->slot, voice->realnote, voice->pitch, keyOn);
             }
         }
     }
