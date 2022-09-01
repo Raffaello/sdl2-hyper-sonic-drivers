@@ -95,6 +95,8 @@ namespace drivers
 
             /// TODO: this whole can just become the device::AdLib ....
 
+            // TODO: Adlib is mono so the PAN message/event/command can be skipped in OPL2
+
 
             MidiDriver::MidiDriver(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank) :
                 _opl(opl), _op2Bank(op2Bank)
@@ -103,8 +105,9 @@ namespace drivers
 
                 for (int i = 0; i < _oplNumChannels; ++i) {
                     memset(&_oplChannels[i], 0, sizeof(channelEntry));
-                    _oplChannels[i].flags = CH_FREE;
-                    _oplChannels[i].channel = CH_FREE;
+                    _oplChannels[i].flags = 0;
+                    //_oplChannels[i].channel = _oplNumChannels;
+                    _oplChannels[i].free = true;
                     //_oplChannels[i].instr = &_op2Bank->getInstrument(0).voices[0];
                 }
 
@@ -188,7 +191,7 @@ namespace drivers
                     else {
                         spdlog::critical("NO FREE CHANNEL? midi-ch={} - playingChannels={}", chan, _playingChannels);
                         for (int i = 0; i < _oplNumChannels; i++) {
-                            spdlog::critical("OPL channels: {} - free? {}", i, _oplChannels[i].flags & CH_FREE == CH_FREE);
+                            spdlog::critical("OPL channels: {} - free? {}", i, _oplChannels[i].free);
                         }
                     }
                 }
@@ -216,7 +219,7 @@ namespace drivers
                         {
                             channelEntry* ch = &_oplChannels[i];
                             //if (CHANNEL_ID(*ch) == id)
-                            if (ch->channel == chan && (ch->flags & CH_FREE) == 0)
+                            if (ch->channel == chan && (!ch->free))
                             {
                                 uint8_t flags = ch->flags;
                                 ch->time = abs_time;
@@ -245,7 +248,7 @@ namespace drivers
                             {
                                 channelEntry* ch = &_oplChannels[i];
                                 //if (CHANNEL_ID(*ch) == id)
-                                if (ch->channel == chan && (ch->flags & CH_FREE) == 0)
+                                if (ch->channel == chan && (!ch->free))
                                 {
                                     ch->time = abs_time;
                                     ch->realvolume = calcVolume(value, ch->volume);
@@ -264,7 +267,7 @@ namespace drivers
                             {
                                 channelEntry* ch = &_oplChannels[i];
                                 //if (CHANNEL_ID(*ch) == id)
-                                if (ch->channel == chan && (ch->flags & CH_FREE) == 0)
+                                if (ch->channel == chan && (!ch->free))
                                 {
                                     ch->time = abs_time;
                                     writePan(i, ch->instr, value);
@@ -363,7 +366,7 @@ namespace drivers
                     {
                         channelEntry* ch = &_oplChannels[i];
                         //if (CHANNEL_ID(*ch) == id)
-                        if (ch->channel == chan && (ch->flags & CH_FREE) == 0)
+                        if (ch->channel == chan && (!ch->free))
                         {
                             ch->time = abs_time;
                             ch->pitch = ch->finetune + bend;
@@ -441,8 +444,9 @@ namespace drivers
 
                 _playingChannels--;
                 writeNote(slot, ch->realnote, ch->pitch, 0);
-                ch->channel |= CH_FREE;
-                ch->flags = CH_FREE;
+                //ch->channel |= _oplNumChannels;
+                //ch->flags = CH_FREE;
+                ch->free = true;
                 if (killed)
                 {
                     writeChannel(0x80, slot, 0x0F, 0x0F);  // release rate - fastest
@@ -463,6 +467,7 @@ namespace drivers
                 //ch->musnumber = mus->number;
                 ch->note = note;
                 ch->flags = secondary ? CH_SECONDARY : 0;
+                ch->free = false;
                 if (data->channelModulation[channel] >= MOD_MIN)
                     ch->flags |= CH_VIBRATO;
                 ch->time = abs_time;
@@ -510,7 +515,7 @@ namespace drivers
                 /* find free channel */
                 for (i = 0; i < _oplNumChannels; i++)
                 {
-                    if (_oplChannels[i].flags & CH_FREE)
+                    if (_oplChannels[i].free)
                         return i;
                 }
 

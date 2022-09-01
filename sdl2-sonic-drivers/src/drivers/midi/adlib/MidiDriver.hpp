@@ -21,7 +21,7 @@ namespace drivers
 #define CH_SECONDARY	0x01
 #define CH_SUSTAIN	0x02
 #define CH_VIBRATO	0x04		/* set if modulation >= MOD_MIN */
-#define CH_FREE		0x80
+//#define CH_FREE		0x80
 #define MOD_MIN		40		/* vibrato threshold */
 
 #define FL_FIXED_PITCH	0x0001		// note has fixed pitch (see below)
@@ -37,6 +37,7 @@ namespace drivers
                 //uint8_t musnumber;		/* MUS handle number */
                 uint8_t note;			/* note number */
                 uint8_t flags;			/* see CH_xxx below */
+                bool free;
                 uint8_t realnote;		/* adjusted note number */
                 int8_t  finetune;		/* frequency fine-tune */
                 int16_t pitch;			/* pitch-wheel value */
