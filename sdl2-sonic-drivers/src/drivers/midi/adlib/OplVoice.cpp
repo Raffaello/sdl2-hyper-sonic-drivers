@@ -15,6 +15,7 @@ namespace drivers
 
             using audio::midi::MIDI_PERCUSSION_CHANNEL;
 
+            ;
             constexpr int VIBRATO_THRESHOLD = 40;   /* vibrato threshold */
             constexpr int8_t HIGHEST_NOTE = 127;
 
@@ -22,6 +23,94 @@ namespace drivers
             OplVoice::OplVoice(const uint8_t slot, const std::unique_ptr<devices::opl::OplWriter>& oplWriter) :
                 _slot(slot), _oplWriter(oplWriter.get())
             {
+            }
+
+            /*inline*/ const uint8_t OplVoice::getSlot() const noexcept
+            {
+                return _slot;
+            }
+
+            /*inline*/ const bool OplVoice::isChannel(const uint8_t channel) const noexcept
+            {
+                return _channel == channel;
+            }
+
+            /*inline*/ const bool OplVoice::isChannelBusy(const uint8_t channel) const noexcept
+            {
+                return isChannel(channel) && !_free;
+            }
+
+            /*inline*/ const bool OplVoice::isChannelFree(uint8_t channel) const noexcept
+            {
+                return isChannel(channel) && _free;
+            }
+
+            /*inline*/ void OplVoice::noteOff(const uint8_t channel, const uint8_t note, const uint8_t sustain_) noexcept
+            {
+                if (isChannelBusy(channel) && _note == note)
+                {
+                    if (sustain_ < SUSTAIN_THRESHOLD)
+                        release(0);
+                    else
+                        sustain = true;
+                }
+            }
+
+            /*inline*/ void OplVoice::pitchBend(const uint8_t channel, const uint16_t bend, const uint32_t abs_time) noexcept
+            {
+                if (isChannelBusy(channel))
+                {
+                    time = abs_time;
+                    pitch = finetune + bend;
+                    playNote(true);
+                }
+            }
+
+            /*inline*/ void OplVoice::ctrl_modulationWheel(const uint8_t channel, const uint8_t value, const uint32_t abs_time) noexcept
+            {
+                if (isChannelBusy(channel))
+                {
+                    time = abs_time;
+                    if (value >= VIBRATO_THRESHOLD)
+                    {
+                        if (!vibrato)
+                            _oplWriter->writeModulation(_slot, _instr, 1);
+                        vibrato = true;
+
+                    }
+                    else {
+                        if (vibrato)
+                            _oplWriter->writeModulation(_slot, _instr, 0);
+                        vibrato = false;
+
+                    }
+                }
+            }
+
+            /*inline*/ void OplVoice::ctrl_volume(const uint8_t channel, const uint8_t value, const uint32_t abs_time) noexcept
+            {
+                if (isChannelBusy(channel))
+                {
+                    time = abs_time;
+                    setRealVolume(value);
+                    _oplWriter->writeVolume(_slot, _instr, getRealVolume());
+                }
+            }
+
+            /*inline*/ void OplVoice::ctrl_panPosition(const uint8_t channel, const uint8_t value, const uint32_t abs_time) noexcept
+            {
+                if (isChannelBusy(channel))
+                {
+                    time = abs_time;
+                    _oplWriter->writePan(_slot, _instr, value);
+                }
+            }
+
+            /*inline*/ void OplVoice::releaseSustain(const uint8_t channel) noexcept
+            {
+                if (isChannelBusy(channel) && sustain) {
+                    release(false);
+                }
             }
 
             void OplVoice::playNote(const bool keyOn) const noexcept
@@ -112,6 +201,11 @@ namespace drivers
             void OplVoice::setRealVolume(const uint8_t channelVolume) noexcept
             {
                 _realvolume = _calcVolume(channelVolume);
+            }
+
+            /*inline*/ uint8_t OplVoice::getRealVolume() const noexcept
+            {
+                return _realvolume;
             }
 
             uint8_t OplVoice::_calcVolume(const uint8_t channelVolume) const noexcept

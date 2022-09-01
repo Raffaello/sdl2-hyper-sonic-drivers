@@ -20,11 +20,6 @@ namespace drivers
 
             using namespace devices::opl; // TODO remove
 
-            constexpr int SUSTAIN_THRESHOLD = 64;
-            constexpr int VIBRATO_THRESHOLD = 40;   /* vibrato threshold */
-
-            constexpr int8_t HIGHEST_NOTE = 127;
-
 
             // TODO: when no channel is allocated having a for loop to search for nothing is silly.
             
@@ -108,16 +103,8 @@ namespace drivers
                 uint8_t sustain = _channels[chan]->sustain;
                 
                 for (int i = 0; i < _oplNumChannels; i++)
-                {
-                    OplVoice* voice = _voices[i].get();
-                    if (voice->isChannelBusy(chan) && voice->_note == note)
-                    {
-                       if (sustain < SUSTAIN_THRESHOLD)
-                            releaseVoice(i, 0);
-                        else
-                            voice->sustain = true;
-                    }
-                }
+                    _voices[i]->noteOff(chan, note, sustain);
+                
                 spdlog::debug("noteOff {} {} ({})", chan, note, _playingVoices);
             }
 
@@ -224,19 +211,10 @@ namespace drivers
             void AdLibDriver::pitchBend(const uint8_t chan, const uint16_t bend, const uint32_t abs_time) const noexcept
             {
                 spdlog::debug("PITCH_BEND {}", bend);
-
                 // OPLPitchWheel
                 _channels[chan]->pitch = static_cast<int8_t>(bend);
                 for (int i = 0; i < _oplNumChannels; i++)
-                {
-                    OplVoice* voice = _voices[i].get();
-                    if (voice->isChannelBusy(chan))
-                    {
-                        voice->time = abs_time;
-                        voice->pitch = voice->finetune + bend;
-                        voice->playNote(true);
-                    }
-                }
+                    _voices[i]->pitchBend(chan, bend, abs_time);
             }
 
 
@@ -244,43 +222,16 @@ namespace drivers
             {
                 _channels[chan]->modulation = value;
                 for (int i = 0; i < _oplNumChannels; i++)
-                {
-                    OplVoice* voice = _voices[i].get();
-                    if (voice->isChannelBusy(chan))
-                    {
-                        bool vibrato = voice->vibrato;
-                        voice->time = abs_time;
-                        if (value >= VIBRATO_THRESHOLD)
-                        {
-                            if (!voice->vibrato)
-                                _oplWriter->writeModulation(i, voice->_instr, 1);
-                            voice->vibrato = true;
-
-                        }
-                        else {
-                            if (voice->vibrato)
-                                _oplWriter->writeModulation(i, voice->_instr, 0);
-                            voice->vibrato = false;
-
-                        }
-                    }
-                }
+                    _voices[i]->ctrl_modulationWheel(chan, value, abs_time);
             }
 
             void AdLibDriver::ctrl_volume(const uint8_t chan, const uint8_t value, const uint32_t abs_time) const noexcept
             {
+                spdlog::debug("volume value {} -ch={}", value, chan);
+
                 _channels[chan]->volume = value;
                 for (int i = 0; i < _oplNumChannels; i++)
-                {
-                    OplVoice* voice = _voices[i].get();
-                    if (voice->isChannelBusy(chan))
-                    {
-                        voice->time = abs_time;
-                        voice->setRealVolume(value);
-                        _oplWriter->writeVolume(i, voice->_instr, voice->getRealVolume());
-                        spdlog::debug("volume value {} -ch={}", value, i);
-                    }
-                }
+                    _voices[i]->ctrl_volume(chan, value, abs_time);
             }
 
             void AdLibDriver::ctrl_panPosition(const uint8_t chan, uint8_t value, const uint32_t abs_time) const noexcept
@@ -289,14 +240,7 @@ namespace drivers
 
                 _channels[chan]->pan = value -= 64;
                 for (int i = 0; i < _oplNumChannels; i++)
-                {
-                    OplVoice* voice = _voices[i].get();
-                    if (voice->isChannelBusy(chan))
-                    {
-                        voice->time = abs_time;
-                        _oplWriter->writePan(i, voice->_instr, value);
-                    }
-                }
+                    _voices[i]->ctrl_panPosition(chan, value, abs_time);
             }
 
             void AdLibDriver::ctrl_sustain(const uint8_t chan, uint8_t value) noexcept
@@ -310,12 +254,7 @@ namespace drivers
             void AdLibDriver::releaseSustain(const uint8_t channel)
             {
                 for (int i = 0; i < _oplNumChannels; i++)
-                {
-                    OplVoice* voice = _voices[i].get();
-                    if (voice->isChannelBusy(channel) && voice->sustain) {
-                        releaseVoice(i, 0);
-                    }
-                }
+                    _voices[i]->releaseSustain(i);
             }
 
             uint8_t AdLibDriver::releaseVoice(const uint8_t slot, const bool killed)

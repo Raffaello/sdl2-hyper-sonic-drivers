@@ -42,9 +42,6 @@ namespace drivers
                 std::array<std::unique_ptr<OplChannel>, audio::midi::MIDI_MAX_CHANNELS>  _channels;
                 std::array<std::unique_ptr<OplVoice>, devices::opl::OPL2_NUM_CHANNELS> _voices;
 
-                //std::list< uint8_t> _queueChannelVoice;
-
-
                 std::unique_ptr<devices::opl::OplWriter> _oplWriter;
                 uint8_t _playingVoices = 0; // OPL Channels
 

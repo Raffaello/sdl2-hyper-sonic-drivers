@@ -11,27 +11,31 @@ namespace drivers
     {
         namespace adlib
         {
-            // TODO rename to AdlibVoice and AbstractMidiVoice as interface
+            constexpr int SUSTAIN_THRESHOLD = 64;
+
             class OplVoice
             {
             public:
                 OplVoice(const uint8_t slot, const std::unique_ptr<devices::opl::OplWriter>& oplWriter);
                 ~OplVoice() = default;
 
-                inline const uint8_t getSlot() const noexcept { return _slot; }
+                inline const uint8_t getSlot() const noexcept;
 
-                inline const bool isChannel(const uint8_t channel) const noexcept {
-                    return _channel == channel;
-                }
+                inline const bool isChannel(const uint8_t channel) const noexcept;
+                inline const bool isChannelBusy(const uint8_t channel) const noexcept;
+                inline const bool isChannelFree(uint8_t channel) const noexcept;
+                
+                /*inline*/ void noteOff(const uint8_t channel, const uint8_t note, const uint8_t sustain_) noexcept;
 
-                inline const bool isChannelBusy(const uint8_t channel) const noexcept {
-                    return isChannel(channel) && !_free;
-                }
+                /*inline*/ void pitchBend(const uint8_t channel, const uint16_t bend, const uint32_t abs_time) noexcept;
 
-                inline const bool isChannelFree(uint8_t channel) const noexcept {
-                    return isChannel(channel) && _free;
-                }
+                /*inline*/ void ctrl_modulationWheel(const uint8_t channel, const uint8_t value, const uint32_t abs_time) noexcept;
+                /*inline*/ void ctrl_volume(const uint8_t channel, const uint8_t value, const uint32_t abs_time) noexcept;
+                /*inline*/ void ctrl_panPosition(const uint8_t channel, const uint8_t value, const uint32_t abs_time) noexcept;
+                
+                /*inline*/ void releaseSustain(const uint8_t channel) noexcept;
 
+            public:
                 void playNote(const bool keyOn) const noexcept;
                 int allocate(const uint8_t channel,
                     const uint8_t note_, const uint8_t volume,
@@ -47,7 +51,9 @@ namespace drivers
 
                 void setVolumes(const uint8_t channelVolume, const uint8_t volume) noexcept;
                 void setRealVolume(const uint8_t channelVolume) noexcept;
-                inline uint8_t getRealVolume() const noexcept { return _realvolume; };
+
+            public:
+                inline uint8_t getRealVolume() const noexcept;
 
                 uint8_t _channel = 0;                        // MIDI channel number
                 uint8_t _note = 0;                           /* note number */
@@ -73,7 +79,7 @@ namespace drivers
 
                 const devices::opl::OplWriter* _oplWriter;
 
-                uint8_t _calcVolume(const uint8_t channelVolume) const noexcept;
+                inline uint8_t _calcVolume(const uint8_t channelVolume) const noexcept;
             };
         }
     }
