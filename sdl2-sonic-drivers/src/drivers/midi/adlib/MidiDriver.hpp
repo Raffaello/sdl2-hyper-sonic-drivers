@@ -18,17 +18,17 @@ namespace drivers
             constexpr uint8_t OPL2_NUM_CHANNELS = 9;
             //constexpr uint8_t OPL3_NUM_CHANNELS = 18;
 
-#define CH_SECONDARY	0x01
-#define CH_SUSTAIN	0x02
-#define CH_VIBRATO	0x04		/* set if modulation >= MOD_MIN */
+//#define CH_SECONDARY	0x01
+//#define CH_SUSTAIN	0x02
+//#define CH_VIBRATO	0x04		/* set if modulation >= MOD_MIN */
 //#define CH_FREE		0x80
-#define MOD_MIN		40		/* vibrato threshold */
+//#define MOD_MIN		40		/* vibrato threshold */
 
-#define FL_FIXED_PITCH	0x0001		// note has fixed pitch (see below)
+//#define FL_FIXED_PITCH	0x0001		// note has fixed pitch (see below)
 //#define FL_UNKNOWN	0x0002		// ??? (used in instrument #65 only)
-#define FL_DOUBLE_VOICE	0x0004		// use two voices instead of one
+//#define FL_DOUBLE_VOICE	0x0004		// use two voices instead of one
 
-#define HIGHEST_NOTE 127
+//#define HIGHEST_NOTE 127
 
             /* OPL channel (voice) data */
             // TODO make a class and move to MidiChannel(rename to OPLChannel?) as OPLVoice?
@@ -36,8 +36,11 @@ namespace drivers
                 uint8_t channel;		/* MUS channel number */
                 //uint8_t musnumber;		/* MUS handle number */
                 uint8_t note;			/* note number */
-                uint8_t flags;			/* see CH_xxx below */
+                //uint8_t flags;			/* see CH_xxx below */
                 bool free;
+                bool secondary;
+                bool sustain;
+                bool vibrato;
                 uint8_t realnote;		/* adjusted note number */
                 int8_t  finetune;		/* frequency fine-tune */
                 int16_t pitch;			/* pitch-wheel value */
@@ -105,7 +108,7 @@ namespace drivers
 
                 uint8_t releaseChannel(const uint8_t slot, const bool killed);
 
-                int occupyChannel(const uint8_t slot, const uint8_t channel, uint8_t note, uint8_t volume, audio::opl::banks::Op2BankInstrument_t* instrument, const uint8_t secondary, const uint32_t abs_time);
+                int occupyChannel(const uint8_t slot, const uint8_t channel, uint8_t note, uint8_t volume, audio::opl::banks::Op2BankInstrument_t* instrument, const bool secondary, const uint32_t abs_time);
 
                 int8_t findFreeOplChannel(const uint8_t flag,  const uint32_t abs_time);
 

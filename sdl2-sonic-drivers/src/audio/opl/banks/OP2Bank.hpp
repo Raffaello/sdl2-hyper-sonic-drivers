@@ -15,6 +15,10 @@ namespace audio
 
             constexpr int OP2BANK_INSTRUMENT_NUM_VOICES = 2;
             constexpr int OP2BANK_NUM_INSTRUMENTS = 175;
+            
+            constexpr int16_t OP2BANK_INSTRUMENT_FLAG_FIXED_PITCH = 0x0001;       // note has fixed pitch (see below)
+            //constexpr int16_t FL_DELAYED_VIBRATO = 0x0002; // ??? (used in instrument #65 only)
+            constexpr int16_t OP2BANK_INSTRUMENT_FLAG_DOUBLE_VOICE = 0x0004;      // use two voices instead of one
 
             typedef struct Op2BankInstrument_t
             {

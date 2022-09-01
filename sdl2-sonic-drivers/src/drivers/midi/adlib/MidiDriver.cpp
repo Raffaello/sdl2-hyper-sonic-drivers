@@ -16,6 +16,16 @@ namespace drivers
             using hardware::opl::OPL2instrument_t;
             using utils::getMillis;
 
+            // this could be in the OP2 Bank probably...
+            using audio::opl::banks::OP2BANK_INSTRUMENT_FLAG_FIXED_PITCH; 
+            using audio::opl::banks::OP2BANK_INSTRUMENT_FLAG_DOUBLE_VOICE;
+
+            constexpr int SUSTAIN_THRESHOLD = 64;
+            constexpr int VIBRATO_THRESHOLD = 40;   /* vibrato threshold */
+
+            constexpr int8_t HIGHEST_NOTE = 127;
+
+
             static uint16_t freqtable[] = {                                 /* note # */
                 345, 365, 387, 410, 435, 460, 488, 517, 547, 580, 615, 651, /*  0 */
                 690, 731, 774, 820, 869, 921, 975, 517, 547, 580, 615, 651, /* 12 */
@@ -96,6 +106,7 @@ namespace drivers
             /// TODO: this whole can just become the device::AdLib ....
 
             // TODO: Adlib is mono so the PAN message/event/command can be skipped in OPL2
+            // TODO: secondary channel in OPL2/AdLib won't be used so can be removed.
 
 
             MidiDriver::MidiDriver(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank) :
@@ -105,7 +116,7 @@ namespace drivers
 
                 for (int i = 0; i < _oplNumChannels; ++i) {
                     memset(&_oplChannels[i], 0, sizeof(channelEntry));
-                    _oplChannels[i].flags = 0;
+                    //_oplChannels[i].flags = 0;
                     //_oplChannels[i].channel = _oplNumChannels;
                     _oplChannels[i].free = true;
                     //_oplChannels[i].instr = &_op2Bank->getInstrument(0).voices[0];
@@ -157,10 +168,10 @@ namespace drivers
                     for (int i = 0; i < _oplNumChannels; i++) {
                         if (_oplChannels[i].note == note && _oplChannels[i].channel == chan)
                         {
-                            if (sustain < 0x40)
+                            if (sustain < SUSTAIN_THRESHOLD)
                                 releaseChannel(i, 0);
                             else
-                                _oplChannels[i].flags |= CH_SUSTAIN;
+                                _oplChannels[i].sustain = true;
                         }
                     }
 
@@ -177,7 +188,7 @@ namespace drivers
                     if ((freeSlot = findFreeOplChannel((chan == MIDI_PERCUSSION_CHANNEL) ? 2 : 0, abs_time)) != -1)
                     {
                         auto instr = getInstrument(chan, note);
-                        int chi = occupyChannel(freeSlot, chan, note, volume, instr, 0, abs_time);
+                        int chi = occupyChannel(freeSlot, chan, note, volume, instr, false, abs_time);
 
                         // TODO: OPL3
                         //if (!OPLsinglevoice && instr->flags == FL_DOUBLE_VOICE)
@@ -221,18 +232,22 @@ namespace drivers
                             //if (CHANNEL_ID(*ch) == id)
                             if (ch->channel == chan && (!ch->free))
                             {
-                                uint8_t flags = ch->flags;
+                                //uint8_t flags = ch->flags;
+                                bool vibrato = ch->vibrato;
                                 ch->time = abs_time;
-                                if (value >= MOD_MIN)
+                                if (value >= VIBRATO_THRESHOLD)
                                 {
-                                    ch->flags |= CH_VIBRATO;
-                                    if (ch->flags != flags)
+                                    if (!ch->vibrato)
                                         writeModulation(i, ch->instr, 1);
+                                    ch->vibrato = true;
+
                                 }
                                 else {
-                                    ch->flags &= ~CH_VIBRATO;
-                                    if (ch->flags != flags)
+                                    //ch->flags &= ~CH_VIBRATO;
+                                    if (ch->vibrato)
                                         writeModulation(i, ch->instr, 0);
+                                    ch->vibrato = false;
+
                                 }
                             }
                         }
@@ -430,7 +445,7 @@ namespace drivers
                 for (int i = 0; i < _oplNumChannels; i++)
                 {
                     //if (CHANNEL_ID(channels[i]) == id && channels[i].flags & CH_SUSTAIN)
-                    if (_oplChannels[i].channel == i && _oplChannels[i].flags & CH_SUSTAIN) {
+                    if (_oplChannels[i].channel == i && _oplChannels[i].sustain) {
                         releaseChannel(i, 0);
                     }
                 }
@@ -455,7 +470,7 @@ namespace drivers
                 return slot;
             }
 
-            int MidiDriver::occupyChannel(const uint8_t slot, const uint8_t channel, uint8_t note, uint8_t volume, audio::opl::banks::Op2BankInstrument_t* instrument, const uint8_t secondary, const uint32_t abs_time)
+            int MidiDriver::occupyChannel(const uint8_t slot, const uint8_t channel, uint8_t note, uint8_t volume, audio::opl::banks::Op2BankInstrument_t* instrument, const bool secondary, const uint32_t abs_time)
             {
                 OPL2instrument_t* instr;
                 OPLdata* data = &_oplData;
@@ -466,21 +481,23 @@ namespace drivers
                 ch->channel = channel;
                 //ch->musnumber = mus->number;
                 ch->note = note;
-                ch->flags = secondary ? CH_SECONDARY : 0;
+                //ch->flags = secondary ? CH_SECONDARY : 0;
                 ch->free = false;
-                if (data->channelModulation[channel] >= MOD_MIN)
-                    ch->flags |= CH_VIBRATO;
+                ch->secondary = secondary;
+                if (data->channelModulation[channel] >= VIBRATO_THRESHOLD)
+                    ch->vibrato = true;
+                    //ch->flags |= CH_VIBRATO;
                 ch->time = abs_time;
                 //if (volume == -1)
                 //    volume = data->channelLastVolume[channel]; // TODO: unreachabel as midi always has volume
                 //else
                     data->channelLastVolume[channel] = volume;
                 ch->realvolume = calcVolume(data->channelVolume[channel], ch->volume = volume);
-                if (instrument->flags & FL_FIXED_PITCH)
+                if (instrument->flags & OP2BANK_INSTRUMENT_FLAG_FIXED_PITCH)
                     note = instrument->noteNum;
                 else if (channel == MIDI_PERCUSSION_CHANNEL)
                     note = 60;			// C-5
-                if (secondary && (instrument->flags & FL_DOUBLE_VOICE))
+                if (secondary && (instrument->flags & OP2BANK_INSTRUMENT_FLAG_DOUBLE_VOICE))
                     ch->finetune = instrument->fineTune - 0x80;
                 else
                     ch->finetune = 0;
@@ -497,7 +514,7 @@ namespace drivers
                 ch->realnote = note;
 
                 writeInstrument(slot, instr);
-                if (ch->flags & CH_VIBRATO)
+                if (ch->vibrato)
                     writeModulation(slot, instr, 1);
                 writePan(slot, instr, data->channelPan[channel]);
                 writeVolume(slot, instr, ch->realvolume);
@@ -525,7 +542,7 @@ namespace drivers
                 /* find some 2nd-voice channel and determine the oldest */
                 for (i = 0; i < _oplNumChannels; i++)
                 {
-                    if (_oplChannels[i].flags & CH_SECONDARY) {
+                    if (_oplChannels[i].secondary) {
                         releaseChannel(i, true);
                         return i;
                     }
