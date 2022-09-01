@@ -89,7 +89,7 @@ namespace drivers
                     writeValue(0xC0, channel, instr->feedback | 0x30);
                 }
 
-                void OplWriter::writeModulation(const uint8_t slot, const hardware::opl::OPL2instrument_t* instr, uint8_t state)
+                void OplWriter::writeModulation(const uint8_t slot, const hardware::opl::OPL2instrument_t* instr, uint8_t state) const noexcept
                 {
                     if (state)
                         state = 0x40;	/* enable Frequency Vibrato */

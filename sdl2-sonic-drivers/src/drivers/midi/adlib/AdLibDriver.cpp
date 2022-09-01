@@ -15,7 +15,7 @@ namespace drivers
             using utils::getMillis;
 
             // this could be in the OP2 Bank probably...
-            using audio::opl::banks::OP2BANK_INSTRUMENT_FLAG_FIXED_PITCH; 
+            using audio::opl::banks::OP2BANK_INSTRUMENT_FLAG_FIXED_PITCH;
             using audio::opl::banks::OP2BANK_INSTRUMENT_FLAG_DOUBLE_VOICE;
 
             using namespace devices::opl; // TODO remove
@@ -57,7 +57,7 @@ namespace drivers
                 }
 
                 for (int i = 0; i < _oplNumChannels; ++i) {
-                    _voices[i] = std::make_unique<MidiVoice>(i);
+                    _voices[i] = std::make_unique<MidiVoice>(i, _oplWriter);
                 }
 
                 hardware::opl::TimerCallBack cb = std::bind(&AdLibDriver::onTimer, this);
@@ -91,7 +91,7 @@ namespace drivers
                     for (int i = 0; i < _oplNumChannels; i++)
                     {
                         MidiVoice* voice = _voices[i].get();
-                        if (voice->note == note && voice->channel == chan)
+                        if (voice->_note == note && voice->_channel == chan)
                         {
                             if (sustain < SUSTAIN_THRESHOLD)
                                 releaseVoice(i, 0);
@@ -124,13 +124,13 @@ namespace drivers
                         //}
 
                         MidiVoice* voice = _voices[chi].get();
-                        spdlog::debug("noteOn note={:d} ({:d}) - vol={:d} ({:d}) - pitch={:d} - ch={:d}", voice->note, voice->realnote, voice->volume, voice->realvolume, voice->pitch, voice->channel);
+                        spdlog::debug("noteOn note={:d} ({:d}) - vol={:d} ({:d}) - pitch={:d} - ch={:d}", voice->_note, voice->_realnote, /*voice->volume*/ -1, /*voice->realvolume*/ -1, voice->pitch, voice->_channel);
                     }
                     else {
                         spdlog::critical("NO FREE CHANNEL? midi-ch={} - playingChannels={}", chan, _playingVoices);
                         for (int i = 0; i < _oplNumChannels; i++) {
                             MidiVoice* voice = _voices[i].get();
-                            spdlog::critical("OPL channels: {} - free? {}", i, voice->free);
+                            spdlog::critical("OPL channels: {} - free? {}", i, voice->_free);
                         }
                     }
                 }
@@ -158,20 +158,20 @@ namespace drivers
                         for (int i = 0; i < _oplNumChannels; i++)
                         {
                             MidiVoice* voice = _voices[i].get();
-                            if (voice->channel == chan && (!voice->free))
+                            if (voice->_channel == chan && (!voice->_free))
                             {
                                 bool vibrato = voice->vibrato;
                                 voice->time = abs_time;
                                 if (value >= VIBRATO_THRESHOLD)
                                 {
                                     if (!voice->vibrato)
-                                        _oplWriter->writeModulation(i, voice->instr, 1);
+                                        _oplWriter->writeModulation(i, voice->_instr, 1);
                                     voice->vibrato = true;
 
                                 }
                                 else {
                                     if (voice->vibrato)
-                                        _oplWriter->writeModulation(i, voice->instr, 0);
+                                        _oplWriter->writeModulation(i, voice->_instr, 0);
                                     voice->vibrato = false;
 
                                 }
@@ -188,11 +188,12 @@ namespace drivers
                             for (i = 0; i < _oplNumChannels; i++)
                             {
                                 MidiVoice* voice = _voices[i].get();
-                                if (voice->channel == chan && (!voice->free))
+                                if (voice->_channel == chan && (!voice->_free))
                                 {
                                     voice->time = abs_time;
-                                    voice->realvolume = _calcVolume(value, voice->volume);
-                                    _oplWriter->writeVolume(i, voice->instr, voice->realvolume);
+                                    //voice->realvolume = _calcVolume(value, voice->volume);
+                                    voice->setRealVolume(value);
+                                    _oplWriter->writeVolume(i, voice->_instr, voice->getRealVolume());
                                 }
                             }
                             spdlog::debug("volume value {} -ch={}", value, i);
@@ -206,10 +207,10 @@ namespace drivers
                             for (int i = 0; i < _oplNumChannels; i++)
                             {
                                 MidiVoice* voice = _voices[i].get();
-                                if (voice->channel == chan && (!voice->free))
+                                if (voice->_channel == chan && (!voice->_free))
                                 {
                                     voice->time = abs_time;
-                                    _oplWriter->writePan(i, voice->instr, value);
+                                    _oplWriter->writePan(i, voice->_instr, value);
                                 }
                             }
                         }
@@ -293,11 +294,11 @@ namespace drivers
                     {
                         //channelEntry* ch = &_oplChannels[i];
                         MidiVoice* voice = _voices[i].get();
-                        if (voice->channel == chan && (!voice->free))
+                        if (voice->_channel == chan && (!voice->_free))
                         {
                             voice->time = abs_time;
                             voice->pitch = voice->finetune + bend;
-                            writeNote(voice, true);
+                            voice->playNote(true);
                         }
                     }
                 }
@@ -312,14 +313,11 @@ namespace drivers
                 }
             }
 
-            uint8_t AdLibDriver::_calcVolume(const uint8_t channelVolume, uint8_t noteVolume) noexcept
+            uint8_t AdLibDriver::_panVolume(const uint8_t volume, int8_t pan) noexcept
             {
-                noteVolume = ((uint32_t)channelVolume * noteVolume) / (127);
-                // TODO replace with Math.Min(noteVolume,127)
-                if (noteVolume > 127)
-                    return 127;
-                else
-                    return noteVolume;
+                return (pan >= 0) ?
+                    volume :
+                    (volume * (pan + 64)) >> 6; // / 64;
             }
 
             void AdLibDriver::releaseSustain(const uint8_t channel)
@@ -327,7 +325,7 @@ namespace drivers
                 for (int i = 0; i < _oplNumChannels; i++)
                 {
                     MidiVoice* voice = _voices[i].get();
-                    if (voice->channel == channel && voice->sustain) {
+                    if (voice->_channel == channel && voice->sustain) {
                         releaseVoice(i, 0);
                     }
                 }
@@ -340,8 +338,8 @@ namespace drivers
                 MidiVoice* voice = _voices[slot].get();
 
                 _playingVoices--;
-                writeNote(voice, false);
-                voice->free = true;
+                voice->playNote(false);
+                voice->_free = true;
                 if (killed)
                 {
                     _oplWriter->writeChannel(0x80, slot, 0x0F, 0x0F);  // release rate - fastest
@@ -350,51 +348,18 @@ namespace drivers
                 return slot;
             }
 
-            int AdLibDriver::allocateVoice(const uint8_t slot, const uint8_t channel, uint8_t note, uint8_t volume, const audio::opl::banks::Op2BankInstrument_t* instrument, const bool secondary, const uint32_t abs_time)
+            int AdLibDriver::allocateVoice(const uint8_t slot, const uint8_t channel,
+                const uint8_t note_, const uint8_t volume,
+                const audio::opl::banks::Op2BankInstrument_t* instrument,
+                const bool secondary, const uint32_t abs_time)
             {
-                const OPL2instrument_t* instr;
-                OplChannel* data = _channels[channel].get();
                 MidiVoice* voice = _voices[slot].get();
+                OplChannel* ch = _channels[channel].get();
 
-                _playingVoices++;
-
-                voice->channel = channel;
-                voice->note = note;
-                voice->free = false;
-                voice->secondary = secondary;
-                if (data->modulation >= VIBRATO_THRESHOLD)
-                    voice->vibrato = true;
-                voice->time = abs_time;
-                voice->realvolume = _calcVolume(data->volume, voice->volume = volume);
-                if (instrument->flags & OP2BANK_INSTRUMENT_FLAG_FIXED_PITCH)
-                    note = instrument->noteNum;
-                else if (channel == MIDI_PERCUSSION_CHANNEL)
-                    note = 60;			// C-5
-                if (secondary && (instrument->flags & OP2BANK_INSTRUMENT_FLAG_DOUBLE_VOICE))
-                    voice->finetune = instrument->fineTune - 0x80;
-                else
-                    voice->finetune = 0;
-                voice->pitch = voice->finetune + data->pitch;
-                if (secondary)
-                    instr = &instrument->voices[1];
-                else
-                    instr = &instrument->voices[0];
-                voice->instr = instr;
-                if ((note += instr->basenote) < 0)
-                    while ((note += 12) < 0);
-                else if (note > HIGHEST_NOTE)
-                    while ((note -= 12) > HIGHEST_NOTE);
-                voice->realnote = note;
-
-                // TODO: these can be voice->Allocate method
-                _oplWriter->writeInstrument(slot, instr);
-                if (voice->vibrato)
-                    _oplWriter->writeModulation(slot, instr, 1);
-                _oplWriter->writePan(slot, instr, data->pan);
-                _oplWriter->writeVolume(slot, instr, voice->realvolume);
-                writeNote(voice, true);
-                
-                return slot;
+                return voice->allocate(
+                    channel, note_, volume, instrument, secondary,
+                    ch->modulation, ch->volume, ch->pitch, ch->pan, abs_time
+                );
             }
 
             int8_t AdLibDriver::findFreeOplChannel(const uint8_t flag, const uint32_t abs_time)
@@ -407,7 +372,7 @@ namespace drivers
                 for (i = 0; i < _oplNumChannels; i++)
                 {
                     MidiVoice* voice = _voices[i].get();
-                    if (voice->free)
+                    if (voice->_free)
                         return i;
                 }
 
@@ -418,7 +383,7 @@ namespace drivers
                 for (i = 0; i < _oplNumChannels; i++)
                 {
                     MidiVoice* voice = _voices[i].get();
-                    if (voice->secondary) {
+                    if (voice->_secondary) {
                         return releaseVoice(i, true);
                     }
                     else if (voice->time < oldesttime) {
@@ -434,19 +399,6 @@ namespace drivers
                 }
 
                 return -1;
-            }
-
-            uint8_t AdLibDriver::panVolume(const uint8_t volume, int8_t pan) noexcept
-            {
-                return (pan >= 0) ?
-                    volume :
-                    (volume * (pan + 64)) >> 6; // / 64;
-            }
-
-            void AdLibDriver::writeNote(const MidiVoice* voice, const bool keyOn) const noexcept
-            {
-                // TODO: keyOn put in MidiVoice?
-                _oplWriter->writeNote(voice->_slot, voice->realnote, voice->pitch, keyOn);
             }
         }
     }

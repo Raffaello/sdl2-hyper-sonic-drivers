@@ -41,32 +41,25 @@ namespace drivers
                 std::shared_ptr<hardware::opl::OPL> _opl;
                 uint8_t _oplNumChannels = devices::opl::OPL2_NUM_CHANNELS;
                 std::array<std::unique_ptr<OplChannel>, audio::midi::MIDI_MAX_CHANNELS>  _channels;
-                std::array<std::unique_ptr<MidiVoice>, devices::opl::OPL2_NUM_CHANNELS> _voices; // TODO shouldn't be connected to MidiChannel instead?
+                std::array<std::unique_ptr<MidiVoice>, devices::opl::OPL2_NUM_CHANNELS> _voices;
+
                 // TODO this variable is duplicated with OPLWriter... rethink of it..
                 std::unique_ptr<devices::opl::OplWriter> _oplWriter;
                 uint8_t _playingVoices = 0; // OPL Channels
 
                 void onTimer();
 
-                static uint8_t _calcVolume(const uint8_t channelVolume, uint8_t noteVolume) noexcept;
+                static uint8_t _panVolume(const uint8_t volume, int8_t pan) noexcept;
+
 
                 void releaseSustain(const uint8_t channel);
-
                 uint8_t releaseVoice(const uint8_t slot, const bool killed);
-
-                int allocateVoice(const uint8_t slot, const uint8_t channel, uint8_t note, uint8_t volume, const audio::opl::banks::Op2BankInstrument_t* instrument, const bool secondary, const uint32_t abs_time);
-
+                int allocateVoice(const uint8_t slot, const uint8_t channel,
+                    const uint8_t note_, const uint8_t volume,
+                    const audio::opl::banks::Op2BankInstrument_t* instrument,
+                    const bool secondary, const uint32_t abs_time);
+                
                 int8_t findFreeOplChannel(const uint8_t flag,  const uint32_t abs_time);
-
-                /// end "midi" methods
-
-                /// start opl methods
-
-                static uint8_t panVolume(const uint8_t volume, int8_t pan) noexcept;
-                /*
-                /* Write a Note
-                */
-                void writeNote(const MidiVoice* voice, const bool keyOn) const noexcept;
             };
         }
     }
