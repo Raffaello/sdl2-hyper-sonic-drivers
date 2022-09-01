@@ -1,10 +1,7 @@
 #include <drivers/midi/adlib/MidiDriver.hpp>
 #include <spdlog/spdlog.h>
 #include<utils/algorithms.hpp>
-#include <algorithm>
 #include <cassert>
-#include <utils/algorithms.hpp>
-#include <drivers/midi/devices/opl/tables.h>
 
 namespace drivers
 {
@@ -21,7 +18,7 @@ namespace drivers
             using audio::opl::banks::OP2BANK_INSTRUMENT_FLAG_FIXED_PITCH; 
             using audio::opl::banks::OP2BANK_INSTRUMENT_FLAG_DOUBLE_VOICE;
 
-            using namespace devices::opl;
+            using namespace devices::opl; // TODO remove
 
             constexpr int SUSTAIN_THRESHOLD = 64;
             constexpr int VIBRATO_THRESHOLD = 40;   /* vibrato threshold */
@@ -449,7 +446,7 @@ namespace drivers
 
             void MidiDriver::writeNote(const MidiVoice* voice, const bool keyOn) const noexcept
             {
-                // TODO: keyOn put in MidiVoice
+                // TODO: keyOn put in MidiVoice?
                 _oplWriter->writeNote(voice->_slot, voice->realnote, voice->pitch, keyOn);
             }
         }

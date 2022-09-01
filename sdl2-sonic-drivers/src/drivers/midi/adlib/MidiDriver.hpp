@@ -20,9 +20,6 @@ namespace drivers
     {
         namespace adlib
         {
-            //constexpr uint8_t OPL2_NUM_CHANNELS = 9;
-            //constexpr uint8_t OPL3_NUM_CHANNELS = 18;
-
             /// <summary>
             /// OPL2 MidiDriver.
             /// TODO: OPL3 later
@@ -45,6 +42,7 @@ namespace drivers
                 uint8_t _oplNumChannels = devices::opl::OPL2_NUM_CHANNELS;
                 std::array<std::unique_ptr<MidiChannel>, audio::midi::MIDI_MAX_CHANNELS>  _channels;
                 std::array<std::unique_ptr<MidiVoice>, devices::opl::OPL2_NUM_CHANNELS> _voices; // TODO shouldn't be connected to MidiChannel instead?
+                // TODO this variable is duplicated with OPLWriter... rethink of it..
                 std::unique_ptr<devices::opl::OplWriter> _oplWriter;
                 uint8_t _playingVoices = 0; // OPL Channels
 
