@@ -26,22 +26,13 @@ namespace drivers
             constexpr int8_t HIGHEST_NOTE = 127;
 
 
-            // TODO: clean up and refactor the class
-            // TODO: split up in MidiChannel and MidiVoice etc.. (AdlibChannel, AdlibVoice ??)
-
             // TODO: when no channel is allocated having a for loop to search for nothing is silly.
             
             // !!!!!!!!!!!!!!!!!!!!!!!!!
             // TODO: would make sense to use a doubly linked list as the oldest, front, will be removed
             //       as a if it was like a Queue for channels
-            //       otherwise a Set to search the oldest, better than an arary
+            //       otherwise .... to search the oldest, better than an arary
             // !!!!!!!!!!!!!!!!!!!!!!!!!
-
-
-            /// TODO: this whole can just become the device::AdLib ....
-
-            // TODO: Adlib is mono so the PAN message/event/command can be skipped in OPL2
-            // TODO: secondary channel in OPL2/AdLib won't be used so can be removed.
 
             AdLibDriver::AdLibDriver(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank) :
                 _opl(opl)
