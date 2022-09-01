@@ -115,8 +115,6 @@ namespace drivers
                 _convertVolume(instr->level_2, volume) | instr->scale_2);
         }
 
-
-
         void OplWriter::writeNote(const uint8_t slot, const uint8_t note, int pitch, const bool keyOn) const noexcept
         {
             uint16_t freq = freqtable[note];
