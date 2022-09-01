@@ -15,12 +15,12 @@ namespace drivers
 
             using audio::midi::MIDI_PERCUSSION_CHANNEL;
 
-            ;
+           
             constexpr int VIBRATO_THRESHOLD = 40;   /* vibrato threshold */
             constexpr int8_t HIGHEST_NOTE = 127;
 
 
-            OplVoice::OplVoice(const uint8_t slot, const std::unique_ptr<devices::opl::OplWriter>& oplWriter) :
+            OplVoice::OplVoice(const uint8_t slot, const std::unique_ptr<opl::OplWriter>& oplWriter) :
                 _slot(slot), _oplWriter(oplWriter.get())
             {
             }
@@ -29,21 +29,6 @@ namespace drivers
             {
                 return _slot;
             }
-
-            ///*inline*/ const bool OplVoice::isFree() const noexcept
-            //{
-            //    return _free;
-            //}
-
-            ///*inline*/ const bool OplVoice::isSecondary() const noexcept
-            //{
-            //    return _secondary;
-            //}
-
-            ///*inline*/ const uint32_t OplVoice::getTime() const noexcept
-            //{
-            //    return _time;
-            //}
 
             /*inline*/ const bool OplVoice::isChannel(const uint8_t channel) const noexcept
             {

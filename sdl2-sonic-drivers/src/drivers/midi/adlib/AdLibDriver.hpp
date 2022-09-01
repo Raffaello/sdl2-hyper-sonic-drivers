@@ -9,7 +9,7 @@
 #include <audio/opl/banks/OP2Bank.hpp>
 #include <drivers/midi/adlib/OplChannel.hpp>
 #include <drivers/midi/adlib/OplVoice.hpp>
-#include <drivers/midi/devices/opl/OplWriter.hpp>
+#include <drivers/opl/OplWriter.hpp>
 #include <hardware/opl/OPL.hpp>
 #include <hardware/opl/OPL2instrument.h>
 
@@ -22,11 +22,8 @@ namespace drivers
         {
             /// <summary>
             /// OPL2 MidiDriver.
-            /// TODO: OPL3 later
-            /// 
-            /// Requires instruments as input.
-            /// OP2File based data bank. (It is specific to this file how to play notes and take out instruments)
-            /// TODO: generalize later on...
+            /// TODO: OPL3 later, then rename to OplDriver
+            /// TODO: generalize the OP2Bank in OplBank (interface)
             /// </summary>
             class AdLibDriver
             {
@@ -38,12 +35,12 @@ namespace drivers
 
             private:
                 std::shared_ptr<hardware::opl::OPL> _opl;
-                uint8_t _oplNumChannels = devices::opl::OPL2_NUM_CHANNELS;
+                uint8_t _oplNumChannels = opl::OPL2_NUM_CHANNELS;
                 std::array<std::unique_ptr<OplChannel>, audio::midi::MIDI_MAX_CHANNELS>  _channels;
-                std::array<std::unique_ptr<OplVoice>, devices::opl::OPL2_NUM_CHANNELS> _voices;
+                std::array<std::unique_ptr<OplVoice>, opl::OPL2_NUM_CHANNELS> _voices;
 
-                std::unique_ptr<devices::opl::OplWriter> _oplWriter;
-                uint8_t _playingVoices = 0; // OPL Channels
+                std::unique_ptr<opl::OplWriter> _oplWriter;
+                uint8_t _playingVoices = 0; // OPL Channels in use
 
                 // MIDI Events
                 void noteOff(const uint8_t chan, const uint8_t note) noexcept;

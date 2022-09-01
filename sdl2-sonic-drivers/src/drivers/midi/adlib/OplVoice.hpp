@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <hardware/opl/OPL2instrument.h>
 #include <audio/opl/banks/OP2Bank.hpp>
-#include <drivers/midi/devices/opl/OplWriter.hpp>
+#include <drivers/opl/OplWriter.hpp>
 
 namespace drivers
 {
@@ -16,7 +16,7 @@ namespace drivers
             class OplVoice
             {
             public:
-                OplVoice(const uint8_t slot, const std::unique_ptr<devices::opl::OplWriter>& oplWriter);
+                OplVoice(const uint8_t slot, const std::unique_ptr<opl::OplWriter>& oplWriter);
                 ~OplVoice() = default;
 
                 inline const uint8_t getSlot() const noexcept;
@@ -76,7 +76,7 @@ namespace drivers
                 bool _sustain = false;
                 bool _vibrato = false;
 
-                const devices::opl::OplWriter* _oplWriter;
+                const opl::OplWriter* _oplWriter;
 
                 inline uint8_t _calcVolume(const uint8_t channelVolume) const noexcept;
             };

@@ -14,11 +14,8 @@ namespace drivers
             using hardware::opl::OPL2instrument_t;
             using utils::getMillis;
 
-            // this could be in the OP2 Bank probably...
             using audio::opl::banks::OP2BANK_INSTRUMENT_FLAG_FIXED_PITCH;
             using audio::opl::banks::OP2BANK_INSTRUMENT_FLAG_DOUBLE_VOICE;
-
-            using namespace devices::opl; // TODO remove
 
 
             // TODO: when no channel is allocated having a for loop to search for nothing is silly.
@@ -33,7 +30,7 @@ namespace drivers
                 _opl(opl)
             {
                 // TODO: force to be adlib now
-                _oplWriter = std::make_unique<OplWriter>(_opl, false);
+                _oplWriter = std::make_unique<opl::OplWriter>(_opl, false);
 
                 if(!_oplWriter->init())
                     spdlog::error("[MidiDriver] Can't initialize AdLib Emulator OPL chip.'");
