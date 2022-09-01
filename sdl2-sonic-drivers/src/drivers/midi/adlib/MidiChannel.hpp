@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <memory>
 #include <audio/opl/banks/OP2Bank.hpp>
+#include <drivers/midi/adlib/MidVoice.hpp>
 
 namespace drivers
 {
@@ -26,29 +27,27 @@ namespace drivers
                 uint8_t _modulation = 0;        // modulation pot value
 
 
+                const audio::opl::banks::Op2BankInstrument_t* setInstrument(const uint8_t note) noexcept;
+                inline bool isVoiceFree() const noexcept;
+                MidiVoice* _voice = nullptr; // the OPL Channel associated to this Midi Channel
 
 
                 /// review below later on...
-
                 //uint8_t getNumber() override;
                 //void release() override;
-
                 //void send(uint32_t b) override;
 
                 // Regular messages
                 void noteOff(const uint8_t note) const;
                 void noteOn(const uint8_t note, const uint8_t velocity) const;
                 void programChange(const uint8_t program);
-                // TODO: replace with a shared_ptr instead?
-                //const audio::opl::banks::Op2BankInstrument_t* getInstrument() const noexcept;
-                const audio::opl::banks::Op2BankInstrument_t* setInstrument(const uint8_t note) noexcept;
-                //void programChange(uint8_t program) override;
                 void pitchBend(const int16_t bend) noexcept;
 
+                
                 // Control Change messages
                 //void controlChange(uint8_t control, uint8_t value) override;
                 void modulationWheel(const uint8_t value) noexcept;
-                //void volume(uint8_t value) override;
+                void volume(const uint8_t value) noexcept;
                 //void panPosition(uint8_t value) override;
                 //void pitchBendFactor(uint8_t value) override;
                 //void detune(uint8_t value) override;
@@ -69,6 +68,7 @@ namespace drivers
                 //const std::shared_ptr<audio::opl::banks::OP2Bank> _op2Bank;
                 //const std::weak_ptr<audio::opl::banks::OP2Bank> _op2Bank;
                 const audio::opl::banks::OP2Bank* _op2Bank;
+                //MidiVoice* _voice = nullptr; // the OPL Channel associated to this Midi Channel
             };
         }
     }

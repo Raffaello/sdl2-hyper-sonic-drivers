@@ -12,6 +12,24 @@ namespace drivers
             {
             }
 
+            const audio::opl::banks::Op2BankInstrument_t* MidiChannel::setInstrument(const uint8_t note) noexcept
+            {
+                if (_isPercussion)
+                {
+                    if (note < 35 || note > 81) {
+                        spdlog::error("wrong percussion number {}", note);
+                    }
+                    _instrument = _op2Bank->getInstrument(note + (128 - 35));
+                }
+
+                return &_instrument;
+            }
+
+            inline bool MidiChannel::isVoiceFree() const noexcept
+            {
+                return _voice == nullptr || _voice->free;
+            }
+
             void MidiChannel::noteOff(uint8_t note) const
             {
 
@@ -34,34 +52,24 @@ namespace drivers
                 _instrument = _op2Bank->getInstrument(program);
             }
 
-            void modulationWheel(const uint8_t value) noexcept
-            {
-                // TODO
-            }
-
-            /*const audio::opl::banks::Op2BankInstrument_t* MidiChannel::getInstrument() const noexcept
-            {
-                return &_instrument;
-            }*/
-
-            const audio::opl::banks::Op2BankInstrument_t* MidiChannel::setInstrument(const uint8_t note) noexcept
-            {
-                if (_isPercussion)
-                {
-                    if (note < 35 || note > 81) {
-                        spdlog::error("wrong percussion number {}", note);
-                    }
-                    _instrument = _op2Bank->getInstrument(note + (128 - 35));
-                }
-
-                return &_instrument;
-            }
-
             void MidiChannel::pitchBend(const int16_t bend) noexcept
             {
                 // TODO requires voices
                //_pitch = static_cast<int8_t>(bend);
             }
+
+            void modulationWheel(const uint8_t value) noexcept
+            {
+                // TODO
+            }
+
+            void volume(const uint8_t value) noexcept
+            {
+
+
+            }
+
+
         }
     }
 }

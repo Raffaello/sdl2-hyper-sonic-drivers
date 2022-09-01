@@ -114,18 +114,8 @@ namespace drivers
             {
                 init();
 
-                //for (int i = 0; i < _oplNumChannels; ++i) {
-                //    //memset(&_oplChannels[i], 0, sizeof(channelEntry));
-                //    //_oplChannels[i].flags = 0;
-                //    //_oplChannels[i].channel = _oplNumChannels;
-                //    //_oplChannels[i].free = true;
-                //    //_oplChannels[i].instr = &_op2Bank->getInstrument(0).voices[0];
-
-                //}
-
                 for (int i = 0; i < audio::midi::MIDI_MAX_CHANNELS; ++i) {
                     _channels[i] = std::make_unique<MidiChannel>(i == MIDI_PERCUSSION_CHANNEL, _op2Bank);
-                    // TODO: use a init class / constructor instead, this for loop is quite useless then..
                 }
 
                 hardware::opl::TimerCallBack cb = std::bind(&MidiDriver::onTimer, this);
@@ -157,17 +147,17 @@ namespace drivers
                 {
                     uint8_t chan = e.type.low;
                     uint8_t note = e.data[0];
-                    //OPLdata* data = &_oplData;
                     uint8_t sustain = _channels[chan]->_sustain;
 
-                    for (int i = 0; i < _oplNumChannels; i++) {
-                        //if (_oplChannels[i].note == note && _oplChannels[i].channel == chan)
-                        if (_voices[i].note == note && _voices[i].channel == chan)
+                    for (int i = 0; i < _oplNumChannels; i++)
+                    {
+                        MidiVoice* voice = &_voices[i];
+                        if (voice->note == note && voice->channel == chan)
                         {
                             if (sustain < SUSTAIN_THRESHOLD)
                                 releaseChannel(i, 0);
                             else
-                                _voices[i].sustain = true;
+                                voice->sustain = true;
                         }
                     }
 
@@ -183,6 +173,7 @@ namespace drivers
                     
                     if ((freeSlot = findFreeOplChannel((chan == MIDI_PERCUSSION_CHANNEL) ? 2 : 0, abs_time)) != -1)
                     {
+                        // todo make 1 line from these 2 below.
                         auto instr = _channels[chan]->setInstrument(note);
                         int chi = occupyChannel(freeSlot, chan, note, volume, instr, false, abs_time);
 
@@ -193,12 +184,14 @@ namespace drivers
                         //        occupyChannel(mus, i, channel, note, volume, instr, 1);
                         //}
 
-                        spdlog::debug("noteOn note={:d} ({:d}) - vol={:d} ({:d}) - pitch={:d} - ch={:d}", _voices[chi].note, _voices[chi].realnote, _voices[chi].volume, _voices[chi].realvolume, _voices[chi].pitch, _voices[chi].channel);
+                        MidiVoice* voice = &_voices[chi];
+                        spdlog::debug("noteOn note={:d} ({:d}) - vol={:d} ({:d}) - pitch={:d} - ch={:d}", voice->note, voice->realnote, voice->volume, voice->realvolume, voice->pitch, voice->channel);
                     }
                     else {
                         spdlog::critical("NO FREE CHANNEL? midi-ch={} - playingChannels={}", chan, _playingVoices);
                         for (int i = 0; i < _oplNumChannels; i++) {
-                            spdlog::critical("OPL channels: {} - free? {}", i, _voices[i].free);
+                            MidiVoice* voice = &_voices[i];
+                            spdlog::critical("OPL channels: {} - free? {}", i, voice->free);
                         }
                     }
                 }
@@ -225,11 +218,9 @@ namespace drivers
                         _channels[chan]->_modulation = value;
                         for (int i = 0; i < _oplNumChannels; i++)
                         {
-                            //channelEntry* ch = &_oplChannels[i];
                             MidiVoice* ch = &_voices[i];
                             if (ch->channel == chan && (!ch->free))
                             {
-                                //uint8_t flags = ch->flags;
                                 bool vibrato = ch->vibrato;
                                 ch->time = abs_time;
                                 if (value >= VIBRATO_THRESHOLD)
@@ -257,7 +248,6 @@ namespace drivers
                             _channels[chan]->_volume = value;
                             for (i = 0; i < _oplNumChannels; i++)
                             {
-                                //channelEntry* ch = &_oplChannels[i];
                                 MidiVoice* ch = &_voices[i];
                                 if (ch->channel == chan && (!ch->free))
                                 {
@@ -274,11 +264,9 @@ namespace drivers
                         // TODO: pan not available in Adlib/OPL2, can be removed/skipped
                         //panPosition(value);
                         {
-                            //_oplData.channelPan[chan] = value -= 64;
                         _channels[chan]->_pan = value -= 64;
                             for (int i = 0; i < _oplNumChannels; i++)
                             {
-                                //channelEntry* ch = &_oplChannels[i];
                                 MidiVoice* ch = &_voices[i];
                                 if (ch->channel == chan && (!ch->free))
                                 {
@@ -425,14 +413,10 @@ namespace drivers
 
             void MidiDriver::releaseSustain(const uint8_t channel)
             {
-                //uint i;
-                //uint id = MAKE_ID(channel, mus->number);
-
                 for (int i = 0; i < _oplNumChannels; i++)
                 {
-                    //if (CHANNEL_ID(channels[i]) == id && channels[i].flags & CH_SUSTAIN)
-                    //if (_oplChannels[i].channel == i && _oplChannels[i].sustain) {
-                    if (_voices[i].channel == i && _voices[i].sustain) {
+                    MidiVoice* voice = &_voices[i];
+                    if (voice->channel == i && voice->sustain) {
                         releaseChannel(i, 0);
                     }
                 }
@@ -461,27 +445,18 @@ namespace drivers
             int MidiDriver::occupyChannel(const uint8_t slot, const uint8_t channel, uint8_t note, uint8_t volume, const audio::opl::banks::Op2BankInstrument_t* instrument, const bool secondary, const uint32_t abs_time)
             {
                 const OPL2instrument_t* instr;
-                //OPLdata* data = &_oplData;
                 MidiChannel* data = _channels[channel].get();
-                //channelEntry* ch = &_oplChannels[slot];
                 MidiVoice* ch = &_voices[slot];
 
                 _playingVoices++;
 
                 ch->channel = channel;
-                //ch->musnumber = mus->number;
                 ch->note = note;
-                //ch->flags = secondary ? CH_SECONDARY : 0;
                 ch->free = false;
                 ch->secondary = secondary;
                 if (data->_modulation >= VIBRATO_THRESHOLD)
                     ch->vibrato = true;
-                    //ch->flags |= CH_VIBRATO;
                 ch->time = abs_time;
-                //if (volume == -1)
-                //    volume = data->channelLastVolume[channel]; // TODO: unreachabel as midi always has volume
-                //else
-                    //data->channelLastVolume[channel] = volume;
                 ch->realvolume = calcVolume(data->_volume, ch->volume = volume);
                 if (instrument->flags & OP2BANK_INSTRUMENT_FLAG_FIXED_PITCH)
                     note = instrument->noteNum;
@@ -512,25 +487,24 @@ namespace drivers
                 
                 return slot;
             }
-
+            /*
             int8_t MidiDriver::findFreeOplChannel(const uint8_t flag, const uint32_t abs_time)
             {
                 uint8_t i;
                 uint8_t oldest = 255;
                 uint32_t oldesttime = abs_time;
 
-                /* find free channel */
+                // find free channel
                 for (i = 0; i < _oplNumChannels; i++)
                 {
-                    //if (_oplChannels[i].free)
-                    if(_voices[i].free)
+                    if (_voices[i].free)
                         return i;
                 }
 
                 if (flag & 1)
-                    return -1;  /* stop searching if bit 0 is set */
+                    return -1;  // stop searching if bit 0 is set 
 
-                /* find some 2nd-voice channel and determine the oldest */
+                // find some 2nd-voice channel and determine the oldest
                 for (i = 0; i < _oplNumChannels; i++)
                 {
                     //if (_oplChannels[i].secondary) {
@@ -545,7 +519,49 @@ namespace drivers
                     }
                 }
 
-                /* if possible, kill the oldest channel */
+                // if possible, kill the oldest channel
+                if (!(flag & 2) && oldest != 255)
+                {
+                    return releaseChannel(oldest, true);
+                }
+
+                return -1;
+            }
+            */
+
+            
+            int8_t MidiDriver::findFreeOplChannel(const uint8_t flag, const uint32_t abs_time)
+            {
+                uint8_t i;
+                uint8_t oldest = 255;
+                uint32_t oldesttime = abs_time;
+
+                // find free channel
+                for (i = 0; i < _oplNumChannels; i++)
+                {
+                    MidiVoice* voice = &_voices[i];
+                    if (voice->free)
+                        return i;
+                }
+
+                if (flag & 1)
+                    return -1;  // stop searching if bit 0 is set 
+
+                // find some 2nd-voice channel and determine the oldest
+                for (i = 0; i < _oplNumChannels; i++)
+                {
+                    MidiVoice* voice = &_voices[i];
+                    if (voice->secondary) {
+                        releaseChannel(i, true);
+                        return i;
+                    }
+                    else if (voice->time < oldesttime) {
+                        oldesttime = voice->time;
+                        oldest = i;
+                    }
+                }
+
+                // if possible, kill the oldest channel
                 if (!(flag & 2) && oldest != 255)
                 {
                     return releaseChannel(oldest, true);
