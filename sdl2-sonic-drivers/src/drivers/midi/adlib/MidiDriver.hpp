@@ -18,25 +18,11 @@ namespace drivers
             constexpr uint8_t OPL2_NUM_CHANNELS = 9;
             //constexpr uint8_t OPL3_NUM_CHANNELS = 18;
 
-//#define CH_SECONDARY	0x01
-//#define CH_SUSTAIN	0x02
-//#define CH_VIBRATO	0x04		/* set if modulation >= MOD_MIN */
-//#define CH_FREE		0x80
-//#define MOD_MIN		40		/* vibrato threshold */
-
-//#define FL_FIXED_PITCH	0x0001		// note has fixed pitch (see below)
-//#define FL_UNKNOWN	0x0002		// ??? (used in instrument #65 only)
-//#define FL_DOUBLE_VOICE	0x0004		// use two voices instead of one
-
-//#define HIGHEST_NOTE 127
-
             /* OPL channel (voice) data */
             // TODO make a class and move to MidiChannel(rename to OPLChannel?) as OPLVoice?
             typedef struct channelEntry {
-                uint8_t channel;		/* MUS channel number */
-                //uint8_t musnumber;		/* MUS handle number */
+                uint8_t channel;		/* MIDI channel number */
                 uint8_t note;			/* note number */
-                //uint8_t flags;			/* see CH_xxx below */
                 bool free;
                 bool secondary;
                 bool sustain;
@@ -115,6 +101,10 @@ namespace drivers
                 // TOOD use a shared_ptr instead?
                 audio::opl::banks::Op2BankInstrument_t* getInstrument(const uint8_t chan, const uint8_t note);
 
+                /// end "midi" methods
+
+                // start opl methods
+
                 /*
                  * Write to an operator pair.
                  * To be used for register bases of 0x20, 0x40, 0x60, 0x80 and 0xE0.
@@ -128,6 +118,7 @@ namespace drivers
                 void writeValue(const uint16_t regbase, const uint8_t channel, const uint8_t value) const noexcept;
 
                 /*
+                * TODO: this could be handled by the OplBank interface or soething (in OP2Bank for e.g)
                  * Write an instrument to a channel
                  *
                  * Instrument layout:
