@@ -14,9 +14,10 @@ namespace drivers
             {
             public:
                 OplChannel() = delete;
-                OplChannel(const bool isPercussion, const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank);
+                OplChannel(const uint8_t channel_, const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank);
                 ~OplChannel() = default;
 
+                const uint8_t channel;           // MIDI channel, not used
                 uint8_t volume = 0;            // volume
                 uint8_t pan = 0;               // pan, 0=normal
                 uint8_t pitch = 0;             // pitch wheel, 0=normal

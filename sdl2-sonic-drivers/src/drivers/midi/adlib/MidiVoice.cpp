@@ -38,7 +38,7 @@ namespace drivers
                 const uint8_t chan_vol,
                 const uint8_t chan_pitch,
                 const uint8_t chan_pan,
-                const uint32_t abs_time)
+                const uint32_t abs_time) noexcept
             {
                 const OPL2instrument_t* instr;
                 uint16_t note = note_;
@@ -88,6 +88,18 @@ namespace drivers
                 _oplWriter->writeVolume(_slot, instr, getRealVolume());
                 playNote(true);
 
+                return _slot;
+            }
+
+            uint8_t MidiVoice::releaseVoice(const bool killed) noexcept
+            {
+                playNote(false);
+                _free = true;
+                if (killed)
+                {
+                    _oplWriter->writeChannel(0x80, _slot, 0x0F, 0x0F);  // release rate - fastest
+                    _oplWriter->writeChannel(0x40, _slot, 0x3F, 0x3F);  // no volume
+                }
                 return _slot;
             }
 

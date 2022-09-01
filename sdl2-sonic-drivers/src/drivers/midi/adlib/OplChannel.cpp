@@ -1,3 +1,4 @@
+#include <audio/midi/types.hpp>
 #include <drivers/midi/adlib/OplChannel.hpp>
 #include <spdlog/spdlog.h>
 
@@ -7,8 +8,10 @@ namespace drivers
     {
         namespace adlib
         {
-            OplChannel::OplChannel(const bool isPercussion, const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank) :
-                _isPercussion(isPercussion), _op2Bank(op2Bank.get())
+            using audio::midi::MIDI_PERCUSSION_CHANNEL;
+
+            OplChannel::OplChannel(const uint8_t channel_, const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank) :
+                channel(channel_), _isPercussion(channel_ == MIDI_PERCUSSION_CHANNEL), _op2Bank(op2Bank.get())
             {
             }
 
@@ -34,6 +37,7 @@ namespace drivers
                 // NOTE: if program is not changed shouldn't be required to do anything ...
                 _program = program;
                 _instrument = _op2Bank->getInstrument(program);
+                spdlog::debug("program change {} {} ({})", channel, program, _op2Bank->getInstrumentName(program));
             }
         }
     }

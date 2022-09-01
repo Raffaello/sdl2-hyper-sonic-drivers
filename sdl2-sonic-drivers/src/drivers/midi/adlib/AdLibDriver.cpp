@@ -44,7 +44,7 @@ namespace drivers
             // TODO: secondary channel in OPL2/AdLib won't be used so can be removed.
 
             AdLibDriver::AdLibDriver(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank) :
-                _opl(opl), _op2Bank(op2Bank)
+                _opl(opl)
             {
                 // TODO: force to be adlib now
                 _oplWriter = std::make_unique<OplWriter>(_opl, false);
@@ -53,7 +53,7 @@ namespace drivers
                     spdlog::error("[MidiDriver] Can't initialize AdLib Emulator OPL chip.'");
 
                 for (int i = 0; i < audio::midi::MIDI_MAX_CHANNELS; ++i) {
-                    _channels[i] = std::make_unique<OplChannel>(i == MIDI_PERCUSSION_CHANNEL, _op2Bank);
+                    _channels[i] = std::make_unique<OplChannel>(i, op2Bank);
                 }
 
                 for (int i = 0; i < _oplNumChannels; ++i) {
@@ -83,225 +83,25 @@ namespace drivers
                 switch (static_cast<MIDI_EVENT_TYPES_HIGH>(e.type.high))
                 {
                 case MIDI_EVENT_TYPES_HIGH::NOTE_OFF:
-                {
-                    uint8_t chan = e.type.low;
-                    uint8_t note = e.data[0];
-                    uint8_t sustain = _channels[chan]->sustain;
-
-                    for (int i = 0; i < _oplNumChannels; i++)
-                    {
-                        MidiVoice* voice = _voices[i].get();
-                        if (voice->_note == note && voice->_channel == chan)
-                        {
-                            if (sustain < SUSTAIN_THRESHOLD)
-                                releaseVoice(i, 0);
-                            else
-                                voice->sustain = true;
-                        }
-                    }
-
-                    spdlog::debug("noteOff {} {} ({})", chan, note, _playingVoices);
-                }
+                    noteOff(e.type.low, e.data[0]);
                     break;
                 case MIDI_EVENT_TYPES_HIGH::NOTE_ON:
-                {
-                    uint8_t chan = e.type.low;
-                    uint8_t note = e.data[0];
-                    uint8_t volume = e.data[1];
-                    int8_t freeSlot = 0;
-                    
-                    if ((freeSlot = findFreeOplChannel((chan == MIDI_PERCUSSION_CHANNEL) ? 2 : 0, abs_time)) != -1)
-                    {
-                        // todo make 1 line from these 2 below.
-                        auto instr = _channels[chan]->setInstrument(note);
-                        int chi = allocateVoice(freeSlot, chan, note, volume, instr, false, abs_time);
-
-                        // TODO: OPL3
-                        //if (!OPLsinglevoice && instr->flags == FL_DOUBLE_VOICE)
-                        //{
-                        //    if ((i = findFreeChannel(mus, (channel == PERCUSSION) ? 3 : 1)) != -1)
-                        //        occupyChannel(mus, i, channel, note, volume, instr, 1);
-                        //}
-
-                        MidiVoice* voice = _voices[chi].get();
-                        spdlog::debug("noteOn note={:d} ({:d}) - vol={:d} ({:d}) - pitch={:d} - ch={:d}", voice->_note, voice->_realnote, /*voice->volume*/ -1, /*voice->realvolume*/ -1, voice->pitch, voice->_channel);
-                    }
-                    else {
-                        spdlog::critical("NO FREE CHANNEL? midi-ch={} - playingChannels={}", chan, _playingVoices);
-                        for (int i = 0; i < _oplNumChannels; i++) {
-                            MidiVoice* voice = _voices[i].get();
-                            spdlog::critical("OPL channels: {} - free? {}", i, voice->_free);
-                        }
-                    }
-                }
+                    noteOn(e.type.low, e.data[0], e.data[1], abs_time);
                     break;
                 case MIDI_EVENT_TYPES_HIGH::AFTERTOUCH:
                     spdlog::warn("AFTERTOUCH not supported");
                     break;
                 case MIDI_EVENT_TYPES_HIGH::CONTROLLER:
-                {
-                    uint8_t chan = e.type.low;
-                    uint8_t control = e.data[0];
-                    uint8_t value = e.data[1];
-                    // MIDI_EVENT_CONTROLLER_TYPES
-                    switch (control)
-                    {
-                    case 0:
-                    case 32:
-                        // Bank select. Not supported
-                        spdlog::warn("bank select value {}", value);
-                        break;
-                    case 1:
-                    {
-                        //modulationWheel(value);
-                        _channels[chan]->modulation = value;
-                        for (int i = 0; i < _oplNumChannels; i++)
-                        {
-                            MidiVoice* voice = _voices[i].get();
-                            if (voice->_channel == chan && (!voice->_free))
-                            {
-                                bool vibrato = voice->vibrato;
-                                voice->time = abs_time;
-                                if (value >= VIBRATO_THRESHOLD)
-                                {
-                                    if (!voice->vibrato)
-                                        _oplWriter->writeModulation(i, voice->_instr, 1);
-                                    voice->vibrato = true;
-
-                                }
-                                else {
-                                    if (voice->vibrato)
-                                        _oplWriter->writeModulation(i, voice->_instr, 0);
-                                    voice->vibrato = false;
-
-                                }
-                            }
-                        }
-                    }
-                        spdlog::debug("modwheel value {}", value);
-                        break;
-                    case 7:
-                        {
-                        // Volume
-                            int i;
-                            _channels[chan]->volume = value;
-                            for (i = 0; i < _oplNumChannels; i++)
-                            {
-                                MidiVoice* voice = _voices[i].get();
-                                if (voice->_channel == chan && (!voice->_free))
-                                {
-                                    voice->time = abs_time;
-                                    //voice->realvolume = _calcVolume(value, voice->volume);
-                                    voice->setRealVolume(value);
-                                    _oplWriter->writeVolume(i, voice->_instr, voice->getRealVolume());
-                                }
-                            }
-                            spdlog::debug("volume value {} -ch={}", value, i);
-                        }
-                        break;
-                    case 10:
-                        // TODO: pan not available in Adlib/OPL2, can be removed/skipped
-                        //panPosition(value);
-                        {
-                        _channels[chan]->pan = value -= 64;
-                            for (int i = 0; i < _oplNumChannels; i++)
-                            {
-                                MidiVoice* voice = _voices[i].get();
-                                if (voice->_channel == chan && (!voice->_free))
-                                {
-                                    voice->time = abs_time;
-                                    _oplWriter->writePan(i, voice->_instr, value);
-                                }
-                            }
-                        }
-                        spdlog::debug("panPosition value {}", value);
-                        break;
-                    case 16:
-                        //pitchBendFactor(value);
-                        spdlog::warn("pitchBendFactor value {}", value);
-                        break;
-                    case 17:
-                        //detune(value);
-                        spdlog::warn("detune value {}", value);
-                        break;
-                    case 18:
-                        //priority(value);
-                        spdlog::warn("priority value {}", value);
-                        break;
-                    case 64:
-                        //sustain(value > 0);
-                        spdlog::warn("sustain value {}", value);
-                        {
-                            _channels[chan]->sustain = value;
-                            if (value < SUSTAIN_THRESHOLD) {
-                                releaseSustain(chan);
-                            }
-                        }
-                        break;
-                    case 91:
-                        // Effects level. Not supported.
-                        //effectLevel(value);
-                        spdlog::warn("effect level value {}", value);
-                        break;
-                    case 93:
-                        // Chorus level. Not supported.
-                        //chorusLevel(value);
-                        spdlog::warn("chorus level value {}", value);
-                        break;
-                    case 119:
-                        // Unknown, used in Simon the Sorcerer 2
-                        spdlog::warn("unkwon value {}", value);
-                        break;
-                    case 121:
-                        // reset all controllers
-                        spdlog::warn("reset all controllers value");
-                        //modulationWheel(0);
-                        //pitchBendFactor(0);
-                        //detune(0);
-                        //sustain(false);
-                        break;
-                    case 123:
-                        spdlog::debug("all notes off");
-                        _oplWriter->stopAll();
-                        break;
-                    default:
-                        spdlog::warn("AdLib: Unknown control change message {:d} {:d}", control, value);
-                    }
-                }
+                    controller(e.type.low, e.data[0], e.data[1], abs_time);
                     break;
                 case MIDI_EVENT_TYPES_HIGH::PROGRAM_CHANGE:
-                {
-                    uint8_t chan = e.type.low;
-                    uint8_t program = e.data[0];
-
-                    _channels[chan]->programChange(program);
-
-                    spdlog::debug("program change {} {} ({})", chan, program, _op2Bank->getInstrumentName(program));
-                }
+                    programChange(e.type.low, e.data[0]);
                     break;
                 case MIDI_EVENT_TYPES_HIGH::CHANNEL_AFTERTOUCH:
                     spdlog::warn("CHANNEL_AFTERTOUCH not supported");
                     break;
                 case MIDI_EVENT_TYPES_HIGH::PITCH_BEND:
-                {
-                    uint8_t chan = e.type.low;
-                    uint16_t bend = (e.data[0] | (e.data[1] << 7) - 0x2000) >> 6;
-                    spdlog::debug("PITCH_BEND {}", bend);
-
-                    // OPLPitchWheel
-                    _channels[chan]->pitch = static_cast<int8_t>(bend);
-                    for (int i = 0; i < _oplNumChannels; i++)
-                    {
-                        //channelEntry* ch = &_oplChannels[i];
-                        MidiVoice* voice = _voices[i].get();
-                        if (voice->_channel == chan && (!voice->_free))
-                        {
-                            voice->time = abs_time;
-                            voice->pitch = voice->finetune + bend;
-                            voice->playNote(true);
-                        }
-                    }
-                }
+                    pitchBend(e.type.low, (e.data[0] | (e.data[1] << 7) - 0x2000) >> 6, abs_time);
                     break;
                 case MIDI_EVENT_TYPES_HIGH::META_SYSEX:
                     spdlog::warn("META_SYSEX not supported");
@@ -313,11 +113,211 @@ namespace drivers
                 }
             }
 
-            uint8_t AdLibDriver::_panVolume(const uint8_t volume, int8_t pan) noexcept
+            void AdLibDriver::noteOff(const uint8_t chan, const uint8_t note) noexcept
             {
-                return (pan >= 0) ?
-                    volume :
-                    (volume * (pan + 64)) >> 6; // / 64;
+                //uint8_t chan = e.type.low;
+                //uint8_t note = e.data[0];
+                uint8_t sustain = _channels[chan]->sustain;
+
+                for (int i = 0; i < _oplNumChannels; i++)
+                {
+                    MidiVoice* voice = _voices[i].get();
+                    if (voice->_note == note && voice->_channel == chan)
+                    {
+                        if (sustain < SUSTAIN_THRESHOLD)
+                            releaseVoice(i, 0);
+                        else
+                            voice->sustain = true;
+                    }
+                }
+
+                spdlog::debug("noteOff {} {} ({})", chan, note, _playingVoices);
+            }
+
+            void AdLibDriver::noteOn(const uint8_t chan, const uint8_t note, const uint8_t vol, const uint32_t abs_time) noexcept
+            {
+                int8_t freeSlot = findFreeOplChannel((chan == MIDI_PERCUSSION_CHANNEL) ? 2 : 0, abs_time);
+
+                if (freeSlot != -1)
+                {
+                    int chi = allocateVoice(freeSlot, chan, note, vol,
+                        _channels[chan]->setInstrument(note), false, abs_time);
+
+                    // TODO: OPL3
+                    //if (!OPLsinglevoice && instr->flags == FL_DOUBLE_VOICE)
+                    //{
+                    //    if ((i = findFreeChannel(mus, (channel == PERCUSSION) ? 3 : 1)) != -1)
+                    //        occupyChannel(mus, i, channel, note, volume, instr, 1);
+                    //}
+
+                    //MidiVoice* voice = _voices[chi].get();
+                    //spdlog::debug("noteOn note={:d} ({:d}) - vol={:d} ({:d}) - pitch={:d} - ch={:d}", voice->_note, voice->_realnote, /*voice->volume*/ -1, /*voice->realvolume*/ -1, voice->pitch, voice->_channel);
+                }
+                else {
+                    spdlog::critical("NO FREE CHANNEL? midi-ch={} - playingChannels={}", chan, _playingVoices);
+                    for (int i = 0; i < _oplNumChannels; i++) {
+                        MidiVoice* voice = _voices[i].get();
+                        spdlog::critical("OPL channels: {} - free? {}", i, voice->_free);
+                    }
+                }
+            }
+
+            void AdLibDriver::controller(const uint8_t chan, const uint8_t control, uint8_t value, const uint32_t abs_time) noexcept
+            {
+                // MIDI_EVENT_CONTROLLER_TYPES
+                switch (control)
+                {
+                case 0:
+                case 32:
+                    // Bank select. Not supported
+                    spdlog::warn("bank select value {}", value);
+                    break;
+                case 1:
+                    ctrl_modulationWheel(chan, value, abs_time);
+                    spdlog::debug("modwheel value {}", value);
+                    break;
+                case 7:
+                    ctrl_volume(chan, value, abs_time);
+                    break;
+                case 10:
+                    // Not Available on OPL2/AdLib.
+                    //ctrl_panPosition(chan, value, abs_time);
+                break;
+                case 16:
+                    //pitchBendFactor(value);
+                    spdlog::warn("pitchBendFactor value {}", value);
+                    break;
+                case 17:
+                    //detune(value);
+                    spdlog::warn("detune value {}", value);
+                    break;
+                case 18:
+                    //priority(value);
+                    spdlog::warn("priority value {}", value);
+                    break;
+                case 64:
+                    ctrl_sustain(chan, value);
+                    break;
+                case 91:
+                    // Effects level. Not supported.
+                    //effectLevel(value);
+                    spdlog::warn("effect level value {}", value);
+                    break;
+                case 93:
+                    // Chorus level. Not supported.
+                    //chorusLevel(value);
+                    spdlog::warn("chorus level value {}", value);
+                    break;
+                case 119:
+                    // Unknown, used in Simon the Sorcerer 2
+                    spdlog::warn("unkwon value {}", value);
+                    break;
+                case 121:
+                    // reset all controllers
+                    spdlog::warn("reset all controllers value");
+                    //modulationWheel(0);
+                    //pitchBendFactor(0);
+                    //detune(0);
+                    //sustain(false);
+                    break;
+                case 123:
+                    spdlog::debug("all notes off");
+                    _oplWriter->stopAll();
+                    break;
+                default:
+                    spdlog::warn("AdLib: Unknown control change message {:d} {:d}", control, value);
+                }
+            }
+
+            void AdLibDriver::programChange(const uint8_t chan, const uint8_t program) const noexcept
+            {
+                _channels[chan]->programChange(program);
+            }
+
+            void AdLibDriver::pitchBend(const uint8_t chan, const uint16_t bend, const uint32_t abs_time) const noexcept
+            {
+                spdlog::debug("PITCH_BEND {}", bend);
+
+                // OPLPitchWheel
+                _channels[chan]->pitch = static_cast<int8_t>(bend);
+                for (int i = 0; i < _oplNumChannels; i++)
+                {
+                    MidiVoice* voice = _voices[i].get();
+                    if (voice->_channel == chan && (!voice->_free))
+                    {
+                        voice->time = abs_time;
+                        voice->pitch = voice->finetune + bend;
+                        voice->playNote(true);
+                    }
+                }
+            }
+
+
+            void AdLibDriver::ctrl_modulationWheel(const uint8_t chan, const uint8_t value, const uint32_t abs_time) const noexcept
+            {
+                _channels[chan]->modulation = value;
+                for (int i = 0; i < _oplNumChannels; i++)
+                {
+                    MidiVoice* voice = _voices[i].get();
+                    if (voice->_channel == chan && (!voice->_free))
+                    {
+                        bool vibrato = voice->vibrato;
+                        voice->time = abs_time;
+                        if (value >= VIBRATO_THRESHOLD)
+                        {
+                            if (!voice->vibrato)
+                                _oplWriter->writeModulation(i, voice->_instr, 1);
+                            voice->vibrato = true;
+
+                        }
+                        else {
+                            if (voice->vibrato)
+                                _oplWriter->writeModulation(i, voice->_instr, 0);
+                            voice->vibrato = false;
+
+                        }
+                    }
+                }
+            }
+
+            void AdLibDriver::ctrl_volume(const uint8_t chan, const uint8_t value, const uint32_t abs_time) const noexcept
+            {
+                _channels[chan]->volume = value;
+                for (int i = 0; i < _oplNumChannels; i++)
+                {
+                    MidiVoice* voice = _voices[i].get();
+                    if (voice->_channel == chan && (!voice->_free))
+                    {
+                        voice->time = abs_time;
+                        voice->setRealVolume(value);
+                        _oplWriter->writeVolume(i, voice->_instr, voice->getRealVolume());
+                        spdlog::debug("volume value {} -ch={}", value, i);
+                    }
+                }
+            }
+
+            void AdLibDriver::ctrl_panPosition(const uint8_t chan, uint8_t value, const uint32_t abs_time) const noexcept
+            {
+                spdlog::debug("panPosition value {}", value);
+
+                _channels[chan]->pan = value -= 64;
+                for (int i = 0; i < _oplNumChannels; i++)
+                {
+                    MidiVoice* voice = _voices[i].get();
+                    if (voice->_channel == chan && (!voice->_free))
+                    {
+                        voice->time = abs_time;
+                        _oplWriter->writePan(i, voice->_instr, value);
+                    }
+                }
+            }
+
+            void AdLibDriver::ctrl_sustain(const uint8_t chan, uint8_t value) noexcept
+            {
+                spdlog::debug("sustain value {}", value);
+                _channels[chan]->sustain = value;
+                if (value < SUSTAIN_THRESHOLD)
+                    releaseSustain(chan);
             }
 
             void AdLibDriver::releaseSustain(const uint8_t channel)
@@ -335,17 +335,8 @@ namespace drivers
             {
                 assert(slot >= 0 && slot < _oplNumChannels);
 
-                MidiVoice* voice = _voices[slot].get();
-
                 _playingVoices--;
-                voice->playNote(false);
-                voice->_free = true;
-                if (killed)
-                {
-                    _oplWriter->writeChannel(0x80, slot, 0x0F, 0x0F);  // release rate - fastest
-                    _oplWriter->writeChannel(0x40, slot, 0x3F, 0x3F);  // no volume
-                }
-                return slot;
+                return _voices[slot]->releaseVoice(killed);
             }
 
             int AdLibDriver::allocateVoice(const uint8_t slot, const uint8_t channel,
@@ -353,10 +344,9 @@ namespace drivers
                 const audio::opl::banks::Op2BankInstrument_t* instrument,
                 const bool secondary, const uint32_t abs_time)
             {
-                MidiVoice* voice = _voices[slot].get();
                 OplChannel* ch = _channels[channel].get();
-
-                return voice->allocate(
+                _playingVoices++; // useless stats
+                return _voices[slot]->allocate(
                     channel, note_, volume, instrument, secondary,
                     ch->modulation, ch->volume, ch->pitch, ch->pan, abs_time
                 );
@@ -364,6 +354,17 @@ namespace drivers
 
             int8_t AdLibDriver::findFreeOplChannel(const uint8_t flag, const uint32_t abs_time)
             {
+                // TODO redo it.
+
+                // TODO flag = 0, 1, 2, 3 ???  (using 2 bits)
+                // 0 :=> search a free channel, and if not find try to kill a 2nd voice or oldest
+                // 1 :=> search a free channel only.
+                // 2 :=> like 0 but won't kill the oldest channel
+                // 3 :=> is like 1 as it retunr when bit 0 is 1
+                // -----
+                // used only 0 and 2, so bit 1 only:
+                // it can be a bool !kill_oldest_channel
+
                 uint8_t i;
                 uint8_t oldest = 255;
                 uint32_t oldesttime = abs_time;

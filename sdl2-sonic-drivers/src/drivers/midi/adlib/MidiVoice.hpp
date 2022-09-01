@@ -27,7 +27,9 @@ namespace drivers
                     const uint8_t chan_vol,
                     const uint8_t chan_pitch,
                     const uint8_t chan_pan,
-                    const uint32_t abs_time);
+                    const uint32_t abs_time) noexcept;
+
+                uint8_t releaseVoice(const bool killed) noexcept;
 
                 void setVolumes(const uint8_t channelVolume, const uint8_t volume) noexcept;
                 void setRealVolume(const uint8_t channelVolume) noexcept;

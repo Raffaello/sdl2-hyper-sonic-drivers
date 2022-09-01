@@ -37,20 +37,28 @@ namespace drivers
                 void send(const audio::midi::MIDIEvent& e) /*const*/ noexcept;
 
             private:
-                std::shared_ptr<audio::opl::banks::OP2Bank> _op2Bank;
                 std::shared_ptr<hardware::opl::OPL> _opl;
                 uint8_t _oplNumChannels = devices::opl::OPL2_NUM_CHANNELS;
                 std::array<std::unique_ptr<OplChannel>, audio::midi::MIDI_MAX_CHANNELS>  _channels;
                 std::array<std::unique_ptr<MidiVoice>, devices::opl::OPL2_NUM_CHANNELS> _voices;
 
-                // TODO this variable is duplicated with OPLWriter... rethink of it..
                 std::unique_ptr<devices::opl::OplWriter> _oplWriter;
                 uint8_t _playingVoices = 0; // OPL Channels
 
+                // MIDI Events
+                void noteOff(const uint8_t chan, const uint8_t note) noexcept;
+                void noteOn(const uint8_t chan, const uint8_t note, const uint8_t vol, const uint32_t abs_time) noexcept;
+                void controller(const uint8_t chan, const uint8_t ctrl, uint8_t value, const uint32_t abs_time) noexcept;
+                void programChange(const uint8_t chan, const uint8_t program) const noexcept;
+                void pitchBend(const uint8_t chan, const uint16_t bend, const uint32_t abs_time) const noexcept;
+
+                // MIDI Controller Events
+                void ctrl_modulationWheel(const uint8_t chan, const uint8_t value, const uint32_t abs_time) const noexcept;
+                void ctrl_volume(const uint8_t chan, const uint8_t value, const uint32_t abs_time) const noexcept;
+                void ctrl_panPosition(const uint8_t chan, uint8_t value, const uint32_t abs_time) const noexcept;
+                void ctrl_sustain(const uint8_t chan, uint8_t value) noexcept;
+
                 void onTimer();
-
-                static uint8_t _panVolume(const uint8_t volume, int8_t pan) noexcept;
-
 
                 void releaseSustain(const uint8_t channel);
                 uint8_t releaseVoice(const uint8_t slot, const bool killed);
