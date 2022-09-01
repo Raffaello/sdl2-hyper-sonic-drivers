@@ -41,12 +41,13 @@ namespace drivers
                 std::shared_ptr<hardware::opl::OPL> _opl;
 
                 uint8_t _oplNumChannels = OPL2_NUM_CHANNELS;
-                //channelEntry _oplChannels[OPL2_NUM_CHANNELS];
 
                 std::array<std::unique_ptr<MidiChannel>, audio::midi::MIDI_MAX_CHANNELS>  _channels;
                 MidiVoice  _voices[OPL2_NUM_CHANNELS]; // TODO shouldn't be connected to MidiChannel instead?
+                // TODO allocate it on the heap...
+                //std::array<std::shared_ptr<MidiVoice>, OPL2_NUM_CHANNELS>  _voices; // TODO shouldn't be connected to MidiChannel instead?
 
-                uint8_t _playingChannels = 0; // todo: playingVoices (OPL Channels)
+                uint8_t _playingVoices = 0; // OPL Channels
 
                 void onTimer();
 
@@ -68,7 +69,7 @@ namespace drivers
                 int8_t findFreeOplChannel(const uint8_t flag,  const uint32_t abs_time);
 
                 // TOOD use a shared_ptr instead?
-                const audio::opl::banks::Op2BankInstrument_t* getInstrument(const uint8_t chan, const uint8_t note);
+                //const audio::opl::banks::Op2BankInstrument_t* getInstrument(const uint8_t chan, const uint8_t note);
 
                 /// end "midi" methods
 

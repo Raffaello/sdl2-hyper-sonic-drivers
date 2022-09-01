@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <memory>
 #include <audio/opl/banks/OP2Bank.hpp>
 
 namespace drivers
@@ -14,18 +15,18 @@ namespace drivers
             {
             public:
                 MidiChannel() = delete;
-                MidiChannel(const bool isPercussion);
+                MidiChannel(const bool isPercussion, const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank);
                 ~MidiChannel() = default;
-                
 
-                uint8_t _instrument_number = 0; // instrument # (rename to program/remove it ..)
-                uint8_t _volume= 0;            // volume
+
+                //uint8_t _instrument_number = 0; // instrument # (rename to program/remove it ..)
+                uint8_t _volume = 0;            // volume
                 uint8_t _pan = 0;               // pan, 0=normal
                 uint8_t _pitch = 0;             // pitch wheel, 0=normal
                 uint8_t _sustain = 0;           // sustain pedal value
                 uint8_t _modulation = 0;        // modulation pot value
 
-                
+
                 audio::opl::banks::Op2BankInstrument_t _instrument;
 
 
@@ -39,10 +40,10 @@ namespace drivers
                 // Regular messages
                 void noteOff(const uint8_t note) const;
                 void noteOn(const uint8_t note, const uint8_t velocity) const;
-                void programChange(const uint8_t program, const audio::opl::banks::Op2BankInstrument_t& instrument);
+                void programChange(const uint8_t program);
                 // TODO: replace with a shared_ptr instead?
                 const audio::opl::banks::Op2BankInstrument_t* getInstrument() const noexcept;
-                void setInstrument(const audio::opl::banks::OP2Bank* op2Bank, const uint8_t note) noexcept;
+                const audio::opl::banks::Op2BankInstrument_t* setInstrument(const uint8_t note) noexcept;
                 //void programChange(uint8_t program) override;
                 void pitchBend(const int16_t bend) noexcept;
 
@@ -62,7 +63,12 @@ namespace drivers
             private:
                 const bool _isPercussion;
                 uint8_t _program;
-                //audio::opl::banks::Op2BankInstrument_t _instrument;
+                //audio::opl::banks::Op2BankInstrument_t _instrument = { 0 };
+
+
+                //const std::shared_ptr<audio::opl::banks::OP2Bank> _op2Bank;
+                //const std::weak_ptr<audio::opl::banks::OP2Bank> _op2Bank;
+                const audio::opl::banks::OP2Bank* _op2Bank;
             };
         }
     }

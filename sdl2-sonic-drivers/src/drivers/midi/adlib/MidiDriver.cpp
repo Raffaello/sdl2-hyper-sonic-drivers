@@ -124,7 +124,7 @@ namespace drivers
                 //}
 
                 for (int i = 0; i < audio::midi::MIDI_MAX_CHANNELS; ++i) {
-                    _channels[i] = std::make_unique<MidiChannel>(i == MIDI_PERCUSSION_CHANNEL);
+                    _channels[i] = std::make_unique<MidiChannel>(i == MIDI_PERCUSSION_CHANNEL, _op2Bank);
                     // TODO: use a init class / constructor instead, this for loop is quite useless then..
                 }
 
@@ -171,7 +171,7 @@ namespace drivers
                         }
                     }
 
-                    spdlog::debug("noteOff {} {} ({})", chan, note, _playingChannels);
+                    spdlog::debug("noteOff {} {} ({})", chan, note, _playingVoices);
                 }
                     break;
                 case MIDI_EVENT_TYPES_HIGH::NOTE_ON:
@@ -183,7 +183,7 @@ namespace drivers
                     
                     if ((freeSlot = findFreeOplChannel((chan == MIDI_PERCUSSION_CHANNEL) ? 2 : 0, abs_time)) != -1)
                     {
-                        auto instr = getInstrument(chan, note);
+                        auto instr = _channels[chan]->setInstrument(note);
                         int chi = occupyChannel(freeSlot, chan, note, volume, instr, false, abs_time);
 
                         // TODO: OPL3
@@ -196,7 +196,7 @@ namespace drivers
                         spdlog::debug("noteOn note={:d} ({:d}) - vol={:d} ({:d}) - pitch={:d} - ch={:d}", _voices[chi].note, _voices[chi].realnote, _voices[chi].volume, _voices[chi].realvolume, _voices[chi].pitch, _voices[chi].channel);
                     }
                     else {
-                        spdlog::critical("NO FREE CHANNEL? midi-ch={} - playingChannels={}", chan, _playingChannels);
+                        spdlog::critical("NO FREE CHANNEL? midi-ch={} - playingChannels={}", chan, _playingVoices);
                         for (int i = 0; i < _oplNumChannels; i++) {
                             spdlog::critical("OPL channels: {} - free? {}", i, _voices[i].free);
                         }
@@ -347,10 +347,7 @@ namespace drivers
                     uint8_t chan = e.type.low;
                     uint8_t program = e.data[0];
 
-                    _channels[chan]->programChange(program, _op2Bank->getInstrument(program));
-                    //_channels[chan]._instrument = _op2Bank->getInstrument(program);
-                    //TODO remove this one below
-                    _channels[chan]->_instrument_number = program;
+                    _channels[chan]->programChange(program);
 
                     spdlog::debug("program change {} {} ({})", chan, program, _op2Bank->getInstrumentName(program));
                 }
@@ -448,7 +445,7 @@ namespace drivers
                 //channelEntry* ch = &_oplChannels[slot];
                 MidiVoice* ch = &_voices[slot];
 
-                _playingChannels--;
+                _playingVoices--;
                 writeNote(slot, ch->realnote, ch->pitch, 0);
                 //ch->channel |= _oplNumChannels;
                 //ch->flags = CH_FREE;
@@ -469,7 +466,7 @@ namespace drivers
                 //channelEntry* ch = &_oplChannels[slot];
                 MidiVoice* ch = &_voices[slot];
 
-                _playingChannels++;
+                _playingVoices++;
 
                 ch->channel = channel;
                 //ch->musnumber = mus->number;
@@ -557,24 +554,12 @@ namespace drivers
                 return -1;
             }
 
-            const audio::opl::banks::Op2BankInstrument_t* MidiDriver::getInstrument(const uint8_t chan, const uint8_t note)
+           /* const audio::opl::banks::Op2BankInstrument_t* MidiDriver::getInstrument(const uint8_t chan, const uint8_t note)
             {
-                //_channels[chan].setInstrument(_op2Bank.get(), note);
-                if (chan == MIDI_PERCUSSION_CHANNEL)
-                {
-                    if (note < 35 || note > 81) {
-                        spdlog::error("wrong percussion number {}", note);
-                    }
-                    _channels[chan]->_instrument = _op2Bank->getInstrument(note + (128 - 35));
-                    //memcpy(&_instruments[chan], &instr, sizeof(OPL2instrument_t));
-                    //return &_instruments[chan];
-                }
-                else {
-                    //return &_instruments[chan];
-                }
+                _channels[chan]->setInstrument(_op2Bank.get(), note);
 
-                return &_channels[chan]->_instrument;
-            }
+                return _channels[chan]->getInstrument();
+            }*/
 
             void MidiDriver::writeChannel(const uint16_t regbase, const uint8_t channel, const uint8_t data1, const uint8_t data2) const noexcept
             {
