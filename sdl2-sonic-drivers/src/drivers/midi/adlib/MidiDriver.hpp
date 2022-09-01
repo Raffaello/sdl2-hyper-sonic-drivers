@@ -1,13 +1,15 @@
 #pragma once
 
-#include <audio/midi/MIDIEvent.hpp>
-#include <audio/midi/types.hpp>
-#include <drivers/midi/adlib/MidiChannel.hpp>
-#include <hardware/opl/OPL.hpp>
 #include <memory>
 #include <cstdint>
-#include <hardware/opl/OPL2instrument.h>
+#include <audio/midi/MIDIEvent.hpp>
+#include <audio/midi/types.hpp>
 #include <audio/opl/banks/OP2Bank.hpp>
+#include <drivers/midi/adlib/MidiChannel.hpp>
+#include <drivers/midi/adlib/MidVoice.hpp>
+#include <hardware/opl/OPL.hpp>
+#include <hardware/opl/OPL2instrument.h>
+
 
 namespace drivers
 {
@@ -20,21 +22,21 @@ namespace drivers
 
             /* OPL channel (voice) data */
             // TODO make a class and move to MidiChannel(rename to OPLChannel?) as OPLVoice?
-            typedef struct channelEntry {
-                uint8_t channel;		/* MIDI channel number */
-                uint8_t note;			/* note number */
-                bool free;
-                bool secondary;
-                bool sustain;
-                bool vibrato;
-                uint8_t realnote;		/* adjusted note number */
-                int8_t  finetune;		/* frequency fine-tune */
-                int16_t pitch;			/* pitch-wheel value */
-                uint8_t volume;			/* note volume */
-                uint8_t realvolume;		/* adjusted note volume */
-                hardware::opl::OPL2instrument_t* instr;	/* current instrument */
-                uint32_t	time;			/* note start time */
-            } channelEntry;
+            //typedef struct channelEntry {
+            //    uint8_t channel;		/* MIDI channel number */
+            //    uint8_t note;			/* note number */
+            //    bool free;
+            //    bool secondary;
+            //    bool sustain;
+            //    bool vibrato;
+            //    uint8_t realnote;		/* adjusted note number */
+            //    int8_t  finetune;		/* frequency fine-tune */
+            //    int16_t pitch;			/* pitch-wheel value */
+            //    uint8_t volume;			/* note volume */
+            //    uint8_t realvolume;		/* adjusted note volume */
+            //    hardware::opl::OPL2instrument_t* instr;	/* current instrument */
+            //    uint32_t	time;			/* note start time */
+            //} channelEntry;
 
             /* Internal variables */
             // like a MidiChannel 
@@ -70,13 +72,13 @@ namespace drivers
                 std::shared_ptr<hardware::opl::OPL> _opl;
 
                 uint8_t _oplNumChannels = OPL2_NUM_CHANNELS;
-                channelEntry _oplChannels[OPL2_NUM_CHANNELS];
+                //channelEntry _oplChannels[OPL2_NUM_CHANNELS];
 
                 // TODO: use pointer / share_ptr instead of copying the struct
                 //audio::opl::banks::Op2BankInstrument_t _instruments[audio::midi::MIDI_MAX_CHANNELS];
                 //OPLdata _oplData;
                 MidiChannel _channels[audio::midi::MIDI_MAX_CHANNELS];
-
+                MidiVoice  _voices[OPL2_NUM_CHANNELS]; // TODO shouldn't be connected to MidiChannel instead?
 
                 uint8_t _playingChannels = 0;
 

@@ -114,13 +114,14 @@ namespace drivers
             {
                 init();
 
-                for (int i = 0; i < _oplNumChannels; ++i) {
-                    memset(&_oplChannels[i], 0, sizeof(channelEntry));
-                    //_oplChannels[i].flags = 0;
-                    //_oplChannels[i].channel = _oplNumChannels;
-                    _oplChannels[i].free = true;
-                    //_oplChannels[i].instr = &_op2Bank->getInstrument(0).voices[0];
-                }
+                //for (int i = 0; i < _oplNumChannels; ++i) {
+                //    //memset(&_oplChannels[i], 0, sizeof(channelEntry));
+                //    //_oplChannels[i].flags = 0;
+                //    //_oplChannels[i].channel = _oplNumChannels;
+                //    //_oplChannels[i].free = true;
+                //    //_oplChannels[i].instr = &_op2Bank->getInstrument(0).voices[0];
+
+                //}
 
                 for (int i = 0; i < audio::midi::MIDI_MAX_CHANNELS; ++i) {
                     //_oplData.channelInstr[i] = 0;
@@ -172,12 +173,13 @@ namespace drivers
                     uint8_t sustain = _channels[chan]._sustain;
 
                     for (int i = 0; i < _oplNumChannels; i++) {
-                        if (_oplChannels[i].note == note && _oplChannels[i].channel == chan)
+                        //if (_oplChannels[i].note == note && _oplChannels[i].channel == chan)
+                        if (_voices[i].note == note && _voices[i].channel == chan)
                         {
                             if (sustain < SUSTAIN_THRESHOLD)
                                 releaseChannel(i, 0);
                             else
-                                _oplChannels[i].sustain = true;
+                                _voices[i].sustain = true;
                         }
                     }
 
@@ -203,12 +205,12 @@ namespace drivers
                         //        occupyChannel(mus, i, channel, note, volume, instr, 1);
                         //}
 
-                        spdlog::debug("noteOn note={:d} ({:d}) - vol={:d} ({:d}) - pitch={:d} - ch={:d}", _oplChannels[chi].note, _oplChannels[chi].realnote, _oplChannels[chi].volume, _oplChannels[chi].realvolume, _oplChannels[chi].pitch, _oplChannels[chi].channel);
+                        spdlog::debug("noteOn note={:d} ({:d}) - vol={:d} ({:d}) - pitch={:d} - ch={:d}", _voices[chi].note, _voices[chi].realnote, _voices[chi].volume, _voices[chi].realvolume, _voices[chi].pitch, _voices[chi].channel);
                     }
                     else {
                         spdlog::critical("NO FREE CHANNEL? midi-ch={} - playingChannels={}", chan, _playingChannels);
                         for (int i = 0; i < _oplNumChannels; i++) {
-                            spdlog::critical("OPL channels: {} - free? {}", i, _oplChannels[i].free);
+                            spdlog::critical("OPL channels: {} - free? {}", i, _voices[i].free);
                         }
                     }
                 }
@@ -235,7 +237,8 @@ namespace drivers
                         _channels[chan]._modulation = value;
                         for (int i = 0; i < _oplNumChannels; i++)
                         {
-                            channelEntry* ch = &_oplChannels[i];
+                            //channelEntry* ch = &_oplChannels[i];
+                            MidiVoice* ch = &_voices[i];
                             if (ch->channel == chan && (!ch->free))
                             {
                                 //uint8_t flags = ch->flags;
@@ -266,7 +269,8 @@ namespace drivers
                             _channels[chan]._volume = value;
                             for (i = 0; i < _oplNumChannels; i++)
                             {
-                                channelEntry* ch = &_oplChannels[i];
+                                //channelEntry* ch = &_oplChannels[i];
+                                MidiVoice* ch = &_voices[i];
                                 if (ch->channel == chan && (!ch->free))
                                 {
                                     ch->time = abs_time;
@@ -286,8 +290,8 @@ namespace drivers
                         _channels[chan]._pan = value -= 64;
                             for (int i = 0; i < _oplNumChannels; i++)
                             {
-                                channelEntry* ch = &_oplChannels[i];
-                                //if (CHANNEL_ID(*ch) == id)
+                                //channelEntry* ch = &_oplChannels[i];
+                                MidiVoice* ch = &_voices[i];
                                 if (ch->channel == chan && (!ch->free))
                                 {
                                     ch->time = abs_time;
@@ -376,8 +380,8 @@ namespace drivers
                     _channels[chan]._pitch = static_cast<int8_t>(bend);
                     for (int i = 0; i < _oplNumChannels; i++)
                     {
-                        channelEntry* ch = &_oplChannels[i];
-                        //if (CHANNEL_ID(*ch) == id)
+                        //channelEntry* ch = &_oplChannels[i];
+                        MidiVoice* ch = &_voices[i];
                         if (ch->channel == chan && (!ch->free))
                         {
                             ch->time = abs_time;
@@ -442,7 +446,8 @@ namespace drivers
                 for (int i = 0; i < _oplNumChannels; i++)
                 {
                     //if (CHANNEL_ID(channels[i]) == id && channels[i].flags & CH_SUSTAIN)
-                    if (_oplChannels[i].channel == i && _oplChannels[i].sustain) {
+                    //if (_oplChannels[i].channel == i && _oplChannels[i].sustain) {
+                    if (_voices[i].channel == i && _voices[i].sustain) {
                         releaseChannel(i, 0);
                     }
                 }
@@ -452,7 +457,8 @@ namespace drivers
             {
                 assert(slot >= 0 && slot < _oplNumChannels);
 
-                channelEntry* ch = &_oplChannels[slot];
+                //channelEntry* ch = &_oplChannels[slot];
+                MidiVoice* ch = &_voices[slot];
 
                 _playingChannels--;
                 writeNote(slot, ch->realnote, ch->pitch, 0);
@@ -472,7 +478,8 @@ namespace drivers
                 OPL2instrument_t* instr;
                 //OPLdata* data = &_oplData;
                 MidiChannel* data = &_channels[channel];
-                channelEntry* ch = &_oplChannels[slot];
+                //channelEntry* ch = &_oplChannels[slot];
+                MidiVoice* ch = &_voices[slot];
 
                 _playingChannels++;
 
@@ -530,7 +537,8 @@ namespace drivers
                 /* find free channel */
                 for (i = 0; i < _oplNumChannels; i++)
                 {
-                    if (_oplChannels[i].free)
+                    //if (_oplChannels[i].free)
+                    if(_voices[i].free)
                         return i;
                 }
 
@@ -540,12 +548,14 @@ namespace drivers
                 /* find some 2nd-voice channel and determine the oldest */
                 for (i = 0; i < _oplNumChannels; i++)
                 {
-                    if (_oplChannels[i].secondary) {
+                    //if (_oplChannels[i].secondary) {
+                    if (_voices[i].secondary) {
                         releaseChannel(i, true);
                         return i;
                     }
-                    else if (_oplChannels[i].time < oldesttime) {
-                        oldesttime = _oplChannels[i].time;
+                    //else if (_oplChannels[i].time < oldesttime) {
+                    else if (_voices[i].time < oldesttime) {
+                        oldesttime = _voices[i].time;
                         oldest = i;
                     }
                 }
