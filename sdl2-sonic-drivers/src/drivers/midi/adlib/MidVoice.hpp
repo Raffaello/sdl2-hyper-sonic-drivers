@@ -25,7 +25,8 @@ namespace drivers
                 uint8_t realvolume = 0;                     /* adjusted note volume */
 
                 // TODO: instead a MidiChannel should be Connected to a MidiVoice, i think...
-                hardware::opl::OPL2instrument_t* instr = nullptr; /* current instrument */
+                // TODO: use pointer / share_ptr instead of copying the struct
+                const hardware::opl::OPL2instrument_t* instr = nullptr; /* current instrument */
                 uint32_t time = 0;                                /* note start time */
                 // Channel flags
                 bool free = true;

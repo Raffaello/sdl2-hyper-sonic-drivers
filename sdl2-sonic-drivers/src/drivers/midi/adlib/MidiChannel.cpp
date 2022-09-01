@@ -7,6 +7,9 @@ namespace drivers
     {
         namespace adlib
         {
+            MidiChannel::MidiChannel(const bool isPercussion) : _isPercussion(isPercussion)
+            {
+            }
 
             void MidiChannel::noteOff(uint8_t note) const
             {
@@ -38,6 +41,20 @@ namespace drivers
             const audio::opl::banks::Op2BankInstrument_t* MidiChannel::getInstrument() const noexcept
             {
                 return &_instrument;
+            }
+
+            void MidiChannel::setInstrument(const audio::opl::banks::OP2Bank* op2Bank, const uint8_t note) noexcept
+            {
+                if (_isPercussion)
+                {
+                    if (note < 35 || note > 81) {
+                        spdlog::error("wrong percussion number {}", note);
+                    }
+                    _instrument = op2Bank->getInstrument(note + (128 - 35));
+                }
+
+
+
             }
 
             void MidiChannel::pitchBend(const int16_t bend) noexcept

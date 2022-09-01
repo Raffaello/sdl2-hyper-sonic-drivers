@@ -20,37 +20,6 @@ namespace drivers
             constexpr uint8_t OPL2_NUM_CHANNELS = 9;
             //constexpr uint8_t OPL3_NUM_CHANNELS = 18;
 
-            /* OPL channel (voice) data */
-            // TODO make a class and move to MidiChannel(rename to OPLChannel?) as OPLVoice?
-            //typedef struct channelEntry {
-            //    uint8_t channel;		/* MIDI channel number */
-            //    uint8_t note;			/* note number */
-            //    bool free;
-            //    bool secondary;
-            //    bool sustain;
-            //    bool vibrato;
-            //    uint8_t realnote;		/* adjusted note number */
-            //    int8_t  finetune;		/* frequency fine-tune */
-            //    int16_t pitch;			/* pitch-wheel value */
-            //    uint8_t volume;			/* note volume */
-            //    uint8_t realvolume;		/* adjusted note volume */
-            //    hardware::opl::OPL2instrument_t* instr;	/* current instrument */
-            //    uint32_t	time;			/* note start time */
-            //} channelEntry;
-
-            /* Internal variables */
-            // like a MidiChannel 
-            // TODO merge with MidiChannel
-            //typedef struct OPLdata {
-            //    uint8_t	channelInstr[audio::midi::MIDI_MAX_CHANNELS];		// instrument #
-            //    uint8_t	channelVolume[audio::midi::MIDI_MAX_CHANNELS];	// volume
-            //    //uint8_t	channelLastVolume[audio::midi::MIDI_MAX_CHANNELS];	// last volume
-            //    int8_t	channelPan[audio::midi::MIDI_MAX_CHANNELS];		// pan, 0=normal
-            //    int8_t	channelPitch[audio::midi::MIDI_MAX_CHANNELS];		// pitch wheel, 0=normal
-            //    uint8_t	channelSustain[audio::midi::MIDI_MAX_CHANNELS];	// sustain pedal value
-            //    uint8_t	channelModulation[audio::midi::MIDI_MAX_CHANNELS];	// modulation pot value
-            //} OPLdata;
-
             /// <summary>
             /// OPL2 MidiDriver.
             /// TODO: OPL3 later
@@ -74,13 +43,10 @@ namespace drivers
                 uint8_t _oplNumChannels = OPL2_NUM_CHANNELS;
                 //channelEntry _oplChannels[OPL2_NUM_CHANNELS];
 
-                // TODO: use pointer / share_ptr instead of copying the struct
-                //audio::opl::banks::Op2BankInstrument_t _instruments[audio::midi::MIDI_MAX_CHANNELS];
-                //OPLdata _oplData;
-                MidiChannel _channels[audio::midi::MIDI_MAX_CHANNELS];
+                std::array<std::unique_ptr<MidiChannel>, audio::midi::MIDI_MAX_CHANNELS>  _channels;
                 MidiVoice  _voices[OPL2_NUM_CHANNELS]; // TODO shouldn't be connected to MidiChannel instead?
 
-                uint8_t _playingChannels = 0;
+                uint8_t _playingChannels = 0; // todo: playingVoices (OPL Channels)
 
                 void onTimer();
 
@@ -91,18 +57,18 @@ namespace drivers
                  */
                 void stopAll() const noexcept;
 
-                uint8_t calcVolume(const uint8_t channelVolume,/* const uint8_t MUSvolume,*/ uint8_t noteVolume) const noexcept;
+                uint8_t calcVolume(const uint8_t channelVolume, uint8_t noteVolume) const noexcept;
 
                 void releaseSustain(const uint8_t channel);
 
                 uint8_t releaseChannel(const uint8_t slot, const bool killed);
 
-                int occupyChannel(const uint8_t slot, const uint8_t channel, uint8_t note, uint8_t volume, audio::opl::banks::Op2BankInstrument_t* instrument, const bool secondary, const uint32_t abs_time);
+                int occupyChannel(const uint8_t slot, const uint8_t channel, uint8_t note, uint8_t volume, const audio::opl::banks::Op2BankInstrument_t* instrument, const bool secondary, const uint32_t abs_time);
 
                 int8_t findFreeOplChannel(const uint8_t flag,  const uint32_t abs_time);
 
                 // TOOD use a shared_ptr instead?
-                audio::opl::banks::Op2BankInstrument_t* getInstrument(const uint8_t chan, const uint8_t note);
+                const audio::opl::banks::Op2BankInstrument_t* getInstrument(const uint8_t chan, const uint8_t note);
 
                 /// end "midi" methods
 

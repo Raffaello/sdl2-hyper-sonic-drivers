@@ -124,19 +124,7 @@ namespace drivers
                 //}
 
                 for (int i = 0; i < audio::midi::MIDI_MAX_CHANNELS; ++i) {
-                    //_oplData.channelInstr[i] = 0;
-                    ////_oplData.channelLastVolume[i] = 0;
-                    //_oplData.channelModulation[i] = 0;
-                    //_oplData.channelPan[i] = 0;
-                    //_oplData.channelPitch[i] = 0;
-                    //_oplData.channelSustain[i] = 0;
-                    //_oplData.channelVolume[i] = 0;
-                    _channels[i]._instrument_number = 0;
-                    _channels[i]._modulation = 0;
-                    _channels[i]._pan = 0;
-                    _channels[i]._pitch = 0;
-                    _channels[i]._sustain = 0;
-                    _channels[i]._volume = 0;
+                    _channels[i] = std::make_unique<MidiChannel>(i == MIDI_PERCUSSION_CHANNEL);
                     // TODO: use a init class / constructor instead, this for loop is quite useless then..
                 }
 
@@ -170,7 +158,7 @@ namespace drivers
                     uint8_t chan = e.type.low;
                     uint8_t note = e.data[0];
                     //OPLdata* data = &_oplData;
-                    uint8_t sustain = _channels[chan]._sustain;
+                    uint8_t sustain = _channels[chan]->_sustain;
 
                     for (int i = 0; i < _oplNumChannels; i++) {
                         //if (_oplChannels[i].note == note && _oplChannels[i].channel == chan)
@@ -234,7 +222,7 @@ namespace drivers
                     case 1:
                     {
                         //modulationWheel(value);
-                        _channels[chan]._modulation = value;
+                        _channels[chan]->_modulation = value;
                         for (int i = 0; i < _oplNumChannels; i++)
                         {
                             //channelEntry* ch = &_oplChannels[i];
@@ -266,7 +254,7 @@ namespace drivers
                         {
                         // Volume
                             int i;
-                            _channels[chan]._volume = value;
+                            _channels[chan]->_volume = value;
                             for (i = 0; i < _oplNumChannels; i++)
                             {
                                 //channelEntry* ch = &_oplChannels[i];
@@ -287,7 +275,7 @@ namespace drivers
                         //panPosition(value);
                         {
                             //_oplData.channelPan[chan] = value -= 64;
-                        _channels[chan]._pan = value -= 64;
+                        _channels[chan]->_pan = value -= 64;
                             for (int i = 0; i < _oplNumChannels; i++)
                             {
                                 //channelEntry* ch = &_oplChannels[i];
@@ -317,7 +305,7 @@ namespace drivers
                         //sustain(value > 0);
                         spdlog::warn("sustain value {}", value);
                         {
-                            _channels[chan]._sustain = value;
+                            _channels[chan]->_sustain = value;
                             if (value < SUSTAIN_THRESHOLD) {
                                 releaseSustain(chan);
                             }
@@ -359,10 +347,10 @@ namespace drivers
                     uint8_t chan = e.type.low;
                     uint8_t program = e.data[0];
 
-                    _channels[chan].programChange(program, _op2Bank->getInstrument(program));
+                    _channels[chan]->programChange(program, _op2Bank->getInstrument(program));
                     //_channels[chan]._instrument = _op2Bank->getInstrument(program);
                     //TODO remove this one below
-                    _channels[chan]._instrument_number = program;
+                    _channels[chan]->_instrument_number = program;
 
                     spdlog::debug("program change {} {} ({})", chan, program, _op2Bank->getInstrumentName(program));
                 }
@@ -377,7 +365,7 @@ namespace drivers
                     spdlog::debug("PITCH_BEND {}", bend);
 
                     // OPLPitchWheel
-                    _channels[chan]._pitch = static_cast<int8_t>(bend);
+                    _channels[chan]->_pitch = static_cast<int8_t>(bend);
                     for (int i = 0; i < _oplNumChannels; i++)
                     {
                         //channelEntry* ch = &_oplChannels[i];
@@ -473,11 +461,11 @@ namespace drivers
                 return slot;
             }
 
-            int MidiDriver::occupyChannel(const uint8_t slot, const uint8_t channel, uint8_t note, uint8_t volume, audio::opl::banks::Op2BankInstrument_t* instrument, const bool secondary, const uint32_t abs_time)
+            int MidiDriver::occupyChannel(const uint8_t slot, const uint8_t channel, uint8_t note, uint8_t volume, const audio::opl::banks::Op2BankInstrument_t* instrument, const bool secondary, const uint32_t abs_time)
             {
-                OPL2instrument_t* instr;
+                const OPL2instrument_t* instr;
                 //OPLdata* data = &_oplData;
-                MidiChannel* data = &_channels[channel];
+                MidiChannel* data = _channels[channel].get();
                 //channelEntry* ch = &_oplChannels[slot];
                 MidiVoice* ch = &_voices[slot];
 
@@ -569,16 +557,15 @@ namespace drivers
                 return -1;
             }
 
-            audio::opl::banks::Op2BankInstrument_t* MidiDriver::getInstrument(const uint8_t chan, const uint8_t note)
+            const audio::opl::banks::Op2BankInstrument_t* MidiDriver::getInstrument(const uint8_t chan, const uint8_t note)
             {
+                //_channels[chan].setInstrument(_op2Bank.get(), note);
                 if (chan == MIDI_PERCUSSION_CHANNEL)
                 {
                     if (note < 35 || note > 81) {
                         spdlog::error("wrong percussion number {}", note);
                     }
-                    //i = note + (128 - 35);
-                    //auto instr = _op2Bank->getInstrument(note + (128 - 35));
-                    _channels[chan]._instrument = _op2Bank->getInstrument(note + (128 - 35));
+                    _channels[chan]->_instrument = _op2Bank->getInstrument(note + (128 - 35));
                     //memcpy(&_instruments[chan], &instr, sizeof(OPL2instrument_t));
                     //return &_instruments[chan];
                 }
@@ -586,7 +573,7 @@ namespace drivers
                     //return &_instruments[chan];
                 }
 
-                return &_channels[chan]._instrument;
+                return &_channels[chan]->_instrument;
             }
 
             void MidiDriver::writeChannel(const uint16_t regbase, const uint8_t channel, const uint8_t data1, const uint8_t data2) const noexcept
