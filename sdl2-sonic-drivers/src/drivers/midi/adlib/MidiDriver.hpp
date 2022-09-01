@@ -39,18 +39,13 @@ namespace drivers
             private:
                 std::shared_ptr<audio::opl::banks::OP2Bank> _op2Bank;
                 std::shared_ptr<hardware::opl::OPL> _opl;
-
                 uint8_t _oplNumChannels = OPL2_NUM_CHANNELS;
-
                 std::array<std::unique_ptr<MidiChannel>, audio::midi::MIDI_MAX_CHANNELS>  _channels;
-                //MidiVoice  _voices[OPL2_NUM_CHANNELS]; // TODO shouldn't be connected to MidiChannel instead?
-                // TODO allocate it on the heap...
                 std::array<std::unique_ptr<MidiVoice>, OPL2_NUM_CHANNELS> _voices; // TODO shouldn't be connected to MidiChannel instead?
 
                 uint8_t _playingVoices = 0; // OPL Channels
 
                 void onTimer();
-
                 void init() const noexcept;
 
                 /*
@@ -127,12 +122,13 @@ namespace drivers
                 /*
                  * Write frequency/octave/keyon data to a channel
                  */
-                void writeFreq(const uint8_t channel, const uint16_t freq, const uint8_t octave, const bool keyon) const noexcept;
+                void writeFreq(const uint8_t slot, const uint16_t freq, const uint8_t octave, const bool keyon) const noexcept;
 
                 /*
                 * Write a Note
                 */
-                void writeNote(const uint8_t channel, const uint8_t note, int pitch, const bool keyOn) const noexcept;
+                void writeNote(const uint8_t slot, const uint8_t note, int pitch, const bool keyOn) const noexcept;
+                void writeNote(const MidiVoice* voice, const bool keyOn) const noexcept;
             };
         }
     }

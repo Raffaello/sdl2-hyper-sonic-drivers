@@ -119,7 +119,7 @@ namespace drivers
                 }
 
                 for (int i = 0; i < _oplNumChannels; ++i) {
-                    _voices[i] = std::make_unique<MidiVoice>();
+                    _voices[i] = std::make_unique<MidiVoice>(i);
                 }
 
                 hardware::opl::TimerCallBack cb = std::bind(&MidiDriver::onTimer, this);
@@ -223,7 +223,7 @@ namespace drivers
                         for (int i = 0; i < _oplNumChannels; i++)
                         {
                             MidiVoice* ch = _voices[i].get();
-                            if (ch->channel == chan && (!ch->free))
+                            if (ch->slot == chan && (!ch->free))
                             {
                                 bool vibrato = ch->vibrato;
                                 ch->time = abs_time;
@@ -253,7 +253,7 @@ namespace drivers
                             for (i = 0; i < _oplNumChannels; i++)
                             {
                                 MidiVoice* ch = _voices[i].get();
-                                if (ch->channel == chan && (!ch->free))
+                                if (ch->slot == chan && (!ch->free))
                                 {
                                     ch->time = abs_time;
                                     ch->realvolume = calcVolume(value, ch->volume);
@@ -272,7 +272,7 @@ namespace drivers
                             for (int i = 0; i < _oplNumChannels; i++)
                             {
                                 MidiVoice* ch = _voices[i].get();
-                                if (ch->channel == chan && (!ch->free))
+                                if (ch->slot == chan && (!ch->free))
                                 {
                                     ch->time = abs_time;
                                     writePan(i, ch->instr, value);
@@ -358,12 +358,12 @@ namespace drivers
                     for (int i = 0; i < _oplNumChannels; i++)
                     {
                         //channelEntry* ch = &_oplChannels[i];
-                        MidiVoice* ch = _voices[i].get();
-                        if (ch->channel == chan && (!ch->free))
+                        MidiVoice* voice = _voices[i].get();
+                        if (voice->channel == chan && (!voice->free))
                         {
-                            ch->time = abs_time;
-                            ch->pitch = ch->finetune + bend;
-                            writeNote(i, ch->realnote, ch->pitch, 1);
+                            voice->time = abs_time;
+                            voice->pitch = voice->finetune + bend;
+                            writeNote(voice, true);
                         }
                     }
                 }
@@ -420,7 +420,7 @@ namespace drivers
                 for (int i = 0; i < _oplNumChannels; i++)
                 {
                     MidiVoice* voice = _voices[i].get();
-                    if (voice->channel == i && voice->sustain) {
+                    if (voice->channel == channel && voice->sustain) {
                         releaseChannel(i, 0);
                     }
                 }
@@ -430,11 +430,11 @@ namespace drivers
             {
                 assert(slot >= 0 && slot < _oplNumChannels);
 
-                MidiVoice* ch = _voices[slot].get();
+                MidiVoice* voice = _voices[slot].get();
 
                 _playingVoices--;
-                writeNote(slot, ch->realnote, ch->pitch, 0);
-                ch->free = true;
+                writeNote(voice, false);
+                voice->free = true;
                 if (killed)
                 {
                     writeChannel(0x80, slot, 0x0F, 0x0F);  // release rate - fastest
@@ -447,44 +447,44 @@ namespace drivers
             {
                 const OPL2instrument_t* instr;
                 MidiChannel* data = _channels[channel].get();
-                MidiVoice* ch = _voices[slot].get();
+                MidiVoice* voice = _voices[slot].get();
 
                 _playingVoices++;
 
-                ch->channel = channel;
-                ch->note = note;
-                ch->free = false;
-                ch->secondary = secondary;
+                voice->channel = channel;
+                voice->note = note;
+                voice->free = false;
+                voice->secondary = secondary;
                 if (data->_modulation >= VIBRATO_THRESHOLD)
-                    ch->vibrato = true;
-                ch->time = abs_time;
-                ch->realvolume = calcVolume(data->_volume, ch->volume = volume);
+                    voice->vibrato = true;
+                voice->time = abs_time;
+                voice->realvolume = calcVolume(data->_volume, voice->volume = volume);
                 if (instrument->flags & OP2BANK_INSTRUMENT_FLAG_FIXED_PITCH)
                     note = instrument->noteNum;
                 else if (channel == MIDI_PERCUSSION_CHANNEL)
                     note = 60;			// C-5
                 if (secondary && (instrument->flags & OP2BANK_INSTRUMENT_FLAG_DOUBLE_VOICE))
-                    ch->finetune = instrument->fineTune - 0x80;
+                    voice->finetune = instrument->fineTune - 0x80;
                 else
-                    ch->finetune = 0;
-                ch->pitch = ch->finetune + data->_pitch;
+                    voice->finetune = 0;
+                voice->pitch = voice->finetune + data->_pitch;
                 if (secondary)
                     instr = &instrument->voices[1];
                 else
                     instr = &instrument->voices[0];
-                ch->instr = instr;
+                voice->instr = instr;
                 if ((note += instr->basenote) < 0)
                     while ((note += 12) < 0);
                 else if (note > HIGHEST_NOTE)
                     while ((note -= 12) > HIGHEST_NOTE);
-                ch->realnote = note;
+                voice->realnote = note;
 
                 writeInstrument(slot, instr);
-                if (ch->vibrato)
+                if (voice->vibrato)
                     writeModulation(slot, instr, 1);
                 writePan(slot, instr, data->_pan);
-                writeVolume(slot, instr, ch->realvolume);
-                writeNote(slot, note, ch->pitch, true);
+                writeVolume(slot, instr, voice->realvolume);
+                writeNote(voice, true);
                 
                 return slot;
             }
@@ -511,8 +511,7 @@ namespace drivers
                 {
                     MidiVoice* voice = _voices[i].get();
                     if (voice->secondary) {
-                        releaseChannel(i, true);
-                        return i;
+                        return releaseChannel(i, true);
                     }
                     else if (voice->time < oldesttime) {
                         oldesttime = voice->time;
@@ -618,13 +617,13 @@ namespace drivers
                     (volume * (pan + 64)) >> 6; // / 64;
             }
 
-            void MidiDriver::writeFreq(const uint8_t channel, const uint16_t freq, const uint8_t octave, const bool keyon) const noexcept
+            void MidiDriver::writeFreq(const uint8_t slot, const uint16_t freq, const uint8_t octave, const bool keyon) const noexcept
             {
-                writeValue(0xA0, channel, freq & 0xFF);
-                writeValue(0xB0, channel, (freq >> 8) | (octave << 2) | (static_cast<uint8_t>(keyon) << 5));
+                writeValue(0xA0, slot, freq & 0xFF);
+                writeValue(0xB0, slot, (freq >> 8) | (octave << 2) | (static_cast<uint8_t>(keyon) << 5));
             }
 
-            void MidiDriver::writeNote(const uint8_t channel, const uint8_t note, int pitch, const bool keyOn) const noexcept
+            void MidiDriver::writeNote(const uint8_t slot, const uint8_t note, int pitch, const bool keyOn) const noexcept
             {
                 uint16_t freq = freqtable[note];
                 uint8_t octave = octavetable[note];
@@ -643,7 +642,13 @@ namespace drivers
                     octave = 7;
                 }
                 
-                writeFreq(channel, freq, octave, keyOn);
+                writeFreq(slot, freq, octave, keyOn);
+            }
+
+            void MidiDriver::writeNote(const MidiVoice* voice, const bool keyOn) const noexcept
+            {
+                // TODO: keyOn put in MidiVoice
+                writeNote(voice->slot, voice->realnote, voice->pitch, keyOn);
             }
         }
     }

@@ -13,10 +13,11 @@ namespace drivers
             class MidiVoice
             {
             public:
-                MidiVoice() = default;
+                MidiVoice(const uint8_t slot_);
                 ~MidiVoice() = default;
 
-                uint8_t channel = 0;                        /* MIDI channel number */
+                uint8_t slot;                               /* OPL channel number */
+                uint8_t channel = 0;                        // MIDI channel number
                 uint8_t note = 0;                           /* note number */
                 uint8_t realnote = 0;                       /* adjusted note number */
                 int8_t  finetune = 0;                       /* frequency fine-tune */

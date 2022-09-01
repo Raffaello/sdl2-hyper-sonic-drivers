@@ -6,7 +6,7 @@ namespace drivers
     {
         namespace adlib
         {
-
+            MidiVoice::MidiVoice(const uint8_t slot_) : slot(slot_) {}
         }
     }
 }
