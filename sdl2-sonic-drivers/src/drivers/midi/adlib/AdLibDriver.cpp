@@ -31,7 +31,7 @@ namespace drivers
             // !!!!!!!!!!!!!!!!!!!!!!!!!
             // TODO: would make sense to use a doubly linked list as the oldest, front, will be removed
             //       as a if it was like a Queue for channels
-            //       otherwise .... to search the oldest, better than an arary
+            //       otherwise .... to search the oldest, better than an array
             // !!!!!!!!!!!!!!!!!!!!!!!!!
 
             AdLibDriver::AdLibDriver(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank) :
@@ -97,7 +97,6 @@ namespace drivers
                 case MIDI_EVENT_TYPES_HIGH::META_SYSEX:
                     spdlog::warn("META_SYSEX not supported");
                     break;
-
                 default:
                     spdlog::warn("MidiDriver: Unknown send() command { 0:#x }", e.type.val);
                     break;
@@ -106,32 +105,29 @@ namespace drivers
 
             void AdLibDriver::noteOff(const uint8_t chan, const uint8_t note) noexcept
             {
-                //uint8_t chan = e.type.low;
-                //uint8_t note = e.data[0];
                 uint8_t sustain = _channels[chan]->sustain;
-
+                
                 for (int i = 0; i < _oplNumChannels; i++)
                 {
                     OplVoice* voice = _voices[i].get();
-                    if (voice->_note == note && voice->_channel == chan)
+                    if (voice->isChannelBusy(chan) && voice->_note == note)
                     {
-                        if (sustain < SUSTAIN_THRESHOLD)
+                       if (sustain < SUSTAIN_THRESHOLD)
                             releaseVoice(i, 0);
                         else
                             voice->sustain = true;
                     }
                 }
-
                 spdlog::debug("noteOff {} {} ({})", chan, note, _playingVoices);
             }
 
             void AdLibDriver::noteOn(const uint8_t chan, const uint8_t note, const uint8_t vol, const uint32_t abs_time) noexcept
             {
-                int8_t freeSlot = findFreeOplChannel((chan == MIDI_PERCUSSION_CHANNEL) ? 2 : 0, abs_time);
+                int8_t freeSlot = findFreeOplVoiceIndex((chan == MIDI_PERCUSSION_CHANNEL) ? 2 : 0, abs_time);
 
                 if (freeSlot != -1)
                 {
-                    int chi = allocateVoice(freeSlot, chan, note, vol,
+                    int slot = allocateVoice(freeSlot, chan, note, vol,
                         _channels[chan]->setInstrument(note), false, abs_time);
 
                     // TODO: OPL3
@@ -234,7 +230,7 @@ namespace drivers
                 for (int i = 0; i < _oplNumChannels; i++)
                 {
                     OplVoice* voice = _voices[i].get();
-                    if (voice->_channel == chan && (!voice->_free))
+                    if (voice->isChannelBusy(chan))
                     {
                         voice->time = abs_time;
                         voice->pitch = voice->finetune + bend;
@@ -250,7 +246,7 @@ namespace drivers
                 for (int i = 0; i < _oplNumChannels; i++)
                 {
                     OplVoice* voice = _voices[i].get();
-                    if (voice->_channel == chan && (!voice->_free))
+                    if (voice->isChannelBusy(chan))
                     {
                         bool vibrato = voice->vibrato;
                         voice->time = abs_time;
@@ -277,7 +273,7 @@ namespace drivers
                 for (int i = 0; i < _oplNumChannels; i++)
                 {
                     OplVoice* voice = _voices[i].get();
-                    if (voice->_channel == chan && (!voice->_free))
+                    if (voice->isChannelBusy(chan))
                     {
                         voice->time = abs_time;
                         voice->setRealVolume(value);
@@ -295,7 +291,7 @@ namespace drivers
                 for (int i = 0; i < _oplNumChannels; i++)
                 {
                     OplVoice* voice = _voices[i].get();
-                    if (voice->_channel == chan && (!voice->_free))
+                    if (voice->isChannelBusy(chan))
                     {
                         voice->time = abs_time;
                         _oplWriter->writePan(i, voice->_instr, value);
@@ -316,7 +312,7 @@ namespace drivers
                 for (int i = 0; i < _oplNumChannels; i++)
                 {
                     OplVoice* voice = _voices[i].get();
-                    if (voice->_channel == channel && voice->sustain) {
+                    if (voice->isChannelBusy(channel) && voice->sustain) {
                         releaseVoice(i, 0);
                     }
                 }
@@ -325,9 +321,8 @@ namespace drivers
             uint8_t AdLibDriver::releaseVoice(const uint8_t slot, const bool killed)
             {
                 assert(slot >= 0 && slot < _oplNumChannels);
-
                 _playingVoices--;
-                return _voices[slot]->releaseVoice(killed);
+                return _voices[slot]->release(killed);
             }
 
             int AdLibDriver::allocateVoice(const uint8_t slot, const uint8_t channel,
@@ -343,7 +338,7 @@ namespace drivers
                 );
             }
 
-            int8_t AdLibDriver::findFreeOplChannel(const uint8_t flag, const uint32_t abs_time)
+            int8_t AdLibDriver::findFreeOplVoiceIndex(const uint8_t flag, const uint32_t abs_time)
             {
                 // TODO redo it.
 

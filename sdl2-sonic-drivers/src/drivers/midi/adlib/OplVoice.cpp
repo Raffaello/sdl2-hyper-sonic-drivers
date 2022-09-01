@@ -91,7 +91,7 @@ namespace drivers
                 return _slot;
             }
 
-            uint8_t OplVoice::releaseVoice(const bool killed) noexcept
+            uint8_t OplVoice::release(const bool killed) noexcept
             {
                 playNote(false);
                 _free = true;

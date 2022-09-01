@@ -18,6 +18,20 @@ namespace drivers
                 OplVoice(const uint8_t slot, const std::unique_ptr<devices::opl::OplWriter>& oplWriter);
                 ~OplVoice() = default;
 
+                inline const uint8_t getSlot() const noexcept { return _slot; }
+
+                inline const bool isChannel(const uint8_t channel) const noexcept {
+                    return _channel == channel;
+                }
+
+                inline const bool isChannelBusy(const uint8_t channel) const noexcept {
+                    return isChannel(channel) && !_free;
+                }
+
+                inline const bool isChannelFree(uint8_t channel) const noexcept {
+                    return isChannel(channel) && _free;
+                }
+
                 void playNote(const bool keyOn) const noexcept;
                 int allocate(const uint8_t channel,
                     const uint8_t note_, const uint8_t volume,
@@ -29,7 +43,7 @@ namespace drivers
                     const uint8_t chan_pan,
                     const uint32_t abs_time) noexcept;
 
-                uint8_t releaseVoice(const bool killed) noexcept;
+                uint8_t release(const bool killed) noexcept;
 
                 void setVolumes(const uint8_t channelVolume, const uint8_t volume) noexcept;
                 void setRealVolume(const uint8_t channelVolume) noexcept;
