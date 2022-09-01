@@ -3,7 +3,6 @@
 #include <cstdint>
 #include <memory>
 #include <audio/opl/banks/OP2Bank.hpp>
-#include <drivers/midi/adlib/MidVoice.hpp>
 
 namespace drivers
 {
@@ -28,8 +27,8 @@ namespace drivers
 
 
                 const audio::opl::banks::Op2BankInstrument_t* setInstrument(const uint8_t note) noexcept;
-                inline bool isVoiceFree() const noexcept;
-                MidiVoice* _voice = nullptr; // the OPL Channel associated to this Midi Channel
+                //inline bool isVoiceFree() const noexcept;
+                //MidiVoice* _voice = nullptr; // the OPL Channel associated to this Midi Channel
 
                 //uint8_t release(const bool killed);
                 
@@ -64,12 +63,8 @@ namespace drivers
                 audio::opl::banks::Op2BankInstrument_t _instrument = { 0 };
                 //uint8_t _volume = 0;            // volume
 
-
-
-                //const std::shared_ptr<audio::opl::banks::OP2Bank> _op2Bank;
                 //const std::weak_ptr<audio::opl::banks::OP2Bank> _op2Bank;
                 const audio::opl::banks::OP2Bank* _op2Bank;
-                //MidiVoice* _voice = nullptr; // the OPL Channel associated to this Midi Channel
             };
         }
     }

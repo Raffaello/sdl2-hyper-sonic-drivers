@@ -1,4 +1,4 @@
-#include<drivers/midi/adlib/MidVoice.hpp>
+#include<drivers/midi/adlib/MidiVoice.hpp>
 
 namespace drivers
 {
@@ -6,7 +6,9 @@ namespace drivers
     {
         namespace adlib
         {
-            MidiVoice::MidiVoice(const uint8_t slot_) : slot(slot_) {}
+            MidiVoice::MidiVoice(const uint8_t slot) : _slot(slot)
+            {
+            }
         }
     }
 }

@@ -138,6 +138,7 @@ target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/adlib/MidiChannel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/adlib/MidiVoice.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/Adlib.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/opl/OplWriter.cpp
     # --- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/File.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/IFFFile.cpp

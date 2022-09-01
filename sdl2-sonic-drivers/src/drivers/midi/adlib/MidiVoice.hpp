@@ -13,10 +13,9 @@ namespace drivers
             class MidiVoice
             {
             public:
-                MidiVoice(const uint8_t slot_);
+                MidiVoice(const uint8_t slot);
                 ~MidiVoice() = default;
 
-                uint8_t slot;                               /* OPL channel number */
                 uint8_t channel = 0;                        // MIDI channel number
                 uint8_t note = 0;                           /* note number */
                 uint8_t realnote = 0;                       /* adjusted note number */
@@ -34,7 +33,11 @@ namespace drivers
                 bool secondary = false;
                 bool sustain = false;
                 bool vibrato = false;
+
+            //private:
+                const uint8_t _slot;                               /* OPL channel number */
             };
+
         }
     }
 }

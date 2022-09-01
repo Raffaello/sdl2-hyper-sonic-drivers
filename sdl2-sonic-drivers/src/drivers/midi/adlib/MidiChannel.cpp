@@ -25,10 +25,10 @@ namespace drivers
                 return &_instrument;
             }
 
-            inline bool MidiChannel::isVoiceFree() const noexcept
+            /*inline bool MidiChannel::isVoiceFree() const noexcept
             {
                 return _voice == nullptr || _voice->free;
-            }
+            }*/
 
             void MidiChannel::noteOff(uint8_t note) const
             {
