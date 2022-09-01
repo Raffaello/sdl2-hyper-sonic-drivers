@@ -2,7 +2,7 @@
 
 #include <audio/midi/MIDIEvent.hpp>
 #include <audio/midi/types.hpp>
-//#include <drivers/midi/adlib/MidiChannel.hpp>
+#include <drivers/midi/adlib/MidiChannel.hpp>
 #include <hardware/opl/OPL.hpp>
 #include <memory>
 #include <cstdint>
@@ -39,15 +39,15 @@ namespace drivers
             /* Internal variables */
             // like a MidiChannel 
             // TODO merge with MidiChannel
-            typedef struct OPLdata {
-                uint8_t	channelInstr[audio::midi::MIDI_MAX_CHANNELS];		// instrument #
-                uint8_t	channelVolume[audio::midi::MIDI_MAX_CHANNELS];	// volume
-                uint8_t	channelLastVolume[audio::midi::MIDI_MAX_CHANNELS];	// last volume
-                int8_t	channelPan[audio::midi::MIDI_MAX_CHANNELS];		// pan, 0=normal
-                int8_t	channelPitch[audio::midi::MIDI_MAX_CHANNELS];		// pitch wheel, 0=normal
-                uint8_t	channelSustain[audio::midi::MIDI_MAX_CHANNELS];	// sustain pedal value
-                uint8_t	channelModulation[audio::midi::MIDI_MAX_CHANNELS];	// modulation pot value
-            } OPLdata;
+            //typedef struct OPLdata {
+            //    uint8_t	channelInstr[audio::midi::MIDI_MAX_CHANNELS];		// instrument #
+            //    uint8_t	channelVolume[audio::midi::MIDI_MAX_CHANNELS];	// volume
+            //    //uint8_t	channelLastVolume[audio::midi::MIDI_MAX_CHANNELS];	// last volume
+            //    int8_t	channelPan[audio::midi::MIDI_MAX_CHANNELS];		// pan, 0=normal
+            //    int8_t	channelPitch[audio::midi::MIDI_MAX_CHANNELS];		// pitch wheel, 0=normal
+            //    uint8_t	channelSustain[audio::midi::MIDI_MAX_CHANNELS];	// sustain pedal value
+            //    uint8_t	channelModulation[audio::midi::MIDI_MAX_CHANNELS];	// modulation pot value
+            //} OPLdata;
 
             /// <summary>
             /// OPL2 MidiDriver.
@@ -72,10 +72,11 @@ namespace drivers
                 uint8_t _oplNumChannels = OPL2_NUM_CHANNELS;
                 channelEntry _oplChannels[OPL2_NUM_CHANNELS];
 
-                //MidiChannel _channels[audio::midi::MIDI_MAX_CHANNELS];
                 // TODO: use pointer / share_ptr instead of copying the struct
-                audio::opl::banks::Op2BankInstrument_t _instruments[audio::midi::MIDI_MAX_CHANNELS];
-                OPLdata _oplData;
+                //audio::opl::banks::Op2BankInstrument_t _instruments[audio::midi::MIDI_MAX_CHANNELS];
+                //OPLdata _oplData;
+                MidiChannel _channels[audio::midi::MIDI_MAX_CHANNELS];
+
 
                 uint8_t _playingChannels = 0;
 
@@ -118,7 +119,7 @@ namespace drivers
                 void writeValue(const uint16_t regbase, const uint8_t channel, const uint8_t value) const noexcept;
 
                 /*
-                * TODO: this could be handled by the OplBank interface or soething (in OP2Bank for e.g)
+                 * TODO: this could be handled by the OplBank interface or soething (in OP2Bank for e.g)
                  * Write an instrument to a channel
                  *
                  * Instrument layout:

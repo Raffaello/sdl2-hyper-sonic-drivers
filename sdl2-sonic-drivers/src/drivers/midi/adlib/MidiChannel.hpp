@@ -9,11 +9,25 @@ namespace drivers
     {
         namespace adlib
         {
+            // TODO rename OPLChannel, in this case is OPL2Channel (AdLib Channel)
             class MidiChannel
             {
             public:
                 MidiChannel() = default;
                 ~MidiChannel() = default;
+                
+
+                uint8_t _instrument_number; // instrument # (rename to program)
+                uint8_t _volume;            // volume
+                uint8_t _pan;               // pan, 0=normal
+                uint8_t _pitch;             // pitch wheel, 0=normal
+                uint8_t _sustain;           // sustain pedal value
+                uint8_t _modulation;        // modulation pot value
+
+                audio::opl::banks::Op2BankInstrument_t _instrument;
+
+
+                /// review below later on...
 
                 //uint8_t getNumber() override;
                 //void release() override;
@@ -42,8 +56,8 @@ namespace drivers
                 //void allNotesOff() override;
 
             private:
-                uint8_t _program;
-                audio::opl::banks::Op2BankInstrument_t _instrument;
+                //uint8_t _program;
+                //audio::opl::banks::Op2BankInstrument_t _instrument;
             };
         }
     }

@@ -23,7 +23,7 @@ namespace drivers
                 //if (program > 127)
                 //    return;
 
-                _program = program;
+                //_program = program;
                 _instrument = instrument;
             }
             const audio::opl::banks::Op2BankInstrument_t* MidiChannel::getInstrument() const noexcept
