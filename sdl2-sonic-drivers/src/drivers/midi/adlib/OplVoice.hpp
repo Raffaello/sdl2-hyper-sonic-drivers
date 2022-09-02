@@ -39,6 +39,10 @@ namespace drivers
                 /*inline*/ void releaseSustain(const uint8_t channel) noexcept;
 
                 void playNote(const bool keyOn) const noexcept;
+                /// <summary>
+                /// This works only with OP2Bank.
+                /// TODO: need to generalize OplBank instruments ...
+                /// </summary>
                 int allocate(const uint8_t channel,
                     const uint8_t note_, const uint8_t volume,
                     const audio::opl::banks::Op2BankInstrument_t* instrument,
