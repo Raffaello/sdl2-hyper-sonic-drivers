@@ -26,11 +26,20 @@ namespace hardware
                         spdlog::warn("MAME OPL emulator doesn't support DUAL_OPL2 emulation");
                         return nullptr;
                     case OplType::OPL3:
-                        return std::make_shared<hardware::opl::mame::MameOPL>(mixer);
+                        spdlog::warn("MAME OPL3 not working yet.");
+                        //return std::make_shared<hardware::opl::mame::MameOPL>(mixer);
+                        return nullptr;
                     }
                 case OplEmulator::AUTO:
                 case OplEmulator::DOS_BOX:
-                    return std::make_shared<dosbox::OPL>(mixer, type);
+                    switch (type)
+                    {
+                    case OplType::OPL3:
+                        spdlog::warn("DOS_BOX OPL3 not working correctly yet.");
+                        return nullptr;
+                    default:
+                        return std::make_shared<dosbox::OPL>(mixer, type);
+                    }
                 case OplEmulator::NUKED:
                     if (type != OplType::OPL3) {
                         spdlog::warn("Nuke OPL emulator only supports OPL3 emulation");
