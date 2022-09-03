@@ -25,11 +25,6 @@ namespace drivers
             {
             }
 
-            /*inline*/ const uint8_t OplVoice::getSlot() const noexcept
-            {
-                return _slot;
-            }
-
             /*inline*/ const bool OplVoice::isChannel(const uint8_t channel) const noexcept
             {
                 return _channel == channel;

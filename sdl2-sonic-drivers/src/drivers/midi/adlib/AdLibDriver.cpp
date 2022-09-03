@@ -19,12 +19,13 @@ namespace drivers
 
 
             // TODO: when no channel is allocated having a for loop to search for nothing is silly.
+
+            // TODO: remove the for loops to find the right voice based on channel
+
+            // TODO: Track free channel in a duobly linked list, pop when allocate, and everytime a voice free push back
+            // TODO: a priority queue could be used when forced to kill a channel for faster find, cons there is the overhead.
             
-            // !!!!!!!!!!!!!!!!!!!!!!!!!
-            // TODO: would make sense to use a doubly linked list as the oldest, front, will be removed
-            //       as a if it was like a Queue for channels
-            //       otherwise .... to search the oldest, better than an array
-            // !!!!!!!!!!!!!!!!!!!!!!!!!
+            // TODO: associate the allocated voice to OplChannel for faster retrieval.
 
             AdLibDriver::AdLibDriver(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank) :
                 _opl(opl)
@@ -32,7 +33,7 @@ namespace drivers
                 // TODO: force to be adlib now
                 _oplWriter = std::make_unique<opl::OplWriter>(_opl, false);
 
-                if(!_oplWriter->init())
+                if (!_oplWriter->init())
                     spdlog::error("[MidiDriver] Can't initialize AdLib Emulator OPL chip.'");
 
                 for (int i = 0; i < audio::midi::MIDI_MAX_CHANNELS; ++i) {
@@ -98,16 +99,15 @@ namespace drivers
             void AdLibDriver::noteOff(const uint8_t chan, const uint8_t note) noexcept
             {
                 uint8_t sustain = _channels[chan]->sustain;
-                
+
                 for (int i = 0; i < _oplNumChannels; i++)
                     _voices[i]->noteOff(chan, note, sustain);
-                
+
                 spdlog::debug("noteOff {} {} ({})", chan, note, _playingVoices);
             }
 
             void AdLibDriver::noteOn(const uint8_t chan, const uint8_t note, const uint8_t vol, const uint32_t abs_time) noexcept
             {
-                //int8_t freeSlot = findFreeOplVoiceIndex((chan == MIDI_PERCUSSION_CHANNEL) ? 2 : 0, abs_time);
                 int8_t freeSlot = getFreeOplVoiceIndex(abs_time, chan != MIDI_PERCUSSION_CHANNEL);
 
                 if (freeSlot != -1)
@@ -150,7 +150,7 @@ namespace drivers
                 case 10:
                     // Not Available on OPL2/AdLib.
                     //ctrl_panPosition(chan, value, abs_time);
-                break;
+                    break;
                 case 16:
                     //pitchBendFactor(value);
                     spdlog::warn("pitchBendFactor value {}", value);
@@ -271,58 +271,18 @@ namespace drivers
                 );
             }
 
-            int8_t AdLibDriver::findFreeOplVoiceIndex(const uint8_t flag, const uint32_t abs_time)
-            {
-                // TODO redo it.
-
-                // TODO flag = 0, 1, 2, 3 ???  (using 2 bits)
-                // 0 :=> search a free channel, and if not find try to kill a 2nd voice or oldest
-                // 1 :=> search a free channel only.
-                // 2 :=> like 0 but won't kill the oldest channel
-                // 3 :=> is like 1 as it retunr when bit 0 is 1
-                // -----
-                // used only 0 and 2, so bit 1 only:
-                // it can be a bool !kill_oldest_channel
-
-                uint8_t i;
-                uint8_t oldest = 255;
-                uint32_t oldesttime = abs_time;
-
-                // find free channel
-                for (i = 0; i < _oplNumChannels; i++)
-                    if(_voices[i]->isFree())
-                        return i;
-
-                if (flag & 1) // when flag is 1, never used
-                    return -1;  // stop searching if bit 0 is set 
-
-                // find some 2nd-voice channel and determine the oldest (when flag is 0 and 2)
-                for (i = 0; i < _oplNumChannels; i++)
-                {
-                    OplVoice* voice = _voices[i].get();
-                    if (voice->isSecondary()) {
-                        return releaseVoice(i, true);
-                    }
-                    else if (voice->getTime() < oldesttime) {
-                        oldesttime = voice->getTime();
-                        oldest = i;
-                    }
-                }
-
-                // if possible, kill the oldest channel (When flag is 0)
-                if (!(flag & 2) && oldest != 255)
-                {
-                    return releaseVoice(oldest, true);
-                }
-
-                return -1;
-            }
-
             int8_t AdLibDriver::getFreeOplVoiceIndex(const uint32_t abs_time, const bool force)
             {
                 // TODO: instead of a for loop,
                 //       use a queue to keep free channel, so a pop will return it
                 //       so when allocating needs to use a priority queue.
+                // (isFree() + isSecondary()) * (getTime() + 1); bool conversion to int, using std::greater<T>
+                // ( 0 + 0) * x => 0 at the top
+                // ( 0 + 1) * x1 -> x1
+                // ( 1 + 0) * x1 -> x1 again.. this lost priority. unless it is encoded in the operator the tie.
+                // (isFree() + isSecondary()*2) * (getTime() + 1)
+
+
                 for (int i = 0; i < _oplNumChannels; ++i)
                 {
                     if (_voices[i]->isFree())

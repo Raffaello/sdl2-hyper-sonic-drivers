@@ -16,10 +16,10 @@ namespace drivers
             class OplVoice
             {
             public:
-                OplVoice(const uint8_t slot, const std::unique_ptr<opl::OplWriter>& oplWriter);
+                explicit OplVoice(const uint8_t slot, const std::unique_ptr<opl::OplWriter>& oplWriter);
                 ~OplVoice() = default;
 
-                inline const uint8_t getSlot() const noexcept;
+                inline const uint8_t getSlot() const noexcept { return _slot; }
                 inline const bool isFree() const noexcept { return _free; }
                 inline const bool isSecondary() const noexcept { return _secondary; }
                 inline const uint32_t getTime() const noexcept { return _time; }

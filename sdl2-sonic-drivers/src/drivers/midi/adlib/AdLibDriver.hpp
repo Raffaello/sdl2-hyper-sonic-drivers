@@ -2,7 +2,6 @@
 
 #include <memory>
 #include <cstdint>
-//#include <list>
 
 #include <audio/midi/MIDIEvent.hpp>
 #include <audio/midi/types.hpp>
@@ -38,7 +37,6 @@ namespace drivers
                 uint8_t _oplNumChannels = opl::OPL2_NUM_CHANNELS;
                 std::array<std::unique_ptr<OplChannel>, audio::midi::MIDI_MAX_CHANNELS>  _channels;
                 std::array<std::unique_ptr<OplVoice>, opl::OPL2_NUM_CHANNELS> _voices;
-
                 std::unique_ptr<opl::OplWriter> _oplWriter;
                 uint8_t _playingVoices = 0; // OPL Channels in use
 
@@ -63,7 +61,7 @@ namespace drivers
                     const uint8_t note_, const uint8_t volume,
                     const audio::opl::banks::Op2BankInstrument_t* instrument,
                     const bool secondary, const uint32_t abs_time);
-                
+
                 /// <summary>
                 /// Get a Free OplVoice slot index if available.
                 /// Otherwise it will release the first secondary voice found.
