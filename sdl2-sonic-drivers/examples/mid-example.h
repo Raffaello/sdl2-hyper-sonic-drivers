@@ -43,7 +43,7 @@ void scummvm_mid_test(const OplEmulator emu, const Config::OplType type, const s
         return;
 
     const bool isOpl3 = type == Config::OplType::OPL3;
-    auto midi_device = std::make_shared<drivers::midi::devices::ScummVM>(opl, true);
+    auto midi_device = std::make_shared<drivers::midi::devices::ScummVM>(opl, isOpl3);
     drivers::MIDDriver midDrv(mixer, midi_device);
 
     spdlog::info("playing midi OPL3={}...", isOpl3);
