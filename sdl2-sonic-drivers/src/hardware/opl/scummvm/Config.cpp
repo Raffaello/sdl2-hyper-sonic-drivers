@@ -13,7 +13,7 @@ namespace hardware
     {
         namespace scummvm
         {
-            std::shared_ptr<OPL> Config::create(OplEmulator oplEmulator, OplType type, const std::shared_ptr<audio::scummvm::Mixer> mixer)
+            std::shared_ptr<OPL> Config::create(OplEmulator oplEmulator, OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer)
             {
                 switch (oplEmulator)
                 {

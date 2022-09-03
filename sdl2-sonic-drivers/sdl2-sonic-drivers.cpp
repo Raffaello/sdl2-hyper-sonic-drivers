@@ -32,6 +32,7 @@
 #include <drivers/midi/devices/Native.hpp>
 
 #include <drivers/midi/devices/Adlib.hpp>
+#include <drivers/midi/devices/SbPro.hpp>
 
 
 using namespace std;
@@ -431,7 +432,10 @@ int midi_adlib_mus_op2_file()
     auto musFile = std::make_shared<files::dmx::MUSFile>("test/fixtures/D_E1M1.MUS");
     auto midi = musFile->getMIDI();
     auto adlib_midi = std::make_shared<drivers::midi::devices::Adlib>(opl, op2File->getBank());
+    auto sbpro_midi = std::make_shared<drivers::midi::devices::SbPro>(opl, op2File->getBank());
+    
     drivers::MIDDriver midDrv(mixer, adlib_midi);
+    drivers::MIDDriver midDrv2(mixer, sbpro_midi);
     
     spdlog::info("playing midi D_E1M1.MUS...");
     midDrv.play(midi);
@@ -439,6 +443,10 @@ int midi_adlib_mus_op2_file()
     {
         utils::delayMillis(1000);
     }
+
+    midDrv2.play(midi);
+    while (midDrv.isPlaying())
+        utils::delayMillis(1000);
 
     return 0;
 }
