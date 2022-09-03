@@ -111,5 +111,6 @@ macro_example(
     LINKS ${LIB_SDL2main} sonic-drivers-static
     FIXTURES 
       "../test/fixtures/D_E1M1.MUS"
+      "../test/fixtures/GENMIDI.OP2"
     NONE
 )

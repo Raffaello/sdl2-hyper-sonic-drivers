@@ -9,6 +9,9 @@ namespace drivers
         {
             Opl::Opl(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank, const bool opl3_mode)
             {
+                // TODO: if opl is not opl3 opl3_mode should be force to be false as the "hardware"
+                //       doesn't support opl3 mode.
+                //       This need to take the OPL type from OPL interface.
                 _opl = std::make_shared<drivers::midi::opl::OplDriver>(opl, op2Bank, opl3_mode);
             }
 
