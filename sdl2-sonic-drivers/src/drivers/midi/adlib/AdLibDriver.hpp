@@ -64,7 +64,15 @@ namespace drivers
                     const audio::opl::banks::Op2BankInstrument_t* instrument,
                     const bool secondary, const uint32_t abs_time);
                 
-                int8_t findFreeOplVoiceIndex(const uint8_t flag,  const uint32_t abs_time);
+                /// <summary>
+                /// Get a Free OplVoice slot index if available.
+                /// Otherwise it will release the first secondary voice found.
+                /// Otherwise, if forced, will release the oldest voice.
+                /// </summary>
+                /// <param name="abs_time"></param>
+                /// <param name="force">release the oldest channel if anything else is available</param>
+                /// <returns></returns>
+                int8_t getFreeOplVoiceIndex(const uint32_t abs_time, const bool force);
             };
         }
     }

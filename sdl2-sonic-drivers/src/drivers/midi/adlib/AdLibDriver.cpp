@@ -107,7 +107,8 @@ namespace drivers
 
             void AdLibDriver::noteOn(const uint8_t chan, const uint8_t note, const uint8_t vol, const uint32_t abs_time) noexcept
             {
-                int8_t freeSlot = findFreeOplVoiceIndex((chan == MIDI_PERCUSSION_CHANNEL) ? 2 : 0, abs_time);
+                //int8_t freeSlot = findFreeOplVoiceIndex((chan == MIDI_PERCUSSION_CHANNEL) ? 2 : 0, abs_time);
+                int8_t freeSlot = getFreeOplVoiceIndex(abs_time, chan != MIDI_PERCUSSION_CHANNEL);
 
                 if (freeSlot != -1)
                 {
@@ -292,10 +293,10 @@ namespace drivers
                     if(_voices[i]->isFree())
                         return i;
 
-                if (flag & 1)
+                if (flag & 1) // when flag is 1, never used
                     return -1;  // stop searching if bit 0 is set 
 
-                // find some 2nd-voice channel and determine the oldest
+                // find some 2nd-voice channel and determine the oldest (when flag is 0 and 2)
                 for (i = 0; i < _oplNumChannels; i++)
                 {
                     OplVoice* voice = _voices[i].get();
@@ -308,11 +309,43 @@ namespace drivers
                     }
                 }
 
-                // if possible, kill the oldest channel
+                // if possible, kill the oldest channel (When flag is 0)
                 if (!(flag & 2) && oldest != 255)
                 {
                     return releaseVoice(oldest, true);
                 }
+
+                return -1;
+            }
+
+            int8_t AdLibDriver::getFreeOplVoiceIndex(const uint32_t abs_time, const bool force)
+            {
+                // TODO: instead of a for loop,
+                //       use a queue to keep free channel, so a pop will return it
+                //       so when allocating needs to use a priority queue.
+                for (int i = 0; i < _oplNumChannels; ++i)
+                {
+                    if (_voices[i]->isFree())
+                        return i;
+                }
+
+                uint8_t oldest_i = _oplNumChannels;
+                uint32_t oldest_time = abs_time;
+                for (int i = 0; i < _oplNumChannels; ++i)
+                {
+                    if (_voices[i]->isSecondary())
+                        return releaseVoice(i, true);
+
+                    if (_voices[i]->getTime() < oldest_time)
+                    {
+                        oldest_time = _voices[i]->getTime();
+                        oldest_i = i;
+                    }
+                }
+
+
+                if (force && oldest_i != _oplNumChannels)
+                    return releaseVoice(oldest_i, true);
 
                 return -1;
             }
