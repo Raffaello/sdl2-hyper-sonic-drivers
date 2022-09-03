@@ -39,8 +39,8 @@ namespace drivers
 
                 for (int i = 0; i < _oplNumChannels; ++i) {
                     _voices[i] = std::make_unique<OplVoice>(i, _oplWriter);
-                    //_voiceIndexesFree.push_back(i);
-                    _voiceIndexesFree.insert(i);
+                    _voiceIndexesFree.push_back(i);
+                    //_voiceIndexesFree.insert(i);
                 }
 
                 hardware::opl::TimerCallBack cb = std::bind(&AdLibDriver::onTimer, this);
@@ -102,8 +102,8 @@ namespace drivers
                 for (auto it = _voiceIndexesInUse.begin(); it != _voiceIndexesInUse.end();) {
                     // TODO: this noteOff is masking the voice Release, not nice.
                     if (_voices[*it]->noteOff(chan, note, sustain)) {
-                        //_voiceIndexesFree.push_back(*it);
-                        _voiceIndexesFree.insert(*it);
+                        _voiceIndexesFree.push_back(*it);
+                        //_voiceIndexesFree.insert(*it);
                         it = _voiceIndexesInUse.erase(it);
                     }
                     else
@@ -288,23 +288,10 @@ namespace drivers
             {
                 assert(_voiceIndexesFree.size() + _voiceIndexesInUse.size() == _oplNumChannels);
 
-                spdlog::debug("_voiceIndexesFree.size()={:d} --- _voiceIndexesInUse.size()={:d}", _voiceIndexesFree.size(), _voiceIndexesInUse.size());
-                // TODO: DEBUG, REMOVE AFTER
-                int8_t debug_i = 255;
-                for (int i = 0; i < _oplNumChannels; ++i)
-                {
-                    if (_voices[i]->isFree()) {
-                        debug_i = i;
-                        break;
-                    }
-                }
-                
-                spdlog::debug("debug_i = {:d}", debug_i);
                 if (!_voiceIndexesFree.empty()) {
                     const auto& it = _voiceIndexesFree.begin();
                     const uint8_t i = *it;//_voiceIndexesFree.front();
                     spdlog::debug("debug_i front = {:d}", i);
-                    assert(debug_i == i);
                     //_voiceIndexesFree.pop_front();
                     _voiceIndexesFree.erase(it);
                     _voiceIndexesInUse.push_back(i);
@@ -326,7 +313,7 @@ namespace drivers
                 if(force)
                 {
                     uint8_t i = releaseVoice(_voiceIndexesInUse.front(), true);
-                    _voiceIndexesInUse.erase(_voiceIndexesInUse.begin());
+                    _voiceIndexesInUse.pop_front();
                     //_voiceIndexesFree.push_back(i);
                     //_voiceIndexesFree.insert(i);
                     _voiceIndexesInUse.push_back(i);
