@@ -9,7 +9,7 @@ namespace drivers
         {
             Opl::Opl(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank, const bool opl3_mode)
             {
-                _opl = std::make_shared<drivers::midi::opl::OplDriver>(opl, op2Bank, false);
+                _opl = std::make_shared<drivers::midi::opl::OplDriver>(opl, op2Bank, opl3_mode);
             }
 
             void Opl::sendEvent(const audio::midi::MIDIEvent& e) const noexcept

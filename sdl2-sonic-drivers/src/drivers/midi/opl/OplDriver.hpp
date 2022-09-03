@@ -35,7 +35,7 @@ namespace drivers
                 void send(const audio::midi::MIDIEvent& e) /*const*/ noexcept;
 
             private:
-                const bool _opl3_mode; // TODO: this can be removed maybe
+                const bool _opl3_mode;
                 std::shared_ptr<hardware::opl::OPL> _opl;
                 uint8_t _oplNumChannels = drivers::opl::OPL2_NUM_CHANNELS;
                 std::array<std::unique_ptr<OplChannel>, audio::midi::MIDI_MAX_CHANNELS>  _channels;
