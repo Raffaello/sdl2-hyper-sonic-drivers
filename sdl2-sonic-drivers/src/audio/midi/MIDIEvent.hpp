@@ -14,7 +14,7 @@ namespace audio
         public:
             // TODO build from a message array of 3 or 2 char.
             // TODO review the devices namespace to send only MIDIEvent
-            MIDIEvent() = default;
+            explicit MIDIEvent() = default;
             ~MIDIEvent() = default;
 
             uint32_t delta_time = 0;

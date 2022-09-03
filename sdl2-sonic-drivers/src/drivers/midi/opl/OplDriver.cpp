@@ -19,11 +19,12 @@ namespace drivers
 
             // TODO: allocateVoice and getFreeSlot should be merged into 1 function
 
-            OplDriver::OplDriver(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank) :
-                _opl(opl)
+            OplDriver::OplDriver(const std::shared_ptr<hardware::opl::OPL>& opl,
+                const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank, const bool opl3_mode) :
+                _opl(opl), _opl3_mode(opl3_mode)
             {
                 // TODO: force to be adlib now
-                _oplWriter = std::make_unique<drivers::opl::OplWriter>(_opl, false);
+                _oplWriter = std::make_unique<drivers::opl::OplWriter>(_opl, opl3_mode);
 
                 if (!_oplWriter->init())
                     spdlog::error("[MidiDriver] Can't initialize AdLib Emulator OPL chip.'");
@@ -115,17 +116,16 @@ namespace drivers
 
                 if (freeSlot != -1)
                 {
-                    allocateVoice(freeSlot, chan, note, vol,
-                        _channels[chan]->setInstrument(note), false);
+                    auto instr = _channels[chan]->setInstrument(note);
+                    allocateVoice(freeSlot, chan, note, vol, instr, false);
 
-                    // TODO: OPL3
-                    //if (!OPLsinglevoice && instr->flags == FL_DOUBLE_VOICE)
-                    //{
-                    //    if ((i = findFreeChannel(mus, (channel == PERCUSSION) ? 3 : 1)) != -1)
-                    //        occupyChannel(mus, i, channel, note, volume, instr, 1);
-                    //}
+                    if (instr->flags == OP2BANK_INSTRUMENT_FLAG_DOUBLE_VOICE)
+                    {
+                        freeSlot = getFreeOplVoiceIndex(true);
+                        if (freeSlot != -1)
+                            allocateVoice(freeSlot, chan, note, vol, instr, true);
+                    }
 
-                    //MidiVoice* voice = _voices[chi].get();
                     //spdlog::debug("noteOn note={:d} ({:d}) - vol={:d} ({:d}) - pitch={:d} - ch={:d}", voice->_note, voice->_realnote, /*voice->volume*/ -1, /*voice->realvolume*/ -1, voice->pitch, voice->_channel);
                 }
                 else {
@@ -152,7 +152,8 @@ namespace drivers
                     break;
                 case 10:
                     // Not Available on OPL2/AdLib.
-                    //ctrl_panPosition(chan, value, abs_time);
+                    if(_opl3_mode)
+                        ctrl_panPosition(chan, value);
                     break;
                 case 16:
                     //pitchBendFactor(value);
@@ -278,6 +279,15 @@ namespace drivers
 
             int8_t OplDriver::getFreeOplVoiceIndex(const bool force)
             {
+                // TODO flag = 0, 1, 2, 3 ???  (using 2 bits)
+                // 0 :=> search a free channel, and if not find try to kill a 2nd voice or oldest
+                // 1 :=> search a free channel only.
+                // 2 :=> like 0 but won't kill the oldest channel
+                // 3 :=> is like 1 as it return when bit 0 is 1
+                // -----
+                // used only 0 and 2, so bit 1 only:
+                // it can be a bool !kill_oldest_channel
+
                 assert(_voiceIndexesFree.size() + _voiceIndexesInUse.size() == _oplNumChannels);
 
                 if (!_voiceIndexesFree.empty()) {

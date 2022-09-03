@@ -28,12 +28,14 @@ namespace drivers
             class OplDriver
             {
             public:
-                OplDriver(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank);
+                OplDriver(const std::shared_ptr<hardware::opl::OPL>& opl,
+                    const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank, const bool opl3_mode);
                 ~OplDriver();
 
                 void send(const audio::midi::MIDIEvent& e) /*const*/ noexcept;
 
             private:
+                const bool _opl3_mode;
                 std::shared_ptr<hardware::opl::OPL> _opl;
                 uint8_t _oplNumChannels = drivers::opl::OPL2_NUM_CHANNELS;
                 std::array<std::unique_ptr<OplChannel>, audio::midi::MIDI_MAX_CHANNELS>  _channels;
