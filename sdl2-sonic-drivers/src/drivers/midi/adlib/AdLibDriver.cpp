@@ -1,6 +1,5 @@
 #include <drivers/midi/adlib/AdLibDriver.hpp>
 #include <spdlog/spdlog.h>
-#include<utils/algorithms.hpp>
 #include <cassert>
 #include <algorithm>
 
@@ -13,7 +12,6 @@ namespace drivers
             using audio::midi::MIDI_PERCUSSION_CHANNEL;
             using audio::midi::MIDI_EVENT_TYPES_HIGH;
             using hardware::opl::OPL2instrument_t;
-            using utils::getMillis;
 
             using audio::opl::banks::OP2BANK_INSTRUMENT_FLAG_FIXED_PITCH;
             using audio::opl::banks::OP2BANK_INSTRUMENT_FLAG_DOUBLE_VOICE;
