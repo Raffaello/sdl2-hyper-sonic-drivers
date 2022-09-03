@@ -10,6 +10,10 @@ namespace drivers
     {
         namespace opl
         {
+            /// <summary>
+            /// More than one note can be played at once in one channel.
+            /// It means more than one OplVoice can be associated to OplChannel.
+            /// </summary>
             class OplChannel
             {
             public:

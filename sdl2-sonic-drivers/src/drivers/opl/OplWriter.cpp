@@ -16,6 +16,12 @@ namespace drivers
         {
             // deinit
             stopAll();
+            if (_opl3_mode)
+            {
+                _opl->writeReg(0x105, 0x00);    // disable YMF262/OPL3 mode
+                _opl->writeReg(0x104, 0x00);    // disable 4-operator mode
+            }
+
             _opl->writeReg(0x01, 0x20); // enable Waveform Select
             _opl->writeReg(0x08, 0x00); // turn off CSW mode
             _opl->writeReg(0xBD, 0x00); // set vibrato/tremolo depth to low, set melodic mode

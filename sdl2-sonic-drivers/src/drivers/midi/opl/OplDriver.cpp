@@ -45,8 +45,8 @@ namespace drivers
             OplDriver::~OplDriver()
             {
                 // deinit
-                _oplWriter.reset();
                 _opl->stop();
+                //_opl->reset();
             }
 
             void OplDriver::onTimer()
@@ -266,7 +266,7 @@ namespace drivers
             int OplDriver::allocateVoice(const uint8_t slot, const uint8_t channel,
                 const uint8_t note_, const uint8_t volume,
                 const audio::opl::banks::Op2BankInstrument_t* instrument,
-                const bool secondary/*, const uint32_t abs_time*/)
+                const bool secondary)
             {
                 OplChannel* ch = _channels[channel].get();
 

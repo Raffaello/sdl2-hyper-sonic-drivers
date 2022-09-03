@@ -22,7 +22,7 @@ namespace drivers
         {
             /// <summary>
             /// OPL2 MidiDriver.
-            /// TODO: OPL3 later, then rename to OplDriver
+            /// TODO: OPL3 later
             /// TODO: generalize the OP2Bank in OplBank (interface)
             /// </summary>
             class OplDriver

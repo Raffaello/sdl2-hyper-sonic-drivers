@@ -22,7 +22,11 @@ namespace drivers
                     if (note < 35 || note > 81) {
                         spdlog::error("wrong percussion number {}", note);
                     }
-                    _instrument = _op2Bank->getInstrument(note + (128 - 35));
+
+                    const uint8_t i = note + (128 - 35);
+
+                    _instrument = _op2Bank->getInstrument(i);
+                    spdlog::debug("Percussion {}", _op2Bank->getInstrumentName(i));
                 }
 
                 return &_instrument;
@@ -37,7 +41,7 @@ namespace drivers
                 // NOTE: if program is not changed shouldn't be required to do anything ...
                 _program = program;
                 _instrument = _op2Bank->getInstrument(program);
-                spdlog::debug("program change {} {} ({})", channel, program, _op2Bank->getInstrumentName(program));
+                spdlog::debug("program change {} {} ({})", channel, program, _isPercussion ? "percussion" : _op2Bank->getInstrumentName(program));
             }
         }
     }
