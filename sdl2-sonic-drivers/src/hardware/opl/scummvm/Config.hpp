@@ -45,7 +45,7 @@ namespace hardware
                 /**
                  * Creates the specific driver with a specific type setup.
                  */
-                static std::shared_ptr<OPL> create(OplEmulator oplEmulator, OplType type, const std::shared_ptr<audio::scummvm::Mixer> mixer);
+                static std::shared_ptr<OPL> create(OplEmulator oplEmulator, OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer);
             };
 
         }

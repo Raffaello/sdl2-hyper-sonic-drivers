@@ -28,7 +28,7 @@ namespace drivers
 
         // mixer is not used, but ensuring is initialized
         // if not initialized there are delays otherwise
-        std::shared_ptr<audio::scummvm::Mixer> _mixer;
+        std::shared_ptr<audio::scummvm::Mixer> _mixer; // TODO can be removed
         std::shared_ptr<midi::Device> _device;
 
         std::thread _player;
