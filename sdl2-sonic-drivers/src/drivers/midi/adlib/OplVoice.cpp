@@ -40,34 +40,37 @@ namespace drivers
                 return isChannel(channel) && _free;
             }
 
-            /*inline*/ bool OplVoice::noteOff(const uint8_t channel, const uint8_t note, const uint8_t sustain) noexcept
+            bool OplVoice::noteOff(const uint8_t channel, const uint8_t note, const uint8_t sustain) noexcept
             {
-                if (isChannelBusy(channel) && _note == note)
+                const bool b = isChannelBusy(channel) && _note == note;
+                if (b)
                 {
-                    if (sustain < SUSTAIN_THRESHOLD) {
+                    if (sustain < SUSTAIN_THRESHOLD)
                         release(0);
-                        return true;
-                    }
                     else
                         _sustain = true;
                 }
 
-                return false;
+                return b;
             }
 
-            /*inline*/ void OplVoice::pitchBend(const uint8_t channel, const uint16_t bend, const uint32_t abs_time) noexcept
+            bool OplVoice::pitchBend(const uint8_t channel, const uint16_t bend, const uint32_t abs_time) noexcept
             {
-                if (isChannelBusy(channel))
+                const bool b = isChannelBusy(channel);
+                if (b)
                 {
                     _time = abs_time;
                     _pitch = _finetune + bend;
                     playNote(true);
                 }
+
+                return b;
             }
 
-            /*inline*/ void OplVoice::ctrl_modulationWheel(const uint8_t channel, const uint8_t value, const uint32_t abs_time) noexcept
+            bool OplVoice::ctrl_modulationWheel(const uint8_t channel, const uint8_t value, const uint32_t abs_time) noexcept
             {
-                if (isChannelBusy(channel))
+                const bool b = isChannelBusy(channel);
+                if (b)
                 {
                     _time = abs_time;
                     if (value >= VIBRATO_THRESHOLD)
@@ -84,32 +87,42 @@ namespace drivers
 
                     }
                 }
+
+                return b;
             }
 
-            /*inline*/ void OplVoice::ctrl_volume(const uint8_t channel, const uint8_t value, const uint32_t abs_time) noexcept
+            bool OplVoice::ctrl_volume(const uint8_t channel, const uint8_t value, const uint32_t abs_time) noexcept
             {
-                if (isChannelBusy(channel))
+                const bool b = isChannelBusy(channel);
+                if (b)
                 {
                     _time = abs_time;
                     setRealVolume(value);
                     _oplWriter->writeVolume(_slot, _instr, getRealVolume());
                 }
+
+                return b;
             }
 
-            /*inline*/ void OplVoice::ctrl_panPosition(const uint8_t channel, const uint8_t value, const uint32_t abs_time) noexcept
+            /*inline*/ bool OplVoice::ctrl_panPosition(const uint8_t channel, const uint8_t value, const uint32_t abs_time) noexcept
             {
-                if (isChannelBusy(channel))
+                const bool b = isChannelBusy(channel);
+                if (b)
                 {
                     _time = abs_time;
                     _oplWriter->writePan(_slot, _instr, value);
                 }
+
+                return b;
             }
 
-            /*inline*/ void OplVoice::releaseSustain(const uint8_t channel) noexcept
+            /*inline*/ bool OplVoice::releaseSustain(const uint8_t channel) noexcept
             {
-                if (isChannelBusy(channel) && _sustain) {
+                const bool b = isChannelBusy(channel) && _sustain;
+                if (b)
                     release(false);
-                }
+
+                return b;
             }
 
             void OplVoice::playNote(const bool keyOn) const noexcept

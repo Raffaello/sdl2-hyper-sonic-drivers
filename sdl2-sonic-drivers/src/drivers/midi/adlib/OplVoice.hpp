@@ -28,15 +28,12 @@ namespace drivers
                 inline const bool isChannelBusy(const uint8_t channel) const noexcept;
                 inline const bool isChannelFree(uint8_t channel) const noexcept;
                 
-                /*inline*/ bool noteOff(const uint8_t channel, const uint8_t note, const uint8_t sustain) noexcept;
-
-                /*inline*/ void pitchBend(const uint8_t channel, const uint16_t bend, const uint32_t abs_time) noexcept;
-
-                /*inline*/ void ctrl_modulationWheel(const uint8_t channel, const uint8_t value, const uint32_t abs_time) noexcept;
-                /*inline*/ void ctrl_volume(const uint8_t channel, const uint8_t value, const uint32_t abs_time) noexcept;
-                /*inline*/ void ctrl_panPosition(const uint8_t channel, const uint8_t value, const uint32_t abs_time) noexcept;
-                
-                /*inline*/ void releaseSustain(const uint8_t channel) noexcept;
+                bool noteOff(const uint8_t channel, const uint8_t note, const uint8_t sustain) noexcept;
+                bool pitchBend(const uint8_t channel, const uint16_t bend, const uint32_t abs_time) noexcept;
+                bool ctrl_modulationWheel(const uint8_t channel, const uint8_t value, const uint32_t abs_time) noexcept;
+                bool ctrl_volume(const uint8_t channel, const uint8_t value, const uint32_t abs_time) noexcept;
+                bool ctrl_panPosition(const uint8_t channel, const uint8_t value, const uint32_t abs_time) noexcept;
+                bool releaseSustain(const uint8_t channel) noexcept;
 
                 void playNote(const bool keyOn) const noexcept;
                 /// <summary>

@@ -213,7 +213,7 @@ namespace drivers
                 // OPLPitchWheel
                 _channels[chan]->pitch = static_cast<int8_t>(bend);
 
-                for (const auto& it = _voiceIndexesInUse.begin(); it != _voiceIndexesInUse.end();++it)
+                for (auto it = _voiceIndexesInUse.begin(); it != _voiceIndexesInUse.end();++it)
                     _voices[*it]->pitchBend(chan, bend, abs_time);
             }
 
@@ -222,7 +222,7 @@ namespace drivers
             {
                 _channels[chan]->modulation = value;
 
-                for(const auto& it = _voiceIndexesInUse.begin(); it != _voiceIndexesInUse.end(); ++it)
+                for(auto it = _voiceIndexesInUse.begin(); it != _voiceIndexesInUse.end(); ++it)
                     _voices[*it]->ctrl_modulationWheel(chan, value, abs_time);
             }
 
@@ -231,7 +231,7 @@ namespace drivers
                 //spdlog::debug("volume value {} -ch={}", value, chan);
 
                 _channels[chan]->volume = value;
-                for (const auto& it = _voiceIndexesInUse.begin(); it != _voiceIndexesInUse.end(); ++it)
+                for (auto it = _voiceIndexesInUse.begin(); it != _voiceIndexesInUse.end(); ++it)
                     _voices[*it]->ctrl_volume(chan, value, abs_time);
             }
 
@@ -240,7 +240,7 @@ namespace drivers
                 //spdlog::debug("panPosition value {}", value);
 
                 _channels[chan]->pan = value -= 64;
-                for (const auto& it = _voiceIndexesInUse.begin(); it != _voiceIndexesInUse.end(); ++it)
+                for (auto it = _voiceIndexesInUse.begin(); it != _voiceIndexesInUse.end(); ++it)
                     _voices[*it]->ctrl_panPosition(chan, value, abs_time);
             }
 
@@ -254,7 +254,7 @@ namespace drivers
 
             void AdLibDriver::releaseSustain(const uint8_t channel)
             {
-                for (const auto& it = _voiceIndexesInUse.begin(); it != _voiceIndexesInUse.end(); ++it)
+                for (auto it = _voiceIndexesInUse.begin(); it != _voiceIndexesInUse.end(); ++it)
                     _voices[*it]->releaseSustain(*it);
             }
 
