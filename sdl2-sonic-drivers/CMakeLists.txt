@@ -49,6 +49,7 @@ install(FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/Native.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/ScummVM.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/Adlib.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/SbPro2.hpp
 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/westwood/ADLFile.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/MIDFile.hpp

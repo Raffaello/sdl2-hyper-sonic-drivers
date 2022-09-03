@@ -74,7 +74,7 @@ namespace drivers
                     memcpy(&_partInstrSecondary, &g_gmInstrumentsOPL3[program][1], sizeof(AdLibInstrument));
                 }
 
-                spdlog::debug("Program {} {}", _channel, program);
+                //spdlog::debug("Program {} {}", _channel, program);
             }
 
             void AdLibPart::pitchBend(int16_t bend)
@@ -102,11 +102,11 @@ namespace drivers
                     break;
                 case 1:
                     modulationWheel(value);
-                    spdlog::debug("modwheel value {}", value);
+                    //spdlog::debug("modwheel value {}", value);
                     break;
                 case 7:
                     volume(value);
-                    spdlog::debug("volume value {}", value);
+                    //spdlog::debug("volume value {}", value);
                     break;
                 case 10:
                     panPosition(value);
@@ -258,14 +258,6 @@ namespace drivers
                 }
 
                 if (type == static_cast<uint32_t>('ADL ')) {
-                    memcpy(&_partInstr, instr, sizeof(AdLibInstrument));
-                }
-
-                if (type == static_cast<uint32_t>('OP2 ')) {
-                    // TODO map the op2 instrument to an Adlib instrument
-                    spdlog::warn("OP2 instrument detected, NOT SUPPORTED with ScummVM MidiDrvier_ADLIB");
-                    //const AdLibInstrument* a = reinterpret_cast<const AdLibInstrument*>(instr);
-                    //memcpy((void*)(&(g_gmInstruments[29])), instr, sizeof(AdLibInstrument));
                     memcpy(&_partInstr, instr, sizeof(AdLibInstrument));
                 }
             }

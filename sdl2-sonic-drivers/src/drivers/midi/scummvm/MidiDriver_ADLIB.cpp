@@ -71,7 +71,6 @@ namespace drivers
                 600, 860, 1200, 1600
             };
 
-            // TODO: this table frequencies seems not correct... (compared to muslib freqTable MLOPL.C)
             static const uint8_t g_noteFrequencies[] = {
                 90, 91, 92, 92, 93, 94, 94, 95,
                 96, 96, 97, 98, 98, 99, 100, 101,
@@ -771,7 +770,7 @@ namespace drivers
                     }
                 }
 
-                spdlog::debug("channel {} vol1 {} vol2 {} note {}", voice->_channel, vol1, vol2, note);
+                //spdlog::debug("channel {} vol1 {} vol2 {} note {}", voice->_channel, vol1, vol2, note);
                 adlibSetupChannel(voice->_channel, instr, vol1, vol2);
                 if (!_opl3Mode)
                 {

@@ -12,8 +12,6 @@ namespace files
 {
     namespace dmx
     {
-       
-
         /*
         * NOTE:
         * - The instruments array is mapped to OP2File instruments

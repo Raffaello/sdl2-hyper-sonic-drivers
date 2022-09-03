@@ -46,31 +46,7 @@ namespace drivers
 
             void ScummVM::sendSysEx(const audio::midi::MIDIEvent& e) const noexcept
             {
-                // NOTE: TODO: here is replacing an instrument and it should work but it doesnt.
-                //             it looks like the OP2 format is not compatible with imuse adlib instr format
-                // TODO: Must do a simple MIDI Adlib driver 
-
-                using audio::midi::MIDI_EVENT_TYPES_HIGH;
-                using audio::midi::MIDI_META_EVENT_TYPES_LOW;
-
-                if (static_cast<MIDI_EVENT_TYPES_HIGH>(e.type.high) == MIDI_EVENT_TYPES_HIGH::META_SYSEX &&
-                    static_cast<MIDI_META_EVENT_TYPES_LOW>(e.type.low) == MIDI_META_EVENT_TYPES_LOW::SYS_EX0)
-                {
-                    //if (e.data.size() != (sizeof(uint32_t) + sizeof(OP2File::instrument_t)) {
-                    //    // data size not valid ...
-                    //}
-
-                    // extract sysEx type
-                    uint32_t type = e.data[0] + (e.data[1] << 8) + (e.data[2] << 16) + (e.data[3] << 24);
-                    uint8_t channel = e.data[4];
-                    _adlib->sysEx_customInstrument(channel, type, &(e.data.data()[5]));
-                }
-                else
-                {
-                    // it should not receive a non META SysEx0 message here
-                    spdlog::warn("SysEx received a non META SysEx MIDI event");
-                    return;
-                }
+                //TODO..
             }
         }
     }

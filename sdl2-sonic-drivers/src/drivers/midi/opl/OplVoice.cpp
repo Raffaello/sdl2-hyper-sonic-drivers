@@ -58,9 +58,6 @@ namespace drivers
                     //_time = abs_time;
                     if (value >= VIBRATO_THRESHOLD)
                     {
-                        _vibrato != _vibrato;
-                        _oplWriter->writeModulation(_slot, _instr, _vibrato);
-
                         if (!_vibrato)
                             _oplWriter->writeModulation(_slot, _instr, true);
                         _vibrato = true;
