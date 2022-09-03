@@ -21,8 +21,8 @@ namespace drivers
         namespace opl
         {
             /// <summary>
-            /// OPL2 MidiDriver.
-            /// TODO: OPL3 later
+            /// OPL MidiDriver.
+            /// Support OPL2 and OPL3 modes
             /// TODO: generalize the OP2Bank in OplBank (interface)
             /// </summary>
             class OplDriver
@@ -37,9 +37,11 @@ namespace drivers
             private:
                 const bool _opl3_mode;
                 std::shared_ptr<hardware::opl::OPL> _opl;
-                uint8_t _oplNumChannels = drivers::opl::OPL2_NUM_CHANNELS;
+                uint8_t _oplNumChannels;
                 std::array<std::unique_ptr<OplChannel>, audio::midi::MIDI_MAX_CHANNELS>  _channels;
-                std::array<std::unique_ptr<OplVoice>, drivers::opl::OPL2_NUM_CHANNELS> _voices;
+
+                // TODO: this if is OPL2 should have less
+                std::array<std::unique_ptr<OplVoice>, drivers::opl::OPL3_NUM_CHANNELS> _voices;
                 std::unique_ptr<drivers::opl::OplWriter> _oplWriter;
 
                 std::list<uint8_t> _voiceIndexesInUse;

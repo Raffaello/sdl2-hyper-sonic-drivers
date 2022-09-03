@@ -23,8 +23,8 @@ namespace drivers
                 const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank, const bool opl3_mode) :
                 _opl(opl), _opl3_mode(opl3_mode)
             {
-                // TODO: force to be adlib now
                 _oplWriter = std::make_unique<drivers::opl::OplWriter>(_opl, opl3_mode);
+                _oplNumChannels = opl3_mode ? drivers::opl::OPL3_NUM_CHANNELS : drivers::opl::OPL2_NUM_CHANNELS;
 
                 if (!_oplWriter->init())
                     spdlog::error("[MidiDriver] Can't initialize AdLib Emulator OPL chip.'");
@@ -45,9 +45,7 @@ namespace drivers
 
             OplDriver::~OplDriver()
             {
-                // deinit
                 _opl->stop();
-                //_opl->reset();
             }
 
             void OplDriver::onTimer()
@@ -56,11 +54,6 @@ namespace drivers
 
             void OplDriver::send(const audio::midi::MIDIEvent& e) noexcept
             {
-                // TODO: this one if it was the abs_time computed from delta_time
-                //       was faster and better.
-                // It looks like is not needed anymore.
-                //uint32_t abs_time = getMillis<uint32_t>();
-
                 switch (static_cast<MIDI_EVENT_TYPES_HIGH>(e.type.high))
                 {
                 case MIDI_EVENT_TYPES_HIGH::NOTE_OFF:
@@ -119,7 +112,7 @@ namespace drivers
                     auto instr = _channels[chan]->setInstrument(note);
                     allocateVoice(freeSlot, chan, note, vol, instr, false);
 
-                    if (instr->flags == OP2BANK_INSTRUMENT_FLAG_DOUBLE_VOICE)
+                    if (_opl3_mode && instr->flags == OP2BANK_INSTRUMENT_FLAG_DOUBLE_VOICE)
                     {
                         freeSlot = getFreeOplVoiceIndex(true);
                         if (freeSlot != -1)

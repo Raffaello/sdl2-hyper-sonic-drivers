@@ -11,13 +11,13 @@ namespace drivers
     {
         namespace devices
         {
-            class SbPro : public Opl
+            class SbPro2 : public Opl
             {
             public:
                 // TODO review the constructor and use a load bank instead..
                 // TODO can create its own OPL2 chip, just need the OPL type (DOSBOX,MAME,etc..)
-                SbPro(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank);
-                ~SbPro() = default;
+                SbPro2(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank);
+                ~SbPro2() = default;
 
                 //void loadBankOP2();
             };

@@ -60,10 +60,12 @@ namespace drivers
 
                 uint8_t release(const bool killed) noexcept;
 
-                void setVolumes(const uint8_t channelVolume, const uint8_t volume) noexcept;
-                void setRealVolume(const uint8_t channelVolume) noexcept;
-
-                inline uint8_t getRealVolume() const noexcept;
+                inline void setVolumes(const uint8_t channelVolume, const uint8_t volume) noexcept {
+                    _volume = volume;
+                    setRealVolume(channelVolume);
+                }
+                inline void setRealVolume(const uint8_t channelVolume) noexcept { _realvolume = _calcVolume(channelVolume); }
+                inline uint8_t getRealVolume() const noexcept { return _realvolume; }
 
             private:
                 const uint8_t _slot;                        /* OPL channel number */
@@ -87,7 +89,9 @@ namespace drivers
 
                 const drivers::opl::OplWriter* _oplWriter;
 
-                inline uint8_t _calcVolume(const uint8_t channelVolume) const noexcept;
+                inline uint8_t _calcVolume(const uint8_t channelVolume) const noexcept {
+                    return  std::min<uint8_t>((static_cast<uint32_t>(channelVolume) * _volume) / 127, 127);
+                }
             };
         }
     }
