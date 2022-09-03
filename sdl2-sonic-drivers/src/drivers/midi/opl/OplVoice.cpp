@@ -130,7 +130,7 @@ namespace drivers
             ) noexcept
             {
                 const OPL2instrument_t* instr;
-                uint16_t note = note_;
+                int16_t note = note_;
 
                 _channel = channel;
                 _note = note_;
