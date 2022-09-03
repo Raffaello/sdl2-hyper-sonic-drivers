@@ -1,12 +1,12 @@
 #include <audio/midi/types.hpp>
-#include<drivers/midi/adlib/OplVoice.hpp>
+#include<drivers/midi/opl/OplVoice.hpp>
 #include <hardware/opl/OPL2instrument.h>
 
 namespace drivers
 {
     namespace midi
     {
-        namespace adlib
+        namespace opl
         {
             using hardware::opl::OPL2instrument_t;
 
@@ -20,7 +20,7 @@ namespace drivers
             constexpr int8_t HIGHEST_NOTE = 127;
 
 
-            OplVoice::OplVoice(const uint8_t slot, const std::unique_ptr<opl::OplWriter>& oplWriter) :
+            OplVoice::OplVoice(const uint8_t slot, const std::unique_ptr<drivers::opl::OplWriter>& oplWriter) :
                 _slot(slot), _oplWriter(oplWriter.get())
             {
             }

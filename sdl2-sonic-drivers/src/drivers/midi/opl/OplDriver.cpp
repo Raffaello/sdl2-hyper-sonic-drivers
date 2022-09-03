@@ -1,4 +1,4 @@
-#include <drivers/midi/adlib/AdLibDriver.hpp>
+#include <drivers/midi/opl/OplDriver.hpp>
 #include <spdlog/spdlog.h>
 #include <cassert>
 #include <algorithm>
@@ -7,7 +7,7 @@ namespace drivers
 {
     namespace midi
     {
-        namespace adlib
+        namespace opl
         {
             using audio::midi::MIDI_PERCUSSION_CHANNEL;
             using audio::midi::MIDI_EVENT_TYPES_HIGH;
@@ -19,11 +19,11 @@ namespace drivers
 
             // TODO: allocateVoice and getFreeSlot should be merged into 1 function
 
-            AdLibDriver::AdLibDriver(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank) :
+            OplDriver::OplDriver(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank) :
                 _opl(opl)
             {
                 // TODO: force to be adlib now
-                _oplWriter = std::make_unique<opl::OplWriter>(_opl, false);
+                _oplWriter = std::make_unique<drivers::opl::OplWriter>(_opl, false);
 
                 if (!_oplWriter->init())
                     spdlog::error("[MidiDriver] Can't initialize AdLib Emulator OPL chip.'");
@@ -37,23 +37,23 @@ namespace drivers
                     _voiceIndexesFree.push_back(i);
                 }
 
-                hardware::opl::TimerCallBack cb = std::bind(&AdLibDriver::onTimer, this);
+                hardware::opl::TimerCallBack cb = std::bind(&OplDriver::onTimer, this);
                 auto p = std::make_shared<hardware::opl::TimerCallBack>(cb);
                 _opl->start(p);
             }
 
-            AdLibDriver::~AdLibDriver()
+            OplDriver::~OplDriver()
             {
                 // deinit
-                _oplWriter.reset();
                 _opl->stop();
+                //_opl->reset();
             }
 
-            void AdLibDriver::onTimer()
+            void OplDriver::onTimer()
             {
             }
 
-            void AdLibDriver::send(const audio::midi::MIDIEvent& e) noexcept
+            void OplDriver::send(const audio::midi::MIDIEvent& e) noexcept
             {
                 // TODO: this one if it was the abs_time computed from delta_time
                 //       was faster and better.
@@ -92,7 +92,7 @@ namespace drivers
                 }
             }
 
-            void AdLibDriver::noteOff(const uint8_t chan, const uint8_t note) noexcept
+            void OplDriver::noteOff(const uint8_t chan, const uint8_t note) noexcept
             {
                 uint8_t sustain = _channels[chan]->sustain;
 
@@ -109,7 +109,7 @@ namespace drivers
                 //spdlog::debug("noteOff {} {} ({})", chan, note, _voiceIndexesInUse.size());
             }
 
-            void AdLibDriver::noteOn(const uint8_t chan, const uint8_t note, const uint8_t vol) noexcept
+            void OplDriver::noteOn(const uint8_t chan, const uint8_t note, const uint8_t vol) noexcept
             {
                 int8_t freeSlot = getFreeOplVoiceIndex(chan != MIDI_PERCUSSION_CHANNEL);
 
@@ -133,7 +133,7 @@ namespace drivers
                 }
             }
 
-            void AdLibDriver::controller(const uint8_t chan, const uint8_t control, uint8_t value) noexcept
+            void OplDriver::controller(const uint8_t chan, const uint8_t control, uint8_t value) noexcept
             {
                 // MIDI_EVENT_CONTROLLER_TYPES
                 switch (control)
@@ -200,12 +200,12 @@ namespace drivers
                 }
             }
 
-            void AdLibDriver::programChange(const uint8_t chan, const uint8_t program) const noexcept
+            void OplDriver::programChange(const uint8_t chan, const uint8_t program) const noexcept
             {
                 _channels[chan]->programChange(program);
             }
 
-            void AdLibDriver::pitchBend(const uint8_t chan, const uint16_t bend) const noexcept
+            void OplDriver::pitchBend(const uint8_t chan, const uint16_t bend) const noexcept
             {
                 //spdlog::debug("PITCH_BEND {}", bend);
                 // OPLPitchWheel
@@ -216,7 +216,7 @@ namespace drivers
             }
 
 
-            void AdLibDriver::ctrl_modulationWheel(const uint8_t chan, const uint8_t value) const noexcept
+            void OplDriver::ctrl_modulationWheel(const uint8_t chan, const uint8_t value) const noexcept
             {
                 _channels[chan]->modulation = value;
 
@@ -224,7 +224,7 @@ namespace drivers
                     _voices[*it]->ctrl_modulationWheel(chan, value);
             }
 
-            void AdLibDriver::ctrl_volume(const uint8_t chan, const uint8_t value) const noexcept
+            void OplDriver::ctrl_volume(const uint8_t chan, const uint8_t value) const noexcept
             {
                 //spdlog::debug("volume value {} -ch={}", value, chan);
 
@@ -233,7 +233,7 @@ namespace drivers
                     _voices[*it]->ctrl_volume(chan, value/*, abs_time*/);
             }
 
-            void AdLibDriver::ctrl_panPosition(const uint8_t chan, uint8_t value) const noexcept
+            void OplDriver::ctrl_panPosition(const uint8_t chan, uint8_t value) const noexcept
             {
                 //spdlog::debug("panPosition value {}", value);
 
@@ -242,7 +242,7 @@ namespace drivers
                     _voices[*it]->ctrl_panPosition(chan, value);
             }
 
-            void AdLibDriver::ctrl_sustain(const uint8_t chan, uint8_t value) noexcept
+            void OplDriver::ctrl_sustain(const uint8_t chan, uint8_t value) noexcept
             {
                 //spdlog::debug("sustain value {}", value);
                 _channels[chan]->sustain = value;
@@ -250,23 +250,23 @@ namespace drivers
                     releaseSustain(chan);
             }
 
-            void AdLibDriver::releaseSustain(const uint8_t channel)
+            void OplDriver::releaseSustain(const uint8_t channel)
             {
                 for (auto it = _voiceIndexesInUse.begin(); it != _voiceIndexesInUse.end(); ++it)
                     _voices[*it]->releaseSustain(*it);
             }
 
-            uint8_t AdLibDriver::releaseVoice(const uint8_t slot, const bool killed)
+            uint8_t OplDriver::releaseVoice(const uint8_t slot, const bool killed)
             {
                 assert(slot >= 0 && slot < _oplNumChannels);
 
                 return _voices[slot]->release(killed);
             }
 
-            int AdLibDriver::allocateVoice(const uint8_t slot, const uint8_t channel,
+            int OplDriver::allocateVoice(const uint8_t slot, const uint8_t channel,
                 const uint8_t note_, const uint8_t volume,
                 const audio::opl::banks::Op2BankInstrument_t* instrument,
-                const bool secondary/*, const uint32_t abs_time*/)
+                const bool secondary)
             {
                 OplChannel* ch = _channels[channel].get();
 
@@ -276,7 +276,7 @@ namespace drivers
                 );
             }
 
-            int8_t AdLibDriver::getFreeOplVoiceIndex(const bool force)
+            int8_t OplDriver::getFreeOplVoiceIndex(const bool force)
             {
                 assert(_voiceIndexesFree.size() + _voiceIndexesInUse.size() == _oplNumChannels);
 
