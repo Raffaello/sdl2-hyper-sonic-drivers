@@ -22,6 +22,8 @@ namespace drivers
             // TODO: Track free channel in a duobly linked list, pop when allocate, and everytime a voice free push back
             // TODO: associate the allocated voice to OplChannel for faster retrieval?
 
+            // TODO: the bass track seems quite weak... it should be louder.
+
             AdLibDriver::AdLibDriver(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank) :
                 _opl(opl)
             {
@@ -296,7 +298,7 @@ namespace drivers
 
                 if(force) {
                     uint8_t i = releaseVoice(_voiceIndexesInUse.front(), true);
-                    _voiceIndexesInUse.erase(_voiceIndexesInUse.begin());
+                    _voiceIndexesInUse.pop_front();
                     return i;
                 }
 
