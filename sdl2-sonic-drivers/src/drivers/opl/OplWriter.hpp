@@ -55,7 +55,7 @@ namespace drivers
              */
             void writeInstrument(const uint8_t channel, const hardware::opl::OPL2instrument_t* instr) const noexcept;
 
-            void writeModulation(const uint8_t slot, const hardware::opl::OPL2instrument_t* instr, uint8_t state) const noexcept;
+            void writeModulation(const uint8_t slot, const hardware::opl::OPL2instrument_t* instr, const bool on) const noexcept;
 
             /*
              * Write pan (balance) data to a channel

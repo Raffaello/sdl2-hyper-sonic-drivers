@@ -37,11 +37,7 @@ namespace audio
                 );
                 ~OP2Bank() = default;
 
-                // TODO replace with a shared pointer!!!
-                
-                /*inline Op2BankInstrument_t* getInstrumentPtr(const uint8_t i) const {
-                    return &_instruments.at(i);
-                }*/
+                // TODO replace with a shared pointer
                 Op2BankInstrument_t getInstrument(const uint8_t i) const;
 
                 std::string getInstrumentName(const uint8_t i) const;

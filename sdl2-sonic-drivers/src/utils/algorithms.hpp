@@ -87,7 +87,7 @@ namespace utils
     /// Converts a uint8_t vector to a string.
     /// First value is the string size
     /// </summary>
-    std::string chars_vector_to_string(std::vector<uint8_t>::const_iterator begin, std::vector<uint8_t>::const_iterator end);
+    std::string chars_vector_to_string(const std::vector<uint8_t>::const_iterator& begin, const std::vector<uint8_t>::const_iterator& end);
 
     /// <summary>
     /// wrapper, helper function

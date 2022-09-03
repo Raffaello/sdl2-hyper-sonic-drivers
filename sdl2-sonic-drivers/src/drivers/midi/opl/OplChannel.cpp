@@ -26,7 +26,7 @@ namespace drivers
                     const uint8_t i = note + (128 - 35);
 
                     _instrument = _op2Bank->getInstrument(i);
-                    spdlog::debug("Percussion {}", _op2Bank->getInstrumentName(i));
+                    //spdlog::debug("Percussion {}", _op2Bank->getInstrumentName(i));
                 }
 
                 return &_instrument;

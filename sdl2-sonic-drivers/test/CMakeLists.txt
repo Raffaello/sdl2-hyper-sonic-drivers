@@ -183,6 +183,13 @@ macro_test(
         "fixtures/DUNE.VOC"
 )
 
+macro_test(
+    EXE TestOplVoice
+    FILES "drivers/midi/opl/TestOplVoice.cpp"
+    LINKS_PRIVATE sonic-drivers-static
+    FIXTURES
+)
+
 ##### future tests ###
 macro_test(
     EXE TestIFFFile

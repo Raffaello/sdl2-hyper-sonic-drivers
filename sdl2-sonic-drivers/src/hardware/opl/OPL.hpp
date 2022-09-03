@@ -21,7 +21,7 @@ namespace hardware
             OPL();
             virtual ~OPL();
 
-            bool isInit() const noexcept
+            inline bool isInit() const noexcept
             {
                 return _init;
             }

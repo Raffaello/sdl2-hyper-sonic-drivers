@@ -51,7 +51,6 @@ namespace files
         typedef std::vector<std::pair<audio::midi::MIDIEvent, uint32_t>> VecPairs;
         VecPairs events_pair;
         
-        //std::vector<audio::midi::MIDIEvent> events_;
         uint32_t abs_time = 0;
         // 1. with absolute time just copy all the events as they are into 1 single track
         for (uint16_t n = 0; n < _midi->numTracks; n++)
@@ -60,7 +59,6 @@ namespace files
             for (const auto& te : _midi->getTrack(n).getEvents()) {
                 abs_time += te.delta_time;
                 events_pair.push_back(std::make_pair(te, abs_time));
-                //events_.push_back(te);
             }
         }
 
@@ -79,15 +77,6 @@ namespace files
             }
         );
 
-        /*std::sort(
-            events_.begin(),
-            events_.end(),
-            [](const audio::midi::MIDIEvent& e1, const audio::midi::MIDIEvent& e2)
-            {
-                return e1.abs_time < e2.abs_time;
-            }
-        );*/
-
         // 3. recompute delta time from absolute time
         abs_time = 0;
         for (auto& e : events_pair)
@@ -96,13 +85,6 @@ namespace files
             if (e.second > abs_time)
                 abs_time = e.second;
         }
-        /*abs_time = 0;
-        for (auto& e : events_)
-        {
-            e.delta_time = e.abs_time - abs_time;
-            if (e.abs_time > abs_time)
-                abs_time = e.abs_time;
-        }*/
 
         // 4. extract MIDITrack from events without abs_time
         std::vector<audio::midi::MIDIEvent> events;
@@ -110,28 +92,6 @@ namespace files
             events_pair.end(),
             std::back_inserter(events),
             std::bind(&VecPairs::value_type::first, std::placeholders::_1));
-
-
-        // 5. DEBUG, compare _events with _events
-        /*std::vector<std::pair<audio::midi::MIDIEvent, audio::midi::MIDIEvent>> v3;
-        {
-            auto it1 = events.begin();
-            auto it2 = _events.begin();
-            auto end1 = events.end();
-            auto end2 = _events.end();
-
-            while (it1 != end1 && it2 != end2) {
-                if (it1->abs_time != it2->abs_time) {
-                    v3.push_back(std::make_pair(*it1, *it2));
-                }
-                ++it1;
-                ++it2;
-            }
-
-            if (!v3.empty()) {
-                int ah = !0;
-            }
-        }*/
 
         audio::midi::MIDITrack single_track(events);
         midi->addTrack(single_track);

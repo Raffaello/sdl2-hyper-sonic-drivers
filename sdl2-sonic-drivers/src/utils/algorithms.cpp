@@ -46,7 +46,7 @@ namespace utils
         return i;
     }
 
-    std::string chars_vector_to_string(std::vector<uint8_t>::const_iterator begin, std::vector<uint8_t>::const_iterator end)
+    std::string chars_vector_to_string(const std::vector<uint8_t>::const_iterator& begin, const std::vector<uint8_t>::const_iterator& end)
     {
         std::string str(begin, end);
         str.shrink_to_fit();

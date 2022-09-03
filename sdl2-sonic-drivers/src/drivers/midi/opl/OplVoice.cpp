@@ -24,8 +24,7 @@ namespace drivers
 
             bool OplVoice::noteOff(const uint8_t channel, const uint8_t note, const uint8_t sustain) noexcept
             {
-                const bool b = isChannelBusy(channel) && _note == note;
-                if (b)
+                if (isChannelBusy(channel) && _note == note)
                 {
                     if (sustain < SUSTAIN_THRESHOLD) {
                         release(false);
@@ -59,16 +58,18 @@ namespace drivers
                     //_time = abs_time;
                     if (value >= VIBRATO_THRESHOLD)
                     {
+                        _vibrato != _vibrato;
+                        _oplWriter->writeModulation(_slot, _instr, _vibrato);
+
                         if (!_vibrato)
-                            _oplWriter->writeModulation(_slot, _instr, 1);
+                            _oplWriter->writeModulation(_slot, _instr, true);
                         _vibrato = true;
 
                     }
                     else {
                         if (_vibrato)
-                            _oplWriter->writeModulation(_slot, _instr, 0);
+                            _oplWriter->writeModulation(_slot, _instr, false);
                         _vibrato = false;
-
                     }
                 }
 
@@ -168,7 +169,7 @@ namespace drivers
 
                 _oplWriter->writeInstrument(_slot, _instr);
                 if (_vibrato)
-                    _oplWriter->writeModulation(_slot, _instr, 1);
+                    _oplWriter->writeModulation(_slot, _instr, true);
                 _oplWriter->writePan(_slot, instr, chan_pan);
                 _oplWriter->writeVolume(_slot, instr, getRealVolume());
                 playNote(true);

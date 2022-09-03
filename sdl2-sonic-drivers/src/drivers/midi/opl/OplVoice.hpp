@@ -67,7 +67,7 @@ namespace drivers
                 inline void setRealVolume(const uint8_t channelVolume) noexcept { _realvolume = _calcVolume(channelVolume); }
                 inline uint8_t getRealVolume() const noexcept { return _realvolume; }
 
-            private:
+            protected:
                 const uint8_t _slot;                        /* OPL channel number */
                 
                 uint8_t _volume = 0;                        /* note volume */
