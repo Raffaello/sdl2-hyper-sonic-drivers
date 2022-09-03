@@ -22,7 +22,7 @@ namespace drivers
 {
     namespace westwood
     {
-        ADLDriver::ADLDriver(std::shared_ptr<hardware::opl::OPL> opl, std::shared_ptr<files::westwood::ADLFile> adl_file)
+        ADLDriver::ADLDriver(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<files::westwood::ADLFile>& adl_file)
             : _opl(opl)
         {
             if (!_opl || !_opl->init()) {
@@ -76,7 +76,7 @@ namespace drivers
         {
         }
 
-        void ADLDriver::setADLFile(const std::shared_ptr<files::westwood::ADLFile> adl_file) noexcept
+        void ADLDriver::setADLFile(const std::shared_ptr<files::westwood::ADLFile>& adl_file) noexcept
         {
             const std::lock_guard<std::mutex> lock(_mutex);
 

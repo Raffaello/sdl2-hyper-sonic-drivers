@@ -49,7 +49,7 @@ namespace files
             soundType,
             getFormat().channels == 2,
             getFormat().samplesPerSec,
-            getFormat().bitsPerSample,
+            static_cast<uint8_t>(getFormat().bitsPerSample),
             getDataSize(),
             getData()
         );

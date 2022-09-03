@@ -14,10 +14,12 @@ namespace utils
     constexpr uint32_t MKID_BE(T1 a, T2  b, T3  c, T4  d) { return a | b << 8 | c << 16 | d << 24; }
 
     // TODO replace with std::clamp
+    // @deprecated
     template <class T>
     static inline T CLIP(const T& value, const T& min, const T& max)
     {
-        return value < min ? min : value > max ? max : value;
+        //return value < min ? min : value > max ? max : value;
+        return std::clamp(value, min, max);
     }
 
     /**
@@ -85,7 +87,7 @@ namespace utils
     /// Converts a uint8_t vector to a string.
     /// First value is the string size
     /// </summary>
-    std::string midi_event_to_string(std::vector<uint8_t>::const_iterator begin, std::vector<uint8_t>::const_iterator end);
+    std::string chars_vector_to_string(const std::vector<uint8_t>::const_iterator& begin, const std::vector<uint8_t>::const_iterator& end);
 
     /// <summary>
     /// wrapper, helper function
@@ -93,5 +95,5 @@ namespace utils
     /// </summary>
     /// <param name="e"></param>
     /// <returns></returns>
-    std::string midi_event_to_string(const std::vector<uint8_t>& e);
+    std::string chars_vector_to_string(const std::vector<uint8_t>& e);
 }

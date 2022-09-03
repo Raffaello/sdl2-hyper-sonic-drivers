@@ -11,7 +11,8 @@ namespace audio
         {
         public:
             MIDITrack() = default;
-            MIDITrack(const std::vector<MIDIEvent> events);
+            ~MIDITrack() = default;
+            explicit MIDITrack(const std::vector<MIDIEvent>& events);
             void addEvent(const MIDIEvent& e);
 
             inline const std::vector<MIDIEvent>& getEvents() const noexcept;

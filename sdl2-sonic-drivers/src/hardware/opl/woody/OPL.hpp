@@ -23,6 +23,7 @@ namespace hardware
             public:
                 OPL(const ChipType chip) noexcept;
                 ChipType getChipType() const noexcept;
+                virtual ~OPL() = default;
 
                 virtual void update(int16_t* buf, const int32_t samples) = 0;
                 virtual void write(const int reg, const int val) = 0; // combined register select + data write

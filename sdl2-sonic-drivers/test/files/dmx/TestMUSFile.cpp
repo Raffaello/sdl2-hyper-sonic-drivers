@@ -45,7 +45,6 @@ namespace files
                 auto e1 = te1.at(i);
                 auto e2 = te2.at(i);
                     
-                EXPECT_EQ(e1.abs_time, e2.abs_time);
                 EXPECT_EQ(e1.delta_time, e2.delta_time);
                 EXPECT_EQ(e1.type.val, e2.type.val);
                 ASSERT_EQ(e1.data.size(), e2.data.size());

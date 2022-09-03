@@ -13,9 +13,9 @@ namespace drivers
             Device() = default;
             ~Device() = default;
 
-            virtual inline void sendEvent(const audio::midi::MIDIEvent& e) const noexcept = 0;
-            virtual inline void sendMessage(const uint8_t msg[], const uint8_t size) const noexcept = 0;
-            virtual inline void sendSysEx(const audio::midi::MIDIEvent& e) const noexcept = 0;
+            virtual void sendEvent(const audio::midi::MIDIEvent& e) const noexcept = 0;
+            virtual void sendMessage(const uint8_t msg[], const uint8_t size) const noexcept = 0;
+            virtual void sendSysEx(const audio::midi::MIDIEvent& e) const noexcept = 0;
 
             // DRAFT:
             // TODO use an acquire/release mechanism to be used from the driver

@@ -6,7 +6,7 @@ namespace drivers
     {
         namespace scummvm
         {
-            AdLibInstrument g_gmInstruments[128] = {
+            const AdLibInstrument g_gmInstruments[128] = {
                 // 0x00
                 { 0xC2, 0xC5, 0x2B, 0x99, 0x58, 0xC2, 0x1F, 0x1E, 0xC8, 0x7C, 0x0A, 0, { 0, 0, 0, 0, 0, 0, 0, 0 }, 0, { 0, 0, 0, 0, 0, 0, 0, 0 }, 0x23 },
                 { 0x22, 0x53, 0x0E, 0x8A, 0x30, 0x14, 0x06, 0x1D, 0x7A, 0x5C, 0x06, 0, { 0, 0, 0, 0, 0, 0, 0, 0 }, 0, { 0, 0, 0, 0, 0, 0, 0, 0 }, 0x00 },

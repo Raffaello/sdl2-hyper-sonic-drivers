@@ -62,6 +62,12 @@ macro_test(
 )
 
 macro_test(
+    EXE TestOpl
+    FILES "utils/TestOpl.cpp"
+    LINKS_PRIVATE sonic-drivers-static
+)
+
+macro_test(
     EXE TestPCSpeaker
     FILES "hardware/TestPCSpeaker.cpp"
     LINKS_PRIVATE sonic-drivers-static
@@ -175,6 +181,13 @@ macro_test(
     FIXTURES
         "fixtures/VSCREAM1.VOC"
         "fixtures/DUNE.VOC"
+)
+
+macro_test(
+    EXE TestOplVoice
+    FILES "drivers/midi/opl/TestOplVoice.cpp"
+    LINKS_PRIVATE sonic-drivers-static
+    FIXTURES
 )
 
 ##### future tests ###

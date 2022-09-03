@@ -37,12 +37,12 @@ namespace files
         return _channels;
     }
 
-    const int VOCFile::getSampleRate() const noexcept
+    const uint32_t VOCFile::getSampleRate() const noexcept
     {
         return _sampleRate;
     }
 
-    const int VOCFile::getBitsDepth() const noexcept
+    const uint8_t VOCFile::getBitsDepth() const noexcept
     {
         return _bitsDepth;
     }

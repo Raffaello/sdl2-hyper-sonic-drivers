@@ -25,7 +25,7 @@ namespace hardware
                     void dualWrite(uint8_t index, uint8_t reg, uint8_t val);
 
                 public:
-                    OPL(const std::shared_ptr<audio::scummvm::Mixer> mixer, Config::OplType type);
+                    OPL(const std::shared_ptr<audio::scummvm::Mixer>& mixer, Config::OplType type);
                     ~OPL();
 
                     bool init() override;
@@ -39,7 +39,7 @@ namespace hardware
                     bool isStereo() const override { return true; }
 
                 protected:
-                    void generateSamples(int16_t* buffer, int length);
+                    void generateSamples(int16_t* buffer, int length) override;
                 };
             }
         }

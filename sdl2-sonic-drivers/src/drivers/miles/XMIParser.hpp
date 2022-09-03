@@ -14,7 +14,7 @@ namespace drivers
         class XMIParser
         {
         public:
-            XMIParser(std::shared_ptr<audio::MIDI> midi, std::shared_ptr<audio::scummvm::Mixer> mixer);
+            XMIParser(const std::shared_ptr<audio::MIDI>& midi, const std::shared_ptr<audio::scummvm::Mixer>& mixer);
             virtual ~XMIParser();
 
             //void processTrack(const files::MIDFile::MIDI_track_t& track, const int i);

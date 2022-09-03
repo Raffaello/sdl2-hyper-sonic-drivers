@@ -21,6 +21,10 @@ namespace hardware
             OPL();
             virtual ~OPL();
 
+            inline bool isInit() const noexcept
+            {
+                return _init;
+            }
             /**
              * Initializes the OPL emulator.
              *
@@ -63,7 +67,7 @@ namespace hardware
             /**
              * Start the OPL with callbacks.
              */
-            void start(std::shared_ptr<TimerCallBack> callback, int timerFrequency = DEFAULT_CALLBACK_FREQUENCY);
+            void start(const std::shared_ptr<TimerCallBack>& callback, int timerFrequency = DEFAULT_CALLBACK_FREQUENCY);
 
             /**
              * Stop the OPL
@@ -77,6 +81,7 @@ namespace hardware
             virtual void setCallbackFrequency(int timerFrequency) = 0;
 
         protected:
+            bool _init = false;
             /**
              * Start the callbacks.
              */

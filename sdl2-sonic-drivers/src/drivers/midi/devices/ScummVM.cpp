@@ -9,7 +9,7 @@ namespace drivers
     {
         namespace devices
         {
-            ScummVM::ScummVM(std::shared_ptr<hardware::opl::OPL> opl, const bool opl3mode) : Device()
+            ScummVM::ScummVM(const std::shared_ptr<hardware::opl::OPL>& opl, const bool opl3mode) : Device()
             {
                 _adlib = std::make_shared<drivers::midi::scummvm::MidiDriver_ADLIB>(opl, opl3mode);
                 _adlib->open();
@@ -20,7 +20,7 @@ namespace drivers
                 _adlib->close();
             }
 
-            inline void ScummVM::sendEvent(const audio::midi::MIDIEvent& e) const noexcept
+            void ScummVM::sendEvent(const audio::midi::MIDIEvent& e) const noexcept
             {
                 uint32_t b = e.type.val + (e.data[0]<<8);
                 if (e.data.size() == 2)
@@ -34,7 +34,7 @@ namespace drivers
             /// <param name="msg">Always 3 size, if it is 2 in size, 3rd value must be zero</param>
             /// <param name="size"></param>
             /// <returns></returns>
-            inline void ScummVM::sendMessage(const uint8_t msg[], const uint8_t size) const noexcept
+            void ScummVM::sendMessage(const uint8_t msg[], const uint8_t size) const noexcept
             {
                 assert(size >= 2 && size <= 3);
                 uint32_t b = msg[0] + (msg[1] << 8);

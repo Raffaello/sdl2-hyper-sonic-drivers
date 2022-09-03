@@ -43,7 +43,7 @@ namespace drivers
             };
 #pragma pack(pop)
 
-            extern AdLibInstrument g_gmInstruments[128];
+            extern const AdLibInstrument g_gmInstruments[128];
             extern const AdLibInstrument g_gmPercussionInstruments[39];
             extern const AdLibInstrument g_gmInstrumentsOPL3[128][2];
             extern const AdLibInstrument g_gmPercussionInstrumentsOPL3[39][2];

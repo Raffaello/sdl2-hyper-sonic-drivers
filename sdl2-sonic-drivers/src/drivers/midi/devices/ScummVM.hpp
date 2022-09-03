@@ -21,11 +21,11 @@ namespace drivers
             class ScummVM : public Device
             {
             public:
-                explicit ScummVM(std::shared_ptr<hardware::opl::OPL> opl, const bool opl3mode);
+                explicit ScummVM(const std::shared_ptr<hardware::opl::OPL>& opl, const bool opl3mode);
                 ~ScummVM();
 
-                inline void sendEvent(const audio::midi::MIDIEvent& e) const noexcept override;
-                inline void sendMessage(const uint8_t msg[], const uint8_t size) const noexcept override;
+                void sendEvent(const audio::midi::MIDIEvent& e) const noexcept override;
+                void sendMessage(const uint8_t msg[], const uint8_t size) const noexcept override;
                 void sendSysEx(const audio::midi::MIDIEvent& e) const noexcept override;
 
             private:

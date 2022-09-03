@@ -77,17 +77,11 @@ namespace utils
         )
     );
 
-    TEST(Algorithms, midi_event_to_string)
+    TEST(Algorithms, chars_vector_to_string)
     {
-        std::vector<uint8_t> v{ 4, 'T','E','S','T' };
-        std::string str = utils::midi_event_to_string(v);
+        std::vector<uint8_t> v{ 'T','E','S','T' };
+        std::string str = utils::chars_vector_to_string(v);
         EXPECT_STRCASEEQ(str.c_str(), "TEST");
-    }
-
-    TEST(Algorithms, midi_event_to_string_)
-    {
-        std::vector<uint8_t> v{ 3, 'T','E','S','T' };
-        EXPECT_THROW(utils::midi_event_to_string(v), std::runtime_error);
     }
 
     TEST_P(VLQTest, encode_variable_length_quantities)

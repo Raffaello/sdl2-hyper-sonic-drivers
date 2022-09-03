@@ -19,7 +19,7 @@ namespace drivers
             return std::string(++e.begin(), e.end());
         }
 
-        XMIParser::XMIParser(std::shared_ptr<audio::MIDI> midi, std::shared_ptr<audio::scummvm::Mixer> mixer)
+        XMIParser::XMIParser(const std::shared_ptr<audio::MIDI>& midi, const std::shared_ptr<audio::scummvm::Mixer>& mixer)
             : _midi(midi), _mixer(mixer), tempo(0)
         {
         }

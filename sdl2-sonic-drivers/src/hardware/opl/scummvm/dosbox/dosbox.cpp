@@ -132,9 +132,10 @@ namespace hardware
                     return ret;
                 }
 
-                OPL::OPL(const std::shared_ptr<audio::scummvm::Mixer> mixer, Config::OplType type)
+                OPL::OPL(const std::shared_ptr<audio::scummvm::Mixer>& mixer, Config::OplType type)
                     : EmulatedOPL(mixer), _type(type), _rate(0), _emulator(nullptr), _reg({ 0 })
-                {}
+                {
+                }
                
                 OPL::~OPL()
                 {
@@ -150,6 +151,7 @@ namespace hardware
 
                 bool OPL::init()
                 {
+                    _init = false;
                     free();
 
                     memset(&_reg, 0, sizeof(_reg));
@@ -168,6 +170,7 @@ namespace hardware
                         _emulator->WriteReg(0x105, 1);
                     }
 
+                    _init = true;
                     return true;
                 }
 

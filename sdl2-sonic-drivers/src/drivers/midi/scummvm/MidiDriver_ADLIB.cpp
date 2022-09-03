@@ -1,11 +1,11 @@
 #include <drivers/midi/scummvm/MidiDriver_ADLIB.hpp>
 #include <drivers/midi/scummvm/AdLibPart.hpp>
 
-
 #include <utils/algorithms.hpp>
 #include <spdlog/spdlog.h>
 #include <cassert>
 #include <audio/midi/types.hpp>
+
 
 namespace drivers
 {
@@ -93,7 +93,7 @@ namespace drivers
                 242, 243, 245, 247, 249, 251, 252, 254
             };
 
-            MidiDriver_ADLIB::MidiDriver_ADLIB(std::shared_ptr<hardware::opl::OPL> opl, const bool opl3mode)
+            MidiDriver_ADLIB::MidiDriver_ADLIB(const std::shared_ptr<hardware::opl::OPL>& opl, const bool opl3mode)
                 : _opl3Mode(opl3mode), _opl(opl)
             {
                 unsigned int i;
@@ -198,9 +198,11 @@ namespace drivers
                 switch (static_cast<MIDI_EVENT_TYPES_HIGH>(cmd.high)) {
                 case MIDI_EVENT_TYPES_HIGH::NOTE_OFF:// Note Off
                     part->noteOff(param1);
+                    spdlog::debug("noteOff {} {}", chan, param1);
                     break;
                 case MIDI_EVENT_TYPES_HIGH::NOTE_ON: // Note On
                     part->noteOn(param1, param2);
+                    spdlog::debug("noteOn {} {}", param1, param2);
                     break;
                 case MIDI_EVENT_TYPES_HIGH::AFTERTOUCH: // Aftertouch
                     break; // Not supported.
@@ -769,6 +771,7 @@ namespace drivers
                     }
                 }
 
+                spdlog::debug("channel {} vol1 {} vol2 {} note {}", voice->_channel, vol1, vol2, note);
                 adlibSetupChannel(voice->_channel, instr, vol1, vol2);
                 if (!_opl3Mode)
                 {

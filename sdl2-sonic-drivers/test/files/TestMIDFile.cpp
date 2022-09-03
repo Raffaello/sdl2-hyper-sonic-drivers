@@ -46,29 +46,27 @@ namespace files
 
         // absolute time checks
         auto t = m->getTrack(0);
-        EXPECT_EQ(t.getEvents()[0].abs_time, 0);
         EXPECT_EQ(t.getEvents()[0].delta_time, 0);
         
         t = m->getTrack(1);
-        EXPECT_EQ(t.getEvents()[0].abs_time, 0);
-        EXPECT_EQ(t.getEvents()[1].abs_time, 120);
-        EXPECT_EQ(t.getEvents()[2].abs_time, 120);
-        EXPECT_EQ(t.getEvents()[3].abs_time, 240);
+        EXPECT_EQ(t.getEvents()[0].delta_time, 0);
+        EXPECT_EQ(t.getEvents()[1].delta_time, 120);
+        EXPECT_EQ(t.getEvents()[2].delta_time, 0);
+        EXPECT_EQ(t.getEvents()[3].delta_time, 120);
         // ... 
-        EXPECT_EQ(t.getEvents()[28].abs_time, 1920);
+        EXPECT_EQ(t.getEvents()[28].delta_time, /*1920*/ 0);
 
         t = m->getTrack(2);
-        EXPECT_EQ(t.getEvents()[0].abs_time, 0);
-        EXPECT_EQ(t.getEvents()[1].abs_time, 120);
-        EXPECT_EQ(t.getEvents()[2].abs_time, 120);
-        EXPECT_EQ(t.getEvents()[3].abs_time, 240);
+        EXPECT_EQ(t.getEvents()[0].delta_time, 0);
+        EXPECT_EQ(t.getEvents()[1].delta_time, 120);
+        EXPECT_EQ(t.getEvents()[2].delta_time, 0);
+        EXPECT_EQ(t.getEvents()[3].delta_time, 120);
         // ... 
-        EXPECT_EQ(t.getEvents()[30].abs_time, 1920);
+        EXPECT_EQ(t.getEvents()[30].delta_time, /*1920*/ 0);
     }
 
-    void cmp_midievent(const int i, const audio::midi::MIDIEvent& e, const uint32_t exp_abs_time, const uint32_t exp_delta_time)
+    void cmp_midievent(const int i, const audio::midi::MIDIEvent& e, const uint32_t exp_delta_time)
     {
-        EXPECT_EQ(e.abs_time, exp_abs_time) << "index: " << i;
         EXPECT_EQ(e.delta_time, exp_delta_time) << "index: " << i;
     }
 
@@ -84,12 +82,12 @@ namespace files
         EXPECT_EQ(m->division, 120);
         EXPECT_EQ(m->getTrack(0).getEvents().size(), 1 + 29 + 31);
         
-        const std::array<uint32_t, 61> exp_abs_times = {
+        /*const std::array<uint32_t, 61> exp_abs_times = {
             0, 0, 0, 120, 120, 120, 120, 240, 240, 240, 240, 360, 360, 360,
             360, 480, 480, 480, 480, 600, 600, 600, 600, 720, 720, 720, 720, 840, 840,
             960,  960, 960, 960, 1080, 1080, 1080, 1080, 1200,1200,1200,1200,1320,1320,
             1320,1320,1440,1440,1440,1440,1560,1560,1560,1560,1680,1680,1680,1680,1920,
-            1920,1920,1920 };
+            1920,1920,1920 };*/
 
         const std::array<uint32_t, 1 + 29 + 31> exp_delta_times = {
             0,0,0,     // 2
@@ -137,7 +135,7 @@ namespace files
         auto t = m->getTrack(0);
 
         for (int i = 0; i < 61; i++) {
-            cmp_midievent(i, t.getEvents()[i], exp_abs_times[i], exp_delta_times[i]);
+            cmp_midievent(i, t.getEvents()[i], exp_delta_times[i]);
         }
     }
 }

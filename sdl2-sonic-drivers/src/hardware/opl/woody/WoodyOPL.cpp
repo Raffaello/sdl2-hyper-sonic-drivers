@@ -8,7 +8,7 @@ namespace hardware
     {
         namespace woody
         {
-            WoodyOPL::WoodyOPL(const std::shared_ptr<audio::scummvm::Mixer> mixer, const bool surround)
+            WoodyOPL::WoodyOPL(const std::shared_ptr<audio::scummvm::Mixer>& mixer, const bool surround)
                 : EmulatedOPL(mixer), _opl(nullptr), _surround(surround)
             {
             }
@@ -29,7 +29,8 @@ namespace hardware
                     _opl = new WoodyEmuOPL(_mixer->getOutputRate(), false);
                 }
 
-                if (_opl == nullptr)
+                _init = _opl != nullptr;
+                if (!_init)
                     return false;
 
                 _opl->init();

@@ -11,7 +11,7 @@ namespace hardware
         {
             namespace nuked
             {
-                OPL::OPL(const std::shared_ptr<audio::scummvm::Mixer> mixer, Config::OplType type)
+                OPL::OPL(const std::shared_ptr<audio::scummvm::Mixer>& mixer, Config::OplType type)
                     : EmulatedOPL(mixer),
                     _type(type), _rate(0)
                 {
@@ -25,6 +25,7 @@ namespace hardware
 
                 bool OPL::init()
                 {
+                    address[0] = address[1] = 0;
                     _rate = _mixer->getOutputRate();
                     OPL3_Reset(chip.get(), _rate);
 
@@ -32,7 +33,8 @@ namespace hardware
                         OPL3_WriteReg(chip.get(), 0x105, 0x01);
                     }
 
-                    return true;
+                    _init = true;
+                    return _init;
                 }
 
                 void OPL::reset()
@@ -117,7 +119,7 @@ namespace hardware
 
                 uint8_t OPL::read(int port)
                 {
-                    return 0;
+                    return address[port & 1];
                 }
 
                 void OPL::generateSamples(int16_t* buffer, int length) {

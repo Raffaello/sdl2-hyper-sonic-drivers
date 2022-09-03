@@ -24,9 +24,9 @@ namespace drivers
                 explicit Native(const int port = 0);
                 virtual ~Native() = default;
 
-                inline void sendEvent(const audio::midi::MIDIEvent& e) const noexcept override;
-                inline void sendMessage(const uint8_t msg[], const uint8_t size) const noexcept override;
-                inline void sendSysEx(const audio::midi::MIDIEvent& e) const noexcept override;
+                void sendEvent(const audio::midi::MIDIEvent& e) const noexcept override;
+                void sendMessage(const uint8_t msg[], const uint8_t size) const noexcept override;
+                void sendSysEx(const audio::midi::MIDIEvent& e) const noexcept override;
 
             private:
                 std::shared_ptr<RtMidiOut> _midiout;

@@ -14,10 +14,10 @@ namespace drivers
     class MIDDriver
     {
     public:
-        explicit MIDDriver(std::shared_ptr<audio::scummvm::Mixer> mixer, std::shared_ptr<midi::Device> device);
+        explicit MIDDriver(const std::shared_ptr<audio::scummvm::Mixer>& mixer, const std::shared_ptr<midi::Device>& device);
         ~MIDDriver();
         // TODO need to be async
-        void play(const std::shared_ptr<audio::MIDI> midi) noexcept;
+        void play(const std::shared_ptr<audio::MIDI>& midi) noexcept;
         void stop() noexcept;
         void pause() noexcept;
         void resume() noexcept;
@@ -28,7 +28,7 @@ namespace drivers
 
         // mixer is not used, but ensuring is initialized
         // if not initialized there are delays otherwise
-        std::shared_ptr<audio::scummvm::Mixer> _mixer;
+        std::shared_ptr<audio::scummvm::Mixer> _mixer; // TODO can be removed
         std::shared_ptr<midi::Device> _device;
 
         std::thread _player;
