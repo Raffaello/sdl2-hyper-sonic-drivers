@@ -9,14 +9,14 @@ namespace drivers
 {
     namespace midi
     {
-        namespace adlib
+        namespace opl
         {
             constexpr int SUSTAIN_THRESHOLD = 64;
 
             class OplVoice
             {
             public:
-                explicit OplVoice(const uint8_t slot, const std::unique_ptr<opl::OplWriter>& oplWriter);
+                explicit OplVoice(const uint8_t slot, const std::unique_ptr<drivers::opl::OplWriter>& oplWriter);
                 ~OplVoice() = default;
 
                 inline const uint8_t getSlot() const noexcept { return _slot; }
@@ -85,7 +85,7 @@ namespace drivers
                 bool _sustain = false;
                 bool _vibrato = false;
 
-                const opl::OplWriter* _oplWriter;
+                const drivers::opl::OplWriter* _oplWriter;
 
                 inline uint8_t _calcVolume(const uint8_t channelVolume) const noexcept;
             };

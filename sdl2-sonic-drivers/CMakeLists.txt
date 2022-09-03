@@ -134,9 +134,9 @@ target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/scummvm/MidiDriver_ADLIB.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/ScummVM.cpp
 
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/adlib/AdLibDriver.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/adlib/OplChannel.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/adlib/OplVoice.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/opl/OplDriver.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/opl/OplChannel.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/opl/OplVoice.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/Adlib.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/opl/OplWriter.cpp
     # --- #

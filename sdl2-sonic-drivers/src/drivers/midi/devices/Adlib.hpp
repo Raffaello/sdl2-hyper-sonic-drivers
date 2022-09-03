@@ -3,7 +3,7 @@
 #include <drivers/midi/Device.hpp>
 #include <memory>
 #include <hardware/opl/OPL.hpp>
-#include <drivers/midi/adlib/AdLibDriver.hpp>
+#include <drivers/midi/opl/OplDriver.hpp>
 #include <audio/midi/MIDIEvent.hpp>
 #include <audio/opl/banks/OP2Bank.hpp>
 
@@ -16,7 +16,7 @@ namespace drivers
             class Adlib : public Device
             {
             public:
-                // TOOD review the constructor and use a load bank instead..
+                // TODO review the constructor and use a load bank instead..
                 Adlib(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank);
                 ~Adlib() = default;
 
@@ -26,7 +26,7 @@ namespace drivers
                 
                 //void loadBankOP2();
             private:
-                std::shared_ptr<drivers::midi::adlib::AdLibDriver> _adlib;
+                std::shared_ptr<drivers::midi::opl::OplDriver> _adlib;
             };
         }
     }

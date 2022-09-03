@@ -7,8 +7,8 @@
 #include <audio/midi/MIDIEvent.hpp>
 #include <audio/midi/types.hpp>
 #include <audio/opl/banks/OP2Bank.hpp>
-#include <drivers/midi/adlib/OplChannel.hpp>
-#include <drivers/midi/adlib/OplVoice.hpp>
+#include <drivers/midi/opl/OplChannel.hpp>
+#include <drivers/midi/opl/OplVoice.hpp>
 #include <drivers/opl/OplWriter.hpp>
 #include <hardware/opl/OPL.hpp>
 #include <hardware/opl/OPL2instrument.h>
@@ -18,27 +18,27 @@ namespace drivers
 {
     namespace midi
     {
-        namespace adlib
+        namespace opl
         {
             /// <summary>
             /// OPL2 MidiDriver.
             /// TODO: OPL3 later, then rename to OplDriver
             /// TODO: generalize the OP2Bank in OplBank (interface)
             /// </summary>
-            class AdLibDriver
+            class OplDriver
             {
             public:
-                AdLibDriver(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank);
-                ~AdLibDriver();
+                OplDriver(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank);
+                ~OplDriver();
 
                 void send(const audio::midi::MIDIEvent& e) /*const*/ noexcept;
 
             private:
                 std::shared_ptr<hardware::opl::OPL> _opl;
-                uint8_t _oplNumChannels = opl::OPL2_NUM_CHANNELS;
+                uint8_t _oplNumChannels = drivers::opl::OPL2_NUM_CHANNELS;
                 std::array<std::unique_ptr<OplChannel>, audio::midi::MIDI_MAX_CHANNELS>  _channels;
-                std::array<std::unique_ptr<OplVoice>, opl::OPL2_NUM_CHANNELS> _voices;
-                std::unique_ptr<opl::OplWriter> _oplWriter;
+                std::array<std::unique_ptr<OplVoice>, drivers::opl::OPL2_NUM_CHANNELS> _voices;
+                std::unique_ptr<drivers::opl::OplWriter> _oplWriter;
 
                 std::list<uint8_t> _voiceIndexesInUse;
                 std::list<uint8_t> _voiceIndexesFree;

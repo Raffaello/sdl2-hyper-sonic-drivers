@@ -8,7 +8,7 @@ namespace drivers
 {
     namespace midi
     {
-        namespace adlib
+        namespace opl
         {
             class OplChannel
             {

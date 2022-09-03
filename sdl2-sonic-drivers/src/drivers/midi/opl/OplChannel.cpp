@@ -1,12 +1,12 @@
 #include <audio/midi/types.hpp>
-#include <drivers/midi/adlib/OplChannel.hpp>
+#include <drivers/midi/opl/OplChannel.hpp>
 #include <spdlog/spdlog.h>
 
 namespace drivers
 {
     namespace midi
     {
-        namespace adlib
+        namespace opl
         {
             using audio::midi::MIDI_PERCUSSION_CHANNEL;
 
