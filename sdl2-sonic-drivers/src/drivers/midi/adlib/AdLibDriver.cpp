@@ -39,7 +39,8 @@ namespace drivers
 
                 for (int i = 0; i < _oplNumChannels; ++i) {
                     _voices[i] = std::make_unique<OplVoice>(i, _oplWriter);
-                    _voiceIndexesFree.push_back(i);
+                    //_voiceIndexesFree.push_back(i);
+                    _voiceIndexesFree.insert(i);
                 }
 
                 hardware::opl::TimerCallBack cb = std::bind(&AdLibDriver::onTimer, this);
@@ -101,14 +102,15 @@ namespace drivers
                 for (auto it = _voiceIndexesInUse.begin(); it != _voiceIndexesInUse.end();) {
                     // TODO: this noteOff is masking the voice Release, not nice.
                     if (_voices[*it]->noteOff(chan, note, sustain)) {
-                        _voiceIndexesFree.push_back(*it);
+                        //_voiceIndexesFree.push_back(*it);
+                        _voiceIndexesFree.insert(*it);
                         it = _voiceIndexesInUse.erase(it);
                     }
                     else
                         ++it;
                 }
 
-                spdlog::debug("noteOff {} {} ({})", chan, note, --_playingVoices);
+                //spdlog::debug("noteOff {} {} ({})", chan, note, --_playingVoices);
             }
 
             void AdLibDriver::noteOn(const uint8_t chan, const uint8_t note, const uint8_t vol, const uint32_t abs_time) noexcept
@@ -132,7 +134,7 @@ namespace drivers
                     //spdlog::debug("noteOn note={:d} ({:d}) - vol={:d} ({:d}) - pitch={:d} - ch={:d}", voice->_note, voice->_realnote, /*voice->volume*/ -1, /*voice->realvolume*/ -1, voice->pitch, voice->_channel);
                 }
                 else {
-                    spdlog::critical("NO FREE CHANNEL? midi-ch={} - playingChannels={}", chan, _playingVoices);
+                    spdlog::critical("NO FREE CHANNEL? midi-ch={} - playingVoices={}", chan, _playingVoices);
                 }
             }
 
@@ -148,7 +150,7 @@ namespace drivers
                     break;
                 case 1:
                     ctrl_modulationWheel(chan, value, abs_time);
-                    spdlog::debug("modwheel value {}", value);
+                    //spdlog::debug("modwheel value {}", value);
                     break;
                 case 7:
                     ctrl_volume(chan, value, abs_time);
@@ -195,7 +197,7 @@ namespace drivers
                     //sustain(false);
                     break;
                 case 123:
-                    spdlog::debug("all notes off");
+                    //spdlog::debug("all notes off");
                     _oplWriter->stopAll();
                     break;
                 default:
@@ -210,7 +212,7 @@ namespace drivers
 
             void AdLibDriver::pitchBend(const uint8_t chan, const uint16_t bend, const uint32_t abs_time) const noexcept
             {
-                spdlog::debug("PITCH_BEND {}", bend);
+                //spdlog::debug("PITCH_BEND {}", bend);
                 // OPLPitchWheel
                 _channels[chan]->pitch = static_cast<int8_t>(bend);
 
@@ -229,7 +231,7 @@ namespace drivers
 
             void AdLibDriver::ctrl_volume(const uint8_t chan, const uint8_t value, const uint32_t abs_time) const noexcept
             {
-                spdlog::debug("volume value {} -ch={}", value, chan);
+                //spdlog::debug("volume value {} -ch={}", value, chan);
 
                 _channels[chan]->volume = value;
                 for (auto& it = _voiceIndexesInUse.begin(); it != _voiceIndexesInUse.end(); ++it)
@@ -238,7 +240,7 @@ namespace drivers
 
             void AdLibDriver::ctrl_panPosition(const uint8_t chan, uint8_t value, const uint32_t abs_time) const noexcept
             {
-                spdlog::debug("panPosition value {}", value);
+                //spdlog::debug("panPosition value {}", value);
 
                 _channels[chan]->pan = value -= 64;
                 for (auto& it = _voiceIndexesInUse.begin(); it != _voiceIndexesInUse.end(); ++it)
@@ -247,7 +249,7 @@ namespace drivers
 
             void AdLibDriver::ctrl_sustain(const uint8_t chan, uint8_t value) noexcept
             {
-                spdlog::debug("sustain value {}", value);
+                //spdlog::debug("sustain value {}", value);
                 _channels[chan]->sustain = value;
                 if (value < SUSTAIN_THRESHOLD)
                     releaseSustain(chan);
@@ -286,9 +288,25 @@ namespace drivers
             {
                 assert(_voiceIndexesFree.size() + _voiceIndexesInUse.size() == _oplNumChannels);
 
+                spdlog::debug("_voiceIndexesFree.size()={:d} --- _voiceIndexesInUse.size()={:d}", _voiceIndexesFree.size(), _voiceIndexesInUse.size());
+                // TODO: DEBUG, REMOVE AFTER
+                int8_t debug_i = 255;
+                for (int i = 0; i < _oplNumChannels; ++i)
+                {
+                    if (_voices[i]->isFree()) {
+                        debug_i = i;
+                        break;
+                    }
+                }
+                
+                spdlog::debug("debug_i = {:d}", debug_i);
                 if (!_voiceIndexesFree.empty()) {
-                    const uint8_t i = _voiceIndexesFree.front();
-                    _voiceIndexesFree.pop_front();
+                    const auto& it = _voiceIndexesFree.begin();
+                    const uint8_t i = *it;//_voiceIndexesFree.front();
+                    spdlog::debug("debug_i front = {:d}", i);
+                    assert(debug_i == i);
+                    //_voiceIndexesFree.pop_front();
+                    _voiceIndexesFree.erase(it);
                     _voiceIndexesInUse.push_back(i);
                     return i;
                 }
@@ -298,7 +316,9 @@ namespace drivers
                     if (_voices[*it]->isSecondary()) {
                         uint8_t i = releaseVoice(*it, true);
                         _voiceIndexesInUse.erase(it);
-                        _voiceIndexesFree.push_back(i);
+                        //_voiceIndexesFree.push_back(i);
+                        //_voiceIndexesFree.insert(i);
+                        _voiceIndexesInUse.push_back(i);
                         return i;
                     }
                 }
@@ -307,7 +327,9 @@ namespace drivers
                 {
                     uint8_t i = releaseVoice(_voiceIndexesInUse.front(), true);
                     _voiceIndexesInUse.erase(_voiceIndexesInUse.begin());
-                    _voiceIndexesFree.push_back(i);
+                    //_voiceIndexesFree.push_back(i);
+                    //_voiceIndexesFree.insert(i);
+                    _voiceIndexesInUse.push_back(i);
                     return i;
                 }
 
