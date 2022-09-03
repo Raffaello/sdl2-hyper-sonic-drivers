@@ -41,19 +41,19 @@ namespace drivers
                 std::unique_ptr<opl::OplWriter> _oplWriter;
 
                 std::list<uint8_t> _voiceIndexesInUse;
-                std::list<uint8_t> _voiceIndexesFree;     // TODO: is there a way to have only 1 list to do both instead?
+                std::list<uint8_t> _voiceIndexesFree;
 
                 // MIDI Events
                 void noteOff(const uint8_t chan, const uint8_t note) noexcept;
-                void noteOn(const uint8_t chan, const uint8_t note, const uint8_t vol, const uint32_t abs_time) noexcept;
-                void controller(const uint8_t chan, const uint8_t ctrl, uint8_t value, const uint32_t abs_time) noexcept;
+                void noteOn(const uint8_t chan, const uint8_t note, const uint8_t vol/*, const uint32_t abs_time*/) noexcept;
+                void controller(const uint8_t chan, const uint8_t ctrl, uint8_t value/*, const uint32_t abs_time*/) noexcept;
                 void programChange(const uint8_t chan, const uint8_t program) const noexcept;
-                void pitchBend(const uint8_t chan, const uint16_t bend, const uint32_t abs_time) const noexcept;
+                void pitchBend(const uint8_t chan, const uint16_t bend/*, const uint32_t abs_time*/) const noexcept;
 
                 // MIDI Controller Events
-                void ctrl_modulationWheel(const uint8_t chan, const uint8_t value, const uint32_t abs_time) const noexcept;
-                void ctrl_volume(const uint8_t chan, const uint8_t value, const uint32_t abs_time) const noexcept;
-                void ctrl_panPosition(const uint8_t chan, uint8_t value, const uint32_t abs_time) const noexcept;
+                void ctrl_modulationWheel(const uint8_t chan, const uint8_t value/*, const uint32_t abs_time*/) const noexcept;
+                void ctrl_volume(const uint8_t chan, const uint8_t value/*, const uint32_t abs_time*/) const noexcept;
+                void ctrl_panPosition(const uint8_t chan, uint8_t value/*, const uint32_t abs_time*/) const noexcept;
                 void ctrl_sustain(const uint8_t chan, uint8_t value) noexcept;
 
                 void onTimer();
@@ -63,7 +63,7 @@ namespace drivers
                 int allocateVoice(const uint8_t slot, const uint8_t channel,
                     const uint8_t note_, const uint8_t volume,
                     const audio::opl::banks::Op2BankInstrument_t* instrument,
-                    const bool secondary, const uint32_t abs_time);
+                    const bool secondary/*, const uint32_t abs_time*/);
 
                 /// <summary>
                 /// Get a Free OplVoice slot index if available.
@@ -73,7 +73,7 @@ namespace drivers
                 /// <param name="abs_time"></param>
                 /// <param name="force">release the oldest channel if anything else is available</param>
                 /// <returns></returns>
-                int8_t getFreeOplVoiceIndex(const uint32_t abs_time, const bool force);
+                int8_t getFreeOplVoiceIndex(const bool force);
             };
         }
     }
