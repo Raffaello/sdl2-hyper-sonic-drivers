@@ -3,7 +3,6 @@
 #include <memory>
 #include <cstdint>
 #include <list>
-//#include <set>
 
 #include <audio/midi/MIDIEvent.hpp>
 #include <audio/midi/types.hpp>
@@ -40,11 +39,9 @@ namespace drivers
                 std::array<std::unique_ptr<OplChannel>, audio::midi::MIDI_MAX_CHANNELS>  _channels;
                 std::array<std::unique_ptr<OplVoice>, opl::OPL2_NUM_CHANNELS> _voices;
                 std::unique_ptr<opl::OplWriter> _oplWriter;
-                uint8_t _playingVoices = 0; // OPL Channels in use, useless
 
                 std::list<uint8_t> _voiceIndexesInUse;
                 std::list<uint8_t> _voiceIndexesFree;     // TODO: is there a way to have only 1 list to do both instead?
-                //std::set<uint8_t> _voiceIndexesFree;     // TODO: is there a way to have only 1 list to do both instead?
 
                 // MIDI Events
                 void noteOff(const uint8_t chan, const uint8_t note) noexcept;

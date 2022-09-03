@@ -40,7 +40,6 @@ namespace drivers
                 for (int i = 0; i < _oplNumChannels; ++i) {
                     _voices[i] = std::make_unique<OplVoice>(i, _oplWriter);
                     _voiceIndexesFree.push_back(i);
-                    //_voiceIndexesFree.insert(i);
                 }
 
                 hardware::opl::TimerCallBack cb = std::bind(&AdLibDriver::onTimer, this);
@@ -103,7 +102,6 @@ namespace drivers
                     // TODO: this noteOff is masking the voice Release, not nice.
                     if (_voices[*it]->noteOff(chan, note, sustain)) {
                         _voiceIndexesFree.push_back(*it);
-                        //_voiceIndexesFree.insert(*it);
                         it = _voiceIndexesInUse.erase(it);
                     }
                     else
@@ -122,7 +120,6 @@ namespace drivers
                     allocateVoice(freeSlot, chan, note, vol,
                         _channels[chan]->setInstrument(note), false, abs_time);
 
-
                     // TODO: OPL3
                     //if (!OPLsinglevoice && instr->flags == FL_DOUBLE_VOICE)
                     //{
@@ -134,7 +131,7 @@ namespace drivers
                     //spdlog::debug("noteOn note={:d} ({:d}) - vol={:d} ({:d}) - pitch={:d} - ch={:d}", voice->_note, voice->_realnote, /*voice->volume*/ -1, /*voice->realvolume*/ -1, voice->pitch, voice->_channel);
                 }
                 else {
-                    spdlog::critical("NO FREE CHANNEL? midi-ch={} - playingVoices={}", chan, _playingVoices);
+                    spdlog::critical("NO FREE CHANNEL? midi-ch={} - playingVoices={}", chan, _voiceIndexesInUse.size());
                 }
             }
 
@@ -216,7 +213,7 @@ namespace drivers
                 // OPLPitchWheel
                 _channels[chan]->pitch = static_cast<int8_t>(bend);
 
-                for (auto& it = _voiceIndexesInUse.begin(); it != _voiceIndexesInUse.end();++it)
+                for (const auto& it = _voiceIndexesInUse.begin(); it != _voiceIndexesInUse.end();++it)
                     _voices[*it]->pitchBend(chan, bend, abs_time);
             }
 
@@ -225,7 +222,7 @@ namespace drivers
             {
                 _channels[chan]->modulation = value;
 
-                for(auto& it = _voiceIndexesInUse.begin(); it != _voiceIndexesInUse.end(); ++it)
+                for(const auto& it = _voiceIndexesInUse.begin(); it != _voiceIndexesInUse.end(); ++it)
                     _voices[*it]->ctrl_modulationWheel(chan, value, abs_time);
             }
 
@@ -234,7 +231,7 @@ namespace drivers
                 //spdlog::debug("volume value {} -ch={}", value, chan);
 
                 _channels[chan]->volume = value;
-                for (auto& it = _voiceIndexesInUse.begin(); it != _voiceIndexesInUse.end(); ++it)
+                for (const auto& it = _voiceIndexesInUse.begin(); it != _voiceIndexesInUse.end(); ++it)
                     _voices[*it]->ctrl_volume(chan, value, abs_time);
             }
 
@@ -243,7 +240,7 @@ namespace drivers
                 //spdlog::debug("panPosition value {}", value);
 
                 _channels[chan]->pan = value -= 64;
-                for (auto& it = _voiceIndexesInUse.begin(); it != _voiceIndexesInUse.end(); ++it)
+                for (const auto& it = _voiceIndexesInUse.begin(); it != _voiceIndexesInUse.end(); ++it)
                     _voices[*it]->ctrl_panPosition(chan, value, abs_time);
             }
 
@@ -257,14 +254,13 @@ namespace drivers
 
             void AdLibDriver::releaseSustain(const uint8_t channel)
             {
-                for (auto& it = _voiceIndexesInUse.begin(); it != _voiceIndexesInUse.end(); ++it)
+                for (const auto& it = _voiceIndexesInUse.begin(); it != _voiceIndexesInUse.end(); ++it)
                     _voices[*it]->releaseSustain(*it);
             }
 
             uint8_t AdLibDriver::releaseVoice(const uint8_t slot, const bool killed)
             {
                 assert(slot >= 0 && slot < _oplNumChannels);
-                _playingVoices--;
 
                 return _voices[slot]->release(killed);
             }
@@ -275,8 +271,6 @@ namespace drivers
                 const bool secondary, const uint32_t abs_time)
             {
                 OplChannel* ch = _channels[channel].get();
-                _playingVoices++; // useless stats
-                //_voiceIndexesInUse.push_back(slot);
 
                 return _voices[slot]->allocate(
                     channel, note_, volume, instrument, secondary,
@@ -289,22 +283,17 @@ namespace drivers
                 assert(_voiceIndexesFree.size() + _voiceIndexesInUse.size() == _oplNumChannels);
 
                 if (!_voiceIndexesFree.empty()) {
-                    const auto& it = _voiceIndexesFree.begin();
-                    const uint8_t i = *it;//_voiceIndexesFree.front();
-                    spdlog::debug("debug_i front = {:d}", i);
-                    //_voiceIndexesFree.pop_front();
-                    _voiceIndexesFree.erase(it);
+                    const uint8_t i = _voiceIndexesFree.front();
+                    _voiceIndexesFree.pop_front();
                     _voiceIndexesInUse.push_back(i);
                     return i;
                 }
 
-                for (auto& it = _voiceIndexesInUse.begin(); it != _voiceIndexesInUse.end(); ++it)
+                for (auto it = _voiceIndexesInUse.begin(); it != _voiceIndexesInUse.end(); ++it)
                 {
                     if (_voices[*it]->isSecondary()) {
                         uint8_t i = releaseVoice(*it, true);
                         _voiceIndexesInUse.erase(it);
-                        //_voiceIndexesFree.push_back(i);
-                        //_voiceIndexesFree.insert(i);
                         _voiceIndexesInUse.push_back(i);
                         return i;
                     }
@@ -314,8 +303,6 @@ namespace drivers
                 {
                     uint8_t i = releaseVoice(_voiceIndexesInUse.front(), true);
                     _voiceIndexesInUse.pop_front();
-                    //_voiceIndexesFree.push_back(i);
-                    //_voiceIndexesFree.insert(i);
                     _voiceIndexesInUse.push_back(i);
                     return i;
                 }
