@@ -57,6 +57,7 @@ namespace drivers
             {
                 // TODO: this one if it was the abs_time computed from delta_time
                 //       was faster and better.
+                // It looks like is not needed anymore.
                 //uint32_t abs_time = getMillis<uint32_t>();
 
                 switch (static_cast<MIDI_EVENT_TYPES_HIGH>(e.type.high))
@@ -65,13 +66,13 @@ namespace drivers
                     noteOff(e.type.low, e.data[0]);
                     break;
                 case MIDI_EVENT_TYPES_HIGH::NOTE_ON:
-                    noteOn(e.type.low, e.data[0], e.data[1]/*, abs_time*/);
+                    noteOn(e.type.low, e.data[0], e.data[1]);
                     break;
                 case MIDI_EVENT_TYPES_HIGH::AFTERTOUCH:
                     spdlog::warn("AFTERTOUCH not supported");
                     break;
                 case MIDI_EVENT_TYPES_HIGH::CONTROLLER:
-                    controller(e.type.low, e.data[0], e.data[1]/*, abs_time*/);
+                    controller(e.type.low, e.data[0], e.data[1]);
                     break;
                 case MIDI_EVENT_TYPES_HIGH::PROGRAM_CHANGE:
                     programChange(e.type.low, e.data[0]);
@@ -80,7 +81,7 @@ namespace drivers
                     spdlog::warn("CHANNEL_AFTERTOUCH not supported");
                     break;
                 case MIDI_EVENT_TYPES_HIGH::PITCH_BEND:
-                    pitchBend(e.type.low, (e.data[0] | (e.data[1] << 7) - 0x2000) >> 6/*, abs_time*/);
+                    pitchBend(e.type.low, (e.data[0] | (e.data[1] << 7) - 0x2000) >> 6);
                     break;
                 case MIDI_EVENT_TYPES_HIGH::META_SYSEX:
                     spdlog::warn("META_SYSEX not supported");
@@ -108,14 +109,14 @@ namespace drivers
                 //spdlog::debug("noteOff {} {} ({})", chan, note, _voiceIndexesInUse.size());
             }
 
-            void AdLibDriver::noteOn(const uint8_t chan, const uint8_t note, const uint8_t vol/*, const uint32_t abs_time*/) noexcept
+            void AdLibDriver::noteOn(const uint8_t chan, const uint8_t note, const uint8_t vol) noexcept
             {
                 int8_t freeSlot = getFreeOplVoiceIndex(chan != MIDI_PERCUSSION_CHANNEL);
 
                 if (freeSlot != -1)
                 {
                     allocateVoice(freeSlot, chan, note, vol,
-                        _channels[chan]->setInstrument(note), false/*, abs_time*/);
+                        _channels[chan]->setInstrument(note), false);
 
                     // TODO: OPL3
                     //if (!OPLsinglevoice && instr->flags == FL_DOUBLE_VOICE)
@@ -132,7 +133,7 @@ namespace drivers
                 }
             }
 
-            void AdLibDriver::controller(const uint8_t chan, const uint8_t control, uint8_t value/*, const uint32_t abs_time*/) noexcept
+            void AdLibDriver::controller(const uint8_t chan, const uint8_t control, uint8_t value) noexcept
             {
                 // MIDI_EVENT_CONTROLLER_TYPES
                 switch (control)
@@ -143,11 +144,11 @@ namespace drivers
                     spdlog::warn("bank select value {}", value);
                     break;
                 case 1:
-                    ctrl_modulationWheel(chan, value/*, abs_time*/);
+                    ctrl_modulationWheel(chan, value);
                     //spdlog::debug("modwheel value {}", value);
                     break;
                 case 7:
-                    ctrl_volume(chan, value/*, abs_time*/);
+                    ctrl_volume(chan, value);
                     break;
                 case 10:
                     // Not Available on OPL2/AdLib.
@@ -204,26 +205,26 @@ namespace drivers
                 _channels[chan]->programChange(program);
             }
 
-            void AdLibDriver::pitchBend(const uint8_t chan, const uint16_t bend/*, const uint32_t abs_time*/) const noexcept
+            void AdLibDriver::pitchBend(const uint8_t chan, const uint16_t bend) const noexcept
             {
                 //spdlog::debug("PITCH_BEND {}", bend);
                 // OPLPitchWheel
                 _channels[chan]->pitch = static_cast<int8_t>(bend);
 
                 for (auto it = _voiceIndexesInUse.begin(); it != _voiceIndexesInUse.end();++it)
-                    _voices[*it]->pitchBend(chan, bend/*, abs_time*/);
+                    _voices[*it]->pitchBend(chan, bend);
             }
 
 
-            void AdLibDriver::ctrl_modulationWheel(const uint8_t chan, const uint8_t value/*, const uint32_t abs_time*/) const noexcept
+            void AdLibDriver::ctrl_modulationWheel(const uint8_t chan, const uint8_t value) const noexcept
             {
                 _channels[chan]->modulation = value;
 
                 for(auto it = _voiceIndexesInUse.begin(); it != _voiceIndexesInUse.end(); ++it)
-                    _voices[*it]->ctrl_modulationWheel(chan, value/*, abs_time*/);
+                    _voices[*it]->ctrl_modulationWheel(chan, value);
             }
 
-            void AdLibDriver::ctrl_volume(const uint8_t chan, const uint8_t value/*, const uint32_t abs_time*/) const noexcept
+            void AdLibDriver::ctrl_volume(const uint8_t chan, const uint8_t value) const noexcept
             {
                 //spdlog::debug("volume value {} -ch={}", value, chan);
 
@@ -232,13 +233,13 @@ namespace drivers
                     _voices[*it]->ctrl_volume(chan, value/*, abs_time*/);
             }
 
-            void AdLibDriver::ctrl_panPosition(const uint8_t chan, uint8_t value/*, const uint32_t abs_time*/) const noexcept
+            void AdLibDriver::ctrl_panPosition(const uint8_t chan, uint8_t value) const noexcept
             {
                 //spdlog::debug("panPosition value {}", value);
 
                 _channels[chan]->pan = value -= 64;
                 for (auto it = _voiceIndexesInUse.begin(); it != _voiceIndexesInUse.end(); ++it)
-                    _voices[*it]->ctrl_panPosition(chan, value/*, abs_time*/);
+                    _voices[*it]->ctrl_panPosition(chan, value);
             }
 
             void AdLibDriver::ctrl_sustain(const uint8_t chan, uint8_t value) noexcept
@@ -271,7 +272,7 @@ namespace drivers
 
                 return _voices[slot]->allocate(
                     channel, note_, volume, instrument, secondary,
-                    ch->modulation, ch->volume, ch->pitch, ch->pan/*, abs_time */
+                    ch->modulation, ch->volume, ch->pitch, ch->pan
                 );
             }
 
