@@ -22,21 +22,25 @@ namespace drivers
                 inline const uint8_t getSlot() const noexcept { return _slot; }
                 inline const bool isFree() const noexcept { return _free; }
                 inline const bool isSecondary() const noexcept { return _secondary; }
-                inline const uint32_t getTime() const noexcept { return _time; }
+                //inline const uint32_t getTime() const noexcept { return _time; }
 
-                inline const bool isChannel(const uint8_t channel) const noexcept;
-                inline const bool isChannelBusy(const uint8_t channel) const noexcept;
-                inline const bool isChannelFree(uint8_t channel) const noexcept;
+                inline const bool isChannel(const uint8_t channel) const noexcept { return _channel == channel; }
+                inline const bool isChannelBusy(const uint8_t channel) const noexcept { return isChannel(channel) && !_free; }
+                inline const bool isChannelFree(uint8_t channel) const noexcept { return isChannel(channel) && _free; }
                 
-                /*inline*/ bool noteOff(const uint8_t channel, const uint8_t note, const uint8_t sustain) noexcept;
-
-                /*inline*/ void pitchBend(const uint8_t channel, const uint16_t bend, const uint32_t abs_time) noexcept;
-
-                /*inline*/ void ctrl_modulationWheel(const uint8_t channel, const uint8_t value, const uint32_t abs_time) noexcept;
-                /*inline*/ void ctrl_volume(const uint8_t channel, const uint8_t value, const uint32_t abs_time) noexcept;
-                /*inline*/ void ctrl_panPosition(const uint8_t channel, const uint8_t value, const uint32_t abs_time) noexcept;
-                
-                /*inline*/ void releaseSustain(const uint8_t channel) noexcept;
+                /// <summary>
+                /// It might release the note depending on sustains value
+                /// </summary>
+                /// <param name="channel"></param>
+                /// <param name="note"></param>
+                /// <param name="sustain"></param>
+                /// <returns>true = voice released. false=voice sutained</returns>
+                bool noteOff(const uint8_t channel, const uint8_t note, const uint8_t sustain) noexcept;
+                bool pitchBend(const uint8_t channel, const uint16_t bend/*, const uint32_t abs_time*/) noexcept;
+                bool ctrl_modulationWheel(const uint8_t channel, const uint8_t value/*, const uint32_t abs_time*/) noexcept;
+                bool ctrl_volume(const uint8_t channel, const uint8_t value/*, const uint32_t abs_time*/) noexcept;
+                bool ctrl_panPosition(const uint8_t channel, const uint8_t value/*, const uint32_t abs_time*/) noexcept;
+                bool releaseSustain(const uint8_t channel) noexcept;
 
                 void playNote(const bool keyOn) const noexcept;
                 /// <summary>
@@ -50,8 +54,9 @@ namespace drivers
                     const uint8_t chan_modulation,
                     const uint8_t chan_vol,
                     const uint8_t chan_pitch,
-                    const uint8_t chan_pan,
-                    const uint32_t abs_time) noexcept;
+                    const uint8_t chan_pan
+                    //const uint32_t abs_time
+                ) noexcept;
 
                 uint8_t release(const bool killed) noexcept;
 
@@ -73,7 +78,7 @@ namespace drivers
 
                 const hardware::opl::OPL2instrument_t* _instr = nullptr; /* current instrument */
 
-                uint32_t _time = 0;                                /* note start time */
+                //uint32_t _time = 0;                                /* note start time */
                 // Channel flags
                 bool _free = true;
                 bool _secondary = false;

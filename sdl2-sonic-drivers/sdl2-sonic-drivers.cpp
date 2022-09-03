@@ -420,6 +420,8 @@ int midi_adlib_mus_op2_file()
 
     auto emu = OplEmulator::MAME;
     auto type = Config::OplType::OPL2;
+    
+    spdlog::set_level(spdlog::level::debug);
 
     auto opl = Config::create(emu, type, mixer);
     if (opl.get() == nullptr)
