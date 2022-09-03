@@ -139,7 +139,7 @@ target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/opl/OplVoice.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/Opl.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/Adlib.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/SbPro.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/SbPro2.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/opl/OplWriter.cpp
     # --- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/File.cpp

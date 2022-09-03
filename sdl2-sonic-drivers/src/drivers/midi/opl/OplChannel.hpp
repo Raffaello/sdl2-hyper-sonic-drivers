@@ -38,8 +38,6 @@ namespace drivers
                 const bool _isPercussion;
                 uint8_t _program = 0;           // instrument number
                 audio::opl::banks::Op2BankInstrument_t _instrument = { 0 };
-
-                //const std::weak_ptr<audio::opl::banks::OP2Bank> _op2Bank;
                 const audio::opl::banks::OP2Bank* _op2Bank;
             };
         }

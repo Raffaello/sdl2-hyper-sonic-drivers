@@ -12,11 +12,8 @@ namespace drivers
 
             using audio::opl::banks::OP2BANK_INSTRUMENT_FLAG_FIXED_PITCH;
             using audio::opl::banks::OP2BANK_INSTRUMENT_FLAG_DOUBLE_VOICE;
-
             using audio::midi::MIDI_PERCUSSION_CHANNEL;
-
-           
-            constexpr int VIBRATO_THRESHOLD = 40;   /* vibrato threshold */
+            constexpr int VIBRATO_THRESHOLD = 40;
             constexpr int8_t HIGHEST_NOTE = 127;
 
 
@@ -148,7 +145,6 @@ namespace drivers
                 else if (channel == MIDI_PERCUSSION_CHANNEL)
                     note = 60;  // C-5
                 
-                // TODO: this is OPL3
                 if (secondary && (instrument->flags & OP2BANK_INSTRUMENT_FLAG_DOUBLE_VOICE))
                     _finetune = instrument->fineTune - 0x80;
                 else
@@ -190,27 +186,6 @@ namespace drivers
                     _oplWriter->writeChannel(0x40, _slot, 0x3F, 0x3F);  // no volume
                 }
                 return _slot;
-            }
-
-            void OplVoice::setVolumes(const uint8_t channelVolume, const uint8_t volume) noexcept
-            {
-                _volume = volume;
-                setRealVolume(channelVolume);
-            }
-
-            void OplVoice::setRealVolume(const uint8_t channelVolume) noexcept
-            {
-                _realvolume = _calcVolume(channelVolume);
-            }
-
-            /*inline*/ uint8_t OplVoice::getRealVolume() const noexcept
-            {
-                return _realvolume;
-            }
-
-            uint8_t OplVoice::_calcVolume(const uint8_t channelVolume) const noexcept
-            {
-                return  std::min<uint8_t>((static_cast<uint32_t>(channelVolume) * _volume) / 127, 127);
             }
         }
     }
