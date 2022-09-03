@@ -28,7 +28,7 @@ namespace drivers
                 inline const bool isChannelBusy(const uint8_t channel) const noexcept;
                 inline const bool isChannelFree(uint8_t channel) const noexcept;
                 
-                /*inline*/ void noteOff(const uint8_t channel, const uint8_t note, const uint8_t sustain) noexcept;
+                /*inline*/ bool noteOff(const uint8_t channel, const uint8_t note, const uint8_t sustain) noexcept;
 
                 /*inline*/ void pitchBend(const uint8_t channel, const uint16_t bend, const uint32_t abs_time) noexcept;
 

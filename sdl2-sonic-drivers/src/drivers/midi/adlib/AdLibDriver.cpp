@@ -2,6 +2,7 @@
 #include <spdlog/spdlog.h>
 #include<utils/algorithms.hpp>
 #include <cassert>
+#include <algorithm>
 
 namespace drivers
 {
@@ -18,14 +19,8 @@ namespace drivers
             using audio::opl::banks::OP2BANK_INSTRUMENT_FLAG_DOUBLE_VOICE;
 
 
-            // TODO: when no channel is allocated having a for loop to search for nothing is silly.
-
-            // TODO: remove the for loops to find the right voice based on channel
-
             // TODO: Track free channel in a duobly linked list, pop when allocate, and everytime a voice free push back
-            // TODO: a priority queue could be used when forced to kill a channel for faster find, cons there is the overhead.
-            
-            // TODO: associate the allocated voice to OplChannel for faster retrieval.
+            // TODO: associate the allocated voice to OplChannel for faster retrieval?
 
             AdLibDriver::AdLibDriver(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank) :
                 _opl(opl)
@@ -100,8 +95,12 @@ namespace drivers
             {
                 uint8_t sustain = _channels[chan]->sustain;
 
-                for (int i = 0; i < _oplNumChannels; i++)
-                    _voices[i]->noteOff(chan, note, sustain);
+                for (auto it = _voiceIndexesInUse.begin(); it != _voiceIndexesInUse.end();) {
+                    if (_voices[*it]->noteOff(chan, note, sustain))
+                        it = _voiceIndexesInUse.erase(it);
+                    else
+                        ++it;
+                }
 
                 spdlog::debug("noteOff {} {} ({})", chan, note, _playingVoices);
             }
@@ -114,6 +113,7 @@ namespace drivers
                 {
                     int slot = allocateVoice(freeSlot, chan, note, vol,
                         _channels[chan]->setInstrument(note), false, abs_time);
+
 
                     // TODO: OPL3
                     //if (!OPLsinglevoice && instr->flags == FL_DOUBLE_VOICE)
@@ -207,16 +207,18 @@ namespace drivers
                 spdlog::debug("PITCH_BEND {}", bend);
                 // OPLPitchWheel
                 _channels[chan]->pitch = static_cast<int8_t>(bend);
-                for (int i = 0; i < _oplNumChannels; i++)
-                    _voices[i]->pitchBend(chan, bend, abs_time);
+
+                for (auto& it = _voiceIndexesInUse.begin(); it != _voiceIndexesInUse.end();++it)
+                    _voices[*it]->pitchBend(chan, bend, abs_time);
             }
 
 
             void AdLibDriver::ctrl_modulationWheel(const uint8_t chan, const uint8_t value, const uint32_t abs_time) const noexcept
             {
                 _channels[chan]->modulation = value;
-                for (int i = 0; i < _oplNumChannels; i++)
-                    _voices[i]->ctrl_modulationWheel(chan, value, abs_time);
+
+                for(auto& it = _voiceIndexesInUse.begin(); it != _voiceIndexesInUse.end(); ++it)
+                    _voices[*it]->ctrl_modulationWheel(chan, value, abs_time);
             }
 
             void AdLibDriver::ctrl_volume(const uint8_t chan, const uint8_t value, const uint32_t abs_time) const noexcept
@@ -224,8 +226,8 @@ namespace drivers
                 spdlog::debug("volume value {} -ch={}", value, chan);
 
                 _channels[chan]->volume = value;
-                for (int i = 0; i < _oplNumChannels; i++)
-                    _voices[i]->ctrl_volume(chan, value, abs_time);
+                for (auto& it = _voiceIndexesInUse.begin(); it != _voiceIndexesInUse.end(); ++it)
+                    _voices[*it]->ctrl_volume(chan, value, abs_time);
             }
 
             void AdLibDriver::ctrl_panPosition(const uint8_t chan, uint8_t value, const uint32_t abs_time) const noexcept
@@ -233,8 +235,8 @@ namespace drivers
                 spdlog::debug("panPosition value {}", value);
 
                 _channels[chan]->pan = value -= 64;
-                for (int i = 0; i < _oplNumChannels; i++)
-                    _voices[i]->ctrl_panPosition(chan, value, abs_time);
+                for (auto& it = _voiceIndexesInUse.begin(); it != _voiceIndexesInUse.end(); ++it)
+                    _voices[*it]->ctrl_panPosition(chan, value, abs_time);
             }
 
             void AdLibDriver::ctrl_sustain(const uint8_t chan, uint8_t value) noexcept
@@ -247,14 +249,15 @@ namespace drivers
 
             void AdLibDriver::releaseSustain(const uint8_t channel)
             {
-                for (int i = 0; i < _oplNumChannels; i++)
-                    _voices[i]->releaseSustain(i);
+                for (auto& it = _voiceIndexesInUse.begin(); it != _voiceIndexesInUse.end(); ++it)
+                    _voices[*it]->releaseSustain(*it);
             }
 
             uint8_t AdLibDriver::releaseVoice(const uint8_t slot, const bool killed)
             {
                 assert(slot >= 0 && slot < _oplNumChannels);
                 _playingVoices--;
+
                 return _voices[slot]->release(killed);
             }
 
@@ -265,6 +268,8 @@ namespace drivers
             {
                 OplChannel* ch = _channels[channel].get();
                 _playingVoices++; // useless stats
+                _voiceIndexesInUse.push_back(slot);
+
                 return _voices[slot]->allocate(
                     channel, note_, volume, instrument, secondary,
                     ch->modulation, ch->volume, ch->pitch, ch->pan, abs_time
@@ -273,39 +278,27 @@ namespace drivers
 
             int8_t AdLibDriver::getFreeOplVoiceIndex(const uint32_t abs_time, const bool force)
             {
-                // TODO: instead of a for loop,
-                //       use a queue to keep free channel, so a pop will return it
-                //       so when allocating needs to use a priority queue.
-                // (isFree() + isSecondary()) * (getTime() + 1); bool conversion to int, using std::greater<T>
-                // ( 0 + 0) * x => 0 at the top
-                // ( 0 + 1) * x1 -> x1
-                // ( 1 + 0) * x1 -> x1 again.. this lost priority. unless it is encoded in the operator the tie.
-                // (isFree() + isSecondary()*2) * (getTime() + 1)
-
-
+                // TODO: how to get a free channel whitout going through all of them?
                 for (int i = 0; i < _oplNumChannels; ++i)
                 {
                     if (_voices[i]->isFree())
                         return i;
                 }
 
-                uint8_t oldest_i = _oplNumChannels;
-                uint32_t oldest_time = abs_time;
-                for (int i = 0; i < _oplNumChannels; ++i)
+                for (auto& it = _voiceIndexesInUse.begin(); it != _voiceIndexesInUse.end(); ++it)
                 {
-                    if (_voices[i]->isSecondary())
-                        return releaseVoice(i, true);
-
-                    if (_voices[i]->getTime() < oldest_time)
-                    {
-                        oldest_time = _voices[i]->getTime();
-                        oldest_i = i;
+                    if (_voices[*it]->isSecondary()) {
+                        uint8_t i = releaseVoice(*it, true);
+                        _voiceIndexesInUse.erase(it);
+                        return i;
                     }
                 }
 
-
-                if (force && oldest_i != _oplNumChannels)
-                    return releaseVoice(oldest_i, true);
+                if(force) {
+                    uint8_t i = releaseVoice(_voiceIndexesInUse.front(), true);
+                    _voiceIndexesInUse.erase(_voiceIndexesInUse.begin());
+                    return i;
+                }
 
                 return -1;
             }

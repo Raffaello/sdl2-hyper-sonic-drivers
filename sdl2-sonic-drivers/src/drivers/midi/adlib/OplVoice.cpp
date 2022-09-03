@@ -40,15 +40,19 @@ namespace drivers
                 return isChannel(channel) && _free;
             }
 
-            /*inline*/ void OplVoice::noteOff(const uint8_t channel, const uint8_t note, const uint8_t sustain) noexcept
+            /*inline*/ bool OplVoice::noteOff(const uint8_t channel, const uint8_t note, const uint8_t sustain) noexcept
             {
                 if (isChannelBusy(channel) && _note == note)
                 {
-                    if (sustain < SUSTAIN_THRESHOLD)
+                    if (sustain < SUSTAIN_THRESHOLD) {
                         release(0);
+                        return true;
+                    }
                     else
                         _sustain = true;
                 }
+
+                return false;
             }
 
             /*inline*/ void OplVoice::pitchBend(const uint8_t channel, const uint16_t bend, const uint32_t abs_time) noexcept
