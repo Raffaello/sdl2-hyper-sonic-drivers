@@ -42,6 +42,7 @@ namespace drivers
                 uint8_t _playingVoices = 0; // OPL Channels in use, useless
 
                 std::list<uint8_t> _voiceIndexesInUse;
+                std::list<uint8_t> _voiceIndexesFree;     // TODO: is there a way to have only 1 list to do both instead?
 
                 // MIDI Events
                 void noteOff(const uint8_t chan, const uint8_t note) noexcept;

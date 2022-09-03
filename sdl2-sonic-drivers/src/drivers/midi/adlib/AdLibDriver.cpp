@@ -22,6 +22,8 @@ namespace drivers
             // TODO: Track free channel in a duobly linked list, pop when allocate, and everytime a voice free push back
             // TODO: associate the allocated voice to OplChannel for faster retrieval?
 
+            // TODO: allocateVoice and getFreeSlot should be merged into 1 function
+
             AdLibDriver::AdLibDriver(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank) :
                 _opl(opl)
             {
@@ -37,6 +39,7 @@ namespace drivers
 
                 for (int i = 0; i < _oplNumChannels; ++i) {
                     _voices[i] = std::make_unique<OplVoice>(i, _oplWriter);
+                    _voiceIndexesFree.push_back(i);
                 }
 
                 hardware::opl::TimerCallBack cb = std::bind(&AdLibDriver::onTimer, this);
@@ -96,13 +99,16 @@ namespace drivers
                 uint8_t sustain = _channels[chan]->sustain;
 
                 for (auto it = _voiceIndexesInUse.begin(); it != _voiceIndexesInUse.end();) {
-                    if (_voices[*it]->noteOff(chan, note, sustain))
+                    // TODO: this noteOff is masking the voice Release, not nice.
+                    if (_voices[*it]->noteOff(chan, note, sustain)) {
+                        _voiceIndexesFree.push_back(*it);
                         it = _voiceIndexesInUse.erase(it);
+                    }
                     else
                         ++it;
                 }
 
-                spdlog::debug("noteOff {} {} ({})", chan, note, _playingVoices);
+                spdlog::debug("noteOff {} {} ({})", chan, note, --_playingVoices);
             }
 
             void AdLibDriver::noteOn(const uint8_t chan, const uint8_t note, const uint8_t vol, const uint32_t abs_time) noexcept
@@ -111,7 +117,7 @@ namespace drivers
 
                 if (freeSlot != -1)
                 {
-                    int slot = allocateVoice(freeSlot, chan, note, vol,
+                    allocateVoice(freeSlot, chan, note, vol,
                         _channels[chan]->setInstrument(note), false, abs_time);
 
 
@@ -268,7 +274,7 @@ namespace drivers
             {
                 OplChannel* ch = _channels[channel].get();
                 _playingVoices++; // useless stats
-                _voiceIndexesInUse.push_back(slot);
+                //_voiceIndexesInUse.push_back(slot);
 
                 return _voices[slot]->allocate(
                     channel, note_, volume, instrument, secondary,
@@ -278,11 +284,13 @@ namespace drivers
 
             int8_t AdLibDriver::getFreeOplVoiceIndex(const uint32_t abs_time, const bool force)
             {
-                // TODO: how to get a free channel whitout going through all of them?
-                for (int i = 0; i < _oplNumChannels; ++i)
-                {
-                    if (_voices[i]->isFree())
-                        return i;
+                assert(_voiceIndexesFree.size() + _voiceIndexesInUse.size() == _oplNumChannels);
+
+                if (!_voiceIndexesFree.empty()) {
+                    const uint8_t i = _voiceIndexesFree.front();
+                    _voiceIndexesFree.pop_front();
+                    _voiceIndexesInUse.push_back(i);
+                    return i;
                 }
 
                 for (auto& it = _voiceIndexesInUse.begin(); it != _voiceIndexesInUse.end(); ++it)
@@ -290,13 +298,16 @@ namespace drivers
                     if (_voices[*it]->isSecondary()) {
                         uint8_t i = releaseVoice(*it, true);
                         _voiceIndexesInUse.erase(it);
+                        _voiceIndexesFree.push_back(i);
                         return i;
                     }
                 }
 
-                if(force) {
+                if(force)
+                {
                     uint8_t i = releaseVoice(_voiceIndexesInUse.front(), true);
                     _voiceIndexesInUse.erase(_voiceIndexesInUse.begin());
+                    _voiceIndexesFree.push_back(i);
                     return i;
                 }
 
