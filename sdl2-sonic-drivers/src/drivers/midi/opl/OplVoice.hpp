@@ -94,6 +94,11 @@ namespace drivers
 
                 const drivers::opl::OplWriter* _oplWriter;
 
+                /// <summary>
+                /// The volume is between 0-127 as a per MIDI specification.
+                /// OPLWriter expect a MIDI volume value and converts to OPL value
+                /// OPL chips has a volume range from 0-64 inverted (0 is max, 64 muted)
+                /// </summary>
                 inline uint8_t _calcVolume(const uint8_t channelVolume) const noexcept {
                     return  std::min<uint8_t>((static_cast<uint32_t>(channelVolume) * _volume) / 127, 127);
                 }

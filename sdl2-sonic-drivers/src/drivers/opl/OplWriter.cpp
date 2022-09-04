@@ -142,10 +142,22 @@ namespace drivers
             _writeFreq(slot, freq, octave, keyOn);
         }
 
+#include <cassert>
+        /// <summary>
+        /// 0-64 OPL volume range inverted as 0 is max volume.
+        /// 
+        /// </summary>
         uint8_t OplWriter::_convertVolume(const uint8_t data, const uint8_t volume) noexcept
         {
+#if 0
+            uint8_t vol = std::min<uint8_t>(volume, 127);
+            unsigned n = 0x3F - (data & 0x3F);
+            n = (n * (unsigned)volumetable[vol]) >> 7;
+            return (0x3F - n) | (data & 0xC0);
+#else
             return 0x3F - (((0x3F - data) *
-                static_cast<uint8_t>(volumetable[volume <= 127 ? volume : 127]) >> 7));
+                (unsigned)volumetable[std::min<uint8_t>(volume, 127)]) >> 7);
+#endif
         }
 
         void OplWriter::_writeFreq(const uint8_t slot, const uint16_t freq, const uint8_t octave, const bool keyon) const noexcept

@@ -21,6 +21,7 @@ namespace hardware
             virtual void setCallbackFrequency(int timerFrequency) override {}
             virtual void startCallbacks(int timerFrequency) override {};
             virtual void stopCallbacks() override {};
+            virtual const std::shared_ptr<audio::scummvm::SoundHandle> getSoundHandle() const noexcept { return nullptr; }
         };
     }
 }

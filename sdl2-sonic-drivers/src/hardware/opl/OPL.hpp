@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <memory>
 #include <functional>
+#include <audio/scummvm/SoundHandle.hpp>
 
 namespace hardware
 {
@@ -79,6 +80,14 @@ namespace hardware
              * timer proc.
              */
             virtual void setCallbackFrequency(int timerFrequency) = 0;
+
+            /**
+             * get Sound Handle for the mixer, used in Emulated Opl
+             * TODO: consider to remove the abastraction of EmulatedOPLs and RealOPLs
+             * TOOD: if this is returning this, probably should store the _handle here
+             *       instead of EmulatedOPL
+             */
+            virtual const std::shared_ptr<audio::scummvm::SoundHandle> getSoundHandle() const noexcept = 0;
 
         protected:
             bool _init = false;

@@ -446,6 +446,7 @@ int midi_adlib_mus_op2_file()
     //        utils::delayMillis(1000);
     //}
     {
+        
         auto opl = Config::create(OplEmulator::NUKED, Config::OplType::OPL3, mixer);
         if (opl.get() == nullptr)
             return -1;
@@ -454,8 +455,14 @@ int midi_adlib_mus_op2_file()
 
         spdlog::info("playing midi (OPL3) D_E1M1.MUS...");
         midDrv.play(midi);
-        while (midDrv.isPlaying())
+        auto handle = *opl->getSoundHandle();
+        auto volume = mixer->getChannelVolume(handle);
+        spdlog::info("Volumne: {:d}", volume);
+        while (midDrv.isPlaying()) {
             utils::delayMillis(1000);
+            mixer->setChannelVolume(handle, volume / 2);
+
+        }
 
     }
     return 0;

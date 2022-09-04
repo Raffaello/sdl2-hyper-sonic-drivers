@@ -66,6 +66,9 @@ namespace drivers
              36254U,36286U,36319U,36352U,36385U,36417U,36450U,36483U,  /*  112 */
              36516U,36549U,36582U,36615U,36648U,36681U,36715U,36748U }; /*  120 */
 
+        /// <summary>
+        /// Lookup table to convert MIDI volume ranges into OPL
+        /// </summary>
         static uint8_t volumetable[128] = {
                   0,   1,   3,   5,   6,   8,  10,  11,
                  13,  14,  16,  17,  19,  20,  22,  23,

@@ -28,7 +28,7 @@ namespace hardware
 
                 // OPL API
                 void setCallbackFrequency(int timerFrequency);
-
+                virtual const std::shared_ptr<audio::scummvm::SoundHandle> getSoundHandle() const noexcept override;
                 // AudioStream API
                 int readBuffer(int16_t* buffer, const int numSamples);
                 int getRate() const;
@@ -60,7 +60,7 @@ namespace hardware
                 int _samplesPerTick = 0;
 
                 // TODO use a shared ptr
-                audio::scummvm::SoundHandle* _handle;
+                std::shared_ptr<audio::scummvm::SoundHandle> _handle;
             };
         }
     }

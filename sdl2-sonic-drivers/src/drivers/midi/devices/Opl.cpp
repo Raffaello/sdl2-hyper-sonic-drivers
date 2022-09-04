@@ -13,7 +13,6 @@ namespace drivers
                 //       doesn't support opl3 mode.
                 //       This need to take the OPL type from OPL interface.
                 _oplDriver = std::make_shared<drivers::midi::opl::OplDriver>(opl, op2Bank, opl3_mode);
-                
             }
 
             void Opl::sendEvent(const audio::midi::MIDIEvent& e) const noexcept
