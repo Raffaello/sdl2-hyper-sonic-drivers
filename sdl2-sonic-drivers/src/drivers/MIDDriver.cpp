@@ -125,7 +125,7 @@ namespace drivers
             if (paused)
             {
                 _device->resume();
-                paused = true;
+                //paused = true; // it will be false next loop iteration
             }
 
             if (_force_stop)

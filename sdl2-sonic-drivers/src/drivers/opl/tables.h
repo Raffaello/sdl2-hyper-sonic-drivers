@@ -6,7 +6,7 @@ namespace drivers
 {
     namespace opl
     {
-        static uint16_t freqtable[] = {                                 /* note # */
+        static const uint16_t freqtable[] = {                           /* note # */
             345, 365, 387, 410, 435, 460, 488, 517, 547, 580, 615, 651, /*  0 */
             690, 731, 774, 820, 869, 921, 975, 517, 547, 580, 615, 651, /* 12 */
             690, 731, 774, 820, 869, 921, 975, 517, 547, 580, 615, 651, /* 24 */
@@ -19,7 +19,7 @@ namespace drivers
             690, 731, 774, 820, 869, 921, 975, 517, 547, 580, 615, 651, /* 108 */
             690, 731, 774, 820, 869, 921, 975, 517 };                   /* 120 */
 
-        static uint8_t octavetable[] = {        /* note # */
+        static const uint8_t octavetable[] = {  /* note # */
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /*  0 */
             0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, /* 12 */
             1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, /* 24 */
@@ -32,7 +32,7 @@ namespace drivers
             8, 8, 8, 8, 8, 8, 8, 9, 9, 9, 9, 9, /* 108 */
             9, 9, 9, 9, 9, 9, 9,10 };           /* 120 */
 
-        static uint16_t pitchtable[] = {                               /* pitch wheel */
+        static const uint16_t pitchtable[] = {                         /* pitch wheel */
              29193U,29219U,29246U,29272U,29299U,29325U,29351U,29378U,  /* -128 */
              29405U,29431U,29458U,29484U,29511U,29538U,29564U,29591U,  /* -120 */
              29618U,29644U,29671U,29698U,29725U,29752U,29778U,29805U,  /* -112 */
@@ -69,7 +69,7 @@ namespace drivers
         /// <summary>
         /// Lookup table to convert MIDI volume ranges into OPL
         /// </summary>
-        static uint8_t volumetable[128] = {
+        static const uint8_t volumetable[128] = {
                   0,   1,   3,   5,   6,   8,  10,  11,
                  13,  14,  16,  17,  19,  20,  22,  23,
                  25,  26,  27,  29,  30,  32,  33,  34,

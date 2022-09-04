@@ -58,7 +58,7 @@ namespace files
             abs_time = 0;
             for (const auto& te : _midi->getTrack(n).getEvents()) {
                 abs_time += te.delta_time;
-                events_pair.push_back(std::make_pair(te, abs_time));
+                events_pair.emplace_back(std::make_pair(te, abs_time));
             }
         }
 

@@ -49,7 +49,7 @@ namespace drivers
 
         void OplWriter::stopAll() const noexcept
         {
-            for (int i = 0; i < _oplNumChannels; i++)
+            for (uint8_t i = 0; i < _oplNumChannels; i++)
             {
                 writeChannel(0x40, i, 0x3F, 0x3F);  // turn off volume
                 writeChannel(0x60, i, 0xFF, 0xFF);  // the fastest attack, decay
@@ -62,7 +62,7 @@ namespace drivers
         void OplWriter::writeValue(const uint16_t regbase, const uint8_t channel, const uint8_t value) const noexcept
         {
             // OPL3 compatible channels
-            static uint16_t reg_num[] = {
+            static const uint16_t reg_num[] = {
             0x000, 0x001, 0x002, 0x003, 0x004, 0x005, 0x006, 0x007, 0x008,
             0x100, 0x101, 0x102, 0x103, 0x104, 0x105, 0x106, 0x107, 0x108 };
 
@@ -72,11 +72,11 @@ namespace drivers
         void OplWriter::writeChannel(const uint16_t regbase, const uint8_t channel, const uint8_t data1, const uint8_t data2) const noexcept
         {
             // OPL3 compatible channels
-            static uint16_t op_num[] = {
+            static const uint16_t op_num[] = {
             0x000, 0x001, 0x002, 0x008, 0x009, 0x00A, 0x010, 0x011, 0x012,
             0x100, 0x101, 0x102, 0x108, 0x109, 0x10A, 0x110, 0x111, 0x112 };
 
-            uint16_t reg = regbase + op_num[channel];
+            const uint16_t reg = regbase + op_num[channel];
             _opl->writeReg(reg, data1);
             _opl->writeReg(reg + 3, data2);
         }

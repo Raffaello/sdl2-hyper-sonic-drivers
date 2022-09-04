@@ -35,28 +35,27 @@ namespace drivers
             class OplVoiceMock : public OplVoice
             {
             public:
-                OplVoiceMock(const uint8_t slot, const std::unique_ptr<drivers::opl::OplWriter>& oplWriter) :
+                hardware::opl::OPL2instrument_t* instr;
+
+                OplVoiceMock(const uint8_t slot, const drivers::opl::OplWriter* oplWriter) :
                     OplVoice(slot, oplWriter)
                 {
-                    _instr = new hardware::opl::OPL2instrument_t();
-                    memset((void*)_instr, 0, sizeof(hardware::opl::OPL2instrument_t));
+                    instr = new hardware::opl::OPL2instrument_t();
+                    memset((void*)instr, 0, sizeof(hardware::opl::OPL2instrument_t));
+                    setInstrument(instr);
                 }
 
                 ~OplVoiceMock()
                 {
-                    delete _instr;
+                    delete instr;
                 }
 
-                void setChannel(uint8_t ch) {
-                    _channel = ch;
+                void setChannel(const uint8_t ch) {
+                    OplVoice::setChannel(ch);
                 }
 
-                void setFree(bool f) {
-                    _free = f;
-                }
-
-                bool getVibrato() {
-                    return _vibrato;
+                void setFree(const bool f) {
+                    OplVoice::setFree(f);
                 }
             };
 
@@ -66,7 +65,7 @@ namespace drivers
                 const bool opl3_mode = false;
                 auto ow = std::make_unique < drivers::opl::OplWriter>(opl, opl3_mode);
                 
-                OplVoiceMock v((uint8_t)0, ow);
+                OplVoiceMock v((uint8_t)0, ow.get());
                 v.setChannel(0);
                 
                 EXPECT_FALSE(v.getVibrato());

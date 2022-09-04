@@ -17,8 +17,8 @@ namespace drivers
             constexpr int8_t HIGHEST_NOTE = 127;
 
 
-            OplVoice::OplVoice(const uint8_t slot, const std::unique_ptr<drivers::opl::OplWriter>& oplWriter) :
-                _slot(slot), _oplWriter(oplWriter.get())
+            OplVoice::OplVoice(const uint8_t slot, const drivers::opl::OplWriter* oplWriter) :
+                _slot(slot), _oplWriter(oplWriter)
             {
             }
 
@@ -43,7 +43,7 @@ namespace drivers
                 if (b)
                 {
                     //_time = abs_time;
-                    _pitch = _finetune + bend;
+                    _pitch = static_cast<uint16_t>(_finetune + bend);
                     playNote(true);
                 }
 
@@ -86,7 +86,7 @@ namespace drivers
                 return b;
             }
 
-            /*inline*/ bool OplVoice::ctrl_panPosition(const uint8_t channel, const uint8_t value/*, const uint32_t abs_time*/) noexcept
+            /*inline*/ bool OplVoice::ctrl_panPosition(const uint8_t channel, const uint8_t value/*, const uint32_t abs_time*/) const noexcept
             {
                 const bool b = isChannelBusy(channel);
                 if (b)
@@ -162,7 +162,7 @@ namespace drivers
                 else if (note > HIGHEST_NOTE)
                     while ((note -= 12) > HIGHEST_NOTE);
                 
-                _realnote = note;
+                _realnote = static_cast<uint8_t>(note);
 
                 _oplWriter->writeInstrument(_slot, _instr);
                 if (_vibrato)

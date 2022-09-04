@@ -16,7 +16,7 @@ namespace drivers
             class OplVoice
             {
             public:
-                explicit OplVoice(const uint8_t slot, const std::unique_ptr<drivers::opl::OplWriter>& oplWriter);
+                explicit OplVoice(const uint8_t slot, const drivers::opl::OplWriter* oplWriter);
                 ~OplVoice() = default;
 
                 inline const uint8_t getSlot() const noexcept { return _slot; }
@@ -39,7 +39,7 @@ namespace drivers
                 bool pitchBend(const uint8_t channel, const uint16_t bend/*, const uint32_t abs_time*/) noexcept;
                 bool ctrl_modulationWheel(const uint8_t channel, const uint8_t value/*, const uint32_t abs_time*/) noexcept;
                 bool ctrl_volume(const uint8_t channel, const uint8_t value/*, const uint32_t abs_time*/) noexcept;
-                bool ctrl_panPosition(const uint8_t channel, const uint8_t value/*, const uint32_t abs_time*/) noexcept;
+                bool ctrl_panPosition(const uint8_t channel, const uint8_t value/*, const uint32_t abs_time*/) const noexcept;
                 bool releaseSustain(const uint8_t channel) noexcept;
 
                 void playNote(const bool keyOn) const noexcept;
@@ -68,11 +68,20 @@ namespace drivers
                 inline uint8_t getRealVolume() const noexcept { return _realvolume; }
                 inline uint8_t getChannel() const noexcept { return _channel; }
                 inline const hardware::opl::OPL2instrument_t* getInstrument() const noexcept { return _instr; }
+                inline bool getVibrato() const noexcept { return _vibrato; }
 
                 void pause() const noexcept;
                 void resume() const noexcept;
 
             protected:
+                // Method to Mock the class, not really used except for mocking
+                inline void setChannel(const uint8_t channel) noexcept { _channel = channel; }
+                inline void setFree(const bool free) noexcept { _free = free; };
+                inline void setInstrument(const hardware::opl::OPL2instrument_t* instr) noexcept { _instr = instr; }
+                inline void setVibrato(const bool vibrato) noexcept { _vibrato = vibrato; };
+                
+
+            private:
                 const uint8_t _slot;                        /* OPL channel number */
                 
                 uint8_t _volume = 0;                        /* note volume */
@@ -101,7 +110,7 @@ namespace drivers
                 /// range from 0-64 inverted (0 is max, 64 is muted).
                 /// </summary>
                 inline uint8_t _calcVolume(const uint8_t channelVolume) const noexcept {
-                    return  std::min<uint8_t>((static_cast<uint32_t>(channelVolume) * _volume) / 127, 127);
+                    return  std::min<uint8_t>((static_cast<uint32_t>(channelVolume) * _volume / 127), 127);
                 }
             };
         }

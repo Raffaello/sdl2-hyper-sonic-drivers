@@ -16,7 +16,10 @@ namespace drivers
         {
         public:
             OplWriter() = delete;
-            OplWriter(const std::shared_ptr<hardware::opl::OPL>& opl, const bool opl3_mode);
+            OplWriter(OplWriter&) = delete;
+            OplWriter(OplWriter&&) = delete;
+            OplWriter& operator=(const OplWriter&) = delete;
+            explicit OplWriter(const std::shared_ptr<hardware::opl::OPL>& opl, const bool opl3_mode);
             ~OplWriter();
 
             bool init() const noexcept;

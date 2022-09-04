@@ -29,12 +29,12 @@ namespace drivers
                 if (!_oplWriter->init())
                     spdlog::error("[MidiDriver] Can't initialize AdLib Emulator OPL chip.'");
 
-                for (int i = 0; i < audio::midi::MIDI_MAX_CHANNELS; ++i) {
+                for (uint8_t i = 0; i < audio::midi::MIDI_MAX_CHANNELS; ++i) {
                     _channels[i] = std::make_unique<OplChannel>(i, op2Bank);
                 }
 
-                for (int i = 0; i < _oplNumChannels; ++i) {
-                    _voices[i] = std::make_unique<OplVoice>(i, _oplWriter);
+                for (uint8_t i = 0; i < _oplNumChannels; ++i) {
+                    _voices[i] = std::make_unique<OplVoice>(i, _oplWriter.get());
                     _voiceIndexesFree.push_back(i);
                 }
 
@@ -75,7 +75,7 @@ namespace drivers
                     spdlog::warn("CHANNEL_AFTERTOUCH not supported");
                     break;
                 case MIDI_EVENT_TYPES_HIGH::PITCH_BEND:
-                    pitchBend(e.type.low, (e.data[0] | (e.data[1] << 7) - 0x2000) >> 6);
+                    pitchBend(e.type.low, static_cast<uint16_t>((e.data[0] | (e.data[1] << 7) - 0x2000) >> 6));
                     break;
                 case MIDI_EVENT_TYPES_HIGH::META_SYSEX:
                     spdlog::warn("META_SYSEX not supported");
@@ -272,7 +272,7 @@ namespace drivers
             void OplDriver::releaseSustain(const uint8_t channel)
             {
                 for (auto it = _voiceIndexesInUse.begin(); it != _voiceIndexesInUse.end(); ++it)
-                    _voices[*it]->releaseSustain(*it);
+                    _voices[*it]->releaseSustain(channel);
             }
 
             uint8_t OplDriver::releaseVoice(const uint8_t slot, const bool killed)

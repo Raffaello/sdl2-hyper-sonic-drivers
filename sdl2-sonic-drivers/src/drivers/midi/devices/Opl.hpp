@@ -28,6 +28,7 @@ namespace drivers
                 Opl(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank, const bool opl3_mode);
                 virtual ~Opl() = default;
 
+            private:
                 std::shared_ptr<drivers::midi::opl::OplDriver> _oplDriver;
             };
         }
