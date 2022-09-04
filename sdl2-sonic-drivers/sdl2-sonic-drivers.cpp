@@ -28,6 +28,12 @@
 #include <drivers/MIDDriver.hpp>
 
 #include <files/dmx/MUSFile.hpp>
+#include <files/dmx/OP2File.hpp>
+#include <drivers/midi/devices/Native.hpp>
+
+#include <drivers/midi/devices/Adlib.hpp>
+#include <drivers/midi/devices/SbPro2.hpp>
+
 
 using namespace std;
 
@@ -359,7 +365,7 @@ int midi_adlib()
     return 0;
 }
 
-int midi_adlib_mus_file()
+int midi_adlib_mus_file_CONCURRENCY_ERROR_ON_SAME_DEVICE()
 {
     using namespace audio::scummvm;
     using hardware::opl::scummvm::Config;
@@ -398,6 +404,75 @@ int midi_adlib_mus_file()
 
     return 0;
 }
+
+int midi_adlib_mus_op2_file()
+{
+    using namespace audio::scummvm;
+    using hardware::opl::scummvm::Config;
+    using hardware::opl::scummvm::OplEmulator;
+
+    SdlMixerManager mixerManager;
+    mixerManager.init();
+
+    //spdlog::set_level(spdlog::level::debug);
+
+
+    std::shared_ptr<Mixer> mixer = mixerManager.getMixer();
+
+    auto emu = OplEmulator::MAME;
+    auto type = Config::OplType::OPL2;
+    
+    spdlog::set_level(spdlog::level::debug);
+
+
+    auto op2File = std::make_shared<files::dmx::OP2File>("test/fixtures/GENMIDI.OP2");
+    auto musFile = std::make_shared<files::dmx::MUSFile>("test/fixtures/D_E1M1.MUS");
+    auto midi = musFile->getMIDI();
+
+    {
+        auto opl = Config::create(emu, type, mixer);
+        if (opl.get() == nullptr)
+            return -1;
+
+        auto adlib_midi = std::make_shared<drivers::midi::devices::Adlib>(opl, op2File->getBank());
+        drivers::MIDDriver midDrv(mixer, adlib_midi);
+        spdlog::info("playing midi (OPL2) D_E1M1.MUS...");
+        midDrv.play(midi);
+        //utils::delayMillis(1200);
+        //midDrv.pause(); // TODO work out the pause
+        //utils::delayMillis(2000);
+        //midDrv.resume();
+        while (midDrv.isPlaying())
+            utils::delayMillis(1000);
+    }
+    {
+        
+        auto opl = Config::create(OplEmulator::DOS_BOX, Config::OplType::OPL3, mixer);
+        if (opl.get() == nullptr)
+            return -1;
+        auto sbpro_midi = std::make_shared<drivers::midi::devices::SbPro2>(opl, op2File->getBank());
+        drivers::MIDDriver midDrv(mixer, sbpro_midi);
+
+        spdlog::info("playing midi (OPL3) D_E1M1.MUS...");
+        midDrv.play(midi);
+        auto handle = *opl->getSoundHandle();
+        auto volume = mixer->getChannelVolume(handle);
+        spdlog::info("Volumne: {:d}", volume);
+        while (midDrv.isPlaying()) {
+            utils::delayMillis(1000);
+            // TODO: the volume should also be set through the MIDDrv for simplicity
+            //       at that point the mixer will be useful
+            // TODO: the volume should be set through the Device interface too
+            //       as the device/OPL has its own dedicated channel and therefore
+            //       it is like its own volume
+            //mixer->setChannelVolume(handle, volume / 2);
+            //mixer->pauseHandle(handle); // TODO this will do it too for pause the music i guess.
+        }
+
+    }
+    return 0;
+}
+
 
 int midi_adlib_xmi()
 {
@@ -448,7 +523,8 @@ int main(int argc, char* argv[])
     //renderMixer();
 
     //xmi_parser();
-    //midi_adlib_mus_file();
+    //midi_adlib_mus_file_CONCURRENCY_ERROR_ON_SAME_DEVICE()
+    midi_adlib_mus_op2_file();
     //midi_adlib_xmi();
 
     SDL_Init(SDL_INIT_TIMER | SDL_INIT_AUDIO);

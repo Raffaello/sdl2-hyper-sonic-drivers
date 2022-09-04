@@ -1,10 +1,11 @@
 #include <drivers/midi/scummvm/MidiDriver_ADLIB.hpp>
 #include <drivers/midi/scummvm/AdLibPart.hpp>
 
-
 #include <utils/algorithms.hpp>
 #include <spdlog/spdlog.h>
 #include <cassert>
+#include <audio/midi/types.hpp>
+
 
 namespace drivers
 {
@@ -91,7 +92,7 @@ namespace drivers
                 242, 243, 245, 247, 249, 251, 252, 254
             };
 
-            MidiDriver_ADLIB::MidiDriver_ADLIB(std::shared_ptr<hardware::opl::OPL> opl, const bool opl3mode)
+            MidiDriver_ADLIB::MidiDriver_ADLIB(const std::shared_ptr<hardware::opl::OPL>& opl, const bool opl3mode)
                 : _opl3Mode(opl3mode), _opl(opl)
             {
                 unsigned int i;
@@ -178,9 +179,14 @@ namespace drivers
             }
 
             void MidiDriver_ADLIB::send(int8_t chan, uint32_t b) {
+                using audio::midi::MIDI_EVENT_type_u;
+                using audio::midi::MIDI_EVENT_TYPES_HIGH;
+                
                 uint8_t param2 = (uint8_t)((b >> 16) & 0xFF);
                 uint8_t param1 = (uint8_t)((b >> 8) & 0xFF);
-                uint8_t cmd = (uint8_t)(b & 0xF0);
+                //uint8_t cmd = (uint8_t)(b & 0xF0);
+                MIDI_EVENT_type_u cmd;
+                cmd.val = static_cast<uint8_t>(b & 0xFF);
 
                 AdLibPart* part;
                 if (chan == 9)
@@ -188,34 +194,36 @@ namespace drivers
                 else
                     part = &_parts[chan];
 
-                switch (cmd) {
-                case 0x80:// Note Off
+                switch (static_cast<MIDI_EVENT_TYPES_HIGH>(cmd.high)) {
+                case MIDI_EVENT_TYPES_HIGH::NOTE_OFF:// Note Off
                     part->noteOff(param1);
+                    spdlog::debug("noteOff {} {}", chan, param1);
                     break;
-                case 0x90: // Note On
+                case MIDI_EVENT_TYPES_HIGH::NOTE_ON: // Note On
                     part->noteOn(param1, param2);
+                    spdlog::debug("noteOn {} {}", param1, param2);
                     break;
-                case 0xA0: // Aftertouch
+                case MIDI_EVENT_TYPES_HIGH::AFTERTOUCH: // Aftertouch
                     break; // Not supported.
-                case 0xB0: // Control Change
+                case MIDI_EVENT_TYPES_HIGH::CONTROLLER: // Control Change
                     part->controlChange(param1, param2);
                     break;
-                case 0xC0: // Program Change
+                case MIDI_EVENT_TYPES_HIGH::PROGRAM_CHANGE: // Program Change
                     part->programChange(param1);
                     break;
-                case 0xD0: // Channel Pressure
+                case MIDI_EVENT_TYPES_HIGH::CHANNEL_AFTERTOUCH: // Channel Pressure
                     break; // Not supported.
-                case 0xE0: // Pitch Bend
+                case MIDI_EVENT_TYPES_HIGH::PITCH_BEND: // Pitch Bend
                     part->pitchBend(static_cast<int16_t>((param1 | (param2 << 7)) - 0x2000));
                     break;
-                case 0xF0: // SysEx
+                case MIDI_EVENT_TYPES_HIGH::META_SYSEX: // SysEx
                     // We should never get here! SysEx information has to be
                     // sent via high-level semantic methods.
                     spdlog::warn("MidiDriver_ADLIB: Receiving SysEx command on a send() call");
                     break;
 
                 default:
-                    spdlog::warn("MidiDriver_ADLIB: Unknown send() command {0:#x}", cmd);
+                    spdlog::warn("MidiDriver_ADLIB: Unknown send() command {0:#x}", cmd.val);
                 }
             }
 
@@ -762,6 +770,7 @@ namespace drivers
                     }
                 }
 
+                //spdlog::debug("channel {} vol1 {} vol2 {} note {}", voice->_channel, vol1, vol2, note);
                 adlibSetupChannel(voice->_channel, instr, vol1, vol2);
                 if (!_opl3Mode)
                 {

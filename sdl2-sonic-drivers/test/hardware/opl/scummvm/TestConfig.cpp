@@ -51,7 +51,7 @@ namespace hardware
                 EXPECT_NE(w, nullptr);
             }
             INSTANTIATE_TEST_SUITE_P(
-                Config,
+                create,
                 ConfigTest,
                 ::testing::Values(
                     std::make_tuple<OplEmulator, Config::OplType>(OplEmulator::MAME, Config::OplType::OPL2),
@@ -70,6 +70,27 @@ namespace hardware
                     std::make_tuple<OplEmulator, Config::OplType>(OplEmulator::AUTO, Config::OplType::DUAL_OPL2),
                     std::make_tuple<OplEmulator, Config::OplType>(OplEmulator::AUTO, Config::OplType::OPL3)
                 )
+            );
+
+            class ConfigTestNull : public ConfigTest {};
+            TEST_P(ConfigTestNull, create_nullptr)
+            {
+                OplEmulator emu = std::get<0>(GetParam());
+                Config::OplType type = std::get<1>(GetParam());
+
+                auto opl = Config::create(emu, type, mixer);
+                EXPECT_EQ(opl, nullptr);
+                EXPECT_EQ(opl.get(), nullptr);
+            }
+            INSTANTIATE_TEST_SUITE_P(
+                create_nullptr,
+                ConfigTestNull,
+                ::testing::Values(
+                    std::make_tuple<OplEmulator, Config::OplType>(OplEmulator::MAME, Config::OplType::DUAL_OPL2),
+                    std::make_tuple<OplEmulator, Config::OplType>(OplEmulator::MAME, Config::OplType::OPL3),
+                    std::make_tuple<OplEmulator, Config::OplType>(OplEmulator::NUKED, Config::OplType::OPL2),
+                    std::make_tuple<OplEmulator, Config::OplType>(OplEmulator::NUKED, Config::OplType::DUAL_OPL2)
+                    )
             );
         }
     }

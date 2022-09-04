@@ -10,10 +10,10 @@ namespace hardware
             constexpr int FIXP_SHIFT = 16;
 
 
-            EmulatedOPL::EmulatedOPL(const std::shared_ptr<audio::scummvm::Mixer> mixer) : OPL(),
+            EmulatedOPL::EmulatedOPL(const std::shared_ptr<audio::scummvm::Mixer>& mixer) : OPL(),
                 _mixer(mixer)
             {
-                _handle = new audio::scummvm::SoundHandle();
+                _handle = std::make_shared<audio::scummvm::SoundHandle>();
             }
 
             EmulatedOPL::~EmulatedOPL()
@@ -24,7 +24,7 @@ namespace hardware
                 // the mixer thread at the same time.
                 stop();
 
-                delete _handle;
+                //delete _handle;
             }
 
             void EmulatedOPL::setCallbackFrequency(int timerFrequency)
@@ -38,6 +38,11 @@ namespace hardware
                 // This is equivalent to (getRate() << FIXP_SHIFT) / BASE_FREQ
                 // but less prone to arithmetic overflow.
                 _samplesPerTick = (d << FIXP_SHIFT) + (r << FIXP_SHIFT) / _baseFreq;
+            }
+
+            std::shared_ptr<audio::scummvm::SoundHandle> EmulatedOPL::getSoundHandle() const noexcept
+            {
+                return _handle;
             }
 
             int EmulatedOPL::readBuffer(int16_t* buffer, const int numSamples)
@@ -79,7 +84,7 @@ namespace hardware
                 return false;
             }
 
-            const std::shared_ptr<audio::scummvm::Mixer> EmulatedOPL::getMixer()
+            std::shared_ptr<audio::scummvm::Mixer> EmulatedOPL::getMixer() const noexcept
             {
                 return _mixer;
             }
@@ -89,7 +94,7 @@ namespace hardware
                 setCallbackFrequency(timerFrequency);
                 _mixer->playStream(
                     audio::scummvm::Mixer::SoundType::PLAIN,
-                    _handle,
+                    _handle.get(),
                     this,
                     -1,
                     audio::scummvm::Mixer::MaxVolume::CHANNEL,

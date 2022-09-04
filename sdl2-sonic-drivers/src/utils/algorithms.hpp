@@ -6,6 +6,7 @@
 #include <vector>
 #include <algorithm>
 #include <string>
+#include <stdexcept>
 
 namespace utils
 {
@@ -13,10 +14,12 @@ namespace utils
     constexpr uint32_t MKID_BE(T1 a, T2  b, T3  c, T4  d) { return a | b << 8 | c << 16 | d << 24; }
 
     // TODO replace with std::clamp
+    // @deprecated
     template <class T>
     static inline T CLIP(const T& value, const T& min, const T& max)
     {
-        return value < min ? min : value > max ? max : value;
+        //return value < min ? min : value > max ? max : value;
+        return std::clamp(value, min, max);
     }
 
     /**
@@ -80,8 +83,17 @@ namespace utils
     /// <returns>byte reads</returns>
     int decode_xmi_VLQ(const uint8_t buf[], uint32_t& out_value);
 
-    inline std::string midi_event_to_string(const std::vector<uint8_t>& e)
-    {
-        return std::string(++e.begin(), e.end());
-    }
+    /// <summary>
+    /// Converts a uint8_t vector to a string.
+    /// First value is the string size
+    /// </summary>
+    std::string chars_vector_to_string(const std::vector<uint8_t>::const_iterator& begin, const std::vector<uint8_t>::const_iterator& end);
+
+    /// <summary>
+    /// wrapper, helper function
+    /// First vector value is the string size
+    /// </summary>
+    /// <param name="e"></param>
+    /// <returns></returns>
+    std::string chars_vector_to_string(const std::vector<uint8_t>& e);
 }

@@ -58,8 +58,9 @@ namespace hardware
                     _opl = nullptr;
                 }
 
-                bool OPL::init() {
-                    if (_opl != nullptr)
+                bool OPL::init()
+                {
+                    if (_init)
                     {
                         stopCallbacks();
                         OPLDestroy(_opl);
@@ -67,7 +68,8 @@ namespace hardware
 
                     _opl = makeAdLibOPL(_mixer->getOutputRate());
 
-                    return (_opl != nullptr);
+                    _init = (_opl != nullptr);
+                    return _init;
                 }
 
                 void OPL::reset() {

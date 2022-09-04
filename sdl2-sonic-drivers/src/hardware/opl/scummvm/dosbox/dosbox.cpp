@@ -132,9 +132,10 @@ namespace hardware
                     return ret;
                 }
 
-                OPL::OPL(const std::shared_ptr<audio::scummvm::Mixer> mixer, Config::OplType type)
+                OPL::OPL(const std::shared_ptr<audio::scummvm::Mixer>& mixer, Config::OplType type)
                     : EmulatedOPL(mixer), _type(type), _rate(0), _emulator(nullptr), _reg({ 0 })
-                {}
+                {
+                }
                
                 OPL::~OPL()
                 {
@@ -150,6 +151,7 @@ namespace hardware
 
                 bool OPL::init()
                 {
+                    _init = false;
                     free();
 
                     memset(&_reg, 0, sizeof(_reg));
@@ -168,6 +170,7 @@ namespace hardware
                         _emulator->WriteReg(0x105, 1);
                     }
 
+                    _init = true;
                     return true;
                 }
 
@@ -330,13 +333,11 @@ namespace hardware
                 {
                     // For stereo OPL cards, we divide the sample count by 2,
                     // to match stereo AudioStream behavior.
-                    // HACK to check if is opl3, as it has issues working
-                    // when OPL3 executing as OPL2
-                    if (_type != Config::OplType::OPL2 && _emulator->opl3Active) {
+                    if (_type != Config::OplType::OPL2) {
                         length >>= 1;
                     }
 
-                    const unsigned int bufferLength = 512;
+                    constexpr unsigned int bufferLength = 512;
                     int32_t tempBuffer[bufferLength * 2];
 
                     if (_emulator->opl3Active) {

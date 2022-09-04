@@ -4,7 +4,7 @@ namespace audio
 {
     namespace midi
     {
-        MIDITrack::MIDITrack(const std::vector<MIDIEvent> events) : MIDITrack()
+        MIDITrack::MIDITrack(const std::vector<MIDIEvent>& events) : MIDITrack()
         {
             _events = events;
         }

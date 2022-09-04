@@ -62,6 +62,12 @@ macro_test(
 )
 
 macro_test(
+    EXE TestOpl
+    FILES "utils/TestOpl.cpp"
+    LINKS_PRIVATE sonic-drivers-static
+)
+
+macro_test(
     EXE TestPCSpeaker
     FILES "hardware/TestPCSpeaker.cpp"
     LINKS_PRIVATE sonic-drivers-static
@@ -109,6 +115,21 @@ macro_test(
 )
 
 macro_test(
+    EXE TestOP2File
+    FILES "files/dmx/TestOP2File.cpp"
+    LINKS_PRIVATE sonic-drivers-static
+    FIXTURES
+        "fixtures/GENMIDI.OP2"
+)
+
+macro_test(
+    EXE TestMIDDriver
+    FILES "drivers/TestMIDDriver.cpp"
+    LINKS_PRIVATE sonic-drivers-static
+    FIXTURES
+)
+
+macro_test(
     EXE TestMame
     FILES "hardware/opl/scummvm/mame/TestMame.cpp"
     LINKS_PRIVATE sonic-drivers-static
@@ -150,6 +171,30 @@ macro_test(
     EXE TestADLDriver
     FILES "drivers/westwood/TestADLDriver.cpp"
     LINKS_PRIVATE sonic-drivers-static
+)
+
+macro_test(
+    EXE TestWAVFile
+    FILES "files/TestWAVFile.cpp"
+    LINKS_PRIVATE sonic-drivers-static
+    FIXTURES
+        "fixtures/Wav_868kb.wav" # format 1
+)
+
+macro_test(
+    EXE TestVOCFile
+    FILES "files/TestVOCFile.cpp"
+    LINKS_PRIVATE sonic-drivers-static
+    FIXTURES
+        "fixtures/VSCREAM1.VOC"
+        "fixtures/DUNE.VOC"
+)
+
+macro_test(
+    EXE TestOplVoice
+    FILES "drivers/midi/opl/TestOplVoice.cpp"
+    LINKS_PRIVATE sonic-drivers-static
+    FIXTURES
 )
 
 ##### future tests ###
@@ -196,19 +241,4 @@ macro_test(
         "fixtures/TANDY.ADV"
 )
 
-macro_test(
-    EXE TestWAVFile
-    FILES "files/TestWAVFile.cpp"
-    LINKS_PRIVATE sonic-drivers-static
-    FIXTURES
-        "fixtures/Wav_868kb.wav" # format 1
-)
 
-macro_test(
-    EXE TestVOCFile
-    FILES "files/TestVOCFile.cpp"
-    LINKS_PRIVATE sonic-drivers-static
-    FIXTURES
-        "fixtures/VSCREAM1.VOC"
-        "fixtures/DUNE.VOC"
-)

@@ -13,7 +13,7 @@ namespace hardware
     {
         namespace scummvm
         {
-            std::shared_ptr<OPL> Config::create(OplEmulator oplEmulator, OplType type, const std::shared_ptr<audio::scummvm::Mixer> mixer)
+            std::shared_ptr<OPL> Config::create(OplEmulator oplEmulator, OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer)
             {
                 switch (oplEmulator)
                 {
@@ -26,11 +26,13 @@ namespace hardware
                         spdlog::warn("MAME OPL emulator doesn't support DUAL_OPL2 emulation");
                         return nullptr;
                     case OplType::OPL3:
-                        return std::make_shared<hardware::opl::mame::MameOPL>(mixer);
+                        spdlog::warn("MAME OPL3 not working yet.");
+                        //return std::make_shared<hardware::opl::mame::MameOPL>(mixer);
+                        return nullptr;
                     }
                 case OplEmulator::AUTO:
                 case OplEmulator::DOS_BOX:
-                    return std::make_shared<dosbox::OPL>(mixer, type);
+                        return std::make_shared<dosbox::OPL>(mixer, type);
                 case OplEmulator::NUKED:
                     if (type != OplType::OPL3) {
                         spdlog::warn("Nuke OPL emulator only supports OPL3 emulation");
@@ -41,7 +43,7 @@ namespace hardware
                     return std::make_shared<woody::WoodyOPL>(mixer, type == OplType::OPL2 ? false : true);
                     
                 default:
-                    spdlog::error("Unsupported OPL emulator {0:d}", oplEmulator);
+                    spdlog::error("Unsupported OPL emulator {:d}", static_cast<int>(oplEmulator));
                 }
 
                 return nullptr;

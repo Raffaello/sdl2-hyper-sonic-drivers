@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <memory>
 #include <functional>
+#include <audio/scummvm/SoundHandle.hpp>
 
 namespace hardware
 {
@@ -21,6 +22,10 @@ namespace hardware
             OPL();
             virtual ~OPL();
 
+            inline bool isInit() const noexcept
+            {
+                return _init;
+            }
             /**
              * Initializes the OPL emulator.
              *
@@ -63,7 +68,7 @@ namespace hardware
             /**
              * Start the OPL with callbacks.
              */
-            void start(std::shared_ptr<TimerCallBack> callback, int timerFrequency = DEFAULT_CALLBACK_FREQUENCY);
+            void start(const std::shared_ptr<TimerCallBack>& callback, int timerFrequency = DEFAULT_CALLBACK_FREQUENCY);
 
             /**
              * Stop the OPL
@@ -76,7 +81,16 @@ namespace hardware
              */
             virtual void setCallbackFrequency(int timerFrequency) = 0;
 
+            /**
+             * get Sound Handle for the mixer, used in Emulated Opl
+             * TODO: consider to remove the abastraction of EmulatedOPLs and RealOPLs
+             * TOOD: if this is returning this, probably should store the _handle here
+             *       instead of EmulatedOPL
+             */
+            virtual std::shared_ptr<audio::scummvm::SoundHandle> getSoundHandle() const noexcept = 0;
+
         protected:
+            bool _init = false;
             /**
              * Start the callbacks.
              */

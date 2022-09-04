@@ -1,0 +1,109 @@
+                           GENMIDI.OP2 FILE FORMAT
+                           =======================
+
+This is a short excerpt from MUSLIB.H:
+
+-------------------------------
+/* OPL2 instrument */
+struct OPL2instrument {
+/*00*/	BYTE    trem_vibr_1;	/* OP 1: tremolo/vibrato/sustain/KSR/multi */
+/*01*/	BYTE	att_dec_1;	/* OP 1: attack rate/decay rate */
+/*02*/	BYTE	sust_rel_1;	/* OP 1: sustain level/release rate */
+/*03*/	BYTE	wave_1;		/* OP 1: waveform select */
+/*04*/	BYTE	scale_1;	/* OP 1: key scale level */
+/*05*/	BYTE	level_1;	/* OP 1: output level */
+/*06*/	BYTE	feedback;	/* feedback/AM-FM (both operators) */
+/*07*/	BYTE    trem_vibr_2;	/* OP 2: tremolo/vibrato/sustain/KSR/multi */
+/*08*/	BYTE	att_dec_2;	/* OP 2: attack rate/decay rate */
+/*09*/	BYTE	sust_rel_2;	/* OP 2: sustain level/release rate */
+/*0A*/	BYTE	wave_2;		/* OP 2: waveform select */
+/*0B*/	BYTE	scale_2;	/* OP 2: key scale level */
+/*0C*/	BYTE	level_2;	/* OP 2: output level */
+/*0D*/	BYTE	unused;
+/*0E*/	sshort	basenote;	/* base note offset */
+};
+
+/* OP2 instrument file entry */
+struct OP2instrEntry {
+/*00*/	WORD	flags;			// see FL_xxx below
+/*02*/	BYTE	finetune;		// finetune value for 2-voice sounds
+/*03*/	BYTE	note;			// note # for fixed instruments
+/*04*/	struct OPL2instrument instr[2];	// instruments
+};
+
+#define FL_FIXED_PITCH	0x0001		// note has fixed pitch (see below)
+#define FL_UNKNOWN	0x0002		// ??? (used in instrument #65 only)
+#define FL_DOUBLE_VOICE	0x0004		// use two voices instead of one
+
+
+#define OP2INSTRSIZE	sizeof(struct OP2instrEntry) // instrument size (36 bytes)
+#define OP2INSTRCOUNT	(128 + 81-35+1)	// instrument count
+------------------------------
+
+The structure OP2instrEntry describes one instrument definition file entry.
+The file has this structure:
+
+  offset    contents
+ -----------------------------------
+   0000     header    "##OPL_II##"
+   0008     instruments (OP2INSTRCOUNT * OP2INSTRSIZE = 6300 bytes)
+   18A4     instrument names (OP2INSTRCOUNT * 32 = 5600 bytes), may be
+            ignored
+   2E84     end of file
+
+Every instrument entry (struct OP2instrEntry) contains one or two actual
+instrument definitions (struct OPL2instrument), depending on the
+FL_DOUBLE_VOICE flag. The instrument entry has always the same size even if
+only one actual instrument is used. (Confusing, isn't it?)
+
+If a FL_FIXED_PITCH flag is set, the instrument has always the same pitch
+(note number) and the value given in NOTE-ON MIDI message is not important.
+This feature is used to implement percussions, which are fixed and where the
+note number is used to select an instrument (so called key-mapped
+instruments).
+
+If a FL_DOUBLE_VOICE flag is set, the player tries to play _both_
+instruments simultaneously, if possible. This measure improves sound quality
+somehow (in fact, it's a fake 4-operator synthesis :).
+
+
+Most registers in this file are stored in the same format as they are sent
+to the synth.
+
+Here's a map of the first instrument (Piano):
+
+offset    0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19
+
+000000:  00 00 80 00 30 F0 F3 01 40 14 0A 30 F1 F4 01 00 00 00 00 00
+         \_________/ \_____________________________________________/
+           options   ||            primary instrument
+         |   | || || ||                   ||
+         |   | || ++- fixed note #        ||
+         |   | ++---- finetune + 0x80     ||
+         \___/------- flags               ||
+                     ||                   ||
+                     || || || || || || || || || || || || || || |   |
+   OP 1: trem/vibr --++ || || || || || || || || || || || || || |   |
+         attack/decay --++ || || || || || || || || || || || || |   |
+         sustain/release --++ || || || || || || || || || || || |   |
+         waveform ------------++ || || || || || || || || || || |   |
+         key scale --------------++ || || || || || || || || || |   |
+         output level --------------++ || || || || || || || || |   |
+         feedback/modulation ----------++ || || || || || || || |   |
+   OP 2: trem/vibr -----------------------++ || || || || || || |   |
+         attack/decay -----------------------++ || || || || || |   |
+         sustain/release -----------------------++ || || || || |   |
+         waveform ---------------------------------++ || || || |   |
+         key scale -----------------------------------++ || || |   |
+         output level -----------------------------------++ || |   |
+   both: unused --------------------------------------------++ |   |
+         base note offset -------------------------------------\___/
+
+
+offset   20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35
+
+         00 00 F0 00 00 00 00 00 00 F0 00 00 00 00 00 00
+         \_____________________________________________/
+                        secondary instrument
+        .... the same as above ....
+

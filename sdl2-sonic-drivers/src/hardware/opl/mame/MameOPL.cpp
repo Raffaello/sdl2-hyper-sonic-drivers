@@ -13,7 +13,7 @@ namespace hardware
             constexpr int OPL3_INTERNAL_FREQ = 14400000;  // The OPL3 operates at 14.4MHz;
 
 
-            MameOPL::MameOPL(const std::shared_ptr<audio::scummvm::Mixer> mixer) : EmulatedOPL(mixer),
+            MameOPL::MameOPL(const std::shared_ptr<audio::scummvm::Mixer>& mixer) : EmulatedOPL(mixer),
                 _chip(nullptr), _opl(nullptr)
             {}
 
@@ -34,20 +34,20 @@ namespace hardware
             }
             bool MameOPL::init()
             {
-                if (_opl != nullptr) {
+                _init = _opl != nullptr;
+                if (_init) {
                     return true;
                 }
 
                 _opl = new ymfm::ymf262(_ymfm);
-                
 
                 //auto rate = _opl->sample_rate(OPL3_INTERNAL_FREQ);
                 //_opl->sample_rate(_mixer->getOutputRate());
-                
 
                 _chip = ymf262_init(0, OPL3_INTERNAL_FREQ, _mixer->getOutputRate());
-
-                return _opl != nullptr;
+                _init = _opl != nullptr;
+                
+                return _init;
             }
             void MameOPL::reset()
             {

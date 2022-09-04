@@ -14,6 +14,7 @@ namespace audio
             return;
         }
 
+        // todo this if could be removed
         if (track.isLocked())
         {
             _tracks.push_back(track);

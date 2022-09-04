@@ -23,18 +23,19 @@ namespace hardware
             class EmulatedOPL : public OPL, protected audio::scummvm::AudioStream
             {
             public:
-                EmulatedOPL(const std::shared_ptr<audio::scummvm::Mixer> mixer);
+                EmulatedOPL(const std::shared_ptr<audio::scummvm::Mixer>& mixer);
                 virtual ~EmulatedOPL();
 
                 // OPL API
                 void setCallbackFrequency(int timerFrequency);
-
+                std::shared_ptr<audio::scummvm::SoundHandle> getSoundHandle() const noexcept override;
                 // AudioStream API
                 int readBuffer(int16_t* buffer, const int numSamples);
                 int getRate() const;
                 bool endOfData() const noexcept;
                 
-                const std::shared_ptr<audio::scummvm::Mixer> getMixer();
+                // TODO: this can be bring up to OPL interface
+                std::shared_ptr<audio::scummvm::Mixer> getMixer() const noexcept;
 
             protected:
                 std::shared_ptr<audio::scummvm::Mixer> _mixer;
@@ -59,8 +60,7 @@ namespace hardware
                 int _nextTick = 0;
                 int _samplesPerTick = 0;
 
-                // TODO use a shared ptr
-                audio::scummvm::SoundHandle* _handle;
+                std::shared_ptr<audio::scummvm::SoundHandle> _handle;
             };
         }
     }

@@ -73,6 +73,8 @@ namespace drivers
                     memcpy(&_partInstr, &g_gmInstrumentsOPL3[program][0], sizeof(AdLibInstrument));
                     memcpy(&_partInstrSecondary, &g_gmInstrumentsOPL3[program][1], sizeof(AdLibInstrument));
                 }
+
+                //spdlog::debug("Program {} {}", _channel, program);
             }
 
             void AdLibPart::pitchBend(int16_t bend)
@@ -100,9 +102,11 @@ namespace drivers
                     break;
                 case 1:
                     modulationWheel(value);
+                    //spdlog::debug("modwheel value {}", value);
                     break;
                 case 7:
                     volume(value);
+                    //spdlog::debug("volume value {}", value);
                     break;
                 case 10:
                     panPosition(value);
@@ -249,7 +253,7 @@ namespace drivers
                 // Sam&Max allows for instrument overwrites, but we will not support it
                 // until we can find any track actually using it.
                 if (_owner->_opl3Mode) {
-                    spdlog::warn("AdLibPart::sysEx_customInstrument: Used in OPL3 mode");
+                    spdlog::warn("AdLibPart::sysEx_customInstrument: Used in OPL3 mode, not supported");
                     return;
                 }
 

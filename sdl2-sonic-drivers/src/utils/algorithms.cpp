@@ -1,5 +1,6 @@
 #include <utils/algorithms.hpp>
 #include <stdexcept>
+#include <spdlog/spdlog.h>
 
 namespace utils
 {
@@ -43,6 +44,17 @@ namespace utils
         } while (true);
 
         return i;
+    }
 
+    std::string chars_vector_to_string(const std::vector<uint8_t>::const_iterator& begin, const std::vector<uint8_t>::const_iterator& end)
+    {
+        std::string str(begin, end);
+        str.shrink_to_fit();
+        return str;
+    }
+
+    std::string chars_vector_to_string(const std::vector<uint8_t>& e)
+    {
+        return chars_vector_to_string(e.begin(), e.end());
     }
 }

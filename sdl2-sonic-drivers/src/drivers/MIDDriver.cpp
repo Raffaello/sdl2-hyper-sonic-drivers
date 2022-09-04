@@ -13,7 +13,7 @@ namespace drivers
         return static_cast<unsigned int>(static_cast<float>(tempo) / static_cast<float>(division));
     }
 
-    MIDDriver::MIDDriver(std::shared_ptr<audio::scummvm::Mixer> mixer, std::shared_ptr<midi::Device> device)
+    MIDDriver::MIDDriver(const std::shared_ptr<audio::scummvm::Mixer>& mixer, const std::shared_ptr<midi::Device>& device)
         : _mixer(mixer), _device(device)
     {
     }
@@ -23,7 +23,7 @@ namespace drivers
         stop();
     }
     
-    void MIDDriver::play(const std::shared_ptr<audio::MIDI> midi) noexcept
+    void MIDDriver::play(const std::shared_ptr<audio::MIDI>& midi) noexcept
     {
         using audio::midi::MIDI_FORMAT;
 
@@ -97,6 +97,8 @@ namespace drivers
     void MIDDriver::processTrack(const audio::midi::MIDITrack& track, const uint16_t division)
     {
         using audio::midi::MIDI_EVENT_TYPES_HIGH;
+        using audio::midi::MIDI_META_EVENT_TYPES_LOW;
+        using audio::midi::MIDI_META_EVENT;
 
         _isPlaying = true;
         uint32_t tempo = DEFAULT_MIDI_TEMPO; //120 BPM;
@@ -105,13 +107,25 @@ namespace drivers
         spdlog::debug("tempo_micros = {}", tempo_micros);
         unsigned int start = utils::getMicro<unsigned int>();
         const auto& tes = track.getEvents();
-        std::array<uint8_t, 3> msg = {};
-        uint8_t msg_size = 0;
+        
         for (const auto& e : tes)
         {
-            while(_paused) {
+            bool paused = false;
+            while(_paused)
+            {
+                if (!paused)
+                {
+                    paused = true;
+                    _device->pause();
+                }
                 utils::delayMillis(PAUSE_MILLIS);
                 start = utils::getMicro<unsigned int>();
+            }
+
+            if (paused)
+            {
+                _device->resume();
+                //paused = true; // it will be false next loop iteration
             }
 
             if (_force_stop)
@@ -119,34 +133,70 @@ namespace drivers
 
             switch (static_cast<MIDI_EVENT_TYPES_HIGH>(e.type.high))
             {
-            case MIDI_EVENT_TYPES_HIGH::META:
-                if (e.type.low == 0xF)
+            case MIDI_EVENT_TYPES_HIGH::META_SYSEX:
+            {
+                switch (static_cast<MIDI_META_EVENT_TYPES_LOW>(e.type.low))
                 {
+                case MIDI_META_EVENT_TYPES_LOW::META: {
                     const uint8_t type = e.data[0]; // must be < 128
-                    if (static_cast<audio::midi::MIDI_META_EVENT>(type) == audio::midi::MIDI_META_EVENT::SET_TEMPO)
+                    switch (static_cast<audio::midi::MIDI_META_EVENT>(type))
                     {
+                    case MIDI_META_EVENT::SET_TEMPO: {
                         const int skip = 1;
                         tempo = (e.data[skip] << 16) + (e.data[skip + 1] << 8) + (e.data[skip + 2]);
                         tempo_micros = tempo_to_micros(tempo, division);
                         spdlog::debug("Tempo {}, ({} bpm) -- microseconds/tick {}", tempo, 60000000 / tempo, tempo_micros);
+                        break;
                     }
+                    case MIDI_META_EVENT::SEQUENCE_NAME: {
+                        std::string name = utils::chars_vector_to_string(++(e.data.begin()), e.data.end());
+                        spdlog::info("SEQUENCE NAME: {}", name);
+                        break;
+                    }
+                    default: {
+                        spdlog::warn("MIDI_META_EVENT_TYPES_LOW not implemented/recognized: {:#02x}", type);
+                        break;
+                    }
+                    }
+
+                    continue; // META event processed, go on next MIDI event
+                    //break;
                 }
-                continue;
+                case MIDI_META_EVENT_TYPES_LOW::SYS_EX0: {
+                    spdlog::debug("SYS_EX0 META event...");
+                    // First byte length encoded in VLQ, remaining data is the sysEx data
+                    //uint8_t vlq_length = e.data[0];
+
+                    _device->sendSysEx(e);
+                    continue;
+                }
+                case MIDI_META_EVENT_TYPES_LOW::SYS_EX7: {
+                    spdlog::debug("SYS_EX7 META event...");
+                    _device->sendSysEx(e);
+                    continue;
+                    //break;
+                }
+                default: {
+                    break;
+                }
+                }
+                break;
+            }
             case MIDI_EVENT_TYPES_HIGH::NOTE_OFF:
             case MIDI_EVENT_TYPES_HIGH::NOTE_ON:
             case MIDI_EVENT_TYPES_HIGH::AFTERTOUCH:
             case MIDI_EVENT_TYPES_HIGH::CONTROLLER:
             case MIDI_EVENT_TYPES_HIGH::PITCH_BEND:
-                msg[0] = e.type.val;
+                /*msg[0] = e.type.val;
                 msg[1] = e.data[0];
                 msg[2] = e.data[1];
-                msg_size = 3;
+                msg_size = 3;*/
                 break;
             case MIDI_EVENT_TYPES_HIGH::PROGRAM_CHANGE:
             case MIDI_EVENT_TYPES_HIGH::CHANNEL_AFTERTOUCH:
-                msg[0] = e.type.val;
+                /*msg[0] = e.type.val;
                 msg[1] = e.data[0];
-                msg_size = 2;
+                msg_size = 2;*/
                 break;
             default:
                 break;
@@ -169,8 +219,7 @@ namespace drivers
                 }
             }
 
-            _device->sendMessage(msg.data(), msg_size);
-            //_device->sendEvent(e);
+            _device->sendEvent(e);
         }
 
         _isPlaying = false;

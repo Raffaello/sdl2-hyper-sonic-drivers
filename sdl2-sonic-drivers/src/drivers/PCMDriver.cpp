@@ -7,7 +7,7 @@ namespace drivers
     using audio::scummvm::Mixer;
     using audio::streams::SoundStream;
 
-    PCMDriver::PCMDriver(std::shared_ptr<audio::scummvm::Mixer> mixer, const int max_channels) :
+    PCMDriver::PCMDriver(const std::shared_ptr<audio::scummvm::Mixer>& mixer, const int max_channels) :
         _mixer(mixer)
     {
         _max_streams = std::min(audio::scummvm::MIXER_MAX_CHANNELS, max_channels);
@@ -28,7 +28,7 @@ namespace drivers
         return false;
     }
 
-    bool PCMDriver::isPlaying(const std::shared_ptr<audio::Sound> sound) const noexcept
+    bool PCMDriver::isPlaying(const std::shared_ptr<audio::Sound>& sound) const noexcept
     {
         // TODO: should be returned the soundHandle or soundID in play method to be used later on?
         // BODY: so here it can be addressed in constant time instead of searching for sound in the slots?
@@ -41,7 +41,7 @@ namespace drivers
         return false;
     }
 
-    void PCMDriver::play(const std::shared_ptr<audio::Sound> sound, const uint8_t volume, const int8_t balance)
+    void PCMDriver::play(const std::shared_ptr<audio::Sound>& sound, const uint8_t volume, const int8_t balance)
     {
         // TODO: this method is not thread-safe at the moment.
         int cur_stream;

@@ -38,7 +38,9 @@ install(FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/scummvm/SDLMixerManager.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/MIDI.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/Sound.hpp
-    
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/opl/banks/OP2Bank.hpp
+
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/westwood/ADLDriver.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/PCMDriver.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/MIDDriver.hpp
@@ -46,10 +48,13 @@ install(FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/Device.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/Native.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/ScummVM.hpp
-    
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/Adlib.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/SbPro2.hpp
+
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/westwood/ADLFile.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/MIDFile.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/dmx/MUSFile.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/dmx/OP2File.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/miles/XMIFile.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/miles/AILDriverFile.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/WAVFile.hpp
@@ -64,6 +69,12 @@ install(FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/woody/WoodyOPL.hpp
     
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/PCSpeaker.hpp
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/algorithms.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/constants.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/endianness.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/opl.hpp
+
     DESTINATION "static/include"
 )
 
@@ -96,7 +107,6 @@ target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/DiskRendererMixerManager.cpp
     
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/MIDI.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/midi/MIDIEvent.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/midi/MIDITrack.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/Sound.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/streams/SoundStream.cpp
@@ -107,12 +117,15 @@ target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/scummvm/RateConverter.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/scummvm/Timestamp.cpp
     # --- #
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/opl/banks/OP2Bank.cpp
+    # --- # 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/westwood/ADLDriver.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/PCMDriver.cpp
     #${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/miles/XMidi.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/MIDDriver.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/Native.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/miles/XMIParser.cpp
+   
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/Native.cpp
     
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/scummvm/MidiDriver_BASE.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/scummvm/MidiDriver.cpp
@@ -122,12 +135,20 @@ target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/scummvm/MidiDriver_ADLIB.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/ScummVM.cpp
 
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/opl/OplDriver.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/opl/OplChannel.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/opl/OplVoice.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/Opl.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/Adlib.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/SbPro2.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/opl/OplWriter.cpp
     # --- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/File.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/IFFFile.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/westwood/ADLFile.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/MIDFile.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/dmx/MUSFile.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/dmx/OP2File.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/miles/XMIFile.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/miles/AILDriverFile.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/RIFFFile.cpp
@@ -160,6 +181,7 @@ target_sources(${LIB_NAME} PRIVATE
     # --- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/endianness.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/algorithms.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/opl.cpp
 )
 
 target_link_libraries(${LIB_NAME} PUBLIC ${LIB_SDL2} spdlog::spdlog RtMidi::rtmidi)
@@ -187,6 +209,17 @@ add_executable(sdl2-sonic-drivers "sdl2-sonic-drivers.cpp")
 
 target_link_libraries(sdl2-sonic-drivers PRIVATE ${LIB_SDL2main} )
 target_link_libraries(sdl2-sonic-drivers PRIVATE sonic-drivers-static)
+
+if(MSVC)
+# @see https://docs.microsoft.com/en-us/cpp/build/reference/compiler-options-listed-by-category?view=vs-2019
+    #add_compile_options(#/WX
+    #$<$<CONFIG:DEBUG>:"/W4">
+      #  $<$<CONFIG:RELEASE>:/O2 /Ot /GA /GL /Gw>
+    #)
+   
+    ## use static library ...
+    ##add_link_options($<$<CONFIG:Debug>:"/DEBUG">)
+endif()
 
 if(BUILD_TESTING)
     add_subdirectory("test")
