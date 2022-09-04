@@ -86,6 +86,35 @@ namespace drivers
                 }
             }
 
+            void OplDriver::pause() const noexcept
+            {
+                for (auto it = _voiceIndexesInUse.begin(); it != _voiceIndexesInUse.end(); ++it) {
+                    const uint8_t i = *it;
+                    const OPL2instrument_t* instr = _voices[i]->getInstrument();
+                    // TODO: pause in OplVoice as method
+                    if (_opl3_mode)
+                        _oplWriter->writeValue(0xC0, i, instr->feedback);
+                    _oplWriter->writeVolume(i, instr, 0);
+                    _oplWriter->writeChannel(0x60, i, 0, 0);	// attack, decay
+                    _oplWriter->writeChannel(0x80, i, instr->sust_rel_1 & 0xF0, instr->sust_rel_2 & 0xF0);	// sustain, release
+                }
+            }
+
+            void OplDriver::resume() const noexcept
+            {
+                for (auto it = _voiceIndexesInUse.begin(); it != _voiceIndexesInUse.end(); ++it) {
+                    const uint8_t i = *it;
+                    //const uint8_t chan = _voices[i]->getChannel();
+                    const OPL2instrument_t* instr = _voices[i]->getInstrument();
+                    // TODO: resume in OplVoice as method
+                    _oplWriter->writeChannel(0x60, i, instr->att_dec_1, instr->att_dec_2);
+                    _oplWriter->writeChannel(0x80, i, instr->sust_rel_1, instr->sust_rel_2);
+                    _oplWriter->writeVolume(i, instr, _voices[i]->getRealVolume());
+                    if (_opl3_mode)
+                        _oplWriter->writePan(i, instr, _channels[_voices[i]->getChannel()]->pan);
+                }
+            }
+
             void OplDriver::noteOff(const uint8_t chan, const uint8_t note) noexcept
             {
                 uint8_t sustain = _channels[chan]->sustain;

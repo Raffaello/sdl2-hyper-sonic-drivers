@@ -18,6 +18,8 @@ namespace drivers
                 void sendEvent(const audio::midi::MIDIEvent& e) const noexcept override;
                 void sendMessage(const uint8_t msg[], const uint8_t size) const noexcept override;
                 void sendSysEx(const audio::midi::MIDIEvent& e) const noexcept override;
+                virtual void pause() const noexcept override;
+                virtual void resume() const noexcept override;
 
                 //void loadBankOP2();
             protected:

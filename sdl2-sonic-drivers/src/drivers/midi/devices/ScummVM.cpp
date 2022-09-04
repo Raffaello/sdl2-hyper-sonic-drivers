@@ -48,6 +48,16 @@ namespace drivers
             {
                 //TODO..
             }
+
+            void ScummVM::pause() const noexcept
+            {
+                // TODO
+            }
+
+            void ScummVM::resume() const noexcept
+            {
+                // TODO
+            }
         }
     }
 }

@@ -438,9 +438,9 @@ int midi_adlib_mus_op2_file()
         drivers::MIDDriver midDrv(mixer, adlib_midi);
         spdlog::info("playing midi (OPL2) D_E1M1.MUS...");
         midDrv.play(midi);
-        utils::delayMillis(1000);
+        utils::delayMillis(1200);
         midDrv.pause(); // TODO work out the pause
-        utils::delayMillis(1000);
+        utils::delayMillis(2000);
         midDrv.resume();
         while (midDrv.isPlaying())
             utils::delayMillis(1000);

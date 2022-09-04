@@ -37,6 +37,16 @@ namespace drivers
             {
                 // TODO
             }
+
+            void Native::pause() const noexcept
+            {
+                // TODO
+            }
+
+            void Native::resume() const noexcept
+            {
+                // TODO
+            }
         }
     }
 }

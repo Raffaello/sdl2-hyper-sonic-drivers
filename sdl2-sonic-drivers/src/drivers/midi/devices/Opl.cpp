@@ -39,6 +39,18 @@ namespace drivers
                 // TODO
                 //_adlib->send(e);
             }
+
+            void Opl::pause() const noexcept
+            {
+                _opl->pause();
+
+            }
+
+            void Opl::resume() const noexcept
+            {
+                _opl->resume();
+            }
+
         }
     }
 }

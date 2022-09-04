@@ -28,6 +28,7 @@ namespace drivers
                 uint8_t sustain = 0;           // sustain pedal value
                 uint8_t modulation = 0;        // modulation pot value
 
+                inline const audio::opl::banks::Op2BankInstrument_t* getInstrument() const noexcept { return &_instrument; }
                 // TODO: this should return an OPL_BANK_INSTRUMENT_INTERFACE or something instead...
                 const audio::opl::banks::Op2BankInstrument_t* setInstrument(const uint8_t note) noexcept;
 

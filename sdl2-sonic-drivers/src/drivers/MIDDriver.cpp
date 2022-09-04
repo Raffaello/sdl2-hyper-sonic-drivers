@@ -110,9 +110,22 @@ namespace drivers
         
         for (const auto& e : tes)
         {
-            while(_paused) {
+            bool paused = false;
+            while(_paused)
+            {
+                if (!paused)
+                {
+                    paused = true;
+                    _device->pause();
+                }
                 utils::delayMillis(PAUSE_MILLIS);
                 start = utils::getMicro<unsigned int>();
+            }
+
+            if (paused)
+            {
+                _device->resume();
+                paused = true;
             }
 
             if (_force_stop)

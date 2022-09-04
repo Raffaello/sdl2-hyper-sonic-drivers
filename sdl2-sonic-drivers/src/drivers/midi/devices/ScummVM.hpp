@@ -27,6 +27,8 @@ namespace drivers
                 void sendEvent(const audio::midi::MIDIEvent& e) const noexcept override;
                 void sendMessage(const uint8_t msg[], const uint8_t size) const noexcept override;
                 void sendSysEx(const audio::midi::MIDIEvent& e) const noexcept override;
+                void pause() const noexcept override;
+                void resume() const noexcept override;
 
             private:
                 std::shared_ptr<drivers::midi::scummvm::MidiDriver_ADLIB> _adlib;

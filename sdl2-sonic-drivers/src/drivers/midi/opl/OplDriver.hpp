@@ -33,6 +33,8 @@ namespace drivers
                 ~OplDriver();
 
                 void send(const audio::midi::MIDIEvent& e) /*const*/ noexcept;
+                void pause() const noexcept;
+                void resume() const noexcept;
 
             private:
                 const bool _opl3_mode;
