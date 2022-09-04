@@ -59,7 +59,7 @@ namespace drivers
 
         }
 
-        void MIDDriverMock::proteted_processTrack(const audio::midi::MIDITrack& track, const uint16_t division)
+        void protected_processTrack(const audio::midi::MIDITrack& track, const uint16_t division)
         {
             processTrack(track, division);
         }
@@ -104,7 +104,7 @@ namespace drivers
         midi_track.addEvent(e);
         
         MIDDriverMock middrv(mixer, device);
-        middrv.proteted_processTrack(midi_track, 0);
+        middrv.protected_processTrack(midi_track, 0);
 
         // retrieve spdlog output
         std::string output = _oss.str();
