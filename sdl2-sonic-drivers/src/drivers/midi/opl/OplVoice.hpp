@@ -69,6 +69,9 @@ namespace drivers
                 inline uint8_t getChannel() const noexcept { return _channel; }
                 inline const hardware::opl::OPL2instrument_t* getInstrument() const noexcept { return _instr; }
 
+                void pause() const noexcept;
+                void resume() const noexcept;
+
             protected:
                 const uint8_t _slot;                        /* OPL channel number */
                 

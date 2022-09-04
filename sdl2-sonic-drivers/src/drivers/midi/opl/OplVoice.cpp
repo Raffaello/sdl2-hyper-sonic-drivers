@@ -185,6 +185,25 @@ namespace drivers
                 }
                 return _slot;
             }
+
+            void OplVoice::pause() const noexcept
+            {
+                _oplWriter->writeVolume(_slot, _instr, 0);
+                _oplWriter->writeChannel(0x60, _slot, 0, 0);	// attack, decay
+                _oplWriter->writeChannel(0x80, _slot,
+                    _instr->sust_rel_1 & 0xF0,
+                    _instr->sust_rel_2 & 0xF0);	// sustain, release
+            }
+
+            void OplVoice::resume() const noexcept
+            {
+                _oplWriter->writeChannel(0x60, _slot, _instr->att_dec_1, _instr->att_dec_2);
+                _oplWriter->writeChannel(0x80, _slot, _instr->sust_rel_1, _instr->sust_rel_2);
+                _oplWriter->writeVolume(_slot, _instr, getRealVolume());
+                //if (_opl3_mode)
+                //_oplWriter->writePan(_slot, _instr, _channel- getChannel()]->pan);
+
+            }
         }
     }
 }
