@@ -34,7 +34,8 @@ namespace hardware
                 int getRate() const;
                 bool endOfData() const noexcept;
                 
-                const std::shared_ptr<audio::scummvm::Mixer> getMixer();
+                // TODO: this can be bring up to OPL interface
+                const std::shared_ptr<audio::scummvm::Mixer> getMixer() const noexcept;
 
             protected:
                 std::shared_ptr<audio::scummvm::Mixer> _mixer;
@@ -59,7 +60,6 @@ namespace hardware
                 int _nextTick = 0;
                 int _samplesPerTick = 0;
 
-                // TODO use a shared ptr
                 std::shared_ptr<audio::scummvm::SoundHandle> _handle;
             };
         }

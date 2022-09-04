@@ -460,8 +460,12 @@ int midi_adlib_mus_op2_file()
         spdlog::info("Volumne: {:d}", volume);
         while (midDrv.isPlaying()) {
             utils::delayMillis(1000);
-            mixer->setChannelVolume(handle, volume / 2);
-
+            // TODO: the volume should also be set through the MIDDrv for simplicity
+            //       at that point the mixer will be useful
+            // TODO: the volume should be set through the Device interface too
+            //       as the device/OPL has its own dedicated channel and therefore
+            //       it is like its own volume
+            //mixer->setChannelVolume(handle, volume / 2);
         }
 
     }

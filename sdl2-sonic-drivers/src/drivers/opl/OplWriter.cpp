@@ -142,7 +142,6 @@ namespace drivers
             _writeFreq(slot, freq, octave, keyOn);
         }
 
-#include <cassert>
         /// <summary>
         /// 0-64 OPL volume range inverted as 0 is max volume.
         /// 
@@ -150,7 +149,7 @@ namespace drivers
         uint8_t OplWriter::_convertVolume(const uint8_t data, const uint8_t volume) noexcept
         {
 #if 0
-            uint8_t vol = std::min<uint8_t>(volume, 127);
+            const uint8_t vol = std::min<uint8_t>(volume, 127);
             unsigned n = 0x3F - (data & 0x3F);
             n = (n * (unsigned)volumetable[vol]) >> 7;
             return (0x3F - n) | (data & 0xC0);

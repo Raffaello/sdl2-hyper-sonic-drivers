@@ -84,7 +84,7 @@ namespace hardware
                 return false;
             }
 
-            const std::shared_ptr<audio::scummvm::Mixer> EmulatedOPL::getMixer()
+            const std::shared_ptr<audio::scummvm::Mixer> EmulatedOPL::getMixer() const noexcept
             {
                 return _mixer;
             }
