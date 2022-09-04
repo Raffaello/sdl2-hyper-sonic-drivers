@@ -429,22 +429,22 @@ int midi_adlib_mus_op2_file()
     auto musFile = std::make_shared<files::dmx::MUSFile>("test/fixtures/D_E1M1.MUS");
     auto midi = musFile->getMIDI();
 
-    //{
-    //    auto opl = Config::create(emu, type, mixer);
-    //    if (opl.get() == nullptr)
-    //        return -1;
+    {
+        auto opl = Config::create(emu, type, mixer);
+        if (opl.get() == nullptr)
+            return -1;
 
-    //    auto adlib_midi = std::make_shared<drivers::midi::devices::Adlib>(opl, op2File->getBank());
-    //    drivers::MIDDriver midDrv(mixer, adlib_midi);
-    //    spdlog::info("playing midi (OPL2) D_E1M1.MUS...");
-    //    midDrv.play(midi);
-    //    //utils::delayMillis(1200);
-    //    //midDrv.pause(); // TODO work out the pause
-    //    //utils::delayMillis(2000);
-    //    //midDrv.resume();
-    //    while (midDrv.isPlaying())
-    //        utils::delayMillis(1000);
-    //}
+        auto adlib_midi = std::make_shared<drivers::midi::devices::Adlib>(opl, op2File->getBank());
+        drivers::MIDDriver midDrv(mixer, adlib_midi);
+        spdlog::info("playing midi (OPL2) D_E1M1.MUS...");
+        midDrv.play(midi);
+        //utils::delayMillis(1200);
+        //midDrv.pause(); // TODO work out the pause
+        //utils::delayMillis(2000);
+        //midDrv.resume();
+        while (midDrv.isPlaying())
+            utils::delayMillis(1000);
+    }
     {
         
         auto opl = Config::create(OplEmulator::NUKED, Config::OplType::OPL3, mixer);
