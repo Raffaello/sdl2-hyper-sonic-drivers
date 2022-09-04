@@ -38,8 +38,8 @@ namespace drivers
             {
                 assert(size >= 2 && size <= 3);
                 uint32_t b = msg[0] + (msg[1] << 8);
-                // the if below should be commented out
-                //if (size == 3)
+
+                if (size == 3)
                     b += (msg[2] << 16);
                 _adlib->send(b);
             }
