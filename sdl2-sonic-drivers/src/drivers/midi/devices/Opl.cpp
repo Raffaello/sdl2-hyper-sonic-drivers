@@ -12,12 +12,13 @@ namespace drivers
                 // TODO: if opl is not opl3 opl3_mode should be force to be false as the "hardware"
                 //       doesn't support opl3 mode.
                 //       This need to take the OPL type from OPL interface.
-                _opl = std::make_shared<drivers::midi::opl::OplDriver>(opl, op2Bank, opl3_mode);
+                _oplDriver = std::make_shared<drivers::midi::opl::OplDriver>(opl, op2Bank, opl3_mode);
+                
             }
 
             void Opl::sendEvent(const audio::midi::MIDIEvent& e) const noexcept
             {
-                _opl->send(e);
+                _oplDriver->send(e);
             }
 
             void Opl::sendMessage(const uint8_t msg[], const uint8_t size) const noexcept
@@ -42,13 +43,13 @@ namespace drivers
 
             void Opl::pause() const noexcept
             {
-                _opl->pause();
+                _oplDriver->pause();
 
             }
 
             void Opl::resume() const noexcept
             {
-                _opl->resume();
+                _oplDriver->resume();
             }
 
         }
