@@ -151,7 +151,6 @@ namespace drivers
                     case MIDI_META_EVENT::SEQUENCE_NAME: {
                         std::string name = utils::chars_vector_to_string(++(e.data.begin()), e.data.end());
                         spdlog::info("SEQUENCE NAME: {}", name);
-
                         break;
                     }
                     default: {

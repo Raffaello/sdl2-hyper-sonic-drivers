@@ -23,7 +23,7 @@ namespace drivers
         void resume() noexcept;
         bool isPlaying() const noexcept;
         bool isPaused() const noexcept;
-    private:
+    protected:
         void processTrack(const audio::midi::MIDITrack& track, const uint16_t division);
 
         // mixer is not used, but ensuring is initialized

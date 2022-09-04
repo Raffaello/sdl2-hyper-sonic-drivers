@@ -123,6 +123,13 @@ macro_test(
 )
 
 macro_test(
+    EXE TestMIDDriver
+    FILES "drivers/TestMIDDriver.cpp"
+    LINKS_PRIVATE sonic-drivers-static
+    FIXTURES
+)
+
+macro_test(
     EXE TestMame
     FILES "hardware/opl/scummvm/mame/TestMame.cpp"
     LINKS_PRIVATE sonic-drivers-static
