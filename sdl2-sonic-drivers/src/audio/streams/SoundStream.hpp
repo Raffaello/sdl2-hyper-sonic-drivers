@@ -13,7 +13,7 @@ namespace audio
         class SoundStream final : public scummvm::AudioStream
         {
         public:
-            SoundStream(const std::shared_ptr<Sound>& sound);
+            explicit SoundStream(const std::shared_ptr<Sound>& sound);
             ~SoundStream();
 
             virtual int readBuffer(int16_t* buffer, const int numSamples) override;

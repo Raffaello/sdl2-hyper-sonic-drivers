@@ -20,7 +20,7 @@ namespace drivers
         // TODO: review max_channels default value
         // BODY: can use max_channel = 0 to be dynamic instead of fixed size
         // BODY: can be -1 (check if < 0) to use mixer max channels
-        PCMDriver(const std::shared_ptr<audio::scummvm::Mixer>& mixer, const int max_channels = 0xFFFF);
+        explicit PCMDriver(const std::shared_ptr<audio::scummvm::Mixer>& mixer, const int max_channels = 0xFFFF);
         ~PCMDriver();
 
         bool isPlaying() const noexcept;
