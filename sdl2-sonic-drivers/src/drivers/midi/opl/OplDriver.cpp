@@ -287,7 +287,7 @@ namespace drivers
                 const audio::opl::banks::Op2BankInstrument_t* instrument,
                 const bool secondary)
             {
-                OplChannel* ch = _channels[channel].get();
+                const OplChannel* ch = _channels[channel].get();
 
                 return _voices[slot]->allocate(
                     channel, note_, volume, instrument, secondary,

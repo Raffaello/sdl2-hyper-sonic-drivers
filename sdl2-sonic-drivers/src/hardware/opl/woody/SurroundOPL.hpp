@@ -64,12 +64,12 @@ namespace hardware
             public:
 
                 SurroundOPL(const int rate, const bool use16bit) noexcept;
-                ~SurroundOPL();
+                virtual ~SurroundOPL();
 
                 void update(short* buf, int samples) override;
                 void write(int reg, int val) override;
                 virtual void init() override;
-                virtual int32_t getSampleRate() const noexcept override;
+                int32_t getSampleRate() const noexcept override;
                 bool isStereo() const override;
             };
         }

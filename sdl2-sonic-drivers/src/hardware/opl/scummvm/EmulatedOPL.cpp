@@ -40,7 +40,7 @@ namespace hardware
                 _samplesPerTick = (d << FIXP_SHIFT) + (r << FIXP_SHIFT) / _baseFreq;
             }
 
-            const std::shared_ptr<audio::scummvm::SoundHandle> EmulatedOPL::getSoundHandle() const noexcept
+            std::shared_ptr<audio::scummvm::SoundHandle> EmulatedOPL::getSoundHandle() const noexcept
             {
                 return _handle;
             }
@@ -84,7 +84,7 @@ namespace hardware
                 return false;
             }
 
-            const std::shared_ptr<audio::scummvm::Mixer> EmulatedOPL::getMixer() const noexcept
+            std::shared_ptr<audio::scummvm::Mixer> EmulatedOPL::getMixer() const noexcept
             {
                 return _mixer;
             }

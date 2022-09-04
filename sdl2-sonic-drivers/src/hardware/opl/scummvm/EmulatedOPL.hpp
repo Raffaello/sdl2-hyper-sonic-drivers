@@ -28,14 +28,14 @@ namespace hardware
 
                 // OPL API
                 void setCallbackFrequency(int timerFrequency);
-                virtual const std::shared_ptr<audio::scummvm::SoundHandle> getSoundHandle() const noexcept override;
+                std::shared_ptr<audio::scummvm::SoundHandle> getSoundHandle() const noexcept override;
                 // AudioStream API
                 int readBuffer(int16_t* buffer, const int numSamples);
                 int getRate() const;
                 bool endOfData() const noexcept;
                 
                 // TODO: this can be bring up to OPL interface
-                const std::shared_ptr<audio::scummvm::Mixer> getMixer() const noexcept;
+                std::shared_ptr<audio::scummvm::Mixer> getMixer() const noexcept;
 
             protected:
                 std::shared_ptr<audio::scummvm::Mixer> _mixer;

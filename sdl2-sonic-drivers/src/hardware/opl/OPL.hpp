@@ -87,7 +87,7 @@ namespace hardware
              * TOOD: if this is returning this, probably should store the _handle here
              *       instead of EmulatedOPL
              */
-            virtual const std::shared_ptr<audio::scummvm::SoundHandle> getSoundHandle() const noexcept = 0;
+            virtual std::shared_ptr<audio::scummvm::SoundHandle> getSoundHandle() const noexcept = 0;
 
         protected:
             bool _init = false;

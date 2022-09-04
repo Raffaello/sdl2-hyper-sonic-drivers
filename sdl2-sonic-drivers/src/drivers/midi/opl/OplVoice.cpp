@@ -158,7 +158,7 @@ namespace drivers
                 _instr = instr;
 
                 if ((note += instr->basenote) < 0)
-                    while ((note += 12) < 0);
+                    while ((note += 12) < 0) {}
                 else if (note > HIGHEST_NOTE)
                     while ((note -= 12) > HIGHEST_NOTE);
                 

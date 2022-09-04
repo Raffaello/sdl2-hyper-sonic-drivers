@@ -26,7 +26,7 @@ namespace hardware
 
                 bool isStereo() const override;
             protected:
-                virtual void generateSamples(int16_t* buffer, int numSamples) override;
+                void generateSamples(int16_t* buffer, int numSamples) override;
 
             private:
                 woody::OPL* _opl;
