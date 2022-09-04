@@ -25,6 +25,8 @@ namespace drivers
         ADLDriver::ADLDriver(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<files::westwood::ADLFile>& adl_file)
             : _opl(opl)
         {
+            // TODO: This doesn't work with DOS_BOX OPL3
+
             if (!_opl || !_opl->init()) {
                 spdlog::error("Failed to initialize OPL");
             }

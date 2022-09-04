@@ -59,7 +59,7 @@ namespace hardware
                     //std::make_tuple<OplEmulator, Config::OplType>(OplEmulator::MAME, Config::OplType::OPL3),
                     std::make_tuple<OplEmulator, Config::OplType>(OplEmulator::DOS_BOX, Config::OplType::OPL2),
                     std::make_tuple<OplEmulator, Config::OplType>(OplEmulator::DOS_BOX, Config::OplType::DUAL_OPL2),
-                    //std::make_tuple<OplEmulator, Config::OplType>(OplEmulator::DOS_BOX, Config::OplType::OPL3),
+                    std::make_tuple<OplEmulator, Config::OplType>(OplEmulator::DOS_BOX, Config::OplType::OPL3),
                     //std::make_tuple<OplEmulator, Config::OplType>(OplEmulator::NUKED, Config::OplType::OPL2),
                     //std::make_tuple<OplEmulator, Config::OplType>(OplEmulator::NUKED, Config::OplType::DUAL_OPL2),
                     std::make_tuple<OplEmulator, Config::OplType>(OplEmulator::NUKED, Config::OplType::OPL3),
@@ -67,8 +67,8 @@ namespace hardware
                     std::make_tuple<OplEmulator, Config::OplType>(OplEmulator::WOODY, Config::OplType::DUAL_OPL2),
                     std::make_tuple<OplEmulator, Config::OplType>(OplEmulator::WOODY, Config::OplType::OPL3),
                     std::make_tuple<OplEmulator, Config::OplType>(OplEmulator::AUTO, Config::OplType::OPL2),
-                    std::make_tuple<OplEmulator, Config::OplType>(OplEmulator::AUTO, Config::OplType::DUAL_OPL2)
-                    //std::make_tuple<OplEmulator, Config::OplType>(OplEmulator::AUTO, Config::OplType::OPL3)
+                    std::make_tuple<OplEmulator, Config::OplType>(OplEmulator::AUTO, Config::OplType::DUAL_OPL2),
+                    std::make_tuple<OplEmulator, Config::OplType>(OplEmulator::AUTO, Config::OplType::OPL3)
                 )
             );
 
@@ -88,10 +88,8 @@ namespace hardware
                 ::testing::Values(
                     std::make_tuple<OplEmulator, Config::OplType>(OplEmulator::MAME, Config::OplType::DUAL_OPL2),
                     std::make_tuple<OplEmulator, Config::OplType>(OplEmulator::MAME, Config::OplType::OPL3),
-                    std::make_tuple<OplEmulator, Config::OplType>(OplEmulator::DOS_BOX, Config::OplType::OPL3),
                     std::make_tuple<OplEmulator, Config::OplType>(OplEmulator::NUKED, Config::OplType::OPL2),
-                    std::make_tuple<OplEmulator, Config::OplType>(OplEmulator::NUKED, Config::OplType::DUAL_OPL2),
-                    std::make_tuple<OplEmulator, Config::OplType>(OplEmulator::AUTO, Config::OplType::OPL3)
+                    std::make_tuple<OplEmulator, Config::OplType>(OplEmulator::NUKED, Config::OplType::DUAL_OPL2)
                     )
             );
         }

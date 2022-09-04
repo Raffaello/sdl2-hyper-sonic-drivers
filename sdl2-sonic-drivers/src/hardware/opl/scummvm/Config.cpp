@@ -32,14 +32,7 @@ namespace hardware
                     }
                 case OplEmulator::AUTO:
                 case OplEmulator::DOS_BOX:
-                    switch (type)
-                    {
-                    case OplType::OPL3:
-                        spdlog::warn("DOS_BOX OPL3 not working correctly yet.");
-                        return nullptr;
-                    default:
                         return std::make_shared<dosbox::OPL>(mixer, type);
-                    }
                 case OplEmulator::NUKED:
                     if (type != OplType::OPL3) {
                         spdlog::warn("Nuke OPL emulator only supports OPL3 emulation");

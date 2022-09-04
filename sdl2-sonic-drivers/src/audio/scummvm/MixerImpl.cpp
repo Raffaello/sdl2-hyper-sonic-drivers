@@ -382,20 +382,20 @@ namespace audio
             int res = 0, tmp;
             for (int i = 0; i != NUM_CHANNELS; i++)
             {
-                if (_channels[i])
-                {
-                    if (_channels[i]->isFinished())
-                    {
-                        delete _channels[i];
-                        _channels[i] = 0;
-                    }
-                    else if (!_channels[i]->isPaused())
-                    {
-                        tmp = _channels[i]->mix(buf, len);
+                if (_channels[i] == nullptr)
+                    continue;
 
-                        if (tmp > res)
-                            res = tmp;
-                    }
+                if (_channels[i]->isFinished())
+                {
+                    delete _channels[i];
+                    _channels[i] = 0;
+                }
+                else if (!_channels[i]->isPaused())
+                {
+                    tmp = _channels[i]->mix(buf, len);
+
+                    if (tmp > res)
+                        res = tmp;
                 }
             }
 

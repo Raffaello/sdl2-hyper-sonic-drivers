@@ -12,6 +12,9 @@ namespace drivers
     namespace westwood
     {
         /// <summary>
+        /// TODO: Works only with OPL2 emulator mostly.
+        /// TODO: This doesn't work with DOS_BOX in OPL3 mode
+        /// ------------------------------------------------------------
         /// Driver for .ADL files and OPL Chips
         /// Originally it should be the DUNE2 ALFX.DRV file
         /// (and PCSOUND.DRV instead for fx)
@@ -45,15 +48,15 @@ namespace drivers
 
             void setMusicVolume(const uint8_t volume);
             void setSfxVolume(const uint8_t volume);
-            
+
             void play(const uint8_t track, const uint8_t volume);
             bool isPlaying();
         private:
             void initDriver();
             void startSound(const int track, const int volume);
-            
+
             std::shared_ptr<files::westwood::ADLFile> _adl_file = nullptr;
-            
+
             std::shared_ptr<uint8_t[]> _soundData = nullptr;
             uint32_t _soundDataSize;
             

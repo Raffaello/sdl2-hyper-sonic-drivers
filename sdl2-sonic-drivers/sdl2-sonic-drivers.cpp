@@ -447,7 +447,7 @@ int midi_adlib_mus_op2_file()
     }
     {
         
-        auto opl = Config::create(OplEmulator::NUKED, Config::OplType::OPL3, mixer);
+        auto opl = Config::create(OplEmulator::DOS_BOX, Config::OplType::OPL3, mixer);
         if (opl.get() == nullptr)
             return -1;
         auto sbpro_midi = std::make_shared<drivers::midi::devices::SbPro2>(opl, op2File->getBank());
@@ -466,6 +466,7 @@ int midi_adlib_mus_op2_file()
             //       as the device/OPL has its own dedicated channel and therefore
             //       it is like its own volume
             //mixer->setChannelVolume(handle, volume / 2);
+            //mixer->pauseHandle(handle); // TODO this will do it too for pause the music i guess.
         }
 
     }
