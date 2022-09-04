@@ -13,6 +13,8 @@ on:
       - '.gitattributes'
       - 'README.md'
       - 'LICENSE'
+    tags:
+      - '**'
 
   #pull_request:
   #  branches: [ master ]
