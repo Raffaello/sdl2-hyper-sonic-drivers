@@ -18,7 +18,7 @@ namespace drivers
             {
             public:
                 OplChannel() = delete;
-                OplChannel(const uint8_t channel_);
+                explicit OplChannel(const uint8_t channel_);
                 ~OplChannel() = default;
 
                 const uint8_t channel;         // MIDI channel, not used
