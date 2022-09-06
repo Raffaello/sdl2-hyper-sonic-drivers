@@ -22,7 +22,7 @@ namespace drivers
 
             bool OplVoice::noteOff(const uint8_t channel, const uint8_t note, const uint8_t sustain) noexcept
             {
-                if (usingChannel(channel) && _note == note)
+                if (isChannelBusy(channel) && _note == note)
                 {
                     if (sustain < SUSTAIN_THRESHOLD) {
                         release(false);
@@ -37,7 +37,7 @@ namespace drivers
 
             bool OplVoice::pitchBend(const uint8_t channel, const uint16_t bend/*, const uint32_t abs_time*/) noexcept
             {
-                const bool b = usingChannel(channel);
+                const bool b = isChannelBusy(channel);
                 if (b)
                 {
                     //_time = abs_time;
@@ -50,7 +50,7 @@ namespace drivers
 
             bool OplVoice::ctrl_modulationWheel(const uint8_t channel, const uint8_t value/*, const uint32_t abs_time*/) noexcept
             {
-                const bool b = usingChannel(channel);
+                const bool b = isChannelBusy(channel);
                 if (b)
                 {
                     //_time = abs_time;
@@ -73,7 +73,7 @@ namespace drivers
 
             bool OplVoice::ctrl_volume(const uint8_t channel, const uint8_t value/*, const uint32_t abs_time*/) noexcept
             {
-                const bool b = usingChannel(channel);
+                const bool b = isChannelBusy(channel);
                 if (b)
                 {
                     //_time = abs_time;
@@ -86,7 +86,7 @@ namespace drivers
 
             /*inline*/ bool OplVoice::ctrl_panPosition(const uint8_t channel, const uint8_t value/*, const uint32_t abs_time*/) const noexcept
             {
-                const bool b = usingChannel(channel);
+                const bool b = isChannelBusy(channel);
                 if (b)
                 {
                     //_time = abs_time;
@@ -98,7 +98,7 @@ namespace drivers
 
             /*inline*/ bool OplVoice::releaseSustain(const uint8_t channel) noexcept
             {
-                const bool b = usingChannel(channel) && _sustain;
+                const bool b = isChannelBusy(channel) && _sustain;
                 if (b)
                     release(false);
 
@@ -148,7 +148,7 @@ namespace drivers
 
                 _pitch = _finetune + chan_pitch;
 
-                setInstrument(&instrument->voices[secondary ? 1 : 0]);
+                _instr = &instrument->voices[secondary ? 1 : 0];
 
                 if ((note_ += _instr->basenote) < 0)
                     while ((note_ += 12) < 0) {}

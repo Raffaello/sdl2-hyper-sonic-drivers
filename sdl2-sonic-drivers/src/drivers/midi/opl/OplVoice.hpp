@@ -24,8 +24,8 @@ namespace drivers
                 inline bool isSecondary() const noexcept { return _secondary; }
                 //inline const uint32_t getTime() const noexcept { return _time; }
                 inline bool isChannel(const uint8_t channel) const noexcept { return _channel == channel; }
-                inline bool usingChannel(const uint8_t channel) const noexcept { return isChannel(channel) && !_free; }
-                //inline bool isChannelFree(uint8_t channel) const noexcept { return isChannel(channel) && _free; }
+                inline bool isChannelBusy(const uint8_t channel) const noexcept { return isChannel(channel) && !_free; }
+                inline bool isChannelFree(uint8_t channel) const noexcept { return isChannel(channel) && _free; }
                 
                 /// <summary>
                 /// It might release the note depending on sustains value

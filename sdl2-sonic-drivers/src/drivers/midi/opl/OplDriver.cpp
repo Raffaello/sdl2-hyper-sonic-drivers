@@ -131,7 +131,7 @@ namespace drivers
                 using audio::opl::banks::OP2Bank;
 
                 const bool isPercussion = chan == MIDI_PERCUSSION_CHANNEL;
-                int8_t freeSlot = getFreeOplVoiceIndex(isPercussion);
+                int8_t freeSlot = getFreeOplVoiceIndex(!isPercussion);
                 
                 if (freeSlot != -1)
                 {
@@ -154,10 +154,6 @@ namespace drivers
                 }
                 else {
                     spdlog::critical("NO FREE CHANNEL? midi-ch={} - playingVoices={} -- free={}", chan, _voicesInUseIndex.size(), _voicesFreeIndex.size());
-                    for (const auto& i : _voicesFreeIndex) 
-                        spdlog::debug("_voicesFreeIndex ={} - voice.free={}", i, _voices[i]->isFree());
-                    for (const auto& i : _voicesInUseIndex)
-                        spdlog::debug("_voicesInUseIndex={} - voice.free={}", i, _voices[i]->isFree());
                 }
             }
 
