@@ -37,6 +37,7 @@ namespace drivers
                 void resume() const noexcept;
 
             private:
+                std::shared_ptr<audio::opl::banks::OP2Bank> _op2Bank;
                 const bool _opl3_mode;
                 std::shared_ptr<hardware::opl::OPL> _opl;
                 uint8_t _oplNumChannels;
@@ -46,8 +47,8 @@ namespace drivers
                 std::array<std::unique_ptr<OplVoice>, drivers::opl::OPL3_NUM_CHANNELS> _voices;
                 std::unique_ptr<drivers::opl::OplWriter> _oplWriter;
 
-                std::list<uint8_t> _voiceIndexesInUse;
-                std::list<uint8_t> _voiceIndexesFree;
+                std::list<uint8_t> _voicesInUseIndex;
+                std::list<uint8_t> _voicesFreeIndex;
 
                 // MIDI Events
                 void noteOff(const uint8_t chan, const uint8_t note) noexcept;
@@ -65,9 +66,9 @@ namespace drivers
                 void onTimer();
 
                 void releaseSustain(const uint8_t channel);
-                uint8_t releaseVoice(const uint8_t slot, const bool killed);
+                uint8_t releaseVoice(const uint8_t slot, const bool forced);
                 int allocateVoice(const uint8_t slot, const uint8_t channel,
-                    const uint8_t note_, const uint8_t volume,
+                    const uint8_t note, const uint8_t volume,
                     const audio::opl::banks::Op2BankInstrument_t* instrument,
                     const bool secondary);
 

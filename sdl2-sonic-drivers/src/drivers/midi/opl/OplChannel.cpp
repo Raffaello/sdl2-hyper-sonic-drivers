@@ -10,26 +10,9 @@ namespace drivers
         {
             using audio::midi::MIDI_PERCUSSION_CHANNEL;
 
-            OplChannel::OplChannel(const uint8_t channel_, const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank) :
-                channel(channel_), _isPercussion(channel_ == MIDI_PERCUSSION_CHANNEL), _op2Bank(op2Bank.get())
+            OplChannel::OplChannel(const uint8_t channel_) :
+                channel(channel_), _isPercussion(channel_ == MIDI_PERCUSSION_CHANNEL)
             {
-            }
-
-            const audio::opl::banks::Op2BankInstrument_t* OplChannel::setInstrument(const uint8_t note) noexcept
-            {
-                if (_isPercussion)
-                {
-                    if (note < 35 || note > 81) {
-                        spdlog::error("wrong percussion number {}", note);
-                    }
-
-                    const uint8_t i = note + (128 - 35);
-
-                    _instrument = _op2Bank->getInstrument(i);
-                    //spdlog::debug("Percussion {}", _op2Bank->getInstrumentName(i));
-                }
-
-                return &_instrument;
             }
 
             void OplChannel::programChange(const uint8_t program)
@@ -40,8 +23,7 @@ namespace drivers
 
                 // NOTE: if program is not changed shouldn't be required to do anything ...
                 _program = program;
-                _instrument = _op2Bank->getInstrument(program);
-                spdlog::debug("program change {} {} ({})", channel, program, _isPercussion ? "percussion" : _op2Bank->getInstrumentName(program));
+                //spdlog::debug("program change {} {} ({})", channel, program, _isPercussion);
             }
         }
     }

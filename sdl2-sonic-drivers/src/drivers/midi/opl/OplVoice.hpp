@@ -24,8 +24,8 @@ namespace drivers
                 inline bool isSecondary() const noexcept { return _secondary; }
                 //inline const uint32_t getTime() const noexcept { return _time; }
                 inline bool isChannel(const uint8_t channel) const noexcept { return _channel == channel; }
-                inline bool isChannelBusy(const uint8_t channel) const noexcept { return isChannel(channel) && !_free; }
-                inline bool isChannelFree(uint8_t channel) const noexcept { return isChannel(channel) && _free; }
+                inline bool usingChannel(const uint8_t channel) const noexcept { return isChannel(channel) && !_free; }
+                //inline bool isChannelFree(uint8_t channel) const noexcept { return isChannel(channel) && _free; }
                 
                 /// <summary>
                 /// It might release the note depending on sustains value
@@ -47,7 +47,7 @@ namespace drivers
                 /// TODO: need to generalize OplBank instruments ...
                 /// </summary>
                 int allocate(const uint8_t channel,
-                    const uint8_t note_, const uint8_t volume,
+                    const uint8_t note, const uint8_t volume,
                     const audio::opl::banks::Op2BankInstrument_t* instrument,
                     const bool secondary,
                     const uint8_t chan_modulation,
@@ -56,8 +56,8 @@ namespace drivers
                     const uint8_t chan_pan
                     //const uint32_t abs_time
                 ) noexcept;
-
-                uint8_t release(const bool killed) noexcept;
+                
+                uint8_t release(const bool forced) noexcept;
 
                 inline void setVolumes(const uint8_t channelVolume, const uint8_t volume) noexcept {
                     _volume = volume;
@@ -73,12 +73,11 @@ namespace drivers
                 void resume() const noexcept;
 
             protected:
-                // Method to Mock the class, not really used except for mocking
+                // Methods to Mock the class, not really used except for mocking
                 inline void setChannel(const uint8_t channel) noexcept { _channel = channel; }
                 inline void setFree(const bool free) noexcept { _free = free; };
                 inline void setInstrument(const hardware::opl::OPL2instrument_t* instr) noexcept { _instr = instr; }
                 inline void setVibrato(const bool vibrato) noexcept { _vibrato = vibrato; };
-                
 
             private:
                 const uint8_t _slot;                        /* OPL channel number */
