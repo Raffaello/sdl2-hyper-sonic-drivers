@@ -1,3 +1,4 @@
+
 ### reusable workflow can't be called with a strategy matrix
 ### and so are not used as a workflow without a strategy matrix
 ### to feed in inputs parameters is useless in my case.
@@ -15,9 +16,8 @@ on:
       - 'README.md'
       - 'LICENSE'
       - 'wave_generators.r'
-    tags:
-      - '**'
-
+  release:
+    types: [published]
   #pull_request:
   #  branches: [ master ]
 
