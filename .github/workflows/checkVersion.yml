@@ -23,16 +23,16 @@ jobs:
           VER=$(cat CMakeLists.txt  | grep " VERSION " | cut -d ' ' -f 4)
           TAGS=( $(git tag) )
           echo "VER: ${VER}"
-          echo "TAGS: ${TAGS}"
+          echo "TAGS: ${TAGS[@]}"
           for t in "${TAGS[@]}"
           do
-            echo $t
+            #echo $t
             tt=$(echo $t | cut -d'v' -f2) 
-            echo $tt
+            #echo $tt
             if [ "$VER" = "$tt" ]
             then
               echo "$VER is already present"
-              return -1
+              exit -1
               break
             fi
           done
