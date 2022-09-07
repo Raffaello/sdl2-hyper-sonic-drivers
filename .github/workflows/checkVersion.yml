@@ -2,7 +2,7 @@ name: checkVersion
 on:
   pull_request_target:
     branches:
-      - 'main'
+      - 'master'
     paths-ignore:
       - '.gitignore'
       - '.gitattributes'
