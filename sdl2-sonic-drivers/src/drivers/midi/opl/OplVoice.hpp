@@ -13,6 +13,10 @@ namespace drivers
         {
             constexpr int SUSTAIN_THRESHOLD = 64;
 
+            /// <summary>
+            /// This is only the execution for a OplChannel: a Voice (OplVoice)
+            /// used in a MIDI Channel -> Opl Channel
+            /// </summary>
             class OplVoice
             {
             public:
@@ -38,7 +42,7 @@ namespace drivers
                 bool pitchBend(const uint8_t channel, const uint16_t bend/*, const uint32_t abs_time*/) noexcept;
                 bool ctrl_modulationWheel(const uint8_t channel, const uint8_t value/*, const uint32_t abs_time*/) noexcept;
                 bool ctrl_volume(const uint8_t channel, const uint8_t value/*, const uint32_t abs_time*/) noexcept;
-                bool ctrl_panPosition(const uint8_t channel, const uint8_t value/*, const uint32_t abs_time*/) const noexcept;
+                bool ctrl_panPosition(const uint8_t channel, const uint8_t value/*, const uint32_t abs_time*/) noexcept;
                 bool releaseSustain(const uint8_t channel) noexcept;
 
                 void playNote(const bool keyOn) const noexcept;
@@ -54,7 +58,6 @@ namespace drivers
                     const uint8_t chan_vol,
                     const uint8_t chan_pitch,
                     const uint8_t chan_pan
-                    //const uint32_t abs_time
                 ) noexcept;
                 
                 uint8_t release(const bool forced) noexcept;
@@ -89,6 +92,7 @@ namespace drivers
                 uint8_t _realnote = 0;                       /* adjusted note number */
                 int8_t  _finetune = 0;                       /* frequency fine-tune */
                 int16_t _pitch = 0;                          /* pitch-wheel value */
+                uint8_t _pan = 64;                           /* pan value */
 
                 const hardware::opl::OPL2instrument_t* _instr = nullptr; /* current instrument */
 

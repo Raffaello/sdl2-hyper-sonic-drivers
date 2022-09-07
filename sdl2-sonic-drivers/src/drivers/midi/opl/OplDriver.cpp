@@ -97,15 +97,6 @@ namespace drivers
                 for (auto it = _voicesInUseIndex.begin(); it != _voicesInUseIndex.end(); ++it) {
                     const uint8_t i = *it;
                     _voices[i]->resume();
-                    // TODO: the voice could be stereo
-                    //       so it should have the pan i guess
-                    if (_opl3_mode)
-                    {
-                        _oplWriter->writePan(i,
-                            _voices[i]->getInstrument(),
-                            _channels[_voices[i]->getChannel()]->pan
-                        );
-                    }
                 }
             }
 

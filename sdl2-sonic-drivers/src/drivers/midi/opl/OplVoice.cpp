@@ -84,11 +84,12 @@ namespace drivers
                 return b;
             }
 
-            /*inline*/ bool OplVoice::ctrl_panPosition(const uint8_t channel, const uint8_t value/*, const uint32_t abs_time*/) const noexcept
+            /*inline*/ bool OplVoice::ctrl_panPosition(const uint8_t channel, const uint8_t value/*, const uint32_t abs_time*/) noexcept
             {
                 const bool b = isChannelBusy(channel);
                 if (b)
                 {
+                    _pan = value;
                     //_time = abs_time;
                     _oplWriter->writePan(_slot, _instr, value);
                 }
@@ -130,6 +131,7 @@ namespace drivers
                 _note = note;
                 _free = false;
                 _secondary = secondary;
+                _pan = chan_pan;
                 
                 if (chan_modulation >= VIBRATO_THRESHOLD)
                     _vibrato = true;
@@ -193,6 +195,7 @@ namespace drivers
                 _oplWriter->writeChannel(0x60, _slot, _instr->att_dec_1, _instr->att_dec_2);
                 _oplWriter->writeChannel(0x80, _slot, _instr->sust_rel_1, _instr->sust_rel_2);
                 _oplWriter->writeVolume(_slot, _instr, getRealVolume());
+                _oplWriter->writePan(_slot, getInstrument(), _pan);
             }
         }
     }
