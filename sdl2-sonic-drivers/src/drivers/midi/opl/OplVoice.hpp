@@ -23,14 +23,6 @@ namespace drivers
                 explicit OplVoice(const uint8_t slot, const drivers::opl::OplWriter* oplWriter);
                 ~OplVoice() = default;
 
-                inline uint8_t getSlot() const noexcept { return _slot; }
-                inline bool isFree() const noexcept { return _free; }
-                inline bool isSecondary() const noexcept { return _secondary; }
-                //inline const uint32_t getTime() const noexcept { return _time; }
-                inline bool isChannel(const uint8_t channel) const noexcept { return _channel == channel; }
-                inline bool isChannelBusy(const uint8_t channel) const noexcept { return isChannel(channel) && !_free; }
-                inline bool isChannelFree(uint8_t channel) const noexcept { return isChannel(channel) && _free; }
-                
                 /// <summary>
                 /// It might release the note depending on sustains value
                 /// </summary>
@@ -61,6 +53,8 @@ namespace drivers
                 ) noexcept;
                 
                 uint8_t release(const bool forced) noexcept;
+                void pause() const noexcept;
+                void resume() const noexcept;
 
                 inline void setVolumes(const uint8_t channelVolume, const uint8_t volume) noexcept {
                     _volume = volume;
@@ -70,10 +64,19 @@ namespace drivers
                 inline uint8_t getRealVolume() const noexcept { return _realvolume; }
                 inline uint8_t getChannel() const noexcept { return _channel; }
                 inline const hardware::opl::OPL2instrument_t* getInstrument() const noexcept { return _instr; }
-                inline bool getVibrato() const noexcept { return _vibrato; }
 
-                void pause() const noexcept;
-                void resume() const noexcept;
+                // Methods to get private variables, not really used
+                inline uint8_t getSlot() const noexcept { return _slot; }
+                inline bool isFree() const noexcept { return _free; }
+                inline bool isSecondary() const noexcept { return _secondary; }
+                inline bool isChannel(const uint8_t channel) const noexcept { return _channel == channel; }
+                inline bool isChannelBusy(const uint8_t channel) const noexcept { return isChannel(channel) && !_free; }
+                inline bool isChannelFree(uint8_t channel) const noexcept { return isChannel(channel) && _free; }
+                inline bool isVibrato() const noexcept { return _vibrato; }
+                inline uint8_t getPan() const noexcept { return _pan; }
+                inline uint8_t getNote() const noexcept { return _note; }
+                inline uint8_t getVolume() const noexcept { return _volume; }
+                inline uint8_t getPitch() const noexcept { return _pitch; }
 
             protected:
                 // Methods to Mock the class, not really used except for mocking
