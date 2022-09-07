@@ -1,18 +1,16 @@
 name: checkVersion
 on:
-  pull_request_target:
-    branches:
-      - 'master'
-    # paths-ignore:
-    #   - '.gitignore'
-    #   - '.gitattributes'
-    #   - 'README.md'
-    #   - 'LICENSE'
-    #   - 'doc/**'
+  push:
+    paths-ignore:
+      - '.gitignore'
+      - '.gitattributes'
+      - 'README.md'
+      - 'LICENSE'
+      - 'doc/**'
 
 jobs:
   build:
-    name: Build Linux
+    name: checkVersion
     runs-on: ubuntu-20.04
     steps:
       - name: check Version
