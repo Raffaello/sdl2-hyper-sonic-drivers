@@ -1,0 +1,32 @@
+name: checkVersion
+on:
+  push:
+    branches:
+      - 'main'
+    paths-ignore:
+      - '.gitignore'
+      - '.gitattributes'
+      - 'README.md'
+      - 'LICENSE'
+
+jobs:
+  build:
+    name: Build Linux
+    runs-on: ubuntu-20.04
+    steps:
+      - name: check Version
+        run: |
+          VER=$(cat CMakeLists.txt  | grep " VERSION " | cut -d ' ' -f 4)
+          TAGS=( $(git tag) )
+          for t in "${TAGS[@]}" 
+          do
+            #echo $t
+            tt=$(echo $t | cut -d'v' -f2) 
+            #echo $tt
+            if [ "$VER" = "$tt" ]
+            then
+              echo "$VER is already present"
+              return -1
+              break
+            fi
+          done
