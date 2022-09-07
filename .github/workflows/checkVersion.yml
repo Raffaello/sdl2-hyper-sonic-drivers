@@ -15,6 +15,8 @@ jobs:
     steps:
       - name: check Version
         run: |
+          set -e
+          ls -l
           VER=$(cat CMakeLists.txt  | grep " VERSION " | cut -d ' ' -f 4)
           TAGS=( $(git tag) )
           for t in "${TAGS[@]}" 
