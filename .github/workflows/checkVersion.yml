@@ -21,8 +21,8 @@ jobs:
           VER=$(cat CMakeLists.txt  | grep " VERSION " | cut -d ' ' -f 4)
           TAGS=( $(git tag) )
           echo "VER: ${VER}"
-          echo "TAGS: ${TAGS}""
-          for t in "${TAGS[@]}" 
+          echo "TAGS: ${TAGS}"
+          for t in "${TAGS[@]}"
           do
             echo $t
             tt=$(echo $t | cut -d'v' -f2) 
