@@ -3,12 +3,12 @@ on:
   pull_request_target:
     branches:
       - 'master'
-    paths-ignore:
-      - '.gitignore'
-      - '.gitattributes'
-      - 'README.md'
-      - 'LICENSE'
-      - 'doc/**'
+    # paths-ignore:
+    #   - '.gitignore'
+    #   - '.gitattributes'
+    #   - 'README.md'
+    #   - 'LICENSE'
+    #   - 'doc/**'
 
 jobs:
   build:
