@@ -2,12 +2,13 @@ name: checkVersion
 on:
   push:
     branches:
-      - 'main'
+      - 'master'
     paths-ignore:
       - '.gitignore'
       - '.gitattributes'
       - 'README.md'
       - 'LICENSE'
+      - 'doc/**'
 
 jobs:
   build:
