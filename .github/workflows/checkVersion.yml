@@ -19,7 +19,6 @@ jobs:
       - name: check Version
         run: |
           set -e
-          ls -l
           VER=$(cat CMakeLists.txt  | grep " VERSION " | cut -d ' ' -f 4)
           TAGS=( $(git tag) )
           echo "VER: ${VER}"
