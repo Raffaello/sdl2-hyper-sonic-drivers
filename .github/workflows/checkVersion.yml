@@ -1,8 +1,8 @@
 name: checkVersion
 on:
-  push:
+  pull_request_target:
     branches:
-      - 'master'
+      - 'main'
     paths-ignore:
       - '.gitignore'
       - '.gitattributes'
