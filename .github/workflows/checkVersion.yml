@@ -22,9 +22,9 @@ jobs:
           TAGS=( $(git tag) )
           for t in "${TAGS[@]}" 
           do
-            #echo $t
+            echo $t
             tt=$(echo $t | cut -d'v' -f2) 
-            #echo $tt
+            echo $tt
             if [ "$VER" = "$tt" ]
             then
               echo "$VER is already present"
