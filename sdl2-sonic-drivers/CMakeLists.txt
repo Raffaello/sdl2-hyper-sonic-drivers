@@ -179,6 +179,7 @@ target_sources(${LIB_NAME} PRIVATE
     # --- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/PCSpeaker.cpp
     # --- #
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/constants.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/endianness.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/algorithms.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/opl.cpp
