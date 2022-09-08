@@ -72,10 +72,10 @@ jobs:
       - name: cmake build
         run: |
           . "${{ env.VS_PATH }}\VC\Auxiliary\Build\vcvars${{ env.ARCH }}.bat"
-          cmake --build . --config=${{ matrix.build_type }}
+          cmake --build . --config=${{ matrix.build_type }} -j4
         working-directory: build
       - name: CTest
-        run: ctest --output-on-failure
+        run: ctest --output-on-failure -j4
         working-directory: build
       - name: cmake install
         run: cmake --build . --target install --config ${{ matrix.build_type }}
