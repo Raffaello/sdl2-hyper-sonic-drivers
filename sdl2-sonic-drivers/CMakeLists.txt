@@ -98,7 +98,7 @@ install(FILES
     DESTINATION "static/cmake"
 )
 
-target_include_directories(${LIB_NAME} PUBLIC 
+target_include_directories(${LIB_NAME} PUBLIC
     $<BUILD_INTERFACE:$<TARGET_FILE_DIR:${LIB_NAME}>>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
     $<INSTALL_INTERFACE:"static/include">
@@ -192,6 +192,12 @@ if(NOT (WITH_SDL2_STATIC))
         DESTINATION static/lib
     )
 endif()
+
+install(FILES
+    $<TARGET_FILE:spdlog::spdlog> #spdlog::spdlog_header_only
+    $<TARGET_FILE:fmt::fmt> ## spdlog dependency
+    DESTINATION static/lib
+)
 
 unset(LIB_NAME)
 unset(LIB_CONF)
