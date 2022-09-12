@@ -19,7 +19,7 @@ on:
       - master
 
   pull_request:
-    branches: [ master ]
+  #  branches: [ master ]
     paths-ignore:
       - 'doc/**'
       - '.gitignore'
