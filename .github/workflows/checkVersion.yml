@@ -1,12 +1,14 @@
 name: checkVersion
 on:
-  push:
+  pull_request:
+    branches: [ master ]
     paths-ignore:
+      - 'doc/**'
       - '.gitignore'
       - '.gitattributes'
       - 'README.md'
       - 'LICENSE'
-      - 'doc/**'
+      - 'wave_generators.r'
 
 jobs:
   build:
