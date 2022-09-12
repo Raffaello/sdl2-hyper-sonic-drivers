@@ -13,15 +13,11 @@ namespace drivers
             using audio::midi::MIDI_EVENT_TYPES_HIGH;
             using hardware::opl::OPL2instrument_t;
 
-            using audio::opl::banks::OP2BANK_INSTRUMENT_FLAG_FIXED_PITCH;
-            using audio::opl::banks::OP2BANK_INSTRUMENT_FLAG_DOUBLE_VOICE;
-
-
             // TODO: allocateVoice and getFreeSlot should be merged into 1 function
 
             OplDriver::OplDriver(const std::shared_ptr<hardware::opl::OPL>& opl,
                 const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank, const bool opl3_mode) :
-                _opl(opl), _opl3_mode(opl3_mode)
+                _opl(opl), _op2Bank(op2Bank), _opl3_mode(opl3_mode)
             {
                 _oplWriter = std::make_unique<drivers::opl::OplWriter>(_opl, opl3_mode);
                 _oplNumChannels = opl3_mode ? drivers::opl::OPL3_NUM_CHANNELS : drivers::opl::OPL2_NUM_CHANNELS;
@@ -30,12 +26,12 @@ namespace drivers
                     spdlog::error("[MidiDriver] Can't initialize AdLib Emulator OPL chip.'");
 
                 for (uint8_t i = 0; i < audio::midi::MIDI_MAX_CHANNELS; ++i) {
-                    _channels[i] = std::make_unique<OplChannel>(i, op2Bank);
+                    _channels[i] = std::make_unique<OplChannel>(i);
                 }
 
                 for (uint8_t i = 0; i < _oplNumChannels; ++i) {
                     _voices[i] = std::make_unique<OplVoice>(i, _oplWriter.get());
-                    _voiceIndexesFree.push_back(i);
+                    _voicesFreeIndex.push_back(i);
                 }
 
                 hardware::opl::TimerCallBack cb = std::bind(&OplDriver::onTimer, this);
@@ -88,7 +84,7 @@ namespace drivers
 
             void OplDriver::pause() const noexcept
             {
-                for (auto it = _voiceIndexesInUse.begin(); it != _voiceIndexesInUse.end(); ++it) {
+                for (auto it = _voicesInUseIndex.begin(); it != _voicesInUseIndex.end(); ++it) {
                     const uint8_t i = *it;
                     if (_opl3_mode)
                         _oplWriter->writeValue(0xC0, i, _voices[i]->getInstrument()->feedback);
@@ -98,28 +94,21 @@ namespace drivers
 
             void OplDriver::resume() const noexcept
             {
-                for (auto it = _voiceIndexesInUse.begin(); it != _voiceIndexesInUse.end(); ++it) {
+                for (auto it = _voicesInUseIndex.begin(); it != _voicesInUseIndex.end(); ++it) {
                     const uint8_t i = *it;
                     _voices[i]->resume();
-                    if (_opl3_mode)
-                    {
-                        _oplWriter->writePan(i,
-                            _voices[i]->getInstrument(),
-                            _channels[_voices[i]->getChannel()]->pan
-                        );
-                    }
                 }
             }
 
             void OplDriver::noteOff(const uint8_t chan, const uint8_t note) noexcept
             {
-                uint8_t sustain = _channels[chan]->sustain;
+                const uint8_t sustain = _channels[chan]->sustain;
 
-                for (auto it = _voiceIndexesInUse.begin(); it != _voiceIndexesInUse.end();) {
+                for (auto it = _voicesInUseIndex.begin(); it != _voicesInUseIndex.end();) {
                     // TODO: this noteOff is masking the voice Release, not nice.
                     if (_voices[*it]->noteOff(chan, note, sustain)) {
-                        _voiceIndexesFree.push_back(*it);
-                        it = _voiceIndexesInUse.erase(it);
+                        _voicesFreeIndex.push_back(*it);
+                        it = _voicesInUseIndex.erase(it);
                     }
                     else
                         ++it;
@@ -130,14 +119,22 @@ namespace drivers
 
             void OplDriver::noteOn(const uint8_t chan, const uint8_t note, const uint8_t vol) noexcept
             {
-                int8_t freeSlot = getFreeOplVoiceIndex(chan != MIDI_PERCUSSION_CHANNEL);
+                using audio::opl::banks::OP2Bank;
 
+                const bool isPercussion = chan == MIDI_PERCUSSION_CHANNEL;
+                int8_t freeSlot = getFreeOplVoiceIndex(!isPercussion);
+                
                 if (freeSlot != -1)
                 {
-                    auto instr = _channels[chan]->setInstrument(note);
+                    const uint8_t instr_index = isPercussion ?
+                        OP2Bank::getPercussionIndex(note) :
+                        _channels[chan]->getProgram();
+
+                    const auto instr = _op2Bank->getInstrumentPtr(instr_index);
+
                     allocateVoice(freeSlot, chan, note, vol, instr, false);
 
-                    if (_opl3_mode && instr->flags == OP2BANK_INSTRUMENT_FLAG_DOUBLE_VOICE)
+                    if (_opl3_mode && OP2Bank::supportOpl3(instr))
                     {
                         freeSlot = getFreeOplVoiceIndex(true);
                         if (freeSlot != -1)
@@ -147,7 +144,7 @@ namespace drivers
                     //spdlog::debug("noteOn note={:d} ({:d}) - vol={:d} ({:d}) - pitch={:d} - ch={:d}", voice->_note, voice->_realnote, /*voice->volume*/ -1, /*voice->realvolume*/ -1, voice->pitch, voice->_channel);
                 }
                 else {
-                    spdlog::critical("NO FREE CHANNEL? midi-ch={} - playingVoices={}", chan, _voiceIndexesInUse.size());
+                    spdlog::critical("NO FREE CHANNEL? midi-ch={} - playingVoices={} -- free={}", chan, _voicesInUseIndex.size(), _voicesFreeIndex.size());
                 }
             }
 
@@ -230,7 +227,7 @@ namespace drivers
                 // OPLPitchWheel
                 _channels[chan]->pitch = static_cast<int8_t>(bend);
 
-                for (auto it = _voiceIndexesInUse.begin(); it != _voiceIndexesInUse.end();++it)
+                for (auto it = _voicesInUseIndex.begin(); it != _voicesInUseIndex.end();++it)
                     _voices[*it]->pitchBend(chan, bend);
             }
 
@@ -239,7 +236,7 @@ namespace drivers
             {
                 _channels[chan]->modulation = value;
 
-                for(auto it = _voiceIndexesInUse.begin(); it != _voiceIndexesInUse.end(); ++it)
+                for(auto it = _voicesInUseIndex.begin(); it != _voicesInUseIndex.end(); ++it)
                     _voices[*it]->ctrl_modulationWheel(chan, value);
             }
 
@@ -248,7 +245,7 @@ namespace drivers
                 //spdlog::debug("volume value {} -ch={}", value, chan);
 
                 _channels[chan]->volume = value;
-                for (auto it = _voiceIndexesInUse.begin(); it != _voiceIndexesInUse.end(); ++it)
+                for (auto it = _voicesInUseIndex.begin(); it != _voicesInUseIndex.end(); ++it)
                     _voices[*it]->ctrl_volume(chan, value/*, abs_time*/);
             }
 
@@ -257,7 +254,7 @@ namespace drivers
                 //spdlog::debug("panPosition value {}", value);
 
                 _channels[chan]->pan = value -= 64;
-                for (auto it = _voiceIndexesInUse.begin(); it != _voiceIndexesInUse.end(); ++it)
+                for (auto it = _voicesInUseIndex.begin(); it != _voicesInUseIndex.end(); ++it)
                     _voices[*it]->ctrl_panPosition(chan, value);
             }
 
@@ -271,26 +268,26 @@ namespace drivers
 
             void OplDriver::releaseSustain(const uint8_t channel)
             {
-                for (auto it = _voiceIndexesInUse.begin(); it != _voiceIndexesInUse.end(); ++it)
+                for (auto it = _voicesInUseIndex.begin(); it != _voicesInUseIndex.end(); ++it)
                     _voices[*it]->releaseSustain(channel);
             }
 
-            uint8_t OplDriver::releaseVoice(const uint8_t slot, const bool killed)
+            uint8_t OplDriver::releaseVoice(const uint8_t slot, const bool forced)
             {
                 assert(slot >= 0 && slot < _oplNumChannels);
 
-                return _voices[slot]->release(killed);
+                return _voices[slot]->release(forced);
             }
 
             int OplDriver::allocateVoice(const uint8_t slot, const uint8_t channel,
-                const uint8_t note_, const uint8_t volume,
+                const uint8_t note, const uint8_t volume,
                 const audio::opl::banks::Op2BankInstrument_t* instrument,
                 const bool secondary)
             {
                 const OplChannel* ch = _channels[channel].get();
 
                 return _voices[slot]->allocate(
-                    channel, note_, volume, instrument, secondary,
+                    channel, note, volume, instrument, secondary,
                     ch->modulation, ch->volume, ch->pitch, ch->pan
                 );
             }
@@ -306,30 +303,30 @@ namespace drivers
                 // used only 0 and 2, so bit 1 only:
                 // it can be a bool !kill_oldest_channel
 
-                assert(_voiceIndexesFree.size() + _voiceIndexesInUse.size() == _oplNumChannels);
+                assert(_voicesFreeIndex.size() + _voicesInUseIndex.size() == _oplNumChannels);
 
-                if (!_voiceIndexesFree.empty()) {
-                    const uint8_t i = _voiceIndexesFree.front();
-                    _voiceIndexesFree.pop_front();
-                    _voiceIndexesInUse.push_back(i);
+                if (!_voicesFreeIndex.empty()) {
+                    const uint8_t i = _voicesFreeIndex.front();
+                    _voicesFreeIndex.pop_front();
+                    _voicesInUseIndex.push_back(i);
                     return i;
                 }
 
-                for (auto it = _voiceIndexesInUse.begin(); it != _voiceIndexesInUse.end(); ++it)
+                for (auto it = _voicesInUseIndex.begin(); it != _voicesInUseIndex.end(); ++it)
                 {
                     if (_voices[*it]->isSecondary()) {
                         uint8_t i = releaseVoice(*it, true);
-                        _voiceIndexesInUse.erase(it);
-                        _voiceIndexesInUse.push_back(i);
+                        _voicesInUseIndex.erase(it);
+                        _voicesInUseIndex.push_back(i);
                         return i;
                     }
                 }
 
                 if(force)
                 {
-                    uint8_t i = releaseVoice(_voiceIndexesInUse.front(), true);
-                    _voiceIndexesInUse.pop_front();
-                    _voiceIndexesInUse.push_back(i);
+                    uint8_t i = releaseVoice(_voicesInUseIndex.front(), true);
+                    _voicesInUseIndex.pop_front();
+                    _voicesInUseIndex.push_back(i);
                     return i;
                 }
 

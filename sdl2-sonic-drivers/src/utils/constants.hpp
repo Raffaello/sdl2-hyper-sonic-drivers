@@ -17,4 +17,9 @@ namespace utils
 
     constexpr double PI = 3.141592653589793238462643;
     constexpr double PI2 = PI * 2;
+
+    const char* getVersion();
+    int getVersionMajor();
+    int getVersionMinor();
+    int getVersionPatch();
 }

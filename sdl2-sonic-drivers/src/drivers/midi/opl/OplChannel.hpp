@@ -18,7 +18,7 @@ namespace drivers
             {
             public:
                 OplChannel() = delete;
-                OplChannel(const uint8_t channel_, const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank);
+                explicit OplChannel(const uint8_t channel_);
                 ~OplChannel() = default;
 
                 const uint8_t channel;         // MIDI channel, not used
@@ -28,19 +28,12 @@ namespace drivers
                 uint8_t sustain = 0;           // sustain pedal value
                 uint8_t modulation = 0;        // modulation pot value
 
-                inline const audio::opl::banks::Op2BankInstrument_t* getInstrument() const noexcept { return &_instrument; }
-                // TODO: this should return an OPL_BANK_INSTRUMENT_INTERFACE or something instead...
-                const audio::opl::banks::Op2BankInstrument_t* setInstrument(const uint8_t note) noexcept;
-
                 // Regular messages
                 void programChange(const uint8_t program);
-
+                inline uint8_t getProgram() const noexcept { return _program; }
             private:
                 const bool _isPercussion;
                 uint8_t _program = 0;           // instrument number
-                // TODO: this should be a pointer to the bank instrument instead of copy it?
-                audio::opl::banks::Op2BankInstrument_t _instrument = { 0 };
-                const audio::opl::banks::OP2Bank* _op2Bank;
             };
         }
     }

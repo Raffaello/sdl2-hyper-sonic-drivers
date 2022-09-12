@@ -3,3 +3,4 @@
 /.vs
 /build
 *.bak
+/sdl2-sonic-drivers/src/version.h

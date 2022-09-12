@@ -90,7 +90,7 @@ jobs:
       - name: cmake build sonar wrapper
         run: |
           . "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-          build-wrapper-win-x86-64 --out-dir . cmake --build . --config=Debug
+          build-wrapper-win-x86-64 --out-dir . cmake --build . --config=Debug -j4
         working-directory: build
       #- name: CTest
       #  run: ctest --output-on-failure

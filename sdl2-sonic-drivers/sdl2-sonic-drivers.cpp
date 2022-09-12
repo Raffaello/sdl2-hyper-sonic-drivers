@@ -416,14 +416,12 @@ int midi_adlib_mus_op2_file()
 
     //spdlog::set_level(spdlog::level::debug);
 
-
     std::shared_ptr<Mixer> mixer = mixerManager.getMixer();
 
     auto emu = OplEmulator::MAME;
     auto type = Config::OplType::OPL2;
     
     spdlog::set_level(spdlog::level::debug);
-
 
     auto op2File = std::make_shared<files::dmx::OP2File>("test/fixtures/GENMIDI.OP2");
     auto musFile = std::make_shared<files::dmx::MUSFile>("test/fixtures/D_E1M1.MUS");
@@ -439,7 +437,7 @@ int midi_adlib_mus_op2_file()
         spdlog::info("playing midi (OPL2) D_E1M1.MUS...");
         midDrv.play(midi);
         //utils::delayMillis(1200);
-        //midDrv.pause(); // TODO work out the pause
+        //midDrv.pause();
         //utils::delayMillis(2000);
         //midDrv.resume();
         while (midDrv.isPlaying())
@@ -458,6 +456,10 @@ int midi_adlib_mus_op2_file()
         auto handle = *opl->getSoundHandle();
         auto volume = mixer->getChannelVolume(handle);
         spdlog::info("Volumne: {:d}", volume);
+        utils::delayMillis(1250);
+        midDrv.pause();
+        utils::delayMillis(2000);
+        midDrv.resume();
         while (midDrv.isPlaying()) {
             utils::delayMillis(1000);
             // TODO: the volume should also be set through the MIDDrv for simplicity
@@ -468,8 +470,8 @@ int midi_adlib_mus_op2_file()
             //mixer->setChannelVolume(handle, volume / 2);
             //mixer->pauseHandle(handle); // TODO this will do it too for pause the music i guess.
         }
-
     }
+
     return 0;
 }
 

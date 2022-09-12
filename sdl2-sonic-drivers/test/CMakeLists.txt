@@ -195,6 +195,7 @@ macro_test(
     FILES "drivers/midi/opl/TestOplVoice.cpp"
     LINKS_PRIVATE sonic-drivers-static
     FIXTURES
+        "fixtures/GENMIDI.OP2"
 )
 
 ##### future tests ###

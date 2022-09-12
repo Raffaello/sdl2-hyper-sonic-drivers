@@ -10,8 +10,6 @@ namespace drivers
         {
             using hardware::opl::OPL2instrument_t;
 
-            using audio::opl::banks::OP2BANK_INSTRUMENT_FLAG_FIXED_PITCH;
-            using audio::opl::banks::OP2BANK_INSTRUMENT_FLAG_DOUBLE_VOICE;
             using audio::midi::MIDI_PERCUSSION_CHANNEL;
             constexpr int VIBRATO_THRESHOLD = 40;
             constexpr int8_t HIGHEST_NOTE = 127;
@@ -86,11 +84,12 @@ namespace drivers
                 return b;
             }
 
-            /*inline*/ bool OplVoice::ctrl_panPosition(const uint8_t channel, const uint8_t value/*, const uint32_t abs_time*/) const noexcept
+            /*inline*/ bool OplVoice::ctrl_panPosition(const uint8_t channel, const uint8_t value/*, const uint32_t abs_time*/) noexcept
             {
                 const bool b = isChannelBusy(channel);
                 if (b)
                 {
+                    _pan = value;
                     //_time = abs_time;
                     _oplWriter->writePan(_slot, _instr, value);
                 }
@@ -114,7 +113,7 @@ namespace drivers
 
             int OplVoice::allocate(
                 const uint8_t channel,
-                const uint8_t note_, const uint8_t volume,
+                const uint8_t note, const uint8_t volume,
                 const audio::opl::banks::Op2BankInstrument_t* instrument,
                 const bool secondary,
                 const uint8_t chan_modulation,
@@ -124,61 +123,57 @@ namespace drivers
                 //const uint32_t abs_time
             ) noexcept
             {
-                const OPL2instrument_t* instr;
-                int16_t note = note_;
+                using audio::opl::banks::OP2Bank;
+
+                int16_t note_ = note;
 
                 _channel = channel;
-                _note = note_;
+                _note = note;
                 _free = false;
                 _secondary = secondary;
+                _pan = chan_pan;
                 
                 if (chan_modulation >= VIBRATO_THRESHOLD)
                     _vibrato = true;
                 
-                // = abs_time;
                 setVolumes(chan_vol, volume);
                 
-                if (instrument->flags & OP2BANK_INSTRUMENT_FLAG_FIXED_PITCH)
-                    note = instrument->noteNum;
+                if (OP2Bank::isPercussion(instrument))
+                    note_ = instrument->noteNum;
                 else if (channel == MIDI_PERCUSSION_CHANNEL)
-                    note = 60;  // C-5
+                    note_ = 60;  // C-5
                 
-                if (secondary && (instrument->flags & OP2BANK_INSTRUMENT_FLAG_DOUBLE_VOICE))
+                if (secondary && OP2Bank::supportOpl3(instrument))
                     _finetune = instrument->fineTune - 0x80;
                 else
                     _finetune = 0;
-                
+
                 _pitch = _finetune + chan_pitch;
-                
-                if (secondary)
-                    instr = &instrument->voices[1];
-                else
-                    instr = &instrument->voices[0];
 
-                _instr = instr;
+                _instr = &instrument->voices[secondary ? 1 : 0];
 
-                if ((note += instr->basenote) < 0)
-                    while ((note += 12) < 0) {}
-                else if (note > HIGHEST_NOTE)
-                    while ((note -= 12) > HIGHEST_NOTE);
-                
-                _realnote = static_cast<uint8_t>(note);
+                if ((note_ += _instr->basenote) < 0)
+                    while ((note_ += 12) < 0) {}
+                else if (note_ > HIGHEST_NOTE)
+                    while ((note_ -= 12) > HIGHEST_NOTE);
+
+                _realnote = static_cast<uint8_t>(note_);
 
                 _oplWriter->writeInstrument(_slot, _instr);
                 if (_vibrato)
                     _oplWriter->writeModulation(_slot, _instr, true);
-                _oplWriter->writePan(_slot, instr, chan_pan);
-                _oplWriter->writeVolume(_slot, instr, getRealVolume());
+                _oplWriter->writePan(_slot, _instr, chan_pan);
+                _oplWriter->writeVolume(_slot, _instr, getRealVolume());
                 playNote(true);
 
                 return _slot;
             }
 
-            uint8_t OplVoice::release(const bool killed) noexcept
+            uint8_t OplVoice::release(const bool forced) noexcept
             {
                 playNote(false);
                 _free = true;
-                if (killed)
+                if (forced)
                 {
                     _oplWriter->writeChannel(0x80, _slot, 0x0F, 0x0F);  // release rate - fastest
                     _oplWriter->writeChannel(0x40, _slot, 0x3F, 0x3F);  // no volume
@@ -189,10 +184,10 @@ namespace drivers
             void OplVoice::pause() const noexcept
             {
                 _oplWriter->writeVolume(_slot, _instr, 0);
-                _oplWriter->writeChannel(0x60, _slot, 0, 0);	// attack, decay
+                _oplWriter->writeChannel(0x60, _slot, 0, 0);    // attack, decay
                 _oplWriter->writeChannel(0x80, _slot,
                     _instr->sust_rel_1 & 0xF0,
-                    _instr->sust_rel_2 & 0xF0);	// sustain, release
+                    _instr->sust_rel_2 & 0xF0); // sustain, release
             }
 
             void OplVoice::resume() const noexcept
@@ -200,9 +195,7 @@ namespace drivers
                 _oplWriter->writeChannel(0x60, _slot, _instr->att_dec_1, _instr->att_dec_2);
                 _oplWriter->writeChannel(0x80, _slot, _instr->sust_rel_1, _instr->sust_rel_2);
                 _oplWriter->writeVolume(_slot, _instr, getRealVolume());
-                //if (_opl3_mode)
-                //_oplWriter->writePan(_slot, _instr, _channel- getChannel()]->pan);
-
+                _oplWriter->writePan(_slot, getInstrument(), _pan);
             }
         }
     }

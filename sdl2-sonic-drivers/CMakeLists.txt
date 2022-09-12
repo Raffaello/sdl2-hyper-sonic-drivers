@@ -8,7 +8,7 @@ find_package(spdlog 1.9.0 CONFIG REQUIRED)
 find_package(rtmidi CONFIG REQUIRED)
 
 
-configure_file("version.h.in" "version.h")
+configure_file("version.h.in" "${CMAKE_CURRENT_SOURCE_DIR}/src/version.h")
 
 if(WITH_SDL2_STATIC)
     set(LIB_SDL2 SDL2::SDL2-static)
@@ -179,6 +179,7 @@ target_sources(${LIB_NAME} PRIVATE
     # --- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/PCSpeaker.cpp
     # --- #
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/constants.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/endianness.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/algorithms.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/opl.cpp
