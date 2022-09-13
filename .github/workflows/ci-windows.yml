@@ -17,7 +17,7 @@ on:
       - 'LICENSE'
       - 'wave_generators.r'
   release:
-    types: [published]
+    types: [prereleased]
   #pull_request:
   #  branches: [ master ]
 

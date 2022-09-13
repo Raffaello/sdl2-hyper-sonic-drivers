@@ -14,7 +14,7 @@ on:
       - 'README.md'
       - 'LICENSE'
   release:
-    types: [published]
+    types: [prereleased]
 
   #pull_request:
   #  branches: [ master ]
