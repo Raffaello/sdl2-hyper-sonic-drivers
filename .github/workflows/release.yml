@@ -44,7 +44,7 @@ jobs:
   publish:
     name: Publish Version
     runs-on: ubuntu-20.04
-    if: ${{ github.reg == 'refs/head/master' }}
+    if: ${{ github.reg == 'refs/heads/master' }}
     needs:
       - check
     steps:
@@ -52,7 +52,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: publishVersion
-        if: ${{ github.reg == 'refs/head/master' }}
+        if: ${{ github.reg == 'refs/heads/master' }}
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
         run: |
