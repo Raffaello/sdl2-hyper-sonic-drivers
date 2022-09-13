@@ -2,8 +2,15 @@ name: Release
 
 on:
   push:
-    paths:
-      - 'CMakeLists.txt'
+    paths-ignore:
+      - '.gitignore'
+      - '.gitattributes'
+      - 'README.md'
+      - 'LICENSE'
+    # paths:
+    #   - 'CMakeLists.txt'
+    # branches:
+    #   - master
 
 ### NOTE: such a waste 2 jobs for just 2 steps, but better displayed names
 
