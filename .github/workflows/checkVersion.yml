@@ -1,14 +1,8 @@
 name: checkVersion
 on:
-  pull_request:
-    branches: [ master ]
-    paths-ignore:
-      - 'doc/**'
-      - '.gitignore'
-      - '.gitattributes'
-      - 'README.md'
-      - 'LICENSE'
-      - 'wave_generators.r'
+  push:
+    paths:
+      - '/CMakeLists.txt'
 
 jobs:
   build:

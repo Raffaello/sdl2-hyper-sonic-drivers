@@ -4,13 +4,8 @@ name: autoPublish
 on:
   push:
     branches: [ master ]
-    paths-ignore:
-      - 'doc/**'
-      - '.gitignore'
-      - '.gitattributes'
-      - 'README.md'
-      - 'LICENSE'
-      - 'wave_generators.r'
+    paths:
+      - '/CMakeLists.txt'
 
 jobs:
   build:
