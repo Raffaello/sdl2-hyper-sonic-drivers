@@ -2,7 +2,7 @@ name: checkVersion
 on:
   push:
     paths:
-      - '/CMakeLists.txt'
+      - 'CMakeLists.txt'
 
 jobs:
   build:

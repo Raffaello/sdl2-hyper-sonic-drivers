@@ -5,7 +5,7 @@ on:
   push:
     branches: [ master ]
     paths:
-      - '/CMakeLists.txt'
+      - 'CMakeLists.txt'
 
 jobs:
   build:
