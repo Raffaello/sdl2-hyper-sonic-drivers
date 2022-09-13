@@ -62,8 +62,8 @@ jobs:
         id: dep-cache
         with:
             path: build\vcpkg_installed
-            key: ${{ runner.os }}-${{ matrix.os }}-${{ matrix.triplet }}-dep-cache-${{ hashFiles('**/*') }}
-            restore-keys: ${{ runner.os }}-${{ matrix.triplet }}-dep-cache
+            key: ${{ runner.os }}-${{ matrix.os }}-${{ matrix.triplet }}--dep-cache-${{ hashFiles('**/*') }}
+            restore-keys: ${{ runner.os }}-${{ matrix.os }}-${{ matrix.triplet }}-dep-cache
       - name: cmake generator
         run: |
           . "${{ env.VS_PATH }}\VC\Auxiliary\Build\vcvars${{ env.ARCH }}.bat"
