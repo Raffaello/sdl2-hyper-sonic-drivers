@@ -13,8 +13,10 @@ on:
       - '.gitattributes'
       - 'README.md'
       - 'LICENSE'
+    branches-ignore:
+      - master
   release:
-    types: [prereleased]
+    types: [published]
 
   #pull_request:
   #  branches: [ master ]
