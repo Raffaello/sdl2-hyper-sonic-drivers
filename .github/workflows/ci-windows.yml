@@ -78,10 +78,10 @@ jobs:
         run: ctest --output-on-failure -j4
         working-directory: build
       - name: cmake install
-        run: cmake --build . --target install --config ${{ matrix.build_type }}
+        run: cmake --build . --target install --config ${{ matrix.build_type }} -j4
         working-directory: build
       - name: cmake package
-        run: cmake --build . --target package --config ${{ matrix.build_type }}
+        run: cmake --build . --target package --config ${{ matrix.build_type }} -j4
         working-directory: build
       - name: Release
         uses: softprops/action-gh-release@v1
