@@ -1,0 +1,63 @@
+name: Release
+
+on:
+  push:
+    paths-ignore:
+      - '.gitignore'
+      - '.gitattributes'
+      - 'README.md'
+      - 'LICENSE'
+    # paths:
+    #   - 'CMakeLists.txt'
+    # branches:
+    #   - master
+
+### NOTE: such a waste 2 jobs for just 2 steps, but better displayed names
+
+jobs:
+  check:
+    name: Check Version
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: checkVersion
+        run: |
+          set -e
+          VER=$(cat CMakeLists.txt  | grep " VERSION " | cut -d ' ' -f 4)
+          TAGS=( $(git tag) )
+          echo "VER: ${VER}"
+          echo "TAGS: ${TAGS[@]}"
+          for t in "${TAGS[@]}"
+          do
+            #echo $t
+            tt=$(echo $t | cut -d'v' -f2) 
+            #echo $tt
+            if [ "$VER" = "$tt" ]
+            then
+              echo "$VER is already present"
+              exit -1
+              break
+            fi
+          done
+  publish:
+    name: Publish Version
+    runs-on: ubuntu-20.04
+    if: ${{ github.reg == 'refs/heads/master' }}
+    needs:
+      - check
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: publishVersion
+        if: ${{ github.reg == 'refs/heads/master' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        run: |
+          set -e
+          VER=$(cat CMakeLists.txt  | grep " VERSION " | cut -d ' ' -f 4)
+          echo "VER: ${VER}"
+          gh release create v${VER} -d --generate-notes
+
