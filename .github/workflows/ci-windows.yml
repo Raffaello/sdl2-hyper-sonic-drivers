@@ -62,7 +62,7 @@ jobs:
         id: dep-cache
         with:
             path: build\vcpkg_installed
-            key: ${{ runner.os }}-${{ matrix.os }}-${{ matrix.triplet }}--dep-cache-${{ hashFiles('**/*') }}
+            key: ${{ runner.os }}-${{ matrix.os }}-${{ matrix.triplet }}-dep-cache-${{ hashFiles('**/*') }}
             restore-keys: ${{ runner.os }}-${{ matrix.os }}-${{ matrix.triplet }}-dep-cache
       - name: cmake generator
         run: |
