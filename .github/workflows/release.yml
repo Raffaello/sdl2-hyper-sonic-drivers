@@ -54,7 +54,7 @@ jobs:
       - name: publishVersion
         # if: ${{ github.ref == 'refs/heads/master' }}
         env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -e
           VER=$(cat CMakeLists.txt  | grep " VERSION " | cut -d ' ' -f 4)
