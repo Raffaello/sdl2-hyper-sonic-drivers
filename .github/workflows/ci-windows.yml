@@ -16,8 +16,10 @@ on:
       - 'README.md'
       - 'LICENSE'
       - 'wave_generators.r'
+    branches-ignore:
+      - master
   release:
-    types: [prereleased]
+    types: [published]
   #pull_request:
   #  branches: [ master ]
 
