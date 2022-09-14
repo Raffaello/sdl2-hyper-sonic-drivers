@@ -13,6 +13,8 @@ on:
     #   - master
 
 ### NOTE: such a waste 2 jobs for just 2 steps, but better displayed names
+### NOTE: can't be automatically triggered so publish a draft release,
+###       it will manually published... GitHub doesn't allow that yet.
 
 jobs:
   check:
@@ -49,8 +51,6 @@ jobs:
       - check
     steps:
       - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
       - name: publishVersion
         # if: ${{ github.ref == 'refs/heads/master' }}
         env:
@@ -59,4 +59,4 @@ jobs:
           set -e
           VER=$(cat CMakeLists.txt  | grep " VERSION " | cut -d ' ' -f 4)
           echo "VER: ${VER}"
-          gh release create v${VER} --generate-notes
+          gh release create v${VER} -d --generate-notes
