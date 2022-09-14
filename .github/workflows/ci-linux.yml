@@ -16,7 +16,8 @@ on:
     branches-ignore:
       - master
   release:
-    types: [created]
+    types:
+      - created
 
   #pull_request:
   #  branches: [ master ]
