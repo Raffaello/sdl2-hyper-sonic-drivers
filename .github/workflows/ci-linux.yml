@@ -13,8 +13,8 @@ on:
       - '.gitattributes'
       - 'README.md'
       - 'LICENSE'
-    branches-ignore:
-      - master
+    # branches-ignore:
+    #   - master
   release:
     types:
       - created
