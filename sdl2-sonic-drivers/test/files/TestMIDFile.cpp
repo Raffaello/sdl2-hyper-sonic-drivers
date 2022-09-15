@@ -72,6 +72,10 @@ namespace files
 
     TEST(MIDFile, midifile_sample_convert_to_single_track)
     {
+        using audio::midi::MIDI_EVENT_TYPES_HIGH;
+        using audio::midi::MIDI_META_EVENT_TYPES_LOW;
+        using audio::midi::MIDI_META_EVENT;
+
         MIDFile f("fixtures/midifile_sample.mid");
 
         // todo
@@ -81,6 +85,16 @@ namespace files
         EXPECT_EQ(m->numTracks, 1);
         EXPECT_EQ(m->division, 120);
         EXPECT_EQ(m->getTrack(0).getEvents().size(), 1 + 29 + 31);
+
+        int endOfTrackEvents = 0;
+        constexpr uint8_t event_val = (static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::META_SYSEX) << 4) | static_cast<uint8_t>(MIDI_META_EVENT_TYPES_LOW::META);
+        for (const auto& e : m->getTrack(0).getEvents()) {
+            if (e.type.val == event_val && e.data[0] == static_cast<uint8_t>(MIDI_META_EVENT::END_OF_TRACK)) {
+                endOfTrackEvents++;
+            }
+        }
+
+        EXPECT_EQ(endOfTrackEvents, 1);
         
         /*const std::array<uint32_t, 61> exp_abs_times = {
             0, 0, 0, 120, 120, 120, 120, 240, 240, 240, 240, 360, 360, 360,
