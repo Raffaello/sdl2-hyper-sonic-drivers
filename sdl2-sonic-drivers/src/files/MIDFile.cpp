@@ -77,11 +77,6 @@ namespace files
         //    order of tracks metter
         //    only 1 delta time different from zero on same abs_time
         //    keep the delta_time different from 0 from track zero.
-
-        // TODO what about instead push from the same delta time orders instead?
-        //      with absolute time? going around the tracks as inner loop.
-        //      modifing the delta time when have same abs_time etc..
-        //      it could be better
         for (uint16_t n = 0; n < _midi->numTracks; n++)
         {
             abs_time = 0;
@@ -110,66 +105,22 @@ namespace files
 
         // 2. then sort them by absolute time
         //    tie break level 1 on delta_time,
-        //    first of a sequence of same delta times has a value different from zero,
-        //    so greater, if both zeros,tie break on track number.
+        //    tie break level 2 on track number
         std::sort(
             events_tuple.begin(),
             events_tuple.end(),
             [](const midi_tuple_t& e1, const midi_tuple_t& e2)
             {
                 if (e1.abs_time == e2.abs_time) {
+                    if(e1.e.delta_time == e2.e.delta_time)
                         return e1.track < e2.track;
+                    
+                    return e1.e.delta_time > e2.e.delta_time;
                 }
 
                 return e1.abs_time < e2.abs_time;
             }
         );
-
-        // for the same abs_time events there should be only one delta_time != 0
-        // redundant loop check, could be remove
-
-        // TODO: this block should be done before sorting..???
-        {
-            auto last_it = events_tuple.begin(),
-                it = events_tuple.begin();
-            ++it; // skip the first, if it was a sequence of one already ok then.
-            if (last_it->e.delta_time != 0 || last_it->abs_time != 0) {
-                throw std::logic_error("something wrong in the conversion, debug");
-            }
-
-            while (it != events_tuple.end()) {
-                if (it->abs_time == last_it->abs_time) {
-                    it->e.delta_time = 0;
-                }
-                else {
-                    last_it = it;
-                    spdlog::debug("last_it abs_time = {:d}", last_it->abs_time);
-                }
-
-                ++it;
-
-
-                //if (it->e.delta_time != 0) {
-                //    //assert(last_it->abs_time != it->abs_time);
-                //    if (last_it->abs_time == it->abs_time) {
-                //        it->e.delta_time = 0;
-                //    }
-                //    else {
-                //        last_it = it;
-                //    }
-                //    //assert(last_it->e.delta_time != 0);
-                //}
-                //else if (last_it->abs_time == it->abs_time) {
-                //    it->e.delta_time = 0;
-                //    //assert(it->e.delta_time == 0);
-                //}
-                //else {
-                //    // ?
-                //}
-
-                //++it;
-            }
-        }
 
         // 3. recompute delta time from absolute time
         abs_time = 0;
@@ -179,6 +130,63 @@ namespace files
             if (e.abs_time > abs_time)
                 abs_time = e.abs_time;
         }
+
+        // for the same abs_time events there should be only one delta_time != 0
+        //auto last_it = events_tuple.begin(),
+        //    it = events_tuple.begin();
+        //++it; // skip the first, if it was a sequence of one already ok then.
+        //if (last_it->e.delta_time != 0 || last_it->abs_time != 0) {
+        //    throw std::logic_error("something wrong in the conversion, debug");
+        //}
+
+        //while (it != events_tuple.end()) {
+        //    if (it->abs_time == last_it->abs_time) {
+        //        it->e.delta_time = 0;
+        //    }
+        //    else if (it->abs_time > last_it->abs_time) {
+        //        last_it = it;
+        //        if (last_it->e.delta_time == 0) {
+        //            throw std::logic_error("wrong.sorting.debug");
+        //        }
+        //        //spdlog::debug("last_it abs_time = {:d}", last_it->abs_time);
+        //    }
+        //    else {
+        //        throw std::logic_error("error.not.here.debug");
+        //    }
+
+        //    ++it;
+
+        //}
+
+        //{
+        //    // check
+        //    // todo...
+        //    auto last_it = events_tuple.begin(),
+        //        it = events_tuple.begin();
+        //    ++it; // skip the first, if it was a sequence of one already ok then
+        //    while (it != events_tuple.end())
+        //    {
+        //        if (last_it->abs_time == it->abs_time)
+        //        {
+        //            if (it->e.delta_time != 0) {
+        //                throw std::logic_error("error.debug");
+        //            }
+        //            /*else if (last_it->e.delta_time == 0) {
+        //                throw std::logic_error("error.debug4");
+        //            }*/
+        //        }
+        //        else if (last_it->abs_time < it->abs_time)
+        //        {
+        //            last_it = it;
+        //        }
+        //        else {
+        //            throw std::logic_error("error.debug3");
+        //        }
+
+        //        ++it;
+        //    }
+        //}
+
 
         // 4. extract MIDITrack from events without abs_time
         std::vector<MIDIEvent> events;
