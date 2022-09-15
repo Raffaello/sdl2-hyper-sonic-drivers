@@ -84,7 +84,7 @@ namespace files
         EXPECT_EQ(m->format, audio::midi::MIDI_FORMAT::SINGLE_TRACK);
         EXPECT_EQ(m->numTracks, 1);
         EXPECT_EQ(m->division, 120);
-        EXPECT_EQ(m->getTrack(0).getEvents().size(), 1 + 29 + 31);
+        EXPECT_EQ(m->getTrack(0).getEvents().size(), 1 + 29 + 31 - 3 + 1); // track0,track1,track2, 3 end_of_tracks to 1 end_of_track
 
         int endOfTrackEvents = 0;
         constexpr uint8_t event_val = (static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::META_SYSEX) << 4) | static_cast<uint8_t>(MIDI_META_EVENT_TYPES_LOW::META);

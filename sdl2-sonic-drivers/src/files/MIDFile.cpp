@@ -41,39 +41,70 @@ namespace files
 
     std::shared_ptr<audio::MIDI> MIDFile::convertToSingleTrackMIDI() const
     {
+        using audio::midi::MIDI_EVENT_TYPES_HIGH;
+        using audio::midi::MIDI_META_EVENT_TYPES_LOW;
+        using audio::midi::MIDI_META_EVENT;
+        using audio::midi::MIDIEvent;
+
         if (_midi->format == audio::midi::MIDI_FORMAT::SINGLE_TRACK)
             return getMIDI();
         if (_midi->format == audio::midi::MIDI_FORMAT::MULTI_TRACK)
             throw std::runtime_error("MIDI MULTI_TRACK not supported yet");
 
         auto midi = std::make_shared<audio::MIDI>(audio::midi::MIDI_FORMAT::SINGLE_TRACK, 1, _midi->division);
-        // uint32_t is abs_time
-        typedef std::vector<std::pair<audio::midi::MIDIEvent, uint32_t>> VecPairs;
+        
+        typedef struct midi_tuple_t
+        {
+            MIDIEvent e;
+            uint32_t abs_time;
+            uint16_t track;
+        } midi_tuple_t;
+
+        typedef std::vector<midi_tuple_t> VecPairs;
         VecPairs events_pair;
         
         uint32_t abs_time = 0;
+        constexpr uint8_t meta_event_val = (static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::META_SYSEX) << 4) | static_cast<uint8_t>(MIDI_META_EVENT_TYPES_LOW::META);
+        constexpr uint8_t end_of_track_val = static_cast<uint8_t>(MIDI_META_EVENT::END_OF_TRACK);
+        midi_tuple_t last_end_of_track;
         // 1. with absolute time just copy all the events as they are into 1 single track
         for (uint16_t n = 0; n < _midi->numTracks; n++)
         {
             abs_time = 0;
             for (const auto& te : _midi->getTrack(n).getEvents()) {
+                // if it is a end_of_track skip, it will be added later
+                if (te.type.val == meta_event_val
+                    && te.data[0] == end_of_track_val) {
+                    last_end_of_track.e = te;
+                    last_end_of_track.abs_time = abs_time + te.delta_time;
+                    last_end_of_track.track = n;
+                    continue;
+                }
+
                 abs_time += te.delta_time;
-                events_pair.emplace_back(std::make_pair(te, abs_time));
+                midi_tuple_t mt;
+                mt.abs_time = abs_time;
+                mt.e = te;
+                mt.track = n;
+                events_pair.emplace_back(mt);
             }
         }
 
+        // add the end of track 
+        // (this should be equivalent to the last event of the longest track)
+        events_pair.emplace_back(last_end_of_track);
+
         // 2. then sort them by absolute time
-        // TODO: sort is "unsorting" the events like sequence text
-        //       all at the same abs_time, delta_time 0
-        //       and those must be kept in the same order as when visualizing is the only way to keep them in the same
-        //       order, more exactly each track as a sequence name and the order is implicit based on track number.
-        //       so i can order by 2nd level track number as a tie break on abs_time
         std::sort(
             events_pair.begin(),
             events_pair.end(),
-            [](const std::pair<audio::midi::MIDIEvent, uint32_t>& e1, const std::pair<audio::midi::MIDIEvent, uint32_t>& e2)
+            [](const midi_tuple_t& e1, const midi_tuple_t& e2)
             {
-                return e1.second < e2.second;
+                if (e1.abs_time == e2.abs_time) {
+                    return e1.track < e2.track;
+                }
+
+                return e1.abs_time < e2.abs_time;
             }
         );
 
@@ -81,17 +112,17 @@ namespace files
         abs_time = 0;
         for (auto& e : events_pair)
         {
-            e.first.delta_time = e.second - abs_time;
-            if (e.second > abs_time)
-                abs_time = e.second;
+            e.e.delta_time = e.abs_time - abs_time;
+            if (e.abs_time > abs_time)
+                abs_time = e.abs_time;
         }
 
         // 4. extract MIDITrack from events without abs_time
-        std::vector<audio::midi::MIDIEvent> events;
+        std::vector<MIDIEvent> events;
         std::transform(events_pair.begin(),
             events_pair.end(),
             std::back_inserter(events),
-            std::bind(&VecPairs::value_type::first, std::placeholders::_1));
+            std::bind(&VecPairs::value_type::e, std::placeholders::_1));
 
         audio::midi::MIDITrack single_track(events);
         midi->addTrack(single_track);
