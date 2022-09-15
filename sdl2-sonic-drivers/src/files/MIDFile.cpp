@@ -60,19 +60,28 @@ namespace files
             uint16_t track;
         } midi_tuple_t;
 
-        typedef std::vector<midi_tuple_t> VecPairs;
-        VecPairs events_pair;
+        typedef std::vector<midi_tuple_t> VecTuple;
+        VecTuple events_tuple;
+        //count total events
+        size_t totalEvents = 0;
+        for (uint16_t n = 0; n < _midi->numTracks; n++) {
+            totalEvents += _midi->getTrack(n).getEvents().size();
+        }
+        events_tuple.reserve(totalEvents);
         
         uint32_t abs_time = 0;
         constexpr uint8_t meta_event_val = (static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::META_SYSEX) << 4) | static_cast<uint8_t>(MIDI_META_EVENT_TYPES_LOW::META);
         constexpr uint8_t end_of_track_val = static_cast<uint8_t>(MIDI_META_EVENT::END_OF_TRACK);
         midi_tuple_t last_end_of_track;
         // 1. with absolute time just copy all the events as they are into 1 single track
+        //    order of tracks metter
+        //    only 1 delta time different from zero on same abs_time
+        //    keep the delta_time different from 0 from track zero.
         for (uint16_t n = 0; n < _midi->numTracks; n++)
         {
             abs_time = 0;
             for (const auto& te : _midi->getTrack(n).getEvents()) {
-                // if it is a end_of_track skip, it will be added later
+                // if it is a end_of_track skip it, it will be added later
                 if (te.type.val == meta_event_val
                     && te.data[0] == end_of_track_val) {
                     last_end_of_track.e = te;
@@ -86,31 +95,80 @@ namespace files
                 mt.abs_time = abs_time;
                 mt.e = te;
                 mt.track = n;
-                events_pair.emplace_back(mt);
+                events_tuple.emplace_back(mt);
             }
         }
 
-        // add the end of track 
-        // (this should be equivalent to the last event of the longest track)
-        events_pair.emplace_back(last_end_of_track);
+        // add the end of track
+        // this should be equivalent to the last event of the longest track, last end of track
+        events_tuple.emplace_back(last_end_of_track);
 
         // 2. then sort them by absolute time
+        //    tie break level 1 on delta_time,
+        //    first of a sequence of same delta times has a value different from zero,
+        //    so greater, if both zeros,tie break on track number.
         std::sort(
-            events_pair.begin(),
-            events_pair.end(),
+            events_tuple.begin(),
+            events_tuple.end(),
             [](const midi_tuple_t& e1, const midi_tuple_t& e2)
             {
                 if (e1.abs_time == e2.abs_time) {
-                    return e1.track < e2.track;
+                        return e1.track < e2.track;
                 }
 
                 return e1.abs_time < e2.abs_time;
             }
         );
 
+        // for the same abs_time events there should be only one delta_time != 0
+        // redundant loop check, could be remove
+
+        // TODO: this block should be done before sorting..???
+        {
+            auto last_it = events_tuple.begin(),
+                it = events_tuple.begin();
+            ++it; // skip the first, if it was a sequence of one already ok then.
+            if (last_it->e.delta_time != 0 || last_it->abs_time != 0) {
+                throw std::logic_error("something wrong in the conversion, debug");
+            }
+
+            while (it != events_tuple.end()) {
+                if (it->abs_time == last_it->abs_time) {
+                    it->e.delta_time = 0;
+                }
+                else {
+                    last_it = it;
+                    spdlog::debug("last_it abs_time = {:d}", last_it->abs_time);
+                }
+
+                ++it;
+
+
+                //if (it->e.delta_time != 0) {
+                //    //assert(last_it->abs_time != it->abs_time);
+                //    if (last_it->abs_time == it->abs_time) {
+                //        it->e.delta_time = 0;
+                //    }
+                //    else {
+                //        last_it = it;
+                //    }
+                //    //assert(last_it->e.delta_time != 0);
+                //}
+                //else if (last_it->abs_time == it->abs_time) {
+                //    it->e.delta_time = 0;
+                //    //assert(it->e.delta_time == 0);
+                //}
+                //else {
+                //    // ?
+                //}
+
+                //++it;
+            }
+        }
+
         // 3. recompute delta time from absolute time
         abs_time = 0;
-        for (auto& e : events_pair)
+        for (auto& e : events_tuple)
         {
             e.e.delta_time = e.abs_time - abs_time;
             if (e.abs_time > abs_time)
@@ -119,10 +177,12 @@ namespace files
 
         // 4. extract MIDITrack from events without abs_time
         std::vector<MIDIEvent> events;
-        std::transform(events_pair.begin(),
-            events_pair.end(),
+        events.reserve(events_tuple.size());
+
+        std::transform(events_tuple.begin(),
+            events_tuple.end(),
             std::back_inserter(events),
-            std::bind(&VecPairs::value_type::e, std::placeholders::_1));
+            std::bind(&VecTuple::value_type::e, std::placeholders::_1));
 
         audio::midi::MIDITrack single_track(events);
         midi->addTrack(single_track);

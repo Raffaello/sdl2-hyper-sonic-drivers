@@ -78,18 +78,17 @@ namespace files
 
         MIDFile f("fixtures/midifile_sample.mid");
 
-        // todo
         auto m = f.convertToSingleTrackMIDI();
-
+        constexpr size_t expTotalEvents = 1 + 29 + 31 - 3 + 1; // track0,track1,track2, 3 end_of_tracks to 1 end_of_track
         EXPECT_EQ(m->format, audio::midi::MIDI_FORMAT::SINGLE_TRACK);
         EXPECT_EQ(m->numTracks, 1);
         EXPECT_EQ(m->division, 120);
-        EXPECT_EQ(m->getTrack(0).getEvents().size(), 1 + 29 + 31 - 3 + 1); // track0,track1,track2, 3 end_of_tracks to 1 end_of_track
+        EXPECT_EQ(m->getTrack(0).getEvents().size(), expTotalEvents);
 
         int endOfTrackEvents = 0;
-        constexpr uint8_t event_val = (static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::META_SYSEX) << 4) | static_cast<uint8_t>(MIDI_META_EVENT_TYPES_LOW::META);
+        constexpr uint8_t meta_event_val = (static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::META_SYSEX) << 4) | static_cast<uint8_t>(MIDI_META_EVENT_TYPES_LOW::META);
         for (const auto& e : m->getTrack(0).getEvents()) {
-            if (e.type.val == event_val && e.data[0] == static_cast<uint8_t>(MIDI_META_EVENT::END_OF_TRACK)) {
+            if (e.type.val == meta_event_val && e.data[0] == static_cast<uint8_t>(MIDI_META_EVENT::END_OF_TRACK)) {
                 endOfTrackEvents++;
             }
         }
@@ -103,26 +102,26 @@ namespace files
             1320,1320,1440,1440,1440,1440,1560,1560,1560,1560,1680,1680,1680,1680,1920,
             1920,1920,1920 };*/
 
-        const std::array<uint32_t, 1 + 29 + 31> exp_delta_times = {
-            0,0,0,     // 2
-            120,0,0,0, // 6
-            120,0,0,0, // 10
-            120,0,0,0, // 14
-            120,0,0,0, // 18
-            120,0,0,0, // 22
-            120,0,0,0, // 26
-            120,0,     // 28
-            120,0,0,0, // 32
-            120,0,0,0, // 36
-            120,0,0,0, // 40
-            120,0,0,0, // 44
-            120,0,0,0, // 48
-            120,0,0,0, // 52
-            120,0,0,0, // 56
-            240,0,0,0  // 60
-        };
+        //const std::array<uint32_t, expTotalEvents> exp_delta_times = {
+        //    0,0,0,     // 2
+        //    120,0,0,0, // 6
+        //    120,0,0,0, // 10
+        //    120,0,0,0, // 14
+        //    120,0,0,0, // 18
+        //    120,0,0,0, // 22
+        //    120,0,0,0, // 26
+        //    120,0,     // 28
+        //    120,0,0,0, // 32
+        //    120,0,0,0, // 36
+        //    120,0,0,0, // 40
+        //    120,0,0,0, // 44
+        //    120,0,0,0, // 48
+        //    120,0,0,0, // 52
+        //    120,0,0,0, // 56
+        //    240,0,0,0  // 60
+        //};
 
-        std::vector<std::vector<uint8_t>> v = { { 1,2,3 } };
+        //std::vector<std::vector<uint8_t>> v = { { 1,2,3 } };
 
         // This checks isn't working as it is too strict.
         // it should compare the same absolute time getEvents() data instead.
@@ -146,10 +145,35 @@ namespace files
         //    {0x80, 0x48, 0x40},{0xff, 0x2f},      {0x80, 0x30, 0x40},{0xff, 0x2f},       // 60
         //};
 
-        auto t = m->getTrack(0);
+        /*auto t = m->getTrack(0);
 
         for (int i = 0; i < 61; i++) {
             cmp_midievent(i, t.getEvents()[i], exp_delta_times[i]);
+        }*/
+
+        auto origMidi = f.getMIDI();
+        auto midiEvents = m->getTrack().getEvents();
+        size_t k = 0;
+        for (int n = 0; n < origMidi->numTracks; n++) {
+            auto origTrack = origMidi->getTrack(n);
+            auto origTrackEvents = origTrack.getEvents();
+            const size_t totTrackEvent = origTrackEvents.size();
+            for (int i = 0; i < totTrackEvent; i++) {
+                auto origEvent = origTrackEvents.at(i);
+                if (origEvent.type.val == meta_event_val
+                    && origEvent.data[0] == static_cast<uint8_t>(MIDI_META_EVENT::END_OF_TRACK)) {
+                    continue; // need to check only the last one, after the loop
+                }
+
+                auto midiEvent = midiEvents.at(k++);
+                // expect to be the same sequence at the same abs_time, but delta_time won't
+                EXPECT_EQ(midiEvent.type.val, origEvent.type.val) << "index i: " << i << " k: " << k;
+                //EXPECT_EQ(midiEvent.delta_time, origEvent.delta_time) << "index i: " << i << " k: " << k;
+                EXPECT_EQ(midiEvent.data.size(), origEvent.data.size()) << "index i: " << i << " k: " << k;
+                for (int j = 0; j < midiEvent.data.size(); j++) {
+                    EXPECT_EQ(midiEvent.data.at(j), origEvent.data.at(j)) << "index i: " << i << " k: " << k << " j: " << j;
+                }
+            }
         }
     }
 }
