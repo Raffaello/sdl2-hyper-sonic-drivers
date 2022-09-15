@@ -77,6 +77,11 @@ namespace files
         //    order of tracks metter
         //    only 1 delta time different from zero on same abs_time
         //    keep the delta_time different from 0 from track zero.
+
+        // TODO what about instead push from the same delta time orders instead?
+        //      with absolute time? going around the tracks as inner loop.
+        //      modifing the delta time when have same abs_time etc..
+        //      it could be better
         for (uint16_t n = 0; n < _midi->numTracks; n++)
         {
             abs_time = 0;
