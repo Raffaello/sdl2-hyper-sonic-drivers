@@ -8,6 +8,7 @@ namespace drivers
         namespace devices
         {
             Opl::Opl(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank, const bool opl3_mode)
+                : Device()/*, OplDriver(opl, op2Bank, opl3_mode)*/
             {
                 // TODO: if opl is not opl3 opl3_mode should be force to be false as the "hardware"
                 //       doesn't support opl3 mode.
@@ -17,6 +18,7 @@ namespace drivers
 
             void Opl::sendEvent(const audio::midi::MIDIEvent& e) const noexcept
             {
+                //this->send(e);
                 _oplDriver->send(e);
             }
 

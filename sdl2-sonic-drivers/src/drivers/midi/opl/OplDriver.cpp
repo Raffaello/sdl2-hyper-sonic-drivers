@@ -148,7 +148,7 @@ namespace drivers
                 }
             }
 
-            void OplDriver::controller(const uint8_t chan, const uint8_t control, uint8_t value) noexcept
+            void OplDriver::controller(const uint8_t chan, const uint8_t control, uint8_t value) const noexcept
             {
                 // MIDI_EVENT_CONTROLLER_TYPES
                 switch (control)
@@ -258,7 +258,7 @@ namespace drivers
                     _voices[*it]->ctrl_panPosition(chan, value);
             }
 
-            void OplDriver::ctrl_sustain(const uint8_t chan, uint8_t value) noexcept
+            void OplDriver::ctrl_sustain(const uint8_t chan, uint8_t value) const noexcept
             {
                 //spdlog::debug("sustain value {}", value);
                 _channels[chan]->sustain = value;
@@ -266,7 +266,7 @@ namespace drivers
                     releaseSustain(chan);
             }
 
-            void OplDriver::releaseSustain(const uint8_t channel)
+            void OplDriver::releaseSustain(const uint8_t channel) const noexcept
             {
                 for (auto it = _voicesInUseIndex.begin(); it != _voicesInUseIndex.end(); ++it)
                     _voices[*it]->releaseSustain(channel);

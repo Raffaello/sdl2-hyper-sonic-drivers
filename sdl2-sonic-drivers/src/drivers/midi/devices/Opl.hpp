@@ -12,7 +12,7 @@ namespace drivers
     {
         namespace devices
         {
-            class Opl : public Device
+            class Opl : public Device /*, protected drivers::midi::opl::OplDriver*/
             {
             public:
                 void sendEvent(const audio::midi::MIDIEvent& e) const noexcept override;
