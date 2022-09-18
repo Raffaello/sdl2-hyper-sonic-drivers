@@ -22,6 +22,7 @@ namespace files
             explicit MUSFile(const std::string& filename, const int playback_speed = MUS_PLAYBACK_SPEED_DEFAULT);
             ~MUSFile() override = default;
 
+            // TODO: make an interface to convertToSingleTrackMidi() or getMIDI() for MID and MUS file (later XMI)
             std::shared_ptr<audio::MIDI> getMIDI() noexcept;
 
             const int playback_speed;
