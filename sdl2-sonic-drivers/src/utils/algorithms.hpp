@@ -25,6 +25,7 @@ namespace utils
     /**
      * Clear an array using the default or provided value.
      * TODO replace with std::fill and std::array
+     * @deprecated
      */
     template<typename T, size_t N>
     inline void ARRAYCLEAR(T(&array)[N], const T& value = T()) {
@@ -76,7 +77,7 @@ namespace utils
     int decode_VLQ(const uint8_t buf[], uint32_t& out_value);
 
     /// <summary>
-    /// XMI Variable length quantuty decoding algorithm
+    /// XMI Variable length quantity decoding algorithm
     /// </summary>
     /// <param name="buf">the max 4 bytes array to decode</param>
     /// <param name="out_value">the resulting decoded value</param>
@@ -85,15 +86,11 @@ namespace utils
 
     /// <summary>
     /// Converts a uint8_t vector to a string.
-    /// First value is the string size
     /// </summary>
     std::string chars_vector_to_string(const std::vector<uint8_t>::const_iterator& begin, const std::vector<uint8_t>::const_iterator& end);
 
     /// <summary>
     /// wrapper, helper function
-    /// First vector value is the string size
     /// </summary>
-    /// <param name="e"></param>
-    /// <returns></returns>
     std::string chars_vector_to_string(const std::vector<uint8_t>& e);
 }

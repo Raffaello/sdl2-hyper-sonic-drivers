@@ -53,7 +53,7 @@ namespace drivers
                 // MIDI Events
                 void noteOff(const uint8_t chan, const uint8_t note) noexcept;
                 void noteOn(const uint8_t chan, const uint8_t note, const uint8_t vol) noexcept;
-                void controller(const uint8_t chan, const uint8_t ctrl, uint8_t value) noexcept;
+                void controller(const uint8_t chan, const uint8_t ctrl, uint8_t value) const noexcept;
                 void programChange(const uint8_t chan, const uint8_t program) const noexcept;
                 void pitchBend(const uint8_t chan, const uint16_t bend) const noexcept;
 
@@ -61,11 +61,11 @@ namespace drivers
                 void ctrl_modulationWheel(const uint8_t chan, const uint8_t value) const noexcept;
                 void ctrl_volume(const uint8_t chan, const uint8_t value) const noexcept;
                 void ctrl_panPosition(const uint8_t chan, uint8_t value) const noexcept;
-                void ctrl_sustain(const uint8_t chan, uint8_t value) noexcept;
+                void ctrl_sustain(const uint8_t chan, uint8_t value) const noexcept;
 
                 void onTimer();
 
-                void releaseSustain(const uint8_t channel);
+                void releaseSustain(const uint8_t channel) const noexcept;
                 uint8_t releaseVoice(const uint8_t slot, const bool forced);
                 int allocateVoice(const uint8_t slot, const uint8_t channel,
                     const uint8_t note, const uint8_t volume,
