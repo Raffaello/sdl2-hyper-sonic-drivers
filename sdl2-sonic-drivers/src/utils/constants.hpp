@@ -16,7 +16,7 @@ namespace utils
     constexpr double M_2PI = 2.0 * M_PI;
 
     constexpr double PI = 3.141592653589793238462643;
-    constexpr double PI2 = PI * 2;
+    constexpr double PI2 = PI * 2.0;
 
     const char* getVersion();
     int getVersionMajor();
