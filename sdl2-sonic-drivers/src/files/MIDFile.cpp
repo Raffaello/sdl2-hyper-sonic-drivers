@@ -53,14 +53,14 @@ namespace files
 
         auto midi = std::make_shared<audio::MIDI>(audio::midi::MIDI_FORMAT::SINGLE_TRACK, 1, _midi->division);
         
-        typedef struct midi_tuple_t
+        using midi_tuple_t = struct midi_tuple_t
         {
             MIDIEvent e;
             uint32_t abs_time;
             uint16_t track;
-        } midi_tuple_t;
+        };
 
-        typedef std::vector<midi_tuple_t> VecTuple;
+        using VecTuple = std::vector<midi_tuple_t>;
         VecTuple events_tuple;
         //count total events
         size_t totalEvents = 0;
