@@ -74,7 +74,7 @@ namespace files
         constexpr uint8_t end_of_track_val = static_cast<uint8_t>(MIDI_META_EVENT::END_OF_TRACK);
         midi_tuple_t last_end_of_track;
         // 1. with absolute time just copy all the events as they are into 1 single track
-        //    order of tracks metter
+        //    order of tracks matter
         //    only 1 delta time different from zero on same abs_time
         //    keep the delta_time different from 0 from track zero.
         for (uint16_t n = 0; n < _midi->numTracks; n++)
@@ -130,63 +130,6 @@ namespace files
             if (e.abs_time > abs_time)
                 abs_time = e.abs_time;
         }
-
-        // for the same abs_time events there should be only one delta_time != 0
-        //auto last_it = events_tuple.begin(),
-        //    it = events_tuple.begin();
-        //++it; // skip the first, if it was a sequence of one already ok then.
-        //if (last_it->e.delta_time != 0 || last_it->abs_time != 0) {
-        //    throw std::logic_error("something wrong in the conversion, debug");
-        //}
-
-        //while (it != events_tuple.end()) {
-        //    if (it->abs_time == last_it->abs_time) {
-        //        it->e.delta_time = 0;
-        //    }
-        //    else if (it->abs_time > last_it->abs_time) {
-        //        last_it = it;
-        //        if (last_it->e.delta_time == 0) {
-        //            throw std::logic_error("wrong.sorting.debug");
-        //        }
-        //        //spdlog::debug("last_it abs_time = {:d}", last_it->abs_time);
-        //    }
-        //    else {
-        //        throw std::logic_error("error.not.here.debug");
-        //    }
-
-        //    ++it;
-
-        //}
-
-        //{
-        //    // check
-        //    // todo...
-        //    auto last_it = events_tuple.begin(),
-        //        it = events_tuple.begin();
-        //    ++it; // skip the first, if it was a sequence of one already ok then
-        //    while (it != events_tuple.end())
-        //    {
-        //        if (last_it->abs_time == it->abs_time)
-        //        {
-        //            if (it->e.delta_time != 0) {
-        //                throw std::logic_error("error.debug");
-        //            }
-        //            /*else if (last_it->e.delta_time == 0) {
-        //                throw std::logic_error("error.debug4");
-        //            }*/
-        //        }
-        //        else if (last_it->abs_time < it->abs_time)
-        //        {
-        //            last_it = it;
-        //        }
-        //        else {
-        //            throw std::logic_error("error.debug3");
-        //        }
-
-        //        ++it;
-        //    }
-        //}
-
 
         // 4. extract MIDITrack from events without abs_time
         std::vector<MIDIEvent> events;

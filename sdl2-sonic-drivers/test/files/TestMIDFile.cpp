@@ -70,11 +70,31 @@ namespace files
         EXPECT_EQ(e.delta_time, exp_delta_time) << "index: " << i;
     }
 
+    bool cmp_midievent(const audio::midi::MIDIEvent& oe1, const audio::midi::MIDIEvent& e2, const uint32_t delta_time)
+    {
+        const bool dt = oe1.delta_time == e2.delta_time
+            || oe1.delta_time - delta_time == e2.delta_time
+            || oe1.delta_time == e2.delta_time - delta_time;
+
+        const bool res = dt && oe1.type.val == e2.type.val
+            && oe1.data.size() == e2.data.size();
+        if (!res)
+            return false;
+
+        for (size_t i = 0; i < oe1.data.size(); ++i) {
+            if (oe1.data[i] != e2.data[i])
+                return false;
+        }
+
+        return true;
+    }
+
     TEST(MIDFile, midifile_sample_convert_to_single_track)
     {
         using audio::midi::MIDI_EVENT_TYPES_HIGH;
         using audio::midi::MIDI_META_EVENT_TYPES_LOW;
         using audio::midi::MIDI_META_EVENT;
+        using audio::midi::MIDIEvent;
 
         MIDFile f("fixtures/midifile_sample.mid");
 
@@ -153,11 +173,14 @@ namespace files
 
         auto origMidi = f.getMIDI();
         auto midiEvents = m->getTrack().getEvents();
-        size_t k = 0;
+        size_t totalMeChecked = 0;
+        
         for (int n = 0; n < origMidi->numTracks; n++) {
             auto origTrack = origMidi->getTrack(n);
             auto origTrackEvents = origTrack.getEvents();
             const size_t totTrackEvent = origTrackEvents.size();
+            std::vector<MIDIEvent> meOrig;
+            uint32_t delta_time = 0;
             for (int i = 0; i < totTrackEvent; i++) {
                 auto origEvent = origTrackEvents.at(i);
                 if (origEvent.type.val == meta_event_val
@@ -165,21 +188,80 @@ namespace files
                     continue; // need to check only the last one, after the loop
                 }
 
-                auto midiEvent = midiEvents.at(k++);
+                if (origEvent.delta_time != 0) {
+                    // here do the check of the same delta time block for this track.
+                    auto it = midiEvents.begin();
+
+                    while (meOrig.size() > 0)
+                    {
+                        bool res = false;
+                        auto midiEvent = *it;
+
+                        for (auto itOrig = meOrig.begin(); itOrig != meOrig.end();) {
+                            if(cmp_midievent(*itOrig, midiEvent, delta_time))
+                            {
+                                // at least 1 valid
+                                itOrig = meOrig.erase(itOrig);
+                                if (it->delta_time == 0 || n == origMidi->numTracks - 1)
+                                {
+                                    midiEvents.erase(it);
+                                    res = true;
+                                }
+
+                                ++totalMeChecked;
+                                break;
+                            }
+                            else
+                                ++itOrig;
+                        }
+
+                        if (res)
+                            it = midiEvents.begin();
+                        else {
+                           // do {
+                                ++it;
+                          //  } while (it != midiEvents.end() && it->delta_time != 0 && it->delta_time != delta_time);
+                        }
+                        if (it == midiEvents.end()) {
+                            break;
+                        }
+                    }
+
+                    EXPECT_EQ(meOrig.size(), 0) << "n: " << n << " i: " << i;
+                    for(const auto& me:meOrig) {
+                        // debug
+                        std::cout << "dt: " << me.delta_time << " type: " << (int)me.type.val << " data: ";
+                        for (const auto& d : me.data) {
+                            std::cout << (int)d << " ";
+                        }
+
+                        std::cout << std::endl;
+                    }
+                    // clear to be ready for the next one
+                    meOrig.clear();
+                    delta_time = origEvent.delta_time;
+                }
+
+                meOrig.emplace_back(origEvent);
+
+
                 // expect to be almost the same sequence at the same abs_time, but delta_time won't
 
                 // TODO: check from the converted the same group of delta_time events
                 //       if are the same ?? contained?
                 //       as if 2 events to be played at the same time one is after the another is ok.
 
-                EXPECT_EQ(midiEvent.type.val, origEvent.type.val) << "index i: " << i << " k: " << k;
+                //EXPECT_EQ(midiEvent.type.val, origEvent.type.val) << "index i: " << i << " k: " << k;
                 //EXPECT_EQ(midiEvent.delta_time, origEvent.delta_time) << "index i: " << i << " k: " << k;
-                EXPECT_EQ(midiEvent.data.size(), origEvent.data.size()) << "index i: " << i << " k: " << k;
+                //EXPECT_EQ(midiEvent.data.size(), origEvent.data.size()) << "index i: " << i << " k: " << k;
                 //for (int j = 0; j < midiEvent.data.size(); j++) {
                 //   EXPECT_EQ(midiEvent.data.at(j), origEvent.data.at(j)) << "index i: " << i << " k: " << k << " j: " << j;
                 //}
             }
         }
+
+        EXPECT_EQ(totalMeChecked, expTotalEvents);
+        EXPECT_EQ(midiEvents.size(), 0);
     }
 }
 
