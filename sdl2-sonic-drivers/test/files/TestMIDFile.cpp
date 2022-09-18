@@ -104,15 +104,8 @@ namespace files
                 {
                     // at least 1 valid
                     itOrig = meOrig.erase(itOrig);
-                    //if (it->delta_time == 0 || n == origMidi->numTracks - 1)
-                    {
-                        midiEvents.erase(it);
-                        res = true;
-                    }
-                    //else {
-                    //    notErased++;
-                    //}
-
+                    midiEvents.erase(it);
+                    res = true;
                     ++totalMeChecked;
                     break;
                 }
@@ -131,15 +124,16 @@ namespace files
         }
 
         EXPECT_EQ(meOrig.size(), 0); //<< "n: " << n << " i: " << i;
-        for (const auto& me : meOrig) {
-            // debug
-            std::cout << "dt: " << me.delta_time << " type: " << (int)me.type.val << " data: ";
-            for (const auto& d : me.data) {
-                std::cout << (int)d << " ";
-            }
+        // DEBUG
+        //for (const auto& me : meOrig) {
+        //    // debug
+        //    std::cout << "dt: " << me.delta_time << " type: " << (int)me.type.val << " data: ";
+        //    for (const auto& d : me.data) {
+        //        std::cout << (int)d << " ";
+        //    }
 
-            std::cout << std::endl;
-        }
+        //    std::cout << std::endl;
+        //}
 
         return totalMeChecked;
     }
@@ -149,7 +143,6 @@ namespace files
         using audio::midi::MIDI_EVENT_TYPES_HIGH;
         using audio::midi::MIDI_META_EVENT_TYPES_LOW;
         using audio::midi::MIDI_META_EVENT;
-        
 
         MIDFile f("fixtures/midifile_sample.mid");
 
@@ -183,7 +176,6 @@ namespace files
                 auto origEvent = origTrackEvents.at(i);
                 if (origEvent.type.val == meta_event_val
                     && origEvent.data[0] == static_cast<uint8_t>(MIDI_META_EVENT::END_OF_TRACK)) {
-                    
                     continue; // need to check only the last one, after the loop
                 }
 
