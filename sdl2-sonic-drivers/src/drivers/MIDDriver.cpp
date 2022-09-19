@@ -101,6 +101,7 @@ namespace drivers
         using audio::midi::MIDI_META_EVENT;
 
         _isPlaying = true;
+        _force_stop = false;
         uint32_t tempo = DEFAULT_MIDI_TEMPO; //120 BPM;
         int cur_time = 0; // ticks
         unsigned int tempo_micros = tempo_to_micros(tempo, division);
@@ -125,7 +126,7 @@ namespace drivers
             if (paused)
             {
                 _device->resume();
-                //paused = true; // it will be false next loop iteration
+                //paused = false; // it will be false next loop iteration
             }
 
             if (_force_stop)
@@ -158,7 +159,7 @@ namespace drivers
                         spdlog::warn("[Not Implemented] Device Name: {}", str);
                         break;
                     case MIDI_META_EVENT::END_OF_TRACK:
-                        spdlog::debug("MIDI end of track. force stop");
+                        spdlog::debug("MIDI end of track.");
                         //_force_stop = true;
                         break;
                     case MIDI_META_EVENT::INSTRUMENT_NAME:
@@ -166,16 +167,15 @@ namespace drivers
                         spdlog::info("Instrument name: {}", str);
                         break;
                     case MIDI_META_EVENT::KEY_SIGNATURE:
+                        spdlog::info("KEY_SIGNATURE: {:d} {:d}", e.data[1], e.data[2]);
                         break;
-                    case MIDI_META_EVENT::LYRICS: {
+                    case MIDI_META_EVENT::LYRICS:
                         str = utils::chars_vector_to_string_skip_first(e.data);
                         spdlog::info("Lyrics: {}", str);
-                    }
                         break;
-                    case MIDI_META_EVENT::MARKER: {
+                    case MIDI_META_EVENT::MARKER:
                         str = utils::chars_vector_to_string_skip_first(e.data);
                         spdlog::info("Marker: {}", str);
-                    }
                         break;
                     case MIDI_META_EVENT::MIDI_PORT:
                         spdlog::warn("MIDI_PORT {:d} not implemented", e.data[1]);
@@ -187,14 +187,12 @@ namespace drivers
                     case MIDI_META_EVENT::SEQUENCER_SPECIFIC:
                         spdlog::warn("SEQUENCE_SPECIFIC not implemented");
                         break;
-                    case MIDI_META_EVENT::SEQUENCE_NAME: { // a.k.a track name
+                    case MIDI_META_EVENT::SEQUENCE_NAME: // a.k.a track name
                         str = utils::chars_vector_to_string(++(e.data.begin()), e.data.end());
                         spdlog::info("SEQUENCE NAME: {}", str);
                         break;
-                    }
-                    case MIDI_META_EVENT::SEQUENCE_NUMBER: {
+                    case MIDI_META_EVENT::SEQUENCE_NUMBER:
                         spdlog::warn("Sequence number not implemented");
-                    }
                         break;
                     case MIDI_META_EVENT::SET_TEMPO: {
                         const int skip = 1;
@@ -222,9 +220,6 @@ namespace drivers
                 }
                 case MIDI_META_EVENT_TYPES_LOW::SYS_EX0: {
                     spdlog::debug("SYS_EX0 META event...");
-                    // First byte length encoded in VLQ, remaining data is the sysEx data
-                    //uint8_t vlq_length = e.data[0];
-
                     _device->sendSysEx(e);
                     continue;
                 }
