@@ -6,112 +6,109 @@
 #include <audio/scummvm/SoundHandle.hpp>
 #include <hardware/opl/OplType.hpp>
 
-namespace hardware
+namespace hardware::opl
 {
-    namespace opl
-    {
-        constexpr int DEFAULT_CALLBACK_FREQUENCY = 250;
+    constexpr int DEFAULT_CALLBACK_FREQUENCY = 250;
 
-        typedef std::function<void()> TimerCallBack;
+    typedef std::function<void()> TimerCallBack;
+
+    /**
+     * A representation of a Yamaha OPL chip.
+     */
+    class OPL
+    {
+    public:
+        explicit OPL(const OplType type);
+        virtual ~OPL();
+
+        inline bool isInit() const noexcept
+        {
+            return _init;
+        }
+
+        const OplType type;
 
         /**
-         * A representation of a Yamaha OPL chip.
+         * Initializes the OPL emulator.
+         *
+         * @return true on success, false on failure
          */
-        class OPL
-        {
-        public:
-            OPL(const OplType type);
-            virtual ~OPL();
+        virtual bool init() = 0;
 
-            inline bool isInit() const noexcept
-            {
-                return _init;
-            }
+        /**
+         * Reinitializes the OPL emulator
+         */
+        virtual void reset() = 0;
 
-            const OplType type;
+        /**
+         * Writes a byte to the given I/O port.
+         *
+         * @param a port address
+         * @param v value, which will be written
+         */
+        virtual void write(int a, int v) = 0;
 
-            /**
-             * Initializes the OPL emulator.
-             *
-             * @return true on success, false on failure
-             */
-            virtual bool init() = 0;
+        /**
+         * Reads a byte from the given I/O port.
+         *
+         * @param a port address
+         * @return value read
+         */
+        virtual uint8_t read(int a) = 0;
 
-            /**
-             * Reinitializes the OPL emulator
-             */
-            virtual void reset() = 0;
+        /**
+         * Function to directly write to a specific OPL register.
+         * This writes to *both* chips for a Dual OPL2. We allow
+         * writing to secondary OPL registers by using register
+         * values >= 0x100.
+         *
+         * @param r		hardware register number to write to
+         * @param v		value, which will be written
+         */
+        virtual void writeReg(int r, int v) = 0;
 
-            /**
-             * Writes a byte to the given I/O port.
-             *
-             * @param a port address
-             * @param v value, which will be written
-             */
-            virtual void write(int a, int v) = 0;
+        /**
+         * Start the OPL with callbacks.
+         */
+        void start(const std::shared_ptr<TimerCallBack>& callback, int timerFrequency = DEFAULT_CALLBACK_FREQUENCY);
 
-            /**
-             * Reads a byte from the given I/O port.
-             *
-             * @param a port address
-             * @return value read
-             */
-            virtual uint8_t read(int a) = 0;
+        /**
+         * Stop the OPL
+         */
+        void stop();
 
-            /**
-             * Function to directly write to a specific OPL register.
-             * This writes to *both* chips for a Dual OPL2. We allow
-             * writing to secondary OPL registers by using register
-             * values >= 0x100.
-             *
-             * @param r		hardware register number to write to
-             * @param v		value, which will be written
-             */
-            virtual void writeReg(int r, int v) = 0;
+        /**
+         * Change the callback frequency. This must only be called from a
+         * timer proc.
+         */
+        virtual void setCallbackFrequency(int timerFrequency) = 0;
 
-            /**
-             * Start the OPL with callbacks.
-             */
-            void start(const std::shared_ptr<TimerCallBack>& callback, int timerFrequency = DEFAULT_CALLBACK_FREQUENCY);
+        /**
+         * get Sound Handle for the mixer, used in Emulated Opl
+         * TODO: consider to remove the abastraction of EmulatedOPLs and RealOPLs
+         * TOOD: if this is returning this, probably should store the _handle here
+         *       instead of EmulatedOPL
+         */
+        virtual std::shared_ptr<audio::scummvm::SoundHandle> getSoundHandle() const noexcept = 0;
 
-            /**
-             * Stop the OPL
-             */
-            void stop();
+    protected:
+        bool _init = false;
+        /**
+         * Start the callbacks.
+         */
+        virtual void startCallbacks(int timerFrequency) = 0;
 
-            /**
-             * Change the callback frequency. This must only be called from a
-             * timer proc.
-             */
-            virtual void setCallbackFrequency(int timerFrequency) = 0;
+        /**
+         * Stop the callbacks.
+         */
+        virtual void stopCallbacks() = 0;
 
-            /**
-             * get Sound Handle for the mixer, used in Emulated Opl
-             * TODO: consider to remove the abastraction of EmulatedOPLs and RealOPLs
-             * TOOD: if this is returning this, probably should store the _handle here
-             *       instead of EmulatedOPL
-             */
-            virtual std::shared_ptr<audio::scummvm::SoundHandle> getSoundHandle() const noexcept = 0;
-
-        protected:
-            bool _init = false;
-            /**
-             * Start the callbacks.
-             */
-            virtual void startCallbacks(int timerFrequency) = 0;
-
-            /**
-             * Stop the callbacks.
-             */
-            virtual void stopCallbacks() = 0;
-
-            /**
-             * The functor for callbacks.
-             */
-            std::shared_ptr<TimerCallBack> _callback;
-        private:
-            // moved into cpp file
-            //static bool _hasInstance;
-        };
-    }
+        /**
+         * The functor for callbacks.
+         */
+        std::shared_ptr<TimerCallBack> _callback;
+    private:
+        // moved into cpp file
+        //static bool _hasInstance;
+    };
 }

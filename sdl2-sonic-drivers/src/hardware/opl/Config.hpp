@@ -8,24 +8,21 @@
 #include <hardware/opl/OplEmulator.hpp>
 #include <hardware/opl/OplType.hpp>
 
-namespace hardware
+namespace hardware::opl
 {
-    namespace opl
+    /**
+     * @defgroup audio_fmopl OPL emulation
+     * @ingroup audio
+     *
+     * @brief OPL class for managing an OPS emulator.
+     * @{
+     */
+    class Config
     {
+    public:
         /**
-         * @defgroup audio_fmopl OPL emulation
-         * @ingroup audio
-         *
-         * @brief OPL class for managing an OPS emulator.
-         * @{
+         * Creates the specific driver with a specific type setup.
          */
-        class Config
-        {
-        public:
-            /**
-             * Creates the specific driver with a specific type setup.
-             */
-            static std::shared_ptr<OPL> create(OplEmulator oplEmulator, OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer);
-        };
-    }
+        static std::shared_ptr<OPL> create(OplEmulator oplEmulator, OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer);
+    };
 }

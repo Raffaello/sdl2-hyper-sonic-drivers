@@ -1,16 +1,13 @@
 #pragma once
 
-namespace hardware
+namespace hardware::opl
 {
-    namespace opl
+    enum class OplEmulator
     {
-        enum class OplEmulator
-        {
-            AUTO = 0,
-            MAME = 1,
-            DOS_BOX = 2,
-            NUKED = 4,
-            WOODY = 8
-        };
-    }
+        AUTO = 0,
+        MAME = 1,
+        DOS_BOX = 2,
+        NUKED = 4,
+        WOODY = 8
+    };
 }

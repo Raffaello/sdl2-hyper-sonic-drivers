@@ -1,17 +1,14 @@
 #pragma once
 
-namespace hardware
+namespace hardware::opl
 {
-    namespace opl
+    /**
+    * OPL type to emulate.
+    */
+    enum class OplType
     {
-        /**
-        * OPL type to emulate.
-        */
-        enum class OplType
-        {
-            OPL2,
-            DUAL_OPL2,
-            OPL3
-        };
-    }
+        OPL2,
+        DUAL_OPL2,
+        OPL3
+    };
 }

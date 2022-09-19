@@ -5,28 +5,22 @@
 #include <drivers/midi/devices/Opl.hpp>
 #include <hardware/opl/OPL.hpp>
 
-namespace drivers
+namespace drivers::midi::devices
 {
-    namespace midi
+    class Adlib : public Opl
     {
-        namespace devices
-        {
-            class Adlib : public Opl
-            {
-            public:
-                /**
-                * @deprecated
-                */
-                Adlib(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank);
-                Adlib(const hardware::opl::OplEmulator emuType,
-                    const std::shared_ptr<audio::scummvm::Mixer>& mixer,
-                    const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank);
-                Adlib(const std::shared_ptr<audio::scummvm::Mixer>& mixer,
-                    const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank);
-                virtual ~Adlib() = default;
+    public:
+        /**
+        * @deprecated
+        */
+        Adlib(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank);
+        Adlib(const hardware::opl::OplEmulator emuType,
+            const std::shared_ptr<audio::scummvm::Mixer>& mixer,
+            const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank);
+        Adlib(const std::shared_ptr<audio::scummvm::Mixer>& mixer,
+            const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank);
+        virtual ~Adlib() = default;
 
-                //void loadBankOP2();
-            };
-        }
-    }
+        //void loadBankOP2();
+    };
 }

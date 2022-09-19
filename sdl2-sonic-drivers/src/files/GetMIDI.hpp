@@ -7,6 +7,7 @@ namespace files
     class GetMIDI
     {
     public:
+        virtual ~GetMIDI() = default;
         /**
         * @brief if the file is not a single track, it will return a
         *        converted equivalent with single track.
