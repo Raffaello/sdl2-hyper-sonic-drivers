@@ -20,7 +20,7 @@ namespace drivers
 
     MIDDriver::~MIDDriver()
     {
-        stop();
+        stop(/*true*/);
     }
     
     void MIDDriver::play(const std::shared_ptr<audio::MIDI>& midi) noexcept
@@ -58,23 +58,25 @@ namespace drivers
         }
 
         stop();
-        _isPlaying = true;
         if (!_device->acquire(this)) {
-            stop();
             return;
         }
+        
+        _isPlaying = true;
         _player = std::thread(&MIDDriver::processTrack, this, midi->getTrack(), midi->division & 0x7FFF);
     }
 
-    void MIDDriver::stop() noexcept
+    void MIDDriver::stop(/*const bool wait*/) noexcept
     {
         _force_stop = true;
         _paused = false;
-        if(_player.joinable())
+        if (/*wait &&*/ _player.joinable())
             _player.join();
-        _force_stop = false;
-        _isPlaying = false;
-        _device->release(this);
+        //else
+        //    _player.detach();
+        //_force_stop = false;
+        //_isPlaying = false;
+        //_device->release(this);
     }
 
     void MIDDriver::pause() noexcept
@@ -282,5 +284,6 @@ namespace drivers
 
         _isPlaying = false;
         _device->release(this);
+        _force_stop = false;
     }
 }

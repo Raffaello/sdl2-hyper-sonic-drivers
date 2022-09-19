@@ -82,15 +82,25 @@ namespace drivers
         using audio::midi::MIDI_META_EVENT;
         using audio::midi::MIDI_FORMAT;
 
+        auto midi_track = audio::midi::MIDITrack();
+
         MIDIEvent e;
-        e.delta_time = 10000;
+
+        e.delta_time = 50;
+        e.type.high = (uint8_t)MIDI_EVENT_TYPES_HIGH::PROGRAM_CHANGE;
+        e.type.low = 0;
+        e.data.push_back(0);
+        e.data.push_back(0);
+        midi_track.addEvent(e);
+
+        e.delta_time = 0;
         e.type.high = (uint8_t)MIDI_EVENT_TYPES_HIGH::META_SYSEX;
         e.type.low = (uint8_t)MIDI_META_EVENT_TYPES_LOW::META;
         e.data.push_back((uint8_t)MIDI_META_EVENT::END_OF_TRACK);
         e.data.push_back(0);
-        auto midi_track = audio::midi::MIDITrack();
         midi_track.addEvent(e);
-        auto midi = std::make_shared<audio::MIDI>(MIDI_FORMAT::SINGLE_TRACK, 1, 0);
+
+        auto midi = std::make_shared<audio::MIDI>(MIDI_FORMAT::SINGLE_TRACK, 1, 96);
         midi->addTrack(midi_track);
         auto mixer = std::make_shared<StubMixer>();
         auto device = std::make_shared<midi::devices::SpyDevice>();
