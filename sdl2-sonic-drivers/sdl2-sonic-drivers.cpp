@@ -10,7 +10,7 @@
 #include <files/miles/XMIFile.hpp>
 #include <files/westwood/ADLFile.hpp>
 #include <hardware/PCSpeaker.hpp>
-#include <hardware/opl/scummvm/Config.hpp>
+#include <hardware/opl/Config.hpp>
 
 #include <hardware/opl/mame/MameOPL.hpp>
 
@@ -255,6 +255,7 @@ int renderMixer()
 {
     using namespace audio::scummvm;
     using namespace hardware::opl::scummvm;
+    using namespace hardware::opl;
     using namespace drivers::westwood;
 
     audio::DiskRendererMixerManager mixerManager(44100);
@@ -335,8 +336,8 @@ int xmi_parser()
 int midi_adlib()
 {
     using namespace audio::scummvm;
-    using hardware::opl::scummvm::Config;
-    using hardware::opl::scummvm::OplEmulator;
+    using hardware::opl::Config;
+    using hardware::opl::OplEmulator;
 
     SdlMixerManager mixerManager;
     mixerManager.init();
@@ -368,8 +369,8 @@ int midi_adlib()
 int midi_adlib_mus_file_CONCURRENCY_ERROR_ON_SAME_DEVICE()
 {
     using namespace audio::scummvm;
-    using hardware::opl::scummvm::Config;
-    using hardware::opl::scummvm::OplEmulator;
+    using hardware::opl::Config;
+    using hardware::opl::OplEmulator;
 
     SdlMixerManager mixerManager;
     mixerManager.init();
@@ -408,8 +409,8 @@ int midi_adlib_mus_file_CONCURRENCY_ERROR_ON_SAME_DEVICE()
 int midi_adlib_mus_op2_file()
 {
     using namespace audio::scummvm;
-    using hardware::opl::scummvm::Config;
-    using hardware::opl::scummvm::OplEmulator;
+    using hardware::opl::Config;
+    using hardware::opl::OplEmulator;
 
     SdlMixerManager mixerManager;
     mixerManager.init();
@@ -482,8 +483,8 @@ int midi_adlib_xmi()
     // also it has been hacked through the xmifile get midi to build a single track midi
 
     using namespace audio::scummvm;
-    using hardware::opl::scummvm::Config;
-    using hardware::opl::scummvm::OplEmulator;
+    using hardware::opl::Config;
+    using hardware::opl::OplEmulator;
 
     SdlMixerManager mixerManager;
     mixerManager.init();

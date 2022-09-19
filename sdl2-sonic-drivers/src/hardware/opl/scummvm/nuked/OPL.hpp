@@ -2,7 +2,7 @@
 
 #include <cstdint>
 #include <hardware/opl/scummvm/EmulatedOPL.hpp>
-#include <hardware/opl/scummvm/Config.hpp>
+#include <hardware/opl/Config.hpp>
 #include <memory>
 #include <audio/scummvm/Mixer.hpp>
 #include <hardware/opl/scummvm/nuked/opl3.h>

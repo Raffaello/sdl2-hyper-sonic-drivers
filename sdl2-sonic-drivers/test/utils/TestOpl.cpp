@@ -2,7 +2,7 @@
 #include <gmock/gmock.h>
 #include <utils/opl.hpp>
 #include <hardware/opl/OPL.hpp>
-#include <hardware/opl/scummvm/Config.hpp>
+#include <hardware/opl/Config.hpp>
 #include "../test/audio/stubs/StubMixer.hpp"
 #include <memory>
 
@@ -12,8 +12,8 @@ namespace utils
     // NOTE: Disabled due to CI Linux and Mac
 
     using hardware::opl::OPL;
-    using hardware::opl::scummvm::Config;
-    using hardware::opl::scummvm::OplEmulator;
+    using hardware::opl::Config;
+    using hardware::opl::OplEmulator;
     using audio::stubs::StubMixer;
 
     class OplType : public ::testing::TestWithParam<std::tuple<OplEmulator, Config::OplType, bool, bool>>

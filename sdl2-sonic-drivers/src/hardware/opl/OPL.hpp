@@ -26,6 +26,7 @@ namespace hardware
             {
                 return _init;
             }
+
             /**
              * Initializes the OPL emulator.
              *

@@ -163,7 +163,7 @@ macro_test(
 macro_test(
     EXE TestConfig
     FILES 
-        "hardware/opl/scummvm/TestConfig.cpp"
+        "hardware/opl/TestConfig.cpp"
     LINKS_PRIVATE sonic-drivers-static
 )
 

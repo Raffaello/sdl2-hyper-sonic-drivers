@@ -11,7 +11,7 @@
 
 #include <files/dmx/OP2File.hpp>
 
-#include <hardware/opl/scummvm/Config.hpp>
+#include <hardware/opl/Config.hpp>
 #include <utils/algorithms.hpp>
 
 #include <memory>
@@ -20,8 +20,8 @@
 #include <fmt/color.h>
 #include <map>
 
-using hardware::opl::scummvm::Config;
-using hardware::opl::scummvm::OplEmulator;
+using hardware::opl::Config;
+using hardware::opl::OplEmulator;
 
 void mid_test_run(drivers::MIDDriver& midDrv, const std::shared_ptr<audio::MIDI>& midi)
 {

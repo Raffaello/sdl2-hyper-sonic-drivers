@@ -4,7 +4,7 @@
 #include <hardware/opl/scummvm/EmulatedOPL.hpp>
 #include <audio/scummvm/Mixer.hpp>
 #include <memory>
-#include <hardware/opl/scummvm/Config.hpp>
+#include <hardware/opl/Config.hpp>
 
 namespace hardware
 {

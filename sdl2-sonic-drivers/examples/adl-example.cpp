@@ -1,5 +1,5 @@
 #include <hardware/opl/OPL.hpp>
-#include <hardware/opl/scummvm/Config.hpp>
+#include <hardware/opl/Config.hpp>
 #include <utils/algorithms.hpp>
 #include <audio/scummvm/SDLMixerManager.hpp>
 #include <files/westwood/ADLFile.hpp>
@@ -15,8 +15,8 @@
 
 
 using audio::scummvm::SdlMixerManager;
-using hardware::opl::scummvm::Config;
-using hardware::opl::scummvm::OplEmulator;
+using hardware::opl::Config;
+using hardware::opl::OplEmulator;
 using utils::delayMillis;
 using files::westwood::ADLFile;
 using drivers::westwood::ADLDriver;
