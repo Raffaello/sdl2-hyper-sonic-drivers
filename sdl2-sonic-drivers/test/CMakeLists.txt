@@ -17,8 +17,9 @@ macro(macro_test) # ${ARGN} link libraries
     #message("FIXTURES: ${TEST_FIXTURES}")
     #message("LINKS_PRIVATE: ${TEST_LINKS_PRIVATE}")
     add_executable (${TEST_EXE} ${TEST_FILES})
-    target_include_directories(${TEST_EXE} PUBLIC 
+    target_include_directories(${TEST_EXE} PUBLIC
         ${CMAKE_SOURCE_DIR}/sdl2-sonic-drivers/src
+        ${CMAKE_SOURCE_DIR}/sdl2-sonic-drivers/test
     )
     #target_link_libraries(${TEST_EXE} PRIVATE ${TEST_LINKS})
     target_link_libraries(${TEST_EXE} PRIVATE GTest::gtest GTest::gmock)
@@ -122,6 +123,12 @@ macro_test(
         "fixtures/GENMIDI.OP2"
 )
 
+macro_test(
+    EXE TestDevice
+    FILES "drivers/midi/TestDevice.cpp"
+    LINKS_PRIVATE sonic-drivers-static
+    FIXTURES
+)
 macro_test(
     EXE TestMIDDriver
     FILES "drivers/TestMIDDriver.cpp"
