@@ -26,7 +26,7 @@ namespace drivers
             virtual void resume() const noexcept = 0;
 
             inline bool isAcquired() const noexcept { return _acquired; }
-            inline bool isOwned(const void* owner) const noexcept { return _owner == owner; }
+            inline bool isOwned(const /*void**/ drivers::MIDDriver* owner) const noexcept { return _owner == owner; }
 
             inline bool acquire(/*void**/ drivers::MIDDriver* owner)
             {

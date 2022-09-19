@@ -20,14 +20,25 @@ namespace drivers::midi
         EXPECT_FALSE(device->isAcquired());
         EXPECT_TRUE(device->release(&middrv));
         EXPECT_TRUE(device->release(&middrv2));
+        EXPECT_TRUE(device->release(nullptr));
+
+        EXPECT_FALSE(device->isOwned(&middrv));
+        EXPECT_FALSE(device->isOwned(&middrv2));
+        EXPECT_TRUE(device->isOwned(nullptr));
 
         EXPECT_TRUE(device->acquire(&middrv));
         EXPECT_FALSE(device->acquire(&middrv2));
+        EXPECT_FALSE(device->acquire(nullptr));
+
         EXPECT_TRUE(device->isAcquired());
+        EXPECT_TRUE(device->isOwned(&middrv));
 
         EXPECT_FALSE(device->release(&middrv2));
+        EXPECT_FALSE(device->release(nullptr));
+
         EXPECT_TRUE(device->release(&middrv));
         EXPECT_TRUE(device->release(&middrv2));
+        EXPECT_TRUE(device->release(nullptr));
 
         EXPECT_FALSE(device->isAcquired());
     }
