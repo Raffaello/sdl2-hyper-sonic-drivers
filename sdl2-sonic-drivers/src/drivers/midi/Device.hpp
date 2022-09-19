@@ -2,6 +2,7 @@
 
 #include <audio/midi/MIDIEvent.hpp>
 #include <cstdint>
+#include <atomic>
 
 
 // TODO: namespace drivers::midi::devices could be considered
@@ -22,25 +23,31 @@ namespace drivers
             virtual void pause() const noexcept = 0;
             virtual void resume() const noexcept = 0;
 
-            // DRAFT:
-            // TODO use an acquire/release mechanism to be used from the driver
-            // to allow to be used simultaneously only 1 at time from the drivers
-            inline bool acquire() { 
-                // todo who acquired?
-                // it might be enough, but can be hacked
+            inline bool isAcquired() const noexcept { return _acquired; }
+            inline bool isOwned(const void* owner) const noexcept { return _owner == owner; }
+
+            inline bool acquire(void* owner)
+            {
                 if (!_acquired) {
                     _acquired = true;
+                    _owner = owner;
                     return true;
                 }
                 else return false;
             }
 
-            // TODO
-            // it is enough to call release() to acquire from another device.
-            // this mechanism doesn't work
-            bool release() { _acquired = false; return true; }
+            bool release(const void* owner)
+            {
+                if (_owner == owner) {
+                    _acquired = false;
+                    return true;
+                }
+
+                return !isAcquired();
+            }
         private:
-            bool _acquired = false;
+            volatile std::atomic<bool> _acquired = false;
+            void* _owner;
         };
     }
 }

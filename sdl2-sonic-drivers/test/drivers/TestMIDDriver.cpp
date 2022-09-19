@@ -19,35 +19,31 @@
 
 namespace drivers
 {
-
-    namespace midi
+    namespace midi::devices
     {
-        namespace devices
+        class SpyDevice : public Device
         {
-            class SpyDevice : public Device
+            virtual void sendEvent(const audio::midi::MIDIEvent& e) const noexcept override
             {
-                virtual void sendEvent(const audio::midi::MIDIEvent& e) const noexcept override
-                {
 
-                };
-                virtual void sendMessage(const uint8_t msg[], const uint8_t size) const noexcept override
-                {
-
-                }
-                virtual void sendSysEx(const audio::midi::MIDIEvent& e) const noexcept override
-                {
-
-                }
-                virtual void pause() const noexcept override
-                {
-
-                }
-                virtual void resume() const noexcept override
-                {
-
-                }
             };
-        }
+            virtual void sendMessage(const uint8_t msg[], const uint8_t size) const noexcept override
+            {
+
+            }
+            virtual void sendSysEx(const audio::midi::MIDIEvent& e) const noexcept override
+            {
+
+            }
+            virtual void pause() const noexcept override
+            {
+
+            }
+            virtual void resume() const noexcept override
+            {
+
+            }
+        };
     }
 
     class MIDDriverMock : public MIDDriver
@@ -86,6 +82,7 @@ namespace drivers
             ostream_logger->set_pattern(">%v<");
             ostream_logger->set_level(spdlog::level::debug);
         }
+        auto default_logger = spdlog::default_logger();
         spdlog::set_default_logger(ostream_logger);
         // ---
 
@@ -113,6 +110,46 @@ namespace drivers
         
         // TODO the spdlog output capture shouold be encapsulated in a class with a SetUp method (and teardown)
         _oss.clear();
+        spdlog::set_default_logger(default_logger);
+    }
+
+    TEST(MIDDriver, acquire)
+    {
+        using audio::stubs::StubMixer;
+        using audio::midi::MIDIEvent;
+        using audio::midi::MIDI_EVENT_TYPES_HIGH;
+        using audio::midi::MIDI_META_EVENT_TYPES_LOW;
+        using audio::midi::MIDI_META_EVENT;
+        using audio::midi::MIDI_FORMAT;
+
+        MIDIEvent e;
+        e.delta_time = 0;
+        e.type.high = (uint8_t)MIDI_EVENT_TYPES_HIGH::META_SYSEX;
+        e.type.low = (uint8_t)MIDI_META_EVENT_TYPES_LOW::META;
+        e.data.push_back((uint8_t)MIDI_META_EVENT::END_OF_TRACK);
+        e.data.push_back(0);
+        auto midi_track = audio::midi::MIDITrack();
+        midi_track.addEvent(e);
+        auto midi = std::make_shared<audio::MIDI>(MIDI_FORMAT::SINGLE_TRACK, 1, 0);
+        midi->addTrack(midi_track);
+        auto mixer = std::make_shared<StubMixer>();
+        auto device = std::make_shared<midi::devices::SpyDevice>();
+
+        MIDDriverMock middrv1(mixer, device);
+        EXPECT_EQ(device.use_count(), 2);
+        MIDDriverMock middrv2(mixer, device);
+        EXPECT_EQ(device.use_count(), 3);
+
+        ASSERT_FALSE(device->isAcquired());
+        middrv1.play(midi);
+        ASSERT_TRUE(device->isAcquired());
+        middrv2.play(midi);
+        ASSERT_FALSE(middrv2.isPlaying());
+        middrv1.stop();
+        ASSERT_FALSE(device->isAcquired());
+        // TODO this shouldn't be possible!
+        device->acquire(this);
+        
     }
 }
 

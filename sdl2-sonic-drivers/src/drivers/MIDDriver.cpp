@@ -59,6 +59,10 @@ namespace drivers
 
         stop();
         _isPlaying = true;
+        if (!_device->acquire(this)) {
+            stop();
+            return;
+        }
         _player = std::thread(&MIDDriver::processTrack, this, midi->getTrack(), midi->division & 0x7FFF);
     }
 
@@ -70,6 +74,7 @@ namespace drivers
             _player.join();
         _force_stop = false;
         _isPlaying = false;
+        _device->release(this); // this line is making issue, must be aquired by "this"
     }
 
     void MIDDriver::pause() noexcept
@@ -276,5 +281,6 @@ namespace drivers
         }
 
         _isPlaying = false;
+        _device->release(this);
     }
 }

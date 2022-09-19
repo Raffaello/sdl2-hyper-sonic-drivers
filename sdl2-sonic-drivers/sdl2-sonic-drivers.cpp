@@ -391,14 +391,17 @@ int midi_adlib_mus_file_CONCURRENCY_ERROR_ON_SAME_DEVICE()
     auto musFile = std::make_shared<files::dmx::MUSFile>("test/fixtures/D_E1M1.MUS");
     auto midi = musFile->getMIDI();
     auto scumm_midi = std::make_shared<drivers::midi::devices::ScummVM>(opl, false);
+    spdlog::info("isAquired: {}", scumm_midi->isAcquired());
     drivers::MIDDriver midDrv(mixer, scumm_midi);
     drivers::MIDDriver midDrv2(mixer, scumm_midi);
 
     spdlog::info("playing midi D_E1M1.MUS...");
     midDrv.play(midi);
-    utils::delayMillis(9000);
+    spdlog::info("isAquired: {}", scumm_midi->isAcquired());
+    utils::delayMillis(1000);
     spdlog::info("playing midi2 D_E1M1.MUS... (this should not be possible with the same device)");
     midDrv2.play(midFile->getMIDI());
+    spdlog::info("isAquired: {}", scumm_midi->isAcquired());
     spdlog::info("end.");
     while (midDrv.isPlaying() || midDrv2.isPlaying())
     {
@@ -530,8 +533,8 @@ int main(int argc, char* argv[])
     //renderMixer();
 
     //xmi_parser();
-    //midi_adlib_mus_file_CONCURRENCY_ERROR_ON_SAME_DEVICE()
-    midi_adlib_mus_op2_file();
+    midi_adlib_mus_file_CONCURRENCY_ERROR_ON_SAME_DEVICE();
+    //midi_adlib_mus_op2_file();
     //midi_adlib_xmi();
 
     SDL_Init(SDL_INIT_TIMER | SDL_INIT_AUDIO);
