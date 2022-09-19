@@ -17,6 +17,12 @@ namespace drivers
                 : Opl(hardware::opl::OplType::OPL3, emuType, mixer, op2Bank)
             {
             }
+
+            SbPro2::SbPro2(const std::shared_ptr<audio::scummvm::Mixer>& mixer,
+                const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank)
+                : SbPro2(hardware::opl::OplEmulator::AUTO, mixer, op2Bank)
+            {
+            }
         }
     }
 }
