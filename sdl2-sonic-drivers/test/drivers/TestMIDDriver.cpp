@@ -123,7 +123,7 @@ namespace drivers
         using audio::midi::MIDI_FORMAT;
 
         MIDIEvent e;
-        e.delta_time = 0;
+        e.delta_time = 10000;
         e.type.high = (uint8_t)MIDI_EVENT_TYPES_HIGH::META_SYSEX;
         e.type.low = (uint8_t)MIDI_META_EVENT_TYPES_LOW::META;
         e.data.push_back((uint8_t)MIDI_META_EVENT::END_OF_TRACK);
