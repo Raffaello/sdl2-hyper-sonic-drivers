@@ -9,6 +9,8 @@
 //       to be replaced instead as devices:: and devices::midi ?
 namespace drivers
 {
+    class MIDDriver;
+
     namespace midi
     {
         class Device
@@ -26,7 +28,7 @@ namespace drivers
             inline bool isAcquired() const noexcept { return _acquired; }
             inline bool isOwned(const void* owner) const noexcept { return _owner == owner; }
 
-            inline bool acquire(void* owner)
+            inline bool acquire(/*void**/ drivers::MIDDriver* owner)
             {
                 if (!_acquired) {
                     _acquired = true;
@@ -36,7 +38,7 @@ namespace drivers
                 else return false;
             }
 
-            bool release(const void* owner)
+            bool release(const /*void**/ drivers::MIDDriver* owner)
             {
                 if (_owner == owner) {
                     _acquired = false;
@@ -46,8 +48,9 @@ namespace drivers
                 return !isAcquired();
             }
         private:
-            volatile std::atomic<bool> _acquired = false;
-            void* _owner;
+            std::atomic<bool> _acquired = false;
+            //volatile void* _owner = nullptr;
+            std::atomic<drivers::MIDDriver*> _owner = nullptr;
         };
     }
 }

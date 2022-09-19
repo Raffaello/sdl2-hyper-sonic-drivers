@@ -74,7 +74,7 @@ namespace drivers
             _player.join();
         _force_stop = false;
         _isPlaying = false;
-        _device->release(this); // this line is making issue, must be aquired by "this"
+        _device->release(this);
     }
 
     void MIDDriver::pause() noexcept
