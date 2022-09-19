@@ -14,6 +14,9 @@ namespace drivers
             class Adlib : public Opl
             {
             public:
+                /**
+                * @deprecated
+                */
                 Adlib(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank);
                 Adlib(const hardware::opl::OplEmulator emuType,
                     const std::shared_ptr<audio::scummvm::Mixer>& mixer,

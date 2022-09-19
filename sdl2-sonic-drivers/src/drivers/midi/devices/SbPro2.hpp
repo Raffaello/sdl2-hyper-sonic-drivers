@@ -14,6 +14,9 @@ namespace drivers
             class SbPro2 : public Opl
             {
             public:
+                /**
+                * @deprecated
+                */
                 SbPro2(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank);
                 SbPro2(const hardware::opl::OplEmulator emuType,
                     const std::shared_ptr<audio::scummvm::Mixer>& mixer,
