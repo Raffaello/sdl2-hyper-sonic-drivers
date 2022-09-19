@@ -147,9 +147,6 @@ namespace drivers
         ASSERT_FALSE(middrv2.isPlaying());
         middrv1.stop();
         ASSERT_FALSE(device->isAcquired());
-        // TODO this shouldn't be possible!
-        device->acquire(this);
-        
     }
 }
 

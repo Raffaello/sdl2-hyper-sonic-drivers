@@ -393,6 +393,11 @@ int midi_adlib_mus_file_CONCURRENCY_ERROR_ON_SAME_DEVICE()
     auto scumm_midi = std::make_shared<drivers::midi::devices::ScummVM>(opl, false);
     spdlog::info("isAquired: {}", scumm_midi->isAcquired());
     drivers::MIDDriver midDrv(mixer, scumm_midi);
+    // TODO: declare a same driver with the device shouldn't be possible.
+    //       bring the device aquire to the constructor?
+    //       so no other will be declared?
+    //       but if it is acquired should throw..
+    //       i am keepig at is for now.
     drivers::MIDDriver midDrv2(mixer, scumm_midi);
 
     spdlog::info("playing midi D_E1M1.MUS...");
