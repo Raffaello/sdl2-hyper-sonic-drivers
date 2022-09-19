@@ -159,7 +159,7 @@ namespace drivers
                         break;
                     case MIDI_META_EVENT::END_OF_TRACK:
                         spdlog::debug("MIDI end of track. force stop");
-                        _force_stop = true;
+                        //_force_stop = true;
                         break;
                     case MIDI_META_EVENT::INSTRUMENT_NAME:
                         str = utils::chars_vector_to_string_skip_first(e.data);

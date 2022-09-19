@@ -109,19 +109,26 @@ namespace files
         // 2. then sort them by absolute time
         //    tie break level 1 on delta_time,
         //    tie break level 2 on track number
+        //    tie break level 3 on event type
         std::sort(
             events_tuple.begin(),
             events_tuple.end(),
             [](const midi_tuple_t& e1, const midi_tuple_t& e2)
             {
-                if (e1.abs_time == e2.abs_time) {
-                    if(e1.e.delta_time == e2.e.delta_time)
-                        return e1.track < e2.track;
-                    
-                    return e1.e.delta_time > e2.e.delta_time;
+                if (e1.abs_time == e2.abs_time)
+                {
+                    if (e1.e.delta_time == e2.e.delta_time)
+                    {
+                        if(e1.track == e2.track)
+                            return e1.e.type.val < e2.e.type.val;
+                        else
+                            return e1.track < e2.track;
+                    }
+                    else
+                        return e1.e.delta_time > e2.e.delta_time;
                 }
-
-                return e1.abs_time < e2.abs_time;
+                else
+                    return e1.abs_time < e2.abs_time;
             }
         );
 
