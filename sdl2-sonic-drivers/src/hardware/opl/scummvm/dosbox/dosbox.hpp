@@ -51,8 +51,6 @@ namespace hardware
                 class OPL : public EmulatedOPL
                 {
                 private:
-                    // TODO consider to move to the parent
-                    Config::OplType _type;
                     unsigned int _rate;
 
                     dbopl::Chip* _emulator;
@@ -65,7 +63,7 @@ namespace hardware
                     void free();
                     void dualWrite(uint8_t index, uint8_t reg, uint8_t val);
                 public:
-                    OPL(const std::shared_ptr<audio::scummvm::Mixer>& mixer, Config::OplType type);
+                    OPL(const OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer);
                     virtual ~OPL();
 
                     bool init() override;

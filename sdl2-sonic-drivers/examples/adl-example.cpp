@@ -17,12 +17,13 @@
 using audio::scummvm::SdlMixerManager;
 using hardware::opl::Config;
 using hardware::opl::OplEmulator;
+using hardware::opl::OplType;
 using utils::delayMillis;
 using files::westwood::ADLFile;
 using drivers::westwood::ADLDriver;
 
 
-void adl_test(const OplEmulator emu, const Config::OplType type, std::shared_ptr<audio::scummvm::Mixer> mixer, const std::string& filename, const int track)
+void adl_test(const OplEmulator emu, const OplType type, std::shared_ptr<audio::scummvm::Mixer> mixer, const std::string& filename, const int track)
 {
     //spdlog::set_level(spdlog::level::debug);
     auto opl = Config::create(emu, type, mixer);
@@ -61,10 +62,10 @@ int main(int argc, char* argv[])
         { OplEmulator::WOODY, "WOODY" },
     };
 
-    std::map<Config::OplType, std::string> types = {
-        {Config::OplType::OPL2, "OPL2"},
-        {Config::OplType::DUAL_OPL2, "DUAL_OPL2"},
-        {Config::OplType::OPL3, "OPL3"},
+    std::map<OplType, std::string> types = {
+        {OplType::OPL2, "OPL2"},
+        {OplType::DUAL_OPL2, "DUAL_OPL2"},
+        {OplType::OPL3, "OPL3"},
     };
 
     std::string m = "##### {} {} #####";

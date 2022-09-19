@@ -11,9 +11,8 @@ namespace hardware
         {
             namespace nuked
             {
-                OPL::OPL(const std::shared_ptr<audio::scummvm::Mixer>& mixer, Config::OplType type)
-                    : EmulatedOPL(mixer),
-                    _type(type), _rate(0)
+                OPL::OPL(const OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer)
+                    : EmulatedOPL(type, mixer), _rate(0)
                 {
                     chip = std::make_unique<opl3_chip>();
                 }
@@ -29,7 +28,7 @@ namespace hardware
                     _rate = _mixer->getOutputRate();
                     OPL3_Reset(chip.get(), _rate);
 
-                    if (_type == Config::OplType::DUAL_OPL2) {
+                    if (type == OplType::DUAL_OPL2) {
                         OPL3_WriteReg(chip.get(), 0x105, 0x01);
                     }
 
@@ -45,12 +44,12 @@ namespace hardware
                 void OPL::write(int port, int val)
                 {
                     if (port & 1) {
-                        switch (_type) {
-                        case Config::OplType::OPL2:
-                        case Config::OplType::OPL3:
+                        switch (type) {
+                        case OplType::OPL2:
+                        case OplType::OPL3:
                             OPL3_WriteRegBuffered(chip.get(), (uint16_t)address[0], (uint8_t)val);
                             break;
-                        case Config::OplType::DUAL_OPL2:
+                        case OplType::DUAL_OPL2:
                             // Not a 0x??8 port, then write to a specific port
                             if (!(port & 0x8)) {
                                 uint8_t index = (port & 2) >> 1;
@@ -67,11 +66,11 @@ namespace hardware
                         }
                     }
                     else {
-                        switch (_type) {
-                        case Config::OplType::OPL2:
+                        switch (type) {
+                        case OplType::OPL2:
                             address[0] = val & 0xff;
                             break;
-                        case Config::OplType::DUAL_OPL2:
+                        case OplType::DUAL_OPL2:
                             // Not a 0x?88 port, when write to a specific side
                             if (!(port & 0x8)) {
                                 uint8_t index = (port & 2) >> 1;
@@ -82,7 +81,7 @@ namespace hardware
                                 address[1] = val & 0xff;
                             }
                             break;
-                        case Config::OplType::OPL3:
+                        case OplType::OPL3:
                             address[0] = (val & 0xff) | ((port << 7) & 0x100);
                             break;
                         default:

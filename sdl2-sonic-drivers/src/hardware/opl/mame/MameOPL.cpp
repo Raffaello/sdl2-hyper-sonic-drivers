@@ -13,7 +13,7 @@ namespace hardware
             constexpr int OPL3_INTERNAL_FREQ = 14400000;  // The OPL3 operates at 14.4MHz;
 
 
-            MameOPL::MameOPL(const std::shared_ptr<audio::scummvm::Mixer>& mixer) : EmulatedOPL(mixer),
+            MameOPL::MameOPL(const OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer) : EmulatedOPL(type, mixer),
                 _chip(nullptr), _opl(nullptr)
             {}
 

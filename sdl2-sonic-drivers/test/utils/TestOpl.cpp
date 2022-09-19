@@ -14,34 +14,35 @@ namespace utils
     using hardware::opl::OPL;
     using hardware::opl::Config;
     using hardware::opl::OplEmulator;
+    using hardware::opl::OplType;
     using audio::stubs::StubMixer;
 
-    class OplType : public ::testing::TestWithParam<std::tuple<OplEmulator, Config::OplType, bool, bool>>
+    class OplType_ : public ::testing::TestWithParam<std::tuple<OplEmulator, OplType, bool, bool>>
     {
     public:
         std::shared_ptr<StubMixer> mixer = std::make_shared<StubMixer>();
         OplEmulator opl_emu = std::get<0>(GetParam());
-        Config::OplType opl_type = std::get<1>(GetParam());
+        OplType opl_type = std::get<1>(GetParam());
         bool isOpl2 = std::get<2>(GetParam());
         bool isOpl3 = std::get<3>(GetParam());
         
         std::shared_ptr<OPL> opl = Config::create(opl_emu, opl_type, mixer);
     };
-    TEST_P(OplType, DetectOPL)
+    TEST_P(OplType_, DetectOPL)
     {
         EXPECT_EQ(detectOPL2(this->opl), isOpl2);
         EXPECT_EQ(detectOPL3(this->opl), isOpl3);
     }
     INSTANTIATE_TEST_SUITE_P(
         DISABLED_DetectOpl,
-        OplType,
+        OplType_,
         ::testing::Values(
-            std::make_tuple<>(OplEmulator::DOS_BOX, Config::OplType::OPL2, true, false),
-            std::make_tuple<>(OplEmulator::DOS_BOX, Config::OplType::DUAL_OPL2, true, false),
-            std::make_tuple<>(OplEmulator::DOS_BOX, Config::OplType::OPL3, true, true),
-            std::make_tuple<>(OplEmulator::AUTO, Config::OplType::OPL2, true, false),
-            std::make_tuple<>(OplEmulator::AUTO, Config::OplType::DUAL_OPL2, true, false),
-            std::make_tuple<>(OplEmulator::AUTO, Config::OplType::OPL3, true, true)
+            std::make_tuple<>(OplEmulator::DOS_BOX, OplType::OPL2, true, false),
+            std::make_tuple<>(OplEmulator::DOS_BOX, OplType::DUAL_OPL2, true, false),
+            std::make_tuple<>(OplEmulator::DOS_BOX, OplType::OPL3, true, true),
+            std::make_tuple<>(OplEmulator::AUTO, OplType::OPL2, true, false),
+            std::make_tuple<>(OplEmulator::AUTO, OplType::DUAL_OPL2, true, false),
+            std::make_tuple<>(OplEmulator::AUTO, OplType::OPL3, true, true)
         )
     );
 }

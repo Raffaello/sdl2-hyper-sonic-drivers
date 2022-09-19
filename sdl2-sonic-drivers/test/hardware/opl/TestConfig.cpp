@@ -17,11 +17,11 @@ namespace hardware
 
         const static std::shared_ptr<StubMixer> mixer = std::make_shared<StubMixer>();
 
-        class ConfigTest : public ::testing::TestWithParam<std::tuple<OplEmulator, Config::OplType>> {};
+        class ConfigTest : public ::testing::TestWithParam<std::tuple<OplEmulator, OplType>> {};
         TEST_P(ConfigTest, create)
         {
             OplEmulator emu = std::get<0>(GetParam());
-            Config::OplType type = std::get<1>(GetParam());
+            OplType type = std::get<1>(GetParam());
 
             auto opl = Config::create(emu, type, mixer);
             EXPECT_TRUE(opl->init());
@@ -53,21 +53,21 @@ namespace hardware
             create,
             ConfigTest,
             ::testing::Values(
-                std::make_tuple<OplEmulator, Config::OplType>(OplEmulator::MAME, Config::OplType::OPL2),
-                //std::make_tuple<OplEmulator, Config::OplType>(OplEmulator::MAME, Config::OplType::DUAL_OPL2),
-                //std::make_tuple<OplEmulator, Config::OplType>(OplEmulator::MAME, Config::OplType::OPL3),
-                std::make_tuple<OplEmulator, Config::OplType>(OplEmulator::DOS_BOX, Config::OplType::OPL2),
-                std::make_tuple<OplEmulator, Config::OplType>(OplEmulator::DOS_BOX, Config::OplType::DUAL_OPL2),
-                std::make_tuple<OplEmulator, Config::OplType>(OplEmulator::DOS_BOX, Config::OplType::OPL3),
-                //std::make_tuple<OplEmulator, Config::OplType>(OplEmulator::NUKED, Config::OplType::OPL2),
-                //std::make_tuple<OplEmulator, Config::OplType>(OplEmulator::NUKED, Config::OplType::DUAL_OPL2),
-                std::make_tuple<OplEmulator, Config::OplType>(OplEmulator::NUKED, Config::OplType::OPL3),
-                std::make_tuple<OplEmulator, Config::OplType>(OplEmulator::WOODY, Config::OplType::OPL2),
-                std::make_tuple<OplEmulator, Config::OplType>(OplEmulator::WOODY, Config::OplType::DUAL_OPL2),
-                std::make_tuple<OplEmulator, Config::OplType>(OplEmulator::WOODY, Config::OplType::OPL3),
-                std::make_tuple<OplEmulator, Config::OplType>(OplEmulator::AUTO, Config::OplType::OPL2),
-                std::make_tuple<OplEmulator, Config::OplType>(OplEmulator::AUTO, Config::OplType::DUAL_OPL2),
-                std::make_tuple<OplEmulator, Config::OplType>(OplEmulator::AUTO, Config::OplType::OPL3)
+                std::make_tuple<OplEmulator, OplType>(OplEmulator::MAME, OplType::OPL2),
+                //std::make_tuple<OplEmulator, OplType>(OplEmulator::MAME, OplType::DUAL_OPL2),
+                //std::make_tuple<OplEmulator, OplType>(OplEmulator::MAME, OplType::OPL3),
+                std::make_tuple<OplEmulator, OplType>(OplEmulator::DOS_BOX, OplType::OPL2),
+                std::make_tuple<OplEmulator, OplType>(OplEmulator::DOS_BOX, OplType::DUAL_OPL2),
+                std::make_tuple<OplEmulator, OplType>(OplEmulator::DOS_BOX, OplType::OPL3),
+                //std::make_tuple<OplEmulator, OplType>(OplEmulator::NUKED, OplType::OPL2),
+                //std::make_tuple<OplEmulator, OplType>(OplEmulator::NUKED, OplType::DUAL_OPL2),
+                std::make_tuple<OplEmulator, OplType>(OplEmulator::NUKED, OplType::OPL3),
+                std::make_tuple<OplEmulator, OplType>(OplEmulator::WOODY, OplType::OPL2),
+                std::make_tuple<OplEmulator, OplType>(OplEmulator::WOODY, OplType::DUAL_OPL2),
+                std::make_tuple<OplEmulator, OplType>(OplEmulator::WOODY, OplType::OPL3),
+                std::make_tuple<OplEmulator, OplType>(OplEmulator::AUTO, OplType::OPL2),
+                std::make_tuple<OplEmulator, OplType>(OplEmulator::AUTO, OplType::DUAL_OPL2),
+                std::make_tuple<OplEmulator, OplType>(OplEmulator::AUTO, OplType::OPL3)
             )
         );
 
@@ -75,7 +75,7 @@ namespace hardware
         TEST_P(ConfigTestNull, create_nullptr)
         {
             OplEmulator emu = std::get<0>(GetParam());
-            Config::OplType type = std::get<1>(GetParam());
+            OplType type = std::get<1>(GetParam());
 
             auto opl = Config::create(emu, type, mixer);
             EXPECT_EQ(opl, nullptr);
@@ -85,10 +85,10 @@ namespace hardware
             create_nullptr,
             ConfigTestNull,
             ::testing::Values(
-                std::make_tuple<OplEmulator, Config::OplType>(OplEmulator::MAME, Config::OplType::DUAL_OPL2),
-                std::make_tuple<OplEmulator, Config::OplType>(OplEmulator::MAME, Config::OplType::OPL3),
-                std::make_tuple<OplEmulator, Config::OplType>(OplEmulator::NUKED, Config::OplType::OPL2),
-                std::make_tuple<OplEmulator, Config::OplType>(OplEmulator::NUKED, Config::OplType::DUAL_OPL2)
+                std::make_tuple<OplEmulator, OplType>(OplEmulator::MAME,  OplType::DUAL_OPL2),
+                std::make_tuple<OplEmulator, OplType>(OplEmulator::MAME,  OplType::OPL3),
+                std::make_tuple<OplEmulator, OplType>(OplEmulator::NUKED, OplType::OPL2),
+                std::make_tuple<OplEmulator, OplType>(OplEmulator::NUKED, OplType::DUAL_OPL2)
             )
         );
     }

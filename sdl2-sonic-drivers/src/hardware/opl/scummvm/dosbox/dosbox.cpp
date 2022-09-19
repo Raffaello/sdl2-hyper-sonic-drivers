@@ -132,8 +132,8 @@ namespace hardware
                     return ret;
                 }
 
-                OPL::OPL(const std::shared_ptr<audio::scummvm::Mixer>& mixer, Config::OplType type)
-                    : EmulatedOPL(mixer), _type(type), _rate(0), _emulator(nullptr), _reg({ 0 })
+                OPL::OPL(OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer)
+                    : EmulatedOPL(type, mixer), _rate(0), _emulator(nullptr), _reg({ 0 })
                 {
                 }
                
@@ -165,7 +165,7 @@ namespace hardware
                     _rate = _mixer->getOutputRate();
                     _emulator->Setup(_rate);
 
-                    if (_type == Config::OplType::DUAL_OPL2) {
+                    if (type == OplType::DUAL_OPL2) {
                         // Setup opl3 mode in the hander
                         _emulator->WriteReg(0x105, 1);
                     }
@@ -182,14 +182,14 @@ namespace hardware
                 {
                     if (port & 1)
                     {
-                        switch (_type)
+                        switch (type)
                         {
-                        case Config::OplType::OPL2:
-                        case Config::OplType::OPL3:
+                        case OplType::OPL2:
+                        case OplType::OPL3:
                             if (!_chip[0].write(_reg.normal, val))
                                 _emulator->WriteReg(_reg.normal, val);
                             break;
-                        case Config::OplType::DUAL_OPL2:
+                        case OplType::DUAL_OPL2:
                             // Not a 0x??8 port, then write to a specific port
                             if (!(port & 0x8)) {
                                 uint8_t index = (port & 2) >> 1;
@@ -208,14 +208,14 @@ namespace hardware
                     else {
                         // Ask the handler to write the address
                         // Make sure to clip them in the right range
-                        switch (_type) {
-                        case Config::OplType::OPL2:
+                        switch (type) {
+                        case OplType::OPL2:
                             _reg.normal = _emulator->WriteAddr(port, val) & 0xff;
                             break;
-                        case Config::OplType::OPL3:
+                        case OplType::OPL3:
                             _reg.normal = _emulator->WriteAddr(port, val) & 0x1ff;
                             break;
-                        case Config::OplType::DUAL_OPL2:
+                        case OplType::DUAL_OPL2:
                             // Not a 0x?88 port, when write to a specific side
                             if (!(port & 0x8)) {
                                 uint8_t index = (port & 2) >> 1;
@@ -234,18 +234,18 @@ namespace hardware
 
                 uint8_t OPL::read(int port)
                 {
-                    switch (_type)
+                    switch (type)
                     {
-                    case Config::OplType::OPL2:
+                    case OplType::OPL2:
                         if (!(port & 1))
                             //Make sure the low bits are 6 on opl2
                             return _chip[0].read() | 0x6;
                         break;
-                    case Config::OplType::OPL3:
+                    case OplType::OPL3:
                         if (!(port & 1))
                             return _chip[0].read();
                         break;
-                    case Config::OplType::DUAL_OPL2:
+                    case OplType::DUAL_OPL2:
                         // Only return for the lower ports
                         if (port & 1)
                             return 0xff;
@@ -260,11 +260,11 @@ namespace hardware
                 void OPL::writeReg(int r, int v)
                 {
                     int tempReg = 0;
-                    switch (_type)
+                    switch (type)
                     {
-                    case Config::OplType::OPL2:
-                    case Config::OplType::DUAL_OPL2:
-                    case Config::OplType::OPL3:
+                    case OplType::OPL2:
+                    case OplType::DUAL_OPL2:
+                    case OplType::OPL3:
                         // We can't use _handler->writeReg here directly, since it would miss timer changes.
 
                         // Backup old setup register
@@ -272,7 +272,7 @@ namespace hardware
 
                         // We directly allow writing to secondary OPL3 registers by using
                         // register values >= 0x100.
-                        if (_type == Config::OplType::OPL3 && r >= 0x100) {
+                        if (type == OplType::OPL3 && r >= 0x100) {
                             // We need to set the register we want to write to via port 0x222,
                             // since we want to write to the secondary register set.
                             write(0x222, r);
@@ -287,7 +287,7 @@ namespace hardware
                         }
 
                         // Restore the old register
-                        if (_type == Config::OplType::OPL3 && tempReg >= 0x100) {
+                        if (type == OplType::OPL3 && tempReg >= 0x100) {
                             write(0x222, tempReg & ~0x100);
                         }
                         else {
@@ -301,7 +301,7 @@ namespace hardware
 
                 bool OPL::isStereo() const
                 {
-                    return _type != Config::OplType::OPL2;
+                    return type != OplType::OPL2;
                 }
 
                 void OPL::dualWrite(uint8_t index, uint8_t reg, uint8_t val)
@@ -333,7 +333,7 @@ namespace hardware
                 {
                     // For stereo OPL cards, we divide the sample count by 2,
                     // to match stereo AudioStream behavior.
-                    if (_type != Config::OplType::OPL2) {
+                    if (type != OplType::OPL2) {
                         length >>= 1;
                     }
 

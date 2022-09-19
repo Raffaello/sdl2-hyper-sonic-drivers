@@ -13,7 +13,8 @@ namespace hardware
     {
         class OplMock : public OPL
         {
-
+        public:
+            OplMock(): OPL(OplType::OPL2) {}
             virtual bool init() override { _init = true; return true; }
             virtual void reset() override {};
             virtual void write(int a, int v) override {};

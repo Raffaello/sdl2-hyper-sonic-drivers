@@ -38,6 +38,7 @@
 #include <utils/constants.hpp>
 #include <spdlog/spdlog.h>
 #include <utils/algorithms.hpp>
+#include <exception>
 
 using utils::CLIP;
 
@@ -52,6 +53,14 @@ namespace hardware
         {
             namespace mame
             {
+                OPL::OPL(const OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer)
+                    : EmulatedOPL(type, mixer), _opl(nullptr)
+                {
+                    if (type != OplType::OPL2) {
+                        throw std::runtime_error("ScummVM::MAME only support OPL2");
+                    }
+                }
+
                 OPL::~OPL() {
                     stop();
                     OPLDestroy(_opl);

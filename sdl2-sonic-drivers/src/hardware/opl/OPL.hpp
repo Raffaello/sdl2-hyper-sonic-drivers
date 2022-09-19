@@ -4,6 +4,7 @@
 #include <memory>
 #include <functional>
 #include <audio/scummvm/SoundHandle.hpp>
+#include <hardware/opl/OplType.hpp>
 
 namespace hardware
 {
@@ -19,13 +20,15 @@ namespace hardware
         class OPL
         {
         public:
-            OPL();
+            OPL(const OplType type);
             virtual ~OPL();
 
             inline bool isInit() const noexcept
             {
                 return _init;
             }
+
+            const OplType type;
 
             /**
              * Initializes the OPL emulator.

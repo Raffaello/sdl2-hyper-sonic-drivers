@@ -15,7 +15,7 @@ namespace hardware
             class WoodyOPL : public scummvm::EmulatedOPL
             {
             public:
-                WoodyOPL(const std::shared_ptr<audio::scummvm::Mixer>& mixer, const bool surround);
+                WoodyOPL(const OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer, const bool surround);
                 virtual ~WoodyOPL();
 
                 virtual bool init() override;

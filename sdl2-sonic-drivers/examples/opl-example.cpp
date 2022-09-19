@@ -19,6 +19,7 @@
 using audio::scummvm::SdlMixerManager;
 using hardware::opl::Config;
 using hardware::opl::OplEmulator;
+using hardware::opl::OplType;
 using utils::delayMillis;
 
 using utils::FMoutput;
@@ -28,7 +29,7 @@ using utils::Profm2;
 //using utils::detectOPL2;
 //using utils::detectOPL3;
 
-void opl_test(const OplEmulator emu, const Config::OplType type, std::shared_ptr<audio::scummvm::Mixer> mixer)
+void opl_test(const OplEmulator emu, const OplType type, std::shared_ptr<audio::scummvm::Mixer> mixer)
 {
     constexpr auto LEFT = 0x10;
     constexpr auto RIGHT = 0x20;
@@ -50,7 +51,7 @@ void opl_test(const OplEmulator emu, const Config::OplType type, std::shared_ptr
     /* must initialize this to zero */
     fm(1, 0, opl);
 
-    if (type == Config::OplType::OPL3)
+    if (type == OplType::OPL3)
     {
         /* set to OPL3 mode, necessary for stereo */
         Profm2(5, 1, opl);
@@ -167,9 +168,9 @@ void opl_test(const OplEmulator emu, const Config::OplType type, std::shared_ptr
     fm(0xB0, ((fn >> 8) & 0x3) + (block << 2) | KEYON, opl);
     delayMillis(1000);
 
-    if (type != Config::OplType::OPL2)
+    if (type != OplType::OPL2)
     {
-        if (type == Config::OplType::OPL3)
+        if (type == OplType::OPL3)
         {
             /* This left and right channel stuff is the only part of this program
              * that uses OPL3 mode.  Everything else is available on the OPL2.
@@ -212,7 +213,7 @@ void opl_test(const OplEmulator emu, const Config::OplType type, std::shared_ptr
     fm(0xB0, ((fn >> 8) & 0x3) + (block << 2), opl);
     delayMillis(1000);
 
-    if (type == Config::OplType::OPL3)
+    if (type == OplType::OPL3)
     {
         /* Set OPL-3 back to OPL-2 mode, because if the next program to run was
          * written for the OPL-2, then it won't set the LEFT and RIGHT bits to
@@ -224,7 +225,7 @@ void opl_test(const OplEmulator emu, const Config::OplType type, std::shared_ptr
     opl->stop();
 }
 
-bool detect_opl2(const OplEmulator emu, const Config::OplType type, std::shared_ptr<audio::scummvm::Mixer> mixer)
+bool detect_opl2(const OplEmulator emu, const OplType type, std::shared_ptr<audio::scummvm::Mixer> mixer)
 {
     auto opl = Config::create(emu, type, mixer);
     if (opl == nullptr)
@@ -233,7 +234,7 @@ bool detect_opl2(const OplEmulator emu, const Config::OplType type, std::shared_
     return utils::detectOPL2(opl);
 }
 
-bool detect_opl3(const OplEmulator emu, const Config::OplType type, std::shared_ptr<audio::scummvm::Mixer> mixer)
+bool detect_opl3(const OplEmulator emu, const OplType type, std::shared_ptr<audio::scummvm::Mixer> mixer)
 {
     // Detect OPL2. If present, continue.
     auto opl = Config::create(emu, type, mixer);
@@ -258,10 +259,10 @@ int main(int argc, char* argv[])
         { OplEmulator::WOODY, "WOODY" },
     };
 
-    std::map<Config::OplType, std::string> types = {
-        {Config::OplType::OPL2, "OPL2"},
-        {Config::OplType::DUAL_OPL2, "DUAL_OPL2"},
-        {Config::OplType::OPL3, "OPL3"},
+    std::map<OplType, std::string> types = {
+        {OplType::OPL2, "OPL2"},
+        {OplType::DUAL_OPL2, "DUAL_OPL2"},
+        {OplType::OPL3, "OPL3"},
     };
 
     std::string m = "##### {} {} #####";
@@ -286,7 +287,7 @@ int main(int argc, char* argv[])
             else spdlog::error(msg);
 
             msg = fmt::format("detect opl3: {}", opl3);
-            if (type.first == Config::OplType::OPL3)
+            if (type.first == OplType::OPL3)
             {
                 if (opl3) spdlog::info(msg);
                 else spdlog::error(msg);

@@ -12,6 +12,8 @@ namespace drivers
     {
         // TODO: Review the tests
         using audio::stubs::StubMixer;
+        using hardware::opl::OplType;
+
         TEST(ADLDriver, cstor)
         {
             auto mixer = std::make_shared<StubMixer>();
@@ -20,7 +22,7 @@ namespace drivers
             auto adlFile = std::make_shared<files::westwood::ADLFile>("fixtures/DUNE19.ADL");
             EXPECT_EQ(adlFile.use_count(), 1);
 
-            auto opl = std::make_shared<hardware::opl::scummvm::mame::OPL>(mixer);
+            auto opl = std::make_shared<hardware::opl::scummvm::mame::OPL>(OplType::OPL2, mixer);
             EXPECT_EQ(opl.use_count(), 1);
             EXPECT_EQ(mixer.use_count(), 2);
 
@@ -37,7 +39,7 @@ namespace drivers
             auto adlFile = std::make_shared<files::westwood::ADLFile>("fixtures/DUNE19.ADL");
             EXPECT_EQ(adlFile.use_count(), 1);
 
-            auto opl = std::make_shared<hardware::opl::scummvm::mame::OPL>(mixer);
+            auto opl = std::make_shared<hardware::opl::scummvm::mame::OPL>(OplType::OPL2, mixer);
             EXPECT_EQ(opl.use_count(), 1);
             EXPECT_EQ(mixer.use_count(), 2);
 

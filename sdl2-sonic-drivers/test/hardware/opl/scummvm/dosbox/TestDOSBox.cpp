@@ -18,17 +18,17 @@ namespace hardware
 
                 using audio::stubs::StubMixer;
 
-                class OPLType : public  ::testing::TestWithParam<std::tuple<Config::OplType, bool>>
+                class OPLType : public  ::testing::TestWithParam<std::tuple<OplType, bool>>
                 {
                 public:
-                    Config::OplType opl_type = std::get<0>(GetParam());
+                    OplType opl_type = std::get<0>(GetParam());
                     bool isStereo = std::get<1>(GetParam());
                 };
                 TEST_P(OPLType, cstorDefault)
                 {
                     std::shared_ptr<StubMixer> mixer = std::make_shared<StubMixer>();
                     EXPECT_EQ(mixer.use_count(), 1);
-                    OPL dosbox(mixer, this->opl_type);
+                    OPL dosbox(this->opl_type, mixer);
                     EXPECT_EQ(mixer.use_count(), 2);
                     EXPECT_EQ(dosbox.getRate(), mixer->rate);
                     EXPECT_EQ(dosbox.endOfData(), false);
@@ -41,7 +41,7 @@ namespace hardware
                     std::shared_ptr<StubMixer> mixer = std::make_shared<StubMixer>();
                     EXPECT_EQ(mixer.use_count(), 1);
 
-                    std::shared_ptr<OPL> dosbox = std::make_shared<OPL>(mixer, this->opl_type);
+                    std::shared_ptr<OPL> dosbox = std::make_shared<OPL>(this->opl_type, mixer);
                     EXPECT_EQ(mixer.use_count(), 2);
                     EXPECT_EQ(dosbox.use_count(), 1);
                     EXPECT_EQ(dosbox->getRate(), mixer->rate);
@@ -53,9 +53,9 @@ namespace hardware
                     OPL,
                     OPLType,
                     ::testing::Values(
-                        std::make_tuple<>(Config::OplType::OPL2, false),
-                        std::make_tuple<>(Config::OplType::DUAL_OPL2, true),
-                        std::make_tuple<>(Config::OplType::OPL3, true)
+                        std::make_tuple<>(OplType::OPL2, false),
+                        std::make_tuple<>(OplType::DUAL_OPL2, true),
+                        std::make_tuple<>(OplType::OPL3, true)
                     )
                 );
 
@@ -63,7 +63,7 @@ namespace hardware
                 {
                     std::shared_ptr<StubMixer> mixer = std::make_shared<StubMixer>();
                     mixer->rate = 22050;
-                    std::shared_ptr<hardware::opl::scummvm::dosbox::OPL> opl = std::make_shared<hardware::opl::scummvm::dosbox::OPL>(mixer, Config::OplType::OPL2);
+                    std::shared_ptr<hardware::opl::scummvm::dosbox::OPL> opl = std::make_shared<hardware::opl::scummvm::dosbox::OPL>(OplType::OPL2, mixer);
                     opl->init();
                     opl->setCallbackFrequency(72);
 

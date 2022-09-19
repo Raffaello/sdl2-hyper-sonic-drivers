@@ -163,7 +163,7 @@ namespace hardware
                 private:
                     FM_OPL* _opl;
                 public:
-                    explicit OPL(const std::shared_ptr<audio::scummvm::Mixer>& mixer) : EmulatedOPL(mixer), _opl(nullptr) {}
+                    explicit OPL(const OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer);
                     virtual ~OPL();
 
                     bool init() override;

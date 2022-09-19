@@ -19,7 +19,7 @@ namespace hardware
                 switch (type)
                 {
                 case OplType::OPL2:
-                    return std::make_shared<scummvm::mame::OPL>(mixer);
+                    return std::make_shared<scummvm::mame::OPL>(type, mixer);
                 case OplType::DUAL_OPL2:
                     spdlog::warn("MAME OPL emulator doesn't support DUAL_OPL2 emulation");
                     return nullptr;
@@ -30,15 +30,16 @@ namespace hardware
                 }
             case OplEmulator::AUTO:
             case OplEmulator::DOS_BOX:
-                return std::make_shared<scummvm::dosbox::OPL>(mixer, type);
+                return std::make_shared<scummvm::dosbox::OPL>(type, mixer);
             case OplEmulator::NUKED:
                 if (type != OplType::OPL3) {
                     spdlog::warn("Nuke OPL emulator only supports OPL3 emulation");
                     return nullptr;
                 }
-                return std::make_shared<scummvm::nuked::OPL>(mixer, type);
+                return std::make_shared<scummvm::nuked::OPL>(type, mixer);
             case OplEmulator::WOODY:
-                return std::make_shared<woody::WoodyOPL>(mixer, type == OplType::OPL2 ? false : true);
+                // TODO: remove the surround value?
+                return std::make_shared<woody::WoodyOPL>(type, mixer, type == OplType::OPL2 ? false : true);
 
             default:
                 spdlog::error("Unsupported OPL emulator {:d}", static_cast<int>(oplEmulator));

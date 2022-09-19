@@ -265,7 +265,7 @@ int renderMixer()
     std::shared_ptr<Mixer> mixer = mixerManager.getMixer();
 
     //spdlog::set_level(spdlog::level::debug);
-    auto opl = Config::create(OplEmulator::NUKED, Config::OplType::OPL3, mixer);
+    auto opl = Config::create(OplEmulator::NUKED, OplType::OPL3, mixer);
     auto pOpl = dynamic_cast<EmulatedOPL*>( opl.get());
     //auto opl = std::make_shared<hardware::opl::mame::MameOPL>(mixer);
     std::shared_ptr<files::westwood::ADLFile> adlFile = std::make_shared<files::westwood::ADLFile>("test/fixtures/DUNE0.ADL");
@@ -338,6 +338,7 @@ int midi_adlib()
     using namespace audio::scummvm;
     using hardware::opl::Config;
     using hardware::opl::OplEmulator;
+    using hardware::opl::OplType;
 
     SdlMixerManager mixerManager;
     mixerManager.init();
@@ -345,7 +346,7 @@ int midi_adlib()
     std::shared_ptr<Mixer> mixer = mixerManager.getMixer();
 
     auto emu = OplEmulator::NUKED;
-    auto type = Config::OplType::OPL3;
+    auto type = OplType::OPL3;
     
     auto opl = Config::create(emu, type, mixer);
     if (opl.get() == nullptr)
@@ -371,6 +372,7 @@ int midi_adlib_mus_file_CONCURRENCY_ERROR_ON_SAME_DEVICE()
     using namespace audio::scummvm;
     using hardware::opl::Config;
     using hardware::opl::OplEmulator;
+    using hardware::opl::OplType;
 
     SdlMixerManager mixerManager;
     mixerManager.init();
@@ -378,7 +380,7 @@ int midi_adlib_mus_file_CONCURRENCY_ERROR_ON_SAME_DEVICE()
     std::shared_ptr<Mixer> mixer = mixerManager.getMixer();
 
     auto emu = OplEmulator::MAME;
-    auto type = Config::OplType::OPL2;
+    auto type = OplType::OPL2;
 
     auto opl = Config::create(emu, type, mixer);
     if (opl.get() == nullptr)
@@ -411,6 +413,7 @@ int midi_adlib_mus_op2_file()
     using namespace audio::scummvm;
     using hardware::opl::Config;
     using hardware::opl::OplEmulator;
+    using hardware::opl::OplType;
 
     SdlMixerManager mixerManager;
     mixerManager.init();
@@ -420,7 +423,7 @@ int midi_adlib_mus_op2_file()
     std::shared_ptr<Mixer> mixer = mixerManager.getMixer();
 
     auto emu = OplEmulator::MAME;
-    auto type = Config::OplType::OPL2;
+    auto type = OplType::OPL2;
     
     spdlog::set_level(spdlog::level::debug);
 
@@ -446,7 +449,7 @@ int midi_adlib_mus_op2_file()
     }
     {
         
-        auto opl = Config::create(OplEmulator::DOS_BOX, Config::OplType::OPL3, mixer);
+        auto opl = Config::create(OplEmulator::DOS_BOX, OplType::OPL3, mixer);
         if (opl.get() == nullptr)
             return -1;
         auto sbpro_midi = std::make_shared<drivers::midi::devices::SbPro2>(opl, op2File->getBank());
@@ -485,6 +488,7 @@ int midi_adlib_xmi()
     using namespace audio::scummvm;
     using hardware::opl::Config;
     using hardware::opl::OplEmulator;
+    using hardware::opl::OplType;
 
     SdlMixerManager mixerManager;
     mixerManager.init();
@@ -492,7 +496,7 @@ int midi_adlib_xmi()
     std::shared_ptr<Mixer> mixer = mixerManager.getMixer();
 
     auto emu = OplEmulator::MAME;
-    auto type = Config::OplType::OPL2;
+    auto type = OplType::OPL2;
 
     auto opl = Config::create(emu, type, mixer);
     if (opl.get() == nullptr)

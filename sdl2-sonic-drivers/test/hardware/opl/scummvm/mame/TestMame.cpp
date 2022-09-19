@@ -20,11 +20,18 @@ namespace hardware
                 {
                     std::shared_ptr<StubMixer> mixer = std::make_shared<StubMixer>();
                     EXPECT_EQ(mixer.use_count(), 1);
-                    OPL mame(mixer);
+                    OPL mame(OplType::OPL2, mixer);
                     EXPECT_EQ(mixer.use_count(), 2);
                     EXPECT_EQ(mame.getRate(), mixer->rate);
                     EXPECT_EQ(mame.endOfData(), false);
                     EXPECT_EQ(mame.isStereo(), false);
+                }
+
+                TEST(OPL, throwIfnotOPL2)
+                {
+                    std::shared_ptr<StubMixer> mixer = std::make_shared<StubMixer>();
+                    EXPECT_EQ(mixer.use_count(), 1);
+                    EXPECT_THROW(OPL mame(OplType::OPL3, mixer), std::runtime_error);
                 }
 
                 TEST(OPL, share_ptrDefault)
@@ -32,7 +39,7 @@ namespace hardware
                     std::shared_ptr<StubMixer> mixer = std::make_shared<StubMixer>();
                     EXPECT_EQ(mixer.use_count(), 1);
 
-                    std::shared_ptr<OPL> mame = std::make_shared<OPL>(mixer);
+                    std::shared_ptr<OPL> mame = std::make_shared<OPL>(OplType::OPL2, mixer);
                     EXPECT_EQ(mixer.use_count(), 2);
                     EXPECT_EQ(mame.use_count(), 1);
                     EXPECT_EQ(mame->getRate(), mixer->rate);
@@ -44,7 +51,7 @@ namespace hardware
                 {
                     std::shared_ptr<StubMixer> mixer = std::make_shared<StubMixer>();
                     mixer->rate = 22050;
-                    std::shared_ptr<hardware::opl::scummvm::mame::OPL> opl = std::make_shared<hardware::opl::scummvm::mame::OPL>(mixer);
+                    std::shared_ptr<hardware::opl::scummvm::mame::OPL> opl = std::make_shared<hardware::opl::scummvm::mame::OPL>(OplType::OPL2, mixer);
                     opl->init();
                     opl->setCallbackFrequency(72);
 

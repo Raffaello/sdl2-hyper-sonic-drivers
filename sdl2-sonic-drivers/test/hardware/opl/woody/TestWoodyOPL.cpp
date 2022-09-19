@@ -18,7 +18,7 @@ namespace hardware
             {
                 std::shared_ptr<StubMixer> mixer = std::make_shared<StubMixer>();
                 EXPECT_EQ(mixer.use_count(), 1);
-                WoodyOPL opl(mixer, false);
+                WoodyOPL opl(OplType::OPL2, mixer, false);
                 EXPECT_EQ(mixer.use_count(), 2);
                 EXPECT_EQ(opl.getRate(), mixer->rate);
                 EXPECT_EQ(opl.endOfData(), false);
@@ -29,7 +29,7 @@ namespace hardware
             {
                 std::shared_ptr<StubMixer> mixer = std::make_shared<StubMixer>();
                 EXPECT_EQ(mixer.use_count(), 1);
-                WoodyOPL opl(mixer, true);
+                WoodyOPL opl(OplType::OPL3, mixer, true);
                 EXPECT_EQ(mixer.use_count(), 2);
                 EXPECT_EQ(opl.getRate(), mixer->rate);
                 EXPECT_EQ(opl.endOfData(), false);
@@ -41,7 +41,7 @@ namespace hardware
                 std::shared_ptr<StubMixer> mixer = std::make_shared<StubMixer>();
                 EXPECT_EQ(mixer.use_count(), 1);
 
-                std::shared_ptr<WoodyOPL> opl = std::make_shared<woody::WoodyOPL>(mixer, false);
+                std::shared_ptr<WoodyOPL> opl = std::make_shared<woody::WoodyOPL>(OplType::OPL2, mixer, false);
                 EXPECT_EQ(mixer.use_count(), 2);
                 EXPECT_EQ(opl.use_count(), 1);
                 EXPECT_EQ(opl->getRate(), mixer->rate);
@@ -53,7 +53,7 @@ namespace hardware
             {
                 std::shared_ptr<StubMixer> mixer = std::make_shared<StubMixer>();
                 mixer->rate = 22050;
-                std::shared_ptr<WoodyOPL> opl = std::make_shared<WoodyOPL>(mixer, false);
+                std::shared_ptr<WoodyOPL> opl = std::make_shared<WoodyOPL>(OplType::OPL2, mixer, false);
                 opl->init();
                 opl->setCallbackFrequency(72);
 
