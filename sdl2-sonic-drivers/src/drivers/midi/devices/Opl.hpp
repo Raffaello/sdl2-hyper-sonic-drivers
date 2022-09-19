@@ -26,7 +26,6 @@ namespace drivers
                 //void loadBankOP2();
             protected:
                 // TODO review the constructor and use a load bank instead..
-                // TODO can create its own OPL2 chip, just need the OPL type (DOSBOX,MAME,etc..)
                 Opl(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank, const bool opl3_mode);
                 Opl(const hardware::opl::OplType type,
                     const hardware::opl::OplEmulator emuType,

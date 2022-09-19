@@ -18,6 +18,8 @@ namespace drivers
                 Adlib(const hardware::opl::OplEmulator emuType,
                     const std::shared_ptr<audio::scummvm::Mixer>& mixer,
                     const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank);
+                Adlib(const std::shared_ptr<audio::scummvm::Mixer>& mixer,
+                    const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank);
                 virtual ~Adlib() = default;
 
                 //void loadBankOP2();

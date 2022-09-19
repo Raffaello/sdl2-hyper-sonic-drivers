@@ -11,9 +11,6 @@ namespace drivers
             Opl::Opl(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank, const bool opl3_mode)
                 : Device()/*, OplDriver(opl, op2Bank, opl3_mode)*/
             {
-                // TODO: if opl is not opl3 opl3_mode should be force to be false as the "hardware"
-                //       doesn't support opl3 mode.
-                //       This need to take the OPL type from OPL interface.
                 _oplDriver = std::make_shared<drivers::midi::opl::OplDriver>(opl, op2Bank, opl3_mode);
             }
 
@@ -23,7 +20,7 @@ namespace drivers
                 const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank)
             {
                 auto opl = hardware::opl::Config::create(emuType, type, mixer);
-                Opl(opl, op2Bank, type != hardware::opl::OplType::OPL2);
+                _oplDriver = std::make_shared<drivers::midi::opl::OplDriver>(opl, op2Bank, type != hardware::opl::OplType::OPL2);
             }
 
             void Opl::sendEvent(const audio::midi::MIDIEvent& e) const noexcept
