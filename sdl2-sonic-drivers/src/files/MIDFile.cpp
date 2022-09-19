@@ -34,12 +34,12 @@ namespace files
 
     MIDFile::~MIDFile() = default;
 
-    std::shared_ptr<audio::MIDI> MIDFile::getMIDI() const noexcept
+    std::shared_ptr<audio::MIDI> MIDFile::getOriginalMIDI() const noexcept
     {
         return _midi;
     }
 
-    std::shared_ptr<audio::MIDI> MIDFile::convertToSingleTrackMIDI() const
+    std::shared_ptr<audio::MIDI> MIDFile::getMIDI() const
     {
         using audio::midi::MIDI_EVENT_TYPES_HIGH;
         using audio::midi::MIDI_META_EVENT_TYPES_LOW;
@@ -47,7 +47,7 @@ namespace files
         using audio::midi::MIDIEvent;
 
         if (_midi->format == audio::midi::MIDI_FORMAT::SINGLE_TRACK)
-            return getMIDI();
+            return getOriginalMIDI();
         if (_midi->format == audio::midi::MIDI_FORMAT::MULTI_TRACK)
             throw std::runtime_error("MIDI MULTI_TRACK not supported yet");
 

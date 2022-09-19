@@ -15,11 +15,11 @@ namespace files
     {
         MIDFile f("fixtures/MI_intro.mid");
         
-        EXPECT_EQ(f.getMIDI()->format, audio::midi::MIDI_FORMAT::SIMULTANEOUS_TRACK);
-        EXPECT_EQ(f.getMIDI()->numTracks, 15);
-        EXPECT_EQ(f.getMIDI()->division, 192);
+        EXPECT_EQ(f.getOriginalMIDI()->format, audio::midi::MIDI_FORMAT::SIMULTANEOUS_TRACK);
+        EXPECT_EQ(f.getOriginalMIDI()->numTracks, 15);
+        EXPECT_EQ(f.getOriginalMIDI()->division, 192);
 
-        auto track0 = f.getMIDI()->getTrack(0);
+        auto track0 = f.getOriginalMIDI()->getTrack(0);
         EXPECT_EQ(track0.getEvents().size(), 4);
         EXPECT_EQ(track0.getEvents()[3].type.val, 0xFF);
         EXPECT_EQ(track0.getEvents()[3].data.size(), 1);
@@ -36,7 +36,7 @@ namespace files
     {
         MIDFile f("fixtures/midifile_sample.mid");
 
-        auto m = f.getMIDI();
+        auto m = f.getOriginalMIDI();
         
         EXPECT_EQ(m->format, audio::midi::MIDI_FORMAT::SIMULTANEOUS_TRACK);
         EXPECT_EQ(m->numTracks, 3);
@@ -146,7 +146,7 @@ namespace files
 
         MIDFile f("fixtures/midifile_sample.mid");
 
-        auto m = f.convertToSingleTrackMIDI();
+        auto m = f.getMIDI();
         constexpr size_t expTotalEvents = 1 + 29 + 31 - 3 + 1; // track0,track1,track2, 3 end_of_tracks to 1 end_of_track
         EXPECT_EQ(m->format, audio::midi::MIDI_FORMAT::SINGLE_TRACK);
         EXPECT_EQ(m->numTracks, 1);
@@ -163,7 +163,7 @@ namespace files
 
         EXPECT_EQ(endOfTrackEvents, 1);
 
-        auto origMidi = f.getMIDI();
+        auto origMidi = f.getOriginalMIDI();
         auto midiEvents = m->getTrack().getEvents();
         size_t totalMeChecked = 0;
         size_t notErased = 0;

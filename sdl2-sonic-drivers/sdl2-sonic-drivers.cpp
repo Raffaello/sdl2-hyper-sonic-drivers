@@ -353,7 +353,7 @@ int midi_adlib()
     //spdlog::set_level(spdlog::level::debug);
     //std::shared_ptr<files::MIDFile> midFile = std::make_shared<files::MIDFile>("test/fixtures/MI_intro.mid");
     auto midFile = std::make_shared<files::MIDFile>("test/fixtures/midifile_sample.mid");
-    auto midi = midFile->convertToSingleTrackMIDI();
+    auto midi = midFile->getMIDI();
     auto scumm_midi = std::make_shared<drivers::midi::devices::ScummVM>(opl, true);
     drivers::MIDDriver midDrv(mixer, scumm_midi);
 
@@ -395,7 +395,7 @@ int midi_adlib_mus_file_CONCURRENCY_ERROR_ON_SAME_DEVICE()
     midDrv.play(midi);
     utils::delayMillis(9000);
     spdlog::info("playing midi2 D_E1M1.MUS... (this should not be possible with the same device)");
-    midDrv2.play(midFile->convertToSingleTrackMIDI());
+    midDrv2.play(midFile->getMIDI());
     spdlog::info("end.");
     while (midDrv.isPlaying() || midDrv2.isPlaying())
     {

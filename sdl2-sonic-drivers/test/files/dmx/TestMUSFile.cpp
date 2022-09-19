@@ -31,7 +31,7 @@ namespace files
             MIDFile f2("fixtures/D_E1M1.mid"); // converted from MUS2MID (DOS) v1.0
 
             auto m1 = f1.getMIDI();
-            auto m2 = f2.convertToSingleTrackMIDI();
+            auto m2 = f2.getMIDI();
             EXPECT_EQ(m1->format, m2->format);
             EXPECT_EQ(m1->division, m2->division);
             EXPECT_EQ(m1->numTracks, m2->numTracks);

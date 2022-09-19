@@ -85,7 +85,7 @@ int main(int argc, char* argv[])
     // Device Native is using RtMidi
     auto native = std::make_shared<drivers::midi::devices::Native>();
     drivers::MIDDriver middrv(mixer, native);
-    auto midi = files::MIDFile("midifile_sample.mid").convertToSingleTrackMIDI();
+    auto midi = files::MIDFile("midifile_sample.mid").getMIDI();
     middrv.play(midi);
 
     return 0;
