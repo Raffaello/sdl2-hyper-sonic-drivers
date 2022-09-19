@@ -52,7 +52,7 @@ namespace files
             throw std::runtime_error("MIDI MULTI_TRACK not supported yet");
 
         auto midi = std::make_shared<audio::MIDI>(audio::midi::MIDI_FORMAT::SINGLE_TRACK, 1, _midi->division);
-        
+
         using midi_tuple_t = struct midi_tuple_t
         {
             MIDIEvent e;

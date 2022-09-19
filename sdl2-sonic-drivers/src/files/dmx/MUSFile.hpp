@@ -7,13 +7,14 @@
 #include <vector>
 #include <memory>
 #include <array>
+#include <files/GetMIDI.hpp>
 
 
 namespace files
 {
     namespace dmx
     {
-        class MUSFile : protected File
+        class MUSFile : protected File, public GetMIDI
         {
         public:
             static const int MUS_PLAYBACK_SPEED_DEFAULT;
@@ -22,8 +23,7 @@ namespace files
             explicit MUSFile(const std::string& filename, const int playback_speed = MUS_PLAYBACK_SPEED_DEFAULT);
             ~MUSFile() override = default;
 
-            // TODO: make an interface to convertToSingleTrackMidi() or getMIDI() for MID and MUS file (later XMI)
-            std::shared_ptr<audio::MIDI> getMIDI() noexcept;
+            std::shared_ptr<audio::MIDI> getMIDI() const noexcept override;
 
             const int playback_speed;
         private:
@@ -77,7 +77,7 @@ namespace files
             void readTrack();
             std::shared_ptr<audio::MIDI> convertToMidi();
             std::vector<mus_event_t> _mus;
-            std::shared_ptr<audio::MIDI> _midi = nullptr;
+            std::shared_ptr<audio::MIDI> _midi;
         };
     }
 }

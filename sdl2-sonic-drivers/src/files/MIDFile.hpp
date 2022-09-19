@@ -7,10 +7,11 @@
 #include <audio/midi/types.hpp>
 #include <audio/MIDI.hpp>
 #include <memory>
+#include <files/GetMIDI.hpp>
 
 namespace files
 {
-    class MIDFile : protected File
+    class MIDFile : protected File, public GetMIDI
     {
     public:
         MIDFile(const std::string& filename);
@@ -22,7 +23,7 @@ namespace files
          *        converted equivalent with single track
          * @return
         */
-        std::shared_ptr<audio::MIDI> getMIDI() const;
+        std::shared_ptr<audio::MIDI> getMIDI() const override;
     private:
         /// <summary>
         /// Variable length quantity decoding algorithm to read from file

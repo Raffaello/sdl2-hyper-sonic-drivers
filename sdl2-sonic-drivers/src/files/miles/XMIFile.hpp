@@ -7,6 +7,7 @@
 #include <audio/MIDI.hpp>
 #include <memory>
 #include <cstdint>
+#include <files/GetMIDI.hpp>
 
 namespace files
 {
@@ -23,13 +24,13 @@ namespace files
         /// into the XMI format and do not correspond to the values
         /// used by the converted event stream.
         /// </summary>
-        class XMIFile final : protected IFFFile
+        class XMIFile final : protected IFFFile, public GetMIDI
         {
         public:
             XMIFile(const std::string& filename);
             virtual ~XMIFile();
 
-            std::shared_ptr<audio::MIDI> getMIDI() const noexcept;
+            std::shared_ptr<audio::MIDI> getMIDI() const noexcept override;
         private:
             uint16_t _readFormXdirChunk(IFF_chunk_header_t& form_xdir);
             audio::midi::MIDITrack _readEvnts(const IFF_sub_chunk_header_t& IFF_evnt, const int16_t track);

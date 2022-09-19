@@ -59,6 +59,7 @@ install(FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/miles/AILDriverFile.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/WAVFile.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/VOCFile.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/GetMIDI.hpp
     
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/OPL.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/dosbox/dosbox.hpp
