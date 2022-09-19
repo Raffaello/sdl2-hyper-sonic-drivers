@@ -93,4 +93,10 @@ namespace utils
     /// wrapper, helper function
     /// </summary>
     std::string chars_vector_to_string(const std::vector<uint8_t>& e);
+    /// <summary>
+    /// Skip first char
+    /// </summary>
+    /// <param name="e"></param>
+    /// <returns></returns>
+    std::string chars_vector_to_string_skip_first(const std::vector<uint8_t>& e);
 }

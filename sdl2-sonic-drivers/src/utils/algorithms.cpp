@@ -57,4 +57,9 @@ namespace utils
     {
         return chars_vector_to_string(e.begin(), e.end());
     }
+
+    std::string chars_vector_to_string_skip_first(const std::vector<uint8_t>& e)
+    {
+        return chars_vector_to_string(++(e.begin()), e.end());
+    }
 }

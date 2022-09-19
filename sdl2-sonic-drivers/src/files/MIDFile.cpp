@@ -84,9 +84,11 @@ namespace files
                 // if it is a end_of_track skip it, it will be added later
                 if (te.type.val == meta_event_val
                     && te.data[0] == end_of_track_val) {
-                    last_end_of_track.e = te;
-                    last_end_of_track.abs_time = abs_time + te.delta_time;
-                    last_end_of_track.track = n;
+                    if (abs_time > last_end_of_track.abs_time) {
+                        last_end_of_track.e = te;
+                        last_end_of_track.abs_time = abs_time + te.delta_time;
+                        last_end_of_track.track = n;
+                    }
                     continue;
                 }
 
@@ -101,6 +103,7 @@ namespace files
 
         // add the end of track
         // this should be equivalent to the last event of the longest track, last end of track
+        //last_end_of_track.abs_time = abs_time
         events_tuple.emplace_back(last_end_of_track);
 
         // 2. then sort them by absolute time
