@@ -175,6 +175,13 @@ macro_test(
 )
 
 macro_test(
+    EXE TestTimer
+    FILES 
+        "hardware/opl/TestTimer.cpp"
+    LINKS_PRIVATE sonic-drivers-static
+)
+
+macro_test(
     EXE TestADLDriver
     FILES "drivers/westwood/TestADLDriver.cpp"
     LINKS_PRIVATE sonic-drivers-static

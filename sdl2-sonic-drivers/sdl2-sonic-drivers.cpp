@@ -430,7 +430,7 @@ int midi_adlib_mus_op2_file()
 
     std::shared_ptr<Mixer> mixer = mixerManager.getMixer();
 
-    auto emu = OplEmulator::MAME;
+    auto emu = OplEmulator::DOS_BOX;
     auto type = OplType::OPL2;
     
     spdlog::set_level(spdlog::level::debug);
@@ -538,8 +538,8 @@ int main(int argc, char* argv[])
     //renderMixer();
 
     //xmi_parser();
-    midi_adlib_mus_file_CONCURRENCY_ERROR_ON_SAME_DEVICE();
-    //midi_adlib_mus_op2_file();
+    //midi_adlib_mus_file_CONCURRENCY_ERROR_ON_SAME_DEVICE();
+    midi_adlib_mus_op2_file();
     //midi_adlib_xmi();
 
     SDL_Init(SDL_INIT_TIMER | SDL_INIT_AUDIO);

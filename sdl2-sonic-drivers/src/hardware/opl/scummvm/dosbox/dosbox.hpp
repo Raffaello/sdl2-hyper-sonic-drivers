@@ -5,6 +5,7 @@
 #include <audio/scummvm/Mixer.hpp>
 #include <memory>
 #include <hardware/opl/Config.hpp>
+#include <hardware/opl/Timer.hpp>
 
 namespace hardware
 {
@@ -14,26 +15,6 @@ namespace hardware
         {
             namespace dosbox
             {
-                struct Timer
-                {
-                    double startTime;
-                    double delay;
-                    bool enabled, overflow, masked;
-                    uint8_t counter;
-
-                    Timer();
-
-                    //Call update before making any further changes
-                    void update(double time);
-
-                    //On a reset make sure the start is in sync with the next cycle
-                    void reset(double time);
-
-                    void stop();
-
-                    void start(double time, int scale);
-                };
-
                 struct Chip
                 {
                     //Last selected register
