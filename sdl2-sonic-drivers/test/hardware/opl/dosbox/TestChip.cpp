@@ -5,29 +5,37 @@
 
 namespace hardware::opl::dosbox
 {
+    class ChipMock : public Chip
+    {
+    public:
+        Timer getTimer(const int i)
+        {
+            return this->timer[i];
+        }
+    };
     TEST(Chip, cstor)
     {
-        Chip c;
+        ChipMock c;
         for (int i = 0; i < 2; i++)
         {
-            EXPECT_EQ(c.timer[i].counter, 0);
-            EXPECT_EQ(c.timer[i].delay, 0.0);
-            EXPECT_EQ(c.timer[i].enabled, false);
-            EXPECT_EQ(c.timer[i].masked, false);
-            EXPECT_EQ(c.timer[i].overflow, false);
-            EXPECT_EQ(c.timer[i].startTime, 0.0);
+            EXPECT_EQ(c.getTimer(i).counter, 0);
+            EXPECT_EQ(c.getTimer(i).delay, 0.0);
+            EXPECT_EQ(c.getTimer(i).enabled, false);
+            EXPECT_EQ(c.getTimer(i).masked, false);
+            EXPECT_EQ(c.getTimer(i).overflow, false);
+            EXPECT_EQ(c.getTimer(i).startTime, 0.0);
         }
     }
 
     TEST(Chip, write)
     {
-        Chip c;
+        ChipMock c;
 
         EXPECT_TRUE(c.write(2, 1));
         EXPECT_TRUE(c.write(3, 1));
         EXPECT_TRUE(c.write(4, 0x80));
         EXPECT_TRUE(c.write(4, 0x1));
-        EXPECT_TRUE(c.timer[0].enabled);
+        EXPECT_TRUE(c.getTimer(0).enabled);
     }
 
     TEST(Chip, read)

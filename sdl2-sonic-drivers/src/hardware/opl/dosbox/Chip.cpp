@@ -3,7 +3,7 @@
 
 namespace hardware::opl::dosbox
 {
-    bool Chip::write(uint32_t reg, uint8_t val)
+    bool Chip::write(const uint32_t reg, const uint8_t val) noexcept
     {
         switch (reg)
         {
@@ -53,7 +53,7 @@ namespace hardware::opl::dosbox
         return false;
     }
 
-    uint8_t Chip::read()
+    uint8_t Chip::read() noexcept
     {
         double time = utils::getMillis<uint32_t>() / 1000.0;
 
