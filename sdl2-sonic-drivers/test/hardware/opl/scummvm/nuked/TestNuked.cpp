@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <hardware/opl/scummvm/nuked/OPL.hpp>
-#include "../test/audio/stubs/StubMixer.hpp"
+#include <audio/stubs/StubMixer.hpp>
 #include <memory>
 #include <cstdint>
 #include <files/File.hpp>
@@ -37,7 +37,6 @@ namespace hardware
 
                 TEST_P(OPLType, share_ptrDefault)
                 {
-
                     std::shared_ptr<StubMixer> mixer = std::make_shared<StubMixer>();
                     EXPECT_EQ(mixer.use_count(), 1);
 
