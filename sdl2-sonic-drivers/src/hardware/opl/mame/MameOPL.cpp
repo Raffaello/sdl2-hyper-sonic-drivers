@@ -54,23 +54,23 @@ namespace hardware
                 _opl->reset();
                 ymf262_reset_chip(_chip);
             }
-            void MameOPL::write(int a, int v)
+            void MameOPL::write(const int port, const int val) noexcept
             {
                 // ???
                 //_opl->write_address(a);
                 //_opl->write_data(v);
-                _opl->write(a, v);
+                _opl->write(port, val);
 
-                ymf262_write(_chip, a, v);
+                //ymf262_write(_chip, port, val);
             }
-            uint8_t MameOPL::read(int a)
+            uint8_t MameOPL::read(const int port) noexcept
             {
-                return _opl->read(a);
+                return _opl->read(port);
 
                 //return ymf262_read(_chip, a);
             }
 
-            void MameOPL::writeReg(int r, int v)
+            void MameOPL::writeReg(const int r, const int v) noexcept
             {
                 _opl->write(0, r);
                 _opl->write(1, v);
@@ -79,12 +79,7 @@ namespace hardware
                 ymf262_write(_chip, 1, v);
             }
 
-            bool MameOPL::isStereo() const
-            {
-                return true;
-            }
-
-            void MameOPL::generateSamples(int16_t* buffer, int length)
+            void MameOPL::generateSamples(int16_t* buffer, int length) noexcept
             {
                 constexpr int MAX_SIZE = 512;
                 ymfm::ymf262::output_data b[MAX_SIZE];

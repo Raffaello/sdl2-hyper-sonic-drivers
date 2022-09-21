@@ -22,7 +22,7 @@ namespace hardware
                 {
                 public:
                     OplType opl_type = std::get<0>(GetParam());
-                    bool isStereo = true;
+                    bool isStereo = std::get<1>(GetParam());
                 };
                 TEST_P(OPLType, cstorDefault)
                 {

@@ -28,12 +28,6 @@ namespace hardware::opl
             return _init;
         }
 
-        inline bool isStereo() const noexcept
-        {
-            return type != OplType::OPL2;
-        }
-
-
         /**
          * Initializes the OPL emulator.
          *

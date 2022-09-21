@@ -24,7 +24,7 @@ namespace hardware
                 virtual uint8_t read(const int port) noexcept override;
                 virtual void writeReg(const int r, const int v) noexcept override;
 
-                bool isStereo() const override;
+                bool isStereo() const noexcept override;
             protected:
                 void generateSamples(int16_t* buffer, int length) noexcept override;
 

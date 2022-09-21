@@ -24,15 +24,13 @@ namespace hardware
                 bool init() override;
                 void reset() override;
 
-                void write(int a, int v) override;
-                uint8_t read(int a) override;
+                void write(const int port, const int val) noexcept override;
+                uint8_t read(const int port) noexcept override;
 
-                void writeReg(int r, int v) override;
-
-                bool isStereo() const override;
+                void writeReg(const int r, const int v) noexcept override;
 
             protected:
-                void generateSamples(int16_t* buffer, int length) override;
+                void generateSamples(int16_t* buffer, int length) noexcept override;
             };
         }
     }

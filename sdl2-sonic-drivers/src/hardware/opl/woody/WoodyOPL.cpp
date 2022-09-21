@@ -54,7 +54,7 @@ namespace hardware
                 _opl->write(r, v);
             }
 
-            bool WoodyOPL::isStereo() const
+            bool WoodyOPL::isStereo() const noexcept
             {
                 return _surround;
             }

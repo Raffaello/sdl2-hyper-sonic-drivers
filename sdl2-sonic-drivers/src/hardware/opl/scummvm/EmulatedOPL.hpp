@@ -28,6 +28,11 @@ namespace hardware
                 EmulatedOPL(const OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer);
                 virtual ~EmulatedOPL();
 
+                inline bool isStereo() const noexcept override
+                {
+                    return type != OplType::OPL2;
+                }
+
                 // OPL API
                 void setCallbackFrequency(int timerFrequency);
                 std::shared_ptr<audio::scummvm::SoundHandle> getSoundHandle() const noexcept override;
