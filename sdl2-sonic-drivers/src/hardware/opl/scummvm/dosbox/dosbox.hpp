@@ -8,6 +8,7 @@
 #include <hardware/opl/Timer.hpp>
 #include <hardware/opl/Chip.hpp>
 
+// TODO rename the file to OPL.hpp, OPL.cpp
 namespace hardware
 {
     namespace opl

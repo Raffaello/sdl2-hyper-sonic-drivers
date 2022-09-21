@@ -1,7 +1,7 @@
 #include <hardware/opl/Config.hpp>
 #include <cstring>
 #include <spdlog/spdlog.h>
-#include <hardware/opl/scummvm/mame/mame.hpp>
+#include <hardware/opl/scummvm/mame/OPL.hpp>
 #include <hardware/opl/scummvm/dosbox/dosbox.hpp>
 #include <hardware/opl/scummvm/nuked/OPL.hpp>
 #include <hardware/opl/woody/WoodyOPL.hpp>

@@ -4,6 +4,7 @@
 //#include <hardware/opl/scummvm/EmulatedOPL.hpp>
 #include <memory>
 #include <random>
+#include <cstdint>
 
 namespace hardware::opl::scummvm::mame
 {
@@ -74,7 +75,7 @@ namespace hardware::opl::scummvm::mame
     } OPL_CH;
 
     /* OPL state */
-    typedef struct fm_opl_f {
+    typedef struct FM_OPL {
         uint8_t type;			/* chip type                         */
         int clock;			/* master clock  (Hz)                */
         int rate;			/* sampling rate (Hz)                */

@@ -2,9 +2,9 @@
 #include <gmock/gmock.h>
 #include <drivers/westwood/ADLDriver.hpp>
 #include <memory>
-#include "../test/audio/stubs/StubMixer.hpp"
+#include <audio/stubs/StubMixer.hpp>
 #include <files/westwood/ADLFile.hpp>
-#include <hardware/opl/scummvm/mame/mame.hpp>
+#include <hardware/opl/scummvm/mame/OPL.hpp>
 
 namespace drivers
 {

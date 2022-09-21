@@ -47,7 +47,7 @@ using utils::CLIP;
 
 namespace hardware::opl::scummvm::mame
 {
-    OPL::OPL(const OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer)
+    /*OPL::OPL(const OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer)
         : EmulatedOPL(type, mixer)
     {
         if (type != OplType::OPL2) {
@@ -98,7 +98,7 @@ namespace hardware::opl::scummvm::mame
 
     void OPL::generateSamples(int16_t* buffer, int length) {
         YM3812UpdateOne(_opl, buffer, length);
-    }
+    }*/
 
     /* -------------------- preliminary define section --------------------- */
     /* attack/decay rate time rate */
