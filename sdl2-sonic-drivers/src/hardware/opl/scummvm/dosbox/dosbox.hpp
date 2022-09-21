@@ -15,8 +15,6 @@ namespace hardware
         {
             namespace dosbox
             {
-                //using hardware::opl::dosbox::Timer;
-
                 struct Chip
                 {
                     //Last selected register

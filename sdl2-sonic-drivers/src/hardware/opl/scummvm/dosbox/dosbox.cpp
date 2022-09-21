@@ -28,6 +28,7 @@ namespace hardware
                     {
                         //double time = g_system->getMillis() / 1000.0;
                         double time = utils::getMillis<uint32_t>() / 1000.0;
+                        //double time = utils::getMicro<double>() / 1000.0;
 
                         if (val & 0x80) {
                             timer[0].reset(time);
