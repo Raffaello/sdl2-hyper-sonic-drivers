@@ -1,4 +1,5 @@
 #include <hardware/opl/scummvm/mame/OPL.hpp>
+#include <cstring>
 
 
 namespace hardware::opl::scummvm::mame
