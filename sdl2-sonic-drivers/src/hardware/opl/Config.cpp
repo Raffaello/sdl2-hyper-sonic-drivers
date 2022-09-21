@@ -30,10 +30,10 @@ namespace hardware::opl
         case OplEmulator::DOS_BOX:
             return std::make_shared<scummvm::dosbox::OPL>(type, mixer);
         case OplEmulator::NUKED:
-            if (type != OplType::OPL3) {
+           /* if (type != OplType::OPL3) {
                 spdlog::warn("Nuke OPL emulator only supports OPL3 emulation");
                 return nullptr;
-            }
+            }*/
             return std::make_shared<scummvm::nuked::OPL>(type, mixer);
         case OplEmulator::WOODY:
             return std::make_shared<woody::WoodyOPL>(type, mixer, type == OplType::OPL2 ? false : true);
