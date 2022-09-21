@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include <hardware/opl/dosbox/Timer.hpp>
+#include <hardware/opl/Timer.hpp>
 
-namespace hardware::opl::dosbox
+namespace hardware::opl
 {
     TEST(Timer, cstor)
     {

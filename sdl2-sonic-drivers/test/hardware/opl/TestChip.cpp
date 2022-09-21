@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include <hardware/opl/dosbox/Chip.hpp>
+#include <hardware/opl/Chip.hpp>
 #include <utils/algorithms.hpp>
 
-namespace hardware::opl::dosbox
+namespace hardware::opl
 {
     class ChipMock : public Chip
     {

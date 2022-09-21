@@ -163,8 +163,8 @@ target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/OPL.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/Config.cpp
     
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/dosbox/Timer.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/dosbox/Chip.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/Timer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/Chip.cpp
 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/dosbox/dosbox.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/dosbox/dbopl/dbopl.cpp

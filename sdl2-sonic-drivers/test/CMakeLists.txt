@@ -177,14 +177,14 @@ macro_test(
 macro_test(
     EXE TestTimer
     FILES 
-        "hardware/opl/dosbox/TestTimer.cpp"
+        "hardware/opl/TestTimer.cpp"
     LINKS_PRIVATE sonic-drivers-static
 )
 
 macro_test(
     EXE TestChip
     FILES 
-        "hardware/opl/dosbox/TestChip.cpp"
+        "hardware/opl/TestChip.cpp"
     LINKS_PRIVATE sonic-drivers-static
 )
 

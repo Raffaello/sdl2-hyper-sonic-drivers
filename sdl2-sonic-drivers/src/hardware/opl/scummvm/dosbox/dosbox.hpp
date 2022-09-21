@@ -5,8 +5,8 @@
 #include <audio/scummvm/Mixer.hpp>
 #include <memory>
 #include <hardware/opl/Config.hpp>
-#include <hardware/opl/dosbox/Timer.hpp>
-#include <hardware/opl/dosbox/Chip.hpp>
+#include <hardware/opl/Timer.hpp>
+#include <hardware/opl/Chip.hpp>
 
 namespace hardware
 {
@@ -26,7 +26,7 @@ namespace hardware
                     unsigned int _rate;
 
                     dbopl::Chip* _emulator;
-                    hardware::opl::dosbox::Chip _chip[2];
+                    hardware::opl::Chip _chip[2];
                     union {
                         uint16_t normal;
                         uint8_t dual[2];

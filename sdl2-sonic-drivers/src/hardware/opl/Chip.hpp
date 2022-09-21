@@ -1,8 +1,8 @@
 #pragma once
-#include <hardware/opl/dosbox/Timer.hpp>
+#include <hardware/opl/Timer.hpp>
 #include <cstdint>
 
-namespace hardware::opl::dosbox
+namespace hardware::opl
 {
     class Chip
     {

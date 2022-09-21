@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-namespace hardware::opl::dosbox
+namespace hardware::opl
 {
     class Timer
     {

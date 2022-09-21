@@ -1,7 +1,7 @@
-#include <hardware/opl/dosbox/Chip.hpp>
+#include <hardware/opl/Chip.hpp>
 #include <utils/algorithms.hpp>
 
-namespace hardware::opl::dosbox
+namespace hardware::opl
 {
     bool Chip::write(const uint32_t reg, const uint8_t val) noexcept
     {
