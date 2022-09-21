@@ -1,7 +1,7 @@
 #include <hardware/opl/Config.hpp>
 #include <cstring>
 #include <spdlog/spdlog.h>
-#include <hardware/opl/scummvm/mame/OPL.hpp>
+#include <hardware/opl/scummvm/mame/MameOPL2.hpp>
 #include <hardware/opl/scummvm/dosbox/DosBoxOPL.hpp>
 #include <hardware/opl/scummvm/nuked/OPL.hpp>
 #include <hardware/opl/woody/WoodyOPL.hpp>
@@ -17,7 +17,7 @@ namespace hardware::opl
             switch (type)
             {
             case OplType::OPL2:
-                return std::make_shared<scummvm::mame::OPL>(type, mixer);
+                return std::make_shared<scummvm::mame::MameOPL2>(type, mixer);
             case OplType::DUAL_OPL2:
                 spdlog::warn("MAME OPL emulator doesn't support DUAL_OPL2 emulation");
                 return nullptr;

@@ -137,15 +137,15 @@ macro_test(
 )
 
 macro_test(
-    EXE TestMame
-    FILES "hardware/opl/scummvm/mame/TestMame.cpp"
+    EXE TestMameOPL2
+    FILES "hardware/opl/scummvm/mame/TestMameOPL2.cpp"
     LINKS_PRIVATE sonic-drivers-static
     FIXTURES "fixtures/mame-22050-16bit-440Hz.dat"
 )
 
 macro_test(
     EXE TestDOSBoxOPL
-    FILES "hardware/opl/scummvm/dosbox/TestDosBoxOpl.cpp"
+    FILES "hardware/opl/scummvm/dosbox/TestDosBoxOPL.cpp"
     LINKS_PRIVATE sonic-drivers-static
     FIXTURES
         #"fixtures/mame-22050-16bit-440Hz.dat"

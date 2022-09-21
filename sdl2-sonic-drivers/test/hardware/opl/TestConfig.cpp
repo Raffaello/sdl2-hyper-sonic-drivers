@@ -4,7 +4,7 @@
 #include <audio/stubs/StubMixer.hpp>
 #include <hardware/opl/woody/WoodyOPL.hpp>
 #include <hardware/opl/scummvm/dosbox/DosBoxOPL.hpp>
-#include <hardware/opl/scummvm/mame/OPL.hpp>
+#include <hardware/opl/scummvm/mame/MameOPL2.hpp>
 #include <hardware/opl/scummvm/nuked/OPL.hpp>
 #include <hardware/opl/scummvm/EmulatedOPL.hpp>
 
@@ -29,7 +29,7 @@ namespace hardware::opl
         switch (emu)
         {
         case OplEmulator::MAME:
-            EXPECT_NO_THROW(w = dynamic_cast<mame::OPL*>(opl.get()));
+            EXPECT_NO_THROW(w = dynamic_cast<mame::MameOPL2*>(opl.get()));
             break;
         case OplEmulator::DOS_BOX:
         case OplEmulator::AUTO:

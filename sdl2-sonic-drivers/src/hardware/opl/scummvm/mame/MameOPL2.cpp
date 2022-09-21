@@ -1,10 +1,10 @@
-#include <hardware/opl/scummvm/mame/OPL.hpp>
+#include <hardware/opl/scummvm/mame/MameOPL2.hpp>
 #include <cstring>
 
 
 namespace hardware::opl::scummvm::mame
 {
-    OPL::OPL(const OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer)
+    MameOPL2::MameOPL2(const OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer)
         : EmulatedOPL(type, mixer), _reg({0})
     {
         if (type != OplType::OPL2) {
@@ -12,13 +12,13 @@ namespace hardware::opl::scummvm::mame
         }
     }
 
-    OPL::~OPL() {
+    MameOPL2::~MameOPL2() {
         stop();
         OPLDestroy(_opl);
         _opl = nullptr;
     }
 
-    bool OPL::init()
+    bool MameOPL2::init()
     {
         if (_init)
         {
@@ -32,11 +32,11 @@ namespace hardware::opl::scummvm::mame
         return _init;
     }
 
-    void OPL::reset() {
+    void MameOPL2::reset() {
         OPLResetChip(_opl);
     }
 
-    void OPL::write(const int port, const int val) noexcept
+    void MameOPL2::write(const int port, const int val) noexcept
     {
         if (port & 1)
         {
@@ -71,7 +71,8 @@ namespace hardware::opl::scummvm::mame
             // Make sure to clip them in the right range
             switch (type) {
             case OplType::OPL2:
-                OPLWrite(_opl, port, val) & 0xff;
+                //OPLWrite(_opl, port, val) & 0xff;
+                OPLWrite(_opl, port, val);
                 _reg.normal = val & 0xff;
                 break;
             //case OplType::DUAL_OPL2:
@@ -94,7 +95,7 @@ namespace hardware::opl::scummvm::mame
         }
     }
 
-    void OPL::dualWrite(const uint8_t index, const uint8_t reg, uint8_t val) noexcept
+    void MameOPL2::dualWrite(const uint8_t index, const uint8_t reg, uint8_t val) noexcept
     {
         //// Make sure you don't use opl3 features
         //// Don't allow write to disable opl3
@@ -119,7 +120,7 @@ namespace hardware::opl::scummvm::mame
         //OPLWriteReg(_opl, fullReg, val);
     }
 
-    uint8_t OPL::read(const int port) noexcept
+    uint8_t MameOPL2::read(const int port) noexcept
     {
         // TODO looks like mame has its own timer, but must be set it up
         switch (type)
@@ -146,7 +147,7 @@ namespace hardware::opl::scummvm::mame
         //return OPLRead(_opl, port);
     }
 
-    void OPL::writeReg(const int r, const int v) noexcept
+    void MameOPL2::writeReg(const int r, const int v) noexcept
     {
         //int tempReg = 0;
         //switch (type)
@@ -190,7 +191,7 @@ namespace hardware::opl::scummvm::mame
        OPLWriteReg(_opl, r, v);
     }
 
-    void OPL::generateSamples(int16_t* buffer, int length) noexcept
+    void MameOPL2::generateSamples(int16_t* buffer, int length) noexcept
     {
         YM3812UpdateOne(_opl, buffer, length);
     }

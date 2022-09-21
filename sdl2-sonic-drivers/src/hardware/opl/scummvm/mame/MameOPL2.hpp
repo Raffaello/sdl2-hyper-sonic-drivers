@@ -6,7 +6,7 @@
 
 namespace hardware::opl::scummvm::mame
 {
-    class OPL : public EmulatedOPL
+    class MameOPL2 : public EmulatedOPL
     {
     private:
         FM_OPL* _opl = nullptr;
@@ -19,8 +19,8 @@ namespace hardware::opl::scummvm::mame
         // TODO: not used as it is OPL2
         void dualWrite(const uint8_t index, const uint8_t reg, uint8_t val) noexcept;
     public:
-        explicit OPL(const OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer);
-        virtual ~OPL();
+        explicit MameOPL2(const OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer);
+        virtual ~MameOPL2();
 
         bool init() override;
         void reset() override;
