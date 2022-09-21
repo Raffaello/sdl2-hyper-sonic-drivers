@@ -36,11 +36,6 @@ namespace hardware
                 int getRate() const;
                 bool endOfData() const noexcept;
 
-                inline bool isStereo() const noexcept override
-                {
-                    return type != OplType::OPL2;
-                }
-                
                 // TODO: this can be bring up to OPL interface
                 std::shared_ptr<audio::scummvm::Mixer> getMixer() const noexcept;
 

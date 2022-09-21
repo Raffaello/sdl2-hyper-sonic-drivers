@@ -21,12 +21,18 @@ namespace hardware::opl
         explicit OPL(const OplType type);
         virtual ~OPL();
 
+        const OplType type;
+
         inline bool isInit() const noexcept
         {
             return _init;
         }
 
-        const OplType type;
+        inline bool isStereo() const noexcept
+        {
+            return type != OplType::OPL2;
+        }
+
 
         /**
          * Initializes the OPL emulator.

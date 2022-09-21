@@ -41,15 +41,15 @@ namespace hardware
             {
                 init();
             }
-            void WoodyOPL::write(int a, int v)
+            void WoodyOPL::write(const int port, const int val) noexcept
             {
                 //opl->write(a, v);
             }
-            uint8_t WoodyOPL::read(int a)
+            uint8_t WoodyOPL::read(const int port) noexcept
             {
                 return 0;
             }
-            void WoodyOPL::writeReg(int r, int v)
+            void WoodyOPL::writeReg(const int r, const int v) noexcept
             {
                 _opl->write(r, v);
             }
@@ -59,10 +59,10 @@ namespace hardware
                 return _surround;
             }
 
-            void WoodyOPL::generateSamples(int16_t* buffer, int numSamples)
+            void WoodyOPL::generateSamples(int16_t* buffer, int length) noexcept
             {
                 const int d = isStereo() ? 2 : 1;
-                _opl->update(buffer, numSamples / d);
+                _opl->update(buffer, length / d);
             }
 
             void WoodyOPL::free()

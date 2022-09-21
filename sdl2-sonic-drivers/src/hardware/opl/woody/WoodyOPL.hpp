@@ -20,13 +20,13 @@ namespace hardware
 
                 virtual bool init() override;
                 virtual void reset() override;
-                virtual void write(int a, int v) override;
-                virtual uint8_t read(int a) override;
-                virtual void writeReg(int r, int v) override;
+                virtual void write(const int port, const int val) noexcept override;
+                virtual uint8_t read(const int port) noexcept override;
+                virtual void writeReg(const int r, const int v) noexcept override;
 
                 bool isStereo() const override;
             protected:
-                void generateSamples(int16_t* buffer, int numSamples) override;
+                void generateSamples(int16_t* buffer, int length) noexcept override;
 
             private:
                 woody::OPL* _opl;
