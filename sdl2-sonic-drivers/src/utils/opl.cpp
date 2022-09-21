@@ -56,7 +56,7 @@ namespace utils
             opl->read(0);
             utils::delayMicro(80);
         }*/
-        utils::delayMillis(80);
+        utils::delayMillis(100);
 
         // Read status register: read port base+0 (388h). Save the result.
         uint8_t status2 = opl->read(0) & 0xE0;
