@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include <hardware/opl/scummvm/nuked/OPL.hpp>
+#include <hardware/opl/scummvm/nuked/NukedOPL3.hpp>
 #include <audio/stubs/StubMixer.hpp>
 #include <memory>
 #include <cstdint>
@@ -28,7 +28,7 @@ namespace hardware
                 {
                     std::shared_ptr<StubMixer> mixer = std::make_shared<StubMixer>();
                     EXPECT_EQ(mixer.use_count(), 1);
-                    OPL nuked(this->opl_type, mixer);
+                    NukedOPL nuked(this->opl_type, mixer);
                     EXPECT_EQ(mixer.use_count(), 2);
                     EXPECT_EQ(nuked.getRate(), mixer->rate);
                     EXPECT_EQ(nuked.endOfData(), false);
@@ -40,7 +40,7 @@ namespace hardware
                     std::shared_ptr<StubMixer> mixer = std::make_shared<StubMixer>();
                     EXPECT_EQ(mixer.use_count(), 1);
 
-                    std::shared_ptr<OPL> nuked = std::make_shared<OPL>(this->opl_type, mixer);
+                    std::shared_ptr<NukedOPL> nuked = std::make_shared<NukedOPL>(this->opl_type, mixer);
                     EXPECT_EQ(mixer.use_count(), 2);
                     EXPECT_EQ(nuked.use_count(), 1);
                     EXPECT_EQ(nuked->getRate(), mixer->rate);
@@ -49,7 +49,7 @@ namespace hardware
                 }
 
                 INSTANTIATE_TEST_SUITE_P(
-                    OPL,
+                    NukedOPL,
                     OPLType,
                     ::testing::Values(
                         std::make_tuple<>(OplType::OPL2, false),
@@ -62,7 +62,7 @@ namespace hardware
                 {
                     std::shared_ptr<StubMixer> mixer = std::make_shared<StubMixer>();
                     mixer->rate = 22050;
-                    std::shared_ptr<hardware::opl::scummvm::nuked::OPL> opl = std::make_shared<hardware::opl::scummvm::nuked::OPL>(OplType::OPL3, mixer);
+                    std::shared_ptr<hardware::opl::scummvm::nuked::NukedOPL> opl = std::make_shared<hardware::opl::scummvm::nuked::NukedOPL>(OplType::OPL3, mixer);
                     opl->init();
                     opl->setCallbackFrequency(72);
 

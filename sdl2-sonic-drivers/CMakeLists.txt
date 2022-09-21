@@ -69,7 +69,7 @@ install(FILES
 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/dosbox/DosBoxOPL.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/mame/MameOPL2.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/nuked/OPL.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/nuked/NukedOPL3.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/EmulatedOPL.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/woody/WoodyOPL.hpp
     
@@ -170,7 +170,7 @@ target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/dosbox/dbopl/dbopl.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/mame/MameOPL2.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/mame/mame.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/nuked/OPL.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/nuked/NukedOPL3.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/nuked/opl3.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/EmulatedOPL.cpp
     # --- #

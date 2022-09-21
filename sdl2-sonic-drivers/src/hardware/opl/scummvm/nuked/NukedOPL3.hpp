@@ -10,7 +10,7 @@
 
 namespace hardware::opl::scummvm::nuked
 {
-    class OPL : public EmulatedOPL
+    class NukedOPL : public EmulatedOPL
     {
     private:
         unsigned int _rate = 0;
@@ -26,8 +26,8 @@ namespace hardware::opl::scummvm::nuked
         // TODO: this is same in DOSBOX, it can be bring into the parent, and just change the last line
         void dualWrite(const uint8_t index, const uint8_t reg, uint8_t val) noexcept;
     public:
-        OPL(const OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer);
-        ~OPL();
+        NukedOPL(const OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer);
+        ~NukedOPL();
 
         bool init() override;
         void reset() override;

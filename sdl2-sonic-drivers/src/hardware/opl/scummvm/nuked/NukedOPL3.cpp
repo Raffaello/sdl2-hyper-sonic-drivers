@@ -1,22 +1,22 @@
-#include <hardware/opl/scummvm/nuked/OPL.hpp>
+#include <hardware/opl/scummvm/nuked/NukedOPL3.hpp>
 #include <hardware/opl/scummvm/nuked/opl3.h>
 #include <cstdlib>
 #include <cstring>
 
 namespace hardware::opl::scummvm::nuked
 {
-    OPL::OPL(const OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer)
+    NukedOPL::NukedOPL(const OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer)
         : EmulatedOPL(type, mixer), _reg({ 0 })
     {
         chip = std::make_unique<opl3_chip>();
     }
 
-    OPL::~OPL()
+    NukedOPL::~NukedOPL()
     {
         stop();
     }
 
-    bool OPL::init()
+    bool NukedOPL::init()
     {
         memset(&_reg, 0, sizeof(_reg));
         _rate = _mixer->getOutputRate();
@@ -30,12 +30,12 @@ namespace hardware::opl::scummvm::nuked
         return _init;
     }
 
-    void OPL::reset()
+    void NukedOPL::reset()
     {
         OPL3_Reset(chip.get(), _rate);
     }
 
-    void OPL::write(const int port, const int val) noexcept
+    void NukedOPL::write(const int port, const int val) noexcept
     {
         if (port & 1)
         {
@@ -93,7 +93,7 @@ namespace hardware::opl::scummvm::nuked
         }
     }
 
-    void OPL::writeReg(const int r, const int v) noexcept
+    void NukedOPL::writeReg(const int r, const int v) noexcept
     {
         //int tempReg = 0;
         //switch (type)
@@ -137,7 +137,7 @@ namespace hardware::opl::scummvm::nuked
         OPL3_WriteRegBuffered(chip.get(), (uint16_t)r, (uint8_t)v);
     }
 
-    void OPL::dualWrite(const uint8_t index, const uint8_t reg, uint8_t val) noexcept
+    void NukedOPL::dualWrite(const uint8_t index, const uint8_t reg, uint8_t val) noexcept
     {
         // Make sure you don't use opl3 features
         // Don't allow write to disable opl3
@@ -162,7 +162,7 @@ namespace hardware::opl::scummvm::nuked
         OPL3_WriteRegBuffered(chip.get(), (uint16_t)fullReg, (uint8_t)val);
     }
 
-    uint8_t OPL::read(const int port) noexcept
+    uint8_t NukedOPL::read(const int port) noexcept
     {
         switch (type)
         {
@@ -187,7 +187,7 @@ namespace hardware::opl::scummvm::nuked
         return 0;
     }
 
-    void OPL::generateSamples(int16_t* buffer, int length) noexcept
+    void NukedOPL::generateSamples(int16_t* buffer, int length) noexcept
     {
         OPL3_GenerateStream(chip.get(), (int16_t*)buffer, (uint16_t)length / 2);
     }

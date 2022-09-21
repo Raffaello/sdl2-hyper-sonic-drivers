@@ -5,7 +5,7 @@
 #include <hardware/opl/woody/WoodyOPL.hpp>
 #include <hardware/opl/scummvm/dosbox/DosBoxOPL.hpp>
 #include <hardware/opl/scummvm/mame/MameOPL2.hpp>
-#include <hardware/opl/scummvm/nuked/OPL.hpp>
+#include <hardware/opl/scummvm/nuked/NukedOPL3.hpp>
 #include <hardware/opl/scummvm/EmulatedOPL.hpp>
 
 namespace hardware::opl
@@ -36,7 +36,7 @@ namespace hardware::opl
             EXPECT_NO_THROW(w = dynamic_cast<dosbox::DosBoxOPL*>(opl.get()));
             break;
         case OplEmulator::NUKED:
-            EXPECT_NO_THROW(w = dynamic_cast<nuked::OPL*>(opl.get()));
+            EXPECT_NO_THROW(w = dynamic_cast<nuked::NukedOPL*>(opl.get()));
             break;
         case OplEmulator::WOODY:
             EXPECT_NO_THROW(w = dynamic_cast<woody::WoodyOPL*>(opl.get()));

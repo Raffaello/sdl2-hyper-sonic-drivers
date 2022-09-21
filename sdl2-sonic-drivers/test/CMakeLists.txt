@@ -152,8 +152,8 @@ macro_test(
 )
 
 macro_test(
-    EXE TestNuked
-    FILES "hardware/opl/scummvm/nuked/TestNuked.cpp"
+    EXE TestNukedOPL3
+    FILES "hardware/opl/scummvm/nuked/TestNukedOPL3.cpp"
     LINKS_PRIVATE sonic-drivers-static
     FIXTURES
         #"fixtures/mame-22050-16bit-440Hz.dat"
