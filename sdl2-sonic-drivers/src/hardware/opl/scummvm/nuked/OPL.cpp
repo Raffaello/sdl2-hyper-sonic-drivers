@@ -18,7 +18,6 @@ namespace hardware::opl::scummvm::nuked
 
     bool OPL::init()
     {
-        //address[0] = address[1] = 0;
         memset(&_reg, 0, sizeof(_reg));
         _rate = _mixer->getOutputRate();
         OPL3_Reset(chip.get(), _rate);
@@ -69,7 +68,7 @@ namespace hardware::opl::scummvm::nuked
             case OplType::OPL2:
                 //address[0] = val & 0xff;
                 //_reg.normal = _emulator->WriteAddr(port, val) & 0xff;
-                _reg.dual[0] = val & 0xff;
+                _reg.normal = val & 0xff;
                 break;
             case OplType::DUAL_OPL2:
                 // Not a 0x?88 port, when write to a specific side
@@ -96,7 +95,46 @@ namespace hardware::opl::scummvm::nuked
 
     void OPL::writeReg(int r, int v)
     {
-        OPL3_WriteRegBuffered(chip.get(), (uint16_t)r, (uint8_t)v);
+        int tempReg = 0;
+        switch (type)
+        {
+        case OplType::OPL2:
+        case OplType::DUAL_OPL2:
+        case OplType::OPL3:
+            // We can't use _handler->writeReg here directly, since it would miss timer changes.
+
+            // Backup old setup register
+            tempReg = _reg.normal;
+
+            // We directly allow writing to secondary OPL3 registers by using
+            // register values >= 0x100.
+            if (type == OplType::OPL3 && r >= 0x100) {
+                // We need to set the register we want to write to via port 0x222,
+                // since we want to write to the secondary register set.
+                write(0x222, r);
+                // Do the real writing to the register
+                write(0x223, v);
+            }
+            else {
+                // We need to set the register we want to write to via port 0x388
+                write(0x388, r);
+                // Do the real writing to the register
+                write(0x389, v);
+            }
+
+            // Restore the old register
+            if (type == OplType::OPL3 && tempReg >= 0x100) {
+                write(0x222, tempReg & ~0x100);
+            }
+            else {
+                write(0x388, tempReg);
+            }
+            break;
+        default:
+            break;
+        };
+
+//        OPL3_WriteRegBuffered(chip.get(), (uint16_t)r, (uint8_t)v);
     }
 
     void OPL::dualWrite(uint8_t index, uint8_t reg, uint8_t val)

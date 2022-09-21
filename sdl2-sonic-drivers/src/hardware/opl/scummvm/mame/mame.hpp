@@ -2,7 +2,6 @@
 
 
 //#include <hardware/opl/scummvm/EmulatedOPL.hpp>
-#include <memory>
 #include <random>
 #include <cstdint>
 

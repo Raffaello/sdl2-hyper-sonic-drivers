@@ -47,8 +47,8 @@ namespace utils
             std::make_tuple<>(OplEmulator::AUTO, OplType::OPL2, true, false),
             std::make_tuple<>(OplEmulator::AUTO, OplType::DUAL_OPL2, true, false),
             std::make_tuple<>(OplEmulator::AUTO, OplType::OPL3, true, true),
-            std::make_tuple<>(OplEmulator::NUKED, OplType::OPL2, true, false),
-            std::make_tuple<>(OplEmulator::NUKED, OplType::DUAL_OPL2, true, false),
+            //std::make_tuple<>(OplEmulator::NUKED, OplType::OPL2, true, false)
+            //std::make_tuple<>(OplEmulator::NUKED, OplType::DUAL_OPL2, true, false),
             std::make_tuple<>(OplEmulator::NUKED, OplType::OPL3, true, true)
         )
     );
