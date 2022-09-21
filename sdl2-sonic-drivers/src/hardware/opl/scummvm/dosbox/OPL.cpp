@@ -54,7 +54,7 @@ namespace hardware::opl::scummvm::dosbox
         init();
     }
 
-    void OPL::write(int port, int val)
+    void OPL::write(const int port, const int val) noexcept
     {
         if (port & 1)
         {
@@ -108,7 +108,7 @@ namespace hardware::opl::scummvm::dosbox
         }
     }
 
-    uint8_t OPL::read(int port)
+    uint8_t OPL::read(const int port) noexcept
     {
         switch (type)
         {
@@ -133,7 +133,7 @@ namespace hardware::opl::scummvm::dosbox
         return 0;
     }
 
-    void OPL::writeReg(int r, int v)
+    void OPL::writeReg(const int r, const int v) noexcept
     {
         int tempReg = 0;
         switch (type)
@@ -175,12 +175,7 @@ namespace hardware::opl::scummvm::dosbox
         };
     }
 
-    bool OPL::isStereo() const
-    {
-        return type != OplType::OPL2;
-    }
-
-    void OPL::dualWrite(uint8_t index, uint8_t reg, uint8_t val)
+    void OPL::dualWrite(const uint8_t index, const uint8_t reg, uint8_t val) noexcept
     {
         // Make sure you don't use opl3 features
         // Don't allow write to disable opl3
@@ -205,7 +200,7 @@ namespace hardware::opl::scummvm::dosbox
         _emulator->WriteReg(fullReg, val);
     }
 
-    void OPL::generateSamples(int16_t* buffer, int length)
+    void OPL::generateSamples(int16_t* buffer, int length) noexcept
     {
         // For stereo OPL cards, we divide the sample count by 2,
         // to match stereo AudioStream behavior.
@@ -225,7 +220,7 @@ namespace hardware::opl::scummvm::dosbox
                 for (unsigned int i = 0; i < (readSamples << 1); ++i)
                     buffer[i] = tempBuffer[i];
 
-                buffer += (readSamples << 1);
+                buffer += static_cast<int16_t>(readSamples << 1);
                 length -= readSamples;
             }
         }

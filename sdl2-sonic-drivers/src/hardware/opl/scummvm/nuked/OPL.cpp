@@ -35,7 +35,7 @@ namespace hardware::opl::scummvm::nuked
         OPL3_Reset(chip.get(), _rate);
     }
 
-    void OPL::write(int port, int val)
+    void OPL::write(const int port, const int val) noexcept
     {
         if (port & 1)
         {
@@ -93,51 +93,51 @@ namespace hardware::opl::scummvm::nuked
         }
     }
 
-    void OPL::writeReg(int r, int v)
+    void OPL::writeReg(const int r, const int v) noexcept
     {
-        int tempReg = 0;
-        switch (type)
-        {
-        case OplType::OPL2:
-        case OplType::DUAL_OPL2:
-        case OplType::OPL3:
-            // We can't use _handler->writeReg here directly, since it would miss timer changes.
+        //int tempReg = 0;
+        //switch (type)
+        //{
+        //case OplType::OPL2:
+        //case OplType::DUAL_OPL2:
+        //case OplType::OPL3:
+        //    // We can't use _handler->writeReg here directly, since it would miss timer changes.
 
-            // Backup old setup register
-            tempReg = _reg.normal;
+        //    // Backup old setup register
+        //    tempReg = _reg.normal;
 
-            // We directly allow writing to secondary OPL3 registers by using
-            // register values >= 0x100.
-            if (type == OplType::OPL3 && r >= 0x100) {
-                // We need to set the register we want to write to via port 0x222,
-                // since we want to write to the secondary register set.
-                write(0x222, r);
-                // Do the real writing to the register
-                write(0x223, v);
-            }
-            else {
-                // We need to set the register we want to write to via port 0x388
-                write(0x388, r);
-                // Do the real writing to the register
-                write(0x389, v);
-            }
+        //    // We directly allow writing to secondary OPL3 registers by using
+        //    // register values >= 0x100.
+        //    if (type == OplType::OPL3 && r >= 0x100) {
+        //        // We need to set the register we want to write to via port 0x222,
+        //        // since we want to write to the secondary register set.
+        //        write(0x222, r);
+        //        // Do the real writing to the register
+        //        write(0x223, v);
+        //    }
+        //    else {
+        //        // We need to set the register we want to write to via port 0x388
+        //        write(0x388, r);
+        //        // Do the real writing to the register
+        //        write(0x389, v);
+        //    }
 
-            // Restore the old register
-            if (type == OplType::OPL3 && tempReg >= 0x100) {
-                write(0x222, tempReg & ~0x100);
-            }
-            else {
-                write(0x388, tempReg);
-            }
-            break;
-        default:
-            break;
-        };
+        //    // Restore the old register
+        //    if (type == OplType::OPL3 && tempReg >= 0x100) {
+        //        write(0x222, tempReg & ~0x100);
+        //    }
+        //    else {
+        //        write(0x388, tempReg);
+        //    }
+        //    break;
+        //default:
+        //    break;
+        //};
 
-//        OPL3_WriteRegBuffered(chip.get(), (uint16_t)r, (uint8_t)v);
+        OPL3_WriteRegBuffered(chip.get(), (uint16_t)r, (uint8_t)v);
     }
 
-    void OPL::dualWrite(uint8_t index, uint8_t reg, uint8_t val)
+    void OPL::dualWrite(const uint8_t index, const uint8_t reg, uint8_t val) noexcept
     {
         // Make sure you don't use opl3 features
         // Don't allow write to disable opl3
@@ -162,7 +162,7 @@ namespace hardware::opl::scummvm::nuked
         OPL3_WriteRegBuffered(chip.get(), (uint16_t)fullReg, (uint8_t)val);
     }
 
-    uint8_t OPL::read(int port)
+    uint8_t OPL::read(const int port) noexcept
     {
         switch (type)
         {
@@ -187,7 +187,8 @@ namespace hardware::opl::scummvm::nuked
         return 0;
     }
 
-    void OPL::generateSamples(int16_t* buffer, int length) {
+    void OPL::generateSamples(int16_t* buffer, int length) noexcept
+    {
         OPL3_GenerateStream(chip.get(), (int16_t*)buffer, (uint16_t)length / 2);
     }
 }
