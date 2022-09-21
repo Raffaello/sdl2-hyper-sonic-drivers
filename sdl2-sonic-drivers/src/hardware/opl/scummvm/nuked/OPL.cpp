@@ -6,7 +6,7 @@
 namespace hardware::opl::scummvm::nuked
 {
     OPL::OPL(const OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer)
-        : EmulatedOPL(type, mixer)
+        : EmulatedOPL(type, mixer), _reg({ 0 })
     {
         chip = std::make_unique<opl3_chip>();
     }
@@ -18,7 +18,8 @@ namespace hardware::opl::scummvm::nuked
 
     bool OPL::init()
     {
-        address[0] = address[1] = 0;
+        //address[0] = address[1] = 0;
+        memset(&_reg, 0, sizeof(_reg));
         _rate = _mixer->getOutputRate();
         OPL3_Reset(chip.get(), _rate);
 
@@ -37,22 +38,26 @@ namespace hardware::opl::scummvm::nuked
 
     void OPL::write(int port, int val)
     {
-        if (port & 1) {
-            switch (type) {
+        if (port & 1)
+        {
+            switch (type)
+            {
             case OplType::OPL2:
             case OplType::OPL3:
-                OPL3_WriteRegBuffered(chip.get(), (uint16_t)address[0], (uint8_t)val);
+                if (!_chip[0].write(_reg.normal, val)) {
+                    OPL3_WriteRegBuffered(chip.get(), _reg.normal, (uint8_t)val);
+                }
                 break;
             case OplType::DUAL_OPL2:
                 // Not a 0x??8 port, then write to a specific port
                 if (!(port & 0x8)) {
                     uint8_t index = (port & 2) >> 1;
-                    dualWrite(index, address[index], val);
+                    dualWrite(index, _reg.dual[index], val);
                 }
                 else {
                     //Write to both ports
-                    dualWrite(0, address[0], val);
-                    dualWrite(1, address[1], val);
+                    dualWrite(0, _reg.dual[0], val);
+                    dualWrite(1, _reg.dual[1], val);
                 }
                 break;
             default:
@@ -62,21 +67,26 @@ namespace hardware::opl::scummvm::nuked
         else {
             switch (type) {
             case OplType::OPL2:
-                address[0] = val & 0xff;
+                //address[0] = val & 0xff;
+                //_reg.normal = _emulator->WriteAddr(port, val) & 0xff;
+                _reg.dual[0] = val & 0xff;
                 break;
             case OplType::DUAL_OPL2:
                 // Not a 0x?88 port, when write to a specific side
                 if (!(port & 0x8)) {
                     uint8_t index = (port & 2) >> 1;
-                    address[index] = val & 0xff;
+                    //address[index] = val & 0xff;
+                    _reg.dual[index] = val & 0xff;
                 }
                 else {
-                    address[0] = val & 0xff;
-                    address[1] = val & 0xff;
+                    //address[0] = val & 0xff;
+                    //address[1] = val & 0xff;
+                    _reg.dual[0] = _reg.dual[1] = val & 0xff;
                 }
                 break;
             case OplType::OPL3:
-                address[0] = (val & 0xff) | ((port << 7) & 0x100);
+                //address[0] = (val & 0xff) | ((port << 7) & 0x100);
+                _reg.normal = (val & 0xff) | ((port << 7) & 0x100);
                 break;
             default:
                 break;
@@ -100,6 +110,10 @@ namespace hardware::opl::scummvm::nuked
         if (reg >= 0xE0 && reg <= 0xE8)
             val &= 3;
 
+        // Write to the timer?
+        if (_chip[index].write(reg, val))
+            return;
+
         // Enabling panning
         if (reg >= 0xC0 && reg <= 0xC8) {
             val &= 15;
@@ -112,7 +126,27 @@ namespace hardware::opl::scummvm::nuked
 
     uint8_t OPL::read(int port)
     {
-        return address[port & 1];
+        switch (type)
+        {
+        case OplType::OPL2:
+            if (!(port & 1))
+                //Make sure the low bits are 6 on opl2
+                return _chip[0].read() | 0x6;
+            break;
+        case OplType::OPL3:
+            if (!(port & 1))
+                return _chip[0].read();
+            break;
+        case OplType::DUAL_OPL2:
+            // Only return for the lower ports
+            if (port & 1)
+                return 0xff;
+            // Make sure the low bits are 6 on opl2
+            return _chip[(port >> 1) & 1].read() | 0x6;
+        default:
+            break;
+        }
+        return 0;
     }
 
     void OPL::generateSamples(int16_t* buffer, int length) {

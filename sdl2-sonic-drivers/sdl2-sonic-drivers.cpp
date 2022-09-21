@@ -538,8 +538,8 @@ int main(int argc, char* argv[])
     //renderMixer();
 
     //xmi_parser();
-    midi_adlib_mus_file_CONCURRENCY_ERROR_ON_SAME_DEVICE();
-    //midi_adlib_mus_op2_file();
+    //midi_adlib_mus_file_CONCURRENCY_ERROR_ON_SAME_DEVICE();
+    midi_adlib_mus_op2_file();
     //midi_adlib_xmi();
 
     SDL_Init(SDL_INIT_TIMER | SDL_INIT_AUDIO);

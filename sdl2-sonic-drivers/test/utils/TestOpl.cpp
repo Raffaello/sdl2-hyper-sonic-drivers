@@ -34,15 +34,19 @@ namespace utils
         EXPECT_EQ(detectOPL3(this->opl), isOpl3);
     }
     INSTANTIATE_TEST_SUITE_P(
-        DISABLED_DetectOpl,
+        DetectOpl,
         OplType_,
         ::testing::Values(
-            std::make_tuple<>(OplEmulator::DOS_BOX, OplType::OPL2, true, false),
+            /*std::make_tuple<>(OplEmulator::DOS_BOX, OplType::OPL2, true, false),
             std::make_tuple<>(OplEmulator::DOS_BOX, OplType::DUAL_OPL2, true, false),
             std::make_tuple<>(OplEmulator::DOS_BOX, OplType::OPL3, true, true),
             std::make_tuple<>(OplEmulator::AUTO, OplType::OPL2, true, false),
             std::make_tuple<>(OplEmulator::AUTO, OplType::DUAL_OPL2, true, false),
-            std::make_tuple<>(OplEmulator::AUTO, OplType::OPL3, true, true)
+            std::make_tuple<>(OplEmulator::AUTO, OplType::OPL3, true, true),
+            */
+            //std::make_tuple<>(OplEmulator::DOS_BOX, OplType::OPL2, true, false),
+            //std::make_tuple<>(OplEmulator::DOS_BOX, OplType::DUAL_OPL2, true, false),
+            std::make_tuple<>(OplEmulator::NUKED, OplType::OPL3, true, true)
         )
     );
 }
