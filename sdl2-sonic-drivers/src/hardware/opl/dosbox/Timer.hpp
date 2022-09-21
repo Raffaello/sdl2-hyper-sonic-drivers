@@ -7,6 +7,13 @@ namespace hardware::opl::dosbox
     class Timer
     {
     public:
+        double startTime = 0.0;
+        double delay = 0.0;
+        bool enabled = false;
+        bool overflow = false;
+        bool masked = false;
+        uint8_t counter = 0;
+
         Timer() = default;
         ~Timer() = default;
 
@@ -19,12 +26,5 @@ namespace hardware::opl::dosbox
         void stop();
 
         void start(const double time, const int scale);
-
-        double startTime = 0.0;
-        double delay = 0.0;
-        bool enabled = false;
-        bool overflow = false;
-        bool masked = false;
-        uint8_t counter = 0;
     };
 }

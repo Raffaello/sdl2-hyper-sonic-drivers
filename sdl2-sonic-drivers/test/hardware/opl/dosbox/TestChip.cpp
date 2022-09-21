@@ -8,6 +8,7 @@ namespace hardware::opl::dosbox
     class ChipMock : public Chip
     {
     public:
+
         Timer getTimer(const int i)
         {
             return this->timer[i];
