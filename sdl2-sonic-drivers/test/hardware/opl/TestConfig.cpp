@@ -3,7 +3,7 @@
 #include <hardware/opl/Config.hpp>
 #include <audio/stubs/StubMixer.hpp>
 #include <hardware/opl/woody/WoodyOPL.hpp>
-#include <hardware/opl/scummvm/dosbox/dosbox.hpp>
+#include <hardware/opl/scummvm/dosbox/OPL.hpp>
 #include <hardware/opl/scummvm/mame/OPL.hpp>
 #include <hardware/opl/scummvm/nuked/OPL.hpp>
 #include <hardware/opl/scummvm/EmulatedOPL.hpp>

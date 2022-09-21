@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include <hardware/opl/scummvm/dosbox/dosbox.hpp>
+#include <hardware/opl/scummvm/dosbox/OPL.hpp>
 #include "../test/audio/stubs/StubMixer.hpp"
 #include <memory>
 #include <cstdint>

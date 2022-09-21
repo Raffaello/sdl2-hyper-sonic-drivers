@@ -1,4 +1,4 @@
-#include <hardware/opl/scummvm/dosbox/dosbox.hpp>
+#include <hardware/opl/scummvm/dosbox/OPL.hpp>
 #include <hardware/opl/scummvm/dosbox/dbopl/dbopl.hpp>
 #include <utils/algorithms.hpp>
 #include <chrono>
