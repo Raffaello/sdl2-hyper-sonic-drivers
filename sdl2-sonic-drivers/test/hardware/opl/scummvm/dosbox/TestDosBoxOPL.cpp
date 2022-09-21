@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include <hardware/opl/scummvm/dosbox/OPL.hpp>
-#include "../test/audio/stubs/StubMixer.hpp"
+#include <hardware/opl/scummvm/dosbox/DosBoxOPL.hpp>
+#include <audio/stubs/StubMixer.hpp>
 #include <memory>
 #include <cstdint>
 #include <files/File.hpp>
@@ -28,7 +28,7 @@ namespace hardware
                 {
                     std::shared_ptr<StubMixer> mixer = std::make_shared<StubMixer>();
                     EXPECT_EQ(mixer.use_count(), 1);
-                    OPL dosbox(this->opl_type, mixer);
+                    DosBoxOPL dosbox(this->opl_type, mixer);
                     EXPECT_EQ(mixer.use_count(), 2);
                     EXPECT_EQ(dosbox.getRate(), mixer->rate);
                     EXPECT_EQ(dosbox.endOfData(), false);
@@ -41,7 +41,7 @@ namespace hardware
                     std::shared_ptr<StubMixer> mixer = std::make_shared<StubMixer>();
                     EXPECT_EQ(mixer.use_count(), 1);
 
-                    std::shared_ptr<OPL> dosbox = std::make_shared<OPL>(this->opl_type, mixer);
+                    std::shared_ptr<DosBoxOPL> dosbox = std::make_shared<DosBoxOPL>(this->opl_type, mixer);
                     EXPECT_EQ(mixer.use_count(), 2);
                     EXPECT_EQ(dosbox.use_count(), 1);
                     EXPECT_EQ(dosbox->getRate(), mixer->rate);
@@ -50,7 +50,7 @@ namespace hardware
                 }
 
                 INSTANTIATE_TEST_SUITE_P(
-                    OPL,
+                    DosBoxOPL,
                     OPLType,
                     ::testing::Values(
                         std::make_tuple<>(OplType::OPL2, false),
@@ -63,7 +63,7 @@ namespace hardware
                 {
                     std::shared_ptr<StubMixer> mixer = std::make_shared<StubMixer>();
                     mixer->rate = 22050;
-                    std::shared_ptr<hardware::opl::scummvm::dosbox::OPL> opl = std::make_shared<hardware::opl::scummvm::dosbox::OPL>(OplType::OPL2, mixer);
+                    std::shared_ptr<hardware::opl::scummvm::dosbox::DosBoxOPL> opl = std::make_shared<hardware::opl::scummvm::dosbox::DosBoxOPL>(OplType::OPL2, mixer);
                     opl->init();
                     opl->setCallbackFrequency(72);
 

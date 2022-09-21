@@ -144,8 +144,8 @@ macro_test(
 )
 
 macro_test(
-    EXE TestDOSBox
-    FILES "hardware/opl/scummvm/dosbox/TestDOSBox.cpp"
+    EXE TestDOSBoxOPL
+    FILES "hardware/opl/scummvm/dosbox/TestDosBoxOpl.cpp"
     LINKS_PRIVATE sonic-drivers-static
     FIXTURES
         #"fixtures/mame-22050-16bit-440Hz.dat"

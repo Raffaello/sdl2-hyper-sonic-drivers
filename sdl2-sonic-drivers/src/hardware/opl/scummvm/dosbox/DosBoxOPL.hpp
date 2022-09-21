@@ -15,7 +15,7 @@ namespace hardware::opl::scummvm::dosbox
         struct Chip;
     } // end of namespace DBOPL
 
-    class OPL : public EmulatedOPL
+    class DosBoxOPL : public EmulatedOPL
     {
     private:
         unsigned int _rate;
@@ -30,8 +30,8 @@ namespace hardware::opl::scummvm::dosbox
         void free();
         void dualWrite(const uint8_t index, const uint8_t reg, uint8_t val) noexcept;
     public:
-        OPL(const OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer);
-        virtual ~OPL();
+        DosBoxOPL(const OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer);
+        virtual ~DosBoxOPL();
 
         bool init() override;
         void reset() override;

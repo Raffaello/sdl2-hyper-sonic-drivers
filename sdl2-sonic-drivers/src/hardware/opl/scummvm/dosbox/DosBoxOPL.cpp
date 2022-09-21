@@ -1,4 +1,4 @@
-#include <hardware/opl/scummvm/dosbox/OPL.hpp>
+#include <hardware/opl/scummvm/dosbox/DosBoxOPL.hpp>
 #include <hardware/opl/scummvm/dosbox/dbopl/dbopl.hpp>
 #include <utils/algorithms.hpp>
 #include <chrono>
@@ -8,24 +8,24 @@
 
 namespace hardware::opl::scummvm::dosbox
 {
-    OPL::OPL(OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer)
+    DosBoxOPL::DosBoxOPL(OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer)
         : EmulatedOPL(type, mixer), _rate(0), _emulator(nullptr), _reg({ 0 })
     {
     }
 
-    OPL::~OPL()
+    DosBoxOPL::~DosBoxOPL()
     {
         stop();
         free();
     }
 
-    void OPL::free()
+    void DosBoxOPL::free()
     {
         delete _emulator;
         _emulator = nullptr;
     }
 
-    bool OPL::init()
+    bool DosBoxOPL::init()
     {
         _init = false;
         free();
@@ -50,11 +50,11 @@ namespace hardware::opl::scummvm::dosbox
         return true;
     }
 
-    void OPL::reset() {
+    void DosBoxOPL::reset() {
         init();
     }
 
-    void OPL::write(const int port, const int val) noexcept
+    void DosBoxOPL::write(const int port, const int val) noexcept
     {
         if (port & 1)
         {
@@ -108,7 +108,7 @@ namespace hardware::opl::scummvm::dosbox
         }
     }
 
-    uint8_t OPL::read(const int port) noexcept
+    uint8_t DosBoxOPL::read(const int port) noexcept
     {
         switch (type)
         {
@@ -133,7 +133,7 @@ namespace hardware::opl::scummvm::dosbox
         return 0;
     }
 
-    void OPL::writeReg(const int r, const int v) noexcept
+    void DosBoxOPL::writeReg(const int r, const int v) noexcept
     {
         int tempReg = 0;
         switch (type)
@@ -175,7 +175,7 @@ namespace hardware::opl::scummvm::dosbox
         };
     }
 
-    void OPL::dualWrite(const uint8_t index, const uint8_t reg, uint8_t val) noexcept
+    void DosBoxOPL::dualWrite(const uint8_t index, const uint8_t reg, uint8_t val) noexcept
     {
         // Make sure you don't use opl3 features
         // Don't allow write to disable opl3
@@ -200,7 +200,7 @@ namespace hardware::opl::scummvm::dosbox
         _emulator->WriteReg(fullReg, val);
     }
 
-    void OPL::generateSamples(int16_t* buffer, int length) noexcept
+    void DosBoxOPL::generateSamples(int16_t* buffer, int length) noexcept
     {
         // For stereo OPL cards, we divide the sample count by 2,
         // to match stereo AudioStream behavior.

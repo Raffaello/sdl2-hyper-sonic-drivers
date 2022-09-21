@@ -2,7 +2,7 @@
 #include <cstring>
 #include <spdlog/spdlog.h>
 #include <hardware/opl/scummvm/mame/OPL.hpp>
-#include <hardware/opl/scummvm/dosbox/OPL.hpp>
+#include <hardware/opl/scummvm/dosbox/DosBoxOPL.hpp>
 #include <hardware/opl/scummvm/nuked/OPL.hpp>
 #include <hardware/opl/woody/WoodyOPL.hpp>
 #include <hardware/opl/mame/MameOPL.hpp>
@@ -28,7 +28,7 @@ namespace hardware::opl
             }
         case OplEmulator::AUTO:
         case OplEmulator::DOS_BOX:
-            return std::make_shared<scummvm::dosbox::OPL>(type, mixer);
+            return std::make_shared<scummvm::dosbox::DosBoxOPL>(type, mixer);
         case OplEmulator::NUKED:
             if (type != OplType::OPL3) {
                 spdlog::warn("Nuke OPL emulator only supports OPL3 emulation, disabled for OPL2 and DUAL_OPL2");

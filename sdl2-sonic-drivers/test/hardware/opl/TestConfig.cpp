@@ -3,7 +3,7 @@
 #include <hardware/opl/Config.hpp>
 #include <audio/stubs/StubMixer.hpp>
 #include <hardware/opl/woody/WoodyOPL.hpp>
-#include <hardware/opl/scummvm/dosbox/OPL.hpp>
+#include <hardware/opl/scummvm/dosbox/DosBoxOPL.hpp>
 #include <hardware/opl/scummvm/mame/OPL.hpp>
 #include <hardware/opl/scummvm/nuked/OPL.hpp>
 #include <hardware/opl/scummvm/EmulatedOPL.hpp>
@@ -33,7 +33,7 @@ namespace hardware::opl
             break;
         case OplEmulator::DOS_BOX:
         case OplEmulator::AUTO:
-            EXPECT_NO_THROW(w = dynamic_cast<dosbox::OPL*>(opl.get()));
+            EXPECT_NO_THROW(w = dynamic_cast<dosbox::DosBoxOPL*>(opl.get()));
             break;
         case OplEmulator::NUKED:
             EXPECT_NO_THROW(w = dynamic_cast<nuked::OPL*>(opl.get()));
