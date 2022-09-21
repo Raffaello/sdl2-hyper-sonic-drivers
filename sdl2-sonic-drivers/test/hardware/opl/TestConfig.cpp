@@ -35,7 +35,7 @@ namespace hardware
                 break;
             case OplEmulator::DOS_BOX:
             case OplEmulator::AUTO:
-                EXPECT_NO_THROW(w = dynamic_cast<dosbox::OPL*>(opl.get()));
+                EXPECT_NO_THROW(w = dynamic_cast<scummvm::dosbox::OPL*>(opl.get()));
                 break;
             case OplEmulator::NUKED:
                 EXPECT_NO_THROW(w = dynamic_cast<nuked::OPL*>(opl.get()));

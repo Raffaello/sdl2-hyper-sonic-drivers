@@ -5,7 +5,7 @@
 #include <audio/scummvm/Mixer.hpp>
 #include <memory>
 #include <hardware/opl/Config.hpp>
-#include <hardware/opl/Timer.hpp>
+#include <hardware/opl/dosbox/Timer.hpp>
 
 namespace hardware
 {
@@ -15,10 +15,12 @@ namespace hardware
         {
             namespace dosbox
             {
+                //using hardware::opl::dosbox::Timer;
+
                 struct Chip
                 {
                     //Last selected register
-                    Timer timer[2];
+                    hardware::opl::dosbox::Timer timer[2];
                     //Check for it being a write to the timer
                     bool write(uint32_t addr, uint8_t val);
                     //Read the current timer state, will use current double

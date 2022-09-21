@@ -1,30 +1,19 @@
-#include <hardware/opl/Timer.hpp>
+#include <hardware/opl/dosbox/Timer.hpp>
 #include <cmath>
 
-namespace hardware::opl
+namespace hardware::opl::dosbox
 {
-    Timer::Timer()
-    {
-        masked = false;
-        overflow = false;
-        enabled = false;
-        counter = 0;
-        delay = 0;
-
-        startTime = 0.0;
-    }
-
-    void Timer::update(double time)
+    void Timer::update(const double time)
     {
         if (!enabled || !delay)
             return;
         double deltaStart = time - startTime;
         // Only set the overflow flag when not masked
         if (deltaStart >= 0 && !masked)
-            overflow = 1;
+            overflow = true;
     }
 
-    void Timer::reset(double time)
+    void Timer::reset(const double time)
     {
         overflow = false;
         if (!delay || !enabled)
@@ -40,7 +29,7 @@ namespace hardware::opl
         enabled = false;
     }
 
-    void Timer::start(double time, int scale)
+    void Timer::start(const double time, const int scale)
     {
         //Don't enable again
         if (enabled)
