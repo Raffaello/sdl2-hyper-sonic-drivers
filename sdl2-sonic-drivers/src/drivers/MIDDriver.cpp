@@ -3,11 +3,15 @@
 #include <utils/algorithms.hpp>
 #include <array>
 #include <thread>
+#include <algorithm>
 
 namespace drivers
 {
     constexpr int DEFAULT_MIDI_TEMPO = 500000;
     constexpr int PAUSE_MILLIS = 100;
+    constexpr unsigned long DELAY_CHUNK_MIN_MICROS = 100 * 1000; // 500ms
+    constexpr unsigned long DELAY_CHUNK_MICROS = 10 * 1000; // 10ms
+
     constexpr unsigned int tempo_to_micros(const uint32_t tempo, const uint16_t division)
     {
         return static_cast<unsigned int>(static_cast<float>(tempo) / static_cast<float>(division));
@@ -20,7 +24,7 @@ namespace drivers
 
     MIDDriver::~MIDDriver()
     {
-        stop(/*true*/);
+        stop();
     }
     
     void MIDDriver::play(const std::shared_ptr<audio::MIDI>& midi) noexcept
@@ -62,7 +66,6 @@ namespace drivers
             return;
         }
         
-        _isPlaying = true;
         _player = std::thread(&MIDDriver::processTrack, this, midi->getTrack(), midi->division & 0x7FFF);
     }
 
@@ -70,13 +73,11 @@ namespace drivers
     {
         _force_stop = true;
         _paused = false;
-        if (/*wait &&*/ _player.joinable())
+        if (_player.joinable())
             _player.join();
-        //else
-        //    _player.detach();
-        //_force_stop = false;
-        //_isPlaying = false;
-        //_device->release(this);
+        _force_stop = false;
+        _isPlaying = false;
+        _device->release(this);
     }
 
     void MIDDriver::pause() noexcept
@@ -267,10 +268,19 @@ namespace drivers
                 cur_time += e.delta_time;
                 const unsigned int delta_delay = tempo_micros * e.delta_time;
                 const unsigned int end = utils::getMicro<unsigned int>();
-                const long dd = static_cast<long>(delta_delay - (end - start));
+                const unsigned long dd = static_cast<long>(delta_delay - (end - start));
                 start = end;
-
-                if (dd > 0) {
+                long chunks;
+                if (dd > DELAY_CHUNK_MIN_MICROS) {
+                    // preventing longer waits before stop a song
+                    unsigned long delay = dd;
+                    while (delay > 0 && !_force_stop) {
+                        const unsigned long d = std::min(DELAY_CHUNK_MICROS, delay);
+                        utils::delayMicro(d);
+                        delay -= d;
+                    }
+                }
+                else if (dd > 0 ) {
                     utils::delayMicro(dd);
                     start += dd;
                 }

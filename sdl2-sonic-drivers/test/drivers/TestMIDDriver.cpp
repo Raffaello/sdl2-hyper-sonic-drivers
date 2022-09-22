@@ -17,6 +17,7 @@
 #include <algorithm>
 #include <drivers/midi/devices/SpyDevice.hpp>
 #include <drivers/MIDDriverMock.hpp>
+#include <utils/algorithms.hpp>
 
 
 namespace drivers
@@ -73,6 +74,58 @@ namespace drivers
         spdlog::set_default_logger(default_logger);
     }
 
+    TEST(MIDDrvier, force_stop_on_long_delta_time_delay)
+    {
+        using audio::stubs::StubMixer;
+        using audio::midi::MIDIEvent;
+        using audio::midi::MIDI_EVENT_TYPES_HIGH;
+        using audio::midi::MIDI_META_EVENT_TYPES_LOW;
+        using audio::midi::MIDI_META_EVENT;
+        using audio::midi::MIDI_FORMAT;
+
+        auto mixer = std::make_shared<StubMixer>();
+        auto device = std::make_shared<midi::devices::SpyDevice>();
+
+        MIDIEvent e;
+        e.delta_time = 0;
+        e.type.high = (uint8_t)MIDI_EVENT_TYPES_HIGH::META_SYSEX;
+        e.type.low = (uint8_t)MIDI_META_EVENT_TYPES_LOW::META;
+
+        // this can be a parameter
+        e.data.push_back((uint8_t)MIDI_META_EVENT::SEQUENCE_NAME);
+
+        std::string s = "sequence_name";
+        e.data.insert(e.data.end(), s.begin(), s.end());
+
+        auto midi_track = audio::midi::MIDITrack();
+        midi_track.addEvent(e);
+
+
+        e.delta_time = 1000;
+        e.type.high = (uint8_t)MIDI_EVENT_TYPES_HIGH::PROGRAM_CHANGE;
+        e.type.low = 0;
+        e.data.clear();
+        e.data.push_back((uint8_t)0);
+        e.data.push_back((uint8_t)0);
+
+        midi_track.addEvent(e);
+
+        auto midi = std::make_shared<audio::MIDI>(MIDI_FORMAT::SINGLE_TRACK, 1, 192);
+        midi->addTrack(midi_track);
+
+        MIDDriverMock middrv(mixer, device);
+        middrv.play(midi);
+        auto start = utils::getMillis<uint32_t>();
+        while (!middrv.isPlaying()) {
+            utils::delayMillis(10);
+        }
+        middrv.stop();
+        auto stop = utils::getMillis<uint32_t>();
+        EXPECT_LE(stop - start, 1 * 1000);
+        EXPECT_FALSE(middrv.isPlaying());
+        EXPECT_FALSE(device->isAcquired());
+    }
+
     TEST(MIDDriver, acquire)
     {
         using audio::stubs::StubMixer;
@@ -89,15 +142,16 @@ namespace drivers
         e.delta_time = 50;
         e.type.high = (uint8_t)MIDI_EVENT_TYPES_HIGH::PROGRAM_CHANGE;
         e.type.low = 0;
-        e.data.push_back(0);
-        e.data.push_back(0);
+        e.data.push_back((uint8_t)0);
+        e.data.push_back((uint8_t)0);
         midi_track.addEvent(e);
 
         e.delta_time = 0;
         e.type.high = (uint8_t)MIDI_EVENT_TYPES_HIGH::META_SYSEX;
         e.type.low = (uint8_t)MIDI_META_EVENT_TYPES_LOW::META;
+        e.data.clear();
         e.data.push_back((uint8_t)MIDI_META_EVENT::END_OF_TRACK);
-        e.data.push_back(0);
+        e.data.push_back((uint8_t)0);
         midi_track.addEvent(e);
 
         auto midi = std::make_shared<audio::MIDI>(MIDI_FORMAT::SINGLE_TRACK, 1, 96);

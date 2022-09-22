@@ -17,7 +17,7 @@ namespace drivers
         explicit MIDDriver(const std::shared_ptr<audio::scummvm::Mixer>& mixer, const std::shared_ptr<midi::Device>& device);
         ~MIDDriver();
         void play(const std::shared_ptr<audio::MIDI>& midi) noexcept;
-        void stop(/*const bool wait = false*/) noexcept;
+        void stop() noexcept;
         void pause() noexcept;
         void resume() noexcept;
         bool isPlaying() const noexcept;
