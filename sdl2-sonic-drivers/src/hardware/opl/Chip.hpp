@@ -7,6 +7,12 @@ namespace hardware::opl
     class Chip
     {
     public:
+        typedef union register_u
+        {
+            uint16_t normal;
+            uint8_t dual[2];
+        } register_u;
+
         Chip() = default;
         ~Chip() = default;
 

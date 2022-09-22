@@ -16,10 +16,7 @@ namespace hardware::opl::scummvm::nuked
         unsigned int _rate = 0;
         std::unique_ptr<opl3_chip> chip;
         hardware::opl::Chip _chip[2];
-        union {
-            uint16_t normal;
-            uint8_t dual[2];
-        } _reg;
+        hardware::opl::Chip::register_u _reg;
 
         //unsigned int address[2];
 

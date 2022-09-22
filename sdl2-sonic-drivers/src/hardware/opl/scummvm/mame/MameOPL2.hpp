@@ -11,10 +11,7 @@ namespace hardware::opl::scummvm::mame
     private:
         FM_OPL* _opl = nullptr;
         hardware::opl::Chip _chip[2];
-        union {
-            uint16_t normal;
-            uint8_t dual[2];
-        } _reg;
+        hardware::opl::Chip::register_u _reg;
 
         // TODO: not used as it is OPL2
         void dualWrite(const uint8_t index, const uint8_t reg, uint8_t val) noexcept;

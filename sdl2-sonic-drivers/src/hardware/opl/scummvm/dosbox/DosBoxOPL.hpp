@@ -22,10 +22,7 @@ namespace hardware::opl::scummvm::dosbox
 
         dbopl::Chip* _emulator;
         hardware::opl::Chip _chip[2];
-        union {
-            uint16_t normal;
-            uint8_t dual[2];
-        } _reg;
+        hardware::opl::Chip::register_u _reg;
 
         void free();
         void dualWrite(const uint8_t index, const uint8_t reg, uint8_t val) noexcept;
