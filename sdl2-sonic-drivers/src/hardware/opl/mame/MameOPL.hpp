@@ -24,7 +24,7 @@ namespace hardware
                 bool init() override;
                 void reset() override;
 
-                void write(const int port, const int val) noexcept override;
+                void write(const uint32_t port, const uint8_t val) noexcept override;
                 uint8_t read(const int port) noexcept override;
 
                 void writeReg(const int r, const int v) noexcept override;

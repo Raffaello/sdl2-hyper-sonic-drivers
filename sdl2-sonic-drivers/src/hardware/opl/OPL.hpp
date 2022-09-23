@@ -43,7 +43,7 @@ namespace hardware::opl
         /**
          * Writes a byte to the given I/O port.
          */
-        virtual void write(const int port, const int val) noexcept = 0;
+        virtual void write(const uint32_t port, const uint8_t val) noexcept = 0;
 
         /**
          * Reads a byte from the given I/O port.

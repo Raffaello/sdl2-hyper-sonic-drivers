@@ -54,7 +54,7 @@ namespace hardware
                 _opl->reset();
                 ymf262_reset_chip(_chip);
             }
-            void MameOPL::write(const int port, const int val) noexcept
+            void MameOPL::write(const uint32_t port, const uint8_t val) noexcept
             {
                 // ???
                 //_opl->write_address(a);

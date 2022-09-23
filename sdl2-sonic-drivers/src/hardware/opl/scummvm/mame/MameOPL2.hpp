@@ -3,6 +3,7 @@
 #include <hardware/opl/scummvm/mame/mame.hpp>
 #include <hardware/opl/Chip.hpp>
 #include <cstdint>
+#include <array>
 
 namespace hardware::opl::scummvm::mame
 {
@@ -10,19 +11,22 @@ namespace hardware::opl::scummvm::mame
     {
     private:
         FM_OPL* _opl = nullptr;
-        hardware::opl::Chip _chip[2];
-        hardware::opl::Chip::register_u _reg;
+        std::array<hardware::opl::Chip, 2> _chip;
+        hardware::opl::Chip::register_u _reg = { 0 };
 
         // TODO: not used as it is OPL2
         void dualWrite(const uint8_t index, const uint8_t reg, uint8_t val) noexcept;
     public:
+        MameOPL2(const MameOPL2&) = delete;
+        MameOPL2& operator=(const  MameOPL2&) = delete;
+
         explicit MameOPL2(const OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer);
-        virtual ~MameOPL2();
+        ~MameOPL2() override;
 
         bool init() override;
         void reset() override;
 
-        void write(const int port, const int val) noexcept override;
+        void write(const uint32_t port, const uint8_t val) noexcept override;
         uint8_t read(const int port) noexcept override;
 
         void writeReg(const int r, const int v) noexcept override;

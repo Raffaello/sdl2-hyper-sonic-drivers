@@ -49,7 +49,6 @@ namespace drivers
             }
         private:
             std::atomic<bool> _acquired = false;
-            //volatile void* _owner = nullptr;
             std::atomic<drivers::MIDDriver*> _owner = nullptr;
         };
     }

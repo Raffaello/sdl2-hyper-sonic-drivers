@@ -1,6 +1,5 @@
 #include <hardware/opl/scummvm/dosbox/DosBoxOPL.hpp>
 #include <hardware/opl/scummvm/dosbox/dbopl/dbopl.hpp>
-#include <utils/algorithms.hpp>
 #include <chrono>
 #include <algorithm>
 #include <cstring>
@@ -9,31 +8,22 @@
 namespace hardware::opl::scummvm::dosbox
 {
     DosBoxOPL::DosBoxOPL(OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer)
-        : EmulatedOPL(type, mixer), _rate(0), _emulator(nullptr), _reg({ 0 })
+        : EmulatedOPL(type, mixer)
     {
     }
 
     DosBoxOPL::~DosBoxOPL()
     {
         stop();
-        free();
-    }
-
-    void DosBoxOPL::free()
-    {
-        delete _emulator;
-        _emulator = nullptr;
     }
 
     bool DosBoxOPL::init()
     {
         _init = false;
-        free();
 
         memset(&_reg, 0, sizeof(_reg));
-        utils::ARRAYCLEAR(_chip);
 
-        _emulator = new dbopl::Chip();
+        _emulator = std::make_unique<dbopl::Chip>();
         if (!_emulator)
             return false;
 
@@ -54,7 +44,7 @@ namespace hardware::opl::scummvm::dosbox
         init();
     }
 
-    void DosBoxOPL::write(const int port, const int val) noexcept
+    void DosBoxOPL::write(const uint32_t port, const uint8_t val) noexcept
     {
         if (port & 1)
         {
@@ -209,16 +199,16 @@ namespace hardware::opl::scummvm::dosbox
         }
 
         constexpr unsigned int bufferLength = 512;
-        int32_t tempBuffer[bufferLength * 2];
+        std::array<int32_t, bufferLength * 2> tempBuffer;
 
         if (_emulator->opl3Active) {
             while (length > 0) {
                 const unsigned int readSamples = std::min<unsigned int>(length, bufferLength);
 
-                _emulator->GenerateBlock3(readSamples, tempBuffer);
+                _emulator->GenerateBlock3(readSamples, tempBuffer.data());
 
                 for (unsigned int i = 0; i < (readSamples << 1); ++i)
-                    buffer[i] = tempBuffer[i];
+                    buffer[i] = static_cast<int16_t>(tempBuffer[i]);
 
                 buffer += static_cast<int16_t>(readSamples << 1);
                 length -= readSamples;
@@ -228,10 +218,10 @@ namespace hardware::opl::scummvm::dosbox
             while (length > 0) {
                 const unsigned int readSamples = std::min<unsigned int>(length, bufferLength << 1);
 
-                _emulator->GenerateBlock2(readSamples, tempBuffer);
+                _emulator->GenerateBlock2(readSamples, tempBuffer.data());
 
                 for (unsigned int i = 0; i < readSamples; ++i)
-                    buffer[i] = tempBuffer[i];
+                    buffer[i] = static_cast<int16_t>(tempBuffer[i]);
 
                 buffer += readSamples;
                 length -= readSamples;

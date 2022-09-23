@@ -5,7 +5,7 @@
 namespace hardware::opl::scummvm::mame
 {
     MameOPL2::MameOPL2(const OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer)
-        : EmulatedOPL(type, mixer), _reg({0})
+        : EmulatedOPL(type, mixer)
     {
         if (type != OplType::OPL2) {
             throw std::runtime_error("ScummVM::MAME only support OPL2");
@@ -36,7 +36,7 @@ namespace hardware::opl::scummvm::mame
         OPLResetChip(_opl);
     }
 
-    void MameOPL2::write(const int port, const int val) noexcept
+    void MameOPL2::write(const uint32_t port, const uint8_t val) noexcept
     {
         if (port & 1)
         {
