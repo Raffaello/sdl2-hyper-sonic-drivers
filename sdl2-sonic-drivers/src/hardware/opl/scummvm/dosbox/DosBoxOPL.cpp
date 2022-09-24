@@ -61,8 +61,8 @@ namespace hardware::opl::scummvm::dosbox
             {
             case OplType::OPL2:
             case OplType::OPL3:
-                if (!_chip[0].write(_reg.normal, val))
-                    _emulator->WriteReg(_reg.normal, val);
+                if (!_chip[0].write(_reg.normal, static_cast<uint8_t>(val)))
+                    _emulator->WriteReg(_reg.normal, static_cast<uint8_t>(val));
                 break;
             case OplType::DUAL_OPL2:
                 // Not a 0x??8 port, then write to a specific port

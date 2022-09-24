@@ -54,6 +54,10 @@ namespace hardware::opl
         virtual uint8_t read(const uint32_t port) noexcept = 0;
 
         /**
+         * TODO review this logic of 0x100 2nd register
+         *      as it looks ok, but not well implemented for the interface
+         *      especially if it is an OPL2
+         *
          * Function to directly write to a specific OPL register.
          * This writes to *both* chips for a Dual OPL2. We allow
          * writing to secondary OPL registers by using register

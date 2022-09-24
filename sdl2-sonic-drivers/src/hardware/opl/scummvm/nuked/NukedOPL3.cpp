@@ -43,8 +43,8 @@ namespace hardware::opl::scummvm::nuked
             {
             case OplType::OPL2:
             case OplType::OPL3:
-                if (!_chip[0].write(_reg.normal, val)) {
-                    OPL3_WriteRegBuffered(chip.get(), _reg.normal, (uint8_t)val);
+                if (!_chip[0].write(_reg.normal, static_cast<uint8_t>(val))) {
+                    OPL3_WriteRegBuffered(chip.get(), _reg.normal, static_cast<uint8_t>(val));
                 }
                 break;
             case OplType::DUAL_OPL2:
