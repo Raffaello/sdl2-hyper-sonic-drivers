@@ -17,7 +17,7 @@ namespace hardware
             OplMock(): OPL(OplType::OPL2) {}
             virtual bool init() override { _init = true; return true; }
             virtual void reset() override {};
-            virtual void write(const int port, const int val) noexcept override {};
+            virtual void write(const uint32_t port, const uint8_t val) noexcept override {};
             virtual uint8_t read(const int port) noexcept override { return 0; };
             virtual void writeReg(const int r, const int v) noexcept override {};
             virtual void setCallbackFrequency(int timerFrequency) override {}

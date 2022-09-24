@@ -6,7 +6,7 @@
 namespace hardware::opl::scummvm::nuked
 {
     NukedOPL::NukedOPL(const OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer)
-        : EmulatedOPL(type, mixer), _reg({ 0 })
+        : EmulatedOPL(type, mixer)
     {
         chip = std::make_unique<opl3_chip>();
     }
@@ -35,7 +35,7 @@ namespace hardware::opl::scummvm::nuked
         OPL3_Reset(chip.get(), _rate);
     }
 
-    void NukedOPL::write(const int port, const int val) noexcept
+    void NukedOPL::write(const uint32_t port, const uint8_t val) noexcept
     {
         if (port & 1)
         {
@@ -66,25 +66,19 @@ namespace hardware::opl::scummvm::nuked
         else {
             switch (type) {
             case OplType::OPL2:
-                //address[0] = val & 0xff;
-                //_reg.normal = _emulator->WriteAddr(port, val) & 0xff;
                 _reg.normal = val & 0xff;
                 break;
             case OplType::DUAL_OPL2:
                 // Not a 0x?88 port, when write to a specific side
                 if (!(port & 0x8)) {
                     uint8_t index = (port & 2) >> 1;
-                    //address[index] = val & 0xff;
                     _reg.dual[index] = val & 0xff;
                 }
                 else {
-                    //address[0] = val & 0xff;
-                    //address[1] = val & 0xff;
                     _reg.dual[0] = _reg.dual[1] = val & 0xff;
                 }
                 break;
             case OplType::OPL3:
-                //address[0] = (val & 0xff) | ((port << 7) & 0x100);
                 _reg.normal = (val & 0xff) | ((port << 7) & 0x100);
                 break;
             default:
@@ -134,7 +128,7 @@ namespace hardware::opl::scummvm::nuked
         //    break;
         //};
 
-        OPL3_WriteRegBuffered(chip.get(), (uint16_t)r, (uint8_t)v);
+        OPL3_WriteRegBuffered(chip.get(), static_cast<uint16_t>(r), static_cast<uint8_t>(v));
     }
 
     void NukedOPL::dualWrite(const uint8_t index, const uint8_t reg, uint8_t val) noexcept
@@ -189,6 +183,6 @@ namespace hardware::opl::scummvm::nuked
 
     void NukedOPL::generateSamples(int16_t* buffer, int length) noexcept
     {
-        OPL3_GenerateStream(chip.get(), (int16_t*)buffer, (uint16_t)length / 2);
+        OPL3_GenerateStream(chip.get(), buffer, length / 2);
     }
 }

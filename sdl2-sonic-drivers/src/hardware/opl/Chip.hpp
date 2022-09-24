@@ -1,6 +1,7 @@
 #pragma once
 #include <hardware/opl/Timer.hpp>
 #include <cstdint>
+#include <array>
 
 namespace hardware::opl
 {
@@ -24,6 +25,6 @@ namespace hardware::opl
 
     protected:
         //Last selected register
-        Timer timer[2];
+        std::array<Timer, 2> timer;
     };
 }

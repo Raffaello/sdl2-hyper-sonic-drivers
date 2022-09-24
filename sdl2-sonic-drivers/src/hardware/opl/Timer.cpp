@@ -5,7 +5,7 @@ namespace hardware::opl
 {
     void Timer::update(const double time)
     {
-        if (!enabled || !delay)
+        if (!enabled || !static_cast<bool>(delay))
             return;
         double deltaStart = time - startTime;
         // Only set the overflow flag when not masked
@@ -16,7 +16,7 @@ namespace hardware::opl
     void Timer::reset(const double time)
     {
         overflow = false;
-        if (!delay || !enabled)
+        if (!static_cast<bool>(delay) || !enabled)
             return;
         double delta = (time - startTime);
         double rem = fmod(delta, delay);
