@@ -17,13 +17,6 @@ namespace hardware::opl::scummvm::dosbox
 
     class DosBoxOPL : public EmulatedOPL
     {
-    private:
-        unsigned int _rate = 0;
-
-        std::unique_ptr<dbopl::Chip> _emulator = nullptr;
-        std::array<hardware::opl::Chip, 2> _chip;
-        hardware::opl::Chip::register_u _reg = { 0 };
-
         void dualWrite(const uint8_t index, const uint8_t reg, uint8_t val) noexcept;
     public:
         DosBoxOPL(const DosBoxOPL&) = delete;
@@ -42,5 +35,11 @@ namespace hardware::opl::scummvm::dosbox
 
     protected:
         void generateSamples(int16_t* buffer, int length) noexcept override;
+
+    private:
+        unsigned int _rate = 0;
+        std::unique_ptr<dbopl::Chip> _emulator = nullptr;
+        std::array<hardware::opl::Chip, 2> _chip;
+        hardware::opl::Chip::register_u _reg = { 0 };
     };
 }
