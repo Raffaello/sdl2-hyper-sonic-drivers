@@ -32,11 +32,11 @@ namespace hardware::opl::scummvm::nuked
         void reset() override;
 
         // TODO this is the same as DOSBOX, it changes only the call to the emulated chip.
-        void write(const uint32_t port, const uint8_t val) noexcept override; 
+        void write(const uint32_t port, const uint16_t val) noexcept override;
         // TODO this is the same as DOSBOX, here works only on OPL3
         uint8_t read(const uint32_t port) noexcept override;
 
-        void writeReg(const uint32_t r, const uint8_t v) noexcept override;
+        void writeReg(const uint16_t r, const uint16_t v) noexcept override;
     
     protected:
         void generateSamples(int16_t* buffer, int length) noexcept override;

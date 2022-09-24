@@ -42,8 +42,10 @@ namespace hardware::opl
 
         /**
          * Writes a byte to the given I/O port.
+         * @param port
+         * @param val value, which will be written (8 bits, 16 due to OPL3 2nd register)
          */
-        virtual void write(const uint32_t port, const uint8_t val) noexcept = 0;
+        virtual void write(const uint32_t port, const uint16_t val) noexcept = 0;
 
         /**
          * Reads a byte from the given I/O port.
@@ -57,10 +59,10 @@ namespace hardware::opl
          * writing to secondary OPL registers by using register
          * values >= 0x100.
          *
-         * @param r		hardware register number to write to
-         * @param v		value, which will be written
+         * @param r hardware register number to write to (8 bits, 16 bits for 2nd register in OPL3)
+         * @param v value, which will be written (8 bits, 16 bits for consistency with write method)
          */
-        virtual void writeReg(const uint32_t r, const uint8_t v) noexcept = 0;
+        virtual void writeReg(const uint16_t r, const uint16_t v) noexcept = 0;
 
         /**
          * Start the OPL with callbacks.

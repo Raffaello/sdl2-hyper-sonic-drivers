@@ -35,7 +35,7 @@ namespace hardware::opl::scummvm::nuked
         OPL3_Reset(chip.get(), _rate);
     }
 
-    void NukedOPL::write(const uint32_t port, const uint8_t val) noexcept
+    void NukedOPL::write(const uint32_t port, const uint16_t val) noexcept
     {
         if (port & 1)
         {
@@ -87,7 +87,7 @@ namespace hardware::opl::scummvm::nuked
         }
     }
 
-    void NukedOPL::writeReg(const uint32_t r, const uint8_t v) noexcept
+    void NukedOPL::writeReg(const uint16_t r, const uint16_t v) noexcept
     {
         //int tempReg = 0;
         //switch (type)
@@ -128,7 +128,7 @@ namespace hardware::opl::scummvm::nuked
         //    break;
         //};
 
-        OPL3_WriteRegBuffered(chip.get(), static_cast<uint16_t>(r), static_cast<uint8_t>(v));
+        OPL3_WriteRegBuffered(chip.get(), r, v);
     }
 
     void NukedOPL::dualWrite(const uint8_t index, const uint8_t reg, uint8_t val) noexcept

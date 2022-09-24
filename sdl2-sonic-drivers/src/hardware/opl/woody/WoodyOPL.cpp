@@ -41,7 +41,7 @@ namespace hardware
             {
                 init();
             }
-            void WoodyOPL::write(const uint32_t port, const uint8_t val) noexcept
+            void WoodyOPL::write(const uint32_t port, const uint16_t val) noexcept
             {
                 //opl->write(a, v);
             }
@@ -49,7 +49,7 @@ namespace hardware
             {
                 return 0;
             }
-            void WoodyOPL::writeReg(const uint32_t r, const uint8_t v) noexcept
+            void WoodyOPL::writeReg(const uint16_t r, const uint16_t v) noexcept
             {
                 _opl->write(r, v);
             }

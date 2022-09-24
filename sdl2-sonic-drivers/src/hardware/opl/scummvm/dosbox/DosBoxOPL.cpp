@@ -53,7 +53,7 @@ namespace hardware::opl::scummvm::dosbox
         init();
     }
 
-    void DosBoxOPL::write(const uint32_t port, const uint8_t val) noexcept
+    void DosBoxOPL::write(const uint32_t port, const uint16_t val) noexcept
     {
         if (port & 1)
         {
@@ -132,7 +132,7 @@ namespace hardware::opl::scummvm::dosbox
         return 0;
     }
 
-    void DosBoxOPL::writeReg(const uint32_t r, const uint8_t v) noexcept
+    void DosBoxOPL::writeReg(const uint16_t r, const uint16_t v) noexcept
     {
         uint16_t tempReg = 0;
         switch (type)

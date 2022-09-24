@@ -54,7 +54,7 @@ namespace hardware
                 _opl->reset();
                 ymf262_reset_chip(_chip);
             }
-            void MameOPL::write(const uint32_t port, const uint8_t val) noexcept
+            void MameOPL::write(const uint32_t port, const uint16_t val) noexcept
             {
                 // ???
                 //_opl->write_address(a);
@@ -70,7 +70,7 @@ namespace hardware
                 //return ymf262_read(_chip, a);
             }
 
-            void MameOPL::writeReg(const uint32_t r, const uint8_t v) noexcept
+            void MameOPL::writeReg(const uint16_t r, const uint16_t v) noexcept
             {
                 _opl->write(0, r);
                 _opl->write(1, v);

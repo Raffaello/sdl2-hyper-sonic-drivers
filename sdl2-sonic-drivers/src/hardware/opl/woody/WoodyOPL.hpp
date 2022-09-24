@@ -20,9 +20,9 @@ namespace hardware
 
                 virtual bool init() override;
                 virtual void reset() override;
-                virtual void write(const uint32_t port, const uint8_t val) noexcept override;
+                virtual void write(const uint32_t port, const uint16_t val) noexcept override;
                 virtual uint8_t read(const uint32_t port) noexcept override;
-                virtual void writeReg(const uint32_t r, const uint8_t v) noexcept override;
+                virtual void writeReg(const uint16_t r, const uint16_t v) noexcept override;
 
                 bool isStereo() const noexcept override;
             protected:

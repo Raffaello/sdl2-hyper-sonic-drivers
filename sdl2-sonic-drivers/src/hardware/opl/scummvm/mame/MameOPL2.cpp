@@ -36,7 +36,7 @@ namespace hardware::opl::scummvm::mame
         OPLResetChip(_opl);
     }
 
-    void MameOPL2::write(const uint32_t port, const uint8_t val) noexcept
+    void MameOPL2::write(const uint32_t port, const uint16_t val) noexcept
     {
         if (port & 1)
         {
@@ -147,7 +147,7 @@ namespace hardware::opl::scummvm::mame
         //return OPLRead(_opl, port);
     }
 
-    void MameOPL2::writeReg(const uint32_t r, const uint8_t v) noexcept
+    void MameOPL2::writeReg(const uint16_t r, const uint16_t v) noexcept
     {
         //int tempReg = 0;
         //switch (type)
