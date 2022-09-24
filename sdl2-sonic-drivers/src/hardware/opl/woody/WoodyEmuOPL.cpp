@@ -3,7 +3,7 @@
 namespace hardware::opl::woody
 {
     WoodyEmuOPL::WoodyEmuOPL(const int rate, const bool usestereo) noexcept
-        : OPL(ChipType::OPL2), _stereo(usestereo), _opl(rate)
+        : OPL(), _stereo(usestereo), _opl(rate)
     {
     }
 

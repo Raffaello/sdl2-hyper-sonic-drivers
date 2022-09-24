@@ -35,7 +35,7 @@ namespace hardware
         namespace woody
         {
             SurroundOPL::SurroundOPL(const int rate, bool use16bit) noexcept
-                : OPL(ChipType::OPL2_DUAL), _use16bit(use16bit),
+                : OPL(), _use16bit(use16bit),
                 bufsize(2048)
             {
                 a = new WoodyEmuOPL(rate, false);

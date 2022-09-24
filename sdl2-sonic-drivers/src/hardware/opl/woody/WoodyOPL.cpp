@@ -8,10 +8,9 @@ namespace hardware
     {
         namespace woody
         {
-            WoodyOPL::WoodyOPL(const OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer, const bool surround)
-                : EmulatedOPL(type, mixer), _opl(nullptr), _surround(surround)
-            {
-            }
+            WoodyOPL::WoodyOPL(const std::shared_ptr<audio::scummvm::Mixer>& mixer, const bool surround)
+                : EmulatedOPL(surround ? OplType::DUAL_OPL2 : OplType::OPL2, mixer)
+            {}
 
             WoodyOPL::~WoodyOPL()
             {
@@ -20,14 +19,10 @@ namespace hardware
             bool WoodyOPL::init()
             {
                 free();
-                if (_surround)
-                {
-                    _opl = new SurroundOPL(_mixer->getOutputRate(), _mixer->getBitsDepth() == 16);
-                }
+                if (type == OplType::DUAL_OPL2)
+                    _opl =std::make_unique<SurroundOPL>(_mixer->getOutputRate(), _mixer->getBitsDepth() == 16);
                 else
-                {
-                    _opl = new WoodyEmuOPL(_mixer->getOutputRate(), false);
-                }
+                    _opl = std::make_unique<WoodyEmuOPL>(_mixer->getOutputRate(), false);
 
                 _init = _opl != nullptr;
                 if (!_init)
@@ -54,11 +49,6 @@ namespace hardware
                 _opl->write(r, static_cast<uint8_t>(v));
             }
 
-            bool WoodyOPL::isStereo() const noexcept
-            {
-                return _surround;
-            }
-
             void WoodyOPL::generateSamples(int16_t* buffer, int length) noexcept
             {
                 const int d = isStereo() ? 2 : 1;
@@ -68,10 +58,6 @@ namespace hardware
             void WoodyOPL::free()
             {
                 stop();
-                if (_opl != nullptr) {
-                    delete _opl;
-                    _opl = nullptr;
-                };
             }
         }
     }
