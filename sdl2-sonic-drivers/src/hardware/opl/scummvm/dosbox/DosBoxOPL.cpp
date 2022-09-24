@@ -15,15 +15,24 @@ namespace hardware::opl::scummvm::dosbox
     DosBoxOPL::~DosBoxOPL()
     {
         stop();
+        free();
+    }
+
+    void DosBoxOPL::free() noexcept
+    {
+        delete _emulator;
+        _emulator = nullptr;
     }
 
     bool DosBoxOPL::init()
     {
         _init = false;
+        free();
 
         memset(&_reg, 0, sizeof(_reg));
 
-        _emulator = std::make_unique<dbopl::Chip>();
+        //_emulator = std::make_unique<dbopl::Chip>();
+        _emulator = new dbopl::Chip();
         if (!_emulator)
             return false;
 

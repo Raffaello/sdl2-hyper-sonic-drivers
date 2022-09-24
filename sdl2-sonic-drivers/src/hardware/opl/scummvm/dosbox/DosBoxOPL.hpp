@@ -18,6 +18,7 @@ namespace hardware::opl::scummvm::dosbox
     class DosBoxOPL : public EmulatedOPL
     {
         void dualWrite(const uint8_t index, const uint8_t reg, uint8_t val) noexcept;
+        void free() noexcept;
     public:
         DosBoxOPL(const DosBoxOPL&) = delete;
         DosBoxOPL& operator=(const  DosBoxOPL&) = delete;
@@ -38,7 +39,8 @@ namespace hardware::opl::scummvm::dosbox
 
     private:
         unsigned int _rate = 0;
-        std::unique_ptr<dbopl::Chip> _emulator = nullptr;
+        //std::unique_ptr<dbopl::Chip> _emulator = nullptr; // partial type not allowed due to forward declaration
+        dbopl::Chip* _emulator = nullptr;
         std::array<hardware::opl::Chip, 2> _chip;
         hardware::opl::Chip::register_u _reg = { 0 };
     };
