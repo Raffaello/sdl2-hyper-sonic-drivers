@@ -87,7 +87,7 @@ namespace hardware::opl::scummvm::nuked
         }
     }
 
-    void NukedOPL::writeReg(const int r, const int v) noexcept
+    void NukedOPL::writeReg(const uint32_t r, const uint8_t v) noexcept
     {
         //int tempReg = 0;
         //switch (type)
@@ -156,7 +156,7 @@ namespace hardware::opl::scummvm::nuked
         OPL3_WriteRegBuffered(chip.get(), (uint16_t)fullReg, (uint8_t)val);
     }
 
-    uint8_t NukedOPL::read(const int port) noexcept
+    uint8_t NukedOPL::read(const uint32_t port) noexcept
     {
         switch (type)
         {

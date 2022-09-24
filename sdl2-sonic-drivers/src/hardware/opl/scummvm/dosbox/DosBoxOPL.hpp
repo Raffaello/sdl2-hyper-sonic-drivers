@@ -30,9 +30,9 @@ namespace hardware::opl::scummvm::dosbox
         void reset() override;
 
         void write(const uint32_t port, const uint8_t val) noexcept override;
-        uint8_t read(const int port) noexcept override;
+        uint8_t read(const uint32_t port) noexcept override;
 
-        void writeReg(const int r, const int v) noexcept override;
+        void writeReg(const uint32_t r, const uint8_t v) noexcept override;
 
     protected:
         void generateSamples(int16_t* buffer, int length) noexcept override;

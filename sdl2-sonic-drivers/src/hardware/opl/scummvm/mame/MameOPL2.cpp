@@ -120,7 +120,7 @@ namespace hardware::opl::scummvm::mame
         //OPLWriteReg(_opl, fullReg, val);
     }
 
-    uint8_t MameOPL2::read(const int port) noexcept
+    uint8_t MameOPL2::read(const uint32_t port) noexcept
     {
         // TODO looks like mame has its own timer, but must be set it up
         switch (type)
@@ -147,7 +147,7 @@ namespace hardware::opl::scummvm::mame
         //return OPLRead(_opl, port);
     }
 
-    void MameOPL2::writeReg(const int r, const int v) noexcept
+    void MameOPL2::writeReg(const uint32_t r, const uint8_t v) noexcept
     {
         //int tempReg = 0;
         //switch (type)

@@ -87,7 +87,7 @@ namespace hardware
                 }
             }
 
-            void SurroundOPL::write(int reg, int val)
+            void SurroundOPL::write(uint32_t reg, uint8_t val)
             {
                 a->write(reg, val);
 

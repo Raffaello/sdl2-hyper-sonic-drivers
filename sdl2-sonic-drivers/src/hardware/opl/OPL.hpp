@@ -49,7 +49,7 @@ namespace hardware::opl
          * Reads a byte from the given I/O port.
          * @return value read
          */
-        virtual uint8_t read(const int port) noexcept = 0;
+        virtual uint8_t read(const uint32_t port) noexcept = 0;
 
         /**
          * Function to directly write to a specific OPL register.
@@ -60,7 +60,7 @@ namespace hardware::opl
          * @param r		hardware register number to write to
          * @param v		value, which will be written
          */
-        virtual void writeReg(const int r, const int v) noexcept = 0;
+        virtual void writeReg(const uint32_t r, const uint8_t v) noexcept = 0;
 
         /**
          * Start the OPL with callbacks.

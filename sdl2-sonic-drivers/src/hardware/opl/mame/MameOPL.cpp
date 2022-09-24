@@ -63,14 +63,14 @@ namespace hardware
 
                 //ymf262_write(_chip, port, val);
             }
-            uint8_t MameOPL::read(const int port) noexcept
+            uint8_t MameOPL::read(const uint32_t port) noexcept
             {
                 return _opl->read(port);
 
                 //return ymf262_read(_chip, a);
             }
 
-            void MameOPL::writeReg(const int r, const int v) noexcept
+            void MameOPL::writeReg(const uint32_t r, const uint8_t v) noexcept
             {
                 _opl->write(0, r);
                 _opl->write(1, v);

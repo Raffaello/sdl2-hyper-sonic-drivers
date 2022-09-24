@@ -45,11 +45,11 @@ namespace hardware
             {
                 //opl->write(a, v);
             }
-            uint8_t WoodyOPL::read(const int port) noexcept
+            uint8_t WoodyOPL::read(const uint32_t port) noexcept
             {
                 return 0;
             }
-            void WoodyOPL::writeReg(const int r, const int v) noexcept
+            void WoodyOPL::writeReg(const uint32_t r, const uint8_t v) noexcept
             {
                 _opl->write(r, v);
             }

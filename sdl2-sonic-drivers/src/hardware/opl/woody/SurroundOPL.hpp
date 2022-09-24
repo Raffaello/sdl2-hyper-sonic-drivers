@@ -67,7 +67,7 @@ namespace hardware
                 virtual ~SurroundOPL();
 
                 void update(short* buf, int samples) override;
-                void write(int reg, int val) override;
+                void write(uint32_t reg, uint8_t val) override;
                 virtual void init() override;
                 int32_t getSampleRate() const noexcept override;
                 bool isStereo() const override;

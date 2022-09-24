@@ -120,22 +120,22 @@ namespace drivers
         
         for (const auto& e : tes)
         {
-            bool paused = false;
+            bool paused_device = false;
             while(_paused)
             {
-                if (!paused)
+                if (!paused_device)
                 {
-                    paused = true;
+                    paused_device = true;
                     _device->pause();
                 }
                 utils::delayMillis(PAUSE_MILLIS);
-                start = utils::getMicro<unsigned int>();
             }
 
-            if (paused)
+            if (paused_device)
             {
                 _device->resume();
-                //paused = false; // it will be false next loop iteration
+                //paused_device = false; // it will be false next loop iteration
+                start = utils::getMicro<unsigned int>();
             }
 
             if (_force_stop)
@@ -270,7 +270,6 @@ namespace drivers
                 const unsigned int end = utils::getMicro<unsigned int>();
                 const unsigned long dd = static_cast<long>(delta_delay - (end - start));
                 start = end;
-                long chunks;
                 if (dd > DELAY_CHUNK_MIN_MICROS) {
                     // preventing longer waits before stop a song
                     unsigned long delay = dd;

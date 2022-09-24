@@ -107,7 +107,7 @@ namespace hardware::opl::scummvm::dosbox
         }
     }
 
-    uint8_t DosBoxOPL::read(const int port) noexcept
+    uint8_t DosBoxOPL::read(const uint32_t port) noexcept
     {
         switch (type)
         {
@@ -132,9 +132,9 @@ namespace hardware::opl::scummvm::dosbox
         return 0;
     }
 
-    void DosBoxOPL::writeReg(const int r, const int v) noexcept
+    void DosBoxOPL::writeReg(const uint32_t r, const uint8_t v) noexcept
     {
-        int tempReg = 0;
+        uint16_t tempReg = 0;
         switch (type)
         {
         case OplType::OPL2:
