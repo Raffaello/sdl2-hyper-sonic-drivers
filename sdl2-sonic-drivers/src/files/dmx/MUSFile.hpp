@@ -69,8 +69,10 @@ namespace files
 
             // This is the instrument used relative to the MUS Channels, total instruments.
             // problably considering all the different percussions too.
-            // It might be used for pre load sounds into memory.
+            // It could be used for pre load only the instruments used in the sont into memory.
+            // Saving some memory.
             // not used as all the sounds will be loaded to memory and retrieve as needed.
+            // for now. Not planning to run on low available free memory system yet
             std::vector<uint16_t> instruments;
 
             void readHeader();
