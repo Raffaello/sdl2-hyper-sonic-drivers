@@ -37,26 +37,28 @@ namespace hardware::opl::scummvm::nuked
 
     void NukedOPL::write(const uint32_t port, const uint16_t val) noexcept
     {
+        const uint8_t v = static_cast<uint8_t>(val);
+
         if (port & 1)
         {
             switch (type)
             {
             case OplType::OPL2:
             case OplType::OPL3:
-                if (!_chip[0].write(_reg.normal, static_cast<uint8_t>(val))) {
-                    OPL3_WriteRegBuffered(chip.get(), _reg.normal, static_cast<uint8_t>(val));
+                if (!_chip[0].write(_reg.normal,v)) {
+                    OPL3_WriteRegBuffered(chip.get(), _reg.normal, v);
                 }
                 break;
             case OplType::DUAL_OPL2:
                 // Not a 0x??8 port, then write to a specific port
                 if (!(port & 0x8)) {
                     uint8_t index = (port & 2) >> 1;
-                    dualWrite(index, _reg.dual[index], val);
+                    dualWrite(index, _reg.dual[index], v);
                 }
                 else {
                     //Write to both ports
-                    dualWrite(0, _reg.dual[0], val);
-                    dualWrite(1, _reg.dual[1], val);
+                    dualWrite(0, _reg.dual[0], v);
+                    dualWrite(1, _reg.dual[1], v);
                 }
                 break;
             default:
@@ -128,7 +130,7 @@ namespace hardware::opl::scummvm::nuked
         //    break;
         //};
 
-        OPL3_WriteRegBuffered(chip.get(), r, v);
+        OPL3_WriteRegBuffered(chip.get(), r, static_cast<uint8_t>(v));
     }
 
     void NukedOPL::dualWrite(const uint8_t index, const uint8_t reg, uint8_t val) noexcept
@@ -152,8 +154,8 @@ namespace hardware::opl::scummvm::nuked
             val |= index ? 0xA0 : 0x50;
         }
 
-        uint32_t fullReg = reg + (index ? 0x100 : 0);
-        OPL3_WriteRegBuffered(chip.get(), (uint16_t)fullReg, (uint8_t)val);
+        const uint16_t fullReg = reg + (index ? 0x100 : 0);
+        OPL3_WriteRegBuffered(chip.get(), fullReg, val);
     }
 
     uint8_t NukedOPL::read(const uint32_t port) noexcept

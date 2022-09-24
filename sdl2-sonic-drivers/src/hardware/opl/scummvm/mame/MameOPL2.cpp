@@ -45,7 +45,7 @@ namespace hardware::opl::scummvm::mame
             case OplType::OPL2:
             //case OplType::OPL3:
                 // only OPL2
-                if (!_chip[0].write(_reg.normal, val)) {
+                if (!_chip[0].write(_reg.normal, static_cast<uint8_t>(val))) {
                     /*OPLWrite(_opl, port, val);*/
                 }
                 OPLWrite(_opl, port, val);

@@ -55,25 +55,27 @@ namespace hardware::opl::scummvm::dosbox
 
     void DosBoxOPL::write(const uint32_t port, const uint16_t val) noexcept
     {
+        const uint8_t v = static_cast<uint8_t>(val);
+
         if (port & 1)
         {
             switch (type)
             {
             case OplType::OPL2:
             case OplType::OPL3:
-                if (!_chip[0].write(_reg.normal, static_cast<uint8_t>(val)))
-                    _emulator->WriteReg(_reg.normal, static_cast<uint8_t>(val));
+                if (!_chip[0].write(_reg.normal, v))
+                    _emulator->WriteReg(_reg.normal, v);
                 break;
             case OplType::DUAL_OPL2:
                 // Not a 0x??8 port, then write to a specific port
                 if (!(port & 0x8)) {
-                    uint8_t index = (port & 2) >> 1;
-                    dualWrite(index, _reg.dual[index], val);
+                    const uint8_t index = (port & 2) >> 1;
+                    dualWrite(index, _reg.dual[index], v);
                 }
                 else {
                     //Write to both ports
-                    dualWrite(0, _reg.dual[0], val);
-                    dualWrite(1, _reg.dual[1], val);
+                    dualWrite(0, _reg.dual[0], v);
+                    dualWrite(1, _reg.dual[1], v);
                 }
                 break;
             default:
@@ -85,7 +87,7 @@ namespace hardware::opl::scummvm::dosbox
             // Make sure to clip them in the right range
             switch (type) {
             case OplType::OPL2:
-                _reg.normal = _emulator->WriteAddr(port, val) & 0xff;
+                _reg.normal = _emulator->WriteAddr(port, v) & 0xff;
                 break;
             case OplType::DUAL_OPL2:
                 // Not a 0x?88 port, when write to a specific side
@@ -99,7 +101,7 @@ namespace hardware::opl::scummvm::dosbox
                 }
                 break;
             case OplType::OPL3:
-                _reg.normal = _emulator->WriteAddr(port, val) & 0x1ff;
+                _reg.normal = _emulator->WriteAddr(port, v) & 0x1ff;
                 break;
             default:
                 break;

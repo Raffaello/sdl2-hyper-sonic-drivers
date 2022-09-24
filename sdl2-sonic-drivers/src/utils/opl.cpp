@@ -3,7 +3,7 @@
 
 namespace utils
 {
-    void FMoutput(unsigned port, int reg, int val, const std::shared_ptr<hardware::opl::OPL>& opl)
+    void FMoutput(const uint32_t port, const uint8_t reg, const uint8_t val, const std::shared_ptr<hardware::opl::OPL>& opl)
     {
         opl->write(port, reg);
         //wait 8 microsec;
@@ -13,17 +13,17 @@ namespace utils
         utils::delayMicro(55);
     }
 
-    void fm(int reg, int val, const std::shared_ptr<hardware::opl::OPL>& opl)
+    void fm(const uint8_t reg, const uint8_t val, const std::shared_ptr<hardware::opl::OPL>& opl)
     {
         FMoutput(FM, reg, val, opl);
     }
 
-    void Profm1(int reg, int val, const std::shared_ptr<hardware::opl::OPL>& opl)
+    void Profm1(const uint8_t reg, const uint8_t val, const std::shared_ptr<hardware::opl::OPL>& opl)
     {
         FMoutput(PROFM1, reg, val, opl);
     }
 
-    void Profm2(int reg, int val, const std::shared_ptr<hardware::opl::OPL>& opl)
+    void Profm2(const uint8_t reg, const uint8_t val, const std::shared_ptr<hardware::opl::OPL>& opl)
     {
         FMoutput(PROFM2, reg, val, opl);
     }

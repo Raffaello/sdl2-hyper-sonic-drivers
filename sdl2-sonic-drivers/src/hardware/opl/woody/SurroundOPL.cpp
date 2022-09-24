@@ -94,7 +94,7 @@ namespace hardware
                 // Transpose the other channel to produce the harmonic effect
                 int iChannel = -1;
                 int iRegister = reg; // temp
-                int iValue = val; // temp
+                uint8_t iValue = val; // temp
                 if ((iRegister >> 4 == 0xA) || (iRegister >> 4 == 0xB)) iChannel = iRegister & 0x0F;
 
                 // Remember the FM state, so that the harmonic effect can access

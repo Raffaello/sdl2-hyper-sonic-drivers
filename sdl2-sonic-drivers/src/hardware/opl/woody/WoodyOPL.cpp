@@ -51,7 +51,7 @@ namespace hardware
             }
             void WoodyOPL::writeReg(const uint16_t r, const uint16_t v) noexcept
             {
-                _opl->write(r, v);
+                _opl->write(r, static_cast<uint8_t>(v));
             }
 
             bool WoodyOPL::isStereo() const noexcept
