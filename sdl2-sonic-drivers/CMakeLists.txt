@@ -67,10 +67,13 @@ install(FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/OplEmulator.hpp
     #${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/Timer.hpp
 
+    #${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/mame/MameOPL3.hpp
+    
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/dosbox/DosBoxOPL.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/mame/MameOPL2.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/nuked/NukedOPL3.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/EmulatedOPL.hpp
+    
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/woody/WoodyOPL.hpp
     
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/PCSpeaker.hpp
@@ -178,7 +181,7 @@ target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/mame/ymfm/ymfm_fm.ipp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/mame/ymfm/ymfm_opl.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/mame/ymfm/ymfm_pcm.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/mame/MameOPL.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/mame/MameOPL3.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/mame/opl3/ymf262.cpp
     # --- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/woody/WoodyOPL.cpp
