@@ -5,7 +5,7 @@
 #include <hardware/opl/scummvm/dosbox/DosBoxOPL.hpp>
 #include <hardware/opl/scummvm/nuked/NukedOPL3.hpp>
 #include <hardware/opl/woody/WoodyOPL.hpp>
-#include <hardware/opl/mame/MameOPL.hpp>
+#include <hardware/opl/mame/MameOPL3.hpp>
 
 namespace hardware::opl
 {

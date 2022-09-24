@@ -1,4 +1,4 @@
-#include <hardware/opl/mame/MameOPL.hpp>
+#include <hardware/opl/mame/MameOPL3.hpp>
 #include <spdlog/spdlog.h>
 
 namespace hardware::opl::mame

@@ -12,7 +12,7 @@
 #include <hardware/PCSpeaker.hpp>
 #include <hardware/opl/Config.hpp>
 
-#include <hardware/opl/mame/MameOPL.hpp>
+#include <hardware/opl/mame/MameOPL3.hpp>
 
 #include <audio/DiskRendererMixerManager.hpp>
 
