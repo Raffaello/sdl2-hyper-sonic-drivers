@@ -128,7 +128,7 @@ namespace hardware::opl::scummvm::nuked
         //    break;
         //};
 
-        OPL3_WriteRegBuffered(chip.get(), static_cast<uint16_t>(r), v);
+        OPL3_WriteRegBuffered(chip.get(), static_cast<uint16_t>(r), static_cast<uint8_t>(v));
     }
 
     void NukedOPL::dualWrite(const uint8_t index, const uint8_t reg, uint8_t val) noexcept
