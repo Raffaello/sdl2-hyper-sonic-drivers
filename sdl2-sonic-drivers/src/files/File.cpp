@@ -20,7 +20,7 @@ namespace files
         }
     }
 
-    File::~File()
+    File::~File() noexcept
     {
         this->close();
     }
@@ -50,14 +50,14 @@ namespace files
         }
     }
 
-    void File::close()
+    void File::close() noexcept
     {
         if (_file.is_open()) {
             _file.close();
         }
     }
 
-    std::string File::_readStringFromFile()
+    std::string File::_readStringFromFile() noexcept
     {
         string filename;
         char c = -1;
@@ -74,27 +74,27 @@ namespace files
     }
 
 
-    uint16_t File::readLE16()
+    uint16_t File::readLE16() noexcept
     {
         return utils::swapLE16(read<int16_t>());
     }
 
-    uint32_t File::readLE32()
+    uint32_t File::readLE32() noexcept
     {
         return utils::swapLE32(read<int32_t>());
     }
 
-    uint8_t File::readU8()
+    uint8_t File::readU8() noexcept
     {
         return read<uint8_t>();
     }
 
-    uint32_t File::readBE32()
+    uint32_t File::readBE32() noexcept
     {
         return utils::swapBE32(read<int32_t>());
     }
 
-    uint32_t File::readBE16()
+    uint32_t File::readBE16() noexcept
     {
         return utils::swapBE16(read<int16_t>());
     }
