@@ -17,9 +17,6 @@ namespace hardware::opl::scummvm::mame
         // TODO: not used as it is OPL2
         void dualWrite(const uint8_t index, const uint8_t reg, uint8_t val) noexcept;
     public:
-        MameOPL2(const MameOPL2&) = delete;
-        MameOPL2& operator=(const  MameOPL2&) = delete;
-
         explicit MameOPL2(const OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer);
         ~MameOPL2() override;
 
