@@ -36,7 +36,6 @@ namespace hardware::opl::scummvm::dosbox
 
     private:
         unsigned int _rate = 0;
-        //std::unique_ptr<dbopl::Chip> _emulator = nullptr; // partial type not allowed due to forward declaration
         dbopl::Chip* _emulator = nullptr;
         std::array<hardware::opl::Chip, 2> _chip;
         hardware::opl::Chip::register_u _reg = { 0 };

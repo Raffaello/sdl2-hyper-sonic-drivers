@@ -37,9 +37,9 @@ namespace drivers
                 void resume() const noexcept;
 
             private:
+                std::shared_ptr<hardware::opl::OPL> _opl;
                 std::shared_ptr<audio::opl::banks::OP2Bank> _op2Bank;
                 const bool _opl3_mode;
-                std::shared_ptr<hardware::opl::OPL> _opl;
                 const uint8_t _oplNumChannels;
                 std::array<std::unique_ptr<OplChannel>, audio::midi::MIDI_MAX_CHANNELS>  _channels;
 

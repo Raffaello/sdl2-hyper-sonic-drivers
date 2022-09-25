@@ -174,7 +174,7 @@ namespace hardware::opl::woody
             if ((iRegister >= 0xB0) && (iRegister <= 0xB8)) {
 
                 // Overwrite the supplied value with the new F-Number and Block.
-                iValue = (iValue & ~0x1F) | (iNewBlock << 2) | ((iNewFNum >> 8) & 0x03);
+                iValue = static_cast<uint8_t>((iValue & ~0x1F) | (iNewBlock << 2) | ((iNewFNum >> 8) & 0x03));
                 assert(iChannel < 9);
                 this->iCurrentTweakedBlock[this->currChip][iChannel] = iNewBlock; // save it so we don't have to update register 0xB0 later on
                 this->iCurrentFNum[this->currChip][iChannel] = iNewFNum;

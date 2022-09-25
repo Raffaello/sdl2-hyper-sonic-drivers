@@ -31,7 +31,6 @@ namespace hardware::opl::scummvm::dosbox
 
         memset(&_reg, 0, sizeof(_reg));
 
-        //_emulator = std::make_unique<dbopl::Chip>();
         _emulator = new dbopl::Chip();
         if (!_emulator)
             return false;
