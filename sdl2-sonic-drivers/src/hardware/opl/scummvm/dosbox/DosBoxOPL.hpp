@@ -21,6 +21,7 @@ namespace hardware::opl::scummvm::dosbox
         void free() noexcept;
     public:
         DosBoxOPL(const DosBoxOPL&) = delete;
+        DosBoxOPL(const DosBoxOPL&&) = delete;
         DosBoxOPL& operator=(const  DosBoxOPL&) = delete;
 
         DosBoxOPL(const OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer);

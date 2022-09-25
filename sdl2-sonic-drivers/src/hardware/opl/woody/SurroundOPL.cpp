@@ -45,11 +45,10 @@ namespace hardware::opl::woody
     constexpr int NEWBLOCK_LIMIT = 32;
 
     SurroundOPL::SurroundOPL(const int rate) noexcept
-        : OPL(), _bufsize(2048)
+        : OPL()
     {
         a = new WoodyEmuOPL(rate);
         b = new WoodyEmuOPL(rate);
-        //allocateBuffers();
         _lbuf = new int16_t[this->_bufsize];
         _rbuf = new int16_t[this->_bufsize];
 
@@ -73,8 +72,9 @@ namespace hardware::opl::woody
     {
         if (samples > this->_bufsize) {
             // Need to realloc the buffer
-            _bufsize = samples * 2;
-            //allocateBuffers();
+            _bufsize = static_cast<uint16_t>(samples * 2);
+            delete[] _lbuf;
+            delete[] _rbuf;
             _lbuf = new int16_t[this->_bufsize];
             _rbuf = new int16_t[this->_bufsize];
         }

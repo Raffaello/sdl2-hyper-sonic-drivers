@@ -34,7 +34,7 @@ namespace hardware::opl::woody
     {
     
     public:
-        SurroundOPL(const int rate) noexcept;
+        explicit SurroundOPL(const int rate) noexcept;
         virtual ~SurroundOPL();
 
         void update(short* buf, int samples) override;
@@ -43,12 +43,12 @@ namespace hardware::opl::woody
         void writeReg(const uint16_t r, const uint16_t v) noexcept override;
         virtual void init() override;
     private:
-        uint16_t _bufsize;
+        uint16_t _bufsize = 1024;
         int16_t* _lbuf;
         int16_t* _rbuf;
         OPL* a;
         OPL* b;
-        
+
         uint8_t iFMReg[2][256];
         uint8_t iTweakedFMReg[2][256];
         uint8_t iCurrentTweakedBlock[2][9]; // Current value of the Block in the tweaked OPL chip

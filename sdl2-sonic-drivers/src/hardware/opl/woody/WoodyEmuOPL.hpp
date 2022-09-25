@@ -9,7 +9,7 @@ namespace hardware::opl::woody
     {
     public:
         WoodyEmuOPL(const int rate) noexcept;
-        virtual ~WoodyEmuOPL() = default;
+        ~WoodyEmuOPL() override = default;
 
         void update(int16_t* buf, const int32_t samples) override;
         void write(const uint32_t reg, const uint8_t val) override;

@@ -23,10 +23,12 @@ namespace hardware::opl::scummvm::nuked
         void dualWrite(const uint8_t index, const uint8_t reg, uint8_t val) noexcept;
     public:
         NukedOPL(const NukedOPL&) = delete;
+        NukedOPL(const NukedOPL&&) = delete;
         NukedOPL& operator=(const  NukedOPL&) = delete;
+        
 
         NukedOPL(const OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer);
-        virtual ~NukedOPL()= default;
+        ~NukedOPL() override = default;
 
         bool init() override;
         void reset() override;

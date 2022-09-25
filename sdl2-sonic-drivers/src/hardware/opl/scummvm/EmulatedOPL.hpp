@@ -25,6 +25,10 @@ namespace hardware
             class EmulatedOPL : public OPL, protected audio::scummvm::AudioStream
             {
             public:
+                EmulatedOPL(const EmulatedOPL&) = delete;
+                EmulatedOPL(const EmulatedOPL&&) = delete;
+                EmulatedOPL& operator=(const  EmulatedOPL&) = delete;
+
                 EmulatedOPL(const OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer);
                 virtual ~EmulatedOPL();
 
