@@ -29,7 +29,7 @@ namespace drivers
             {
             public:
                 OplDriver(const std::shared_ptr<hardware::opl::OPL>& opl,
-                    const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank, const bool opl3_mode);
+                    const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank);
                 ~OplDriver();
 
                 void send(const audio::midi::MIDIEvent& e) /*const*/ noexcept;
@@ -40,7 +40,7 @@ namespace drivers
                 std::shared_ptr<audio::opl::banks::OP2Bank> _op2Bank;
                 const bool _opl3_mode;
                 std::shared_ptr<hardware::opl::OPL> _opl;
-                uint8_t _oplNumChannels;
+                const uint8_t _oplNumChannels;
                 std::array<std::unique_ptr<OplChannel>, audio::midi::MIDI_MAX_CHANNELS>  _channels;
 
                 // TODO: this if is OPL2 should have less

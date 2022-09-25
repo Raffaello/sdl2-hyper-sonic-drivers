@@ -1,13 +1,20 @@
 #include <drivers/midi/devices/Opl.hpp>
 #include <cassert>
 #include <hardware/opl/Config.hpp>
+#include <spdlog/spdlog.h>
 
 namespace drivers::midi::devices
 {
-    Opl::Opl(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank, const bool opl3_mode)
+    Opl::Opl(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank)
         : Device()/*, OplDriver(opl, op2Bank, opl3_mode)*/
     {
-        _oplDriver = std::make_shared<drivers::midi::opl::OplDriver>(opl, op2Bank, opl3_mode);
+        if (opl == nullptr) {
+            const char* msg = "opl is nullptr";
+            spdlog::critical(msg);
+            throw std::runtime_error(msg);
+        }
+
+        _oplDriver = std::make_shared<drivers::midi::opl::OplDriver>(opl, op2Bank);
     }
 
     Opl::Opl(const hardware::opl::OplType type,
@@ -16,7 +23,11 @@ namespace drivers::midi::devices
         const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank)
     {
         auto opl = hardware::opl::Config::create(emuType, type, mixer);
-        _oplDriver = std::make_shared<drivers::midi::opl::OplDriver>(opl, op2Bank, type != hardware::opl::OplType::OPL2);
+        if (opl == nullptr || opl->type != type) {
+            spdlog::critical("device Opl not supporting emutype={:d}, type={:d}", emuType, type);
+            throw std::runtime_error("error creating Opl emulator");
+        }
+        _oplDriver = std::make_shared<drivers::midi::opl::OplDriver>(opl, op2Bank);
     }
 
     void Opl::sendEvent(const audio::midi::MIDIEvent& e) const noexcept

@@ -129,6 +129,31 @@ macro_test(
     LINKS_PRIVATE sonic-drivers-static
     FIXTURES
 )
+
+macro_test(
+    EXE TestOplDevice
+    FILES "drivers/midi/devices/TestOpl.cpp"
+    LINKS_PRIVATE sonic-drivers-static
+    FIXTURES
+        "fixtures/GENMIDI.OP2"
+)
+
+macro_test(
+    EXE TestAdlib
+    FILES "drivers/midi/devices/TestAdlib.cpp"
+    LINKS_PRIVATE sonic-drivers-static
+    FIXTURES
+        "fixtures/GENMIDI.OP2"
+)
+
+macro_test(
+    EXE TestSbPro2
+    FILES "drivers/midi/devices/TestSbPro2.cpp"
+    LINKS_PRIVATE sonic-drivers-static
+    FIXTURES
+        "fixtures/GENMIDI.OP2"
+)
+
 macro_test(
     EXE TestMIDDriver
     FILES "drivers/TestMIDDriver.cpp"

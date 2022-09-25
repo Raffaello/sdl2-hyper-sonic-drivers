@@ -2,6 +2,7 @@
 #include <spdlog/spdlog.h>
 #include <cassert>
 #include <algorithm>
+#include <hardware/opl/OplType.hpp>
 
 namespace drivers
 {
@@ -12,18 +13,20 @@ namespace drivers
             using audio::midi::MIDI_PERCUSSION_CHANNEL;
             using audio::midi::MIDI_EVENT_TYPES_HIGH;
             using hardware::opl::OPL2instrument_t;
+            using hardware::opl::OplType;
 
             // TODO: allocateVoice and getFreeSlot should be merged into 1 function
 
             OplDriver::OplDriver(const std::shared_ptr<hardware::opl::OPL>& opl,
-                const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank, const bool opl3_mode) :
-                _opl(opl), _op2Bank(op2Bank), _opl3_mode(opl3_mode)
+                const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank) :
+                _opl(opl), _op2Bank(op2Bank), _opl3_mode(opl->type == OplType::OPL3),
+                _oplNumChannels(_opl3_mode ? drivers::opl::OPL3_NUM_CHANNELS : drivers::opl::OPL2_NUM_CHANNELS)
             {
-                _oplWriter = std::make_unique<drivers::opl::OplWriter>(_opl, opl3_mode);
-                _oplNumChannels = opl3_mode ? drivers::opl::OPL3_NUM_CHANNELS : drivers::opl::OPL2_NUM_CHANNELS;
+                _oplWriter = std::make_unique<drivers::opl::OplWriter>(_opl, _opl3_mode);
+                //_oplNumChannels = _opl3_mode ? drivers::opl::OPL3_NUM_CHANNELS : drivers::opl::OPL2_NUM_CHANNELS;
 
                 if (!_oplWriter->init())
-                    spdlog::error("[MidiDriver] Can't initialize AdLib Emulator OPL chip.'");
+                    spdlog::error("[MidiDriver] Can't initialize OPL Emulator chip.");
 
                 for (uint8_t i = 0; i < audio::midi::MIDI_MAX_CHANNELS; ++i) {
                     _channels[i] = std::make_unique<OplChannel>(i);
