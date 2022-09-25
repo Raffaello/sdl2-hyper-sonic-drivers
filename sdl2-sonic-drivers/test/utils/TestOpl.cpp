@@ -34,7 +34,6 @@ namespace utils
         this->opl->start(nullptr);
         EXPECT_EQ(detectOPL2(this->opl), isOpl2);
         EXPECT_EQ(detectOPL3(this->opl), isOpl3);
-        //this->opl->stop();
     }
     INSTANTIATE_TEST_SUITE_P(
         DetectOpl,
@@ -50,6 +49,8 @@ namespace utils
             //std::make_tuple<>(OplEmulator::NUKED, OplType::OPL2, true, false)
             //std::make_tuple<>(OplEmulator::NUKED, OplType::DUAL_OPL2, true, false),
             std::make_tuple<>(OplEmulator::NUKED, OplType::OPL3, true, true)
+            //std::make_tuple<>(OplEmulator::WOODY, OplType::OPL2, true, false),
+            //std::make_tuple<>(OplEmulator::WOODY, OplType::DUAL_OPL2, true, false)
         )
     );
 }

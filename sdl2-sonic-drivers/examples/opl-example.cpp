@@ -26,8 +26,6 @@ using utils::FMoutput;
 using utils::fm;
 using utils::Profm1;
 using utils::Profm2;
-//using utils::detectOPL2;
-//using utils::detectOPL3;
 
 void opl_test(const OplEmulator emu, const OplType type, std::shared_ptr<audio::scummvm::Mixer> mixer)
 {
@@ -231,6 +229,11 @@ bool detect_opl2(const OplEmulator emu, const OplType type, std::shared_ptr<audi
     if (opl == nullptr)
         return false;
 
+    if (!opl->init())
+        return false;
+
+    opl->start(nullptr);
+
     return utils::detectOPL2(opl);
 }
 
@@ -240,6 +243,11 @@ bool detect_opl3(const OplEmulator emu, const OplType type, std::shared_ptr<audi
     auto opl = Config::create(emu, type, mixer);
     if (opl == nullptr)
         return false;
+
+    if (!opl->init())
+        return false;
+
+    opl->start(nullptr);
 
     return utils::detectOPL3(opl);
 }
