@@ -27,7 +27,6 @@
 
 #include <hardware/opl/woody/OPL.hpp>
 #include <cstdint> // for uintxx_t
-#include <memory>
 
 namespace hardware::opl::woody
 {
@@ -35,29 +34,25 @@ namespace hardware::opl::woody
     {
     
     public:
-
         SurroundOPL(const int rate) noexcept;
-        virtual ~SurroundOPL() = default;
+        virtual ~SurroundOPL();
 
         void update(short* buf, int samples) override;
         void write(uint32_t reg, uint8_t val) override;
         uint8_t read(const uint32_t port) noexcept override;
         void writeReg(const uint16_t r, const uint16_t v) noexcept override;
         virtual void init() override;
-        int32_t getSampleRate() const noexcept override;
     private:
-        bool _use16bit;
-        uint16_t bufsize;
-        std::unique_ptr<int16_t> lbuf;
-        std::unique_ptr<int16_t> rbuf;
-        std::unique_ptr<OPL> a;
-        std::unique_ptr<OPL> b;
+        uint16_t _bufsize;
+        int16_t* _lbuf;
+        int16_t* _rbuf;
+        OPL* a;
+        OPL* b;
+        
         uint8_t iFMReg[2][256];
         uint8_t iTweakedFMReg[2][256];
         uint8_t iCurrentTweakedBlock[2][9]; // Current value of the Block in the tweaked OPL chip
         uint8_t iCurrentFNum[2][9];         // Current value of the FNum in the tweaked OPL chip
         int8_t currChip = 0;
-
-        void allocateBuffers();
     };
 }

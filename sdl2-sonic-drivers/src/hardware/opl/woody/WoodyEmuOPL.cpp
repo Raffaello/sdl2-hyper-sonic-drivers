@@ -42,9 +42,4 @@ namespace hardware::opl::woody
     void WoodyEmuOPL::init()
     {
     }
-
-    int32_t WoodyEmuOPL::getSampleRate() const noexcept
-    {
-        return _opl.getSampleRate();
-    }
 }

@@ -35,7 +35,7 @@ namespace hardware
             }
             void WoodyOPL::write(const uint32_t port, const uint16_t val) noexcept
             {
-                _opl->write(port, static_cast<uint8_t>(val));
+                //_opl->write(port, static_cast<uint8_t>(val));
             }
 
             uint8_t WoodyOPL::read(const uint32_t port) noexcept
@@ -44,7 +44,7 @@ namespace hardware
             }
             void WoodyOPL::writeReg(const uint16_t r, const uint16_t v) noexcept
             {
-                _opl->writeReg(r, v);
+                _opl->write(r, v);
             }
 
             void WoodyOPL::generateSamples(int16_t* buffer, int length) noexcept

@@ -23,7 +23,6 @@ namespace hardware
             virtual uint8_t read(const uint32_t port) noexcept = 0;
             virtual void writeReg(const uint16_t r, const uint16_t v) noexcept = 0;
             virtual void init() = 0;
-            virtual int32_t getSampleRate() const noexcept = 0;
         };
     }
 }

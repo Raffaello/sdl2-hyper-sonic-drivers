@@ -27,6 +27,7 @@
 #include <cstring> // for memset()
 #include <hardware/opl/woody/SurroundOPL.hpp>
 #include <hardware/opl/woody/WoodyEmuOPL.hpp>
+#include <cassert>
 
 namespace hardware::opl::woody
 {
@@ -44,11 +45,13 @@ namespace hardware::opl::woody
     constexpr int NEWBLOCK_LIMIT = 32;
 
     SurroundOPL::SurroundOPL(const int rate) noexcept
-        : OPL(), bufsize(2048)
+        : OPL(), _bufsize(2048)
     {
-        a = std::make_unique<WoodyEmuOPL>(rate);
-        b = std::make_unique<WoodyEmuOPL>(rate);
-        allocateBuffers();
+        a = new WoodyEmuOPL(rate);
+        b = new WoodyEmuOPL(rate);
+        //allocateBuffers();
+        _lbuf = new int16_t[this->_bufsize];
+        _rbuf = new int16_t[this->_bufsize];
 
         memset(iFMReg, 0, sizeof(iFMReg));
         memset(iTweakedFMReg, 0, sizeof(iTweakedFMReg));
@@ -58,22 +61,32 @@ namespace hardware::opl::woody
         init();
     }
 
+    SurroundOPL::~SurroundOPL()
+    {
+        delete a;
+        delete b;
+        delete[] _lbuf;
+        delete[] _rbuf;
+    }
+
     void SurroundOPL::update(short* buf, int samples)
     {
-        if (samples > this->bufsize) {
+        if (samples > this->_bufsize) {
             // Need to realloc the buffer
-            this->bufsize = samples * 2;
-            allocateBuffers();
+            _bufsize = samples * 2;
+            //allocateBuffers();
+            _lbuf = new int16_t[this->_bufsize];
+            _rbuf = new int16_t[this->_bufsize];
         }
 
-        a->update(this->lbuf.get(), samples);
-        b->update(this->rbuf.get(), samples);
+        a->update(_lbuf, samples);
+        b->update(_rbuf, samples);
 
         // Copy the two mono OPL buffers into the stereo buffer
         for (int i = 0; i < samples; i++)
         {
-            buf[i * 2] = this->lbuf.get()[i];
-            buf[i * 2 + 1] = this->rbuf.get()[i];
+            buf[i * 2] = _lbuf[i];
+            buf[i * 2 + 1] = _rbuf[i];
         }
     }
 
@@ -85,7 +98,8 @@ namespace hardware::opl::woody
         int iChannel = -1;
         int iRegister = reg; // temp
         uint8_t iValue = val; // temp
-        if ((iRegister >> 4 == 0xA) || (iRegister >> 4 == 0xB)) iChannel = iRegister & 0x0F;
+        if ((iRegister >> 4 == 0xA) || (iRegister >> 4 == 0xB))
+            iChannel = iRegister & 0x0F;
 
         // Remember the FM state, so that the harmonic effect can access
         // previously assigned register values.
@@ -161,7 +175,7 @@ namespace hardware::opl::woody
 
                 // Overwrite the supplied value with the new F-Number and Block.
                 iValue = (iValue & ~0x1F) | (iNewBlock << 2) | ((iNewFNum >> 8) & 0x03);
-
+                assert(iChannel < 9);
                 this->iCurrentTweakedBlock[this->currChip][iChannel] = iNewBlock; // save it so we don't have to update register 0xB0 later on
                 this->iCurrentFNum[this->currChip][iChannel] = iNewFNum;
 
@@ -212,11 +226,6 @@ namespace hardware::opl::woody
         b->writeReg(r, v);
     }
 
-    int32_t SurroundOPL::getSampleRate() const noexcept
-    {
-        return a->getSampleRate();
-    }
-
     void SurroundOPL::init()
     {
         a->init();
@@ -231,11 +240,5 @@ namespace hardware::opl::woody
                 this->iCurrentFNum[c][i] = 0;
             }
         }
-    }
-
-    void SurroundOPL::allocateBuffers()
-    {
-        this->lbuf = std::make_unique<int16_t>(this->bufsize);
-        this->rbuf = std::make_unique<int16_t>(this->bufsize);
     }
 }
