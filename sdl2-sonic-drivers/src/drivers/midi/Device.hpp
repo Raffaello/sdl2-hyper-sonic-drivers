@@ -40,11 +40,12 @@ namespace drivers
 
             bool release(const /*void**/ drivers::MIDDriver* owner)
             {
-                if (_owner == owner) {
+                if (isOwned(owner)) {
                     _acquired = false;
                     return true;
                 }
 
+                // maybe here should always return false... it can be true just because is not aquired i guess...
                 return !isAcquired();
             }
         private:

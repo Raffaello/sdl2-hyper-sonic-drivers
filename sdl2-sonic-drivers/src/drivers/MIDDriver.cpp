@@ -48,6 +48,7 @@ namespace drivers
             case -25:
             case -29:
             case -30:
+                spdlog::warn("SMPTE not implemented yet");
                 break;
             default:
                 spdlog::warn("Division SMPTE not known = {}", smpte);
@@ -272,6 +273,9 @@ namespace drivers
                 start = end;
                 if (dd > DELAY_CHUNK_MIN_MICROS) {
                     // preventing longer waits before stop a song
+                    // TODO: get a start time point before while
+                    //       the while must check end time is < lower than start time+delay
+                    //       so it will also account for the instructions for the time.
                     unsigned long delay = dd;
                     while (delay > 0 && !_force_stop) {
                         const unsigned long d = std::min(DELAY_CHUNK_MICROS, delay);
@@ -279,6 +283,7 @@ namespace drivers
                         delay -= d;
                     }
                 }
+                // TODO: this can be improved like the while, to check start end time instead
                 else if (dd > 0 ) {
                     utils::delayMicro(dd);
                     start += dd;
