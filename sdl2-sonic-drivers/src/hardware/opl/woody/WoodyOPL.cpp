@@ -13,14 +13,9 @@ namespace hardware
                 : EmulatedOPL(surround ? OplType::DUAL_OPL2 : OplType::OPL2, mixer)
             {}
 
-            WoodyOPL::~WoodyOPL()
-            {
-                free();
-            }
-
             bool WoodyOPL::init()
             {
-                free();
+                stop();
                 if (type == OplType::DUAL_OPL2)
                     _opl =std::make_unique<SurroundOPL>(_mixer->getOutputRate());
                 else
@@ -56,11 +51,6 @@ namespace hardware
             {
                 const int d = isStereo() ? 2 : 1;
                 _opl->update(buffer, length / d);
-            }
-
-            void WoodyOPL::free()
-            {
-                stop();
             }
         }
     }

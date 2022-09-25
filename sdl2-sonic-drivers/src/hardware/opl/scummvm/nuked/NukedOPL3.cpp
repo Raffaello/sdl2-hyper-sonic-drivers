@@ -11,11 +11,6 @@ namespace hardware::opl::scummvm::nuked
         chip = std::make_unique<opl3_chip>();
     }
 
-    NukedOPL::~NukedOPL()
-    {
-        stop();
-    }
-
     bool NukedOPL::init()
     {
         memset(&_reg, 0, sizeof(_reg));

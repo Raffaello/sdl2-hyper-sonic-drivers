@@ -17,7 +17,7 @@ namespace hardware
             {
             public:
                 WoodyOPL(const std::shared_ptr<audio::scummvm::Mixer>& mixer, const bool surround);
-                virtual ~WoodyOPL();
+                virtual ~WoodyOPL() = default;
 
                 bool init() override;
                 void reset() override;
@@ -30,8 +30,6 @@ namespace hardware
 
             private:
                 std::unique_ptr<woody::OPL> _opl = nullptr;
-
-                void free();
             };
         }
     }

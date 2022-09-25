@@ -26,7 +26,7 @@ namespace hardware::opl::scummvm::nuked
         NukedOPL& operator=(const  NukedOPL&) = delete;
 
         NukedOPL(const OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer);
-        ~NukedOPL() override;
+        virtual ~NukedOPL()= default;
 
         bool init() override;
         void reset() override;
