@@ -68,6 +68,13 @@ namespace audio::midi
         META_SYSEX = 0xF
     };
 
+    enum MIDI_META_EVENT_VAL : uint8_t
+    {
+        META = (static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::META_SYSEX) << 4) | static_cast<uint8_t>(MIDI_META_EVENT_TYPES_LOW::META),
+        SYS_EX0 = (static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::META_SYSEX) << 4) | static_cast<uint8_t>(MIDI_META_EVENT_TYPES_LOW::SYS_EX0),
+        SYS_EX7 = (static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::META_SYSEX) << 4) | static_cast<uint8_t>(MIDI_META_EVENT_TYPES_LOW::SYS_EX7),
+    };
+
     /*
     // TODO: too many repetitions to be an enum
     enum class MIDI_EVENT_CONTROLLER_TYPES : uint8_t

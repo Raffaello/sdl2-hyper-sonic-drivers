@@ -45,6 +45,7 @@ namespace files
         using audio::midi::MIDI_META_EVENT_TYPES_LOW;
         using audio::midi::MIDI_META_EVENT;
         using audio::midi::MIDIEvent;
+        using audio::midi::MIDI_META_EVENT_VAL;
 
         if (_midi->format == audio::midi::MIDI_FORMAT::SINGLE_TRACK)
             return getOriginalMIDI();
@@ -70,7 +71,7 @@ namespace files
         events_tuple.reserve(totalEvents);
         
         uint32_t abs_time = 0;
-        constexpr uint8_t meta_event_val = (static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::META_SYSEX) << 4) | static_cast<uint8_t>(MIDI_META_EVENT_TYPES_LOW::META);
+        constexpr uint8_t meta_event_val = MIDI_META_EVENT_VAL::META;
         constexpr uint8_t end_of_track_val = static_cast<uint8_t>(MIDI_META_EVENT::END_OF_TRACK);
         midi_tuple_t last_end_of_track;
         last_end_of_track.abs_time = 0;
