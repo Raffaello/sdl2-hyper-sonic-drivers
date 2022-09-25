@@ -8,7 +8,7 @@ namespace hardware::opl::woody
     class WoodyEmuOPL : public OPL
     {
     public:
-        WoodyEmuOPL(const int rate) noexcept;
+        explicit WoodyEmuOPL(const int rate) noexcept;
         ~WoodyEmuOPL() override = default;
 
         void update(int16_t* buf, const int32_t samples) override;

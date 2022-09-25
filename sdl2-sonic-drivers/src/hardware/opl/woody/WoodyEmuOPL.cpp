@@ -32,9 +32,9 @@ namespace hardware::opl::woody
         // Backup old setup register
         const uint8_t tempReg = _opl.index;
         // We need to set the register we want to write to via port 0x388
-        write(0x388, r);
+        write(0x388, static_cast<uint8_t>(r));
         // Do the real writing to the register
-        write(0x389, v);
+        write(0x389, static_cast<uint8_t>(v));
         // Restore the old register
         write(0x388, tempReg);
     }
