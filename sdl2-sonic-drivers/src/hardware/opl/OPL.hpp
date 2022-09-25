@@ -18,6 +18,10 @@ namespace hardware::opl
     class OPL
     {
     public:
+        OPL(const OPL&) = delete;
+        OPL(const OPL&&) = delete;
+        OPL& operator=(const  OPL&) = delete;
+
         explicit OPL(const OplType type);
         virtual ~OPL();
 

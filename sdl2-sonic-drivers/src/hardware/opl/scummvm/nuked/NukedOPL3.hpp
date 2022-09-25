@@ -22,11 +22,6 @@ namespace hardware::opl::scummvm::nuked
         // TODO: this is same in DOSBOX, it can be bring into the parent, and just change the last line
         void dualWrite(const uint8_t index, const uint8_t reg, uint8_t val) noexcept;
     public:
-        NukedOPL(const NukedOPL&) = delete;
-        NukedOPL(const NukedOPL&&) = delete;
-        NukedOPL& operator=(const  NukedOPL&) = delete;
-        
-
         NukedOPL(const OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer);
         ~NukedOPL() override = default;
 

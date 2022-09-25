@@ -15,6 +15,10 @@ namespace hardware
         class OPL
         {
         public:
+            OPL(const OPL&) = delete;
+            OPL(const OPL&&) = delete;
+            OPL& operator=(const  OPL&) = delete;
+
             OPL() = default;
             virtual ~OPL() = default;
 

@@ -20,10 +20,6 @@ namespace hardware::opl::scummvm::dosbox
         void dualWrite(const uint8_t index, const uint8_t reg, uint8_t val) noexcept;
         void free() noexcept;
     public:
-        DosBoxOPL(const DosBoxOPL&) = delete;
-        DosBoxOPL(const DosBoxOPL&&) = delete;
-        DosBoxOPL& operator=(const  DosBoxOPL&) = delete;
-
         DosBoxOPL(const OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer);
         ~DosBoxOPL() override;
 
