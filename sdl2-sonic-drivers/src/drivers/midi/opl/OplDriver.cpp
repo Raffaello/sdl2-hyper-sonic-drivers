@@ -23,7 +23,6 @@ namespace drivers
                 _oplNumChannels(_opl3_mode ? drivers::opl::OPL3_NUM_CHANNELS : drivers::opl::OPL2_NUM_CHANNELS)
             {
                 _oplWriter = std::make_unique<drivers::opl::OplWriter>(_opl, _opl3_mode);
-                //_oplNumChannels = _opl3_mode ? drivers::opl::OPL3_NUM_CHANNELS : drivers::opl::OPL2_NUM_CHANNELS;
 
                 if (!_oplWriter->init())
                     spdlog::error("[MidiDriver] Can't initialize OPL Emulator chip.");

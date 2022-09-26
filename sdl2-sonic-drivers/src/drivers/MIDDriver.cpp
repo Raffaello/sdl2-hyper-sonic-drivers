@@ -9,7 +9,6 @@ namespace drivers
 {
     constexpr int DEFAULT_MIDI_TEMPO = 500000;
     constexpr int PAUSE_MILLIS = 100;
-    // TODO: replace this one with a "notify"/interrupt instead, as this loose delay time precision
     constexpr unsigned long DELAY_CHUNK_MIN_MICROS = 500 * 1000; // 500ms
     constexpr unsigned long DELAY_CHUNK_MICROS = 250 * 1000; // 250ms
 
@@ -122,28 +121,21 @@ namespace drivers
         
         for (const auto& e : tes)
         {
-            bool paused_device = false;
-            while(_paused)
+            if(_paused)
             {
-                if (!paused_device)
+                _device->pause();
+                do
                 {
-                    paused_device = true;
-                    _device->pause();
-                }
-                utils::delayMillis(PAUSE_MILLIS);
-            }
-
-            if (paused_device)
-            {
+                    utils::delayMillis(PAUSE_MILLIS);
+                } while (_paused);
                 _device->resume();
-                //paused_device = false; // it will be false next loop iteration
                 start = utils::getMicro<unsigned int>();
             }
 
             if (_force_stop)
                 break;
 
-            switch (e.type.val)
+            switch (static_cast<MIDI_META_EVENT_VAL>(e.type.val))
             {
             case MIDI_META_EVENT_VAL::META:
             {

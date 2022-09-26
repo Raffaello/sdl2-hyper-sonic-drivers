@@ -27,11 +27,11 @@ namespace files
         const std::string _filename;
         std::string _readStringFromFile() noexcept;
 
-        uint16_t readLE16() noexcept;
-        uint32_t readLE32() noexcept;
-        uint8_t  readU8() noexcept;
-        uint32_t readBE32() noexcept;
-        uint32_t readBE16() noexcept;
+        uint16_t readLE16();
+        uint32_t readLE32();
+        uint8_t  readU8();
+        uint32_t readBE32();
+        uint32_t readBE16();
 
         std::string _getFilename() const noexcept;
         std::string _getPath() const noexcept;

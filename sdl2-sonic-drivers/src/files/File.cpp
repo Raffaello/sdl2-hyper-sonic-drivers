@@ -74,27 +74,27 @@ namespace files
     }
 
 
-    uint16_t File::readLE16() noexcept
+    uint16_t File::readLE16()
     {
         return utils::swapLE16(read<int16_t>());
     }
 
-    uint32_t File::readLE32() noexcept
+    uint32_t File::readLE32()
     {
         return utils::swapLE32(read<int32_t>());
     }
 
-    uint8_t File::readU8() noexcept
+    uint8_t File::readU8()
     {
         return read<uint8_t>();
     }
 
-    uint32_t File::readBE32() noexcept
+    uint32_t File::readBE32()
     {
         return utils::swapBE32(read<int32_t>());
     }
 
-    uint32_t File::readBE16() noexcept
+    uint32_t File::readBE16()
     {
         return utils::swapBE16(read<int16_t>());
     }
