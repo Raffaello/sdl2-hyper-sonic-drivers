@@ -9,6 +9,7 @@
 #include <hardware/opl/OPL.hpp>
 #include <audio/opl/banks/OP2Bank.hpp>
 #include <audio/scummvm/Mixer.hpp>
+#include <drivers/midi/devices/OplDeviceMock.hpp>
 
 namespace drivers::midi::devices
 {
@@ -23,27 +24,14 @@ namespace drivers::midi::devices
 
     const std::string GENMIDI_OP2 = std::string("fixtures/GENMIDI.OP2");
 
-    class OplMock : public Opl
-    {
-    public:
-        explicit OplMock(const std::shared_ptr<OPL>& opl, const std::shared_ptr<OP2Bank>& op2Bank)
-            : Opl(opl, op2Bank) {}
-        explicit OplMock(const OplType type,
-            const OplEmulator emuType,
-            const std::shared_ptr<audio::scummvm::Mixer>& mixer,
-            const std::shared_ptr<OP2Bank>& op2Bank)
-            : Opl(type, emuType, mixer, op2Bank) {}
-        ~OplMock() override = default;
-    };
-
     TEST(Opl, cstor_)
     {
         auto op2File = OP2File(GENMIDI_OP2);
         auto mixer = std::make_shared<StubMixer>();
         auto opl = Config::create(OplEmulator::AUTO, OplType::OPL2, mixer);
-        EXPECT_NO_THROW(std::make_shared<OplMock>(opl, op2File.getBank()));
+        EXPECT_NO_THROW(std::make_shared<OplDeviceMock>(opl, op2File.getBank()));
         opl = nullptr;
-        EXPECT_THROW(std::make_shared<OplMock>(opl, op2File.getBank()), std::runtime_error);
+        EXPECT_THROW(std::make_shared<OplDeviceMock>(opl, op2File.getBank()), std::runtime_error);
     }
 
     class OplEmulator_ : public ::testing::TestWithParam<std::tuple<OplType, OplEmulator, bool>>
@@ -60,12 +48,12 @@ namespace drivers::midi::devices
     {
         if (this->shouldThrow) {
             EXPECT_THROW(
-                std::make_shared<devices::OplMock>(this->oplType, this->oplEmu, this->mixer, this->op2File.getBank()),
+                std::make_shared<devices::OplDeviceMock>(this->oplType, this->oplEmu, this->mixer, this->op2File.getBank()),
                 std::runtime_error
             );
         }
         else {
-            EXPECT_NO_THROW(std::make_shared<devices::OplMock>(this->oplType, this->oplEmu, this->mixer, this->op2File.getBank()));
+            EXPECT_NO_THROW(std::make_shared<devices::OplDeviceMock>(this->oplType, this->oplEmu, this->mixer, this->op2File.getBank()));
         }
     }
 

@@ -6,27 +6,7 @@
 #include <drivers/opl/OplWriter.hpp>
 #include <hardware/opl/OPL2instrument.h>
 #include <files/dmx/OP2File.hpp>
-
-namespace hardware
-{
-    namespace opl
-    {
-        class OplMock : public OPL
-        {
-        public:
-            OplMock(): OPL(OplType::OPL2) {}
-            virtual bool init() override { _init = true; return true; }
-            virtual void reset() override {};
-            virtual void write(const uint32_t port, const uint16_t val) noexcept override {};
-            virtual uint8_t read(const uint32_t port) noexcept override { return 0; };
-            virtual void writeReg(const uint16_t r, const uint16_t v) noexcept override {};
-            virtual void setCallbackFrequency(int timerFrequency) override {}
-            virtual void startCallbacks(int timerFrequency) override {};
-            virtual void stopCallbacks() override {};
-            virtual std::shared_ptr<audio::scummvm::SoundHandle> getSoundHandle() const noexcept { return nullptr; }
-        };
-    }
-}
+#include <hardware/opl/OPLMock.hpp>
 
 namespace drivers
 {
@@ -63,7 +43,7 @@ namespace drivers
 
             TEST(OplVoice, ctrl_modulation_wheel)
             {
-                auto opl = std::make_shared<hardware::opl::OplMock>();
+                auto opl = std::make_shared<hardware::opl::OPLMock>();
                 const bool opl3_mode = false;
                 auto ow = std::make_unique < drivers::opl::OplWriter>(opl, opl3_mode);
                 
@@ -85,7 +65,7 @@ namespace drivers
                 files::dmx::OP2File f("fixtures/GENMIDI.OP2");
                 auto b = f.getBank();
 
-                auto opl = std::make_shared<hardware::opl::OplMock>();
+                auto opl = std::make_shared<hardware::opl::OPLMock>();
                 const bool opl3_mode = false;
                 auto ow = std::make_unique < drivers::opl::OplWriter>(opl, opl3_mode);
 
