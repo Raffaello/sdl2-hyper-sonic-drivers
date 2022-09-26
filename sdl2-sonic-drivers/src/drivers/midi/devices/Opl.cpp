@@ -59,7 +59,6 @@ namespace drivers::midi::devices
     void Opl::pause() const noexcept
     {
         _oplDriver->pause();
-
     }
 
     void Opl::resume() const noexcept

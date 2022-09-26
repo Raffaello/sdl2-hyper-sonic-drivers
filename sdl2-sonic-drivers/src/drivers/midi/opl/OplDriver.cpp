@@ -25,7 +25,7 @@ namespace drivers
                 _oplWriter = std::make_unique<drivers::opl::OplWriter>(_opl, _opl3_mode);
 
                 if (!_oplWriter->init())
-                    spdlog::error("[MidiDriver] Can't initialize OPL Emulator chip.");
+                    spdlog::error("[OplDriver] Can't initialize OPL Emulator chip.");
 
                 for (uint8_t i = 0; i < audio::midi::MIDI_MAX_CHANNELS; ++i) {
                     _channels[i] = std::make_unique<OplChannel>(i);
@@ -79,7 +79,7 @@ namespace drivers
                     spdlog::warn("META_SYSEX not supported");
                     break;
                 default:
-                    spdlog::warn("MidiDriver: Unknown send() command { 0:#x }", e.type.val);
+                    spdlog::warn("OplDriver: Unknown send() command { 0:#x }", e.type.val);
                     break;
                 }
             }

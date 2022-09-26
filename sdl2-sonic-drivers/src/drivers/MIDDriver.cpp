@@ -3,14 +3,13 @@
 #include <utils/algorithms.hpp>
 #include <array>
 #include <thread>
-#include <algorithm>
 
 namespace drivers
 {
     constexpr int DEFAULT_MIDI_TEMPO = 500000;
     constexpr int PAUSE_MILLIS = 100;
-    constexpr unsigned long DELAY_CHUNK_MIN_MICROS = 500 * 1000; // 500ms
-    constexpr unsigned long DELAY_CHUNK_MICROS = 250 * 1000; // 250ms
+    constexpr unsigned int DELAY_CHUNK_MIN_MICROS = 500 * 1000; // 500ms
+    constexpr unsigned int DELAY_CHUNK_MICROS = 250 * 1000; // 250ms
 
     constexpr unsigned int tempo_to_micros(const uint32_t tempo, const uint16_t division)
     {
@@ -262,16 +261,16 @@ namespace drivers
                 cur_time += e.delta_time;
                 const unsigned int delta_delay = tempo_micros * e.delta_time;
                 const unsigned int end = utils::getMicro<unsigned int>();
-                const unsigned long dd = static_cast<long>(delta_delay - (end - start));
+                const unsigned int dd = static_cast<long>(delta_delay - (end - start));
                 start = end;
                 if (dd > DELAY_CHUNK_MIN_MICROS) {
                     // preventing longer waits before stop a song
                     // TODO: get a start time point before while
                     //       the while must check end time is < lower than start time+delay
                     //       so it will also account for the instructions for the time.
-                    unsigned long delay = dd;
+                    unsigned int delay = dd;
                     while (delay > 0 && !_force_stop) {
-                        const unsigned long d = std::min(DELAY_CHUNK_MICROS, delay);
+                        const unsigned int d = std::min(DELAY_CHUNK_MICROS, delay);
                         utils::delayMicro(d);
                         delay -= d;
                     }
@@ -291,6 +290,5 @@ namespace drivers
 
         _isPlaying = false;
         _device->release(this);
-        _force_stop = false;
     }
 }
