@@ -193,9 +193,9 @@ macro_test(
 )
 
 macro_test(
-    EXE TestConfig
+    EXE TestOPLFactory
     FILES 
-        "hardware/opl/TestConfig.cpp"
+        "hardware/opl/TestOPLFactory.cpp"
     LINKS_PRIVATE sonic-drivers-static
 )
 

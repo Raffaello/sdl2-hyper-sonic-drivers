@@ -62,7 +62,7 @@ install(FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/GetMIDI.hpp
     
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/OPL.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/Config.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/OPLFactory.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/OplType.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/OplEmulator.hpp
     #${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/Timer.hpp
@@ -164,7 +164,7 @@ target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/VOCFile.cpp
     # --- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/OPL.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/Config.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/OPLFactory.cpp
     
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/Timer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/Chip.cpp

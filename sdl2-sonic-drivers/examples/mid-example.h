@@ -11,7 +11,7 @@
 
 #include <files/dmx/OP2File.hpp>
 
-#include <hardware/opl/Config.hpp>
+#include <hardware/opl/OPLFactory.hpp>
 #include <utils/algorithms.hpp>
 
 #include <memory>
@@ -20,7 +20,7 @@
 #include <fmt/color.h>
 #include <map>
 
-using hardware::opl::Config;
+using hardware::opl::OPLFactory;
 using hardware::opl::OplEmulator;
 using hardware::opl::OplType;
 
@@ -39,7 +39,7 @@ void mid_test_run(drivers::MIDDriver& midDrv, const std::shared_ptr<audio::MIDI>
 void scummvm_mid_test(const OplEmulator emu, const OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer,
     const std::shared_ptr<audio::MIDI> midi)
 {
-    auto opl = Config::create(emu, type, mixer);
+    auto opl = OPLFactory::create(emu, type, mixer);
     if (opl == nullptr)
         return;
 
@@ -54,7 +54,7 @@ void scummvm_mid_test(const OplEmulator emu, const OplType type, const std::shar
 void mid_test(const OplEmulator emu, const OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer,
     const std::shared_ptr<audio::MIDI> midi)
 {
-    auto opl = Config::create(emu, type, mixer);
+    auto opl = OPLFactory::create(emu, type, mixer);
     if (opl == nullptr)
         return;
 

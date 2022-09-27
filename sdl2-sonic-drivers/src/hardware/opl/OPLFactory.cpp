@@ -1,4 +1,4 @@
-#include <hardware/opl/Config.hpp>
+#include <hardware/opl/OPLFactory.hpp>
 #include <cstring>
 #include <spdlog/spdlog.h>
 #include <hardware/opl/scummvm/mame/MameOPL2.hpp>
@@ -9,7 +9,7 @@
 
 namespace hardware::opl
 {
-    std::shared_ptr<OPL> Config::create(OplEmulator oplEmulator, OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer)
+    std::shared_ptr<OPL> OPLFactory::create(OplEmulator oplEmulator, OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer)
     {
         switch (oplEmulator)
         {

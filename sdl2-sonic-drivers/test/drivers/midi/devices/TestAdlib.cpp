@@ -3,16 +3,17 @@
 #include <drivers/midi/devices/Adlib.hpp>
 #include <drivers/MIDDriverMock.hpp>
 #include <audio/stubs/StubMixer.hpp>
+#include <hardware/opl/OplEmulator.hpp>
 #include <hardware/opl/OplType.hpp>
 #include <files/dmx/OP2File.hpp>
-#include <hardware/opl/Config.hpp>
+#include <hardware/opl/OPLFactory.hpp>
 
 namespace drivers::midi::devices
 {
     using audio::stubs::StubMixer;
     using hardware::opl::OplType;
     using hardware::opl::OplEmulator;
-    using hardware::opl::Config;
+    using hardware::opl::OPLFactory;
     using files::dmx::OP2File;
 
     const std::string GENMIDI_OP2 = std::string("fixtures/GENMIDI.OP2");
@@ -21,7 +22,7 @@ namespace drivers::midi::devices
     {
         auto op2File = OP2File(GENMIDI_OP2);
         auto mixer = std::make_shared<StubMixer>();
-        auto opl = Config::create(OplEmulator::AUTO, OplType::OPL2, mixer);
+        auto opl = OPLFactory::create(OplEmulator::AUTO, OplType::OPL2, mixer);
         EXPECT_NO_THROW(std::make_shared<Adlib>(opl, op2File.getBank()));
         opl = nullptr;
         EXPECT_THROW(std::make_shared<Adlib>(opl, op2File.getBank()), std::runtime_error);

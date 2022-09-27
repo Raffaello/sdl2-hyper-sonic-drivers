@@ -1,6 +1,6 @@
 #include <drivers/midi/devices/Opl.hpp>
 #include <cassert>
-#include <hardware/opl/Config.hpp>
+#include <hardware/opl/OPLFactory.hpp>
 #include <spdlog/spdlog.h>
 
 namespace drivers::midi::devices
@@ -22,7 +22,7 @@ namespace drivers::midi::devices
         const std::shared_ptr<audio::scummvm::Mixer>& mixer,
         const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank)
     {
-        auto opl = hardware::opl::Config::create(emuType, type, mixer);
+        auto opl = hardware::opl::OPLFactory::create(emuType, type, mixer);
         if (opl == nullptr || opl->type != type) {
             spdlog::critical("device Opl not supporting emutype={:d}, type={:d}", emuType, type);
             throw std::runtime_error("error creating Opl emulator");

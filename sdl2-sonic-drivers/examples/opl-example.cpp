@@ -1,5 +1,5 @@
 #include <hardware/opl/OPL.hpp>
-#include <hardware/opl/Config.hpp>
+#include <hardware/opl/OPLFactory.hpp>
 #include <utils/algorithms.hpp>
 #include <utils/opl.hpp>
 #include <audio/scummvm/SDLMixerManager.hpp>
@@ -12,7 +12,7 @@
 
 
 using audio::scummvm::SdlMixerManager;
-using hardware::opl::Config;
+using hardware::opl::OPLFactory;
 using hardware::opl::OplEmulator;
 using hardware::opl::OplType;
 using utils::delayMillis;
@@ -34,7 +34,7 @@ void opl_test(const OplEmulator emu, const OplType type, const std::shared_ptr<a
     int b;
     int fn;
 
-    auto opl = Config::create(emu, type, mixer);
+    auto opl = OPLFactory::create(emu, type, mixer);
     if (opl == nullptr)
         return;
     
@@ -221,7 +221,7 @@ void opl_test(const OplEmulator emu, const OplType type, const std::shared_ptr<a
 
 bool detect_opl2(const OplEmulator emu, const OplType type, std::shared_ptr<audio::scummvm::Mixer> mixer)
 {
-    auto opl = Config::create(emu, type, mixer);
+    auto opl = OPLFactory::create(emu, type, mixer);
     if (opl == nullptr)
         return false;
 
@@ -236,7 +236,7 @@ bool detect_opl2(const OplEmulator emu, const OplType type, std::shared_ptr<audi
 bool detect_opl3(const OplEmulator emu, const OplType type, std::shared_ptr<audio::scummvm::Mixer> mixer)
 {
     // Detect OPL2. If present, continue.
-    auto opl = Config::create(emu, type, mixer);
+    auto opl = OPLFactory::create(emu, type, mixer);
     if (opl == nullptr)
         return false;
 

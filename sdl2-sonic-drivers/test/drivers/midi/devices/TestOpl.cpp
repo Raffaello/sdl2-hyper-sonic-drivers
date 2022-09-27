@@ -3,9 +3,10 @@
 #include <drivers/midi/devices/Opl.hpp>
 #include <drivers/MIDDriverMock.hpp>
 #include <audio/stubs/StubMixer.hpp>
+#include <hardware/opl/OplEmulator.hpp>
 #include <hardware/opl/OplType.hpp>
 #include <files/dmx/OP2File.hpp>
-#include <hardware/opl/Config.hpp>
+#include <hardware/opl/OPLFactory.hpp>
 #include <hardware/opl/OPL.hpp>
 #include <audio/opl/banks/OP2Bank.hpp>
 #include <audio/scummvm/Mixer.hpp>
@@ -17,7 +18,7 @@ namespace drivers::midi::devices
     using audio::opl::banks::OP2Bank;
     using hardware::opl::OplType;
     using hardware::opl::OplEmulator;
-    using hardware::opl::Config;
+    using hardware::opl::OPLFactory;
     using hardware::opl::OPL;
     using files::dmx::OP2File;
     using files::dmx::OP2File;
@@ -28,7 +29,7 @@ namespace drivers::midi::devices
     {
         auto op2File = OP2File(GENMIDI_OP2);
         auto mixer = std::make_shared<StubMixer>();
-        auto opl = Config::create(OplEmulator::AUTO, OplType::OPL2, mixer);
+        auto opl = OPLFactory::create(OplEmulator::AUTO, OplType::OPL2, mixer);
         EXPECT_NO_THROW(std::make_shared<OplDeviceMock>(opl, op2File.getBank()));
         opl = nullptr;
         EXPECT_THROW(std::make_shared<OplDeviceMock>(opl, op2File.getBank()), std::runtime_error);

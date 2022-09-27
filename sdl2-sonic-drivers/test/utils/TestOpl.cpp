@@ -2,8 +2,10 @@
 #include <gmock/gmock.h>
 #include <utils/opl.hpp>
 #include <hardware/opl/OPL.hpp>
-#include <hardware/opl/Config.hpp>
-#include "../test/audio/stubs/StubMixer.hpp"
+#include <hardware/opl/OPLFactory.hpp>
+#include <hardware/opl/OplEmulator.hpp>
+#include <hardware/opl/OplType.hpp>
+#include <audio/stubs/StubMixer.hpp>
 #include <memory>
 
 namespace utils
@@ -12,7 +14,7 @@ namespace utils
     // NOTE: Disabled due to CI Linux and Mac
 
     using hardware::opl::OPL;
-    using hardware::opl::Config;
+    using hardware::opl::OPLFactory;
     using hardware::opl::OplEmulator;
     using hardware::opl::OplType;
     using audio::stubs::StubMixer;
@@ -26,7 +28,7 @@ namespace utils
         bool isOpl2 = std::get<2>(GetParam());
         bool isOpl3 = std::get<3>(GetParam());
         
-        std::shared_ptr<OPL> opl = Config::create(opl_emu, opl_type, mixer);
+        std::shared_ptr<OPL> opl = OPLFactory::create(opl_emu, opl_type, mixer);
     };
     TEST_P(OplType_, DetectOPL)
     {

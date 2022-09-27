@@ -14,10 +14,10 @@ namespace hardware::opl
      * @defgroup audio_fmopl OPL emulation
      * @ingroup audio
      *
-     * @brief OPL class for managing an OPS emulator.
+     * @brief OPL factory method to return an OPL emulator instance.
      * @{
      */
-    class Config
+    class OPLFactory
     {
     public:
         /**

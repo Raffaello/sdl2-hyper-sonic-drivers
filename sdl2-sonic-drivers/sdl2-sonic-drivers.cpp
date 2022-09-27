@@ -10,7 +10,7 @@
 #include <files/miles/XMIFile.hpp>
 #include <files/westwood/ADLFile.hpp>
 #include <hardware/PCSpeaker.hpp>
-#include <hardware/opl/Config.hpp>
+#include <hardware/opl/OPLFactory.hpp>
 
 #include <hardware/opl/mame/MameOPL3.hpp>
 
@@ -265,7 +265,7 @@ int renderMixer()
     std::shared_ptr<Mixer> mixer = mixerManager.getMixer();
 
     //spdlog::set_level(spdlog::level::debug);
-    auto opl = Config::create(OplEmulator::NUKED, OplType::OPL3, mixer);
+    auto opl = OPLFactory::create(OplEmulator::NUKED, OplType::OPL3, mixer);
     auto pOpl = dynamic_cast<EmulatedOPL*>( opl.get());
     //auto opl = std::make_shared<hardware::opl::mame::MameOPL>(mixer);
     std::shared_ptr<files::westwood::ADLFile> adlFile = std::make_shared<files::westwood::ADLFile>("test/fixtures/DUNE0.ADL");
@@ -336,7 +336,7 @@ int xmi_parser()
 int midi_adlib()
 {
     using namespace audio::scummvm;
-    using hardware::opl::Config;
+    using hardware::opl::OPLFactory;
     using hardware::opl::OplEmulator;
     using hardware::opl::OplType;
 
@@ -348,7 +348,7 @@ int midi_adlib()
     auto emu = OplEmulator::NUKED;
     auto type = OplType::OPL3;
     
-    auto opl = Config::create(emu, type, mixer);
+    auto opl = OPLFactory::create(emu, type, mixer);
     if (opl.get() == nullptr)
         return -1;
 
@@ -370,7 +370,7 @@ int midi_adlib()
 int midi_adlib_mus_file_CONCURRENCY_ERROR_ON_SAME_DEVICE()
 {
     using namespace audio::scummvm;
-    using hardware::opl::Config;
+    using hardware::opl::OPLFactory;
     using hardware::opl::OplEmulator;
     using hardware::opl::OplType;
 
@@ -382,7 +382,7 @@ int midi_adlib_mus_file_CONCURRENCY_ERROR_ON_SAME_DEVICE()
     auto emu = OplEmulator::MAME;
     auto type = OplType::OPL2;
 
-    auto opl = Config::create(emu, type, mixer);
+    auto opl = OPLFactory::create(emu, type, mixer);
     if (opl.get() == nullptr)
         return -1;
 
@@ -419,7 +419,7 @@ int midi_adlib_mus_file_CONCURRENCY_ERROR_ON_SAME_DEVICE()
 int midi_adlib_mus_op2_file()
 {
     using namespace audio::scummvm;
-    using hardware::opl::Config;
+    using hardware::opl::OPLFactory;
     using hardware::opl::OplEmulator;
     using hardware::opl::OplType;
 
@@ -440,7 +440,7 @@ int midi_adlib_mus_op2_file()
     auto midi = musFile->getMIDI();
 
     {
-        auto opl = Config::create(emu, type, mixer);
+        auto opl = OPLFactory::create(emu, type, mixer);
         if (opl.get() == nullptr)
             return -1;
 
@@ -457,7 +457,7 @@ int midi_adlib_mus_op2_file()
     }
     {
         
-        auto opl = Config::create(OplEmulator::DOS_BOX, OplType::OPL3, mixer);
+        auto opl = OPLFactory::create(OplEmulator::DOS_BOX, OplType::OPL3, mixer);
         if (opl.get() == nullptr)
             return -1;
         auto sbpro_midi = std::make_shared<drivers::midi::devices::SbPro2>(opl, op2File->getBank());
@@ -494,7 +494,7 @@ int midi_adlib_xmi()
     // also it has been hacked through the xmifile get midi to build a single track midi
 
     using namespace audio::scummvm;
-    using hardware::opl::Config;
+    using hardware::opl::OPLFactory;
     using hardware::opl::OplEmulator;
     using hardware::opl::OplType;
 
@@ -506,7 +506,7 @@ int midi_adlib_xmi()
     auto emu = OplEmulator::MAME;
     auto type = OplType::OPL2;
 
-    auto opl = Config::create(emu, type, mixer);
+    auto opl = OPLFactory::create(emu, type, mixer);
     if (opl.get() == nullptr)
         return -1;
 

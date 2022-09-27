@@ -1,5 +1,5 @@
 #include <hardware/opl/OPL.hpp>
-#include <hardware/opl/Config.hpp>
+#include <hardware/opl/OPLFactory.hpp>
 #include <utils/algorithms.hpp>
 #include <audio/scummvm/SDLMixerManager.hpp>
 #include <files/westwood/ADLFile.hpp>
@@ -15,7 +15,7 @@
 
 
 using audio::scummvm::SdlMixerManager;
-using hardware::opl::Config;
+using hardware::opl::OPLFactory;
 using hardware::opl::OplEmulator;
 using hardware::opl::OplType;
 using utils::delayMillis;
@@ -26,7 +26,7 @@ using drivers::westwood::ADLDriver;
 void adl_test(const OplEmulator emu, const OplType type, std::shared_ptr<audio::scummvm::Mixer> mixer, const std::string& filename, const int track)
 {
     //spdlog::set_level(spdlog::level::debug);
-    auto opl = Config::create(emu, type, mixer);
+    auto opl = OPLFactory::create(emu, type, mixer);
     if (opl == nullptr)
         return;
 

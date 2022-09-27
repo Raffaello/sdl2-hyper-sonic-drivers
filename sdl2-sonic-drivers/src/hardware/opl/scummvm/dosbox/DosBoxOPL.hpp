@@ -4,7 +4,6 @@
 #include <hardware/opl/scummvm/EmulatedOPL.hpp>
 #include <audio/scummvm/Mixer.hpp>
 #include <memory>
-#include <hardware/opl/Config.hpp>
 #include <hardware/opl/Timer.hpp>
 #include <hardware/opl/Chip.hpp>
 #include <array>

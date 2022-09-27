@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include <hardware/opl/Config.hpp>
+#include <hardware/opl/OPLFactory.hpp>
 #include <audio/stubs/StubMixer.hpp>
 #include <hardware/opl/woody/WoodyOPL.hpp>
 #include <hardware/opl/scummvm/dosbox/DosBoxOPL.hpp>
@@ -21,7 +21,7 @@ namespace hardware::opl
         OplEmulator emu = std::get<0>(GetParam());
         OplType type = std::get<1>(GetParam());
 
-        auto opl = Config::create(emu, type, mixer);
+        auto opl = OPLFactory::create(emu, type, mixer);
         EXPECT_TRUE(opl->init());
         EXPECT_NE(opl, nullptr);
         EXPECT_EQ(opl.use_count(), 1);
@@ -75,7 +75,7 @@ namespace hardware::opl
         OplEmulator emu = std::get<0>(GetParam());
         OplType type = std::get<1>(GetParam());
 
-        auto opl = Config::create(emu, type, mixer);
+        auto opl = OPLFactory::create(emu, type, mixer);
         EXPECT_EQ(opl, nullptr);
         EXPECT_EQ(opl.get(), nullptr);
     }
