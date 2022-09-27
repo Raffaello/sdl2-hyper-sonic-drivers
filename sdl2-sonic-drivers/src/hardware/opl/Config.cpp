@@ -36,8 +36,10 @@ namespace hardware::opl
             }
             return std::make_shared<scummvm::nuked::NukedOPL>(type, mixer);
         case OplEmulator::WOODY:
-            if (type == OplType::OPL3)
-                spdlog::warn("Woody deosn't support OPL3, using DUAL_OPL2");
+            if (type == OplType::OPL3) {
+                spdlog::warn("Woody deosn't support OPL3");
+                return nullptr;
+            }
             return std::make_shared<woody::WoodyOPL>(mixer, type == OplType::OPL2 ? false : true);
 
         default:

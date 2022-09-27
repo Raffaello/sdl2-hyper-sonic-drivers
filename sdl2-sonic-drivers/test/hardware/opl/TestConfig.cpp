@@ -62,7 +62,7 @@ namespace hardware::opl
             std::make_tuple<OplEmulator, OplType>(OplEmulator::NUKED, OplType::OPL3),
             std::make_tuple<OplEmulator, OplType>(OplEmulator::WOODY, OplType::OPL2),
             std::make_tuple<OplEmulator, OplType>(OplEmulator::WOODY, OplType::DUAL_OPL2),
-            std::make_tuple<OplEmulator, OplType>(OplEmulator::WOODY, OplType::OPL3),
+            //std::make_tuple<OplEmulator, OplType>(OplEmulator::WOODY, OplType::OPL3),
             std::make_tuple<OplEmulator, OplType>(OplEmulator::AUTO, OplType::OPL2),
             std::make_tuple<OplEmulator, OplType>(OplEmulator::AUTO, OplType::DUAL_OPL2),
             std::make_tuple<OplEmulator, OplType>(OplEmulator::AUTO, OplType::OPL3)
@@ -86,7 +86,8 @@ namespace hardware::opl
             std::make_tuple<OplEmulator, OplType>(OplEmulator::MAME, OplType::DUAL_OPL2),
             std::make_tuple<OplEmulator, OplType>(OplEmulator::MAME, OplType::OPL3),
             std::make_tuple<OplEmulator, OplType>(OplEmulator::NUKED, OplType::OPL2),
-            std::make_tuple<OplEmulator, OplType>(OplEmulator::NUKED, OplType::DUAL_OPL2)
+            std::make_tuple<OplEmulator, OplType>(OplEmulator::NUKED, OplType::DUAL_OPL2),
+            std::make_tuple<OplEmulator, OplType>(OplEmulator::WOODY, OplType::OPL3)
         )
     );
 }
