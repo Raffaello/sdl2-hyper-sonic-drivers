@@ -142,6 +142,9 @@ namespace files::miles
         // { UBYTE interval count(if < 128)
         //     UBYTE <MIDI event>(if > 127) } ...
 
+        using audio::midi::MIDI_EVENT_TYPES_HIGH;
+        using audio::midi::MIDI_META_EVENT_TYPES_LOW;
+
         std::unique_ptr<uint8_t[]> buf = std::make_unique<uint8_t[]>(IFF_evnt.size);
         read(buf.get(), IFF_evnt.size);
 
@@ -156,21 +159,23 @@ namespace files::miles
             offs += decode_xmi_VLQ(&buf[offs], e.delta_time);
             e.type.val = buf[offs++];
             // TODO: refactor later as there is quite a lot in common with MIDFile
-            switch (e.type.high)
+            //       refactor when loading from a memory buffer rather then from file
+            //       (when preload the whole file into memory)
+            switch (static_cast<MIDI_EVENT_TYPES_HIGH>(e.type.high))
             {
-            case 0xF:
+            case MIDI_EVENT_TYPES_HIGH::META_SYSEX:
                 // special event
-                switch (e.type.low)
+                switch (static_cast<MIDI_META_EVENT_TYPES_LOW>(e.type.low))
                 {
-                case 0x0:
+                case MIDI_META_EVENT_TYPES_LOW::SYS_EX0:
                     // sysEx-event
                     spdlog::error("sysEx 0x0 event not implemented yet");
                     break;
-                case 0x7:
+                case MIDI_META_EVENT_TYPES_LOW::SYS_EX7:
                     // sysEx-event
                     spdlog::error("sysEx 0x7 event not implemented yet");
                     break;
-                case 0xF:
+                case MIDI_META_EVENT_TYPES_LOW::META:
                 {
                     // meta-event
                     uint8_t type = buf[offs++];
@@ -199,31 +204,50 @@ namespace files::miles
 
                 }
                 break;
-            case 0xC:
-            case 0xD:
+            case MIDI_EVENT_TYPES_HIGH::PROGRAM_CHANGE:
+            case MIDI_EVENT_TYPES_HIGH::CHANNEL_AFTERTOUCH:
                 e.data.reserve(1);
                 e.data.push_back(buf[offs++]);
                 break;
-            case 0x8: // Note OFF
+            case MIDI_EVENT_TYPES_HIGH::NOTE_OFF:
             {
                 const char* err_msg = "Note OFF event found.";
                 spdlog::critical(err_msg);
                 throw std::invalid_argument(err_msg);
             }
             break;
-            case 0x9: // Note ON
-                // TODO: should convert to note_on/off standard midi?
+            case MIDI_EVENT_TYPES_HIGH::NOTE_ON: {
+                // TODO: it should convert to note_on/off standard midi
                 e.data.reserve(3);
                 e.data.push_back(buf[offs++]);
-                e.data.push_back(buf[offs++]);
-                e.data.push_back(buf[offs++]);
+                const uint8_t vel = buf[offs++];
+                uint32_t length = 0;
+                offs += decode_VLQ(&buf[offs], length);
+                
+                if (length == 0) {
+                    length = 1;
+                }
+                if (vel == 0) {
+                    // NOTE_OFF
+                    e.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::NOTE_OFF);
+                    length = 0;
+                }
+                e.data.push_back(vel);
+                //e.data.push_back(length);
+            }
                 break;
-            case 0xA:
-            case 0xB:
-            case 0xE:
+            case MIDI_EVENT_TYPES_HIGH::AFTERTOUCH:
+            
+            case MIDI_EVENT_TYPES_HIGH::PITCH_BEND:
                 e.data.reserve(2);
                 e.data.push_back(buf[offs++]);
                 e.data.push_back(buf[offs++]);
+                break;
+            case MIDI_EVENT_TYPES_HIGH::CONTROLLER:
+                e.data.reserve(2);
+                e.data.push_back(buf[offs++]);
+                e.data.push_back(buf[offs++]);
+                // TODO XMIDI controller
                 break;
             default:
                 spdlog::critical("MIDFile: midi event {:#04x} not recognized {:#03x} - pos={}.", e.type.val, (uint8_t)e.type.high, tell());

@@ -483,12 +483,12 @@ GTL: See Bankfile.
 
 MIDI Channel: See Channel.
 
-MIDI Channel Voice Message: A short representation (2-3 bytes) of a single MIDI event. 
+MIDI Channel Voice Message: A short representation (2-3 bytes) of a single MIDI event.
 Channel Voice messages include the Note Off, Note On, Polyphonic Key Pressure, Control
 Change, Program Change, Channel Pressure, and Pitch Wheel Change message types.
 
 MIDI Controller: See Controller.
-MIDI System Exclusive Message: A device-specific data packet sent to a MIDI synthesizer. 
+MIDI System Exclusive Message: A device-specific data packet sent to a MIDI synthesizer.
 Often, system exclusive messages are used to control aspects of synthesis not otherwise covered
 by the MIDI standard, such as custom instrument data, reverb control, and channel response
 configuration.  Most MIDI synthesizers are accompanied by literature describing what system
@@ -499,7 +499,7 @@ musical instrument at a time.
 
 Operator: See Partial.
 
-Partial: Also called an operator, a partial is a component of an FM or additive voice (q.v.). 
+Partial: Also called an operator, a partial is a component of an FM or additive voice (q.v.).
 On the Roland MT-32/LAPC-1 synthesizer, each voice may use from 1 to 4 of 32 available
 partials.  On the Ad Lib, Sound Blaster, and other YM3812-based cards, each voice requires 2
 of 18 available partials.  The Yamaha YMF262 (OPL3) device, used in some newer FM sound

@@ -250,7 +250,6 @@ namespace files
                 throw std::runtime_error("MIDI file too long, absolute time overflowed");
             }
 
-            //e.abs_time = abs_time;
             e.type.val = readU8();
 
             if (e.type.high < 0x8) {

@@ -490,7 +490,7 @@ int midi_adlib_mus_op2_file()
 
 int midi_adlib_xmi()
 {
-    // Working but in a reduced way as there are specific XMI midi messages not interpreted
+    // NOT Working but in a reduced way as there are specific XMI midi messages not interpreted
     // also it has been hacked through the xmifile get midi to build a single track midi
 
     using namespace audio::scummvm;
@@ -510,7 +510,7 @@ int midi_adlib_xmi()
     if (opl.get() == nullptr)
         return -1;
 
-    //spdlog::set_level(spdlog::level::debug);
+    spdlog::set_level(spdlog::level::debug);
     std::shared_ptr<files::miles::XMIFile> xmiFile = std::make_shared<files::miles::XMIFile>("test/fixtures/AIL2_14_DEMO.XMI");
     auto m = xmiFile->getMIDI();
     auto midi = std::make_shared<audio::MIDI>(audio::midi::MIDI_FORMAT::SINGLE_TRACK, 1, m->division);
@@ -539,8 +539,8 @@ int main(int argc, char* argv[])
 
     //xmi_parser();
     //midi_adlib_mus_file_CONCURRENCY_ERROR_ON_SAME_DEVICE();
-    midi_adlib_mus_op2_file();
-    //midi_adlib_xmi();
+    //midi_adlib_mus_op2_file();
+    midi_adlib_xmi();
 
     SDL_Init(SDL_INIT_TIMER | SDL_INIT_AUDIO);
 
