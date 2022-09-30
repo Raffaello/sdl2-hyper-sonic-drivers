@@ -23,9 +23,9 @@ Partially reading these types of files, depending of their format.
 - [x] MID files
 - [x] MUS files
 
-### MIDI files
+### MIDI Files
 
-MIDI files must be converted to single track before playing them.
+MIDI files Format 1 are converted to single track before playing them.
 
 Format 2 file type is not supported as there is no sample available,
 but each tracks should be like a format 0 file (single track).
@@ -33,6 +33,14 @@ but each tracks should be like a format 0 file (single track).
 ### MUS Files
 
 Are converted to MIDI.
+
+
+### XMI Files
+
+eXtended MIDI files those will be converted to MIDI Format 2 when 
+there is more than 1 track.
+each track is like a format 0 MIDI file with eXtensions.
+
 
 ## Emulators
 At the moment the only implemented emulators are OPL chips.

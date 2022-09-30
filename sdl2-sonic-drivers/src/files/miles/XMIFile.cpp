@@ -151,13 +151,19 @@ namespace files::miles
         bool endTrack = false;
         int offs = 0;
         MIDITrack t;
-
         while (!endTrack && offs < IFF_evnt.size)
         {
             MIDIEvent e;
 
-            offs += decode_xmi_VLQ(&buf[offs], e.delta_time);
+            if (buf[offs] < 128) {
+                // interval count
+                offs += decode_xmi_VLQ(&buf[offs], e.delta_time);
+            } else {
+                e.delta_time = 0;
+            }
+            // midi event
             e.type.val = buf[offs++];
+            
             // TODO: refactor later as there is quite a lot in common with MIDFile
             //       refactor when loading from a memory buffer rather then from file
             //       (when preload the whole file into memory)
@@ -217,37 +223,34 @@ namespace files::miles
             }
             break;
             case MIDI_EVENT_TYPES_HIGH::NOTE_ON: {
-                // TODO: it should convert to note_on/off standard midi
-                e.data.reserve(3);
+                e.data.reserve(2);
                 e.data.push_back(buf[offs++]);
                 const uint8_t vel = buf[offs++];
-                uint32_t length = 0;
-                offs += decode_VLQ(&buf[offs], length);
-                
-                if (length == 0) {
-                    length = 1;
-                }
-                if (vel == 0) {
-                    // NOTE_OFF
-                    e.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::NOTE_OFF);
-                    length = 0;
-                }
+                //if (vel == 0) {
+                //    // NOTE_OFF
+                //    e.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::NOTE_OFF);
+                //}
                 e.data.push_back(vel);
-                //e.data.push_back(length);
+                e.data.shrink_to_fit();
+                t.addEvent(e);
+
+                // update delta and add note off events
+                offs += decode_VLQ(&buf[offs], e.delta_time);
+                if (e.delta_time == 0)
+                    e.delta_time = 1;
+                e.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::NOTE_OFF);
+                // e.type.low is already set
+                // e.data[0] contain already the note_on
+                e.data[1] = 40; // default if no velocity on release
+                //t.addEvent(e); // it will be added at the end of the loop
             }
                 break;
             case MIDI_EVENT_TYPES_HIGH::AFTERTOUCH:
-            
             case MIDI_EVENT_TYPES_HIGH::PITCH_BEND:
-                e.data.reserve(2);
-                e.data.push_back(buf[offs++]);
-                e.data.push_back(buf[offs++]);
-                break;
             case MIDI_EVENT_TYPES_HIGH::CONTROLLER:
                 e.data.reserve(2);
                 e.data.push_back(buf[offs++]);
                 e.data.push_back(buf[offs++]);
-                // TODO XMIDI controller
                 break;
             default:
                 spdlog::critical("MIDFile: midi event {:#04x} not recognized {:#03x} - pos={}.", e.type.val, (uint8_t)e.type.high, tell());
@@ -269,6 +272,7 @@ namespace files::miles
             throw std::invalid_argument(err_msg);
         }
 
+        t.lock();
         return t;
     }
 
