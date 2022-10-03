@@ -175,12 +175,12 @@ namespace files::miles
                 e.delta_time = 0;
             }
             if (e.delta_time > 0) {
-                uint32_t delta_time = e.delta_time;
                 uint32_t offs = 0;
                 // 1st pass adjust note durations
-                while (!notes.empty())
+                // TODO: this is a not terminating loop
+                while (!notes.empty() && offs < e.delta_time)
                 {
-                    auto note = notes.top();
+                    MIDIEvent note = notes.top();
                     notes.pop();
                     // adjust delta_time
                     note.delta_time -= offs;
