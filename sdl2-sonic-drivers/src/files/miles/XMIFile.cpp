@@ -2,6 +2,7 @@
 #include <audio/midi/MIDITrack.hpp>
 #include <utils/algorithms.hpp>
 #include <spdlog/spdlog.h>
+#include <queue>
 
 namespace files::miles
 {
@@ -148,6 +149,18 @@ namespace files::miles
         std::unique_ptr<uint8_t[]> buf = std::make_unique<uint8_t[]>(IFF_evnt.size);
         read(buf.get(), IFF_evnt.size);
 
+        // TODO better use a minHeap so first note is the first to go off.
+        //      and than can adjust the remaining ones.
+        //      looks very expensive... but the adjustment is an offset
+        //      can be carried on instead of readjusting the heap.
+        //      readjust only at the end
+        //      NEED TO BE TESTED
+        // delta time here is the note duration
+        auto midiEvent_cmp = [](const MIDIEvent& a, const MIDIEvent& b) {
+            return a.delta_time > b.delta_time;
+        };
+        std::priority_queue<MIDIEvent, std::vector<MIDIEvent>, decltype(midiEvent_cmp)> notes(midiEvent_cmp);
+
         bool endTrack = false;
         int offs = 0;
         MIDITrack t;
@@ -160,6 +173,31 @@ namespace files::miles
                 offs += decode_xmi_VLQ(&buf[offs], e.delta_time);
             } else {
                 e.delta_time = 0;
+            }
+            if (e.delta_time > 0) {
+                uint32_t delta_time = e.delta_time;
+                uint32_t offs = 0;
+                // 1st pass adjust note durations
+                while (!notes.empty())
+                {
+                    auto note = notes.top();
+                    notes.pop();
+                    // adjust delta_time
+                    note.delta_time -= offs;
+                    if (note.delta_time <= e.delta_time)
+                    {
+                        // insert note off
+                        t.addEvent(note);
+                        e.delta_time -= note.delta_time;
+                        offs += note.delta_time;
+                    }
+                    else
+                    {
+                        // adjust heap, not nice...
+                        note.delta_time -= e.delta_time;
+                        notes.push(note);
+                    }
+                }
             }
             // midi event
             e.type.val = buf[offs++];
@@ -232,17 +270,18 @@ namespace files::miles
                 //}
                 e.data.push_back(vel);
                 e.data.shrink_to_fit();
-                t.addEvent(e);
+                // read note duration
+                MIDIEvent noteOff;
+                offs += decode_VLQ(&buf[offs], noteOff.delta_time);
+                if (noteOff.delta_time == 0)
+                    noteOff.delta_time = 1; // TODO: is this correct?
 
-                // update delta and add note off events
-                offs += decode_VLQ(&buf[offs], e.delta_time);
-                if (e.delta_time == 0)
-                    e.delta_time = 1;
-                e.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::NOTE_OFF);
-                // e.type.low is already set
-                // e.data[0] contain already the note_on
-                e.data[1] = 40; // default if no velocity on release
-                //t.addEvent(e); // it will be added at the end of the loop
+                noteOff.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::NOTE_OFF);
+                noteOff.type.low = e.type.low;
+                noteOff.data.resize(2);
+                noteOff.data[0] = e.data[0];
+                noteOff.data[1] = 40; // default if no velocity on release
+                notes.push(noteOff);
             }
                 break;
             case MIDI_EVENT_TYPES_HIGH::AFTERTOUCH:
