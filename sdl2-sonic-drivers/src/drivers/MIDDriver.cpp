@@ -256,6 +256,7 @@ namespace drivers
                 continue;
             }
 
+            //spdlog::debug("DELTA_TIME = {:d}", e.delta_time);
             if (e.delta_time != 0)
             {
                 cur_time += e.delta_time;
