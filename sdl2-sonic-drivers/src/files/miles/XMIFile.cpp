@@ -150,13 +150,7 @@ namespace files::miles
         std::unique_ptr<uint8_t[]> buf = std::make_unique<uint8_t[]>(IFF_evnt.size);
         read(buf.get(), IFF_evnt.size);
 
-        // TODO better use a minHeap so first note is the first to go off.
-        //      and than can adjust the remaining ones.
-        //      looks very expensive... but the adjustment is an offset
-        //      can be carried on instead of readjusting the heap.
-        //      readjust only at the end
-        //      NEED TO BE TESTED
-        // delta time here is the note duration
+        // delta time here is stored as abs_time + note duration
         auto midiEvent_cmp = [](const MIDIEvent& a, const MIDIEvent& b) {
             return a.delta_time > b.delta_time;
         };
@@ -188,8 +182,6 @@ namespace files::miles
             while (!notes.empty() && e.delta_time > 0)
             {
                 MIDIEvent note = notes.top();
-                // adjust delta_time
-                // delta_time is abs_time' + note_duration
                 if (note.delta_time <= abs_time)
                 {
                     notes.pop();
