@@ -221,6 +221,7 @@ namespace files
         using audio::midi::MIDIEvent;
         using audio::midi::MIDI_EVENT_TYPES_HIGH;
         using audio::midi::MIDI_META_EVENT_TYPES_LOW;
+        using audio::midi::TO_META;
 
         MIDITrack track;
         bool endTrack = false;
@@ -289,7 +290,7 @@ namespace files
                         offs++;
                     }
 
-                    if (MIDI_META_EVENT::END_OF_TRACK == static_cast<MIDI_META_EVENT>(type)) {
+                    if (MIDI_META_EVENT::END_OF_TRACK == TO_META(type)) {
                         endTrack = true;
                     }
                     break;

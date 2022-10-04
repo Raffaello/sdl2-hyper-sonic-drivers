@@ -169,9 +169,8 @@ namespace files::miles
                 // interval count
                 offs += decode_xmi_VLQ(&buf[offs], e.delta_time);
                 // check for overflow:
-                const uint32_t abs_time_old = abs_time;
+                assert(abs_time <= abs_time + e.delta_time);
                 abs_time += e.delta_time;
-                assert(abs_time >= abs_time_old);
             } else {
                 e.delta_time = 0;
             }
@@ -179,6 +178,8 @@ namespace files::miles
             // note.delta_time is the abs_time at the moment of playing plus its duration
             // if current abs_time is >= note_delta time it means the note_off must be inserted
             // because previous delta_time was still playing.
+            // TODO: at the end of the track there could be still some noteOff events
+            //       to insert...
             while (!notes.empty() && e.delta_time > 0)
             {
                 MIDIEvent note = notes.top();
@@ -195,6 +196,7 @@ namespace files::miles
                 else
                     break;
             }
+
             // midi event
             e.type.val = buf[offs++];
             

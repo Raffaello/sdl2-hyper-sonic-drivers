@@ -108,6 +108,7 @@ namespace drivers
         using audio::midi::MIDI_META_EVENT_TYPES_LOW;
         using audio::midi::MIDI_META_EVENT;
         using audio::midi::MIDI_META_EVENT_VAL;
+        using audio::midi::TO_META;
 
         _isPlaying = true;
         _force_stop = false;
@@ -140,7 +141,7 @@ namespace drivers
             {
                 const uint8_t type = e.data[0]; // must be < 128
                 std::string str;
-                switch (static_cast<audio::midi::MIDI_META_EVENT>(type))
+                switch (TO_META(type))
                 {
                 case MIDI_META_EVENT::CHANNEL_PREFIX:
                     spdlog::warn("CHANNEL_PREFIX {:d} not implemented", e.data[1]);
