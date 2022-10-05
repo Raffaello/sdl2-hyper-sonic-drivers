@@ -510,7 +510,7 @@ int midi_adlib_xmi()
     if (opl.get() == nullptr)
         return -1;
 
-    spdlog::set_level(spdlog::level::debug);
+    //spdlog::set_level(spdlog::level::debug);
     std::shared_ptr<files::miles::XMIFile> xmiFile = std::make_shared<files::miles::XMIFile>("test/fixtures/AIL2_14_DEMO.XMI");
     auto m = xmiFile->getMIDI();
     auto midi = std::make_shared<audio::MIDI>(audio::midi::MIDI_FORMAT::SINGLE_TRACK, 1, m->division);
@@ -524,6 +524,7 @@ int midi_adlib_xmi()
     
     while (midDrv.isPlaying())
     {
+        spdlog::info("playing...");
         utils::delayMillis(1000);
     }
     return 0;

@@ -6,14 +6,14 @@
 
 namespace drivers
 {
-    constexpr int DEFAULT_MIDI_TEMPO = 500000;
-    constexpr int PAUSE_MILLIS = 100;
-    constexpr unsigned int DELAY_CHUNK_MIN_MICROS = 500 * 1000; // 500ms
-    constexpr unsigned int DELAY_CHUNK_MICROS = 250 * 1000; // 250ms
+    constexpr uint32_t DEFAULT_MIDI_TEMPO = 500000;
+    constexpr uint32_t PAUSE_MILLIS = 100;
+    constexpr int32_t DELAY_CHUNK_MIN_MICROS = 500 * 1000; // 500ms
+    constexpr uint32_t DELAY_CHUNK_MICROS = 250 * 1000; // 250ms
 
-    constexpr unsigned int tempo_to_micros(const uint32_t tempo, const uint16_t division)
+    constexpr uint32_t tempo_to_micros(const uint32_t tempo, const uint16_t division)
     {
-        return static_cast<unsigned int>(static_cast<float>(tempo) / static_cast<float>(division));
+        return static_cast<uint32_t>(static_cast<float>(tempo) / static_cast<float>(division));
     }
 
     MIDDriver::MIDDriver(const std::shared_ptr<audio::scummvm::Mixer>& mixer, const std::shared_ptr<midi::Device>& device)
@@ -66,6 +66,7 @@ namespace drivers
             return;
         }
         
+        _isPlaying = true;
         _player = std::thread(&MIDDriver::processTrack, this, midi->getTrack(), midi->division & 0x7FFF);
     }
 
@@ -116,9 +117,8 @@ namespace drivers
         int cur_time = 0; // ticks
         unsigned int tempo_micros = tempo_to_micros(tempo, division);
         spdlog::debug("tempo_micros = {}", tempo_micros);
-        unsigned int start = utils::getMicro<unsigned int>();
+        uint32_t start = utils::getMicro<unsigned int>();
         const auto& tes = track.getEvents();
-        
         for (const auto& e : tes)
         {
             if(_paused)
@@ -253,26 +253,26 @@ namespace drivers
                 msg_size = 2;*/
                 break;
             default:
-                spdlog::warn("unrecognized MIDI EVENT type high {:#02x} (skipping", e.type.high);
-                continue;
+                spdlog::warn("unrecognized MIDI EVENT type high {:#02x}", e.type.high);
+                break;
             }
 
             //spdlog::debug("DELTA_TIME = {:d}", e.delta_time);
             if (e.delta_time != 0)
             {
                 cur_time += e.delta_time;
-                const unsigned int delta_delay = tempo_micros * e.delta_time;
-                const unsigned int end = utils::getMicro<unsigned int>();
-                const unsigned int dd = static_cast<long>(delta_delay - (end - start));
+                const int32_t delta_delay = tempo_micros * e.delta_time;
+                const int32_t end = utils::getMicro<uint32_t>();
+                const int32_t dd = delta_delay - (end - start);
                 start = end;
                 if (dd > DELAY_CHUNK_MIN_MICROS) {
                     // preventing longer waits before stop a song
                     // TODO: get a start time point before while
                     //       the while must check end time is < lower than start time+delay
                     //       so it will also account for the instructions for the time.
-                    unsigned int delay = dd;
+                    uint32_t delay = dd;
                     while (delay > 0 && !_force_stop) {
-                        const unsigned int d = std::min(DELAY_CHUNK_MICROS, delay);
+                        const uint32_t d = std::min(DELAY_CHUNK_MICROS, delay);
                         utils::delayMicro(d);
                         delay -= d;
                     }
@@ -290,7 +290,7 @@ namespace drivers
             _device->sendEvent(e);
         }
 
-        _isPlaying = false;
         _device->release(this);
+        _isPlaying = false;
     }
 }
