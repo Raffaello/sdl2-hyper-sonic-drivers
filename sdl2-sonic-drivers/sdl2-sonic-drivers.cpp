@@ -524,7 +524,7 @@ int midi_adlib_xmi()
     
     while (midDrv.isPlaying())
     {
-        spdlog::info("playing...");
+        //spdlog::info("playing...");
         utils::delayMillis(1000);
     }
     return 0;

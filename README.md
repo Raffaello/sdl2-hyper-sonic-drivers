@@ -41,6 +41,10 @@ eXtended MIDI files those will be converted to MIDI Format 2 when
 there is more than 1 track.
 each track is like a format 0 MIDI file with eXtensions.
 
+- [ ] OPL XMI
+- [ ] MT32 XMI
+- [ ] PCSpeaker XMI
+
 
 ## Emulators
 At the moment the only implemented emulators are OPL chips.
@@ -50,7 +54,7 @@ At the moment the only implemented emulators are OPL chips.
 - [/] Mame OPL3
 - [x] DosBox OPL2
 - [x] DosBox Dual OPL2
-- [/] DosBox OPL3
+- [x] DosBox OPL3
 - [x] Nuked OPL3
 - [x] "woody" OPL2/Surround OPL2 (adding a sort of chrous effect)
 
