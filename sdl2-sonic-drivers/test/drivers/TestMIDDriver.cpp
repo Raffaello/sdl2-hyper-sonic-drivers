@@ -117,9 +117,12 @@ namespace drivers
         middrv.play(midi);
         auto start = utils::getMillis<uint32_t>();
         while (!middrv.isPlaying()) {
-            utils::delayMillis(10);
+            utils::delayMillis(20);
         }
+        spdlog::info("middrv playing..");
         middrv.stop();
+        spdlog::info("middrv stopped..");
+        EXPECT_FALSE(middrv.isPlaying());
         auto stop = utils::getMillis<uint32_t>();
         EXPECT_LE(stop - start, 1 * 1000);
         EXPECT_FALSE(middrv.isPlaying());

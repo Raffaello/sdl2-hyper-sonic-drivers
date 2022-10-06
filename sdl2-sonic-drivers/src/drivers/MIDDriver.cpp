@@ -9,7 +9,7 @@ namespace drivers
     constexpr uint32_t DEFAULT_MIDI_TEMPO = 500000;
     constexpr uint32_t PAUSE_MILLIS = 100;
     constexpr int32_t DELAY_CHUNK_MIN_MICROS = 500 * 1000; // 500ms
-    constexpr uint32_t DELAY_CHUNK_MICROS = 250 * 1000; // 250ms
+    constexpr int32_t DELAY_CHUNK_MICROS = 250 * 1000; // 250ms
 
     constexpr uint32_t tempo_to_micros(const uint32_t tempo, const uint16_t division)
     {
@@ -65,8 +65,7 @@ namespace drivers
         if (!_device->acquire(this)) {
             return;
         }
-        
-        _isPlaying = true;
+
         _player = std::thread(&MIDDriver::processTrack, this, midi->getTrack(), midi->division & 0x7FFF);
     }
 
@@ -257,34 +256,28 @@ namespace drivers
                 break;
             }
 
-            //spdlog::debug("DELTA_TIME = {:d}", e.delta_time);
             if (e.delta_time != 0)
             {
                 cur_time += e.delta_time;
                 const int32_t delta_delay = tempo_micros * e.delta_time;
-                const int32_t end = utils::getMicro<uint32_t>();
+                const int32_t end = utils::getMicro<int32_t>();
                 const int32_t dd = delta_delay - (end - start);
-                start = end;
                 if (dd > DELAY_CHUNK_MIN_MICROS) {
                     // preventing longer waits before stop a song
-                    // TODO: get a start time point before while
-                    //       the while must check end time is < lower than start time+delay
-                    //       so it will also account for the instructions for the time.
-                    uint32_t delay = dd;
-                    while (delay > 0 && !_force_stop) {
-                        const uint32_t d = std::min(DELAY_CHUNK_MICROS, delay);
-                        utils::delayMicro(d);
-                        delay -= d;
+                    int32_t delta;
+                    while (dd > (delta = (utils::getMicro<int32_t>() - end)) && !_force_stop) {
+                        utils::delayMicro(std::min(DELAY_CHUNK_MICROS, delta));
                     }
                 }
                 // TODO: this can be improved like the while, to check start end time instead
                 else if (dd > 0 ) {
                     utils::delayMicro(dd);
-                    start += dd;
                 }
                 else {
                     spdlog::warn("cur_time={}, delta_delay={}, micro_delay_time={}", cur_time, delta_delay, dd);
                 }
+                // TODO: replace with a timer that counts ticks based on midi tempo?
+                start = utils::getMicro<uint32_t>();
             }
 
             _device->sendEvent(e);
