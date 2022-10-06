@@ -56,8 +56,6 @@ namespace audio::midi
         SEQUENCER_SPECIFIC = 0x7F
     };
 
-    constexpr MIDI_META_EVENT TO_META(uint8_t x) { return static_cast<MIDI_META_EVENT>(x); }
-
     // MIDI event types high values (Channel Voice Messages types)
     enum class MIDI_EVENT_TYPES_HIGH : uint8_t
     {
@@ -104,4 +102,9 @@ namespace audio::midi
 
     };
     */
+
+
+    constexpr MIDI_EVENT_TYPES_HIGH TO_HIGH(const uint8_t x) { return static_cast<MIDI_EVENT_TYPES_HIGH>(x); }
+    constexpr MIDI_META_EVENT_TYPES_LOW TO_META_LOW(const uint8_t x) { return static_cast<MIDI_META_EVENT_TYPES_LOW>(x); }
+    constexpr MIDI_META_EVENT TO_META(const uint8_t x) { return static_cast<MIDI_META_EVENT>(x); }
 }

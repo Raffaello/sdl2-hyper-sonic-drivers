@@ -108,6 +108,8 @@ namespace drivers
         using audio::midi::MIDI_META_EVENT_TYPES_LOW;
         using audio::midi::MIDI_META_EVENT;
         using audio::midi::MIDI_META_EVENT_VAL;
+        using audio::midi::TO_HIGH;
+        using audio::midi::TO_META_LOW;
         using audio::midi::TO_META;
 
         _isPlaying = true;
@@ -134,107 +136,107 @@ namespace drivers
             if (_force_stop)
                 break;
 
-            switch (static_cast<MIDI_META_EVENT_VAL>(e.type.val))
+            switch (TO_HIGH(e.type.high))
             {
-            case MIDI_META_EVENT_VAL::META:
+            case MIDI_EVENT_TYPES_HIGH::META_SYSEX:
             {
-                const uint8_t type = e.data[0]; // must be < 128
-                std::string str;
-                switch (TO_META(type))
+                switch (TO_META_LOW(e.type.low))
                 {
-                case MIDI_META_EVENT::CHANNEL_PREFIX:
-                    spdlog::warn("CHANNEL_PREFIX {:d} not implemented", e.data[1]);
-                    break;
-                case MIDI_META_EVENT::COPYRIGHT:
-                    str = utils::chars_vector_to_string_skip_first(e.data);
-                    spdlog::info("CopyRight: {}", str);
-                    break;
-                case MIDI_META_EVENT::CUE_POINT:
-                    str = utils::chars_vector_to_string_skip_first(e.data);
-                    spdlog::info("Cue Point: {}", str);
-                    break;
-                case MIDI_META_EVENT::DEVICE_NAME:
-                    str = utils::chars_vector_to_string_skip_first(e.data);
-                    spdlog::warn("[Not Implemented] Device Name: {}", str);
-                    break;
-                case MIDI_META_EVENT::END_OF_TRACK:
-                    spdlog::debug("MIDI end of track.");
-                    break;
-                case MIDI_META_EVENT::INSTRUMENT_NAME:
-                    str = utils::chars_vector_to_string_skip_first(e.data);
-                    spdlog::info("Instrument name: {}", str);
-                    break;
-                case MIDI_META_EVENT::KEY_SIGNATURE:
-                    spdlog::info("KEY_SIGNATURE: {:d} {:d}", e.data[1], e.data[2]);
-                    break;
-                case MIDI_META_EVENT::LYRICS:
-                    str = utils::chars_vector_to_string_skip_first(e.data);
-                    spdlog::info("Lyrics: {}", str);
-                    break;
-                case MIDI_META_EVENT::MARKER:
-                    str = utils::chars_vector_to_string_skip_first(e.data);
-                    spdlog::info("Marker: {}", str);
-                    break;
-                case MIDI_META_EVENT::MIDI_PORT:
-                    spdlog::warn("MIDI_PORT {:d} not implemented", e.data[1]);
-                    break;
-                case MIDI_META_EVENT::PROGRAM_NAME:
-                    str = utils::chars_vector_to_string_skip_first(e.data);
-                    spdlog::info("PROGRAM_NAME: {}", str);
-                    break;
-                case MIDI_META_EVENT::SEQUENCER_SPECIFIC:
-                    spdlog::warn("SEQUENCE_SPECIFIC not implemented");
-                    break;
-                case MIDI_META_EVENT::SEQUENCE_NAME: // a.k.a track name
-                    str = utils::chars_vector_to_string(++(e.data.begin()), e.data.end());
-                    spdlog::info("SEQUENCE NAME: {}", str);
-                    break;
-                case MIDI_META_EVENT::SEQUENCE_NUMBER:
-                    spdlog::warn("Sequence number not implemented");
-                    break;
-                case MIDI_META_EVENT::SET_TEMPO: {
-                    const int skip = 1;
-                    tempo = (e.data[skip] << 16) + (e.data[skip + 1] << 8) + (e.data[skip + 2]);
-                    tempo_micros = tempo_to_micros(tempo, division);
-                    spdlog::info("Tempo {}, ({} bpm) -- microseconds/tick {}", tempo, 60000000 / tempo, tempo_micros);
-                    break;
+                case MIDI_META_EVENT_TYPES_LOW::META:
+                {
+                    const uint8_t type = e.data[0]; // must be < 128
+                    std::string str;
+                    switch (TO_META(type))
+                    {
+                    case MIDI_META_EVENT::CHANNEL_PREFIX:
+                        spdlog::warn("CHANNEL_PREFIX {:d} not implemented", e.data[1]);
+                        break;
+                    case MIDI_META_EVENT::COPYRIGHT:
+                        str = utils::chars_vector_to_string_skip_first(e.data);
+                        spdlog::info("CopyRight: {}", str);
+                        break;
+                    case MIDI_META_EVENT::CUE_POINT:
+                        str = utils::chars_vector_to_string_skip_first(e.data);
+                        spdlog::info("Cue Point: {}", str);
+                        break;
+                    case MIDI_META_EVENT::DEVICE_NAME:
+                        str = utils::chars_vector_to_string_skip_first(e.data);
+                        spdlog::warn("[Not Implemented] Device Name: {}", str);
+                        break;
+                    case MIDI_META_EVENT::END_OF_TRACK:
+                        spdlog::debug("MIDI end of track.");
+                        break;
+                    case MIDI_META_EVENT::INSTRUMENT_NAME:
+                        str = utils::chars_vector_to_string_skip_first(e.data);
+                        spdlog::info("Instrument name: {}", str);
+                        break;
+                    case MIDI_META_EVENT::KEY_SIGNATURE:
+                        spdlog::info("KEY_SIGNATURE: {:d} {:d}", e.data[1], e.data[2]);
+                        break;
+                    case MIDI_META_EVENT::LYRICS:
+                        str = utils::chars_vector_to_string_skip_first(e.data);
+                        spdlog::info("Lyrics: {}", str);
+                        break;
+                    case MIDI_META_EVENT::MARKER:
+                        str = utils::chars_vector_to_string_skip_first(e.data);
+                        spdlog::info("Marker: {}", str);
+                        break;
+                    case MIDI_META_EVENT::MIDI_PORT:
+                        spdlog::warn("MIDI_PORT {:d} not implemented", e.data[1]);
+                        break;
+                    case MIDI_META_EVENT::PROGRAM_NAME:
+                        str = utils::chars_vector_to_string_skip_first(e.data);
+                        spdlog::info("PROGRAM_NAME: {}", str);
+                        break;
+                    case MIDI_META_EVENT::SEQUENCER_SPECIFIC:
+                        spdlog::warn("SEQUENCE_SPECIFIC not implemented");
+                        break;
+                    case MIDI_META_EVENT::SEQUENCE_NAME: // a.k.a track name
+                        str = utils::chars_vector_to_string(++(e.data.begin()), e.data.end());
+                        spdlog::info("SEQUENCE NAME: {}", str);
+                        break;
+                    case MIDI_META_EVENT::SEQUENCE_NUMBER:
+                        spdlog::warn("Sequence number not implemented");
+                        break;
+                    case MIDI_META_EVENT::SET_TEMPO: {
+                        const int skip = 1;
+                        tempo = (e.data[skip] << 16) + (e.data[skip + 1] << 8) + (e.data[skip + 2]);
+                        tempo_micros = tempo_to_micros(tempo, division);
+                        spdlog::info("Tempo {}, ({} bpm) -- microseconds/tick {}", tempo, 60000000 / tempo, tempo_micros);
+                        break;
+                    }
+                    case MIDI_META_EVENT::SMPTE_OFFSET:
+                        spdlog::warn("SMPTE_OFFSET not implemented");
+                        break;
+                    case MIDI_META_EVENT::TEXT:
+                        str = utils::chars_vector_to_string(++(e.data.begin()), e.data.end());
+                        spdlog::info("Text: {}", str);
+                        break;
+                    case MIDI_META_EVENT::TIME_SIGNATURE:
+                        spdlog::info("TIME_SIGNATURE: {:d}/{:d} - clocks {:d} - bb {:d} ", e.data[1], utils::powerOf2(e.data[2]), e.data[3], e.data[4]);
+                        break;
+                    default:
+                        spdlog::warn("MIDI_META_EVENT_TYPES_LOW not implemented/recognized: {:#02x}", type);
+                        break;
+                    }
+                    continue; // META event processed, go on next MIDI event
                 }
-                case MIDI_META_EVENT::SMPTE_OFFSET:
-                    spdlog::warn("SMPTE_OFFSET not implemented");
-                    break;
-                case MIDI_META_EVENT::TEXT:
-                    str = utils::chars_vector_to_string(++(e.data.begin()), e.data.end());
-                    spdlog::info("Text: {}", str);
-                    break;
-                case MIDI_META_EVENT::TIME_SIGNATURE:
-                    spdlog::info("TIME_SIGNATURE: {:d}/{:d} - clocks {:d} - bb {:d} ", e.data[1], utils::powerOf2(e.data[2]), e.data[3], e.data[4]);
-                    break;
+                case MIDI_META_EVENT_TYPES_LOW::SYS_EX0:
+                    spdlog::debug("SYS_EX0 META event...");
+                    // TODO: it should be sent as normal event?
+                    _device->sendSysEx(e);
+                    continue;
+                case MIDI_META_EVENT_TYPES_LOW::SYS_EX7:
+                    spdlog::debug("SYS_EX7 META event...");
+                    // TODO: it should be sent as normal event?
+                    _device->sendSysEx(e);
+                    continue;
                 default:
-                    spdlog::warn("MIDI_META_EVENT_TYPES_LOW not implemented/recognized: {:#02x}", type);
+                    spdlog::warn("MIDI_META_EVENT_TYPES_LOW not implemented/recognized: {:#02x}", e.type.low);
                     break;
                 }
-                continue; // META event processed, go on next MIDI event
             }
-            case MIDI_META_EVENT_VAL::SYS_EX0:
-            {
-                spdlog::debug("SYS_EX0 META event...");
-                _device->sendSysEx(e);
-                continue;
-            }
-            case MIDI_META_EVENT_VAL::SYS_EX7:
-            {
-                spdlog::debug("SYS_EX7 META event...");
-                _device->sendSysEx(e);
-                continue;
-                //break;
-            }
-            default:
-                spdlog::warn("MIDI_META_EVENT_VAL not implemented/recognized: {:#02x}", e.type.val);
                 break;
-            }
-
-            switch (static_cast<MIDI_EVENT_TYPES_HIGH>(e.type.high))
-            {
             case MIDI_EVENT_TYPES_HIGH::NOTE_OFF:
             case MIDI_EVENT_TYPES_HIGH::NOTE_ON:
             case MIDI_EVENT_TYPES_HIGH::AFTERTOUCH:
@@ -260,21 +262,19 @@ namespace drivers
             {
                 cur_time += e.delta_time;
                 const int32_t delta_delay = tempo_micros * e.delta_time;
-                const int32_t end = utils::getMicro<int32_t>();
-                const int32_t dd = delta_delay - (end - start);
-                if (dd > DELAY_CHUNK_MIN_MICROS) {
+                int32_t dd = delta_delay - (utils::getMicro<int32_t>() - start); // microseconds to wait
+                
+                while (dd > DELAY_CHUNK_MIN_MICROS && !_force_stop) {
                     // preventing longer waits before stop a song
-                    int32_t delta;
-                    while (dd > (delta = (utils::getMicro<int32_t>() - end)) && !_force_stop) {
-                        utils::delayMicro(std::min(DELAY_CHUNK_MICROS, delta));
-                    }
+                    utils::delayMicro(DELAY_CHUNK_MICROS);
+                    //dd -= DELAY_CHUNK_MICROS;
+                    dd = delta_delay - (utils::getMicro<int32_t>() - start);
                 }
-                // TODO: this can be improved like the while, to check start end time instead
-                else if (dd > 0 ) {
+
+                if(!_force_stop && dd>0)
                     utils::delayMicro(dd);
-                }
                 else {
-                    spdlog::warn("cur_time={}, delta_delay={}, micro_delay_time={}", cur_time, delta_delay, dd);
+                    //spdlog::warn("cur_time={}, delta_delay={}, micro_delay_time={}", cur_time, delta_delay, dd);
                 }
                 // TODO: replace with a timer that counts ticks based on midi tempo?
                 start = utils::getMicro<uint32_t>();
