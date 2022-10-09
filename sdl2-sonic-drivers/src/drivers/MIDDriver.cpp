@@ -271,10 +271,10 @@ namespace drivers
                     dd = delta_delay - (utils::getMicro<int32_t>() - start);
                 }
 
-                if(!_force_stop && dd>0)
+                if (!_force_stop && dd > 0)
                     utils::delayMicro(dd);
                 else {
-                    //spdlog::warn("cur_time={}, delta_delay={}, micro_delay_time={}", cur_time, delta_delay, dd);
+                    spdlog::warn("cur_time={}, delta_delay={}, micro_delay_time={}", cur_time, delta_delay, dd);
                 }
                 // TODO: replace with a timer that counts ticks based on midi tempo?
                 start = utils::getMicro<uint32_t>();
