@@ -531,7 +531,6 @@ int midi_adlib_xmi()
 }
 
 
-
 int main(int argc, char* argv[])
 {
     //sdlMixer();
