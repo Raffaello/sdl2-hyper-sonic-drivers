@@ -17,7 +17,6 @@
 #include <audio/DiskRendererMixerManager.hpp>
 
 #include <files/MIDFile.hpp>
-#include <drivers/miles/XMIParser.hpp>
 
 #include <utils/algorithms.hpp>
 
@@ -305,32 +304,6 @@ int renderMixer()
     spdlog::info("renderer quitting...");
 
     return 0;
-}
-
-int xmi_parser()
-{
-    using namespace audio::scummvm;
-    using  drivers::miles::XMIParser;
-
-    SdlMixerManager mixerManager;
-    mixerManager.init();
-
-    std::shared_ptr<Mixer> mixer = mixerManager.getMixer();
-
-    //spdlog::set_level(spdlog::level::debug);
-    std::shared_ptr<files::miles::XMIFile> xmiFile = std::make_shared<files::miles::XMIFile>("test/fixtures/AIL2_14_DEMO.XMI");
-
-    XMIParser xmiParser(xmiFile->getMIDI(), mixer);
-    xmiParser.displayAllTracks();
-
-
-
-    spdlog::info("SDLMixer quitting...");
-    SDL_Delay(1000);
-    spdlog::info("SDLMixer quit");
-
-    return 0;
-
 }
 
 int midi_adlib()
