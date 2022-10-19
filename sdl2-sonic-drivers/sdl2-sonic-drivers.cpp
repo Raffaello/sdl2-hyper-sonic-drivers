@@ -490,7 +490,10 @@ int midi_adlib_xmi()
     midi->addTrack(m->getTrack(0));
     
     auto scumm_midi = std::make_shared<drivers::midi::devices::ScummVM>(opl, false);
-    drivers::MIDDriver midDrv(mixer, scumm_midi);
+    files::dmx::OP2File op2File("test/fixtures/GENMIDI.OP2");
+    auto opl_midi = std::make_shared<drivers::midi::devices::Adlib>(opl, op2File.getBank());
+    //drivers::MIDDriver midDrv(mixer, scumm_midi);
+    drivers::MIDDriver midDrv(mixer, opl_midi);
 
     spdlog::info("playing midi AIL2_14_DEMO...");
     midDrv.play(midi);

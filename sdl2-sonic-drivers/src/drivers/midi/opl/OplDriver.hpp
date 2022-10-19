@@ -20,6 +20,8 @@ namespace drivers::midi::opl
     /// OPL MidiDriver.
     /// Support OPL2 and OPL3 modes
     /// TODO: generalize the OP2Bank in OplBank (interface)
+    /// TODO: support XMI extension.
+    /// TODO: XMI Bank sounds
     /// </summary>
     class OplDriver
     {

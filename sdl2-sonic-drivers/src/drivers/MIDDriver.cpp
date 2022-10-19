@@ -8,7 +8,7 @@ namespace drivers
 {
     constexpr uint32_t DEFAULT_MIDI_TEMPO = 500000;
     constexpr uint32_t PAUSE_MILLIS = 100;
-    constexpr int32_t DELAY_CHUNK_MIN_MICROS = 500 * 1000; // 500ms
+    //constexpr int32_t DELAY_CHUNK_MIN_MICROS = 500 * 1000; // 500ms
     constexpr int32_t DELAY_CHUNK_MICROS = 250 * 1000; // 250ms
 
     constexpr uint32_t tempo_to_micros(const uint32_t tempo, const uint16_t division)
@@ -114,11 +114,12 @@ namespace drivers
 
         _isPlaying = true;
         _force_stop = false;
+        // TODO move as a class variable, need to be atomic, and setTempo to change the tempo?
         uint32_t tempo = DEFAULT_MIDI_TEMPO; //120 BPM;
         int cur_time = 0; // ticks
         unsigned int tempo_micros = tempo_to_micros(tempo, division);
         spdlog::debug("tempo_micros = {}", tempo_micros);
-        uint32_t start = utils::getMicro<unsigned int>();
+        uint32_t start = utils::getMicro<uint32_t>();
         const auto& tes = track.getEvents();
         for (const auto& e : tes)
         {
@@ -130,7 +131,7 @@ namespace drivers
                     utils::delayMillis(PAUSE_MILLIS);
                 } while (_paused);
                 _device->resume();
-                start = utils::getMicro<unsigned int>();
+                start = utils::getMicro<uint32_t>();
             }
 
             if (_force_stop)
@@ -199,8 +200,7 @@ namespace drivers
                         spdlog::warn("Sequence number not implemented");
                         break;
                     case MIDI_META_EVENT::SET_TEMPO: {
-                        const int skip = 1;
-                        tempo = (e.data[skip] << 16) + (e.data[skip + 1] << 8) + (e.data[skip + 2]);
+                        tempo = (e.data[1] << 16) + (e.data[2] << 8) + (e.data[3]);
                         tempo_micros = tempo_to_micros(tempo, division);
                         spdlog::info("Tempo {}, ({} bpm) -- microseconds/tick {}", tempo, 60000000 / tempo, tempo_micros);
                         break;
@@ -263,8 +263,8 @@ namespace drivers
                 cur_time += e.delta_time;
                 const int32_t delta_delay = tempo_micros * e.delta_time;
                 int32_t dd = delta_delay - (utils::getMicro<int32_t>() - start); // microseconds to wait
-                
-                while (dd > DELAY_CHUNK_MIN_MICROS && !_force_stop) {
+
+                while (dd > DELAY_CHUNK_MICROS && !_force_stop) {
                     // preventing longer waits before stop a song
                     utils::delayMicro(DELAY_CHUNK_MICROS);
                     //dd -= DELAY_CHUNK_MICROS;
@@ -273,9 +273,9 @@ namespace drivers
 
                 if (!_force_stop && dd > 0)
                     utils::delayMicro(dd);
-                else {
+                /*else {
                     spdlog::warn("cur_time={}, delta_delay={}, micro_delay_time={}", cur_time, delta_delay, dd);
-                }
+                }*/
                 // TODO: replace with a timer that counts ticks based on midi tempo?
                 start = utils::getMicro<uint32_t>();
             }
