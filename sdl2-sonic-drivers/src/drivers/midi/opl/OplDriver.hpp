@@ -19,6 +19,7 @@ namespace drivers::midi::opl
     /// <summary>
     /// OPL MidiDriver.
     /// Support OPL2 and OPL3 modes
+    /// Mostly used to Play MUS File at the moment due to Op2Bank
     /// TODO: generalize the OP2Bank in OplBank (interface)
     /// TODO: support XMI extension.
     /// TODO: XMI Bank sounds
