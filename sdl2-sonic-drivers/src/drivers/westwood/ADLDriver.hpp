@@ -136,6 +136,8 @@ namespace drivers::westwood
         void setupDuration(uint8_t duration, Channel& channel);
 
         void setupNote(uint8_t rawNote, Channel& channel, bool flag = false);
+        // TODO: dataptr can be replace with Opl2Instrument_t, it might requires to be mapped
+        //       as is organized differently internally in the file.
         void setupInstrument(uint8_t regOffset, const uint8_t* dataptr, Channel& channel);
         void noteOn(Channel& channel);
 
