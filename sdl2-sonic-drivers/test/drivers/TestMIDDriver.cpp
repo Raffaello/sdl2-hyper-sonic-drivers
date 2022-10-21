@@ -22,14 +22,15 @@
 
 namespace drivers
 {
+    using audio::stubs::StubMixer;
+    using audio::midi::MIDIEvent;
+    using audio::midi::MIDI_EVENT_TYPES_HIGH;
+    using audio::midi::MIDI_META_EVENT_TYPES_LOW;
+    using audio::midi::MIDI_META_EVENT;
+    using audio::midi::MIDI_FORMAT;
+
     TEST(MIDDriver, SEQUENCE_NAME_META_EVENT)
     {
-        using audio::stubs::StubMixer;
-        using audio::midi::MIDIEvent;
-        using audio::midi::MIDI_EVENT_TYPES_HIGH;
-        using audio::midi::MIDI_META_EVENT_TYPES_LOW;
-        using audio::midi::MIDI_META_EVENT;
-
         auto mixer = std::make_shared<StubMixer>();
         auto device = std::make_shared<midi::devices::SpyDevice>();
 
@@ -76,13 +77,6 @@ namespace drivers
 
     TEST(MIDDrvier, force_stop_on_long_delta_time_delay)
     {
-        using audio::stubs::StubMixer;
-        using audio::midi::MIDIEvent;
-        using audio::midi::MIDI_EVENT_TYPES_HIGH;
-        using audio::midi::MIDI_META_EVENT_TYPES_LOW;
-        using audio::midi::MIDI_META_EVENT;
-        using audio::midi::MIDI_FORMAT;
-
         auto mixer = std::make_shared<StubMixer>();
         auto device = std::make_shared<midi::devices::SpyDevice>();
 
@@ -115,10 +109,9 @@ namespace drivers
 
         MIDDriverMock middrv(mixer, device);
         middrv.play(midi);
+        ASSERT_TRUE(middrv.isPlaying());
         auto start = utils::getMillis<uint32_t>();
-        while (!middrv.isPlaying()) {
-            utils::delayMillis(20);
-        }
+        utils::delayMillis(20);
         middrv.stop();
         EXPECT_FALSE(middrv.isPlaying());
         auto stop = utils::getMillis<uint32_t>();

@@ -67,6 +67,7 @@ namespace drivers
         }
 
         _player = std::thread(&MIDDriver::processTrack, this, midi->getTrack(), midi->division & 0x7FFF);
+        _isPlaying = true;
     }
 
     void MIDDriver::stop(/*const bool wait*/) noexcept
