@@ -3,6 +3,7 @@
 #include <utils/algorithms.hpp>
 #include <array>
 #include <thread>
+#include <cstddef>
 
 namespace drivers
 {
@@ -201,7 +202,8 @@ namespace drivers
                         spdlog::warn("Sequence number not implemented");
                         break;
                     case MIDI_META_EVENT::SET_TEMPO: {
-                        tempo = (e.data[1] << 16) + (e.data[2] << 8) + (e.data[3]);
+                        //tempo = (e.data[1] << 16) + (e.data[2] << 8) + (e.data[3]);
+                        tempo = std::to_integer<uint32_t>(std::byte(e.data[1]) << 16 | std::byte(e.data[2] << 8) | std::byte(e.data[3]));
                         tempo_micros = tempo_to_micros(tempo, division);
                         spdlog::info("Tempo {}, ({} bpm) -- microseconds/tick {}", tempo, 60000000 / tempo, tempo_micros);
                         break;

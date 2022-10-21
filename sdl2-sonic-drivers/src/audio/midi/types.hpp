@@ -9,6 +9,8 @@ namespace audio::midi
     constexpr uint8_t MIDI_MAX_CHANNELS = 16;
     constexpr uint8_t MIDI_PERCUSSION_CHANNEL = 9; // standard MIDI percussion channel
 
+    typedef std::vector<uint8_t> midi_vector_t;
+
     enum class MIDI_FORMAT
     {
         SINGLE_TRACK = 0,
