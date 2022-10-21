@@ -17,7 +17,6 @@
 #include <audio/DiskRendererMixerManager.hpp>
 
 #include <files/MIDFile.hpp>
-#include <drivers/miles/XMIParser.hpp>
 
 #include <utils/algorithms.hpp>
 
@@ -307,32 +306,6 @@ int renderMixer()
     return 0;
 }
 
-int xmi_parser()
-{
-    using namespace audio::scummvm;
-    using  drivers::miles::XMIParser;
-
-    SdlMixerManager mixerManager;
-    mixerManager.init();
-
-    std::shared_ptr<Mixer> mixer = mixerManager.getMixer();
-
-    //spdlog::set_level(spdlog::level::debug);
-    std::shared_ptr<files::miles::XMIFile> xmiFile = std::make_shared<files::miles::XMIFile>("test/fixtures/AIL2_14_DEMO.XMI");
-
-    XMIParser xmiParser(xmiFile->getMIDI(), mixer);
-    xmiParser.displayAllTracks();
-
-
-
-    spdlog::info("SDLMixer quitting...");
-    SDL_Delay(1000);
-    spdlog::info("SDLMixer quit");
-
-    return 0;
-
-}
-
 int midi_adlib()
 {
     using namespace audio::scummvm;
@@ -517,7 +490,10 @@ int midi_adlib_xmi()
     midi->addTrack(m->getTrack(0));
     
     auto scumm_midi = std::make_shared<drivers::midi::devices::ScummVM>(opl, false);
-    drivers::MIDDriver midDrv(mixer, scumm_midi);
+    files::dmx::OP2File op2File("test/fixtures/GENMIDI.OP2");
+    auto opl_midi = std::make_shared<drivers::midi::devices::Adlib>(opl, op2File.getBank());
+    //drivers::MIDDriver midDrv(mixer, scumm_midi);
+    drivers::MIDDriver midDrv(mixer, opl_midi);
 
     spdlog::info("playing midi AIL2_14_DEMO...");
     midDrv.play(midi);
@@ -529,7 +505,6 @@ int midi_adlib_xmi()
     }
     return 0;
 }
-
 
 
 int main(int argc, char* argv[])

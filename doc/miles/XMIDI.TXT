@@ -251,7 +251,7 @@ events on MIDI channel 10.
 When a MIDI Program Change (or "patch") event is encountered, the XMIDI synthesizer
 driver looks in its collection of timbres from the Global Timbre Library for a custom timbre
 whose "patch number" is the specified Program Change number and whose "bank" is equal to
-the current Patch Bank Select controller value.  If the timbre is found, the synthesizer is
+the current Patch Bank Select controller value. If the timbre is found, the synthesizer is
 automatically instructed to associate the timbre with the patch which was just selected by the
 Program Change event.  Under normal circumstances, the search for the requested timbre
 should not fail, since the application should have been informed in advance of the need for the

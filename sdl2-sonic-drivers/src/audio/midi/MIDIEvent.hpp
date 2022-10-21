@@ -12,8 +12,6 @@ namespace audio
         class MIDIEvent
         {
         public:
-            typedef std::vector<uint8_t> midi_vector_t;
-
             // TODO build from a message array of 3 or 2 char.
             // TODO review the devices namespace to send only MIDIEvent
             explicit MIDIEvent() = default;

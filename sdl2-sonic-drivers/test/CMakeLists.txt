@@ -262,12 +262,6 @@ macro_test(
 )
 
 macro_test(
-    EXE TestXMidi
-    FILES "drivers/miles/TestXMidi.cpp"
-    LINKS_PRIVATE sonic-drivers-static
-)
-
-macro_test(
     EXE TestAILFileDriver
     FILES "files/miles/TestAILDriverFile.cpp"
     LINKS_PRIVATE sonic-drivers-static
