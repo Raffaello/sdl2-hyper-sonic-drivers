@@ -67,6 +67,7 @@ namespace drivers
             return;
         }
 
+        //TODO: it would be better reusing the thread...
         _player = std::thread(&MIDDriver::processTrack, this, midi->getTrack(), midi->division & 0x7FFF);
         _isPlaying = true;
     }
