@@ -31,6 +31,8 @@ namespace drivers
         std::shared_ptr<audio::scummvm::Mixer> _mixer; // TODO can be removed
         std::shared_ptr<midi::Device> _device;
 
+        // TODO: consider to create a utils/Thread class
+        //       to handle for each OS specific realtime and initialization step.
         std::thread _player;
         std::atomic<bool> _isPlaying = false;
         std::atomic<bool> _force_stop = false;
