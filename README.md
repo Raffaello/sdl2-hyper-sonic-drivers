@@ -44,6 +44,7 @@ each track is like a format 0 MIDI file with eXtensions.
 - [ ] OPL XMI
 - [ ] MT32 XMI
 - [ ] PCSpeaker XMI
+- [ ] Tandi XMI
 
 
 ## Emulators

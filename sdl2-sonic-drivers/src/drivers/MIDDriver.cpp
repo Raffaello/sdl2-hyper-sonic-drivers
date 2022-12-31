@@ -16,6 +16,11 @@ namespace drivers
         return static_cast<uint32_t>(static_cast<float>(tempo) / static_cast<float>(division));
     }
 
+    constexpr uint32_t get_start_time()
+    {
+        return utils::getMicro<uint32_t>();
+    }
+
     MIDDriver::MIDDriver(const std::shared_ptr<audio::scummvm::Mixer>& mixer, const std::shared_ptr<midi::Device>& device)
         : _mixer(mixer), _device(device)
     {
@@ -121,7 +126,7 @@ namespace drivers
         int cur_time = 0; // ticks
         unsigned int tempo_micros = tempo_to_micros(tempo, division);
         spdlog::debug("tempo_micros = {}", tempo_micros);
-        uint32_t start = utils::getMicro<uint32_t>();
+        uint32_t start = get_start_time();
         const auto& tes = track.getEvents();
         for (const auto& e : tes)
         {
@@ -133,7 +138,7 @@ namespace drivers
                     utils::delayMillis(PAUSE_MILLIS);
                 } while (_paused);
                 _device->resume();
-                start = utils::getMicro<uint32_t>();
+                start = get_start_time();
             }
 
             if (_force_stop)
@@ -264,22 +269,18 @@ namespace drivers
             {
                 cur_time += e.delta_time;
                 const uint32_t delta_delay = tempo_micros * e.delta_time  + start;
-                int32_t dd = delta_delay - (utils::getMicro<uint32_t>()); // microseconds to wait
+                int32_t dd = delta_delay - get_start_time(); // microseconds to wait
 
                 while (dd > DELAY_CHUNK_MICROS && !_force_stop) {
                     // preventing longer waits before stop a song
                     utils::delayMicro(DELAY_CHUNK_MICROS);
-                    //dd -= DELAY_CHUNK_MICROS;
-                    dd = delta_delay - (utils::getMicro<uint32_t>());
+                    dd = delta_delay - get_start_time();
                 }
 
                 if (!_force_stop && dd > 0)
                     utils::delayMicro(dd);
-                /*else {
-                    spdlog::warn("cur_time={}, delta_delay={}, micro_delay_time={}", cur_time, delta_delay, dd);
-                }*/
                 // TODO: replace with a timer (OS timer (Windows)?) that counts ticks based on midi tempo?
-                start = utils::getMicro<uint32_t>();
+                start = get_start_time();
             }
 
             _device->sendEvent(e);
