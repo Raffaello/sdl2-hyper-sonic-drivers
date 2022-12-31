@@ -158,7 +158,8 @@ macro_test(
     EXE TestMIDDriver
     FILES "drivers/TestMIDDriver.cpp"
     LINKS_PRIVATE sonic-drivers-static
-    FIXTURES
+    FIXTURES 
+        "fixtures/midifile_sample.mid"
 )
 
 macro_test(

@@ -13,6 +13,7 @@ namespace drivers
 
     constexpr uint32_t tempo_to_micros(const uint32_t tempo, const uint16_t division)
     {
+        // TODO: it can be integer division? test it.
         return static_cast<uint32_t>(static_cast<float>(tempo) / static_cast<float>(division));
     }
 
@@ -121,10 +122,9 @@ namespace drivers
 
         _isPlaying = true;
         _force_stop = false;
-        // TODO move as a class variable, need to be atomic, and setTempo to change the tempo?
-        uint32_t tempo = DEFAULT_MIDI_TEMPO; //120 BPM;
+        setTempo(DEFAULT_MIDI_TEMPO); //120 BPM;
         int cur_time = 0; // ticks
-        unsigned int tempo_micros = tempo_to_micros(tempo, division);
+        unsigned int tempo_micros = tempo_to_micros(_tempo, division);
         spdlog::debug("tempo_micros = {}", tempo_micros);
         uint32_t start = get_start_time();
         const auto& tes = track.getEvents();
@@ -207,9 +207,9 @@ namespace drivers
                         spdlog::warn("Sequence number not implemented");
                         break;
                     case MIDI_META_EVENT::SET_TEMPO: {
-                        tempo = (e.data[1] << 16) + (e.data[2] << 8) + (e.data[3]);
-                        tempo_micros = tempo_to_micros(tempo, division);
-                        spdlog::info("Tempo {}, ({} bpm) -- microseconds/tick {}", tempo, 60000000 / tempo, tempo_micros);
+                        setTempo((e.data[1] << 16) + (e.data[2] << 8) + (e.data[3]));
+                        tempo_micros = tempo_to_micros(_tempo, division);
+                        spdlog::info("Tempo {}, ({} bpm) -- microseconds/tick {}", _tempo, 60000000 / _tempo, tempo_micros);
                         break;
                     }
                     case MIDI_META_EVENT::SMPTE_OFFSET:

@@ -17,6 +17,7 @@
 #include <algorithm>
 #include <drivers/midi/devices/SpyDevice.hpp>
 #include <drivers/MIDDriverMock.hpp>
+#include <files/MIDFile.hpp>
 #include <utils/algorithms.hpp>
 
 
@@ -165,6 +166,21 @@ namespace drivers
         ASSERT_FALSE(middrv2.isPlaying());
         middrv1.stop();
         ASSERT_FALSE(device->isAcquired());
+    }
+
+    TEST(MIDDriver, getTempo) {
+        auto mf = files::MIDFile("fixtures/midifile_sample.mid");
+        auto mixer = std::make_shared<StubMixer>();
+        auto device = std::make_shared<midi::devices::SpyDevice>();
+        MIDDriver md(mixer, device);
+        EXPECT_EQ(md.getTempo(), 0);
+        EXPECT_FALSE(md.isTempoChanged());
+        md.play(mf.getMIDI());
+        while (!md.isTempoChanged()) { utils::delayMillis(10); }
+        EXPECT_TRUE(md.isTempoChanged());
+        EXPECT_EQ(md.getTempo(), 500000);
+        EXPECT_FALSE(md.isTempoChanged());
+        md.stop();
     }
 }
 
