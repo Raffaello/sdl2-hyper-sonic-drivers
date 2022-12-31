@@ -26,7 +26,7 @@ namespace drivers::midi::devices
         // At the moment i don't see any reason why the OPL should be shared outside the "device" ...
 
         // TODO review the constructors and use a load bank instead..
-
+        /** @deprecated */
         explicit Opl(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank);
         explicit Opl(const hardware::opl::OplType type,
             const hardware::opl::OplEmulator emuType,
