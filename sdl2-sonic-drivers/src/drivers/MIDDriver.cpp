@@ -263,14 +263,14 @@ namespace drivers
             if (e.delta_time != 0)
             {
                 cur_time += e.delta_time;
-                const int32_t delta_delay = tempo_micros * e.delta_time;
-                int32_t dd = delta_delay - (utils::getMicro<int32_t>() - start); // microseconds to wait
+                const uint32_t delta_delay = tempo_micros * e.delta_time  + start;
+                int32_t dd = delta_delay - (utils::getMicro<uint32_t>()); // microseconds to wait
 
                 while (dd > DELAY_CHUNK_MICROS && !_force_stop) {
                     // preventing longer waits before stop a song
                     utils::delayMicro(DELAY_CHUNK_MICROS);
                     //dd -= DELAY_CHUNK_MICROS;
-                    dd = delta_delay - (utils::getMicro<int32_t>() - start);
+                    dd = delta_delay - (utils::getMicro<uint32_t>());
                 }
 
                 if (!_force_stop && dd > 0)
