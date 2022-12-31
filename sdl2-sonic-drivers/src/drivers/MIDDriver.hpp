@@ -44,7 +44,7 @@ namespace drivers
         std::atomic<bool> _isPlaying = false;
         std::atomic<bool> _force_stop = false;
         std::atomic<bool> _paused = false;
-        std::atomic<uint32_t> _tempo;
         std::atomic<bool> _midiTempoChanged = false;
+        std::atomic<uint32_t> _tempo = 0;
     };
 }

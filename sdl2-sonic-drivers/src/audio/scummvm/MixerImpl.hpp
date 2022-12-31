@@ -111,7 +111,7 @@ namespace audio
             virtual void setVolumeForSoundType(SoundType type, int volume) override;
             virtual int getVolumeForSoundType(SoundType type) const override;
 
-            virtual unsigned int getOutputRate() const override;
+            virtual unsigned int getOutputRate() const noexcept override;
 
             virtual uint8_t getBitsDepth() const override;
 
