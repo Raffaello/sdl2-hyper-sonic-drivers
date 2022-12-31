@@ -278,7 +278,7 @@ namespace drivers
                 /*else {
                     spdlog::warn("cur_time={}, delta_delay={}, micro_delay_time={}", cur_time, delta_delay, dd);
                 }*/
-                // TODO: replace with a timer that counts ticks based on midi tempo?
+                // TODO: replace with a timer (OS timer (Windows)?) that counts ticks based on midi tempo?
                 start = utils::getMicro<uint32_t>();
             }
 
