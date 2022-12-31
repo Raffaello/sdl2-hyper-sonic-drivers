@@ -16,7 +16,7 @@ namespace drivers
         return static_cast<uint32_t>(static_cast<float>(tempo) / static_cast<float>(division));
     }
 
-    constexpr uint32_t get_start_time()
+    inline uint32_t get_start_time()
     {
         return utils::getMicro<uint32_t>();
     }
