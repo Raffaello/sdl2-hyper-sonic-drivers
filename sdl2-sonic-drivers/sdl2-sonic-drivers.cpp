@@ -474,7 +474,7 @@ int midi_adlib_xmi()
     SdlMixerManager mixerManager;
     mixerManager.init();
 
-    std::shared_ptr<Mixer> mixer = mixerManager.getMixer();
+    auto mixer = mixerManager.getMixer();
 
     auto emu = OplEmulator::MAME;
     auto type = OplType::OPL2;
@@ -484,7 +484,7 @@ int midi_adlib_xmi()
         return -1;
 
     //spdlog::set_level(spdlog::level::debug);
-    std::shared_ptr<files::miles::XMIFile> xmiFile = std::make_shared<files::miles::XMIFile>("test/fixtures/AIL2_14_DEMO.XMI");
+    auto xmiFile = std::make_shared<files::miles::XMIFile>("test/fixtures/AIL2_14_DEMO.XMI");
     auto m = xmiFile->getMIDI();
     auto midi = std::make_shared<audio::MIDI>(audio::midi::MIDI_FORMAT::SINGLE_TRACK, 1, m->division);
     midi->addTrack(m->getTrack(0));
