@@ -2,6 +2,7 @@
 #include <audio/midi/MIDITrack.hpp>
 #include <utils/algorithms.hpp>
 #include <spdlog/spdlog.h>
+#include <queue>
 
 namespace files::miles
 {
@@ -142,35 +143,81 @@ namespace files::miles
         // { UBYTE interval count(if < 128)
         //     UBYTE <MIDI event>(if > 127) } ...
 
+        using audio::midi::MIDI_EVENT_TYPES_HIGH;
+        using audio::midi::MIDI_META_EVENT_TYPES_LOW;
+        using audio::midi::TO_META;
+
         std::unique_ptr<uint8_t[]> buf = std::make_unique<uint8_t[]>(IFF_evnt.size);
         read(buf.get(), IFF_evnt.size);
 
+        // delta time here is stored as abs_time + note duration
+        auto midiEvent_cmp = [](const MIDIEvent& a, const MIDIEvent& b) {
+            return a.delta_time > b.delta_time;
+        };
+        std::priority_queue<MIDIEvent, std::vector<MIDIEvent>, decltype(midiEvent_cmp)> notes(midiEvent_cmp);
+
         bool endTrack = false;
         int offs = 0;
+        // there could be a risk of overflow...
+        uint32_t abs_time = 0;
         MIDITrack t;
-
         while (!endTrack && offs < IFF_evnt.size)
         {
             MIDIEvent e;
 
-            offs += decode_xmi_VLQ(&buf[offs], e.delta_time);
-            e.type.val = buf[offs++];
-            // TODO: refactor later as there is quite a lot in common with MIDFile
-            switch (e.type.high)
+            if (buf[offs] < 128) {
+                // interval count
+                offs += decode_xmi_VLQ(&buf[offs], e.delta_time);
+                // check for overflow:
+                assert(abs_time <= abs_time + e.delta_time);
+                abs_time += e.delta_time;
+            } else {
+                e.delta_time = 0;
+            }
+
+            // note.delta_time is the abs_time at the moment of playing plus its duration
+            // if current abs_time is >= note_delta time it means the note_off must be inserted
+            // because previous delta_time was still playing.
+            // TODO: at the end of the track there could be still some noteOff events
+            //       to insert...
+            while (!notes.empty() && e.delta_time > 0)
             {
-            case 0xF:
-                // special event
-                switch (e.type.low)
+                MIDIEvent note = notes.top();
+                if (note.delta_time <= abs_time)
                 {
-                case 0x0:
+                    notes.pop();
+                    // reconstruct note_duration
+                    note.delta_time = note.delta_time - (abs_time - e.delta_time);
+                    // insert note off
+                    t.addEvent(note);
+                    // reconstruct current delta_time
+                    e.delta_time -= note.delta_time;
+                }
+                else
+                    break;
+            }
+
+            // midi event
+            e.type.val = buf[offs++];
+            
+            // TODO: refactor later as there is quite a lot in common with MIDFile
+            //       refactor when loading from a memory buffer rather then from file
+            //       (when preload the whole file into memory)
+            switch (static_cast<MIDI_EVENT_TYPES_HIGH>(e.type.high))
+            {
+            case MIDI_EVENT_TYPES_HIGH::META_SYSEX:
+                // special event
+                switch (static_cast<MIDI_META_EVENT_TYPES_LOW>(e.type.low))
+                {
+                case MIDI_META_EVENT_TYPES_LOW::SYS_EX0:
                     // sysEx-event
                     spdlog::error("sysEx 0x0 event not implemented yet");
                     break;
-                case 0x7:
+                case MIDI_META_EVENT_TYPES_LOW::SYS_EX7:
                     // sysEx-event
                     spdlog::error("sysEx 0x7 event not implemented yet");
                     break;
-                case 0xF:
+                case MIDI_META_EVENT_TYPES_LOW::META:
                 {
                     // meta-event
                     uint8_t type = buf[offs++];
@@ -183,7 +230,7 @@ namespace files::miles
                         e.data.push_back(buf[offs++]);
                     }
 
-                    if (MIDI_META_EVENT::END_OF_TRACK == static_cast<MIDI_META_EVENT>(type))
+                    if (MIDI_META_EVENT::END_OF_TRACK == TO_META(type))
                     {
                         endTrack = true;
                         if (offs % 2 && offs < IFF_evnt.size) {
@@ -191,6 +238,10 @@ namespace files::miles
                             spdlog::debug("End Of Track pad byte, valid={}", (bool)buf[offs++] == 0);
                         }
                     }
+
+                    // ignore set_tempo meta event
+                    /*if (MIDI_META_EVENT::SET_TEMPO == TO_META(type))
+                        continue;*/
                     break;
                 }
                 default:
@@ -199,28 +250,52 @@ namespace files::miles
 
                 }
                 break;
-            case 0xC:
-            case 0xD:
+            case MIDI_EVENT_TYPES_HIGH::PROGRAM_CHANGE:
+            case MIDI_EVENT_TYPES_HIGH::CHANNEL_AFTERTOUCH:
                 e.data.reserve(1);
                 e.data.push_back(buf[offs++]);
                 break;
-            case 0x8: // Note OFF
+            case MIDI_EVENT_TYPES_HIGH::NOTE_OFF:
             {
                 const char* err_msg = "Note OFF event found.";
                 spdlog::critical(err_msg);
                 throw std::invalid_argument(err_msg);
             }
             break;
-            case 0x9: // Note ON
-                // TODO: should convert to note_on/off standard midi?
-                e.data.reserve(3);
+            case MIDI_EVENT_TYPES_HIGH::NOTE_ON: {
+                e.data.reserve(2);
                 e.data.push_back(buf[offs++]);
-                e.data.push_back(buf[offs++]);
-                e.data.push_back(buf[offs++]);
+                const uint8_t vel = buf[offs++];
+                // read note duration
+                MIDIEvent noteOff;
+                offs += decode_VLQ(&buf[offs], noteOff.delta_time);
+                if (noteOff.delta_time == 0)
+                    noteOff.delta_time = 1; // TODO: is this correct?
+
+                if (vel == 0)
+                {
+                    // TODO: is this ok?
+                    // NOTE_OFF
+                    e.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::NOTE_OFF);
+                } 
+                else
+                {
+                    noteOff.delta_time += abs_time;
+                    noteOff.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::NOTE_OFF);
+                    noteOff.type.low = e.type.low;
+                    noteOff.data.resize(2);
+                    noteOff.data[0] = e.data[0];
+                    noteOff.data[1] = 40; // default if no velocity on release
+                    notes.push(noteOff);
+                }
+
+                e.data.push_back(vel);
+                e.data.shrink_to_fit();
+            }
                 break;
-            case 0xA:
-            case 0xB:
-            case 0xE:
+            case MIDI_EVENT_TYPES_HIGH::AFTERTOUCH:
+            case MIDI_EVENT_TYPES_HIGH::PITCH_BEND:
+            case MIDI_EVENT_TYPES_HIGH::CONTROLLER:
                 e.data.reserve(2);
                 e.data.push_back(buf[offs++]);
                 e.data.push_back(buf[offs++]);
@@ -245,6 +320,8 @@ namespace files::miles
             throw std::invalid_argument(err_msg);
         }
 
+        assert(notes.empty());
+        t.lock();
         return t;
     }
 

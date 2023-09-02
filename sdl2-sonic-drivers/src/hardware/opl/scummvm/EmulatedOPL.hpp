@@ -34,12 +34,12 @@ namespace hardware
                 }
 
                 // OPL API
-                void setCallbackFrequency(int timerFrequency);
+                void setCallbackFrequency(int timerFrequency) override;
                 std::shared_ptr<audio::scummvm::SoundHandle> getSoundHandle() const noexcept override;
                 // AudioStream API
-                int readBuffer(int16_t* buffer, const int numSamples);
-                int getRate() const;
-                bool endOfData() const noexcept;
+                int readBuffer(int16_t* buffer, const int numSamples) override;
+                int getRate() const noexcept override;
+                bool endOfData() const noexcept override;
 
                 // TODO: this can be bring up to OPL interface
                 std::shared_ptr<audio::scummvm::Mixer> getMixer() const noexcept;
@@ -47,8 +47,8 @@ namespace hardware
             protected:
                 std::shared_ptr<audio::scummvm::Mixer> _mixer;
                 // OPL API
-                void startCallbacks(int timerFrequency);
-                void stopCallbacks();
+                void startCallbacks(int timerFrequency) override;
+                void stopCallbacks() override;
 
                 /**
                  * Read up to 'length' samples.

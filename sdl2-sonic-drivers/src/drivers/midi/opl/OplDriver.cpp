@@ -210,7 +210,7 @@ namespace drivers::midi::opl
             _oplWriter->stopAll();
             break;
         default:
-            spdlog::warn("AdLib: Unknown control change message {:d} {:d}", control, value);
+            spdlog::warn("OplDriver: Unknown control change message {:d} {:d}", control, value);
         }
     }
 

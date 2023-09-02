@@ -49,6 +49,7 @@ namespace drivers
                 return !isAcquired();
             }
         private:
+            // TODO: this could be replaced with a unique_lock mutex instead?
             std::atomic<bool> _acquired = false;
             std::atomic<drivers::MIDDriver*> _owner = nullptr;
         };

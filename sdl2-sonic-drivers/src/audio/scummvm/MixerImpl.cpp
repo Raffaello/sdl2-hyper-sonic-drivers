@@ -324,7 +324,7 @@ namespace audio
             return _soundTypeSettings[static_cast<int>(type)].volume;
         }
 
-        unsigned int MixerImpl::getOutputRate() const
+        unsigned int MixerImpl::getOutputRate() const noexcept
         {
             return _sampleRate;
         }

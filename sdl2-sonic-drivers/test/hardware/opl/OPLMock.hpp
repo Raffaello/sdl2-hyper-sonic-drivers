@@ -18,6 +18,6 @@ namespace hardware::opl
         void setCallbackFrequency(int timerFrequency) override {}
         void startCallbacks(int timerFrequency) override {};
         void stopCallbacks() override {};
-        std::shared_ptr<audio::scummvm::SoundHandle> getSoundHandle() const noexcept { return nullptr; }
+        std::shared_ptr<audio::scummvm::SoundHandle> getSoundHandle() const noexcept override { return nullptr; }
     };
 }

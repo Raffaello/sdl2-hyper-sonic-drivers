@@ -74,7 +74,7 @@ namespace hardware
                 return numSamples;
             }
 
-            int EmulatedOPL::getRate() const
+            int EmulatedOPL::getRate() const noexcept
             {
                 return _mixer->getOutputRate();
             }

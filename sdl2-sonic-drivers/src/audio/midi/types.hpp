@@ -9,6 +9,8 @@ namespace audio::midi
     constexpr uint8_t MIDI_MAX_CHANNELS = 16;
     constexpr uint8_t MIDI_PERCUSSION_CHANNEL = 9; // standard MIDI percussion channel
 
+    typedef std::vector<uint8_t> midi_vector_t;
+
     enum class MIDI_FORMAT
     {
         SINGLE_TRACK = 0,
@@ -102,4 +104,9 @@ namespace audio::midi
 
     };
     */
+
+
+    constexpr MIDI_EVENT_TYPES_HIGH TO_HIGH(const uint8_t x) { return static_cast<MIDI_EVENT_TYPES_HIGH>(x); }
+    constexpr MIDI_META_EVENT_TYPES_LOW TO_META_LOW(const uint8_t x) { return static_cast<MIDI_META_EVENT_TYPES_LOW>(x); }
+    constexpr MIDI_META_EVENT TO_META(const uint8_t x) { return static_cast<MIDI_META_EVENT>(x); }
 }

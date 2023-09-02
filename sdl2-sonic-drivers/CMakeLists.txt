@@ -129,9 +129,7 @@ target_sources(${LIB_NAME} PRIVATE
     # --- # 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/westwood/ADLDriver.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/PCMDriver.cpp
-    #${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/miles/XMidi.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/MIDDriver.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/miles/XMIParser.cpp
    
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/Native.cpp
     
@@ -219,7 +217,6 @@ unset(LIB_VER)
 # Add source to this project's executable.
 add_executable(sdl2-sonic-drivers "sdl2-sonic-drivers.cpp")
 #target_sources(sdl2-sonic-drivers PUBLIC
-    #${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/miles/XMidi.cpp
     # --- #
     #${CMAKE_CURRENT_SOURCE_DIR}/src/files/IFFFile.cpp
     #${CMAKE_CURRENT_SOURCE_DIR}/src/files/XMIFile.cpp

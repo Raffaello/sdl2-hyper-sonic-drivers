@@ -17,19 +17,21 @@
 #include <algorithm>
 #include <drivers/midi/devices/SpyDevice.hpp>
 #include <drivers/MIDDriverMock.hpp>
+#include <files/MIDFile.hpp>
 #include <utils/algorithms.hpp>
 
 
 namespace drivers
 {
+    using audio::stubs::StubMixer;
+    using audio::midi::MIDIEvent;
+    using audio::midi::MIDI_EVENT_TYPES_HIGH;
+    using audio::midi::MIDI_META_EVENT_TYPES_LOW;
+    using audio::midi::MIDI_META_EVENT;
+    using audio::midi::MIDI_FORMAT;
+
     TEST(MIDDriver, SEQUENCE_NAME_META_EVENT)
     {
-        using audio::stubs::StubMixer;
-        using audio::midi::MIDIEvent;
-        using audio::midi::MIDI_EVENT_TYPES_HIGH;
-        using audio::midi::MIDI_META_EVENT_TYPES_LOW;
-        using audio::midi::MIDI_META_EVENT;
-
         auto mixer = std::make_shared<StubMixer>();
         auto device = std::make_shared<midi::devices::SpyDevice>();
 
@@ -76,13 +78,6 @@ namespace drivers
 
     TEST(MIDDrvier, force_stop_on_long_delta_time_delay)
     {
-        using audio::stubs::StubMixer;
-        using audio::midi::MIDIEvent;
-        using audio::midi::MIDI_EVENT_TYPES_HIGH;
-        using audio::midi::MIDI_META_EVENT_TYPES_LOW;
-        using audio::midi::MIDI_META_EVENT;
-        using audio::midi::MIDI_FORMAT;
-
         auto mixer = std::make_shared<StubMixer>();
         auto device = std::make_shared<midi::devices::SpyDevice>();
 
@@ -115,11 +110,11 @@ namespace drivers
 
         MIDDriverMock middrv(mixer, device);
         middrv.play(midi);
+        ASSERT_TRUE(middrv.isPlaying());
         auto start = utils::getMillis<uint32_t>();
-        while (!middrv.isPlaying()) {
-            utils::delayMillis(10);
-        }
+        utils::delayMillis(20);
         middrv.stop();
+        EXPECT_FALSE(middrv.isPlaying());
         auto stop = utils::getMillis<uint32_t>();
         EXPECT_LE(stop - start, 1 * 1000);
         EXPECT_FALSE(middrv.isPlaying());
@@ -171,6 +166,21 @@ namespace drivers
         ASSERT_FALSE(middrv2.isPlaying());
         middrv1.stop();
         ASSERT_FALSE(device->isAcquired());
+    }
+
+    TEST(MIDDriver, getTempo) {
+        auto mf = files::MIDFile("fixtures/midifile_sample.mid");
+        auto mixer = std::make_shared<StubMixer>();
+        auto device = std::make_shared<midi::devices::SpyDevice>();
+        MIDDriver md(mixer, device);
+        EXPECT_EQ(md.getTempo(), 0);
+        EXPECT_FALSE(md.isTempoChanged());
+        md.play(mf.getMIDI());
+        while (!md.isTempoChanged());
+        EXPECT_TRUE(md.isTempoChanged());
+        EXPECT_EQ(md.getTempo(), 500000);
+        EXPECT_FALSE(md.isTempoChanged());
+        md.stop();
     }
 }
 

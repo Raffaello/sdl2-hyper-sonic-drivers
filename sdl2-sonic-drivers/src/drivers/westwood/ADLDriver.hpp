@@ -30,8 +30,8 @@ namespace drivers::westwood
     ///
     /// It uses a sound file format special to EoB I, II, Dune II,
     /// Kyrandia 1 and 2, and LoL.There are slightly different
-    /// variants: EoB I uses the oldest format(version 1);
-    /// EoB II(version 2), Dune IIand Kyrandia 1 (version 3) have
+    /// variants: EoB I uses the oldest format (version 1);
+    /// EoB II(version 2), Dune II and Kyrandia 1 (version 3) have
     /// the same file format(but need different offset adjustments);
     /// Kyrandia 2 and LoL format(version 4) is different again.
     /// </summary>
@@ -136,6 +136,8 @@ namespace drivers::westwood
         void setupDuration(uint8_t duration, Channel& channel);
 
         void setupNote(uint8_t rawNote, Channel& channel, bool flag = false);
+        // TODO: dataptr can be replace with Opl2Instrument_t, it might requires to be mapped
+        //       as is organized differently internally in the file.
         void setupInstrument(uint8_t regOffset, const uint8_t* dataptr, Channel& channel);
         void noteOn(Channel& channel);
 
