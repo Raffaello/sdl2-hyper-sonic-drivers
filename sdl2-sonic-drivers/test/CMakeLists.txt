@@ -17,8 +17,9 @@ macro(macro_test) # ${ARGN} link libraries
     #message("FIXTURES: ${TEST_FIXTURES}")
     #message("LINKS_PRIVATE: ${TEST_LINKS_PRIVATE}")
     add_executable (${TEST_EXE} ${TEST_FILES})
-    target_include_directories(${TEST_EXE} PUBLIC 
+    target_include_directories(${TEST_EXE} PUBLIC
         ${CMAKE_SOURCE_DIR}/sdl2-sonic-drivers/src
+        ${CMAKE_SOURCE_DIR}/sdl2-sonic-drivers/test
     )
     #target_link_libraries(${TEST_EXE} PRIVATE ${TEST_LINKS})
     target_link_libraries(${TEST_EXE} PRIVATE GTest::gtest GTest::gmock)
@@ -123,30 +124,62 @@ macro_test(
 )
 
 macro_test(
-    EXE TestMIDDriver
-    FILES "drivers/TestMIDDriver.cpp"
+    EXE TestDevice
+    FILES "drivers/midi/TestDevice.cpp"
     LINKS_PRIVATE sonic-drivers-static
     FIXTURES
 )
 
 macro_test(
-    EXE TestMame
-    FILES "hardware/opl/scummvm/mame/TestMame.cpp"
+    EXE TestOplDevice
+    FILES "drivers/midi/devices/TestOpl.cpp"
+    LINKS_PRIVATE sonic-drivers-static
+    FIXTURES
+        "fixtures/GENMIDI.OP2"
+)
+
+macro_test(
+    EXE TestAdlib
+    FILES "drivers/midi/devices/TestAdlib.cpp"
+    LINKS_PRIVATE sonic-drivers-static
+    FIXTURES
+        "fixtures/GENMIDI.OP2"
+)
+
+macro_test(
+    EXE TestSbPro2
+    FILES "drivers/midi/devices/TestSbPro2.cpp"
+    LINKS_PRIVATE sonic-drivers-static
+    FIXTURES
+        "fixtures/GENMIDI.OP2"
+)
+
+macro_test(
+    EXE TestMIDDriver
+    FILES "drivers/TestMIDDriver.cpp"
+    LINKS_PRIVATE sonic-drivers-static
+    FIXTURES 
+        "fixtures/midifile_sample.mid"
+)
+
+macro_test(
+    EXE TestMameOPL2
+    FILES "hardware/opl/scummvm/mame/TestMameOPL2.cpp"
     LINKS_PRIVATE sonic-drivers-static
     FIXTURES "fixtures/mame-22050-16bit-440Hz.dat"
 )
 
 macro_test(
-    EXE TestDOSBox
-    FILES "hardware/opl/scummvm/dosbox/TestDOSBox.cpp"
+    EXE TestDOSBoxOPL
+    FILES "hardware/opl/scummvm/dosbox/TestDosBoxOPL.cpp"
     LINKS_PRIVATE sonic-drivers-static
     FIXTURES
         #"fixtures/mame-22050-16bit-440Hz.dat"
 )
 
 macro_test(
-    EXE TestNuked
-    FILES "hardware/opl/scummvm/nuked/TestNuked.cpp"
+    EXE TestNukedOPL3
+    FILES "hardware/opl/scummvm/nuked/TestNukedOPL3.cpp"
     LINKS_PRIVATE sonic-drivers-static
     FIXTURES
         #"fixtures/mame-22050-16bit-440Hz.dat"
@@ -161,9 +194,23 @@ macro_test(
 )
 
 macro_test(
-    EXE TestConfig
+    EXE TestOPLFactory
     FILES 
-        "hardware/opl/scummvm/TestConfig.cpp"
+        "hardware/opl/TestOPLFactory.cpp"
+    LINKS_PRIVATE sonic-drivers-static
+)
+
+macro_test(
+    EXE TestTimer
+    FILES 
+        "hardware/opl/TestTimer.cpp"
+    LINKS_PRIVATE sonic-drivers-static
+)
+
+macro_test(
+    EXE TestChip
+    FILES 
+        "hardware/opl/TestChip.cpp"
     LINKS_PRIVATE sonic-drivers-static
 )
 
@@ -213,12 +260,6 @@ macro_test(
         "fixtures/header.xmi"
         "fixtures/header_no_xdir.xmi"
         "fixtures/AIL2_14_DEMO.XMI"
-)
-
-macro_test(
-    EXE TestXMidi
-    FILES "drivers/miles/TestXMidi.cpp"
-    LINKS_PRIVATE sonic-drivers-static
 )
 
 macro_test(

@@ -47,6 +47,7 @@ namespace utils
             std::make_tuple<std::vector<uint8_t>, uint32_t, int>({ 0xFF, 0xFF, 0x7F }, 0x1FFFFF, 3),
             std::make_tuple<std::vector<uint8_t>, uint32_t, int>({ 0x81, 0x80, 0x80, 0 }, 0x200000, 4),
             std::make_tuple<std::vector<uint8_t>, uint32_t, int>({ 0xC0, 0x80, 0x80, 0 }, 0x8000000, 4),
+            std::make_tuple<std::vector<uint8_t>, uint32_t, int>({ 0xFF, 0xFF, 0xFF, 0x7F }, 0x0FFFFFFF, 4),
             std::make_tuple<std::vector<uint8_t>, uint32_t, int>({ 0xFF, 0xFF, 0xFF, 0x7F }, 0x0FFFFFFF, 4)
         )
     );
@@ -71,9 +72,10 @@ namespace utils
         ::testing::Values(
             std::make_tuple<std::vector<uint8_t>, uint32_t, int>({ 0, 0xFF }, 0, 1),
             std::make_tuple<std::vector<uint8_t>, uint32_t, int>({ 0x40, 0xFF }, 0x40, 1),
-            std::make_tuple<std::vector<uint8_t>, uint32_t, int>({ 0x7F,0x01, 0xFF }, 0x7F+0x01, 2),
+            std::make_tuple<std::vector<uint8_t>, uint32_t, int>({ 0x7F,0x01, 0xFF }, 0x7F + 0x01, 2),
             std::make_tuple<std::vector<uint8_t>, uint32_t, int>({ 0x7F, 0x22, 0xFF }, 0xA1, 2),
-            std::make_tuple<std::vector<uint8_t>, uint32_t, int>({ 0x7F, 0x22, 0x80, 0xFF }, 0xA1, 2)
+            std::make_tuple<std::vector<uint8_t>, uint32_t, int>({ 0x7F, 0x22, 0x80, 0xFF }, 0xA1, 2),
+            std::make_tuple<std::vector<uint8_t>, uint32_t, int>({ 127, 3, 0xFF }, 130, 2)
         )
     );
 

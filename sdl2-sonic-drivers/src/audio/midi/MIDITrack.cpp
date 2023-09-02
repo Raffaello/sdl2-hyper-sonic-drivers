@@ -17,7 +17,7 @@ namespace audio
             MIDIEvent ev = e;
 
             ev.data.shrink_to_fit();
-            _events.push_back(ev);
+            _events.emplace_back(ev);
         }
 
         void MIDITrack::lock() noexcept

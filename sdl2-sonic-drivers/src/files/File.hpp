@@ -9,19 +9,23 @@ namespace files
     class File
     {
     public:
-        File(const std::string& filename);
         File() = delete;
-        virtual ~File();
+        File(const File&) = delete;
+        File(const File&&) = delete;
+        File& operator=(const  File&) = delete;
+
+        File(const std::string& filename);
+        virtual ~File() noexcept;
 
         uintmax_t size() const noexcept;
         std::streampos tell() noexcept;
         void seek(const std::streamoff offs, const std::fstream::seekdir whence = std::fstream::beg);
         void read(void* buf, std::streamsize size);
-        void close();
+        void close() noexcept;
 
     protected:
         const std::string _filename;
-        std::string _readStringFromFile();
+        std::string _readStringFromFile() noexcept;
 
         uint16_t readLE16();
         uint32_t readLE32();

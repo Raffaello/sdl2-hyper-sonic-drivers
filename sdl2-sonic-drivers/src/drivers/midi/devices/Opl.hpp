@@ -5,32 +5,36 @@
 #include <drivers/midi/opl/OplDriver.hpp>
 #include <audio/opl/banks/OP2Bank.hpp>
 #include <hardware/opl/OPL.hpp>
+#include <hardware/opl/OplEmulator.hpp>
+#include <audio/scummvm/Mixer.hpp>
 
-namespace drivers
+namespace drivers::midi::devices
 {
-    namespace midi
+    class Opl : public Device /*, protected drivers::midi::opl::OplDriver*/
     {
-        namespace devices
-        {
-            class Opl : public Device /*, protected drivers::midi::opl::OplDriver*/
-            {
-            public:
-                void sendEvent(const audio::midi::MIDIEvent& e) const noexcept override;
-                void sendMessage(const uint8_t msg[], const uint8_t size) const noexcept override;
-                void sendSysEx(const audio::midi::MIDIEvent& e) const noexcept override;
-                virtual void pause() const noexcept override;
-                virtual void resume() const noexcept override;
+    public:
+        void sendEvent(const audio::midi::MIDIEvent& e) const noexcept override;
+        void sendMessage(const uint8_t msg[], const uint8_t size) const noexcept override;
+        void sendSysEx(const audio::midi::MIDIEvent& e) const noexcept override;
+        virtual void pause() const noexcept override;
+        virtual void resume() const noexcept override;
 
-                //void loadBankOP2();
-            protected:
-                // TODO review the constructor and use a load bank instead..
-                // TODO can create its own OPL2 chip, just need the OPL type (DOSBOX,MAME,etc..)
-                Opl(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank, const bool opl3_mode);
-                virtual ~Opl() = default;
+        //void loadBankOP2();
+    protected:
+        // NOTE/TODO: it shouldn't use a shared_ptr for OPL emulator, but it should have ownership of the OPL.
+        //            So it would be better that the Opl Device is creating is own hardware::opl emulator to use.
+        // At the moment i don't see any reason why the OPL should be shared outside the "device" ...
 
-            private:
-                std::shared_ptr<drivers::midi::opl::OplDriver> _oplDriver;
-            };
-        }
-    }
+        // TODO review the constructors and use a load bank instead..
+        /** @deprecated */
+        explicit Opl(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank);
+        explicit Opl(const hardware::opl::OplType type,
+            const hardware::opl::OplEmulator emuType,
+            const std::shared_ptr<audio::scummvm::Mixer>& mixer,
+            const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank);
+        virtual ~Opl() = default;
+
+    private:
+        std::shared_ptr<drivers::midi::opl::OplDriver> _oplDriver;
+    };
 }

@@ -7,6 +7,8 @@
 #include <audio/scummvm/SoundHandle.hpp>
 #include <audio/scummvm/Mixer.hpp>
 #include <memory>
+#include <hardware/opl/OplType.hpp>
+
 
 namespace hardware
 {
@@ -23,25 +25,30 @@ namespace hardware
             class EmulatedOPL : public OPL, protected audio::scummvm::AudioStream
             {
             public:
-                EmulatedOPL(const std::shared_ptr<audio::scummvm::Mixer>& mixer);
+                EmulatedOPL(const OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer);
                 virtual ~EmulatedOPL();
 
+                inline bool isStereo() const noexcept override
+                {
+                    return type != OplType::OPL2;
+                }
+
                 // OPL API
-                void setCallbackFrequency(int timerFrequency);
+                void setCallbackFrequency(int timerFrequency) override;
                 std::shared_ptr<audio::scummvm::SoundHandle> getSoundHandle() const noexcept override;
                 // AudioStream API
-                int readBuffer(int16_t* buffer, const int numSamples);
-                int getRate() const;
-                bool endOfData() const noexcept;
-                
+                int readBuffer(int16_t* buffer, const int numSamples) override;
+                int getRate() const noexcept override;
+                bool endOfData() const noexcept override;
+
                 // TODO: this can be bring up to OPL interface
                 std::shared_ptr<audio::scummvm::Mixer> getMixer() const noexcept;
 
             protected:
                 std::shared_ptr<audio::scummvm::Mixer> _mixer;
                 // OPL API
-                void startCallbacks(int timerFrequency);
-                void stopCallbacks();
+                void startCallbacks(int timerFrequency) override;
+                void stopCallbacks() override;
 
                 /**
                  * Read up to 'length' samples.
@@ -53,7 +60,7 @@ namespace hardware
                  * So if you request 4 samples from a stereo OPL, you will get
                  * a total of two left channel and two right channel samples.
                  */
-                virtual void generateSamples(int16_t* buffer, int numSamples) = 0;
+                virtual void generateSamples(int16_t* buffer, int length) noexcept = 0;
             private:
                 int _baseFreq = 0;
 

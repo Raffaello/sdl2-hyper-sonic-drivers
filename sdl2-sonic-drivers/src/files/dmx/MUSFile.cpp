@@ -59,14 +59,12 @@ namespace files
             _assertValid(size() <= MAX_SIZE);
             readHeader();
             readTrack();
+
+           _midi = convertToMidi();
         }
 
-        std::shared_ptr<audio::MIDI> MUSFile::getMIDI() noexcept
+        std::shared_ptr<audio::MIDI> MUSFile::getMIDI() const noexcept
         {
-            if (_midi == nullptr) {
-                _midi = convertToMidi();
-            }
-
             return _midi;
         }
 

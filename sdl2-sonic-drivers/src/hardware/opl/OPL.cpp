@@ -8,7 +8,7 @@ namespace hardware
         // TODO: review to allow to have multiple OPL chips instead.
         static bool _hasInstance;
 
-        OPL::OPL()
+        OPL::OPL(const OplType type) : type(type)
         {
             if (_hasInstance) {
                 spdlog::error("There are multiple OPL output instances running");

@@ -20,7 +20,7 @@ namespace files
         }
     }
 
-    File::~File()
+    File::~File() noexcept
     {
         this->close();
     }
@@ -50,14 +50,14 @@ namespace files
         }
     }
 
-    void File::close()
+    void File::close() noexcept
     {
         if (_file.is_open()) {
             _file.close();
         }
     }
 
-    std::string File::_readStringFromFile()
+    std::string File::_readStringFromFile() noexcept
     {
         string filename;
         char c = -1;

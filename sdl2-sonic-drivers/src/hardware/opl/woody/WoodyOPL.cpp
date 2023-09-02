@@ -1,6 +1,7 @@
 #include <hardware/opl/woody/WoodyOPL.hpp>
 #include <hardware/opl/woody/WoodyEmuOPL.hpp>
 #include <hardware/opl/woody/SurroundOPL.hpp>
+#include <hardware/opl/OplType.hpp>
 
 namespace hardware
 {
@@ -9,25 +10,16 @@ namespace hardware
         namespace woody
         {
             WoodyOPL::WoodyOPL(const std::shared_ptr<audio::scummvm::Mixer>& mixer, const bool surround)
-                : EmulatedOPL(mixer), _opl(nullptr), _surround(surround)
-            {
-            }
+                : EmulatedOPL(surround ? OplType::DUAL_OPL2 : OplType::OPL2, mixer)
+            {}
 
-            WoodyOPL::~WoodyOPL()
-            {
-                free();
-            }
             bool WoodyOPL::init()
             {
-                free();
-                if (_surround)
-                {
-                    _opl = new SurroundOPL(_mixer->getOutputRate(), _mixer->getBitsDepth() == 16);
-                }
+                stop();
+                if (type == OplType::DUAL_OPL2)
+                    _opl =std::make_unique<SurroundOPL>(_mixer->getOutputRate());
                 else
-                {
-                    _opl = new WoodyEmuOPL(_mixer->getOutputRate(), false);
-                }
+                    _opl = std::make_unique<WoodyEmuOPL>(_mixer->getOutputRate());
 
                 _init = _opl != nullptr;
                 if (!_init)
@@ -41,37 +33,25 @@ namespace hardware
             {
                 init();
             }
-            void WoodyOPL::write(int a, int v)
+            void WoodyOPL::write(const uint32_t port, const uint16_t val) noexcept
             {
-                //opl->write(a, v);
-            }
-            uint8_t WoodyOPL::read(int a)
-            {
-                return 0;
-            }
-            void WoodyOPL::writeReg(int r, int v)
-            {
-                _opl->write(r, v);
+                _opl->write(port, static_cast<uint8_t>(val));
             }
 
-            bool WoodyOPL::isStereo() const
+            uint8_t WoodyOPL::read(const uint32_t port) noexcept
             {
-                return _surround;
+                return _opl->read(port);
+            }
+            void WoodyOPL::writeReg(const uint16_t r, const uint16_t v) noexcept
+            {
+                //_opl->writeReg(r, static_cast<uint8_t>(v));
+                _opl->write(r, static_cast<uint8_t>(v));
             }
 
-            void WoodyOPL::generateSamples(int16_t* buffer, int numSamples)
+            void WoodyOPL::generateSamples(int16_t* buffer, int length) noexcept
             {
                 const int d = isStereo() ? 2 : 1;
-                _opl->update(buffer, numSamples / d);
-            }
-
-            void WoodyOPL::free()
-            {
-                stop();
-                if (_opl != nullptr) {
-                    delete _opl;
-                    _opl = nullptr;
-                };
+                _opl->update(buffer, length / d);
             }
         }
     }

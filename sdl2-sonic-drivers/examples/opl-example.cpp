@@ -1,15 +1,10 @@
 #include <hardware/opl/OPL.hpp>
-#include <hardware/opl/scummvm/Config.hpp>
-
-#include <hardware/opl/mame/MameOPL.hpp>
-
+#include <hardware/opl/OPLFactory.hpp>
 #include <utils/algorithms.hpp>
 #include <utils/opl.hpp>
 #include <audio/scummvm/SDLMixerManager.hpp>
-
 #include <spdlog/spdlog.h>
 #include <fmt/color.h>
-
 #include <memory>
 #include <cstdint>
 #include <map>
@@ -17,18 +12,17 @@
 
 
 using audio::scummvm::SdlMixerManager;
-using hardware::opl::scummvm::Config;
-using hardware::opl::scummvm::OplEmulator;
+using hardware::opl::OPLFactory;
+using hardware::opl::OplEmulator;
+using hardware::opl::OplType;
 using utils::delayMillis;
 
 using utils::FMoutput;
 using utils::fm;
 using utils::Profm1;
 using utils::Profm2;
-//using utils::detectOPL2;
-//using utils::detectOPL3;
 
-void opl_test(const OplEmulator emu, const Config::OplType type, std::shared_ptr<audio::scummvm::Mixer> mixer)
+void opl_test(const OplEmulator emu, const OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer)
 {
     constexpr auto LEFT = 0x10;
     constexpr auto RIGHT = 0x20;
@@ -40,17 +34,18 @@ void opl_test(const OplEmulator emu, const Config::OplType type, std::shared_ptr
     int b;
     int fn;
 
-    auto opl = Config::create(emu, type, mixer);
+    auto opl = OPLFactory::create(emu, type, mixer);
     if (opl == nullptr)
         return;
     
-    opl->init();
+    if (!opl->init())
+        return;
     opl->start(nullptr);
 
     /* must initialize this to zero */
     fm(1, 0, opl);
 
-    if (type == Config::OplType::OPL3)
+    if (type == OplType::OPL3)
     {
         /* set to OPL3 mode, necessary for stereo */
         Profm2(5, 1, opl);
@@ -114,19 +109,19 @@ void opl_test(const OplEmulator emu, const Config::OplType type, std::shared_ptr
      ******************************************/
 
     spdlog::info("440 Hz tone, values calculated.");
-    block = 4;        /* choose block=4 and m=1 */
-    m = 1;		       /* m is the frequency multiple number */
-    f = 440;          /* want f=440 Hz */
+    block = 4;         /* choose block=4 and m=1 */
+    m = 1;             /* m is the frequency multiple number */
+    f = 440;           /* want f=440 Hz */
     b = 1 << block;
 
     /* This is the equation to calculate frequency number from frequency. */
     fn = (long)f * 1048576 / b / m / 50000L;
 
     fm(0x23, 0x20 | (m & 0xF), opl);   /* 0x20 sets sustained envelope, low nibble
-                                  * is multiple number
-                                  */
+                                        * is multiple number
+                                        */
     fm(0xA0, (fn & 0xFF), opl);
-    fm(0xB0, ((fn >> 8) & 0x3) + (block << 2) | KEYON, opl);
+    fm(0xB0, static_cast<uint8_t>(((fn >> 8) & 0x3) + (block << 2) | KEYON), opl);
 
     delayMillis(1000);
 
@@ -137,7 +132,7 @@ void opl_test(const OplEmulator emu, const Config::OplType type, std::shared_ptr
     spdlog::info("Range of frequencies created by changing block number.");
     for (block = 0; block <= 7; block++) {
         spdlog::info("f={:5d} Hz", (long)440 * (1 << block) / 16);
-        fm(0xB0, ((fn >> 8) & 0x3) + (block << 2) | KEYON, opl);
+        fm(0xB0, static_cast<uint8_t>(((fn >> 8) & 0x3) + (block << 2) | KEYON), opl);
         delayMillis(200);
     }
 
@@ -150,7 +145,7 @@ void opl_test(const OplEmulator emu, const Config::OplType type, std::shared_ptr
     block = 4;
     for (fn = 0; fn < 1024; fn++) {
         fm(0xA0, (fn & 0xFF), opl);
-        fm(0xB0, ((fn >> 8) & 0x3) + (block << 2) | KEYON, opl);
+        fm(0xB0, static_cast<uint8_t>(((fn >> 8) & 0x3) + (block << 2) | KEYON), opl);
         delayMillis(1);
     }
 
@@ -164,12 +159,12 @@ void opl_test(const OplEmulator emu, const Config::OplType type, std::shared_ptr
     block = 4;
     fn = 577;                /* This number makes 440 Hz when block=4 and m=1 */
     fm(0xA0, (fn & 0xFF), opl);
-    fm(0xB0, ((fn >> 8) & 0x3) + (block << 2) | KEYON, opl);
+    fm(0xB0, static_cast<uint8_t>(((fn >> 8) & 0x3) + (block << 2) | KEYON), opl);
     delayMillis(1000);
 
-    if (type != Config::OplType::OPL2)
+    if (type != OplType::OPL2)
     {
-        if (type == Config::OplType::OPL3)
+        if (type == OplType::OPL3)
         {
             /* This left and right channel stuff is the only part of this program
              * that uses OPL3 mode.  Everything else is available on the OPL2.
@@ -185,18 +180,18 @@ void opl_test(const OplEmulator emu, const Config::OplType type, std::shared_ptr
         else
         {
 
-            fm(0xB0, ((fn >> 8) & 0x3) + (block << 2), opl);       // key off
+            fm(0xB0, static_cast<uint8_t>(((fn >> 8) & 0x3) + (block << 2)), opl);       // key off
             delayMillis(1000);
 
             spdlog::info("Left channel only");
-            Profm1(0xB0, ((fn >> 8) & 0x3) + (block << 2) | KEYON, opl);
+            Profm1(0xB0, static_cast<uint8_t>(((fn >> 8) & 0x3) + (block << 2) | KEYON), opl);
             delayMillis(1000);
             
-            Profm1(0xB0, ((fn >> 8) & 0x3) + (block << 2), opl);   // key off
+            Profm1(0xB0, static_cast<uint8_t>(((fn >> 8) & 0x3) + (block << 2)), opl);   // key off
             delayMillis(1000);
 
             spdlog::info("Right channel only");
-            Profm2(0xB0, ((fn >> 8) & 0x3) + (block << 2) | KEYON, opl);
+            Profm2(0xB0, static_cast<uint8_t>(((fn >> 8) & 0x3) + (block << 2) | KEYON), opl);
             delayMillis(1000);
         }
     }
@@ -205,14 +200,14 @@ void opl_test(const OplEmulator emu, const Config::OplType type, std::shared_ptr
      * Attenuate the signal by 3 dB. *
      *********************************/
     delayMillis(1000);
-    fm(0xB0, ((fn >> 8) & 0x3) + (block << 2) | KEYON, opl);
+    fm(0xB0, static_cast<uint8_t>(((fn >> 8) & 0x3) + (block << 2) | KEYON), opl);
     spdlog::info("Attenuated by 3 dB.");
     fm(0x43, 4, opl);     /* attenuate by 3 dB */
     delayMillis(1000);
-    fm(0xB0, ((fn >> 8) & 0x3) + (block << 2), opl);
+    fm(0xB0, static_cast<uint8_t>(((fn >> 8) & 0x3) + (block << 2)), opl);
     delayMillis(1000);
 
-    if (type == Config::OplType::OPL3)
+    if (type == OplType::OPL3)
     {
         /* Set OPL-3 back to OPL-2 mode, because if the next program to run was
          * written for the OPL-2, then it won't set the LEFT and RIGHT bits to
@@ -224,21 +219,31 @@ void opl_test(const OplEmulator emu, const Config::OplType type, std::shared_ptr
     opl->stop();
 }
 
-bool detect_opl2(const OplEmulator emu, const Config::OplType type, std::shared_ptr<audio::scummvm::Mixer> mixer)
+bool detect_opl2(const OplEmulator emu, const OplType type, std::shared_ptr<audio::scummvm::Mixer> mixer)
 {
-    auto opl = Config::create(emu, type, mixer);
+    auto opl = OPLFactory::create(emu, type, mixer);
     if (opl == nullptr)
         return false;
+
+    if (!opl->init())
+        return false;
+
+    opl->start(nullptr);
 
     return utils::detectOPL2(opl);
 }
 
-bool detect_opl3(const OplEmulator emu, const Config::OplType type, std::shared_ptr<audio::scummvm::Mixer> mixer)
+bool detect_opl3(const OplEmulator emu, const OplType type, std::shared_ptr<audio::scummvm::Mixer> mixer)
 {
     // Detect OPL2. If present, continue.
-    auto opl = Config::create(emu, type, mixer);
+    auto opl = OPLFactory::create(emu, type, mixer);
     if (opl == nullptr)
         return false;
+
+    if (!opl->init())
+        return false;
+
+    opl->start(nullptr);
 
     return utils::detectOPL3(opl);
 }
@@ -258,10 +263,10 @@ int main(int argc, char* argv[])
         { OplEmulator::WOODY, "WOODY" },
     };
 
-    std::map<Config::OplType, std::string> types = {
-        {Config::OplType::OPL2, "OPL2"},
-        {Config::OplType::DUAL_OPL2, "DUAL_OPL2"},
-        {Config::OplType::OPL3, "OPL3"},
+    std::map<OplType, std::string> types = {
+        {OplType::OPL2, "OPL2"},
+        {OplType::DUAL_OPL2, "DUAL_OPL2"},
+        {OplType::OPL3, "OPL3"},
     };
 
     std::string m = "##### {} {} #####";
@@ -286,7 +291,7 @@ int main(int argc, char* argv[])
             else spdlog::error(msg);
 
             msg = fmt::format("detect opl3: {}", opl3);
-            if (type.first == Config::OplType::OPL3)
+            if (type.first == OplType::OPL3)
             {
                 if (opl3) spdlog::info(msg);
                 else spdlog::error(msg);

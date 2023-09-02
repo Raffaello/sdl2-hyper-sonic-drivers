@@ -25,53 +25,34 @@
 
 #pragma once
 
-#include <stdint.h> // for uintxx_t
 #include <hardware/opl/woody/OPL.hpp>
+#include <cstdint> // for uintxx_t
 
-namespace hardware
+namespace hardware::opl::woody
 {
-    namespace opl
+    class SurroundOPL : public OPL
     {
-        namespace woody
-        {
-            // The right-channel is increased in frequency by itself divided by this amount.
- // The right value should not noticeably change the pitch, but it should provide
- // a nice stereo harmonic effect.
-//#define FREQ_OFFSET 128.0//96.0
-            constexpr double FREQ_OFFSET = 128.0;
+    
+    public:
+        explicit SurroundOPL(const int rate) noexcept;
+        virtual ~SurroundOPL();
 
-// Number of FNums away from the upper/lower limit before switching to the next
-// block (octave.)  By rights it should be zero, but for some reason this seems
-// to cut it too close and the transposed OPL doesn't hit the right note all the
-// time.  Setting it higher means it will switch blocks sooner and that seems
-// to help.  Don't set it too high or it'll get stuck in an infinite loop if
-// one block is too high and the adjacent block is too low ;-)
-//#define NEWBLOCK_LIMIT  32
-            constexpr int NEWBLOCK_LIMIT = 32;
+        void update(short* buf, int samples) override;
+        void write(uint32_t reg, uint8_t val) override;
+        uint8_t read(const uint32_t port) noexcept override;
+        void writeReg(const uint16_t r, const uint16_t v) noexcept override;
+        virtual void init() override;
+    private:
+        uint16_t _bufsize = 1024;
+        int16_t* _lbuf;
+        int16_t* _rbuf;
+        OPL* a;
+        OPL* b;
 
-            class SurroundOPL : public OPL
-            {
-            private:
-                bool _use16bit;
-                short bufsize;
-                short* lbuf, * rbuf;
-                OPL* a, * b;
-                uint8_t iFMReg[2][256];
-                uint8_t iTweakedFMReg[2][256];
-                uint8_t iCurrentTweakedBlock[2][9]; // Current value of the Block in the tweaked OPL chip
-                uint8_t iCurrentFNum[2][9];         // Current value of the FNum in the tweaked OPL chip
-                int8_t currChip = 0;
-            public:
-
-                SurroundOPL(const int rate, const bool use16bit) noexcept;
-                virtual ~SurroundOPL();
-
-                void update(short* buf, int samples) override;
-                void write(int reg, int val) override;
-                virtual void init() override;
-                int32_t getSampleRate() const noexcept override;
-                bool isStereo() const override;
-            };
-        }
-    }
+        uint8_t iFMReg[2][256];
+        uint8_t iTweakedFMReg[2][256];
+        uint8_t iCurrentTweakedBlock[2][9]; // Current value of the Block in the tweaked OPL chip
+        uint8_t iCurrentFNum[2][9];         // Current value of the FNum in the tweaked OPL chip
+        int8_t currChip = 0;
+    };
 }

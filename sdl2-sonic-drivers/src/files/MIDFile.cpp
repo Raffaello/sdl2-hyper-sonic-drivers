@@ -34,25 +34,26 @@ namespace files
 
     MIDFile::~MIDFile() = default;
 
-    std::shared_ptr<audio::MIDI> MIDFile::getMIDI() const noexcept
+    std::shared_ptr<audio::MIDI> MIDFile::getOriginalMIDI() const noexcept
     {
         return _midi;
     }
 
-    std::shared_ptr<audio::MIDI> MIDFile::convertToSingleTrackMIDI() const
+    std::shared_ptr<audio::MIDI> MIDFile::getMIDI() const
     {
         using audio::midi::MIDI_EVENT_TYPES_HIGH;
         using audio::midi::MIDI_META_EVENT_TYPES_LOW;
         using audio::midi::MIDI_META_EVENT;
         using audio::midi::MIDIEvent;
+        using audio::midi::MIDI_META_EVENT_VAL;
 
         if (_midi->format == audio::midi::MIDI_FORMAT::SINGLE_TRACK)
-            return getMIDI();
+            return getOriginalMIDI();
         if (_midi->format == audio::midi::MIDI_FORMAT::MULTI_TRACK)
             throw std::runtime_error("MIDI MULTI_TRACK not supported yet");
 
         auto midi = std::make_shared<audio::MIDI>(audio::midi::MIDI_FORMAT::SINGLE_TRACK, 1, _midi->division);
-        
+
         using midi_tuple_t = struct midi_tuple_t
         {
             MIDIEvent e;
@@ -70,9 +71,10 @@ namespace files
         events_tuple.reserve(totalEvents);
         
         uint32_t abs_time = 0;
-        constexpr uint8_t meta_event_val = (static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::META_SYSEX) << 4) | static_cast<uint8_t>(MIDI_META_EVENT_TYPES_LOW::META);
+        constexpr uint8_t meta_event_val = static_cast<uint8_t>(MIDI_META_EVENT_VAL::META);
         constexpr uint8_t end_of_track_val = static_cast<uint8_t>(MIDI_META_EVENT::END_OF_TRACK);
         midi_tuple_t last_end_of_track;
+        last_end_of_track.abs_time = 0;
         // 1. with absolute time just copy all the events as they are into 1 single track
         //    order of tracks matter
         //    only 1 delta time different from zero on same abs_time
@@ -84,9 +86,11 @@ namespace files
                 // if it is a end_of_track skip it, it will be added later
                 if (te.type.val == meta_event_val
                     && te.data[0] == end_of_track_val) {
-                    last_end_of_track.e = te;
-                    last_end_of_track.abs_time = abs_time + te.delta_time;
-                    last_end_of_track.track = n;
+                    if (abs_time > last_end_of_track.abs_time) {
+                        last_end_of_track.e = te;
+                        last_end_of_track.abs_time = abs_time + te.delta_time;
+                        last_end_of_track.track = n;
+                    }
                     continue;
                 }
 
@@ -101,24 +105,32 @@ namespace files
 
         // add the end of track
         // this should be equivalent to the last event of the longest track, last end of track
+        //last_end_of_track.abs_time = abs_time
         events_tuple.emplace_back(last_end_of_track);
 
         // 2. then sort them by absolute time
         //    tie break level 1 on delta_time,
         //    tie break level 2 on track number
+        //    tie break level 3 on event type
         std::sort(
             events_tuple.begin(),
             events_tuple.end(),
             [](const midi_tuple_t& e1, const midi_tuple_t& e2)
             {
-                if (e1.abs_time == e2.abs_time) {
-                    if(e1.e.delta_time == e2.e.delta_time)
-                        return e1.track < e2.track;
-                    
-                    return e1.e.delta_time > e2.e.delta_time;
+                if (e1.abs_time == e2.abs_time)
+                {
+                    if (e1.e.delta_time == e2.e.delta_time)
+                    {
+                        if(e1.track == e2.track)
+                            return e1.e.type.val < e2.e.type.val;
+                        else
+                            return e1.track < e2.track;
+                    }
+                    else
+                        return e1.e.delta_time > e2.e.delta_time;
                 }
-
-                return e1.abs_time < e2.abs_time;
+                else
+                    return e1.abs_time < e2.abs_time;
             }
         );
 
@@ -209,6 +221,7 @@ namespace files
         using audio::midi::MIDIEvent;
         using audio::midi::MIDI_EVENT_TYPES_HIGH;
         using audio::midi::MIDI_META_EVENT_TYPES_LOW;
+        using audio::midi::TO_META;
 
         MIDITrack track;
         bool endTrack = false;
@@ -238,7 +251,6 @@ namespace files
                 throw std::runtime_error("MIDI file too long, absolute time overflowed");
             }
 
-            //e.abs_time = abs_time;
             e.type.val = readU8();
 
             if (e.type.high < 0x8) {
@@ -278,7 +290,7 @@ namespace files
                         offs++;
                     }
 
-                    if (MIDI_META_EVENT::END_OF_TRACK == static_cast<MIDI_META_EVENT>(type)) {
+                    if (MIDI_META_EVENT::END_OF_TRACK == TO_META(type)) {
                         endTrack = true;
                     }
                     break;

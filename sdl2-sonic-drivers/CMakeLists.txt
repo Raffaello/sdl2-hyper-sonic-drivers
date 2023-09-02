@@ -59,13 +59,21 @@ install(FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/miles/AILDriverFile.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/WAVFile.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/VOCFile.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/GetMIDI.hpp
     
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/OPL.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/dosbox/dosbox.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/mame/mame.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/nuked/OPL.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/Config.hpp
-    #${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/EmulatedOPL.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/OPLFactory.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/OplType.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/OplEmulator.hpp
+    #${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/Timer.hpp
+
+    #${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/mame/MameOPL3.hpp
+    
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/dosbox/DosBoxOPL.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/mame/MameOPL2.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/nuked/NukedOPL3.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/EmulatedOPL.hpp
+    
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/woody/WoodyOPL.hpp
     
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/PCSpeaker.hpp
@@ -121,9 +129,7 @@ target_sources(${LIB_NAME} PRIVATE
     # --- # 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/westwood/ADLDriver.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/PCMDriver.cpp
-    #${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/miles/XMidi.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/MIDDriver.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/miles/XMIParser.cpp
    
     ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/Native.cpp
     
@@ -156,23 +162,27 @@ target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/files/VOCFile.cpp
     # --- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/OPL.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/dosbox/dosbox.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/OPLFactory.cpp
+    
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/Timer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/Chip.cpp
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/dosbox/DosBoxOPL.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/dosbox/dbopl/dbopl.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/mame/MameOPL2.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/mame/mame.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/nuked/OPL.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/nuked/NukedOPL3.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/nuked/opl3.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/Config.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/EmulatedOPL.cpp
     # --- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/mame/ymfm/ymfm_adpcm.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/mame/ymfm/ymfm_fm.ipp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/mame/ymfm/ymfm_opl.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/mame/ymfm/ymfm_pcm.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/mame/MameOPL.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/mame/MameOPL3.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/mame/opl3/ymf262.cpp
     # --- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/woody/WoodyOPL.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/woody/OPL.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/woody/OPLChip.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/woody/SurroundOPL.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/woody/WoodyEmuOPL.cpp
@@ -207,7 +217,6 @@ unset(LIB_VER)
 # Add source to this project's executable.
 add_executable(sdl2-sonic-drivers "sdl2-sonic-drivers.cpp")
 #target_sources(sdl2-sonic-drivers PUBLIC
-    #${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/miles/XMidi.cpp
     # --- #
     #${CMAKE_CURRENT_SOURCE_DIR}/src/files/IFFFile.cpp
     #${CMAKE_CURRENT_SOURCE_DIR}/src/files/XMIFile.cpp

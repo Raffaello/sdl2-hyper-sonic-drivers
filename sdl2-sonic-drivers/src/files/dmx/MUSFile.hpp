@@ -7,13 +7,14 @@
 #include <vector>
 #include <memory>
 #include <array>
+#include <files/GetMIDI.hpp>
 
 
 namespace files
 {
     namespace dmx
     {
-        class MUSFile : protected File
+        class MUSFile : protected File, public GetMIDI
         {
         public:
             static const int MUS_PLAYBACK_SPEED_DEFAULT;
@@ -22,8 +23,7 @@ namespace files
             explicit MUSFile(const std::string& filename, const int playback_speed = MUS_PLAYBACK_SPEED_DEFAULT);
             ~MUSFile() override = default;
 
-            // TODO: make an interface to convertToSingleTrackMidi() or getMIDI() for MID and MUS file (later XMI)
-            std::shared_ptr<audio::MIDI> getMIDI() noexcept;
+            std::shared_ptr<audio::MIDI> getMIDI() const noexcept override;
 
             const int playback_speed;
         private:
@@ -56,7 +56,8 @@ namespace files
             } mus_event_desc_u;
             static_assert(sizeof(mus_event_desc_u) == sizeof(uint8_t));
 
-            typedef struct mus_event_t {
+            typedef struct mus_event_t
+            {
                 mus_event_desc_u desc;
                 uint32_t delta_time;
                 std::vector<uint8_t> data;
@@ -69,15 +70,17 @@ namespace files
 
             // This is the instrument used relative to the MUS Channels, total instruments.
             // problably considering all the different percussions too.
-            // It might be used for pre load sounds into memory.
+            // It could be used for pre load only the instruments used in the sont into memory.
+            // Saving some memory.
             // not used as all the sounds will be loaded to memory and retrieve as needed.
+            // for now. Not planning to run on low available free memory system yet
             std::vector<uint16_t> instruments;
 
             void readHeader();
             void readTrack();
             std::shared_ptr<audio::MIDI> convertToMidi();
             std::vector<mus_event_t> _mus;
-            std::shared_ptr<audio::MIDI> _midi = nullptr;
+            std::shared_ptr<audio::MIDI> _midi;
         };
     }
 }

@@ -324,7 +324,7 @@ namespace audio
             return _soundTypeSettings[static_cast<int>(type)].volume;
         }
 
-        unsigned int MixerImpl::getOutputRate() const
+        unsigned int MixerImpl::getOutputRate() const noexcept
         {
             return _sampleRate;
         }
@@ -367,7 +367,7 @@ namespace audio
 
             const std::lock_guard<std::mutex> lock(_mutex);
 
-            int16_t* buf = (int16_t*)samples;
+            int16_t* buf = reinterpret_cast<int16_t*>(samples);
             // we store stereo, 16-bit samples
             assert(len % 4 == 0);
             len >>= 2;

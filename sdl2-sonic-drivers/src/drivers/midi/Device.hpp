@@ -2,12 +2,15 @@
 
 #include <audio/midi/MIDIEvent.hpp>
 #include <cstdint>
+#include <atomic>
 
 
 // TODO: namespace drivers::midi::devices could be considered
 //       to be replaced instead as devices:: and devices::midi ?
 namespace drivers
 {
+    class MIDDriver;
+
     namespace midi
     {
         class Device
@@ -22,25 +25,34 @@ namespace drivers
             virtual void pause() const noexcept = 0;
             virtual void resume() const noexcept = 0;
 
-            // DRAFT:
-            // TODO use an acquire/release mechanism to be used from the driver
-            // to allow to be used simultaneously only 1 at time from the drivers
-            inline bool acquire() { 
-                // todo who acquired?
-                // it might be enough, but can be hacked
+            inline bool isAcquired() const noexcept { return _acquired; }
+            inline bool isOwned(const /*void**/ drivers::MIDDriver* owner) const noexcept { return _owner == owner; }
+
+            // TODO: a binary semaphore could be also used i suppose...
+            inline bool acquire(/*void**/ drivers::MIDDriver* owner)
+            {
                 if (!_acquired) {
                     _acquired = true;
+                    _owner = owner;
                     return true;
                 }
                 else return false;
             }
 
-            // TODO
-            // it is enough to call release() to acquire from another device.
-            // this mechanism doesn't work
-            bool release() { _acquired = false; return true; }
+            bool release(const /*void**/ drivers::MIDDriver* owner)
+            {
+                if (isOwned(owner)) {
+                    _acquired = false;
+                    return true;
+                }
+
+                // maybe here should always return false... it can be true just because is not aquired i guess...
+                return !isAcquired();
+            }
         private:
-            bool _acquired = false;
+            // TODO: this could be replaced with a unique_lock mutex instead?
+            std::atomic<bool> _acquired = false;
+            std::atomic<drivers::MIDDriver*> _owner = nullptr;
         };
     }
 }

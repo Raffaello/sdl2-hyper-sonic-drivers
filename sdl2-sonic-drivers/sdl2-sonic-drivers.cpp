@@ -10,14 +10,13 @@
 #include <files/miles/XMIFile.hpp>
 #include <files/westwood/ADLFile.hpp>
 #include <hardware/PCSpeaker.hpp>
-#include <hardware/opl/scummvm/Config.hpp>
+#include <hardware/opl/OPLFactory.hpp>
 
-#include <hardware/opl/mame/MameOPL.hpp>
+#include <hardware/opl/mame/MameOPL3.hpp>
 
 #include <audio/DiskRendererMixerManager.hpp>
 
 #include <files/MIDFile.hpp>
-#include <drivers/miles/XMIParser.hpp>
 
 #include <utils/algorithms.hpp>
 
@@ -255,6 +254,7 @@ int renderMixer()
 {
     using namespace audio::scummvm;
     using namespace hardware::opl::scummvm;
+    using namespace hardware::opl;
     using namespace drivers::westwood;
 
     audio::DiskRendererMixerManager mixerManager(44100);
@@ -264,7 +264,7 @@ int renderMixer()
     std::shared_ptr<Mixer> mixer = mixerManager.getMixer();
 
     //spdlog::set_level(spdlog::level::debug);
-    auto opl = Config::create(OplEmulator::NUKED, Config::OplType::OPL3, mixer);
+    auto opl = OPLFactory::create(OplEmulator::NUKED, OplType::OPL3, mixer);
     auto pOpl = dynamic_cast<EmulatedOPL*>( opl.get());
     //auto opl = std::make_shared<hardware::opl::mame::MameOPL>(mixer);
     std::shared_ptr<files::westwood::ADLFile> adlFile = std::make_shared<files::westwood::ADLFile>("test/fixtures/DUNE0.ADL");
@@ -280,7 +280,7 @@ int renderMixer()
         int16_t buf[1024];
 
         samples = pOpl->readBuffer(buf, 1024);
-        mixerManager.callbackHandler((uint8_t*)buf, samples * 2);
+        mixerManager.callbackHandler(reinterpret_cast<uint8_t*>(buf), samples * 2);
         totSamples += samples;
         isPlaying = adlDrv.isPlaying();
         //spdlog::info("isPlaying? {}", isPlaying);
@@ -306,37 +306,12 @@ int renderMixer()
     return 0;
 }
 
-int xmi_parser()
-{
-    using namespace audio::scummvm;
-    using  drivers::miles::XMIParser;
-
-    SdlMixerManager mixerManager;
-    mixerManager.init();
-
-    std::shared_ptr<Mixer> mixer = mixerManager.getMixer();
-
-    //spdlog::set_level(spdlog::level::debug);
-    std::shared_ptr<files::miles::XMIFile> xmiFile = std::make_shared<files::miles::XMIFile>("test/fixtures/AIL2_14_DEMO.XMI");
-
-    XMIParser xmiParser(xmiFile->getMIDI(), mixer);
-    xmiParser.displayAllTracks();
-
-
-
-    spdlog::info("SDLMixer quitting...");
-    SDL_Delay(1000);
-    spdlog::info("SDLMixer quit");
-
-    return 0;
-
-}
-
 int midi_adlib()
 {
     using namespace audio::scummvm;
-    using hardware::opl::scummvm::Config;
-    using hardware::opl::scummvm::OplEmulator;
+    using hardware::opl::OPLFactory;
+    using hardware::opl::OplEmulator;
+    using hardware::opl::OplType;
 
     SdlMixerManager mixerManager;
     mixerManager.init();
@@ -344,16 +319,16 @@ int midi_adlib()
     std::shared_ptr<Mixer> mixer = mixerManager.getMixer();
 
     auto emu = OplEmulator::NUKED;
-    auto type = Config::OplType::OPL3;
+    auto type = OplType::OPL3;
     
-    auto opl = Config::create(emu, type, mixer);
+    auto opl = OPLFactory::create(emu, type, mixer);
     if (opl.get() == nullptr)
         return -1;
 
     //spdlog::set_level(spdlog::level::debug);
     //std::shared_ptr<files::MIDFile> midFile = std::make_shared<files::MIDFile>("test/fixtures/MI_intro.mid");
     auto midFile = std::make_shared<files::MIDFile>("test/fixtures/midifile_sample.mid");
-    auto midi = midFile->convertToSingleTrackMIDI();
+    auto midi = midFile->getMIDI();
     auto scumm_midi = std::make_shared<drivers::midi::devices::ScummVM>(opl, true);
     drivers::MIDDriver midDrv(mixer, scumm_midi);
 
@@ -368,8 +343,9 @@ int midi_adlib()
 int midi_adlib_mus_file_CONCURRENCY_ERROR_ON_SAME_DEVICE()
 {
     using namespace audio::scummvm;
-    using hardware::opl::scummvm::Config;
-    using hardware::opl::scummvm::OplEmulator;
+    using hardware::opl::OPLFactory;
+    using hardware::opl::OplEmulator;
+    using hardware::opl::OplType;
 
     SdlMixerManager mixerManager;
     mixerManager.init();
@@ -377,9 +353,9 @@ int midi_adlib_mus_file_CONCURRENCY_ERROR_ON_SAME_DEVICE()
     std::shared_ptr<Mixer> mixer = mixerManager.getMixer();
 
     auto emu = OplEmulator::MAME;
-    auto type = Config::OplType::OPL2;
+    auto type = OplType::OPL2;
 
-    auto opl = Config::create(emu, type, mixer);
+    auto opl = OPLFactory::create(emu, type, mixer);
     if (opl.get() == nullptr)
         return -1;
 
@@ -388,14 +364,22 @@ int midi_adlib_mus_file_CONCURRENCY_ERROR_ON_SAME_DEVICE()
     auto musFile = std::make_shared<files::dmx::MUSFile>("test/fixtures/D_E1M1.MUS");
     auto midi = musFile->getMIDI();
     auto scumm_midi = std::make_shared<drivers::midi::devices::ScummVM>(opl, false);
+    spdlog::info("isAquired: {}", scumm_midi->isAcquired());
     drivers::MIDDriver midDrv(mixer, scumm_midi);
+    // TODO: declare a same driver with the device shouldn't be possible.
+    //       bring the device aquire to the constructor?
+    //       so no other will be declared?
+    //       but if it is acquired should throw..
+    //       i am keepig at is for now.
     drivers::MIDDriver midDrv2(mixer, scumm_midi);
 
     spdlog::info("playing midi D_E1M1.MUS...");
     midDrv.play(midi);
-    utils::delayMillis(9000);
+    spdlog::info("isAquired: {}", scumm_midi->isAcquired());
+    utils::delayMillis(1000);
     spdlog::info("playing midi2 D_E1M1.MUS... (this should not be possible with the same device)");
-    midDrv2.play(midFile->convertToSingleTrackMIDI());
+    midDrv2.play(midFile->getMIDI());
+    spdlog::info("isAquired: {}", scumm_midi->isAcquired());
     spdlog::info("end.");
     while (midDrv.isPlaying() || midDrv2.isPlaying())
     {
@@ -408,8 +392,9 @@ int midi_adlib_mus_file_CONCURRENCY_ERROR_ON_SAME_DEVICE()
 int midi_adlib_mus_op2_file()
 {
     using namespace audio::scummvm;
-    using hardware::opl::scummvm::Config;
-    using hardware::opl::scummvm::OplEmulator;
+    using hardware::opl::OPLFactory;
+    using hardware::opl::OplEmulator;
+    using hardware::opl::OplType;
 
     SdlMixerManager mixerManager;
     mixerManager.init();
@@ -418,8 +403,8 @@ int midi_adlib_mus_op2_file()
 
     std::shared_ptr<Mixer> mixer = mixerManager.getMixer();
 
-    auto emu = OplEmulator::MAME;
-    auto type = Config::OplType::OPL2;
+    auto emu = OplEmulator::DOS_BOX;
+    auto type = OplType::OPL2;
     
     spdlog::set_level(spdlog::level::debug);
 
@@ -428,7 +413,7 @@ int midi_adlib_mus_op2_file()
     auto midi = musFile->getMIDI();
 
     {
-        auto opl = Config::create(emu, type, mixer);
+        auto opl = OPLFactory::create(emu, type, mixer);
         if (opl.get() == nullptr)
             return -1;
 
@@ -445,7 +430,7 @@ int midi_adlib_mus_op2_file()
     }
     {
         
-        auto opl = Config::create(OplEmulator::DOS_BOX, Config::OplType::OPL3, mixer);
+        auto opl = OPLFactory::create(OplEmulator::DOS_BOX, OplType::OPL3, mixer);
         if (opl.get() == nullptr)
             return -1;
         auto sbpro_midi = std::make_shared<drivers::midi::devices::SbPro2>(opl, op2File->getBank());
@@ -478,44 +463,48 @@ int midi_adlib_mus_op2_file()
 
 int midi_adlib_xmi()
 {
-    // Working but in a reduced way as there are specific XMI midi messages not interpreted
+    // NOT Working but in a reduced way as there are specific XMI midi messages not interpreted
     // also it has been hacked through the xmifile get midi to build a single track midi
 
     using namespace audio::scummvm;
-    using hardware::opl::scummvm::Config;
-    using hardware::opl::scummvm::OplEmulator;
+    using hardware::opl::OPLFactory;
+    using hardware::opl::OplEmulator;
+    using hardware::opl::OplType;
 
     SdlMixerManager mixerManager;
     mixerManager.init();
 
-    std::shared_ptr<Mixer> mixer = mixerManager.getMixer();
+    auto mixer = mixerManager.getMixer();
 
     auto emu = OplEmulator::MAME;
-    auto type = Config::OplType::OPL2;
+    auto type = OplType::OPL2;
 
-    auto opl = Config::create(emu, type, mixer);
+    auto opl = OPLFactory::create(emu, type, mixer);
     if (opl.get() == nullptr)
         return -1;
 
     //spdlog::set_level(spdlog::level::debug);
-    std::shared_ptr<files::miles::XMIFile> xmiFile = std::make_shared<files::miles::XMIFile>("test/fixtures/AIL2_14_DEMO.XMI");
+    auto xmiFile = std::make_shared<files::miles::XMIFile>("test/fixtures/AIL2_14_DEMO.XMI");
     auto m = xmiFile->getMIDI();
     auto midi = std::make_shared<audio::MIDI>(audio::midi::MIDI_FORMAT::SINGLE_TRACK, 1, m->division);
     midi->addTrack(m->getTrack(0));
     
     auto scumm_midi = std::make_shared<drivers::midi::devices::ScummVM>(opl, false);
-    drivers::MIDDriver midDrv(mixer, scumm_midi);
+    files::dmx::OP2File op2File("test/fixtures/GENMIDI.OP2");
+    auto opl_midi = std::make_shared<drivers::midi::devices::Adlib>(opl, op2File.getBank());
+    //drivers::MIDDriver midDrv(mixer, scumm_midi);
+    drivers::MIDDriver midDrv(mixer, opl_midi);
 
     spdlog::info("playing midi AIL2_14_DEMO...");
     midDrv.play(midi);
     
     while (midDrv.isPlaying())
     {
+        //spdlog::info("playing...");
         utils::delayMillis(1000);
     }
     return 0;
 }
-
 
 
 int main(int argc, char* argv[])
@@ -525,9 +514,9 @@ int main(int argc, char* argv[])
     //renderMixer();
 
     //xmi_parser();
-    //midi_adlib_mus_file_CONCURRENCY_ERROR_ON_SAME_DEVICE()
-    midi_adlib_mus_op2_file();
-    //midi_adlib_xmi();
+    //midi_adlib_mus_file_CONCURRENCY_ERROR_ON_SAME_DEVICE();
+    //midi_adlib_mus_op2_file();
+    midi_adlib_xmi();
 
     SDL_Init(SDL_INIT_TIMER | SDL_INIT_AUDIO);
 

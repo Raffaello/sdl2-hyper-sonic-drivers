@@ -11,7 +11,7 @@
 
 #include <files/dmx/OP2File.hpp>
 
-#include <hardware/opl/scummvm/Config.hpp>
+#include <hardware/opl/OPLFactory.hpp>
 #include <utils/algorithms.hpp>
 
 #include <memory>
@@ -20,8 +20,9 @@
 #include <fmt/color.h>
 #include <map>
 
-using hardware::opl::scummvm::Config;
-using hardware::opl::scummvm::OplEmulator;
+using hardware::opl::OPLFactory;
+using hardware::opl::OplEmulator;
+using hardware::opl::OplType;
 
 void mid_test_run(drivers::MIDDriver& midDrv, const std::shared_ptr<audio::MIDI>& midi)
 {
@@ -35,14 +36,14 @@ void mid_test_run(drivers::MIDDriver& midDrv, const std::shared_ptr<audio::MIDI>
     spdlog::info("Total Running Time: {:%M:%S}", tot_time);
 }
 
-void scummvm_mid_test(const OplEmulator emu, const Config::OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer,
+void scummvm_mid_test(const OplEmulator emu, const OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer,
     const std::shared_ptr<audio::MIDI> midi)
 {
-    auto opl = Config::create(emu, type, mixer);
+    auto opl = OPLFactory::create(emu, type, mixer);
     if (opl == nullptr)
         return;
 
-    const bool isOpl3 = type == Config::OplType::OPL3;
+    const bool isOpl3 = type == OplType::OPL3;
     auto midi_device = std::make_shared<drivers::midi::devices::ScummVM>(opl, isOpl3);
     drivers::MIDDriver midDrv(mixer, midi_device);
 
@@ -50,14 +51,14 @@ void scummvm_mid_test(const OplEmulator emu, const Config::OplType type, const s
     mid_test_run(midDrv, midi);
 }
 
-void mid_test(const OplEmulator emu, const Config::OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer,
+void mid_test(const OplEmulator emu, const OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer,
     const std::shared_ptr<audio::MIDI> midi)
 {
-    auto opl = Config::create(emu, type, mixer);
+    auto opl = OPLFactory::create(emu, type, mixer);
     if (opl == nullptr)
         return;
 
-    const bool isOpl3 = type == Config::OplType::OPL3;
+    const bool isOpl3 = type == OplType::OPL3;
     auto op2file = files::dmx::OP2File("GENMIDI.OP2");
     std::shared_ptr<drivers::midi::Device> midi_device;
     if (isOpl3)
@@ -97,10 +98,10 @@ int run(const std::shared_ptr<audio::MIDI>& midi, const bool use_opldrv)
        { OplEmulator::WOODY, "WOODY" },
     };
 
-    std::map<Config::OplType, std::string> types = {
-        {Config::OplType::OPL2, "OPL2"},
-        {Config::OplType::DUAL_OPL2, "DUAL_OPL2"},
-        {Config::OplType::OPL3, "OPL3"},
+    std::map<OplType, std::string> types = {
+        {OplType::OPL2, "OPL2"},
+        {OplType::DUAL_OPL2, "DUAL_OPL2"},
+        {OplType::OPL3, "OPL3"},
     };
 
     std::string m = "##### {} {} #####";
