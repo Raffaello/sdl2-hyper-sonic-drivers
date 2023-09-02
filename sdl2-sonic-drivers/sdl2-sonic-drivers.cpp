@@ -280,7 +280,7 @@ int renderMixer()
         int16_t buf[1024];
 
         samples = pOpl->readBuffer(buf, 1024);
-        mixerManager.callbackHandler((uint8_t*)buf, samples * 2);
+        mixerManager.callbackHandler(reinterpret_cast<uint8_t*>(buf), samples * 2);
         totSamples += samples;
         isPlaying = adlDrv.isPlaying();
         //spdlog::info("isPlaying? {}", isPlaying);

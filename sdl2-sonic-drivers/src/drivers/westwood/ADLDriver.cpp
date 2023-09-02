@@ -720,7 +720,7 @@ namespace drivers::westwood
 
     void ADLDriver::setupInstrument(uint8_t regOffset, const uint8_t* dataptr, Channel& channel)
     {
-        spdlog::debug("setupInstrument({}, {}, {})", regOffset, (const void*)dataptr, (long)(&channel - _channels));
+        spdlog::debug("setupInstrument({}, {}, {})", regOffset, static_cast<const void*>(dataptr), static_cast<long>(&channel - _channels));
 
         if (_curChannel >= NUM_CHANNELS)
             return;

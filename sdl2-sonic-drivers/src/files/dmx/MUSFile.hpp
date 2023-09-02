@@ -56,7 +56,8 @@ namespace files
             } mus_event_desc_u;
             static_assert(sizeof(mus_event_desc_u) == sizeof(uint8_t));
 
-            typedef struct mus_event_t {
+            typedef struct mus_event_t
+            {
                 mus_event_desc_u desc;
                 uint32_t delta_time;
                 std::vector<uint8_t> data;
