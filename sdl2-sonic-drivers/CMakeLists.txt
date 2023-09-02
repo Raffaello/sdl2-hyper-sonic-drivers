@@ -86,13 +86,14 @@ install(
 #    DESTINATION "static/include"
 #)
 
-## TODO: this is ok, but some includes files i don't want to be "public", 
+## TODO: this is ok, but some includes files i don't want to be "public",
 ##       so it looks like it must be built manually..
-install(DIRECTORY
-    src/
-    DESTINATION "static/include"
-    FILES_MATCHING PATTERN "*.hpp"
-)
+# try defining PUBLIC_HEADER than do an install target (it is at line 31)
+#install(DIRECTORY
+#    src/
+#    DESTINATION "static/include"
+#    FILES_MATCHING PATTERN "*.hpp"
+#)
 
 write_basic_package_version_file(
   ${CMAKE_CURRENT_BINARY_DIR}/${LIB_VER}.cmake
