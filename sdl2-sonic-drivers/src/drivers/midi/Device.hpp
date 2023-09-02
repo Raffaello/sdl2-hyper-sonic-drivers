@@ -28,6 +28,7 @@ namespace drivers
             inline bool isAcquired() const noexcept { return _acquired; }
             inline bool isOwned(const /*void**/ drivers::MIDDriver* owner) const noexcept { return _owner == owner; }
 
+            // TODO: a binary semaphore could be also used i suppose...
             inline bool acquire(/*void**/ drivers::MIDDriver* owner)
             {
                 if (!_acquired) {
