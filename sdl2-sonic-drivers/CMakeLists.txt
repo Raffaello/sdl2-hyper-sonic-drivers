@@ -34,7 +34,7 @@ install(
     DESTINATION "static/lib"
     PUBLIC_HEADER DESTINATION "static/include"
 )
-install(FILES 
+install(FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/scummvm/SDLMixerManager.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/MIDI.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/Sound.hpp
@@ -68,14 +68,14 @@ install(FILES
     #${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/Timer.hpp
 
     #${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/mame/MameOPL3.hpp
-    
+ 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/dosbox/DosBoxOPL.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/mame/MameOPL2.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/nuked/NukedOPL3.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/EmulatedOPL.hpp
-    
+ 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/woody/WoodyOPL.hpp
-    
+ 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/PCSpeaker.hpp
 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/algorithms.hpp
@@ -223,8 +223,7 @@ add_executable(sdl2-sonic-drivers "sdl2-sonic-drivers.cpp")
     #${CMAKE_CURRENT_SOURCE_DIR}/src/files/MIDFile.cpp
 #)
 
-target_link_libraries(sdl2-sonic-drivers PRIVATE ${LIB_SDL2main} )
-target_link_libraries(sdl2-sonic-drivers PRIVATE sonic-drivers-static)
+target_link_libraries(sdl2-sonic-drivers PRIVATE  ${LIB_SDL2main} sonic-drivers-static)
 
 if(MSVC)
 # @see https://docs.microsoft.com/en-us/cpp/build/reference/compiler-options-listed-by-category?view=vs-2019
