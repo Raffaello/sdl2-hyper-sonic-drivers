@@ -34,56 +34,64 @@ install(
     DESTINATION "static/lib"
     PUBLIC_HEADER DESTINATION "static/include"
 )
-install(FILES
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/scummvm/SDLMixerManager.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/MIDI.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/Sound.hpp
+#install(FILES
+#    ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/scummvm/SDLMixerManager.hpp
+#    ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/MIDI.hpp
+#    ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/Sound.hpp
+#
+#    ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/opl/banks/OP2Bank.hpp
+#
+#    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/westwood/ADLDriver.hpp
+#    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/PCMDriver.hpp
+#    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/MIDDriver.hpp
+#
+#    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/Device.hpp
+#    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/Native.hpp
+#    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/ScummVM.hpp
+#    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/Adlib.hpp
+#    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/SbPro2.hpp
+#
+#    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/westwood/ADLFile.hpp
+#    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/MIDFile.hpp
+#    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/dmx/MUSFile.hpp
+#    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/dmx/OP2File.hpp
+#    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/miles/XMIFile.hpp
+#    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/miles/AILDriverFile.hpp
+#    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/WAVFile.hpp
+#    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/VOCFile.hpp
+#    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/GetMIDI.hpp
+#    
+#    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/OPL.hpp
+#    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/OPLFactory.hpp
+#    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/OplType.hpp
+#    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/OplEmulator.hpp
+#    #${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/Timer.hpp
+#
+#    #${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/mame/MameOPL3.hpp
+# 
+#    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/dosbox/DosBoxOPL.hpp
+#    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/mame/MameOPL2.hpp
+#    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/nuked/NukedOPL3.hpp
+#    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/EmulatedOPL.hpp
+#  
+#    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/woody/WoodyOPL.hpp
+# 
+#    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/PCSpeaker.hpp
+#
+#    ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/algorithms.hpp
+#    ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/constants.hpp
+#    ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/endianness.hpp
+#    ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/opl.hpp
+#
+#    DESTINATION "static/include"
+#)
 
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/opl/banks/OP2Bank.hpp
-
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/westwood/ADLDriver.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/PCMDriver.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/MIDDriver.hpp
-
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/Device.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/Native.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/ScummVM.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/Adlib.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/SbPro2.hpp
-
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/westwood/ADLFile.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/MIDFile.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/dmx/MUSFile.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/dmx/OP2File.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/miles/XMIFile.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/miles/AILDriverFile.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/WAVFile.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/VOCFile.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/GetMIDI.hpp
-    
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/OPL.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/OPLFactory.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/OplType.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/OplEmulator.hpp
-    #${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/Timer.hpp
-
-    #${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/mame/MameOPL3.hpp
- 
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/dosbox/DosBoxOPL.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/mame/MameOPL2.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/nuked/NukedOPL3.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/EmulatedOPL.hpp
- 
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/woody/WoodyOPL.hpp
- 
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/PCSpeaker.hpp
-
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/algorithms.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/constants.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/endianness.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/opl.hpp
-
+## TODO: this is ok, but some includes files i don't want to be "public", 
+##       so it looks like it must be built manually..
+install(DIRECTORY
+    src/
     DESTINATION "static/include"
+    FILES_MATCHING PATTERN "*.hpp"
 )
 
 write_basic_package_version_file(
