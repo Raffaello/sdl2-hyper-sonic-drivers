@@ -11,14 +11,13 @@
 #include <audio/stubs/StubMixer.hpp>
 #include <drivers/MIDDriver.hpp>
 #include <drivers/midi/Device.hpp>
-#include <spdlog/sinks/ostream_sink.h>
-#include <sstream>
 #include <algorithm>
 #include <drivers/midi/devices/SpyDevice.hpp>
 #include <drivers/MIDDriverMock.hpp>
 #include <files/MIDFile.hpp>
 #include <utils/algorithms.hpp>
 
+#include <SDL2/SDL_log.h>
 
 namespace drivers
 {
@@ -34,45 +33,30 @@ namespace drivers
         auto mixer = std::make_shared<StubMixer>();
         auto device = std::make_shared<midi::devices::SpyDevice>();
 
-        // capture spdlog output
-        std::ostringstream _oss;
-        /*auto ostream_logger = spdlog::get("gtest_logger");
-        if (!ostream_logger)
-        {
-            auto ostream_sink = std::make_shared<spdlog::sinks::ostream_sink_st>(_oss);
-            ostream_logger = std::make_shared<spdlog::logger>("gtest_logger", ostream_sink);
-            ostream_logger->set_pattern(">%v<");
-            ostream_logger->set_level(spdlog::level::debug);
-        }
-        auto default_logger = spdlog::default_logger();
-        spdlog::set_default_logger(ostream_logger);*/
-        // ---
+        SDL_LogSetPriority(SDL_LOG_CATEGORY_AUDIO, SDL_LogPriority::SDL_LOG_PRIORITY_DEBUG);
 
+        // ---
         MIDIEvent e;
         e.delta_time = 0;
         e.type.high = (uint8_t)MIDI_EVENT_TYPES_HIGH::META_SYSEX;
         e.type.low = (uint8_t)MIDI_META_EVENT_TYPES_LOW::META;
-        
         // this can be a parameter
         e.data.push_back((uint8_t)MIDI_META_EVENT::SEQUENCE_NAME);
-
         std::string s = "sequence_name";
         e.data.insert(e.data.end(),s.begin(), s.end());
-
         auto midi_track = audio::midi::MIDITrack();
         midi_track.addEvent(e);
 
+        //::testing::internal::CaptureStdout();
+        ::testing::internal::CaptureStderr();
         MIDDriverMock middrv(mixer, device);
-        ::testing::internal::CaptureStdout();
+
+        SDL_LogInfo(SDL_LOG_CATEGORY_AUDIO, "2TEST");
         middrv.protected_processTrack(midi_track, 0);
-        auto output = ::testing::internal::GetCapturedStdout();
-        // retrieve spdlog output
-        //std::string output = _oss.str();
-        
-        EXPECT_NE(_oss.str().find("SEQUENCE NAME: " + s), std::string::npos);
-        
-        _oss.clear();
-        //spdlog::set_default_logger(default_logger);
+        //auto output = ::testing::internal::GetCapturedStdout();
+        auto output2 = ::testing::internal::GetCapturedStderr();
+
+        EXPECT_TRUE(output2.find("SEQUENCE NAME: " + s) != std::string::npos);
     }
 
     TEST(MIDDrvier, force_stop_on_long_delta_time_delay)

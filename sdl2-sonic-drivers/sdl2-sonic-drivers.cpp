@@ -284,22 +284,22 @@ int renderMixer()
         //spdlog::info("isPlaying? {}", isPlaying);
     } while (isPlaying);
 
-    spdlog::info("TotSamples={} --- space require={} ({}KB) [{}MB]", totSamples, totSamples * sizeof(int16_t), totSamples * sizeof(int16_t) / 1024, totSamples * sizeof(int16_t) / 1024 / 1024);
+    //spdlog::info("TotSamples={} --- space require={} ({}KB) [{}MB]", totSamples, totSamples * sizeof(int16_t), totSamples * sizeof(int16_t) / 1024, totSamples * sizeof(int16_t) / 1024 / 1024);
 
     while (!mixer->isReady()) {
-        spdlog::info("mixer not ready");
+        //spdlog::info("mixer not ready");
         utils::delayMillis(100);
     }
 
     utils::delayMillis(1000);
     while (adlDrv.isPlaying())
     {
-        spdlog::info("is playing");
+        //spdlog::info("is playing");
         utils::delayMillis(100);
 
     }
 
-    spdlog::info("renderer quitting...");
+    //spdlog::info("renderer quitting...");
 
     return 0;
 }
@@ -331,9 +331,9 @@ int midi_adlib()
     drivers::MIDDriver midDrv(mixer, scumm_midi);
 
 
-    spdlog::info("playing midi...");
+    //spdlog::info("playing midi...");
     midDrv.play(midi);
-    spdlog::info("end.");
+    //spdlog::info("end.");
 
     return 0;
 }
@@ -362,7 +362,7 @@ int midi_adlib_mus_file_CONCURRENCY_ERROR_ON_SAME_DEVICE()
     auto musFile = std::make_shared<files::dmx::MUSFile>("test/fixtures/D_E1M1.MUS");
     auto midi = musFile->getMIDI();
     auto scumm_midi = std::make_shared<drivers::midi::devices::ScummVM>(opl, false);
-    spdlog::info("isAquired: {}", scumm_midi->isAcquired());
+    //spdlog::info("isAquired: {}", scumm_midi->isAcquired());
     drivers::MIDDriver midDrv(mixer, scumm_midi);
     // TODO: declare a same driver with the device shouldn't be possible.
     //       bring the device aquire to the constructor?
@@ -371,14 +371,14 @@ int midi_adlib_mus_file_CONCURRENCY_ERROR_ON_SAME_DEVICE()
     //       i am keepig at is for now.
     drivers::MIDDriver midDrv2(mixer, scumm_midi);
 
-    spdlog::info("playing midi D_E1M1.MUS...");
+    //spdlog::info("playing midi D_E1M1.MUS...");
     midDrv.play(midi);
-    spdlog::info("isAquired: {}", scumm_midi->isAcquired());
+    //spdlog::info("isAquired: {}", scumm_midi->isAcquired());
     utils::delayMillis(1000);
-    spdlog::info("playing midi2 D_E1M1.MUS... (this should not be possible with the same device)");
+    //spdlog::info("playing midi2 D_E1M1.MUS... (this should not be possible with the same device)");
     midDrv2.play(midFile->getMIDI());
-    spdlog::info("isAquired: {}", scumm_midi->isAcquired());
-    spdlog::info("end.");
+    //spdlog::info("isAquired: {}", scumm_midi->isAcquired());
+    //spdlog::info("end.");
     while (midDrv.isPlaying() || midDrv2.isPlaying())
     {
         utils::delayMillis(1000);
@@ -404,7 +404,7 @@ int midi_adlib_mus_op2_file()
     auto emu = OplEmulator::DOS_BOX;
     auto type = OplType::OPL2;
     
-    spdlog::set_level(spdlog::level::debug);
+    //spdlog::set_level(spdlog::level::debug);
 
     auto op2File = std::make_shared<files::dmx::OP2File>("test/fixtures/GENMIDI.OP2");
     auto musFile = std::make_shared<files::dmx::MUSFile>("test/fixtures/D_E1M1.MUS");
@@ -417,7 +417,7 @@ int midi_adlib_mus_op2_file()
 
         auto adlib_midi = std::make_shared<drivers::midi::devices::Adlib>(opl, op2File->getBank());
         drivers::MIDDriver midDrv(mixer, adlib_midi);
-        spdlog::info("playing midi (OPL2) D_E1M1.MUS...");
+        //spdlog::info("playing midi (OPL2) D_E1M1.MUS...");
         midDrv.play(midi);
         //utils::delayMillis(1200);
         //midDrv.pause();
@@ -434,11 +434,11 @@ int midi_adlib_mus_op2_file()
         auto sbpro_midi = std::make_shared<drivers::midi::devices::SbPro2>(opl, op2File->getBank());
         drivers::MIDDriver midDrv(mixer, sbpro_midi);
 
-        spdlog::info("playing midi (OPL3) D_E1M1.MUS...");
+        //spdlog::info("playing midi (OPL3) D_E1M1.MUS...");
         midDrv.play(midi);
         auto handle = *opl->getSoundHandle();
         auto volume = mixer->getChannelVolume(handle);
-        spdlog::info("Volumne: {:d}", volume);
+        //spdlog::info("Volumne: {:d}", volume);
         utils::delayMillis(1250);
         midDrv.pause();
         utils::delayMillis(2000);
@@ -493,7 +493,7 @@ int midi_adlib_xmi()
     //drivers::MIDDriver midDrv(mixer, scumm_midi);
     drivers::MIDDriver midDrv(mixer, opl_midi);
 
-    spdlog::info("playing midi AIL2_14_DEMO...");
+    //spdlog::info("playing midi AIL2_14_DEMO...");
     midDrv.play(midi);
     
     while (midDrv.isPlaying())
