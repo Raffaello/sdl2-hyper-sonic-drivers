@@ -1,7 +1,8 @@
 #include <audio/scummvm/MixerImpl.hpp>
 #include <cassert>
-#include <spdlog/spdlog.h>
+#include <format>
 #include <utils/algorithms.hpp>
+#include <SDL2/SDL_log.h>
 
 using utils::CLIP;
 
@@ -19,7 +20,7 @@ namespace audio
             assert(sampleRate > 0);
 
             if (bitsDepth != 16) {
-                spdlog::warn("Audio {} bits not supported. Only 16 bits", bitsDepth);
+                SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, std::format("Audio {} bits not supported. Only 16 bits", bitsDepth).c_str());
             }
 
             for (int i = 0; i != NUM_CHANNELS; i++) {
@@ -58,7 +59,7 @@ namespace audio
             const std::lock_guard<std::mutex> lock(_mutex);
 
             if (stream == 0) {
-                spdlog::warn("stream is 0");
+                SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, "stream is 0");
                 return;
             }
 
@@ -345,7 +346,7 @@ namespace audio
                 }
             }
             if (index == -1) {
-                spdlog::warn("MixerImpl::out of mixer slots");
+                SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, "MixerImpl::out of mixer slots");
                 delete chan;
                 return;
             }

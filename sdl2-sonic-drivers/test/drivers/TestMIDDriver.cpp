@@ -11,7 +11,7 @@
 #include "../audio/stubs/StubMixer.hpp"
 #include <drivers/MIDDriver.hpp>
 #include <drivers/midi/Device.hpp>
-#include <spdlog/spdlog.h>
+#include <spdlog/spdlog.h> // TODO: remove, redo the log caputre
 #include <spdlog/sinks/ostream_sink.h>
 #include <sstream>
 #include <algorithm>

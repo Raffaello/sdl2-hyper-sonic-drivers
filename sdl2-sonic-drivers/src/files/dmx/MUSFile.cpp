@@ -4,8 +4,6 @@
 #include <cstring>
 #include <array>
 
-#include <spdlog/spdlog.h>
-
 namespace files
 {
     namespace dmx

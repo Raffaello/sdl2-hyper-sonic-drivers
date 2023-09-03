@@ -1,7 +1,6 @@
 #include <files/miles/XMIFile.hpp>
 #include <audio/midi/MIDITrack.hpp>
 #include <utils/algorithms.hpp>
-#include <spdlog/spdlog.h>
 #include <queue>
 
 namespace files::miles

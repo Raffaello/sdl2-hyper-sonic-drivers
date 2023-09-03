@@ -1,5 +1,7 @@
 cmake_minimum_required (VERSION 3.21)
 
+find_package(spdlog CONFIG REQUIRED)
+
 ### Macro ###
 macro(macro_example) # ${ARGN} link libraries
     set(prefix EXAMPLE)
@@ -64,7 +66,7 @@ macro_example(
     EXE OPLExample
     FILE "opl-example.cpp"
     DEPS sonic-drivers-static
-    LINKS ${LIB_SDL2main} sonic-drivers-static
+    LINKS ${LIB_SDL2main} sonic-drivers-static spdlog::spdlog
     NONE
 )
 
@@ -72,7 +74,7 @@ macro_example(
     EXE ADLExample
     FILE "adl-example.cpp"
     DEPS sonic-drivers-static
-    LINKS ${LIB_SDL2main} sonic-drivers-static
+    LINKS ${LIB_SDL2main} sonic-drivers-static spdlog::spdlog
     FIXTURES 
       "../test/fixtures/DUNE0.ADL"
       #"../test/fixtures/EOBSOUND.ADL"
@@ -84,7 +86,7 @@ macro_example(
     EXE PCMExample
     FILE "pcm-example.cpp"
     DEPS sonic-drivers-static
-    LINKS ${LIB_SDL2main} sonic-drivers-static
+    LINKS ${LIB_SDL2main} sonic-drivers-static spdlog::spdlog
     FIXTURES 
       "../test/fixtures/Wav_868kb.wav"
       "../test/fixtures/DUNE.VOC"
@@ -95,7 +97,7 @@ macro_example(
     EXE RtMidi_example
     FILE "rtmidi-example.cpp"
     DEPS sonic-drivers-static
-    LINKS ${LIB_SDL2main} sonic-drivers-static
+    LINKS ${LIB_SDL2main} sonic-drivers-static spdlog::spdlog
     FIXTURES 
       "../test/fixtures/midifile_sample.mid"
     NONE
@@ -105,7 +107,7 @@ macro_example(
     EXE MIDexample
     FILE "mid-example.cpp"
     DEPS sonic-drivers-static
-    LINKS ${LIB_SDL2main} sonic-drivers-static
+    LINKS ${LIB_SDL2main} sonic-drivers-static spdlog::spdlog
     FIXTURES 
       "../test/fixtures/MI_intro.mid"
       #"../test/fixtures/midifile_sample.mid"
@@ -116,7 +118,7 @@ macro_example(
     EXE MUSexample
     FILE "mus-example.cpp"
     DEPS sonic-drivers-static
-    LINKS ${LIB_SDL2main} sonic-drivers-static
+    LINKS ${LIB_SDL2main} sonic-drivers-static spdlog::spdlog
     FIXTURES 
       "../test/fixtures/D_E1M1.MUS"
       "../test/fixtures/GENMIDI.OP2"

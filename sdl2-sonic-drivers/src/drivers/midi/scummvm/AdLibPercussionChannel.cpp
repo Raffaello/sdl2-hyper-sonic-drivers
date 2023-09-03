@@ -1,5 +1,4 @@
 #include <drivers/midi/scummvm/AdLibPercussionChannel.hpp>
-#include <spdlog/spdlog.h>
 #include <drivers/midi/scummvm/MidiDriver_ADLIB.hpp>
 #include <cstring>
 

@@ -1,5 +1,4 @@
 #include <drivers/westwood/ADLDriver.hpp>
-#include <spdlog/spdlog.h>
 #include <functional>
 #include <utils/algorithms.hpp>
 #include <utils/endianness.hpp>
@@ -106,7 +105,7 @@ namespace drivers::westwood
         const std::lock_guard<std::mutex> lock(_mutex);
 
         uint8_t* trackData = getProgram(track);
-        spdlog::debug("getProgma[track={}]= {0:d}", track, trackData);
+        spdlog::debug("getProgma[track={}]= {0:d}", track, static_cast<void*>(trackData));
         if (!trackData) {
             return;
         }

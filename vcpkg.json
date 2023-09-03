@@ -4,18 +4,8 @@
   "builtin-baseline": "9259a0719d94c402aae2ab7975bc096afdec15df",
   "dependencies": [
     "sdl2",
-    "spdlog",
     "gtest",
-    "rtmidi"
-  ],
-  "overrides": [
-    {
-      "name": "spdlog",
-      "version": "1.9.2"
-    },
-    {
-      "name": "fmt",
-      "version": "8.0.1"
-    }
+    "rtmidi",
+    "spdlog"
   ]
 }

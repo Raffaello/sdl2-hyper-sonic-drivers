@@ -1,6 +1,5 @@
 #include <drivers/midi/devices/ScummVM.hpp>
 #include <audio/midi/types.hpp>
-#include <spdlog/spdlog.h>
 #include <cassert>
 
 namespace drivers

@@ -1,7 +1,6 @@
 #include <files/VOCFile.hpp>
 #include <cstring>
 #include <vector>
-#include <spdlog/spdlog.h>
 
 namespace files
 {

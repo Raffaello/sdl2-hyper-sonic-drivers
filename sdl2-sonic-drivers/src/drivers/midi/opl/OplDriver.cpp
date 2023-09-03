@@ -1,5 +1,4 @@
 #include <drivers/midi/opl/OplDriver.hpp>
-#include <spdlog/spdlog.h>
 #include <cassert>
 #include <algorithm>
 #include <hardware/opl/OplType.hpp>
@@ -75,7 +74,7 @@ namespace drivers::midi::opl
             spdlog::warn("META_SYSEX not supported");
             break;
         default:
-            spdlog::warn("OplDriver: Unknown send() command { 0:#x }", e.type.val);
+            spdlog::warn("OplDriver: Unknown send() command { 0:#x }", static_cast<int>(e.type.val));
             break;
         }
     }

@@ -2,7 +2,7 @@
 #include <audio/scummvm/MixerImpl.hpp>
 #include <memory>
 #include <stdexcept>
-#include <spdlog/spdlog.h>
+#include <SDL2/SDL_log.h>
 
 namespace audio
 {
@@ -54,7 +54,7 @@ namespace audio
             _file.write(reinterpret_cast<const char*>(samples), len);
         }
         else {
-            spdlog::warn("File not open");
+            SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, "File not open");
         }
     }
     void DiskRendererMixerManager::rendererCallback(void* this_, uint8_t* samples, int len)

@@ -36,7 +36,6 @@
 #include <hardware/opl/scummvm/mame/mame.hpp>
 #include <audio/scummvm/Mixer.hpp>
 #include <utils/constants.hpp>
-#include <spdlog/spdlog.h>
 #include <utils/algorithms.hpp>
 #include <exception>
 

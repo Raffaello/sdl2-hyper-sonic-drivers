@@ -3,7 +3,8 @@
 #include <audio/scummvm/Mixer.hpp>
 #include <cassert>
 #include <cstdlib>
-#include <spdlog/spdlog.h>
+#include <SDL2/SDL_log.h>
+#include <format>
 
 namespace audio
 {
@@ -115,11 +116,11 @@ namespace audio
         template<bool stereo, bool reverseStereo>
         SimpleRateConverter<stereo, reverseStereo>::SimpleRateConverter(uint32_t inrate, uint32_t outrate) {
             if ((inrate % outrate) != 0) {
-                spdlog::error("Input rate must be a multiple of output rate to use rate effect");
+                SDL_LogError(SDL_LOG_CATEGORY_AUDIO, "Input rate must be a multiple of output rate to use rate effect");
             }
 
             if (inrate >= 65536 || outrate >= 65536) {
-                spdlog::error("rate effect can only handle rates < 65536");
+                SDL_LogError(SDL_LOG_CATEGORY_AUDIO, "rate effect can only handle rates < 65536");
             }
 
             opos = 1;
@@ -223,7 +224,7 @@ namespace audio
         template<bool stereo, bool reverseStereo>
         LinearRateConverter<stereo, reverseStereo>::LinearRateConverter(uint32_t inrate, uint32_t outrate) {
             if (inrate >= 131072 || outrate >= 131072) {
-                spdlog::error("rate effect can only handle rates < 131072");
+                SDL_LogError(SDL_LOG_CATEGORY_AUDIO, "rate effect can only handle rates < 131072");
             }
 
             opos = FRAC_ONE_LOW;
@@ -330,7 +331,7 @@ namespace audio
                 }
 
                 if (_buffer == nullptr) {
-                    spdlog::error("[CopyRateConverter::flow] Cannot allocate memory for temp buffer");
+                    SDL_LogError(SDL_LOG_CATEGORY_AUDIO, "[CopyRateConverter::flow] Cannot allocate memory for temp buffer");
                     return 0;
                 }
 

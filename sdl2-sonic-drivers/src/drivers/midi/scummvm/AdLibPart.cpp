@@ -1,6 +1,5 @@
 #include <drivers/midi/scummvm/AdLibPart.hpp>
 #include <drivers/midi/scummvm/MidiDriver_ADLIB.hpp>
-#include <spdlog/spdlog.h>
 #include <cstring>
 
 namespace drivers

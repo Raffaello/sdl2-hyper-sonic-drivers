@@ -2,7 +2,6 @@
 #include <drivers/midi/scummvm/AdLibPart.hpp>
 
 #include <utils/algorithms.hpp>
-#include <spdlog/spdlog.h>
 #include <cassert>
 #include <audio/midi/types.hpp>
 

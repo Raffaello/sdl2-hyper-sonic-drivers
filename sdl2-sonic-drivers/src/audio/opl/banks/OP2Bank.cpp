@@ -1,5 +1,6 @@
 #include <audio/opl/banks/OP2Bank.hpp>
-#include <spdlog/spdlog.h>
+#include <SDL2/SDL_log.h>
+#include <format>
 
 namespace audio::opl::banks
 {
@@ -13,7 +14,7 @@ namespace audio::opl::banks
     uint8_t OP2Bank::getPercussionIndex(const uint8_t note)
     {
         if (note < 35 || note > 81) {
-            spdlog::error("wrong percussion number {}", note);
+            SDL_LogError(SDL_LOG_CATEGORY_AUDIO, std::format("wrong percussion number {}", note).c_str());
         }
 
         return note + (128 - 35);

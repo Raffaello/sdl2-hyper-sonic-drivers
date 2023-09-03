@@ -1,6 +1,5 @@
 #include <utils/algorithms.hpp>
 #include <stdexcept>
-#include <spdlog/spdlog.h>
 
 namespace utils
 {

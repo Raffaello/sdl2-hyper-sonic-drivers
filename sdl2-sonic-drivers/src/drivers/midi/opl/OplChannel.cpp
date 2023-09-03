@@ -1,6 +1,7 @@
 #include <audio/midi/types.hpp>
 #include <drivers/midi/opl/OplChannel.hpp>
-#include <spdlog/spdlog.h>
+#include <format>
+#include <SDL2/SDL_log.h>
 
 namespace drivers::midi::opl
 {
@@ -14,7 +15,7 @@ namespace drivers::midi::opl
     void OplChannel::programChange(const uint8_t program)
     {
         if (program > 127) {
-            spdlog::warn("Progam change value >= 127 -> {}", program);
+            SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, std::format("Progam change value >= 127 -> {}", program).c_str());
         }
 
         // NOTE: if program is not changed shouldn't be required to do anything ...

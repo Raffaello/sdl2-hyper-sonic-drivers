@@ -1,7 +1,8 @@
 #include <drivers/midi/devices/Opl.hpp>
+#include <format>
 #include <cassert>
 #include <hardware/opl/OPLFactory.hpp>
-#include <spdlog/spdlog.h>
+#include <SDL2/SDL_log.h>
 
 namespace drivers::midi::devices
 {
@@ -10,7 +11,7 @@ namespace drivers::midi::devices
     {
         if (opl == nullptr) {
             const char* msg = "opl is nullptr";
-            spdlog::critical(msg);
+            SDL_LogCritical(SDL_LOG_CATEGORY_AUDIO, msg);
             throw std::runtime_error(msg);
         }
 
@@ -24,8 +25,10 @@ namespace drivers::midi::devices
     {
         auto opl = hardware::opl::OPLFactory::create(emuType, type, mixer);
         if (opl == nullptr || opl->type != type) {
-            spdlog::critical("device Opl not supporting emutype={:d}, type={:d}", emuType, type);
-            throw std::runtime_error("error creating Opl emulator");
+            // TODO: do a std::formatter for enum class
+            const std::string s = std::format("device Opl not supporting emutype={:d}, type={:d}", static_cast<int>(emuType), static_cast<int>(type));
+            SDL_LogCritical(SDL_LOG_CATEGORY_AUDIO, s.c_str());
+            throw std::runtime_error(s);
         }
         _oplDriver = std::make_shared<drivers::midi::opl::OplDriver>(opl, op2Bank);
     }

@@ -1,5 +1,4 @@
 #include <drivers/MIDDriver.hpp>
-#include <spdlog/spdlog.h>
 #include <utils/algorithms.hpp>
 #include <array>
 #include <thread>

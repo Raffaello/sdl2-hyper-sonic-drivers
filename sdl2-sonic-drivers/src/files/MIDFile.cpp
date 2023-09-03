@@ -2,7 +2,6 @@
 #include <string>
 #include <utils/endianness.hpp>
 #include <memory>
-#include <spdlog/spdlog.h>
 #include <cstring>
 #include <utils/algorithms.hpp>
 #include <audio/midi/MIDITrack.hpp>

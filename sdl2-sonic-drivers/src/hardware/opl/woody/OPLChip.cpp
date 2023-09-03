@@ -71,7 +71,7 @@
 
  */
 
-#include "OPLChip.hpp"
+#include <hardware/opl/woody/OPLChip.hpp>
 #include <cstring>
 
 namespace hardware

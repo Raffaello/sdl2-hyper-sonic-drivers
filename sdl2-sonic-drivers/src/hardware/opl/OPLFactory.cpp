@@ -1,6 +1,5 @@
 #include <hardware/opl/OPLFactory.hpp>
 #include <cstring>
-#include <spdlog/spdlog.h>
 #include <hardware/opl/scummvm/mame/MameOPL2.hpp>
 #include <hardware/opl/scummvm/dosbox/DosBoxOPL.hpp>
 #include <hardware/opl/scummvm/nuked/NukedOPL3.hpp>

@@ -1,5 +1,4 @@
 #include <hardware/opl/OPL.hpp>
-#include <spdlog/spdlog.h>
 
 namespace hardware
 {
