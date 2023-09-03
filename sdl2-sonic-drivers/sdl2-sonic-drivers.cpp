@@ -33,6 +33,7 @@
 
 
 using namespace std;
+using namespace HyperSonicDrivers;
 
 void playNotes(hardware::PCSpeaker *pcSpeaker, const hardware::PCSpeaker::eWaveForm waveForm, const int freq, const int length)
 {
@@ -495,7 +496,7 @@ int midi_adlib_xmi()
 
     //spdlog::info("playing midi AIL2_14_DEMO...");
     midDrv.play(midi);
-    
+ 
     while (midDrv.isPlaying())
     {
         //spdlog::info("playing...");

@@ -1,6 +1,6 @@
 #include <files/RIFFFile.hpp>
 
-namespace files
+namespace HyperSonicDrivers::files
 {
     RIFFFile::RIFFFile(const std::string& filename) : File(filename)
     {

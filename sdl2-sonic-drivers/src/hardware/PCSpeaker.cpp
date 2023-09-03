@@ -23,7 +23,7 @@
 // TODO: replace M_PI with c++20 std::numbers::pi
 #include "PCSpeaker.hpp"
 
-namespace hardware
+namespace HyperSonicDrivers::hardware
 {
     using softsynths::generators::generateWave;
 

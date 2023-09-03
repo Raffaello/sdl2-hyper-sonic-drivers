@@ -4,7 +4,7 @@
 #include <hardware/opl/OPLFactory.hpp>
 #include <SDL2/SDL_log.h>
 
-namespace drivers::midi::devices
+namespace HyperSonicDrivers::drivers::midi::devices
 {
     Opl::Opl(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank)
         : Device()/*, OplDriver(opl, op2Bank, opl3_mode)*/

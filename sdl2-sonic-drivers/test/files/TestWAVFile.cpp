@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <memory>
 
-namespace files
+namespace HyperSonicDrivers::files
 {
     TEST(WAVFile, cstorDefault)
     {

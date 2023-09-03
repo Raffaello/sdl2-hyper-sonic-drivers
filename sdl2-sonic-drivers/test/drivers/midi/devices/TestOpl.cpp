@@ -12,7 +12,7 @@
 #include <audio/scummvm/Mixer.hpp>
 #include <drivers/midi/devices/OplDeviceMock.hpp>
 
-namespace drivers::midi::devices
+namespace HyperSonicDrivers::drivers::midi::devices
 {
     using audio::stubs::StubMixer;
     using audio::opl::banks::OP2Bank;

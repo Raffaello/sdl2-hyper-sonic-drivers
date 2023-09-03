@@ -3,7 +3,7 @@
 #include <cmath>
 #include <numbers>
 
-namespace utils
+namespace HyperSonicDrivers::utils
 {
 #ifdef M_PI
     #undef M_PI

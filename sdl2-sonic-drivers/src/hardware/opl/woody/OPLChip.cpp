@@ -74,7 +74,7 @@
 #include <hardware/opl/woody/OPLChip.hpp>
 #include <cstring>
 
-namespace hardware
+namespace HyperSonicDrivers::hardware
 {
     namespace opl
     {

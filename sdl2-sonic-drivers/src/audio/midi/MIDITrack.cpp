@@ -1,29 +1,26 @@
 #include <audio/midi/MIDITrack.hpp>
 
-namespace audio
+namespace HyperSonicDrivers::audio::midi
 {
-    namespace midi
+    MIDITrack::MIDITrack(const std::vector<MIDIEvent>& events) : MIDITrack()
     {
-        MIDITrack::MIDITrack(const std::vector<MIDIEvent>& events) : MIDITrack()
-        {
-            _events = events;
-        }
+        _events = events;
+    }
 
-        void MIDITrack::addEvent(const MIDIEvent& e)
-        {
-            if (_lock)
-                return;
+    void MIDITrack::addEvent(const MIDIEvent& e)
+    {
+        if (_lock)
+            return;
 
-            MIDIEvent ev = e;
+        MIDIEvent ev = e;
 
-            ev.data.shrink_to_fit();
-            _events.emplace_back(ev);
-        }
+        ev.data.shrink_to_fit();
+        _events.emplace_back(ev);
+    }
 
-        void MIDITrack::lock() noexcept
-        {
-            _events.shrink_to_fit();
-            _lock = true;
-        }
+    void MIDITrack::lock() noexcept
+    {
+        _events.shrink_to_fit();
+        _lock = true;
     }
 }

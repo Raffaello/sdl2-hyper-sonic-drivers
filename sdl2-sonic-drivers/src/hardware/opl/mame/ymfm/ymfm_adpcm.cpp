@@ -30,7 +30,7 @@
 
 #include "ymfm_adpcm.h"
 
-namespace hardware
+namespace HyperSonicDrivers::hardware
 {
     namespace opl
     {

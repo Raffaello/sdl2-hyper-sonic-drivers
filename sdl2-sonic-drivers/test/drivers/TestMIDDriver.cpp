@@ -19,7 +19,7 @@
 
 #include <SDL2/SDL_log.h>
 
-namespace drivers
+namespace HyperSonicDrivers::drivers
 {
     using audio::stubs::StubMixer;
     using audio::midi::MIDIEvent;

@@ -9,7 +9,7 @@
 #include <thread>
 #include <atomic>
 
-namespace drivers
+namespace HyperSonicDrivers::drivers
 {
     class MIDDriver
     {

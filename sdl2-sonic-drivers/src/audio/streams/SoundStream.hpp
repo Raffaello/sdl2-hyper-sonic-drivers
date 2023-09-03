@@ -6,28 +6,25 @@
 #include <cstdint>
 #include <memory>
 
-namespace audio
+namespace HyperSonicDrivers::audio::streams
 {
-    namespace streams
+    class SoundStream final : public scummvm::AudioStream
     {
-        class SoundStream final : public scummvm::AudioStream
-        {
-        public:
-            explicit SoundStream(const std::shared_ptr<Sound>& sound);
-            ~SoundStream();
+    public:
+        explicit SoundStream(const std::shared_ptr<Sound>& sound);
+        ~SoundStream();
 
-            virtual int readBuffer(int16_t* buffer, const int numSamples) override;
-            virtual bool isStereo() const override;
-            virtual int getRate() const override;
-            virtual bool endOfData() const override;
-            
-            scummvm::SoundHandle* getSoundHandlePtr() noexcept;
-            std::weak_ptr<Sound>  getSound() const noexcept;
-        private:
-            std::shared_ptr<Sound> _sound;
-            audio::scummvm::SoundHandle _handle;
-            int _curPos = 0;
-            int _bitsFactor;
-        };
-    }
+        virtual int readBuffer(int16_t* buffer, const int numSamples) override;
+        virtual bool isStereo() const override;
+        virtual int getRate() const override;
+        virtual bool endOfData() const override;
+
+        scummvm::SoundHandle* getSoundHandlePtr() noexcept;
+        std::weak_ptr<Sound>  getSound() const noexcept;
+    private:
+        std::shared_ptr<Sound> _sound;
+        audio::scummvm::SoundHandle _handle;
+        int _curPos = 0;
+        int _bitsFactor;
+    };
 }

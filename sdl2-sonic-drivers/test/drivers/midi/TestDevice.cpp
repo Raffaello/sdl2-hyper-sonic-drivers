@@ -5,7 +5,7 @@
 #include <drivers/MIDDriverMock.hpp>
 #include <audio/stubs/StubMixer.hpp>
 
-namespace drivers::midi
+namespace HyperSonicDrivers::drivers::midi
 {
     TEST(Device, acquire_release)
     {

@@ -1,6 +1,8 @@
 #include "mid-example.h"
 #include <files/MIDFile.hpp>
 
+using namespace HyperSonicDrivers;
+
 int main(int argc, char* argv[])
 {
     auto midFile = std::make_shared<files::MIDFile>("MI_intro.mid");

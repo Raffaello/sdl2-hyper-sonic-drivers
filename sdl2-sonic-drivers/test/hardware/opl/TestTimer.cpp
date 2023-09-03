@@ -2,7 +2,7 @@
 #include <gmock/gmock.h>
 #include <hardware/opl/Timer.hpp>
 
-namespace hardware::opl
+namespace HyperSonicDrivers::hardware::opl
 {
     TEST(Timer, cstor)
     {

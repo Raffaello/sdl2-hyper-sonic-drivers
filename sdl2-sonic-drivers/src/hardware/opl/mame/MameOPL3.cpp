@@ -1,6 +1,6 @@
 #include <hardware/opl/mame/MameOPL3.hpp>
 
-namespace hardware::opl::mame
+namespace HyperSonicDrivers::hardware::opl::mame
 {
     using namespace opl3;
 

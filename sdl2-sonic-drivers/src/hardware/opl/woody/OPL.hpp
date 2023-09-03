@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-namespace hardware
+namespace HyperSonicDrivers::hardware
 {
     /// <summary>
     /// @see https://moddingwiki.shikadi.net/wiki/OPL_chip

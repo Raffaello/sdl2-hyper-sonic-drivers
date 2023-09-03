@@ -7,9 +7,6 @@
 #include <utils/endianness.hpp>
 #include <SDL2/SDL_log.h>
 
-using utils::CLIP;
-using utils::READ_BE_UINT16;
-using utils::READ_LE_UINT16;
 
 constexpr int CALLBACKS_PER_SECOND = 72;
 
@@ -20,8 +17,12 @@ constexpr int RANDOM_INC = 0x9248;
 // TODO: review it / remove / replace / refactor
 #define ARRAYSIZE(x) ((int)(sizeof(x) / sizeof(x[0])))
 
-namespace drivers::westwood
+namespace HyperSonicDrivers::drivers::westwood
 {
+    using utils::CLIP;
+    using utils::READ_BE_UINT16;
+    using utils::READ_LE_UINT16;
+
     ADLDriver::ADLDriver(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<files::westwood::ADLFile>& adl_file)
         : _opl(opl)
     {

@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-namespace drivers::opl
+namespace HyperSonicDrivers::drivers::opl
 {
     static const uint16_t freqtable[] = {                           /* note # */
         345, 365, 387, 410, 435, 460, 488, 517, 547, 580, 615, 651, /*  0 */

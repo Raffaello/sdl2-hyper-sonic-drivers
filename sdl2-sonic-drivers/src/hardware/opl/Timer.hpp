@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-namespace hardware::opl
+namespace HyperSonicDrivers::hardware::opl
 {
     class Timer
     {

@@ -8,7 +8,7 @@
 #include <hardware/opl/OplEmulator.hpp>
 #include <hardware/opl/OplType.hpp>
 
-namespace hardware::opl
+namespace HyperSonicDrivers::hardware::opl
 {
     /**
      * @defgroup audio_fmopl OPL emulation

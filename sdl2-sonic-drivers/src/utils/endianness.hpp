@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-namespace utils
+namespace HyperSonicDrivers::utils
 {
     // MOVBE instruction could do the swap automatilcally.
 

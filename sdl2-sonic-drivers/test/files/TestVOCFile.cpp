@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <memory>
 
-namespace files
+namespace HyperSonicDrivers::files
 {
     using audio::Sound;
     using audio::scummvm::Mixer;

@@ -5,7 +5,7 @@
 #include <string>
 #include <hardware/opl/OPL2instrument.h> 
 
-namespace audio::opl::banks
+namespace HyperSonicDrivers::audio::opl::banks
 {
     /* This is the content of a OP2File */
 

@@ -6,7 +6,7 @@
 #include <cstring>
 //#endif
 
-namespace files
+namespace HyperSonicDrivers::files
 {
     using std::string;
     using std::fstream;

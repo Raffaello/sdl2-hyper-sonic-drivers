@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <memory>
 
-namespace audio
+namespace HyperSonicDrivers::audio
 {
     class Sound final
     {

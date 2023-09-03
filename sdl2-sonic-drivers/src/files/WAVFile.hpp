@@ -6,7 +6,7 @@
 #include <string>
 #include <memory>
 
-namespace files
+namespace HyperSonicDrivers::files
 {
     class WAVFile final : protected RIFFFile
     {

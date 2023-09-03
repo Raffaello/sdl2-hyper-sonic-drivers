@@ -1,7 +1,7 @@
 #include <utils/algorithms.hpp>
 #include <stdexcept>
 
-namespace utils
+namespace HyperSonicDrivers::utils
 {
     int decode_VLQ(const uint8_t buf[], uint32_t& out_value)
     {

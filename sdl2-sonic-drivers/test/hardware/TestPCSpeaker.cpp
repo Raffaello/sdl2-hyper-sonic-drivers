@@ -2,7 +2,7 @@
 #include <gmock/gmock.h>
 #include <hardware/PCSpeaker.hpp>
 
-namespace hardware
+namespace HyperSonicDrivers::hardware
 {
     TEST(PCSpeaker, cstorDefault)
     {

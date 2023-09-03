@@ -32,7 +32,7 @@
 
 #include "ymfm.h"
 
-namespace hardware
+namespace HyperSonicDrivers::hardware
 {
     namespace opl
     {

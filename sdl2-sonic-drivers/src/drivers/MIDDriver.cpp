@@ -5,7 +5,7 @@
 #include <format>
 #include <SDL2/SDL_log.h>
 
-namespace drivers
+namespace HyperSonicDrivers::drivers
 {
     constexpr uint32_t DEFAULT_MIDI_TEMPO = 500000;
     constexpr uint32_t PAUSE_MILLIS = 100;

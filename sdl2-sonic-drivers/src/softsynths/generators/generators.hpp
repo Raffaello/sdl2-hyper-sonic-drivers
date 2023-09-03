@@ -5,7 +5,7 @@
 #include <functional>
 #include <utils/constants.hpp>
 
-namespace softsynths
+namespace HyperSonicDrivers::softsynths
 {
     using utils::M_PI;
     using utils::M_2PI;

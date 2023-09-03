@@ -4,7 +4,7 @@
 #include <audio/scummvm/SoundHandle.hpp>
 #include <cstdint>
 
-namespace hardware::opl
+namespace HyperSonicDrivers::hardware::opl
 {
     class OPLMock : public OPL
     {

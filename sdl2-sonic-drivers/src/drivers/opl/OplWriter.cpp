@@ -2,7 +2,7 @@
 #include <drivers/opl/tables.h>
 #include <algorithm>
 
-namespace drivers::opl
+namespace HyperSonicDrivers::drivers::opl
 {
     OplWriter::OplWriter(const std::shared_ptr<hardware::opl::OPL>& opl, const bool opl3_mode) :
         _opl(opl), _opl3_mode(opl3_mode),

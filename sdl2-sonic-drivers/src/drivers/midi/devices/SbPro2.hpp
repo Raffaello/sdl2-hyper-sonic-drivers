@@ -5,7 +5,7 @@
 #include <hardware/opl/OPL.hpp>
 #include <audio/opl/banks/OP2Bank.hpp>
 
-namespace drivers::midi::devices
+namespace HyperSonicDrivers::drivers::midi::devices
 {
     class SbPro2 : public Opl
     {

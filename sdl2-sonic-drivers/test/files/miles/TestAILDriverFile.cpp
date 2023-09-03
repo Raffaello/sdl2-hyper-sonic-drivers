@@ -2,20 +2,17 @@
 #include <gmock/gmock.h>
 #include <files/miles/AILDriverFile.hpp>
 
-namespace files
+namespace HyperSonicDrivers::files::miles
 {
-    namespace miles
+    TEST(AILDriverFile, ADLIB_ADV)
     {
-        TEST(AILDriverFile, ADLIB_ADV)
-        {
-            AILDriverFile drv("fixtures/ADLIB.ADV");
-            EXPECT_EQ(drv.getMinimumApiVersion(), 200);
-            EXPECT_EQ(drv.getDriverType(), static_cast<int>(AILDriverFile::eDriverType::XMIDI_EMULATION));
-            EXPECT_STRCASEEQ(drv.getDataSuffix(), "AD");
-            EXPECT_EQ(drv.getDeviceName_o(), "Ad Lib(R) Music Synthesizer Card");
-            EXPECT_EQ(drv.getDeviceName_s(), "");
-            EXPECT_EQ(drv.getServiceRate(), 120);
-        }
+        AILDriverFile drv("fixtures/ADLIB.ADV");
+        EXPECT_EQ(drv.getMinimumApiVersion(), 200);
+        EXPECT_EQ(drv.getDriverType(), static_cast<int>(AILDriverFile::eDriverType::XMIDI_EMULATION));
+        EXPECT_STRCASEEQ(drv.getDataSuffix(), "AD");
+        EXPECT_EQ(drv.getDeviceName_o(), "Ad Lib(R) Music Synthesizer Card");
+        EXPECT_EQ(drv.getDeviceName_s(), "");
+        EXPECT_EQ(drv.getServiceRate(), 120);
     }
 }
 

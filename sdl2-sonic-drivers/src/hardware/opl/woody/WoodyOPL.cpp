@@ -3,7 +3,7 @@
 #include <hardware/opl/woody/SurroundOPL.hpp>
 #include <hardware/opl/OplType.hpp>
 
-namespace hardware
+namespace HyperSonicDrivers::hardware
 {
     namespace opl
     {

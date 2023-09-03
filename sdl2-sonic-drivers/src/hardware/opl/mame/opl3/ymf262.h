@@ -12,7 +12,7 @@
 /* select number of output bits: 8 or 16 */
 #define OPL3_SAMPLE_BITS 16
 
-namespace hardware
+namespace HyperSonicDrivers::hardware
 {
     namespace opl
     {

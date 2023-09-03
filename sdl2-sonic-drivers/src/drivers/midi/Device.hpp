@@ -7,7 +7,7 @@
 
 // TODO: namespace drivers::midi::devices could be considered
 //       to be replaced instead as devices:: and devices::midi ?
-namespace drivers
+namespace HyperSonicDrivers::drivers
 {
     class MIDDriver;
 

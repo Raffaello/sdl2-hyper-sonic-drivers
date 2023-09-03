@@ -5,7 +5,7 @@
 #include <cstring>
 //#endif
 
-namespace files
+namespace HyperSonicDrivers::files
 {
     WAVFile::WAVFile(const std::string& filename, const audio::scummvm::Mixer::SoundType soundType) : RIFFFile(filename),
         _expDataChunk(false), _dataSize(0)

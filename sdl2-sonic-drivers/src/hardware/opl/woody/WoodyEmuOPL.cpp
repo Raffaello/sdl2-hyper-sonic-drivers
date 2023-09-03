@@ -1,6 +1,6 @@
 #include <hardware/opl/woody/WoodyEmuOPL.hpp>
 
-namespace hardware::opl::woody
+namespace HyperSonicDrivers::hardware::opl::woody
 {
     WoodyEmuOPL::WoodyEmuOPL(const int rate) noexcept
         : OPL(), _opl(rate)

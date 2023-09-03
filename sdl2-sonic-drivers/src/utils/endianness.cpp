@@ -1,8 +1,8 @@
 #include <utils/endianness.hpp>
 #include <algorithm>
 
-// using c++20 could use std::endianness
-namespace utils
+// TODO: using c++20 could use std::endianness
+namespace HyperSonicDrivers::utils
 {
     // could use std::variant and then std::get to access the value.
     // at the moment looks more straightforward in this way.

@@ -4,7 +4,7 @@
 #include <memory>
 #include <utils/algorithms.hpp>
 
-namespace utils
+namespace HyperSonicDrivers::utils
 {
     // These are offsets from the base I/O address.
     constexpr int FM = 8;       // SB (mono) ports (e.g. 228H and 229H)

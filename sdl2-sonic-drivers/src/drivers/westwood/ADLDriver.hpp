@@ -7,7 +7,7 @@
 #include <files/westwood/ADLFile.hpp>
 
 
-namespace drivers::westwood
+namespace HyperSonicDrivers::drivers::westwood
 {
     // TODO: clean up the code,
     //       instead of passing the file pass an AudioADL type returned from

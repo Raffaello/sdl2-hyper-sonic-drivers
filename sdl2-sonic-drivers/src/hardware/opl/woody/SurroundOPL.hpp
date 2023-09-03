@@ -28,7 +28,7 @@
 #include <hardware/opl/woody/OPL.hpp>
 #include <cstdint> // for uintxx_t
 
-namespace hardware::opl::woody
+namespace HyperSonicDrivers::hardware::opl::woody
 {
     class SurroundOPL : public OPL
     {

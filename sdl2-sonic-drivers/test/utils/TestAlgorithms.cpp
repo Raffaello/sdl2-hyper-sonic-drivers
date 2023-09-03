@@ -2,7 +2,7 @@
 #include <gmock/gmock.h>
 #include <utils/algorithms.hpp>
 
-namespace utils
+namespace HyperSonicDrivers::utils
 {
     TEST(Algorithms, CLIP)
     {

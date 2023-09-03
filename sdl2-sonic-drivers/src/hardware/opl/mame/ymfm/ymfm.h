@@ -42,7 +42,7 @@
 #include <string>
 #include <vector>
 
-namespace hardware
+namespace HyperSonicDrivers::hardware
 {
     namespace opl
     {

@@ -8,7 +8,7 @@
 #include <hardware/opl/scummvm/nuked/NukedOPL3.hpp>
 #include <hardware/opl/scummvm/EmulatedOPL.hpp>
 
-namespace hardware::opl
+namespace HyperSonicDrivers::hardware::opl
 {
     using audio::stubs::StubMixer;
     using namespace hardware::opl::scummvm;

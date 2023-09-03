@@ -6,7 +6,7 @@
 #include <files/westwood/ADLFile.hpp>
 #include <hardware/opl/scummvm/mame/MameOPL2.hpp>
 
-namespace drivers::westwood
+namespace HyperSonicDrivers::drivers::westwood
 {
     // TODO: Review the tests
     using audio::stubs::StubMixer;

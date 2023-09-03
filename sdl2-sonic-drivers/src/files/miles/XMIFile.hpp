@@ -9,7 +9,7 @@
 #include <cstdint>
 #include <files/GetMIDI.hpp>
 
-namespace files::miles
+namespace HyperSonicDrivers::files::miles
 {
     /// <summary>
     /// XMI files play MIDI at a fixed clock rate of 120 Hz.

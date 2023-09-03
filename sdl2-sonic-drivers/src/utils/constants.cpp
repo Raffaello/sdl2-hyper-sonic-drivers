@@ -1,7 +1,7 @@
 #include <utils/constants.hpp>
 #include <version.h>
 
-namespace utils
+namespace HyperSonicDrivers::utils
 {
     const char* getVersion()
     {

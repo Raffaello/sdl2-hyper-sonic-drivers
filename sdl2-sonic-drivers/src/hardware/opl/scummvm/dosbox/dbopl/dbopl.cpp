@@ -23,10 +23,11 @@
 #include <cstring>
 //#endif
 
-using utils::M_PI;
 
-namespace hardware
+namespace HyperSonicDrivers::hardware
 {
+    using utils::M_PI;
+
 namespace opl
 {
     namespace scummvm

@@ -3,7 +3,7 @@
 #include <hardware/opl/woody/OPL.hpp>
 #include <hardware/opl/woody/OPLChip.hpp>
 
-namespace hardware::opl::woody
+namespace HyperSonicDrivers::hardware::opl::woody
 {
     class WoodyEmuOPL : public OPL
     {

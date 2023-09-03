@@ -17,7 +17,7 @@
 //      THIS CLASS IS sort of HIGH LEVEL, while generators is low level
 //      PCSpeaker still miss to read the pc speaker files and drivers.
 
-namespace hardware
+namespace HyperSonicDrivers::hardware
 {
     class PCSpeaker final
     {

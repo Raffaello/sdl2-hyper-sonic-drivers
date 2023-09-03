@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-namespace hardware::opl::scummvm::dosbox
+namespace HyperSonicDrivers::hardware::opl::scummvm::dosbox
 {
     //Use 8 handlers based on a small logatirmic wavetabe and an exponential table for volume
 #define WAVE_HANDLER	10

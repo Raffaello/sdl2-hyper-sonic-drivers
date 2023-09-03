@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <array>
 
-namespace hardware::opl::scummvm::mame
+namespace HyperSonicDrivers::hardware::opl::scummvm::mame
 {
     class MameOPL2 : public EmulatedOPL
     {

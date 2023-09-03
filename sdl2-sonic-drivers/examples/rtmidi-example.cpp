@@ -14,6 +14,7 @@
 
 #include <spdlog/spdlog.h>
 
+using namespace HyperSonicDrivers;
 
 using namespace audio::scummvm;
 using std::cout;

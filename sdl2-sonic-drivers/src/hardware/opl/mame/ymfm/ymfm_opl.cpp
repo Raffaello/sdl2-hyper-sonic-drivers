@@ -31,7 +31,7 @@
 #include "ymfm_opl.h"
 #include "ymfm_fm.ipp"
 
-namespace hardware
+namespace HyperSonicDrivers::hardware
 {
     namespace opl
     {

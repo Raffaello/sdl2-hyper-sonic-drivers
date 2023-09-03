@@ -4,7 +4,7 @@
 #include <hardware/opl/woody/OPL.hpp>
 #include <memory>
 
-namespace hardware
+namespace HyperSonicDrivers::hardware
 {
     namespace opl
     {

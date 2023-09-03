@@ -8,7 +8,7 @@
 #include <hardware/opl/Chip.hpp>
 #include <array>
 
-namespace hardware::opl::scummvm::nuked
+namespace HyperSonicDrivers::hardware::opl::scummvm::nuked
 {
     class NukedOPL : public EmulatedOPL
     {

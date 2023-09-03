@@ -6,7 +6,7 @@
 #include <drivers/MIDDriver.hpp>
 #include <memory>
 
-namespace drivers
+namespace HyperSonicDrivers::drivers
 {
     class MIDDriverMock : public MIDDriver
     {

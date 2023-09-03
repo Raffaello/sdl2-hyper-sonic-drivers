@@ -6,7 +6,7 @@
 #include <audio/scummvm/SoundHandle.hpp>
 #include <hardware/opl/OplType.hpp>
 
-namespace hardware::opl
+namespace HyperSonicDrivers::hardware::opl
 {
     constexpr int DEFAULT_CALLBACK_FREQUENCY = 250;
 

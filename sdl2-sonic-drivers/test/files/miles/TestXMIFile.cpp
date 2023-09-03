@@ -5,7 +5,7 @@
 int _argc;
 char** _argv;
 
-namespace files::miles
+namespace HyperSonicDrivers::files::miles
 {
     TEST(XMIFile, file_not_valid)
     {

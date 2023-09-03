@@ -1,6 +1,6 @@
 #pragma once
 
-namespace hardware
+namespace HyperSonicDrivers::hardware
 {
     namespace opl
     {

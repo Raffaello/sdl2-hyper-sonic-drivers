@@ -3,7 +3,7 @@
 #include <hardware/opl/Chip.hpp>
 #include <utils/algorithms.hpp>
 
-namespace hardware::opl
+namespace HyperSonicDrivers::hardware::opl
 {
     class ChipMock : public Chip
     {

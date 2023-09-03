@@ -13,6 +13,7 @@
 #include <map>
 #include <string>
 
+using namespace HyperSonicDrivers;
 
 using audio::scummvm::SdlMixerManager;
 using hardware::opl::OPLFactory;

@@ -7,7 +7,7 @@
 #include <files/File.hpp>
 
 
-namespace hardware::opl::scummvm::mame
+namespace HyperSonicDrivers::hardware::opl::scummvm::mame
 {
     using audio::stubs::StubMixer;
     TEST(MameOPL2, cstorDefault)

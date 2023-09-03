@@ -8,7 +8,7 @@
 #include <hardware/opl/Chip.hpp>
 #include <array>
 
-namespace hardware::opl::scummvm::dosbox
+namespace HyperSonicDrivers::hardware::opl::scummvm::dosbox
 {
     namespace dbopl {
         struct Chip;

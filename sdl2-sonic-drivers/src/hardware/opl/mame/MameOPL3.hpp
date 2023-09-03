@@ -4,7 +4,7 @@
 #include <hardware/opl/mame/ymfm/ymfm_opl.h>
 #include <hardware/opl/mame/opl3/ymf262.h>
 
-namespace hardware::opl::mame
+namespace HyperSonicDrivers::hardware::opl::mame
 {
     class MameOPL3 : public scummvm::EmulatedOPL
     {

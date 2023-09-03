@@ -9,7 +9,7 @@
 #include <memory>
 #include <files/GetMIDI.hpp>
 
-namespace files
+namespace HyperSonicDrivers::files
 {
     class MIDFile : protected File, public GetMIDI
     {

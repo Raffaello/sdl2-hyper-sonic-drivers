@@ -7,7 +7,7 @@
 #include <hardware/opl/OplEmulator.hpp>
 #include <audio/scummvm/Mixer.hpp>
 
-namespace drivers::midi::devices
+namespace HyperSonicDrivers::drivers::midi::devices
 {
     class OplDeviceMock : public Opl
     {

@@ -5,7 +5,7 @@
 #include <string>
 #include <utils/algorithms.hpp>
 
-namespace files
+namespace HyperSonicDrivers::files
 {
     enum class eIFF_ID : uint32_t
     {

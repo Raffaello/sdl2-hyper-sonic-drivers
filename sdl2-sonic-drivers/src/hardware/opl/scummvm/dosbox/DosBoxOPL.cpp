@@ -5,7 +5,7 @@
 #include <cstring>
 #include <cmath>
 
-namespace hardware::opl::scummvm::dosbox
+namespace HyperSonicDrivers::hardware::opl::scummvm::dosbox
 {
     DosBoxOPL::DosBoxOPL(OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer)
         : EmulatedOPL(type, mixer)

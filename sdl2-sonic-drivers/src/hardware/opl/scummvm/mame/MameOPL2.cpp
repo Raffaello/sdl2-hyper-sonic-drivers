@@ -2,7 +2,7 @@
 #include <cstring>
 
 
-namespace hardware::opl::scummvm::mame
+namespace HyperSonicDrivers::hardware::opl::scummvm::mame
 {
     MameOPL2::MameOPL2(const OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer)
         : EmulatedOPL(type, mixer)

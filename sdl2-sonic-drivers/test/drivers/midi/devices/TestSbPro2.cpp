@@ -8,7 +8,7 @@
 #include <files/dmx/OP2File.hpp>
 #include <hardware/opl/OPLFactory.hpp>
 
-namespace drivers::midi::devices
+namespace HyperSonicDrivers::drivers::midi::devices
 {
     using audio::stubs::StubMixer;
     using hardware::opl::OplType;

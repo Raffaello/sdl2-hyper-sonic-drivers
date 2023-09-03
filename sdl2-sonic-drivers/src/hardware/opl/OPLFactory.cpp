@@ -8,7 +8,7 @@
 #include <format>
 #include <SDL2/SDL_log.h>
 
-namespace hardware::opl
+namespace HyperSonicDrivers::hardware::opl
 {
     std::shared_ptr<OPL> OPLFactory::create(OplEmulator oplEmulator, OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer)
     {

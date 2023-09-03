@@ -7,7 +7,7 @@
 #include <array>
 #include <cstdint>
 
-namespace files
+namespace HyperSonicDrivers::files
 {
     using audio::midi::MIDIEvent;
 

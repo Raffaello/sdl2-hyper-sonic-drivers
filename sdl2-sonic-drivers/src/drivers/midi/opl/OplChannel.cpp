@@ -3,7 +3,7 @@
 #include <format>
 #include <SDL2/SDL_log.h>
 
-namespace drivers::midi::opl
+namespace HyperSonicDrivers::drivers::midi::opl
 {
     using audio::midi::MIDI_PERCUSSION_CHANNEL;
 

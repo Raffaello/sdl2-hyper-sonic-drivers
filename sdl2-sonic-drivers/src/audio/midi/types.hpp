@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <cstddef>
 
-namespace audio::midi
+namespace HyperSonicDrivers::audio::midi
 {
     constexpr uint8_t MIDI_MAX_CHANNELS = 16;
     constexpr uint8_t MIDI_PERCUSSION_CHANNEL = 9; // standard MIDI percussion channel

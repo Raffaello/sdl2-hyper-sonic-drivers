@@ -4,7 +4,7 @@
 #include <cmath>
 #include <utils/constants.hpp>
 
-namespace hardware
+namespace HyperSonicDrivers::hardware
 {
     namespace opl
     {

@@ -1,6 +1,8 @@
 #include "mid-example.h"
 #include <files/dmx/MUSFile.hpp>
 
+using namespace HyperSonicDrivers;
+
 int main(int argc, char* argv[])
 {
     // Reproducing MIDI file

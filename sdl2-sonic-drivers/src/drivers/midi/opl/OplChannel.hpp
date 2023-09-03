@@ -4,7 +4,7 @@
 #include <memory>
 #include <audio/opl/banks/OP2Bank.hpp>
 
-namespace drivers::midi::opl
+namespace HyperSonicDrivers::drivers::midi::opl
 {
     /// <summary>
     /// More than one note can be played at once in one channel.

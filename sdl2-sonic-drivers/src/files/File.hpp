@@ -4,7 +4,7 @@
 #include <stdexcept>
 #include <fstream>
 
-namespace files
+namespace HyperSonicDrivers::files
 {
     class File
     {

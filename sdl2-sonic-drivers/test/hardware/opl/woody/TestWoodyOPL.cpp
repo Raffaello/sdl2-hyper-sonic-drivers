@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <files/File.hpp>
 
-namespace hardware::opl::woody
+namespace HyperSonicDrivers::hardware::opl::woody
 {
     using audio::stubs::StubMixer;
 

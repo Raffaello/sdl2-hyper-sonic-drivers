@@ -8,6 +8,8 @@
 #include <iostream>
 #include <SDL2/SDL.h>
 
+using namespace HyperSonicDrivers;
+
 using namespace audio::scummvm;
 using drivers::PCMDriver;
 using std::cout;

@@ -29,7 +29,7 @@
 #include <hardware/opl/woody/WoodyEmuOPL.hpp>
 #include <cassert>
 
-namespace hardware::opl::woody
+namespace HyperSonicDrivers::hardware::opl::woody
 {
     // The right-channel is increased in frequency by itself divided by this amount.
     // The right value should not noticeably change the pitch, but it should provide

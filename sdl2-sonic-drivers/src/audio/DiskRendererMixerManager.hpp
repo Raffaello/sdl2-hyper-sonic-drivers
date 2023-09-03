@@ -5,7 +5,7 @@
 #include <string>
 #include <fstream> // TODO replace with WAVFile
 
-namespace audio
+namespace HyperSonicDrivers::audio
 {
     // TODO requires to have a timer callback to set up
     // BIDY at the actual status is just experimental.

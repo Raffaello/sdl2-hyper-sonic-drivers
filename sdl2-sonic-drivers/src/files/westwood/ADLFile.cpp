@@ -2,7 +2,7 @@
 #include <exception>
 #include <fstream>
 
-namespace files::westwood
+namespace HyperSonicDrivers::files::westwood
 {
     /***************************************************************************
      * Here's the rough structure of ADL files. The player needs only the      *

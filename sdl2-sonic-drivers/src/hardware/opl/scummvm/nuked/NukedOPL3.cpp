@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include <cstring>
 
-namespace hardware::opl::scummvm::nuked
+namespace HyperSonicDrivers::hardware::opl::scummvm::nuked
 {
     NukedOPL::NukedOPL(const OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer)
         : EmulatedOPL(type, mixer)

@@ -14,7 +14,7 @@
 #include <SDL2/SDL_log.h>
 
 
-namespace files
+namespace HyperSonicDrivers::files
 {
     using audio::midi::MIDI_FORMAT;
 

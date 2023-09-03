@@ -6,7 +6,7 @@
 #include <cassert>
 #include <SDL2/SDL_log.h>
 
-namespace files::miles
+namespace HyperSonicDrivers::files::miles
 {
     using audio::midi::MIDI_META_EVENT;
     using audio::midi::MIDIEvent;

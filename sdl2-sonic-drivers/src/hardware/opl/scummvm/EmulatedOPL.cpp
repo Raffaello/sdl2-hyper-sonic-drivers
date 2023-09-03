@@ -1,7 +1,7 @@
 #include <hardware/opl/scummvm/EmulatedOPL.hpp>
 #include <cassert>
 
-namespace hardware
+namespace HyperSonicDrivers::hardware
 {
     namespace opl
     {

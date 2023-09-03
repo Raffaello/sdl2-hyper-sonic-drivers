@@ -75,10 +75,11 @@ differences between OPL2 and OPL3 shown in datasheets:
 #include "ymf262.h"
 #include <utils/constants.hpp>
 
-using utils::M_PI;
 
-namespace hardware
+namespace HyperSonicDrivers::hardware
 {
+    using utils::M_PI;
+
     namespace opl
     {
         namespace mame

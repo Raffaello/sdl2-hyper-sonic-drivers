@@ -2,7 +2,7 @@
 #include<drivers/midi/opl/OplVoice.hpp>
 #include <hardware/opl/OPL2instrument.h>
 
-namespace drivers::midi::opl
+namespace HyperSonicDrivers::drivers::midi::opl
 {
     using hardware::opl::OPL2instrument_t;
 

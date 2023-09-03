@@ -5,7 +5,7 @@
 #include <audio/opl/banks/OP2Bank.hpp>
 #include <drivers/opl/OplWriter.hpp>
 
-namespace drivers::midi::opl
+namespace HyperSonicDrivers::drivers::midi::opl
 {
     constexpr int SUSTAIN_THRESHOLD = 64;
 

@@ -7,7 +7,7 @@
 #include <cstdint>
 #include <vector>
 
-namespace drivers
+namespace HyperSonicDrivers::drivers
 {
     /**
      * @brief Managing PCM sound and their playback

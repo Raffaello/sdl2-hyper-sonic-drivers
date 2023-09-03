@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <array>
 
-namespace hardware::opl
+namespace HyperSonicDrivers::hardware::opl
 {
     class Chip
     {

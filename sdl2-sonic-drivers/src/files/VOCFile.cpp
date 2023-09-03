@@ -4,7 +4,7 @@
 #include <format>
 #include <SDL2/SDL_log.h>
 
-namespace files
+namespace HyperSonicDrivers::files
 {
     constexpr const char* MAGIC = "Creative Voice File\x1A";
     constexpr const uint16_t VALIDATION_MAGIC = 0x1234;

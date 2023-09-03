@@ -5,7 +5,7 @@
 #include <hardware/opl/OplType.hpp>
 #include <SDL2/SDL_log.h>
 
-namespace drivers::midi::opl
+namespace HyperSonicDrivers::drivers::midi::opl
 {
     using audio::midi::MIDI_PERCUSSION_CHANNEL;
     using audio::midi::MIDI_EVENT_TYPES_HIGH;

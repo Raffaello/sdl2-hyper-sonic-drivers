@@ -4,7 +4,7 @@
 #include <stdexcept>
 #include <SDL2/SDL_log.h>
 
-namespace audio
+namespace HyperSonicDrivers::audio
 {
     DiskRendererMixerManager::DiskRendererMixerManager(const int rate, const uint8_t bits, const uint8_t channels) :
         _rate(rate), _bits(bits), _channels(channels)

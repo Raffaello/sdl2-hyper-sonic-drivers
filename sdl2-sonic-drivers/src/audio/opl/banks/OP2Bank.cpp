@@ -2,7 +2,7 @@
 #include <SDL2/SDL_log.h>
 #include <format>
 
-namespace audio::opl::banks
+namespace HyperSonicDrivers::audio::opl::banks
 {
     OP2Bank::OP2Bank(
         const std::array<Op2BankInstrument_t, OP2BANK_NUM_INSTRUMENTS>& instruments,

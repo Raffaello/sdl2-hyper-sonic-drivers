@@ -172,12 +172,12 @@ write_basic_package_version_file(
 
 export(TARGETS ${LIB_NAME}
     FILE ${CMAKE_BINARY_DIR}/${LIB_NAME}.cmake
-    #NAMESPACE sonic::
+    NAMESPACE HyperSonicDrivers::
 )
 
 install(EXPORT ${LIB_CONF}
     DESTINATION static/cmake
-    #NAMESPACE sonic::
+    NAMESPACE HyperSonicDrivers::
 )
 install(FILES
     ${CMAKE_CURRENT_BINARY_DIR}/${LIB_VER}.cmake

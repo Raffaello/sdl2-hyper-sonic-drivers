@@ -20,6 +20,8 @@
 #include <fmt/color.h>
 #include <map>
 
+using namespace HyperSonicDrivers;
+
 using hardware::opl::OPLFactory;
 using hardware::opl::OplEmulator;
 using hardware::opl::OplType;

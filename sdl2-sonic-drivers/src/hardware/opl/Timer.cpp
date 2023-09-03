@@ -1,7 +1,7 @@
 #include <hardware/opl/Timer.hpp>
 #include <cmath>
 
-namespace hardware::opl
+namespace HyperSonicDrivers::hardware::opl
 {
     void Timer::update(const double time)
     {

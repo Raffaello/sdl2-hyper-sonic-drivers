@@ -2,7 +2,7 @@
 #include <gmock/gmock.h>
 #include <utils/endianness.hpp>
 
-namespace utils
+namespace HyperSonicDrivers::utils
 {
     TEST(Endianness, swapLE16)
     {

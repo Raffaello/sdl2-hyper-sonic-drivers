@@ -3,7 +3,7 @@
 #include <audio/midi/MIDIEvent.hpp>
 #include <drivers/midi/Device.hpp>
 
-namespace drivers::midi::devices
+namespace HyperSonicDrivers::drivers::midi::devices
 {
     class SpyDevice : public Device
     {

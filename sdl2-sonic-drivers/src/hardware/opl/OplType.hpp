@@ -1,6 +1,6 @@
 #pragma once
 
-namespace hardware::opl
+namespace HyperSonicDrivers::hardware::opl
 {
     /**
     * OPL type to emulate.

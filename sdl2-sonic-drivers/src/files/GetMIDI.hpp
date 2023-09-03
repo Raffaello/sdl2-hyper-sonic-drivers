@@ -2,7 +2,7 @@
 #include <memory>
 #include <audio/MIDI.hpp>
 
-namespace files
+namespace HyperSonicDrivers::files
 {
     class GetMIDI
     {

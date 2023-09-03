@@ -1,7 +1,7 @@
 #include <utils/opl.hpp>
 #include <utils/algorithms.hpp>
 
-namespace utils
+namespace HyperSonicDrivers::utils
 {
     void FMoutput(const uint32_t port, const uint8_t reg, const uint8_t val, const std::shared_ptr<hardware::opl::OPL>& opl)
     {

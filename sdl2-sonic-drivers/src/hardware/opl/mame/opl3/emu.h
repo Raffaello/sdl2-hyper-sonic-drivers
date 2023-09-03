@@ -36,21 +36,15 @@
 #include <stdarg.h>
 #endif
 
-namespace hardware
+namespace HyperSonicDrivers::hardware::opl::mame::opl3
 {
-    namespace opl
-    {
-        namespace mame
-        {
-            namespace opl3
-            {
-                typedef int16_t stream_sample_t;
+    typedef int16_t stream_sample_t;
 
-                typedef uint8_t u8;
-                typedef uint32_t u32;
+    typedef uint8_t u8;
+    typedef uint32_t u32;
 
-                class device_t;
-                struct machine_config;
+    class device_t;
+    struct machine_config;
 
 #define NAME( _ASDF_ ) 0
 #define BIT( _INPUT_, _BIT_ ) ( ( _INPUT_) >> (_BIT_)) & 1
@@ -68,96 +62,93 @@ namespace hardware
 #define DEFINE_DEVICE_TYPE(Type, Class, ShortName, FullName)		\
     const device_type Type = 0;
 
-                class device_sound_interface {
-                public:
-                    struct sound_stream {
-                        void update() {}
-                    };
+    class device_sound_interface {
+    public:
+        struct sound_stream {
+            void update() {}
+        };
 
-                    sound_stream temp;
+        sound_stream temp;
 
-                    device_sound_interface(const machine_config& mconfig, device_t& _device)
-                        : temp()
-                    {}
+        device_sound_interface(const machine_config& mconfig, device_t& _device)
+            : temp()
+        {}
 
-                    virtual ~device_sound_interface() = default;
+        virtual ~device_sound_interface() = default;
 
-                    sound_stream* stream_alloc(int whatever, int channels, int size)
-                    {
-                        return &temp;
-                    }
+        sound_stream* stream_alloc(int whatever, int channels, int size)
+        {
+            return &temp;
+        }
 
-                    virtual void sound_stream_update(sound_stream& stream,
-                        stream_sample_t** inputs,
-                        stream_sample_t** outputs,
-                        int samples) = 0;
-                };
+        virtual void sound_stream_update(sound_stream& stream,
+            stream_sample_t** inputs,
+            stream_sample_t** outputs,
+            int samples) = 0;
+    };
 
-                struct attotime {
-                    int whatever;
+    struct attotime {
+        int whatever;
 
-                    static attotime from_hz(int hz) {
-                        return attotime();
-                    }
-                };
+        static attotime from_hz(int hz) {
+            return attotime();
+        }
+    };
 
-                struct machine_config {
-                };
+    struct machine_config {
+    };
 
-                typedef int device_type;
+    typedef int device_type;
 
-                class device_t {
-                    u32 clockRate;
-                public:
-                    struct machine_t {
-                        int describe_context() const {
-                            return 0;
-                        }
-                    };
+    class device_t {
+        u32 clockRate;
+    public:
+        struct machine_t {
+            int describe_context() const {
+                return 0;
+            }
+        };
 
-                    machine_t machine() const {
-                        return machine_t();
-                    }
+        machine_t machine() const {
+            return machine_t();
+        }
 
-                    //int offset, space;
+        //int offset, space;
 
-                    u32 clock() const {
-                        return clockRate;
-                    }
+        u32 clock() const {
+            return clockRate;
+        }
 
-                    void logerror(const char* format, ...) {
+        void logerror(const char* format, ...) {
 #if C_DEBUG
-                        char buf[512 * 2];
-                        va_list msg;
-                        va_start(msg, format);
-                        vsprintf(buf, format, msg);
-                        va_end(msg);
-                        LOG(LOG_MISC, LOG_NORMAL)("%s", buf);
+            char buf[512 * 2];
+            va_list msg;
+            va_start(msg, format);
+            vsprintf(buf, format, msg);
+            va_end(msg);
+            LOG(LOG_MISC, LOG_NORMAL)("%s", buf);
 #endif
-                    }
+        }
 
-                    static int tag() {
-                        return 0;
-                    }
+        static int tag() {
+            return 0;
+        }
 
-                    virtual void device_start() {
-                    }
+        virtual void device_start() {
+        }
 
-                    void save_item(int wtf, int blah = 0) {
-                    }
+        void save_item(int wtf, int blah = 0) {
+        }
 
-                    device_t(const machine_config& mconfig, device_type type, const char* tag, device_t* owner, u32 _clock) : clockRate(_clock) {
-                    }
+        device_t(const machine_config& mconfig, device_type type, const char* tag, device_t* owner, u32 _clock) : clockRate(_clock) {
+        }
 
-                    virtual ~device_t() {
-                    }
-                };
+        virtual ~device_t() {
+        }
+    };
 
 #define auto_alloc_array_clear(m, t, c) calloc(c, sizeof(t) )
 #define auto_alloc_clear(m, t) static_cast<t*>( calloc(1, sizeof(t) ) )
 
-            }
-        }
-    }
 }
 #endif

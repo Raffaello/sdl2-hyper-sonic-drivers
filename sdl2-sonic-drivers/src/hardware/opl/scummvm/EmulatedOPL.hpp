@@ -10,7 +10,7 @@
 #include <hardware/opl/OplType.hpp>
 
 
-namespace hardware
+namespace HyperSonicDrivers::hardware
 {
     namespace opl
     {

@@ -14,7 +14,7 @@
 #include <hardware/opl/OPL2instrument.h>
 
 
-namespace drivers::midi::opl
+namespace HyperSonicDrivers::drivers::midi::opl
 {
     /// <summary>
     /// OPL MidiDriver.

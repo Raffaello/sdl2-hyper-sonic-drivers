@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <utils/algorithms.hpp>
 
-namespace files
+namespace HyperSonicDrivers::files
 {
     enum class eRIFF_ID : uint32_t
     {

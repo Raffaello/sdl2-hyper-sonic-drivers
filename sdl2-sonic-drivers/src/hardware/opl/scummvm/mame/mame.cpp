@@ -41,13 +41,14 @@
 
 #include <SDL2/SDL_log.h>
 
-using utils::CLIP;
 
 // TODO: refactor move to utils, duplicated code (defined in ADLDriver.cpp too)
 #define ARRAYSIZE(x) ((int)(sizeof(x) / sizeof(x[0])))
 
-namespace hardware::opl::scummvm::mame
+namespace HyperSonicDrivers::hardware::opl::scummvm::mame
 {
+    using utils::CLIP;
+
     /* -------------------- preliminary define section --------------------- */
     /* attack/decay rate time rate */
 #define OPL_ARRATE     141280  /* RATE 4 =  2826.24ms @ 3.6MHz */

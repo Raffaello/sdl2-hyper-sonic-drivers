@@ -5,7 +5,7 @@
 #include <drivers/midi/devices/Opl.hpp>
 #include <hardware/opl/OPL.hpp>
 
-namespace drivers::midi::devices
+namespace HyperSonicDrivers::drivers::midi::devices
 {
     class Adlib : public Opl
     {

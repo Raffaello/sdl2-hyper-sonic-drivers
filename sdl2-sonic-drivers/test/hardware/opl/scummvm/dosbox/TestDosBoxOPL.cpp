@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <files/File.hpp>
 
-namespace hardware::opl::scummvm::dosbox
+namespace HyperSonicDrivers::hardware::opl::scummvm::dosbox
 {
     // TODO: refactor these tests as they are the same of the one in mame.
 

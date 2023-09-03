@@ -5,7 +5,7 @@
 #include <hardware/opl/OPL.hpp>
 #include <hardware/opl/OPL2instrument.h>
 
-namespace drivers::opl
+namespace HyperSonicDrivers::drivers::opl
 {
     constexpr uint8_t OPL2_NUM_CHANNELS = 9;
     constexpr uint8_t OPL3_NUM_CHANNELS = 18;

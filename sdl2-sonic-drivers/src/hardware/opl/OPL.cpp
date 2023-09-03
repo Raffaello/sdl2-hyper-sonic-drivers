@@ -2,7 +2,7 @@
 #include <SDL2/SDL_log.h>
 #include <format>
 
-namespace hardware
+namespace HyperSonicDrivers::hardware
 {
     namespace opl
     {

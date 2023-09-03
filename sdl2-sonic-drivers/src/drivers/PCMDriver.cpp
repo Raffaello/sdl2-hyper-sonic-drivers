@@ -2,7 +2,7 @@
 #include <audio/scummvm/MixerImpl.hpp>
 #include <audio/scummvm/Mixer.hpp>
 
-namespace drivers
+namespace HyperSonicDrivers::drivers
 {
     using audio::scummvm::Mixer;
     using audio::streams::SoundStream;

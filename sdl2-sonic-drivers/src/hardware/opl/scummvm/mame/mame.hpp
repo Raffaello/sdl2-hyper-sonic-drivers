@@ -5,7 +5,7 @@
 #include <random>
 #include <cstdint>
 
-namespace hardware::opl::scummvm::mame
+namespace HyperSonicDrivers::hardware::opl::scummvm::mame
 {
     enum {
         FMOPL_ENV_BITS_HQ = 16,

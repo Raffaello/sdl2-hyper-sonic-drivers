@@ -5,7 +5,7 @@
 #include <audio/midi/types.hpp>
 #include <audio/midi/MIDITrack.hpp>
 
-namespace audio
+namespace HyperSonicDrivers::audio
 {
     class MIDI
     {

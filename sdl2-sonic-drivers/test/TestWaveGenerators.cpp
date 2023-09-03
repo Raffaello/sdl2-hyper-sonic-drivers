@@ -3,6 +3,7 @@
 #include <softsynths/generators/generators.hpp>
 
 // TODO: move somewhere else not in the root of test/ folder
+using namespace HyperSonicDrivers;
 
 using softsynths::generators::eWaveForm;
 

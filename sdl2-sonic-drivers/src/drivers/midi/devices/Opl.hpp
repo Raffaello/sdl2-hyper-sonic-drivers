@@ -8,7 +8,7 @@
 #include <hardware/opl/OplEmulator.hpp>
 #include <audio/scummvm/Mixer.hpp>
 
-namespace drivers::midi::devices
+namespace HyperSonicDrivers::drivers::midi::devices
 {
     class Opl : public Device /*, protected drivers::midi::opl::OplDriver*/
     {

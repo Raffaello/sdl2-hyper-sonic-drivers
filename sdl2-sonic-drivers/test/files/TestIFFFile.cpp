@@ -6,7 +6,7 @@
 int _argc;
 char** _argv;
 
-namespace files
+namespace HyperSonicDrivers::files
 {
     TEST(IFFFile, cstorDefault)
     {
