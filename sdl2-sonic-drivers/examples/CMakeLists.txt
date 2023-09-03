@@ -46,9 +46,17 @@ macro(macro_example) # ${ARGN} link libraries
                         ${CMAKE_CURRENT_SOURCE_DIR}/${fixture_i}
                         ${CMAKE_CURRENT_BINARY_DIR}
             )
+            install(
+                FILES ${fixture_i}
+                DESTINATION "static/examples"
+            )
         endforeach()
     endif()
 
+    install(FILES
+        $<TARGET_FILE:${EXAMPLE_EXE}>
+        DESTINATION "static/examples/" # TODO: works only if linked with static
+    )
 endmacro()
 
 ############################## Main Example ##################################

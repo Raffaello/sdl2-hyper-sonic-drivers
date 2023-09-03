@@ -286,6 +286,21 @@ install(FILES
     DESTINATION static/lib
 )
 
+if(BUILD_EXAMPLES)
+    if(NOT (WITH_SDL2_STATIC))
+    install(FILES
+        $<TARGET_FILE:SDL2::SDL2>
+        DESTINATION "static/examples"
+    )
+    endif()
+
+    install(FILES
+        $<TARGET_FILE:spdlog::spdlog> #spdlog::spdlog_header_only
+        $<TARGET_FILE:fmt::fmt> ## spdlog dependency
+        DESTINATION "static/examples"
+    )
+endif()
+
 unset(LIB_NAME)
 unset(LIB_CONF)
 unset(LIB_VER)
