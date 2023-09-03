@@ -1,12 +1,11 @@
 ﻿cmake_minimum_required (VERSION 3.21)
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_DEBUG_POSTFIX d)
-
 find_package(SDL2 CONFIG REQUIRED)
 find_package(spdlog 1.9.0 CONFIG REQUIRED)
 find_package(rtmidi CONFIG REQUIRED)
 
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_DEBUG_POSTFIX d)
 
 configure_file("version.h.in" "${CMAKE_CURRENT_SOURCE_DIR}/src/version.h")
 

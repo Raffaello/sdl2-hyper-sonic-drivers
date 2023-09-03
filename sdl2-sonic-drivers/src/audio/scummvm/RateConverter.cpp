@@ -42,8 +42,8 @@ namespace audio
          */
         typedef int32_t frac_t;
 
-        inline frac_t doubleToFrac(double value) { return (frac_t)(value * FRAC_ONE); }
-        inline double fracToDouble(frac_t value) { return ((double)value) / FRAC_ONE; }
+        inline frac_t doubleToFrac(double value) { return (frac_t)(value * static_cast<int>(FRAC_ONE)); }
+        inline double fracToDouble(frac_t value) { return ((double)value) / static_cast<int>(FRAC_ONE); }
 
         inline frac_t intToFrac(int16_t value) { return value * (1 << FRAC_BITS); }
         inline int16_t fracToInt(frac_t value) { return value / (1 << FRAC_BITS); }
@@ -89,16 +89,16 @@ namespace audio
         template<bool stereo, bool reverseStereo>
         class SimpleRateConverter : public RateConverter {
         protected:
-            int16_t inBuf[INTERMEDIATE_BUFFER_SIZE];
-            const int16_t* inPtr;
-            int inLen;
+            int16_t inBuf[INTERMEDIATE_BUFFER_SIZE] = {};
+            const int16_t* inPtr = nullptr;
+            int inLen = 0;
 
             /** position of how far output is ahead of input */
             /** Holds what would have been opos-ipos */
-            long opos;
+            long opos = 0;
 
             /** fractional position increment in the output stream */
-            long opos_inc;
+            long opos_inc = 0;
 
         public:
             SimpleRateConverter(uint32_t inrate, uint32_t outrate);
@@ -191,20 +191,22 @@ namespace audio
         template<bool stereo, bool reverseStereo>
         class LinearRateConverter : public RateConverter {
         protected:
-            int16_t inBuf[INTERMEDIATE_BUFFER_SIZE];
-            const int16_t* inPtr;
-            int inLen;
+            int16_t inBuf[INTERMEDIATE_BUFFER_SIZE] = {};
+            const int16_t* inPtr = nullptr;
+            int inLen = 0;
 
             /** fractional position of the output stream in input stream unit */
-            frac_t opos;
+            frac_t opos = 0;
 
             /** fractional position increment in the output stream */
-            frac_t opos_inc;
+            frac_t opos_inc = 0;
 
             /** last sample(s) in the input stream (left/right channel) */
-            int16_t ilast0, ilast1;
+            int16_t ilast0 = 0;
+            int16_t ilast1 = 0;
             /** current sample(s) in the input stream (left/right channel) */
-            int16_t icur0, icur1;
+            int16_t icur0 = 0;
+            int16_t icur1 = 0;
 
         public:
             LinearRateConverter(uint32_t inrate, uint32_t outrate);
@@ -327,8 +329,10 @@ namespace audio
                     _bufferSize = osamp;
                 }
 
-                if (!_buffer)
+                if (_buffer == nullptr) {
                     spdlog::error("[CopyRateConverter::flow] Cannot allocate memory for temp buffer");
+                    return 0;
+                }
 
                 // Read up to 'osamp' samples into our temporary buffer
                 len = input.readBuffer(_buffer, osamp);

@@ -23,9 +23,9 @@ namespace drivers::midi::devices
         auto op2File = OP2File(GENMIDI_OP2);
         auto mixer = std::make_shared<StubMixer>();
         auto opl = OPLFactory::create(OplEmulator::AUTO, OplType::OPL2, mixer);
-        EXPECT_NO_THROW(std::make_shared<Adlib>(opl, op2File.getBank()));
+        EXPECT_NO_THROW(auto a = std::make_shared<Adlib>(opl, op2File.getBank()));
         opl = nullptr;
-        EXPECT_THROW(std::make_shared<Adlib>(opl, op2File.getBank()), std::runtime_error);
+        EXPECT_THROW(auto a = std::make_shared<Adlib>(opl, op2File.getBank()), std::runtime_error);
     }
 
     class AdliblEmulator_ : public ::testing::TestWithParam<std::tuple<hardware::opl::OplEmulator, bool>>
@@ -41,12 +41,12 @@ namespace drivers::midi::devices
     {
         if (this->shouldThrow) {
             EXPECT_THROW(
-                std::make_shared<devices::Adlib>(this->oplEmu, this->mixer, this->op2File.getBank()),
+                auto a = std::make_shared<devices::Adlib>(this->oplEmu, this->mixer, this->op2File.getBank()),
                 std::runtime_error
             );
         }
         else {
-            EXPECT_NO_THROW(std::make_shared<devices::Adlib>(this->oplEmu, this->mixer, this->op2File.getBank()));
+            EXPECT_NO_THROW(auto a = std::make_shared<devices::Adlib>(this->oplEmu, this->mixer, this->op2File.getBank()));
         }
     }
 
