@@ -59,6 +59,11 @@ macro(macro_example) # ${ARGN} link libraries
         $<TARGET_FILE:${EXAMPLE_EXE}>
         DESTINATION "static/examples/" # TODO: works only if linked with static
     )
+    install(FILES
+        $<TARGET_FILE:spdlog::spdlog>
+        $<TARGET_FILE:fmt::fmt>
+        DESTINATION "static/examples"
+    )
 endmacro()
 
 ############################## Main Example ##################################

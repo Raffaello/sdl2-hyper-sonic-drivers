@@ -110,7 +110,7 @@ namespace HyperSonicDrivers::drivers::westwood
 
         uint8_t* trackData = getProgram(track);
         SDL_LogDebug(SDL_LOG_CATEGORY_AUDIO, std::format("getProgram[track={}]= {}", track, *trackData).c_str());
-        if (!trackData) {
+        if (trackData == nullptr) {
             return;
         }
 
