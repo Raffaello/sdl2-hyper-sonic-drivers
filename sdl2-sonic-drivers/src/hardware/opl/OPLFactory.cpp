@@ -5,6 +5,8 @@
 #include <hardware/opl/scummvm/nuked/NukedOPL3.hpp>
 #include <hardware/opl/woody/WoodyOPL.hpp>
 #include <hardware/opl/mame/MameOPL3.hpp>
+#include <format>
+#include <SDL2/SDL_log.h>
 
 namespace hardware::opl
 {
@@ -18,10 +20,10 @@ namespace hardware::opl
             case OplType::OPL2:
                 return std::make_shared<scummvm::mame::MameOPL2>(type, mixer);
             case OplType::DUAL_OPL2:
-                spdlog::warn("MameOPL2 emulator doesn't support DUAL_OPL2 emulation");
+                SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, "MameOPL2 emulator doesn't support DUAL_OPL2 emulation");
                 return nullptr;
             case OplType::OPL3:
-                spdlog::warn("MameOPL3 not working yet.");
+                SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, "MameOPL3 not working yet.");
                 //return std::make_shared<hardware::opl::mame::MameOPL>(mixer);
                 return nullptr;
             }
@@ -30,19 +32,19 @@ namespace hardware::opl
             return std::make_shared<scummvm::dosbox::DosBoxOPL>(type, mixer);
         case OplEmulator::NUKED:
             if (type != OplType::OPL3) {
-                spdlog::warn("NukedOPL3 emulator only supports OPL3 emulation, disabled for OPL2 and DUAL_OPL2");
+                SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, "NukedOPL3 emulator only supports OPL3 emulation, disabled for OPL2 and DUAL_OPL2");
                return nullptr;
             }
             return std::make_shared<scummvm::nuked::NukedOPL>(type, mixer);
         case OplEmulator::WOODY:
             if (type == OplType::OPL3) {
-                spdlog::warn("Woody deosn't support OPL3");
+                SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, "Woody doesn't support OPL3");
                 return nullptr;
             }
             return std::make_shared<woody::WoodyOPL>(mixer, type == OplType::OPL2 ? false : true);
 
         default:
-            spdlog::error("Unsupported OPL emulator {:d}", static_cast<int>(oplEmulator));
+            SDL_LogError(SDL_LOG_CATEGORY_AUDIO, std::format("Unsupported OPL emulator {:d}", static_cast<int>(oplEmulator)).c_str());
         }
 
         return nullptr;

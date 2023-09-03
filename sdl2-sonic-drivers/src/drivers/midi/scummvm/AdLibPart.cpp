@@ -1,6 +1,8 @@
 #include <drivers/midi/scummvm/AdLibPart.hpp>
 #include <drivers/midi/scummvm/MidiDriver_ADLIB.hpp>
 #include <cstring>
+#include <format>
+#include <SDL2/SDL_log.h>
 
 namespace drivers
 {
@@ -144,7 +146,7 @@ namespace drivers
                     allNotesOff();
                     break;
                 default:
-                    spdlog::warn("AdLib: Unknown control change message {} {}", (int)control, (int)value);
+                    SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, std::format("AdLib: Unknown control change message {:d} {:d}", control, value).c_str());
                 }
             }
 
@@ -252,7 +254,7 @@ namespace drivers
                 // Sam&Max allows for instrument overwrites, but we will not support it
                 // until we can find any track actually using it.
                 if (_owner->_opl3Mode) {
-                    spdlog::warn("AdLibPart::sysEx_customInstrument: Used in OPL3 mode, not supported");
+                    SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, "AdLibPart::sysEx_customInstrument: Used in OPL3 mode, not supported");
                     return;
                 }
 

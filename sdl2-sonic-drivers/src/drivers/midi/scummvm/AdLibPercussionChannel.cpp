@@ -1,6 +1,8 @@
 #include <drivers/midi/scummvm/AdLibPercussionChannel.hpp>
 #include <drivers/midi/scummvm/MidiDriver_ADLIB.hpp>
 #include <cstring>
+#include <format>
+#include <SDL2/SDL_log.h>
 
 namespace drivers
 {
@@ -67,7 +69,7 @@ namespace drivers
                 }
 
                 if (!inst) {
-                    spdlog::debug("No instrument FM definition for GM percussion key {}", (int)note);
+                    SDL_LogDebug(SDL_LOG_CATEGORY_AUDIO, std::format("No instrument FM definition for GM percussion key {:d}", note).c_str());
                     return;
                 }
 
@@ -77,7 +79,7 @@ namespace drivers
             void AdLibPercussionChannel::sysEx_customInstrument(uint32_t type, const uint8_t* instr) {
                 // We do not allow custom instruments in OPL3 mode right now.
                 if (_owner->_opl3Mode) {
-                    spdlog::warn("AdLibPercussionChannel::sysEx_customInstrument: Used in OPL3 mode");
+                    SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, "AdLibPercussionChannel::sysEx_customInstrument: Used in OPL3 mode");
                     return;
                 }
 

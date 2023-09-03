@@ -39,6 +39,8 @@
 #include <utils/algorithms.hpp>
 #include <exception>
 
+#include <SDL2/SDL_log.h>
+
 using utils::CLIP;
 
 // TODO: refactor move to utils, duplicated code (defined in ADLDriver.cpp too)
@@ -702,8 +704,11 @@ namespace hardware::opl::scummvm::mame
 
 
         ENV_CURVE = (int*)malloc(sizeof(int) * (2 * EG_ENT + 1));
-        if (!ENV_CURVE)
-            spdlog::error("[OPLOpenTable] Cannot allocate memory");
+        if (!ENV_CURVE) {
+            constexpr const char* e = "[OPLOpenTable] Cannot allocate memory";
+            SDL_LogCritical(SDL_LOG_CATEGORY_AUDIO, e);
+            throw std::runtime_error(e);
+        }
 
         /* envelope counter -> envelope output table */
         for (i = 0; i < EG_ENT; i++) {
@@ -1179,10 +1184,10 @@ namespace hardware::opl::scummvm::mame
         /* data port */
         switch (OPL->address) {
         case 0x05: /* KeyBoard IN */
-            spdlog::warn("OPL:read unmapped KEYBOARD port");
+            SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, "OPL:read unmapped KEYBOARD port");
             return 0;
         case 0x19: /* I/O DATA    */
-            spdlog::warn("OPL:read unmapped I/O port");
+            SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, "OPL:read unmapped I/O port");
             return 0;
         case 0x1a: /* PCM-DATA    */
             return 0;

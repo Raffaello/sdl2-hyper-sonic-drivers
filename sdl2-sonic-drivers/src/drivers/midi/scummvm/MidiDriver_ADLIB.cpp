@@ -1,10 +1,10 @@
+#include <audio/midi/types.hpp>
 #include <drivers/midi/scummvm/MidiDriver_ADLIB.hpp>
 #include <drivers/midi/scummvm/AdLibPart.hpp>
-
 #include <utils/algorithms.hpp>
+#include <format>
 #include <cassert>
-#include <audio/midi/types.hpp>
-
+#include <SDL2/SDL_log.h>
 
 namespace drivers
 {
@@ -196,11 +196,11 @@ namespace drivers
                 switch (static_cast<MIDI_EVENT_TYPES_HIGH>(cmd.high)) {
                 case MIDI_EVENT_TYPES_HIGH::NOTE_OFF:// Note Off
                     part->noteOff(param1);
-                    spdlog::debug("noteOff {} {}", chan, param1);
+                    SDL_LogDebug(SDL_LOG_CATEGORY_AUDIO, std::format("noteOff {} {}", chan, param1).c_str());
                     break;
                 case MIDI_EVENT_TYPES_HIGH::NOTE_ON: // Note On
                     part->noteOn(param1, param2);
-                    spdlog::debug("noteOn {} {}", param1, param2);
+                    SDL_LogDebug(SDL_LOG_CATEGORY_AUDIO, std::format("noteOn {} {}", param1, param2).c_str());
                     break;
                 case MIDI_EVENT_TYPES_HIGH::AFTERTOUCH: // Aftertouch
                     break; // Not supported.
@@ -218,11 +218,11 @@ namespace drivers
                 case MIDI_EVENT_TYPES_HIGH::META_SYSEX: // SysEx
                     // We should never get here! SysEx information has to be
                     // sent via high-level semantic methods.
-                    spdlog::warn("MidiDriver_ADLIB: Receiving SysEx command on a send() call");
+                    SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, "MidiDriver_ADLIB: Receiving SysEx command on a send() call");
                     break;
 
                 default:
-                    spdlog::warn("MidiDriver_ADLIB: Unknown send() command {0:#x}", cmd.val);
+                    SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, std::format("MidiDriver_ADLIB: Unknown send() command {0:#x}", cmd.val).c_str());
                 }
             }
 

@@ -8,10 +8,9 @@
 #include <audio/midi/MIDITrack.hpp>
 #include <audio/midi/types.hpp>
 #include <audio/scummvm/Mixer.hpp>
-#include "../audio/stubs/StubMixer.hpp"
+#include <audio/stubs/StubMixer.hpp>
 #include <drivers/MIDDriver.hpp>
 #include <drivers/midi/Device.hpp>
-#include <spdlog/spdlog.h> // TODO: remove, redo the log caputre
 #include <spdlog/sinks/ostream_sink.h>
 #include <sstream>
 #include <algorithm>
@@ -37,7 +36,7 @@ namespace drivers
 
         // capture spdlog output
         std::ostringstream _oss;
-        auto ostream_logger = spdlog::get("gtest_logger");
+        /*auto ostream_logger = spdlog::get("gtest_logger");
         if (!ostream_logger)
         {
             auto ostream_sink = std::make_shared<spdlog::sinks::ostream_sink_st>(_oss);
@@ -46,7 +45,7 @@ namespace drivers
             ostream_logger->set_level(spdlog::level::debug);
         }
         auto default_logger = spdlog::default_logger();
-        spdlog::set_default_logger(ostream_logger);
+        spdlog::set_default_logger(ostream_logger);*/
         // ---
 
         MIDIEvent e;
@@ -62,18 +61,18 @@ namespace drivers
 
         auto midi_track = audio::midi::MIDITrack();
         midi_track.addEvent(e);
-        
-        MIDDriverMock middrv(mixer, device);
-        middrv.protected_processTrack(midi_track, 0);
 
+        MIDDriverMock middrv(mixer, device);
+        ::testing::internal::CaptureStdout();
+        middrv.protected_processTrack(midi_track, 0);
+        auto output = ::testing::internal::GetCapturedStdout();
         // retrieve spdlog output
-        std::string output = _oss.str();
+        //std::string output = _oss.str();
         
         EXPECT_NE(_oss.str().find("SEQUENCE NAME: " + s), std::string::npos);
         
-        // TODO the spdlog output capture shouold be encapsulated in a class with a SetUp method (and teardown)
         _oss.clear();
-        spdlog::set_default_logger(default_logger);
+        //spdlog::set_default_logger(default_logger);
     }
 
     TEST(MIDDrvier, force_stop_on_long_delta_time_delay)

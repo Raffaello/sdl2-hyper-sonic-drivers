@@ -1,12 +1,17 @@
-#include <files/MIDFile.hpp>
 #include <string>
-#include <utils/endianness.hpp>
 #include <memory>
 #include <cstring>
-#include <utils/algorithms.hpp>
-#include <audio/midi/MIDITrack.hpp>
-#include <audio/midi/MIDIEvent.hpp>
 #include <algorithm>
+#include <format>
+#include <functional>
+#include <cassert>
+#include <audio/midi/MIDIEvent.hpp>
+#include <audio/midi/MIDITrack.hpp>
+#include <files/MIDFile.hpp>
+#include <utils/algorithms.hpp>
+#include <utils/endianness.hpp>
+
+#include <SDL2/SDL_log.h>
 
 
 namespace files
@@ -268,11 +273,11 @@ namespace files
                 {
                 case MIDI_META_EVENT_TYPES_LOW::SYS_EX0:
                     // sysEx-event
-                    spdlog::error("sysEx event not implemented yet");
+                    SDL_LogError(SDL_LOG_CATEGORY_AUDIO, "sysEx event not implemented yet");
                     break;
                     case MIDI_META_EVENT_TYPES_LOW::SYS_EX7:
                     // sysEx-event
-                    spdlog::error("sysEx event not implemented yet");
+                    SDL_LogError(SDL_LOG_CATEGORY_AUDIO, "sysEx event not implemented yet");
                     break;
                 case MIDI_META_EVENT_TYPES_LOW::META:
                 {
@@ -295,7 +300,7 @@ namespace files
                     break;
                 }
                 default:
-                    spdlog::critical("MIDFile sub-event {:#04x} not recognized", e.type.val);
+                    SDL_LogCritical(SDL_LOG_CATEGORY_AUDIO, std::format("MIDFile sub-event {:#04x} not recognized", e.type.val).c_str());
                     throw std::runtime_error("");
 
                 }
@@ -320,7 +325,9 @@ namespace files
                 // using previous status
                 if (lastStatus.val == 0) {
 
-                    spdlog::critical("MIDFile: midi event {:#04x} not recognized {:#03x} - last status = {} (pos={}).", e.type.val, (uint8_t)e.type.high, lastStatus.val, tell());
+                    SDL_LogCritical(SDL_LOG_CATEGORY_AUDIO, std::format("MIDFile: midi event {:#04x} not recognized {:#03x} - last status = {} (pos={}).",
+                        static_cast<int>(e.type.val), static_cast<int>(e.type.high),
+                        static_cast<int>(lastStatus.val), static_cast<unsigned long>(tell())).c_str());
                     throw std::runtime_error("MIDFile: midi event type not recognized.");
                 }
             }
@@ -332,7 +339,7 @@ namespace files
 
         // sanity check
         if (offs != chunk.length) {
-            spdlog::warn("MIDFile: Fileanme '{}' track {} length mismatch real length {}", _filename, chunk.length, offs);
+            SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, std::format("MIDFile: Fileanme '{}' track {} length mismatch real length {}", _filename, chunk.length, offs).c_str());
         }
 
         track.lock();

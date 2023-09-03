@@ -1,6 +1,8 @@
 #include <files/VOCFile.hpp>
 #include <cstring>
 #include <vector>
+#include <format>
+#include <SDL2/SDL_log.h>
 
 namespace files
 {
@@ -125,7 +127,7 @@ namespace files
                 case 3:// 8-bit 2-bit ADPCM
                     //break;
                 default:
-                    spdlog::warn("VOCFile: unknown/not-implemented packMethod={}", packMethod);
+                    SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, std::format("VOCFile: unknown/not-implemented packMethod={:x}", packMethod).c_str());
                 }
             }
             break;
@@ -141,12 +143,12 @@ namespace files
                 // TODO
                 //uint16_t pausePeriod = readLE16(); // pause in sample + 1
                 //uint8_t  timeConstant = readU8(); // same as block 1
-                spdlog::warn("VOCFile: pause block not-implemented");
+                SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, "VOCFile: pause block not-implemented");
             }
             break;
             case 4: // Marker block
                 //uint16_t marker = readLE16();
-                spdlog::warn("VOCFile: marker block not-implemented");
+                SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, "VOCFile: marker block not-implemented");
                 break;
             case 5: // null-terminating string block
                 // TODO
@@ -154,18 +156,18 @@ namespace files
                 //char* string = new char[data_block_size];
                 //read(string, data_block_size);
                 //delete string;
-                spdlog::warn("VOCFile: string block not-implemented");
+                SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, "VOCFile: string block not-implemented");
                 break;
             case 6: // loop block
                 // TODO
                 //uint16_t repeatTimes = readLE16();
-                spdlog::warn("VOCFile: start loop block not-implemented");
+                SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, "VOCFile: start loop block not-implemented");
                 break;
             case 7:
-                spdlog::warn("VOCFile: end loop block not-implemented");
+                SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, "VOCFile: end loop block not-implemented");
                 break;
             case 8:
-                spdlog::warn("VOCFile: special block 8 not-implemented");
+                SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, "VOCFile: special block 8 not-implemented");
                 break;
             case 9:
             {
@@ -199,13 +201,13 @@ namespace files
                 case 0x0200: // 16-bit to 4-bit ADPCM
                     //break;
                 default:
-                    spdlog::warn("VOCFile: unknown/not-implemented format={}", format);
+                    SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, std::format("VOCFile: unknown/not-implemented format={}", format).c_str());
                 }
             }
                 break;
             default:
                 //return false;
-                spdlog::warn("VOCFile: unknown data block type {}", db.type);
+                SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, std::format("VOCFile: unknown data block type {}", db.type).c_str());
             }
 
             lastType = db.type; // ?

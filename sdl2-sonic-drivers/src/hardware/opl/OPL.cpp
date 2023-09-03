@@ -1,4 +1,6 @@
 #include <hardware/opl/OPL.hpp>
+#include <SDL2/SDL_log.h>
+#include <format>
 
 namespace hardware
 {
@@ -10,7 +12,7 @@ namespace hardware
         OPL::OPL(const OplType type) : type(type)
         {
             if (_hasInstance) {
-                spdlog::error("There are multiple OPL output instances running");
+                SDL_LogError(SDL_LOG_CATEGORY_AUDIO, "There are multiple OPL output instances running");
             }
 
             _hasInstance = true;

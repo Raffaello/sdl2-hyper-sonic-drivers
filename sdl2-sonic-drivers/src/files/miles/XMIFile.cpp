@@ -2,6 +2,9 @@
 #include <audio/midi/MIDITrack.hpp>
 #include <utils/algorithms.hpp>
 #include <queue>
+#include <format>
+#include <cassert>
+#include <SDL2/SDL_log.h>
 
 namespace files::miles
 {
@@ -210,11 +213,11 @@ namespace files::miles
                 {
                 case MIDI_META_EVENT_TYPES_LOW::SYS_EX0:
                     // sysEx-event
-                    spdlog::error("sysEx 0x0 event not implemented yet");
+                    SDL_LogError(SDL_LOG_CATEGORY_AUDIO, "sysEx 0x0 event not implemented yet");
                     break;
                 case MIDI_META_EVENT_TYPES_LOW::SYS_EX7:
                     // sysEx-event
-                    spdlog::error("sysEx 0x7 event not implemented yet");
+                    SDL_LogError(SDL_LOG_CATEGORY_AUDIO, "sysEx 0x7 event not implemented yet");
                     break;
                 case MIDI_META_EVENT_TYPES_LOW::META:
                 {
@@ -234,7 +237,7 @@ namespace files::miles
                         endTrack = true;
                         if (offs % 2 && offs < IFF_evnt.size) {
                             // 1 spare byte?
-                            spdlog::debug("End Of Track pad byte, valid={}", (bool)buf[offs++] == 0);
+                            SDL_LogDebug(SDL_LOG_CATEGORY_AUDIO, std::format("End Of Track pad byte, valid={}", (buf[offs++] == 0)).c_str());
                         }
                     }
 
@@ -244,7 +247,7 @@ namespace files::miles
                     break;
                 }
                 default:
-                    spdlog::critical("XMIFile: sub-event {:#04x} not recognized", e.type.val);
+                    SDL_LogCritical(SDL_LOG_CATEGORY_AUDIO, std::format("XMIFile: sub-event {:#04x} not recognized", e.type.val).c_str());
                     throw std::runtime_error("");
 
                 }
@@ -257,7 +260,7 @@ namespace files::miles
             case MIDI_EVENT_TYPES_HIGH::NOTE_OFF:
             {
                 const char* err_msg = "Note OFF event found.";
-                spdlog::critical(err_msg);
+                SDL_LogCritical(SDL_LOG_CATEGORY_AUDIO, err_msg);
                 throw std::invalid_argument(err_msg);
             }
             break;
@@ -300,7 +303,9 @@ namespace files::miles
                 e.data.push_back(buf[offs++]);
                 break;
             default:
-                spdlog::critical("MIDFile: midi event {:#04x} not recognized {:#03x} - pos={}.", e.type.val, (uint8_t)e.type.high, tell());
+                SDL_LogCritical(SDL_LOG_CATEGORY_AUDIO,
+                    std::format("MIDFile: midi event {:#04x} not recognized {:#03x} - pos={}.",
+                        static_cast<int>(e.type.val), static_cast<int>(e.type.high), static_cast<unsigned long>(tell())).c_str());
                 throw std::runtime_error("XMIFile: midi event type not recognized.");
             }
 
@@ -310,12 +315,12 @@ namespace files::miles
 
         // sanity check
         if (offs != IFF_evnt.size) {
-            spdlog::warn("XMIFile: Fileanme '{}' track {} length mismatch real length {}", _filename, IFF_evnt.size, offs);
+            SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, std::format("XMIFile: Fileanme '{}' track {} length mismatch real length {}", _filename, IFF_evnt.size, offs).c_str());
         }
 
         if (!endTrack) {
             const char* err_msg = "XMIFile: not a valid XMI file, missing end of track midi event";
-            spdlog::critical(err_msg);
+            SDL_LogCritical(SDL_LOG_CATEGORY_AUDIO, err_msg);
             throw std::invalid_argument(err_msg);
         }
 
@@ -348,7 +353,7 @@ namespace files::miles
         // { UWORD Sequence Branch Index controller value 0 - 127
         // ULONG controller offset from start of EVNT chunk } ...]
         const char* err_msg = "XMIFile: ID_RBRN not implemented yet";
-        spdlog::critical(err_msg);
+        SDL_LogCritical(SDL_LOG_CATEGORY_AUDIO, err_msg);
         throw std::runtime_error(err_msg);
     }
 }
