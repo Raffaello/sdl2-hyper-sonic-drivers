@@ -13,12 +13,12 @@ namespace HyperSonicDrivers::files
 
     TEST(VOCFile, cstorDefault)
     {
-        EXPECT_NO_THROW(VOCFile f("fixtures/VSCREAM1.VOC"));
+        EXPECT_NO_THROW(VOCFile f("../fixtures/VSCREAM1.VOC"));
     }
 
     TEST(VOCFile, VSCREAM1_VOC)
     {
-        VOCFile f("fixtures/VSCREAM1.VOC", Mixer::SoundType::SFX);
+        VOCFile f("../fixtures/VSCREAM1.VOC", Mixer::SoundType::SFX);
 
         EXPECT_STRCASEEQ(f.getVersion().c_str(), "1.10");
         EXPECT_EQ(f.getChannels(), 1);
@@ -36,7 +36,7 @@ namespace HyperSonicDrivers::files
 
     TEST(VOCFile, DUNE_VOC)
     {
-        VOCFile f("fixtures/DUNE.VOC", Mixer::SoundType::SPEECH);
+        VOCFile f("../fixtures/DUNE.VOC", Mixer::SoundType::SPEECH);
 
         EXPECT_STRCASEEQ(f.getVersion().c_str(), "1.10");
         EXPECT_EQ(f.getChannels(), 1);

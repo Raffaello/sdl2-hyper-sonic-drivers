@@ -17,7 +17,7 @@ namespace HyperSonicDrivers::drivers::westwood
         auto mixer = std::make_shared<StubMixer>();
         EXPECT_EQ(mixer.use_count(), 1);
 
-        auto adlFile = std::make_shared<files::westwood::ADLFile>("fixtures/DUNE19.ADL");
+        auto adlFile = std::make_shared<files::westwood::ADLFile>("../fixtures/DUNE19.ADL");
         EXPECT_EQ(adlFile.use_count(), 1);
 
         auto opl = std::make_shared<hardware::opl::scummvm::mame::MameOPL2>(OplType::OPL2, mixer);
@@ -34,7 +34,7 @@ namespace HyperSonicDrivers::drivers::westwood
         auto mixer = std::make_shared<StubMixer>();
         EXPECT_EQ(mixer.use_count(), 1);
 
-        auto adlFile = std::make_shared<files::westwood::ADLFile>("fixtures/DUNE19.ADL");
+        auto adlFile = std::make_shared<files::westwood::ADLFile>("../fixtures/DUNE19.ADL");
         EXPECT_EQ(adlFile.use_count(), 1);
 
         auto opl = std::make_shared<hardware::opl::scummvm::mame::MameOPL2>(OplType::OPL2, mixer);

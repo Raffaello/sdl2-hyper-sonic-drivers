@@ -58,7 +58,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
 
     TEST(OplVoice, allocate)
     {
-        files::dmx::OP2File f("fixtures/GENMIDI.OP2");
+        files::dmx::OP2File f("../fixtures/GENMIDI.OP2");
         auto b = f.getBank();
 
         auto opl = std::make_shared<hardware::opl::OPLMock>();

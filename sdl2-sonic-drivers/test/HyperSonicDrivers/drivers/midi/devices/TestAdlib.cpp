@@ -16,7 +16,7 @@ namespace HyperSonicDrivers::drivers::midi::devices
     using hardware::opl::OPLFactory;
     using files::dmx::OP2File;
 
-    const std::string GENMIDI_OP2 = std::string("fixtures/GENMIDI.OP2");
+    const std::string GENMIDI_OP2 = std::string("../fixtures/GENMIDI.OP2");
 
     TEST(Adlib, cstor_)
     {

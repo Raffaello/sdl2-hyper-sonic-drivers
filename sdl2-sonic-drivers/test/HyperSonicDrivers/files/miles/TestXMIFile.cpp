@@ -19,7 +19,7 @@ namespace HyperSonicDrivers::files::miles
 
     TEST(XMIFile, headerXmi)
     {
-        XMIFile f("fixtures/header.xmi");
+        XMIFile f("../fixtures/header.xmi");
 
         EXPECT_EQ(f.getMIDI()->numTracks, 1);
         EXPECT_EQ(f.getMIDI()->format, audio::midi::MIDI_FORMAT::SINGLE_TRACK);
@@ -30,7 +30,7 @@ namespace HyperSonicDrivers::files::miles
 
     TEST(XMIFile, headerNoXdirXmi)
     {
-        XMIFile f("fixtures/header_no_xdir.xmi");
+        XMIFile f("../fixtures/header_no_xdir.xmi");
 
         EXPECT_EQ(f.getMIDI()->numTracks, 1);
         EXPECT_EQ(f.getMIDI()->format, audio::midi::MIDI_FORMAT::SINGLE_TRACK);
@@ -41,7 +41,7 @@ namespace HyperSonicDrivers::files::miles
 
     TEST(XMIFile, AIL2_14_DEMOXmi)
     {
-        XMIFile f("fixtures/AIL2_14_DEMO.XMI");
+        XMIFile f("../fixtures/AIL2_14_DEMO.XMI");
         EXPECT_EQ(f.getMIDI()->numTracks, 3);
 
         EXPECT_EQ(f.getMIDI()->format, audio::midi::MIDI_FORMAT::MULTI_TRACK);

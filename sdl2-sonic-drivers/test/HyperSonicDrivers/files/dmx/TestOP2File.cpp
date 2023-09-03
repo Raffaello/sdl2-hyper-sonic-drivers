@@ -12,7 +12,7 @@ namespace HyperSonicDrivers::files::dmx
 
     TEST(OP2File, cstorDefault)
     {
-        OP2File f("fixtures/GENMIDI.OP2");
+        OP2File f("../fixtures/GENMIDI.OP2");
         auto b = f.getBank();
         EXPECT_STRCASEEQ("Acoustic Grand Piano", b->getInstrumentName(0).c_str());
         EXPECT_STRCASEEQ("Open Triangle", b->getInstrumentName(OP2BANK_NUM_INSTRUMENTS - 1).c_str());
@@ -25,14 +25,14 @@ namespace HyperSonicDrivers::files::dmx
 
     TEST(OP2File, getInstruments_out_of_bound)
     {
-        OP2File f("fixtures/GENMIDI.OP2");
+        OP2File f("../fixtures/GENMIDI.OP2");
         auto b = f.getBank();
         EXPECT_THROW(b->getInstrument(255), std::out_of_range);
     }
 
     TEST(OP2File, getInstrumentsName_out_of_bound)
     {
-        OP2File f("fixtures/GENMIDI.OP2");
+        OP2File f("../fixtures/GENMIDI.OP2");
         auto b = f.getBank();
         EXPECT_THROW(b->getInstrumentName(255), std::out_of_range);
     }
@@ -78,7 +78,7 @@ namespace HyperSonicDrivers::files::dmx
 
     TEST(OP2File, getBank_check_immutability)
     {
-        OP2File f("fixtures/GENMIDI.OP2");
+        OP2File f("../fixtures/GENMIDI.OP2");
 
         auto b1 = f.getBank();
         b1->getInstrumentName(0) = "b1";
@@ -99,7 +99,7 @@ namespace HyperSonicDrivers::files::dmx
 
     TEST(OP2File, grandPiano)
     {
-        OP2File f("fixtures/GENMIDI.OP2");
+        OP2File f("../fixtures/GENMIDI.OP2");
         auto b = f.getBank();
         auto i = b->getInstrument(0);
         expectInstrumentZero(i);

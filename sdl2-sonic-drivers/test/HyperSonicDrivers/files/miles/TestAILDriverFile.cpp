@@ -6,7 +6,7 @@ namespace HyperSonicDrivers::files::miles
 {
     TEST(AILDriverFile, ADLIB_ADV)
     {
-        AILDriverFile drv("fixtures/ADLIB.ADV");
+        AILDriverFile drv("../fixtures/ADLIB.ADV");
         EXPECT_EQ(drv.getMinimumApiVersion(), 200);
         EXPECT_EQ(drv.getDriverType(), static_cast<int>(AILDriverFile::eDriverType::XMIDI_EMULATION));
         EXPECT_STRCASEEQ(drv.getDataSuffix(), "AD");

@@ -18,7 +18,7 @@ namespace HyperSonicDrivers::files::westwood
 
     TEST(ADLFile, ADLv1)
     {
-        ADLFile f("fixtures/EOBSOUND.ADL");
+        ADLFile f("../fixtures/EOBSOUND.ADL");
         EXPECT_EQ(f.getVersion(), 1);
         EXPECT_EQ(f.getNumTracks(), 15);
         EXPECT_EQ(f.getNumTrackOffsets(), 42);
@@ -31,7 +31,7 @@ namespace HyperSonicDrivers::files::westwood
 
     TEST(ADLFile, ADLv2)
     {
-        ADLFileMock f("fixtures/DUNE19.ADL");
+        ADLFileMock f("../fixtures/DUNE19.ADL");
         EXPECT_EQ(f.getVersion(), 2);
         EXPECT_EQ(f.getNumTracks(), 49);
         EXPECT_EQ(f.getNumTrackOffsets(), 72);
@@ -53,7 +53,7 @@ namespace HyperSonicDrivers::files::westwood
 
     TEST(ADLFile, Dune2LogoAndIntro)
     {
-        ADLFileMock f("fixtures/DUNE0.ADL");
+        ADLFileMock f("../fixtures/DUNE0.ADL");
 
         EXPECT_EQ(f.getVersion(), 2);
         EXPECT_EQ(f.getNumTracks(), 18);
@@ -76,7 +76,7 @@ namespace HyperSonicDrivers::files::westwood
 
     TEST(ADLFile, ADLv3)
     {
-        ADLFile f("fixtures/LOREINTR.ADL");
+        ADLFile f("../fixtures/LOREINTR.ADL");
         EXPECT_EQ(f.getVersion(), 3);
         EXPECT_EQ(f.getNumTracks(), 30);
         EXPECT_EQ(f.getNumTrackOffsets(), 58);
@@ -101,13 +101,13 @@ namespace HyperSonicDrivers::files::westwood
 
     TEST(ADLFile, notValidTrack)
     {
-        ADLFile f("fixtures/EOBSOUND.ADL");
+        ADLFile f("../fixtures/EOBSOUND.ADL");
         EXPECT_THROW(f.getTrack(151), std::out_of_range);
     }
 
     TEST(ADLFile, notValidInstrument)
     {
-        ADLFile f("fixtures/EOBSOUND.ADL");
+        ADLFile f("../fixtures/EOBSOUND.ADL");
         EXPECT_THROW(f.getInstrumentOffset(151), std::out_of_range);
     }
 }

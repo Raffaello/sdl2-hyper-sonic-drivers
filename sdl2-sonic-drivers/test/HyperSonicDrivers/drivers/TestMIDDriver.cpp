@@ -152,7 +152,7 @@ namespace HyperSonicDrivers::drivers
     }
 
     TEST(MIDDriver, getTempo) {
-        auto mf = files::MIDFile("fixtures/midifile_sample.mid");
+        auto mf = files::MIDFile("../fixtures/midifile_sample.mid");
         auto mixer = std::make_shared<StubMixer>();
         auto device = std::make_shared<midi::devices::SpyDevice>();
         MIDDriver md(mixer, device);

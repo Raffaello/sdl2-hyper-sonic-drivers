@@ -9,7 +9,7 @@ namespace HyperSonicDrivers::files
 {
     TEST(WAVFile, cstorDefault)
     {
-        WAVFile f("fixtures/Wav_868kb.wav", audio::scummvm::Mixer::SoundType::SPEECH);
+        WAVFile f("../fixtures/Wav_868kb.wav", audio::scummvm::Mixer::SoundType::SPEECH);
 
         WAVFile::format_t fmt = f.getFormat();
         EXPECT_EQ(fmt.format, WAVFile::eFormat::WAVE_FORMAT_PCM);

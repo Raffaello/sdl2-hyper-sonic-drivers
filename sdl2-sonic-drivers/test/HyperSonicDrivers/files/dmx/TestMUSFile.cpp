@@ -7,7 +7,7 @@ namespace HyperSonicDrivers::files::dmx
 {
     TEST(MUSFile, cstorDefault)
     {
-        MUSFile f("fixtures/D_E1M1.MUS");
+        MUSFile f("../fixtures/D_E1M1.MUS");
 
         auto midi = f.getMIDI();
         EXPECT_EQ(midi->format, audio::midi::MIDI_FORMAT::SINGLE_TRACK);
@@ -25,8 +25,8 @@ namespace HyperSonicDrivers::files::dmx
 
     TEST(DISABLED_MUSFile, musfile_sample)
     {
-        MUSFile f1("fixtures/D_E1M1.MUS");
-        MIDFile f2("fixtures/D_E1M1.mid"); // converted from MUS2MID (DOS) v1.0
+        MUSFile f1("../fixtures/D_E1M1.MUS");
+        MIDFile f2("../fixtures/D_E1M1.mid"); // converted from MUS2MID (DOS) v1.0
 
         auto m1 = f1.getMIDI();
         auto m2 = f2.getMIDI();

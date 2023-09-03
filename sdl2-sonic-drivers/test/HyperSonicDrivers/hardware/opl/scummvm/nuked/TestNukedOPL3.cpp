@@ -101,7 +101,7 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::nuked
         auto buf = std::make_unique<int16_t[]>(len);
         opl->readBuffer(buf.get(), len / 2);
 
-        files::File f("fixtures/nuked-22050-16bit-440Hz.dat");
+        files::File f("../fixtures/nuked-22050-16bit-440Hz.dat");
         EXPECT_EQ(f.size(), 4096);
         auto fbuf = std::make_unique<int16_t[]>(len);
         f.read(fbuf.get(), len);

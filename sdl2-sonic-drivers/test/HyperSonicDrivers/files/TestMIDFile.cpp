@@ -13,7 +13,7 @@ namespace HyperSonicDrivers::files
 
     TEST(MIDFile, cstorDefault)
     {
-        MIDFile f("fixtures/MI_intro.mid");
+        MIDFile f("../fixtures/MI_intro.mid");
         
         EXPECT_EQ(f.getOriginalMIDI()->format, audio::midi::MIDI_FORMAT::SIMULTANEOUS_TRACK);
         EXPECT_EQ(f.getOriginalMIDI()->numTracks, 15);
@@ -34,7 +34,7 @@ namespace HyperSonicDrivers::files
 
     TEST(MIDFile, midifile_sample)
     {
-        MIDFile f("fixtures/midifile_sample.mid");
+        MIDFile f("../fixtures/midifile_sample.mid");
 
         auto m = f.getOriginalMIDI();
         
@@ -144,7 +144,7 @@ namespace HyperSonicDrivers::files
         using audio::midi::MIDI_META_EVENT_TYPES_LOW;
         using audio::midi::MIDI_META_EVENT;
 
-        MIDFile f("fixtures/midifile_sample.mid");
+        MIDFile f("../fixtures/midifile_sample.mid");
 
         auto m = f.getMIDI();
         constexpr size_t expTotalEvents = 1 + 29 + 31 - 3 + 1; // track0,track1,track2, 3 end_of_tracks to 1 end_of_track
