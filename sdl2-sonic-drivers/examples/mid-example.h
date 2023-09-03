@@ -1,18 +1,18 @@
 #pragma once
 
-#include <audio/scummvm/Mixer.hpp>
-#include <audio/scummvm/SDLMixerManager.hpp>
-#include <drivers/MIDDriver.hpp>
-#include <drivers/midi/devices/Native.hpp>
-#include <drivers/midi/devices/ScummVM.hpp>
-#include <drivers/midi/devices/Adlib.hpp>
-#include <drivers/midi/devices/SbPro2.hpp>
-#include <drivers/midi/Device.hpp>
+#include <HyperSonicDrivers/audio/scummvm/Mixer.hpp>
+#include <HyperSonicDrivers/audio/scummvm/SDLMixerManager.hpp>
+#include <HyperSonicDrivers/drivers/MIDDriver.hpp>
+#include <HyperSonicDrivers/drivers/midi/devices/Native.hpp>
+#include <HyperSonicDrivers/drivers/midi/devices/ScummVM.hpp>
+#include <HyperSonicDrivers/drivers/midi/devices/Adlib.hpp>
+#include <HyperSonicDrivers/drivers/midi/devices/SbPro2.hpp>
+#include <HyperSonicDrivers/drivers/midi/Device.hpp>
 
-#include <files/dmx/OP2File.hpp>
+#include <HyperSonicDrivers/files/dmx/OP2File.hpp>
 
-#include <hardware/opl/OPLFactory.hpp>
-#include <utils/algorithms.hpp>
+#include <HyperSonicDrivers/hardware/opl/OPLFactory.hpp>
+#include <HyperSonicDrivers/utils/algorithms.hpp>
 
 #include <memory>
 #include <spdlog/spdlog.h>

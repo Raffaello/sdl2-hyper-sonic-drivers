@@ -6,7 +6,7 @@ find_package(rtmidi CONFIG REQUIRED)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_DEBUG_POSTFIX d)
 
-configure_file("version.h.in" "${CMAKE_CURRENT_SOURCE_DIR}/src/version.h")
+configure_file("version.h.in" "${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/version.h")
 
 if(WITH_SDL2_STATIC)
     set(LIB_SDL2 SDL2::SDL2-static)
@@ -193,87 +193,87 @@ target_include_directories(${LIB_NAME} PUBLIC
 )
 
 target_sources(${LIB_NAME} PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/DiskRendererMixerManager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/DiskRendererMixerManager.cpp
     
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/MIDI.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/midi/MIDITrack.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/Sound.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/streams/SoundStream.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/MIDI.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/midi/MIDITrack.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/Sound.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/streams/SoundStream.cpp
     # --- #
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/scummvm/SDLMixerManager.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/scummvm/Channel.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/scummvm/MixerImpl.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/scummvm/RateConverter.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/scummvm/Timestamp.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/scummvm/SDLMixerManager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/scummvm/Channel.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/scummvm/MixerImpl.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/scummvm/RateConverter.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/scummvm/Timestamp.cpp
     # --- #
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/audio/opl/banks/OP2Bank.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/opl/banks/OP2Bank.cpp
     # --- # 
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/westwood/ADLDriver.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/PCMDriver.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/MIDDriver.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/westwood/ADLDriver.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/PCMDriver.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/MIDDriver.cpp
    
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/Native.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/midi/devices/Native.cpp
     
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/scummvm/MidiDriver_BASE.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/scummvm/MidiDriver.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/scummvm/AdLibInstrument.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/scummvm/AdLibPart.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/scummvm/AdLibPercussionChannel.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/scummvm/MidiDriver_ADLIB.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/ScummVM.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/midi/scummvm/MidiDriver_BASE.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/midi/scummvm/MidiDriver.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/midi/scummvm/AdLibInstrument.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/midi/scummvm/AdLibPart.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/midi/scummvm/AdLibPercussionChannel.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/midi/scummvm/MidiDriver_ADLIB.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/midi/devices/ScummVM.cpp
 
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/opl/OplDriver.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/opl/OplChannel.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/opl/OplVoice.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/Opl.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/Adlib.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/midi/devices/SbPro2.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/opl/OplWriter.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/midi/opl/OplDriver.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/midi/opl/OplChannel.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/midi/opl/OplVoice.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/midi/devices/Opl.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/midi/devices/Adlib.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/midi/devices/SbPro2.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/opl/OplWriter.cpp
     # --- #
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/File.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/IFFFile.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/westwood/ADLFile.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/MIDFile.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/dmx/MUSFile.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/dmx/OP2File.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/miles/XMIFile.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/miles/AILDriverFile.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/RIFFFile.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/WAVFile.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/files/VOCFile.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/files/File.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/files/IFFFile.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/files/westwood/ADLFile.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/files/MIDFile.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/files/dmx/MUSFile.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/files/dmx/OP2File.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/files/miles/XMIFile.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/files/miles/AILDriverFile.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/files/RIFFFile.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/files/WAVFile.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/files/VOCFile.cpp
     # --- #
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/OPL.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/OPLFactory.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/hardware/opl/OPL.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/hardware/opl/OPLFactory.cpp
     
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/Timer.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/Chip.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/hardware/opl/Timer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/hardware/opl/Chip.cpp
 
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/dosbox/DosBoxOPL.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/dosbox/dbopl/dbopl.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/mame/MameOPL2.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/mame/mame.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/nuked/NukedOPL3.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/nuked/opl3.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/scummvm/EmulatedOPL.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/hardware/opl/scummvm/dosbox/DosBoxOPL.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/hardware/opl/scummvm/dosbox/dbopl/dbopl.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/hardware/opl/scummvm/mame/MameOPL2.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/hardware/opl/scummvm/mame/mame.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/hardware/opl/scummvm/nuked/NukedOPL3.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/hardware/opl/scummvm/nuked/opl3.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/hardware/opl/scummvm/EmulatedOPL.cpp
     # --- #
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/mame/ymfm/ymfm_adpcm.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/mame/ymfm/ymfm_fm.ipp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/mame/ymfm/ymfm_opl.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/mame/ymfm/ymfm_pcm.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/mame/MameOPL3.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/mame/opl3/ymf262.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/hardware/opl/mame/ymfm/ymfm_adpcm.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/hardware/opl/mame/ymfm/ymfm_fm.ipp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/hardware/opl/mame/ymfm/ymfm_opl.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/hardware/opl/mame/ymfm/ymfm_pcm.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/hardware/opl/mame/MameOPL3.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/hardware/opl/mame/opl3/ymf262.cpp
     # --- #
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/woody/WoodyOPL.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/woody/OPLChip.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/woody/SurroundOPL.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/opl/woody/WoodyEmuOPL.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/hardware/opl/woody/WoodyOPL.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/hardware/opl/woody/OPLChip.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/hardware/opl/woody/SurroundOPL.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/hardware/opl/woody/WoodyEmuOPL.cpp
     # --- #
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/PCSpeaker.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/hardware/PCSpeaker.cpp
     # --- #
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/constants.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/endianness.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/algorithms.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/opl.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/utils/constants.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/utils/endianness.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/utils/algorithms.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/utils/opl.cpp
 )
 
 target_link_libraries(${LIB_NAME} PUBLIC ${LIB_SDL2} RtMidi::rtmidi)

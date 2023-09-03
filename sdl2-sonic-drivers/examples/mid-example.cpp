@@ -1,5 +1,5 @@
 #include "mid-example.h"
-#include <files/MIDFile.hpp>
+#include <HyperSonicDrivers/files/MIDFile.hpp>
 
 using namespace HyperSonicDrivers;
 

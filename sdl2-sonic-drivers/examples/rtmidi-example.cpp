@@ -1,9 +1,9 @@
-#include <audio/scummvm/Mixer.hpp>
-#include <audio/scummvm/SDLMixerManager.hpp>
-#include <files/MIDFile.hpp>
-#include <drivers/MIDDriver.hpp>
-#include <drivers/midi/devices/Native.hpp>
-#include <utils/algorithms.hpp>
+#include <HyperSonicDrivers/audio/scummvm/Mixer.hpp>
+#include <HyperSonicDrivers/audio/scummvm/SDLMixerManager.hpp>
+#include <HyperSonicDrivers/files/MIDFile.hpp>
+#include <HyperSonicDrivers/drivers/MIDDriver.hpp>
+#include <HyperSonicDrivers/drivers/midi/devices/Native.hpp>
+#include <HyperSonicDrivers/utils/algorithms.hpp>
 
 #include <iostream>
 #include <SDL2/SDL.h>

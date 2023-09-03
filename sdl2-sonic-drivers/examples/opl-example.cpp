@@ -1,8 +1,8 @@
-#include <hardware/opl/OPL.hpp>
-#include <hardware/opl/OPLFactory.hpp>
-#include <utils/algorithms.hpp>
-#include <utils/opl.hpp>
-#include <audio/scummvm/SDLMixerManager.hpp>
+#include <HyperSonicDrivers/hardware/opl/OPL.hpp>
+#include <HyperSonicDrivers/hardware/opl/OPLFactory.hpp>
+#include <HyperSonicDrivers/utils/algorithms.hpp>
+#include <HyperSonicDrivers/utils/opl.hpp>
+#include <HyperSonicDrivers/audio/scummvm/SDLMixerManager.hpp>
 #include <spdlog/spdlog.h>
 #include <fmt/color.h>
 #include <memory>

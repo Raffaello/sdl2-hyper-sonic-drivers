@@ -1,9 +1,9 @@
-#include <audio/scummvm/Mixer.hpp>
-#include <audio/scummvm/SDLMixerManager.hpp>
-#include <drivers/PCMDriver.hpp>
-#include <files/WAVFile.hpp>
-#include <files/VOCFile.hpp>
-#include <audio/Sound.hpp>
+#include <HyperSonicDrivers/audio/scummvm/Mixer.hpp>
+#include <HyperSonicDrivers/audio/scummvm/SDLMixerManager.hpp>
+#include <HyperSonicDrivers/drivers/PCMDriver.hpp>
+#include <HyperSonicDrivers/files/WAVFile.hpp>
+#include <HyperSonicDrivers/files/VOCFile.hpp>
+#include <HyperSonicDrivers/audio/Sound.hpp>
 
 #include <iostream>
 #include <SDL2/SDL.h>

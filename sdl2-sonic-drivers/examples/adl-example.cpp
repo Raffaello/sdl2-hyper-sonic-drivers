@@ -1,9 +1,9 @@
-#include <hardware/opl/OPL.hpp>
-#include <hardware/opl/OPLFactory.hpp>
-#include <utils/algorithms.hpp>
-#include <audio/scummvm/SDLMixerManager.hpp>
-#include <files/westwood/ADLFile.hpp>
-#include <drivers/westwood/ADLDriver.hpp>
+#include <HyperSonicDrivers/hardware/opl/OPL.hpp>
+#include <HyperSonicDrivers/hardware/opl/OPLFactory.hpp>
+#include <HyperSonicDrivers/utils/algorithms.hpp>
+#include <HyperSonicDrivers/audio/scummvm/SDLMixerManager.hpp>
+#include <HyperSonicDrivers/files/westwood/ADLFile.hpp>
+#include <HyperSonicDrivers/drivers/westwood/ADLDriver.hpp>
 
 #include <spdlog/spdlog.h>
 #include <fmt/color.h>

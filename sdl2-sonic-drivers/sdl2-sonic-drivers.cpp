@@ -5,31 +5,31 @@
 
 #include <SDL2/SDL.h>
 
-#include <audio/scummvm/SDLMixerManager.hpp>
-#include <drivers/westwood/ADLDriver.hpp>
-#include <files/miles/XMIFile.hpp>
-#include <files/westwood/ADLFile.hpp>
-#include <hardware/PCSpeaker.hpp>
-#include <hardware/opl/OPLFactory.hpp>
+#include <HyperSonicDrivers/audio/scummvm/SDLMixerManager.hpp>
+#include <HyperSonicDrivers/drivers/westwood/ADLDriver.hpp>
+#include <HyperSonicDrivers/files/miles/XMIFile.hpp>
+#include <HyperSonicDrivers/files/westwood/ADLFile.hpp>
+#include <HyperSonicDrivers/hardware/PCSpeaker.hpp>
+#include <HyperSonicDrivers/hardware/opl/OPLFactory.hpp>
 
-#include <hardware/opl/mame/MameOPL3.hpp>
+#include <HyperSonicDrivers/hardware/opl/mame/MameOPL3.hpp>
 
-#include <audio/DiskRendererMixerManager.hpp>
+#include <HyperSonicDrivers/audio/DiskRendererMixerManager.hpp>
 
-#include <files/MIDFile.hpp>
+#include <HyperSonicDrivers/files/MIDFile.hpp>
 
-#include <utils/algorithms.hpp>
+#include <HyperSonicDrivers/utils/algorithms.hpp>
 
 
-#include <drivers/midi/devices/ScummVM.hpp>
-#include <drivers/MIDDriver.hpp>
+#include <HyperSonicDrivers/drivers/midi/devices/ScummVM.hpp>
+#include <HyperSonicDrivers/drivers/MIDDriver.hpp>
 
-#include <files/dmx/MUSFile.hpp>
-#include <files/dmx/OP2File.hpp>
-#include <drivers/midi/devices/Native.hpp>
+#include <HyperSonicDrivers/files/dmx/MUSFile.hpp>
+#include <HyperSonicDrivers/files/dmx/OP2File.hpp>
+#include <HyperSonicDrivers/drivers/midi/devices/Native.hpp>
 
-#include <drivers/midi/devices/Adlib.hpp>
-#include <drivers/midi/devices/SbPro2.hpp>
+#include <HyperSonicDrivers/drivers/midi/devices/Adlib.hpp>
+#include <HyperSonicDrivers/drivers/midi/devices/SbPro2.hpp>
 
 
 using namespace std;

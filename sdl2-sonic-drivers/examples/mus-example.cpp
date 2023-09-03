@@ -1,5 +1,5 @@
 #include "mid-example.h"
-#include <files/dmx/MUSFile.hpp>
+#include <HyperSonicDrivers/files/dmx/MUSFile.hpp>
 
 using namespace HyperSonicDrivers;
 
