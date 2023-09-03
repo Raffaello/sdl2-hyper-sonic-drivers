@@ -1,5 +1,5 @@
 #include <HyperSonicDrivers/utils/constants.hpp>
-#include <version.h>
+#include <HyperSonicDrivers/version.h>
 
 namespace HyperSonicDrivers::utils
 {
