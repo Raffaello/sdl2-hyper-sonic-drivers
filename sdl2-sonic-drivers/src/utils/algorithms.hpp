@@ -13,13 +13,11 @@ namespace utils
     template<typename T1, typename T2, typename T3, typename T4>
     constexpr uint32_t MKID_BE(T1 a, T2  b, T3  c, T4  d) { return a | b << 8 | c << 16 | d << 24; }
 
-    // TODO replace with std::clamp
-    // @deprecated
     template <class T>
     static inline T CLIP(const T& value, const T& min, const T& max)
     {
         //return value < min ? min : value > max ? max : value;
-        return std::clamp(value, min, max);
+        return std::clamp<T>(value, min, max);
     }
 
     /**
