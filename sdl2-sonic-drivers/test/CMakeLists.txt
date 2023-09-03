@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.15)
+cmake_minimum_required (VERSION 3.21)
 
 find_package(GTest 1.11 CONFIG REQUIRED)
 include(GoogleTest)
@@ -48,7 +48,12 @@ macro(macro_test) # ${ARGN} link libraries
 
     target_link_libraries(${TEST_EXE} PRIVATE ${TEST_LINKS_PRIVATE})
 
-    gtest_discover_tests(${TEST_EXE})
+    #add_test(
+    #    NAME ${TEST_EXE}
+    #    COMMAND ${TEST_EXE} --gtest_output=xml:report.xml
+    #)
+
+    gtest_discover_tests(${TEST_EXE} PROPERTIES TEST_DISCOVERY_TIMEOUT 600 DISCOVERY_TIMEOUT 600)
 endmacro()
 
 macro_test(
