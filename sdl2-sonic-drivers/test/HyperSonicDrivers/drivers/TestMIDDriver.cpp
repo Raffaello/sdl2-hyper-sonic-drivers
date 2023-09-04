@@ -59,7 +59,7 @@ namespace HyperSonicDrivers::drivers
         EXPECT_TRUE(output2.find("SEQUENCE NAME: " + s) != std::string::npos);
     }
 
-    TEST(MIDDrvier, force_stop_on_long_delta_time_delay)
+    TEST(MIDDriver, force_stop_on_long_delta_time_delay)
     {
         auto mixer = std::make_shared<StubMixer>();
         auto device = std::make_shared<midi::devices::SpyDevice>();
