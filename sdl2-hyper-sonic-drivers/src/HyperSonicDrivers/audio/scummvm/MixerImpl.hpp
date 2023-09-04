@@ -8,9 +8,6 @@
 
 namespace HyperSonicDrivers::audio::scummvm
 {
-    // TODO: This is temprary mixer implementation
-    //       to be integrated in SDL2Mixer class hen working.
-
     /**
     * @defgroup audio_mixer_intern Mixer implementation
     * @ingroup audio
@@ -45,7 +42,6 @@ namespace HyperSonicDrivers::audio::scummvm
             NUM_CHANNELS = MIXER_MAX_CHANNELS
         };
 
-        //Common::Mutex _mutex;
         std::mutex _mutex;
 
         const unsigned int _sampleRate;
@@ -64,15 +60,14 @@ namespace HyperSonicDrivers::audio::scummvm
         std::array<SoundTypeSettings, 4> _soundTypeSettings;
         Channel* _channels[NUM_CHANNELS];
     public:
-
         MixerImpl(unsigned int sampleRate, const uint8_t bitsDepth);
         ~MixerImpl();
 
-        virtual bool isReady() override;
+        bool isReady() override;
 
-        virtual std::mutex& mutex();
+        //std::mutex& mutex() override;
 
-        virtual void playStream(
+        void playStream(
             SoundType type,
             SoundHandle* handle,
             AudioStream* input,
@@ -81,38 +76,38 @@ namespace HyperSonicDrivers::audio::scummvm
             bool permanent,
             bool reverseStereo) override;
 
-        virtual void stopAll() override;
-        virtual void stopID(int id) override;
-        virtual void stopHandle(SoundHandle handle) override;
+        void stopAll() override;
+        void stopID(int id) override;
+        void stopHandle(SoundHandle handle) override;
 
-        virtual void pauseAll(bool paused) override;
-        virtual void pauseID(int id, bool paused) override;
-        virtual void pauseHandle(SoundHandle handle, bool paused) override;
+        void pauseAll(bool paused) override;
+        void pauseID(int id, bool paused) override;
+        void pauseHandle(SoundHandle handle, bool paused) override;
 
-        virtual bool isSoundIDActive(int id) override;
-        virtual int getSoundID(SoundHandle handle) override;
+        bool isSoundIDActive(int id) override;
+        int getSoundID(SoundHandle handle) override;
 
-        virtual bool isSoundHandleActive(SoundHandle handle) override;
+        bool isSoundHandleActive(SoundHandle handle) override;
 
-        virtual void muteSoundType(SoundType type, bool mute) override;
-        virtual bool isSoundTypeMuted(SoundType type) const override;
+        void muteSoundType(SoundType type, bool mute) override;
+        bool isSoundTypeMuted(SoundType type) const override;
 
-        virtual void setChannelVolume(SoundHandle handle, uint8_t volume) override;
-        virtual uint8_t getChannelVolume(SoundHandle handle) override;
-        virtual void setChannelBalance(SoundHandle handle, int8_t balance) override;
-        virtual int8_t getChannelBalance(SoundHandle handle) override;
+        void setChannelVolume(SoundHandle handle, uint8_t volume) override;
+        uint8_t getChannelVolume(SoundHandle handle) override;
+        void setChannelBalance(SoundHandle handle, int8_t balance) override;
+        int8_t getChannelBalance(SoundHandle handle) override;
 
-        virtual uint32_t getSoundElapsedTime(SoundHandle handle) override;
-        virtual Timestamp getElapsedTime(SoundHandle handle) override;
+        uint32_t getSoundElapsedTime(SoundHandle handle) override;
+        Timestamp getElapsedTime(SoundHandle handle) override;
 
-        virtual bool hasActiveChannelOfType(SoundType type) override;
+        bool hasActiveChannelOfType(SoundType type) override;
 
-        virtual void setVolumeForSoundType(SoundType type, int volume) override;
-        virtual int getVolumeForSoundType(SoundType type) const override;
+        void setVolumeForSoundType(SoundType type, int volume) override;
+        int getVolumeForSoundType(SoundType type) const override;
 
-        virtual unsigned int getOutputRate() const noexcept override;
+        unsigned int getOutputRate() const noexcept override;
 
-        virtual uint8_t getBitsDepth() const override;
+        uint8_t getBitsDepth() const override;
 
     protected:
         void insertChannel(SoundHandle* handle, Channel* chan);

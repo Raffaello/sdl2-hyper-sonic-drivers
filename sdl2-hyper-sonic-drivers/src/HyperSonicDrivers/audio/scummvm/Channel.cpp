@@ -20,15 +20,11 @@ namespace HyperSonicDrivers::audio::scummvm
         _stream = stream;
         _dispose_stream = autofreeStream;
         // Get a rate converter instance
-        _converter = makeRateConverter(_stream->getRate(), mixer->getOutputRate(), _stream->isStereo(), reverseStereo);
+        _converter.reset(converters::makeIRateConverter(_stream->getRate(), mixer->getOutputRate(), _stream->isStereo(), reverseStereo));
     }
 
-    Channel::~Channel() {
-        if (_converter != nullptr) {
-            delete _converter;
-            _converter = nullptr;
-        }
-
+    Channel::~Channel()
+    {
         if (_dispose_stream && _stream != nullptr) {
             delete _stream;
             _stream = nullptr;
@@ -64,7 +60,8 @@ namespace HyperSonicDrivers::audio::scummvm
         // volume is in the range 0 - kMaxMixerVolume.
         // Hence, the vol_l/vol_r values will be in that range, too
 
-        if (!_mixer->isSoundTypeMuted(_type)) {
+        if (!_mixer->isSoundTypeMuted(_type))
+        {
             int vol = _mixer->getVolumeForSoundType(_type) * _volume;
 
             if (_balance == 0) {

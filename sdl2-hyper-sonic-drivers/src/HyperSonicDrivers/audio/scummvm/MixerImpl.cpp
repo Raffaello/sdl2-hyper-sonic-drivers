@@ -14,7 +14,8 @@ namespace HyperSonicDrivers::audio::scummvm
     {
         assert(sampleRate > 0);
 
-        if (bitsDepth != 16) {
+        if (bitsDepth != 16)
+        {
             SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, std::format("Audio {} bits not supported. Only 16 bits", bitsDepth).c_str());
         }
 
@@ -37,10 +38,10 @@ namespace HyperSonicDrivers::audio::scummvm
         return _mixerReady;
     }
 
-    std::mutex& MixerImpl::mutex()
+    /*std::mutex& MixerImpl::mutex()
     {
         return _mutex;
-    }
+    }*/
 
     void MixerImpl::playStream(
         SoundType type,
@@ -76,10 +77,6 @@ namespace HyperSonicDrivers::audio::scummvm
                     return;
                 }
         }
-
-#ifdef AUDIO_REVERSE_STEREO
-        reverseStereo = !reverseStereo;
-#endif
 
         // Create the channel
         Channel* chan = new Channel(this, type, stream, autofreeStream, reverseStereo, id, permanent);

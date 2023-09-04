@@ -287,7 +287,7 @@ namespace HyperSonicDrivers::drivers::westwood
 
         static const uint8_t _regOffset[];
         static const uint16_t _freqTable[];
-        static const std::array<const uint8_t*, 6> const _unkTable2;
+        static const std::array<const uint8_t*, 6> _unkTable2;
         static const int _unkTable2Size;
         static const uint8_t _unkTable2_1[];
         static const uint8_t _unkTable2_2[];

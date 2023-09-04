@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <memory>
 #include <HyperSonicDrivers/audio/scummvm/Mixer.hpp>
-#include <HyperSonicDrivers/audio/scummvm/RateConverter.hpp>
+#include <HyperSonicDrivers/audio/converters/IRateConverter.hpp>
 #include <HyperSonicDrivers/audio/scummvm/AudioStream.hpp>
 
 namespace HyperSonicDrivers::audio::scummvm
@@ -133,8 +133,7 @@ namespace HyperSonicDrivers::audio::scummvm
         uint32_t _pauseStartTime;
         uint32_t _pauseTime;
 
-        RateConverter* _converter;
-        //Common::DisposablePtr<AudioStream> _stream;
+        std::unique_ptr<converters::IRateConverter> _converter;
 
         AudioStream* _stream;
         bool _dispose_stream;
