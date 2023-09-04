@@ -66,7 +66,7 @@ namespace HyperSonicDrivers::drivers::midi::devices
     {
         auto op2File = OP2File(GENMIDI_OP2);
         auto mixer = std::make_shared<StubMixer>();
-        EXPECT_NO_THROW(std::make_shared<Adlib>(mixer, op2File.getBank()));
+        EXPECT_NO_THROW(Adlib(mixer, op2File.getBank()));
     }
 }
 

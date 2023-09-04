@@ -39,7 +39,7 @@ namespace HyperSonicDrivers::audio::scummvm
          * The obtained audio specification after opening the
          * audio system.
          */
-        SDL_AudioSpec _obtained = {};
+        SDL_AudioSpec _obtained = { 0 };
 
         /**
          * Returns the desired audio specification

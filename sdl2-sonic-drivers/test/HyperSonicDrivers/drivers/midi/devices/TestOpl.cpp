@@ -30,9 +30,9 @@ namespace HyperSonicDrivers::drivers::midi::devices
         auto op2File = OP2File(GENMIDI_OP2);
         auto mixer = std::make_shared<StubMixer>();
         auto opl = OPLFactory::create(OplEmulator::AUTO, OplType::OPL2, mixer);
-        EXPECT_NO_THROW(std::make_shared<OplDeviceMock>(opl, op2File.getBank()));
+        EXPECT_NO_THROW(OplDeviceMock(opl, op2File.getBank()));
         opl = nullptr;
-        EXPECT_THROW(std::make_shared<OplDeviceMock>(opl, op2File.getBank()), std::runtime_error);
+        EXPECT_THROW(OplDeviceMock(opl, op2File.getBank()), std::runtime_error);
     }
 
     class OplEmulator_ : public ::testing::TestWithParam<std::tuple<OplType, OplEmulator, bool>>
@@ -49,12 +49,12 @@ namespace HyperSonicDrivers::drivers::midi::devices
     {
         if (this->shouldThrow) {
             EXPECT_THROW(
-                std::make_shared<devices::OplDeviceMock>(this->oplType, this->oplEmu, this->mixer, this->op2File.getBank()),
+                devices::OplDeviceMock(this->oplType, this->oplEmu, this->mixer, this->op2File.getBank()),
                 std::runtime_error
             );
         }
         else {
-            EXPECT_NO_THROW(std::make_shared<devices::OplDeviceMock>(this->oplType, this->oplEmu, this->mixer, this->op2File.getBank()));
+            EXPECT_NO_THROW(devices::OplDeviceMock(this->oplType, this->oplEmu, this->mixer, this->op2File.getBank()));
         }
     }
 
