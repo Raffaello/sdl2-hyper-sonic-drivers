@@ -4,13 +4,6 @@
 
 namespace HyperSonicDrivers::utils
 {
-    TEST(Algorithms, CLIP)
-    {
-        EXPECT_EQ(CLIP<int>(10, 0, 12), 10);
-        EXPECT_EQ(CLIP<int>(10, 0, 9), 9);
-        EXPECT_EQ(CLIP<int>(10, 11, 12), 11);
-    }
-
     TEST(Algorithms, ARRAYCLEAR)
     {
         const int size = 5;

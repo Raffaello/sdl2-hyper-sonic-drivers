@@ -1,4 +1,5 @@
 #include <format>
+#include <algorithm>
 #include <cassert>
 #include <HyperSonicDrivers/audio/midi/types.hpp>
 #include <HyperSonicDrivers/drivers/midi/scummvm/MidiDriver_ADLIB.hpp>
@@ -978,8 +979,8 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
             adlibWrite(0xA0 + chan, g_noteFrequencies[(noteAdjusted % 12) * 8 + pitchAdjust + 6 * 8]);
             adlibWriteSecondary(0xA0 + chan, g_noteFrequencies[(noteAdjusted % 12) * 8 + pitchAdjust + 6 * 8]);
-            adlibWrite(0xB0 + chan, (utils::CLIP(noteAdjusted / 12, 0, 7) << 2) | 0x20);
-            adlibWriteSecondary(0xB0 + chan, (utils::CLIP(noteAdjusted / 12, 0, 7) << 2) | 0x20);
+            adlibWrite(0xB0 + chan, (std::clamp(noteAdjusted / 12, 0, 7) << 2) | 0x20);
+            adlibWriteSecondary(0xB0 + chan, (std::clamp(noteAdjusted / 12, 0, 7) << 2) | 0x20);
         }
         else {
             int code = (note << 7) + mod;

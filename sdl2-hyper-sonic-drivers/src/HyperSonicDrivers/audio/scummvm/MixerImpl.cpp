@@ -1,4 +1,5 @@
 #include <format>
+#include <algorithm>
 #include <cassert>
 #include <HyperSonicDrivers/audio/scummvm/MixerImpl.hpp>
 #include <HyperSonicDrivers/utils/algorithms.hpp>
@@ -7,8 +8,6 @@
 
 namespace HyperSonicDrivers::audio::scummvm
 {
-    using utils::CLIP;
-
     // TODO: move to utils and as a constexpr
 #define ARRAYSIZE(x) ((int)(sizeof(x) / sizeof(x[0])))
 
@@ -302,7 +301,7 @@ namespace HyperSonicDrivers::audio::scummvm
         assert(0 <= (int)type && (int)type < ARRAYSIZE(_soundTypeSettings));
 
         // Check range
-        volume = CLIP<int>(volume, 0, MaxVolume::MIXER);
+        volume = std::clamp<int>(volume, 0, MaxVolume::MIXER);
 
         // TODO: Maybe we should do logarithmic (not linear) volume
         // scaling? See also Player_V2::setMasterVolume

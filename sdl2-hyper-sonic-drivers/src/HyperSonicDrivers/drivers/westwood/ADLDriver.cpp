@@ -19,7 +19,6 @@ constexpr int RANDOM_INC = 0x9248;
 
 namespace HyperSonicDrivers::drivers::westwood
 {
-    using utils::CLIP;
     using utils::READ_BE_UINT16;
     using utils::READ_LE_UINT16;
 
@@ -341,7 +340,7 @@ namespace HyperSonicDrivers::drivers::westwood
         int8_t note_on = channel.regBx & 0x20;
 
         // Limit slideStep to prevent integer overflow.
-        freq += CLIP<int16_t>(channel.slideStep, -0x3FF, 0x3FF);
+        freq += std::clamp<int16_t>(channel.slideStep, -0x3FF, 0x3FF);
 
         if (channel.slideStep >= 0 && freq >= 734)
         {
@@ -700,15 +699,15 @@ namespace HyperSonicDrivers::drivers::westwood
         if (channel.pitchBend || flag) {
             const uint8_t* table;
             // For safety, limit the values used to index the tables.
-            uint8_t indexNote = CLIP(rawNote & 0x0F, 0, 11);
+            uint8_t indexNote = std::clamp(rawNote & 0x0F, 0, 11);
 
             if (channel.pitchBend >= 0) {
                 table = _pitchBendTables[indexNote + 2];
-                freq += table[CLIP(+channel.pitchBend, 0, 31)];
+                freq += table[std::clamp(+channel.pitchBend, 0, 31)];
             }
             else {
                 table = _pitchBendTables[indexNote];
-                freq -= table[CLIP(-channel.pitchBend, 0, 31)];
+                freq -= table[std::clamp(-channel.pitchBend, 0, 31)];
             }
         }
 
@@ -790,7 +789,7 @@ namespace HyperSonicDrivers::drivers::westwood
         // Update vibrato effect variables: vibratoStep is set to a
         // vibratoStepRange+1-bit value proportional to the note's f-number.
         // Reinitalize delay countdown; vibratoStepsCountdown reinitialization omitted.
-        uint8_t shift = 9 - CLIP<uint8_t>(channel.vibratoStepRange, 0, 9);
+        uint8_t shift = 9 - std::clamp<uint8_t>(channel.vibratoStepRange, 0, 9);
         uint16_t freq = ((channel.regBx << 8) | channel.regAx) & 0x3FF;
         channel.vibratoStep = (freq >> shift) & 0xFF;
         channel.vibratoDelayCountdown = channel.vibratoDelay;
@@ -842,7 +841,7 @@ namespace HyperSonicDrivers::drivers::westwood
             SDL_LogDebug(SDL_LOG_CATEGORY_AUDIO, "ADLDriver::calculateOpLevel1(): WORKAROUND - total level clipping uint/int bug encountered");
         }
 
-        value = CLIP<int8_t>(value, 0, 0x3F);
+        value = std::clamp<int8_t>(value, 0, 0x3F);
 
         if (!channel.volumeModifier)
             value = 0x3F;
@@ -869,7 +868,7 @@ namespace HyperSonicDrivers::drivers::westwood
         if (value & 0x80)
             SDL_LogDebug(SDL_LOG_CATEGORY_AUDIO, "ADLDriver::calculateOpLevel2(): WORKAROUND - total level clipping uint/int bug encountered");
         
-        value = CLIP<int8_t>(value, 0, 0x3F);
+        value = std::clamp<int8_t>(value, 0, 0x3F);
 
         if (!channel.volumeModifier)
             value = 0x3F;
@@ -880,7 +879,7 @@ namespace HyperSonicDrivers::drivers::westwood
 
     uint16_t ADLDriver::checkValue(int16_t val)
     {
-        return CLIP<int16_t>(val, 0, 0x3F);
+        return std::clamp<int16_t>(val, 0, 0x3F);
     }
 
     bool ADLDriver::advance(uint8_t& timer, uint8_t tempo)
@@ -1088,7 +1087,7 @@ namespace HyperSonicDrivers::drivers::westwood
 
                 if (opcode & 0x80)
                 {
-                    opcode = CLIP<int8_t>(opcode & 0x7F, 0, _parserOpcodeTableSize - 1);
+                    opcode = std::clamp<int8_t>(opcode & 0x7F, 0, _parserOpcodeTableSize - 1);
                     const ParserOpcode& op = _parserOpcodeTable[opcode];
 
                     // Safety check for end of data.
@@ -1672,7 +1671,7 @@ namespace HyperSonicDrivers::drivers::westwood
     }
 
     int ADLDriver::update_changeChannelTempo(Channel& channel, const uint8_t* values) {
-        channel.tempo = CLIP(channel.tempo + (int8_t)values[0], 1, 255);
+        channel.tempo = std::clamp(channel.tempo + (int8_t)values[0], 1, 255);
         return 0;
     }
 

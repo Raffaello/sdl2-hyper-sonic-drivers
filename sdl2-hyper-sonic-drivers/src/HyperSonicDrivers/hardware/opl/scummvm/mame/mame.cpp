@@ -47,8 +47,6 @@
 
 namespace HyperSonicDrivers::hardware::opl::scummvm::mame
 {
-    using utils::CLIP;
-
     /* -------------------- preliminary define section --------------------- */
     /* attack/decay rate time rate */
 #define OPL_ARRATE     141280  /* RATE 4 =  2826.24ms @ 3.6MHz */
@@ -1052,7 +1050,7 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::mame
             if (rythm)
                 OPL_CALC_RH(OPL, S_CH);
             /* limit check */
-            data = CLIP(outd[0], OPL_MINOUT, OPL_MAXOUT);
+            data = std::clamp(outd[0], OPL_MINOUT, OPL_MAXOUT);
             /* store to sound buffer */
             buf[i] = data >> OPL_OUTSB;
         }
