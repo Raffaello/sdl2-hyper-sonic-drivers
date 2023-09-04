@@ -76,7 +76,6 @@ namespace HyperSonicDrivers::drivers::midi::opl
             SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, "META_SYSEX not supported");
             break;
         default: {
-            // TODO: use a std::formatter
             SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, std::format("OplDriver: Unknown send() command {0:#x}", e.type.val).c_str());
             break;
         }

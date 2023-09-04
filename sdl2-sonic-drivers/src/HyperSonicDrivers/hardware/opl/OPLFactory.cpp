@@ -6,6 +6,8 @@
 #include <HyperSonicDrivers/hardware/opl/scummvm/nuked/NukedOPL3.hpp>
 #include <HyperSonicDrivers/hardware/opl/woody/WoodyOPL.hpp>
 #include <HyperSonicDrivers/hardware/opl/mame/MameOPL3.hpp>
+#include <std/OplEmulatorFormatter.hpp>
+
 #include <SDL2/SDL_log.h>
 
 namespace HyperSonicDrivers::hardware::opl
@@ -44,7 +46,7 @@ namespace HyperSonicDrivers::hardware::opl
             return std::make_shared<woody::WoodyOPL>(mixer, type == OplType::OPL2 ? false : true);
 
         default:
-            SDL_LogError(SDL_LOG_CATEGORY_AUDIO, std::format("Unsupported OPL emulator {:d}", static_cast<int>(oplEmulator)).c_str());
+            SDL_LogError(SDL_LOG_CATEGORY_AUDIO, std::format("Unsupported OPL emulator {}", oplEmulator).c_str());
         }
 
         return nullptr;

@@ -324,10 +324,9 @@ namespace HyperSonicDrivers::files
             default:
                 // using previous status
                 if (lastStatus.val == 0) {
-
-                    SDL_LogCritical(SDL_LOG_CATEGORY_AUDIO, std::format("MIDFile: midi event {:#04x} not recognized {:#03x} - last status = {} (pos={}).",
-                        static_cast<int>(e.type.val), static_cast<int>(e.type.high),
-                        static_cast<int>(lastStatus.val), static_cast<unsigned long>(tell())).c_str());
+                    SDL_LogCritical(SDL_LOG_CATEGORY_AUDIO, std::format("MIDFile: midi event {:#02x} not recognized {:#02x} - last status = {} (pos={}).",
+                        e.type.val, static_cast<unsigned int>(e.type.high),
+                        lastStatus.val, static_cast<unsigned long>(tell())).c_str());
                     throw std::runtime_error("MIDFile: midi event type not recognized.");
                 }
             }
@@ -339,7 +338,7 @@ namespace HyperSonicDrivers::files
 
         // sanity check
         if (offs != chunk.length) {
-            SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, std::format("MIDFile: Fileanme '{}' track {} length mismatch real length {}", _filename, chunk.length, offs).c_str());
+            SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, std::format("MIDFile: Filename '{}' track {} length mismatch real length {}", _filename, chunk.length, offs).c_str());
         }
 
         track.lock();
