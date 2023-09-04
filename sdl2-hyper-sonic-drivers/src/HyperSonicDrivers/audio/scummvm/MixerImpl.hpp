@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <mutex>
+#include <array>
 #include <HyperSonicDrivers/audio/scummvm/Mixer.hpp>
 #include <HyperSonicDrivers/audio/scummvm/Channel.hpp>
 
@@ -60,7 +61,7 @@ namespace HyperSonicDrivers::audio::scummvm
             int volume;
         };
 
-        SoundTypeSettings _soundTypeSettings[4];
+        std::array<SoundTypeSettings, 4> _soundTypeSettings;
         Channel* _channels[NUM_CHANNELS];
     public:
 

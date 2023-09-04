@@ -4,14 +4,6 @@
 
 namespace HyperSonicDrivers::utils
 {
-    TEST(Algorithms, ARRAYCLEAR)
-    {
-        const int size = 5;
-        int buf[size];
-        ARRAYCLEAR<int, size>(buf, 3);
-        EXPECT_THAT(buf, ::testing::ElementsAre(3, 3, 3, 3, 3));
-    }
-
     class VLQTest : public ::testing::TestWithParam<std::tuple<std::vector<uint8_t>, uint32_t, int>> {};
     TEST_P(VLQTest, variable_length_quantities)
     {

@@ -1,16 +1,14 @@
 #include <cstring>
 #include <format>
+#include <algorithm>
 #include <HyperSonicDrivers/drivers/midi/scummvm/AdLibPercussionChannel.hpp>
 #include <HyperSonicDrivers/drivers/midi/scummvm/MidiDriver_ADLIB.hpp>
 #include <SDL2/SDL_log.h>
 
 namespace HyperSonicDrivers::drivers::midi::scummvm
 {
-    // TODO: review it / remove / replace / refactor
-#define ARRAYSIZE(x) ((int)(sizeof(x) / sizeof(x[0])))
-
     AdLibPercussionChannel::~AdLibPercussionChannel() {
-        for (int i = 0; i < ARRAYSIZE(_customInstruments); ++i) {
+        for (int i = 0; i < _customInstruments.size(); ++i) {
             delete _customInstruments[i];
         }
     }
@@ -21,8 +19,8 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         _volEff = 127;
 
         // Initialize the custom instruments data
-        memset(_notes, 0, sizeof(_notes));
-        memset(_customInstruments, 0, sizeof(_customInstruments));
+        std::fill(_notes.begin(), _notes.end(), 0);
+        std::fill(_customInstruments.begin(), _customInstruments.end(), nullptr);
     }
 
     void AdLibPercussionChannel::noteOff(uint8_t note) {

@@ -9,9 +9,6 @@
 
 namespace HyperSonicDrivers::drivers::midi::scummvm
 {
-    // TODO: review it / remove / replace / refactor
-#define ARRAYSIZE(x) ((int)(sizeof(x) / sizeof(x[0])))
-
     static const uint8_t g_operator1Offsets[9] = {
         0, 1, 2, 8,
         9, 10, 16, 17,
@@ -91,20 +88,12 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
     MidiDriver_ADLIB::MidiDriver_ADLIB(const std::shared_ptr<hardware::opl::OPL>& opl, const bool opl3mode)
         : _opl3Mode(opl3mode), _opl(opl)
     {
-        unsigned int i;
-
-        for (i = 0; i < ARRAYSIZE(_curNotTable); ++i) {
-            _curNotTable[i] = 0;
-        }
-
-        for (i = 0; i < ARRAYSIZE(_parts); ++i) {
+        std::fill(_curNotTable.begin(), _curNotTable.end(), 0);
+        for (size_t i = 0; i < _parts.size(); ++i) {
             _parts[i].init(this, static_cast<uint8_t>(i + ((i >= 9) ? 1 : 0)));
         }
 
-        for (i = 0; i < ARRAYSIZE(_channelTable2); ++i) {
-            _channelTable2[i] = 0;
-        }
-
+        std::fill(_channelTable2.begin(), _channelTable2.end(), 0);
         _percussion.init(this, 9);
     }
 
@@ -121,10 +110,9 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
         _isOpen = true;
 
-        int i;
-        AdLibVoice* voice;
-
-        for (i = 0, voice = _voices; i != ARRAYSIZE(_voices); i++, voice++) {
+        for (size_t i = 0; i != _voices.size(); i++)
+        {
+            AdLibVoice* voice = &_voices[i];
             voice->_channel = static_cast<uint8_t>(i);
             voice->_s11a.s10 = &voice->_s10b;
             voice->_s11b.s10 = &voice->_s10a;
@@ -161,7 +149,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         // Stop the OPL timer
         _opl->stop();
 
-        for (unsigned int i = 0; i < ARRAYSIZE(_voices); ++i) {
+        for (unsigned int i = 0; i < _voices.size(); ++i) {
             if (_voices[i]._part)
                 mcOff(&_voices[i]);
         }
@@ -270,7 +258,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
     MidiChannel* MidiDriver_ADLIB::allocateChannel()
     {
-        for (unsigned int i = 0; i < ARRAYSIZE(_parts); ++i)
+        for (unsigned int i = 0; i < _parts.size(); ++i)
         {
             AdLibPart* part = &_parts[i];
             if (!part->_allocated)
@@ -324,8 +312,8 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
             if (_opl3Mode)
                 continue;
 
-            AdLibVoice* voice = _voices;
-            for (int i = 0; i != ARRAYSIZE(_voices); i++, voice++) {
+            AdLibVoice* voice = _voices.data();
+            for (int i = 0; i != _voices.size(); i++, voice++) {
                 if (!voice->_part)
                     continue;
                 if (voice->_duration && (voice->_duration -= 0x11) <= 0) {

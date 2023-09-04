@@ -1,6 +1,7 @@
 #include <cstdlib>
 #include <cassert>
 #include <format>
+#include <array>
 #include <HyperSonicDrivers/audio/scummvm/RateConverter.hpp>
 #include <HyperSonicDrivers/audio/scummvm/AudioStream.hpp>
 #include <HyperSonicDrivers/audio/scummvm/Mixer.hpp>
@@ -9,9 +10,6 @@
 namespace HyperSonicDrivers::audio::scummvm
 {
     // TODO split into multiple class and in its own namesapce
-
-    // TODO: move to utils and as a constexpr
-#define ARRAYSIZE(x) ((int)(sizeof(x) / sizeof(x[0])))
 
         // frac.h -----------------------------------------------------------------
      /**
@@ -88,7 +86,7 @@ namespace HyperSonicDrivers::audio::scummvm
     template<bool stereo, bool reverseStereo>
     class SimpleRateConverter : public RateConverter {
     protected:
-        int16_t inBuf[INTERMEDIATE_BUFFER_SIZE] = {};
+        std::array<int16_t, INTERMEDIATE_BUFFER_SIZE> inBuf = {};
         const int16_t* inPtr = nullptr;
         int inLen = 0;
 
@@ -146,8 +144,8 @@ namespace HyperSonicDrivers::audio::scummvm
             do {
                 // Check if we have to refill the buffer
                 if (inLen == 0) {
-                    inPtr = inBuf;
-                    inLen = input.readBuffer(inBuf, ARRAYSIZE(inBuf));
+                    inPtr = inBuf.data();
+                    inLen = input.readBuffer(inBuf.data(), inBuf.size());
                     if (inLen <= 0)
                         return (obuf - ostart) / 2;
                 }
@@ -190,7 +188,7 @@ namespace HyperSonicDrivers::audio::scummvm
     template<bool stereo, bool reverseStereo>
     class LinearRateConverter : public RateConverter {
     protected:
-        int16_t inBuf[INTERMEDIATE_BUFFER_SIZE] = {};
+        std::array<int16_t, INTERMEDIATE_BUFFER_SIZE> inBuf = {};
         const int16_t* inPtr = nullptr;
         int inLen = 0;
 
@@ -257,8 +255,8 @@ namespace HyperSonicDrivers::audio::scummvm
             while ((frac_t)FRAC_ONE_LOW <= opos) {
                 // Check if we have to refill the buffer
                 if (inLen == 0) {
-                    inPtr = inBuf;
-                    inLen = input.readBuffer(inBuf, ARRAYSIZE(inBuf));
+                    inPtr = inBuf.data();
+                    inLen = input.readBuffer(inBuf.data(), inBuf.size());
                     if (inLen <= 0)
                         return (obuf - ostart) / 2;
                 }

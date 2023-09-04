@@ -8,9 +8,6 @@
 
 namespace HyperSonicDrivers::audio::scummvm
 {
-    // TODO: move to utils and as a constexpr
-#define ARRAYSIZE(x) ((int)(sizeof(x) / sizeof(x[0])))
-
     MixerImpl::MixerImpl(unsigned int sampleRate, const uint8_t bitsDepth)
         : _mutex(), _sampleRate(sampleRate), _bitsDepth(bitsDepth),
         _mixerReady(false), _handleSeed(0), _soundTypeSettings()
@@ -213,7 +210,7 @@ namespace HyperSonicDrivers::audio::scummvm
 
     void MixerImpl::muteSoundType(SoundType type, bool mute)
     {
-        assert(0 <= (int)type && (int)type < ARRAYSIZE(_soundTypeSettings));
+        assert(0 <= (int)type && (int)type < _soundTypeSettings.size());
         _soundTypeSettings[static_cast<int>(type)].mute = mute;
 
         for (int i = 0; i != NUM_CHANNELS; ++i)
@@ -226,7 +223,7 @@ namespace HyperSonicDrivers::audio::scummvm
 
     bool MixerImpl::isSoundTypeMuted(SoundType type) const
     {
-        assert(0 <= (int)type && (int)type < ARRAYSIZE(_soundTypeSettings));
+        assert(0 <= (int)type && (int)type < _soundTypeSettings.size());
 
         return _soundTypeSettings[static_cast<int>(type)].mute;
     }
@@ -298,7 +295,7 @@ namespace HyperSonicDrivers::audio::scummvm
 
     void MixerImpl::setVolumeForSoundType(SoundType type, int volume)
     {
-        assert(0 <= (int)type && (int)type < ARRAYSIZE(_soundTypeSettings));
+        assert(0 <= (int)type && (int)type < _soundTypeSettings.size());
 
         // Check range
         volume = std::clamp<int>(volume, 0, MaxVolume::MIXER);
@@ -318,7 +315,7 @@ namespace HyperSonicDrivers::audio::scummvm
 
     int MixerImpl::getVolumeForSoundType(SoundType type) const
     {
-        assert(0 <= (int)type && (int)type < ARRAYSIZE(_soundTypeSettings));
+        assert(0 <= (int)type && (int)type < _soundTypeSettings.size());
 
         return _soundTypeSettings[static_cast<int>(type)].volume;
     }

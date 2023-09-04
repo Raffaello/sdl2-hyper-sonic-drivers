@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <array>
 #include <HyperSonicDrivers/drivers/midi/scummvm/AdLibPart.hpp>
 #include <HyperSonicDrivers/drivers/midi/scummvm/AdLibInstrument.h>
 
@@ -38,7 +39,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         void sysEx_customInstrument(uint32_t type, const uint8_t* instr) override;
 
     private:
-        uint8_t _notes[256];
-        AdLibInstrument* _customInstruments[256];
+        std::array<uint8_t, 256> _notes;
+        std::array<AdLibInstrument*, 256> _customInstruments;
     };
 }

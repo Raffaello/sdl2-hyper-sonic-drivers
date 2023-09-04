@@ -14,8 +14,6 @@ constexpr int NUM_CHANNELS = 9;
 constexpr int RANDOM_SEED = 0x1234;
 constexpr int RANDOM_INC = 0x9248;
 
-// TODO: review it / remove / replace / refactor
-#define ARRAYSIZE(x) ((int)(sizeof(x) / sizeof(x[0])))
 
 namespace HyperSonicDrivers::drivers::westwood
 {
@@ -90,7 +88,7 @@ namespace HyperSonicDrivers::drivers::westwood
         // Drop all tracks that are still queued. These would point to the old
         // sound data.
         _programQueueStart = _programQueueEnd = 0;
-        for (int i = 0; i < ARRAYSIZE(_programQueue); ++i)
+        for (int i = 0; i < _programQueue.size(); ++i)
             _programQueue[i] = QueueEntry();
 
         _sfxPointer = nullptr;
@@ -1244,7 +1242,7 @@ namespace HyperSonicDrivers::drivers::westwood
         int16_t add = READ_LE_UINT16(values);
 
         // Safety checks: ignore jumps when stack is full or address is invalid.
-        if (channel.dataptrStackPos >= ARRAYSIZE(channel.dataptrStack)) {
+        if (channel.dataptrStackPos >= channel.dataptrStack.size()) {
             SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, "ADLDriver::update_jumpToSubroutine: Stack overflow");
             return 0;
         }
@@ -1926,9 +1924,9 @@ namespace HyperSonicDrivers::drivers::westwood
 
     // static res
 
-#define COMMAND(x, n) { &ADLDriver::x, #x, n }
+#define COMMAND(x, n) ADLDriver::ParserOpcode({ &ADLDriver::x, #x, n })
 
-    const ADLDriver::ParserOpcode ADLDriver::_parserOpcodeTable[] = {
+    const std::array<ADLDriver::ParserOpcode, 75> ADLDriver::_parserOpcodeTable = {
         // 0
         COMMAND(update_setRepeat, 1),
         COMMAND(update_checkRepeat, 2),
@@ -2045,7 +2043,7 @@ namespace HyperSonicDrivers::drivers::westwood
 
 #undef COMMAND
 
-    const int ADLDriver::_parserOpcodeTableSize = ARRAYSIZE(ADLDriver::_parserOpcodeTable);
+    constexpr int ADLDriver::_parserOpcodeTableSize = ADLDriver::_parserOpcodeTable.size();
 
     // This table holds the register offset for operator 1 for each of the nine
     // channels. To get the register offset for operator 2, simply add 3.
@@ -2066,7 +2064,7 @@ namespace HyperSonicDrivers::drivers::westwood
     // These tables are currently only used by updateCallback46(), which only ever
     // uses the first element of one of the sub-tables.
 
-    const uint8_t* const ADLDriver::_unkTable2[] = {
+    const std::array<const uint8_t*, 6> const ADLDriver::_unkTable2 = {
         ADLDriver::_unkTable2_1,
         ADLDriver::_unkTable2_2,
         ADLDriver::_unkTable2_1,
@@ -2075,7 +2073,7 @@ namespace HyperSonicDrivers::drivers::westwood
         ADLDriver::_unkTable2_2
     };
 
-    const int ADLDriver::_unkTable2Size = ARRAYSIZE(ADLDriver::_unkTable2);
+    const int ADLDriver::_unkTable2Size = ADLDriver::_unkTable2.size();
 
     const uint8_t ADLDriver::_unkTable2_1[] = {
         0x50, 0x50, 0x4F, 0x4F, 0x4E, 0x4E, 0x4D, 0x4D,
