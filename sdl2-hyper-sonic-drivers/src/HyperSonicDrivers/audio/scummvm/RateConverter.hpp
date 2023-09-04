@@ -5,6 +5,44 @@
 
 namespace HyperSonicDrivers::audio::scummvm
 {
+/**
+* The size of the intermediate input cache. Bigger values may increase
+* performance, but only until some point (depends largely on cache size,
+* target processor and various other factors), at which it will decrease
+* again.
+*/
+constexpr int INTERMEDIATE_BUFFER_SIZE = 512;
+
+/**
+     * Fixed-point fractions, used by the sound rate converter and other code.
+     */
+typedef int32_t frac_t;
+
+
+/**
+ * The precision of the fractional (fixed-point) type that is defined below.
+ * Normally, you should never need to modify this value.
+ */
+enum {
+    FRAC_BITS = 16,
+    FRAC_LO_MASK = ((1L << FRAC_BITS) - 1),
+    FRAC_HI_MASK = ((1L << FRAC_BITS) - 1) << FRAC_BITS,
+
+    FRAC_ONE = (1L << FRAC_BITS),		// 1.0
+    FRAC_HALF = (1L << (FRAC_BITS - 1))	// 0.5
+};
+
+/**
+* The default fractional type in frac.h (with 16 fractional bits) limits
+* the rate conversion code to 65536Hz audio: we need to able to handle
+* 96kHz audio, so we use fewer fractional bits in this code.
+*/
+    enum {
+        FRAC_BITS_LOW = 15,
+        FRAC_ONE_LOW = (1L << FRAC_BITS_LOW),
+        FRAC_HALF_LOW = (1L << (FRAC_BITS_LOW - 1))
+    };
+
     /* Minimum and maximum values a sample can hold. */
     enum {
         ST_SAMPLE_MAX = 0x7fffL,
