@@ -74,8 +74,10 @@ int main(int argc, char* argv[])
     {
         for (auto& type : types)
         {
-            for (auto& c : { fmt::color::white_smoke, fmt::color::yellow,      fmt::color::aqua,
-                             fmt::color::lime_green,  fmt::color::blue_violet, fmt::color::indian_red }) {
+            using enum fmt::color;
+
+            for (auto& c : { white_smoke, yellow,      aqua,
+                             lime_green,  blue_violet, indian_red }) {
                 spdlog::info(fmt::format(fg(c), m, emu.second, type.second));
             }
 

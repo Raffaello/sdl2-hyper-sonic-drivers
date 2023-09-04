@@ -17,13 +17,15 @@ namespace std
 
             switch (t)
             {
-            case OplType::OPL2:
+                using enum OplType;
+
+            case OPL2:
                 str = "OPL2";
                 break;
-            case OplType::DUAL_OPL2:
+            case DUAL_OPL2:
                 str = "DUAL_OPL2";
                 break;
-            case OplType::OPL3:
+            case OPL3:
                 str = "OPL3";
                 break;
             }

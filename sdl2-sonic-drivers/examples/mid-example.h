@@ -109,12 +109,17 @@ int run(const std::shared_ptr<audio::MIDI>& midi, const bool use_opldrv)
     std::string m = "##### {} {} #####";
 
     // Emulators
+    using enum fmt::color;
+
+    auto colors = {
+        white_smoke, yellow,      aqua,
+        lime_green,  blue_violet, indian_red };
+
     for (const auto& emu : emus)
     {
         for (const auto& type : types)
         {
-            for (const auto& c : { fmt::color::white_smoke, fmt::color::yellow,      fmt::color::aqua,
-                             fmt::color::lime_green,  fmt::color::blue_violet, fmt::color::indian_red }) {
+            for (const auto& c : colors) {
                 spdlog::info(fmt::format(fg(c), m, emu.second, type.second));
             }
             if (use_opldrv)
@@ -125,8 +130,7 @@ int run(const std::shared_ptr<audio::MIDI>& midi, const bool use_opldrv)
     }
 
     // Native Midi
-    for (auto& c : { fmt::color::white_smoke, fmt::color::yellow,      fmt::color::aqua,
-                             fmt::color::lime_green,  fmt::color::blue_violet, fmt::color::indian_red }) {
+    for (auto& c : colors) {
         spdlog::info(fmt::format(fg(c), m, "Native", "MIDI"));
     }
     mid_test_native(mixer, midi);

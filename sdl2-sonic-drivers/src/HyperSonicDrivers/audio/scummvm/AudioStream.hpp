@@ -11,7 +11,7 @@ namespace HyperSonicDrivers::audio::scummvm
     class AudioStream
     {
     public:
-        virtual ~AudioStream() {}
+        virtual ~AudioStream() = default;
 
         /**
          * Fill the given buffer with up to @p numSamples samples.

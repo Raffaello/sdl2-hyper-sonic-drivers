@@ -3,6 +3,7 @@
 #include <HyperSonicDrivers/audio/midi/types.hpp>
 #include <cstring>
 #include <array>
+#include <bit>
 
 namespace HyperSonicDrivers::files::dmx
 {
@@ -104,7 +105,7 @@ namespace HyperSonicDrivers::files::dmx
             uint8_t d1 = 0;
             uint8_t d2 = 0;
 
-            event.desc.val = readU8();
+            event.desc.val = std::bit_cast<uint8_t>(readU8());
             switch (event.desc.e.type)
             {
             case MUS_EVENT_TYPE_RELEASE_NOTE:
@@ -119,9 +120,9 @@ namespace HyperSonicDrivers::files::dmx
                     d1 &= 0x7F;
                     d2 = readU8();
                     _assertValid((d2 & 0x80) == 0);
-                    channelVol[event.desc.e.channel] = d2;
+                    channelVol[std::bit_cast<uint8_t>(event.desc.e.channel)] = d2;
                 }
-                d2 = channelVol[event.desc.e.channel];
+                d2 = channelVol[std::bit_cast<uint8_t>(event.desc.e.channel)];
                 event.data.push_back(d1);
                 event.data.push_back(d2);
                 break;

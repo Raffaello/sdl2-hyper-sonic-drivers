@@ -15,7 +15,7 @@ namespace HyperSonicDrivers::files
         File& operator=(const  File&) = delete;
 
         File(const std::string& filename);
-        virtual ~File() noexcept;
+        virtual ~File() noexcept = default;
 
         uintmax_t size() const noexcept;
         std::streampos tell() noexcept;

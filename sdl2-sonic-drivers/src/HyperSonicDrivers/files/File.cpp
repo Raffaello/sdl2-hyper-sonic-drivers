@@ -20,10 +20,10 @@ namespace HyperSonicDrivers::files
         }
     }
 
-    File::~File() noexcept
-    {
-        this->close();
-    }
+    //File::~File() noexcept
+    //{
+    //    //this->close();
+    //}
 
     std::streampos File::tell() noexcept
     {

@@ -4,6 +4,7 @@
 #include <queue>
 #include <format>
 #include <cassert>
+#include <bit>
 #include <SDL2/SDL_log.h>
 
 namespace HyperSonicDrivers::files::miles
@@ -305,7 +306,7 @@ namespace HyperSonicDrivers::files::miles
             default:
                 SDL_LogCritical(SDL_LOG_CATEGORY_AUDIO,
                     std::format("MIDFile: midi event {:#04x} not recognized {:#03x} - pos={}.",
-                        e.type.val, static_cast<int>(e.type.high), static_cast<unsigned long>(tell())).c_str());
+                        e.type.val, std::bit_cast<uint8_t>(e.type.high), static_cast<unsigned long>(tell())).c_str());
                 throw std::runtime_error("XMIFile: midi event type not recognized.");
             }
 

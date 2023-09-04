@@ -37,7 +37,7 @@ namespace HyperSonicDrivers::audio
     {
         return 0;
     }
-    void DiskRendererMixerManager::startRecording(std::string filename)
+    void DiskRendererMixerManager::startRecording(const std::string& filename)
     {
         _file.open(filename, std::fstream::out | std::fstream::binary);
         if (!_file) {

@@ -19,7 +19,7 @@ namespace HyperSonicDrivers::audio
         virtual void init();
         virtual void suspendAudio();
         virtual int resumeAudio();
-        void startRecording(std::string filename);
+        void startRecording(const std::string& filename);
     //protected:
         //virtual void startAudio();
         virtual void callbackHandler(uint8_t* samples, int len);

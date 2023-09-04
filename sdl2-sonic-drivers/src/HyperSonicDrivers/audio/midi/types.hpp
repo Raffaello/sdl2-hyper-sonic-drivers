@@ -28,6 +28,7 @@ namespace HyperSonicDrivers::audio::midi
             uint8_t high : 4;
         };
     } MIDI_EVENT_type_u;
+    static_assert(sizeof(uint8_t) == sizeof(MIDI_EVENT_type_u));
 
     enum class MIDI_META_EVENT_TYPES_LOW : uint8_t
     {
