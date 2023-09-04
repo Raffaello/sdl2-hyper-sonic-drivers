@@ -18,8 +18,8 @@ macro(macro_test) # ${ARGN} link libraries
     #message("LINKS_PRIVATE: ${TEST_LINKS_PRIVATE}")
     add_executable (${TEST_EXE} ${TEST_FILES})
     target_include_directories(${TEST_EXE} PUBLIC
-        ${CMAKE_SOURCE_DIR}/sdl2-sonic-drivers/src
-        ${CMAKE_SOURCE_DIR}/sdl2-sonic-drivers/test
+        ${CMAKE_SOURCE_DIR}/sdl2-hyper-sonic-drivers/src
+        ${CMAKE_SOURCE_DIR}/sdl2-hyper-sonic-drivers/test
     )
     #target_link_libraries(${TEST_EXE} PRIVATE ${TEST_LINKS})
     target_link_libraries(${TEST_EXE} PRIVATE GTest::gtest GTest::gmock)
@@ -64,37 +64,37 @@ macro_test(
 macro_test(
     EXE TestAlgorithms
     FILES "utils/TestAlgorithms.cpp"
-    LINKS_PRIVATE sonic-drivers-static
+    LINKS_PRIVATE hyper-sonic-drivers-static
 )
 
 macro_test(
     EXE TestOpl
     FILES "utils/TestOpl.cpp"
-    LINKS_PRIVATE sonic-drivers-static
+    LINKS_PRIVATE hyper-sonic-drivers-static
 )
 
 macro_test(
     EXE TestPCSpeaker
     FILES "hardware/TestPCSpeaker.cpp"
-    LINKS_PRIVATE sonic-drivers-static
+    LINKS_PRIVATE hyper-sonic-drivers-static
 )
 
 macro_test(
     EXE TestEndianness
     FILES "utils/TestEndianness.cpp"
-    LINKS_PRIVATE sonic-drivers-static
+    LINKS_PRIVATE hyper-sonic-drivers-static
 )
 
 macro_test(
     EXE TestFile
     FILES "files/TestFile.cpp"
-    LINKS_PRIVATE sonic-drivers-static
+    LINKS_PRIVATE hyper-sonic-drivers-static
 )
 
 macro_test(
     EXE TestADLFile
     FILES "files/westwood/TestADLFile.cpp"
-    LINKS_PRIVATE sonic-drivers-static
+    LINKS_PRIVATE hyper-sonic-drivers-static
     FIXTURES 
         "../fixtures/EOBSOUND.ADL" # v1
         "../fixtures/DUNE19.ADL"   # v2
@@ -105,7 +105,7 @@ macro_test(
 macro_test(
     EXE TestMIDFile
     FILES "files/TestMIDFile.cpp"
-    LINKS_PRIVATE sonic-drivers-static
+    LINKS_PRIVATE hyper-sonic-drivers-static
     FIXTURES
         "../fixtures/MI_intro.mid"
         "../fixtures/midifile_sample.mid"
@@ -114,7 +114,7 @@ macro_test(
 macro_test(
     EXE TestMUSFile
     FILES "files/dmx/TestMUSFile.cpp"
-    LINKS_PRIVATE sonic-drivers-static
+    LINKS_PRIVATE hyper-sonic-drivers-static
     FIXTURES
         "../fixtures/D_E1M1.MUS"
         #"../fixtures/D_E1M1.mid"
@@ -123,7 +123,7 @@ macro_test(
 macro_test(
     EXE TestOP2File
     FILES "files/dmx/TestOP2File.cpp"
-    LINKS_PRIVATE sonic-drivers-static
+    LINKS_PRIVATE hyper-sonic-drivers-static
     FIXTURES
         "../fixtures/GENMIDI.OP2"
 )
@@ -131,14 +131,14 @@ macro_test(
 macro_test(
     EXE TestDevice
     FILES "drivers/midi/TestDevice.cpp"
-    LINKS_PRIVATE sonic-drivers-static
+    LINKS_PRIVATE hyper-sonic-drivers-static
     FIXTURES
 )
 
 macro_test(
     EXE TestOplDevice
     FILES "drivers/midi/devices/TestOpl.cpp"
-    LINKS_PRIVATE sonic-drivers-static
+    LINKS_PRIVATE hyper-sonic-drivers-static
     FIXTURES
         "../fixtures/GENMIDI.OP2"
 )
@@ -146,7 +146,7 @@ macro_test(
 macro_test(
     EXE TestAdlib
     FILES "drivers/midi/devices/TestAdlib.cpp"
-    LINKS_PRIVATE sonic-drivers-static
+    LINKS_PRIVATE hyper-sonic-drivers-static
     FIXTURES
         "../fixtures/GENMIDI.OP2"
 )
@@ -154,7 +154,7 @@ macro_test(
 macro_test(
     EXE TestSbPro2
     FILES "drivers/midi/devices/TestSbPro2.cpp"
-    LINKS_PRIVATE sonic-drivers-static
+    LINKS_PRIVATE hyper-sonic-drivers-static
     FIXTURES
         "../fixtures/GENMIDI.OP2"
 )
@@ -162,7 +162,7 @@ macro_test(
 macro_test(
     EXE TestMIDDriver
     FILES "drivers/TestMIDDriver.cpp"
-    LINKS_PRIVATE sonic-drivers-static
+    LINKS_PRIVATE hyper-sonic-drivers-static
     FIXTURES 
         "../fixtures/midifile_sample.mid"
 )
@@ -170,14 +170,14 @@ macro_test(
 macro_test(
     EXE TestMameOPL2
     FILES "hardware/opl/scummvm/mame/TestMameOPL2.cpp"
-    LINKS_PRIVATE sonic-drivers-static
+    LINKS_PRIVATE hyper-sonic-drivers-static
     FIXTURES "../fixtures/mame-22050-16bit-440Hz.dat"
 )
 
 macro_test(
     EXE TestDOSBoxOPL
     FILES "hardware/opl/scummvm/dosbox/TestDosBoxOPL.cpp"
-    LINKS_PRIVATE sonic-drivers-static
+    LINKS_PRIVATE hyper-sonic-drivers-static
     FIXTURES
         #"../fixtures/mame-22050-16bit-440Hz.dat"
 )
@@ -185,7 +185,7 @@ macro_test(
 macro_test(
     EXE TestNukedOPL3
     FILES "hardware/opl/scummvm/nuked/TestNukedOPL3.cpp"
-    LINKS_PRIVATE sonic-drivers-static
+    LINKS_PRIVATE hyper-sonic-drivers-static
     FIXTURES
         #"../fixtures/mame-22050-16bit-440Hz.dat"
 )
@@ -193,7 +193,7 @@ macro_test(
 macro_test(
     EXE TestWoodyOPL
     FILES "hardware/opl/woody/TestWoodyOPL.cpp"
-    LINKS_PRIVATE sonic-drivers-static
+    LINKS_PRIVATE hyper-sonic-drivers-static
     FIXTURES
         #"../fixtures/mame-22050-16bit-440Hz.dat"
 )
@@ -202,33 +202,33 @@ macro_test(
     EXE TestOPLFactory
     FILES 
         "hardware/opl/TestOPLFactory.cpp"
-    LINKS_PRIVATE sonic-drivers-static
+    LINKS_PRIVATE hyper-sonic-drivers-static
 )
 
 macro_test(
     EXE TestTimer
     FILES 
         "hardware/opl/TestTimer.cpp"
-    LINKS_PRIVATE sonic-drivers-static
+    LINKS_PRIVATE hyper-sonic-drivers-static
 )
 
 macro_test(
     EXE TestChip
     FILES 
         "hardware/opl/TestChip.cpp"
-    LINKS_PRIVATE sonic-drivers-static
+    LINKS_PRIVATE hyper-sonic-drivers-static
 )
 
 macro_test(
     EXE TestADLDriver
     FILES "drivers/westwood/TestADLDriver.cpp"
-    LINKS_PRIVATE sonic-drivers-static
+    LINKS_PRIVATE hyper-sonic-drivers-static
 )
 
 macro_test(
     EXE TestWAVFile
     FILES "files/TestWAVFile.cpp"
-    LINKS_PRIVATE sonic-drivers-static
+    LINKS_PRIVATE hyper-sonic-drivers-static
     FIXTURES
         "../fixtures/Wav_868kb.wav" # format 1
 )
@@ -236,7 +236,7 @@ macro_test(
 macro_test(
     EXE TestVOCFile
     FILES "files/TestVOCFile.cpp"
-    LINKS_PRIVATE sonic-drivers-static
+    LINKS_PRIVATE hyper-sonic-drivers-static
     FIXTURES
         "../fixtures/VSCREAM1.VOC"
         "../fixtures/DUNE.VOC"
@@ -245,7 +245,7 @@ macro_test(
 macro_test(
     EXE TestOplVoice
     FILES "drivers/midi/opl/TestOplVoice.cpp"
-    LINKS_PRIVATE sonic-drivers-static
+    LINKS_PRIVATE hyper-sonic-drivers-static
     FIXTURES
         "../fixtures/GENMIDI.OP2"
 )
@@ -254,13 +254,13 @@ macro_test(
 macro_test(
     EXE TestIFFFile
     FILES "files/TestIFFFile.cpp"
-    LINKS_PRIVATE sonic-drivers-static
+    LINKS_PRIVATE hyper-sonic-drivers-static
 )
 
 macro_test(
     EXE TestXMIFile
     FILES "files/miles/TestXMIFile.cpp"
-    LINKS_PRIVATE sonic-drivers-static
+    LINKS_PRIVATE hyper-sonic-drivers-static
     FIXTURES 
         "../fixtures/header.xmi"
         "../fixtures/header_no_xdir.xmi"
@@ -270,7 +270,7 @@ macro_test(
 macro_test(
     EXE TestAILFileDriver
     FILES "files/miles/TestAILDriverFile.cpp"
-    LINKS_PRIVATE sonic-drivers-static
+    LINKS_PRIVATE hyper-sonic-drivers-static
     FIXTURES 
         "../fixtures/ADLIB.ADV"
         "../fixtures/ADLIBG.ADV"

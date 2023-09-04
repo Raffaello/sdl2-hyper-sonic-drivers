@@ -19,7 +19,7 @@ if (WIN32)
 endif()
 
 ########################### Static Lib #######################################
-set(LIB_NAME sonic-drivers-static)
+set(LIB_NAME hyper-sonic-drivers-static)
 set(LIB_CONF ${LIB_NAME}-config)
 set(LIB_VER ${LIB_CONF}-version)
 include(CMakePackageConfigHelpers)
@@ -299,7 +299,7 @@ unset(LIB_VER)
 ##############################################################################
 
 # Add source to this project's executable.
-add_executable(sdl2-sonic-drivers "sdl2-sonic-drivers.cpp")
+add_executable(sdl2-hyper-sonic-drivers "sdl2-hyper-sonic-drivers.cpp")
 #target_sources(sdl2-sonic-drivers PUBLIC
     # --- #
     #${CMAKE_CURRENT_SOURCE_DIR}/src/files/IFFFile.cpp
@@ -307,7 +307,7 @@ add_executable(sdl2-sonic-drivers "sdl2-sonic-drivers.cpp")
     #${CMAKE_CURRENT_SOURCE_DIR}/src/files/MIDFile.cpp
 #)
 
-target_link_libraries(sdl2-sonic-drivers PRIVATE  ${LIB_SDL2main} sonic-drivers-static)
+target_link_libraries(sdl2-hyper-sonic-drivers PRIVATE  ${LIB_SDL2main} hyper-sonic-drivers-static)
 
 if(MSVC)
 # @see https://docs.microsoft.com/en-us/cpp/build/reference/compiler-options-listed-by-category?view=vs-2019
