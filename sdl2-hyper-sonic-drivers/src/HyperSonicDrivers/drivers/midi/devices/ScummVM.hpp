@@ -1,0 +1,32 @@
+#pragma once
+
+#include <cstdint>
+#include <memory>
+#include <HyperSonicDrivers/drivers/midi/Device.hpp>
+#include <HyperSonicDrivers/drivers/midi/scummvm/MidiDriver_ADLIB.hpp>
+#include <HyperSonicDrivers/hardware/opl/OPL.hpp>
+
+
+namespace HyperSonicDrivers::drivers::midi::devices
+{
+    /**
+     * @brief Wrapper around ScummVM MidiDriver (MidiDriver_ADLIB)
+     * At the moment support only OPL
+     * Better rename to OPL?
+    */
+    class ScummVM : public Device
+    {
+    public:
+        explicit ScummVM(const std::shared_ptr<hardware::opl::OPL>& opl, const bool opl3mode);
+        ~ScummVM();
+
+        void sendEvent(const audio::midi::MIDIEvent& e) const noexcept override;
+        void sendMessage(const uint8_t msg[], const uint8_t size) const noexcept override;
+        void sendSysEx(const audio::midi::MIDIEvent& e) const noexcept override;
+        void pause() const noexcept override;
+        void resume() const noexcept override;
+
+    private:
+        std::shared_ptr<drivers::midi::scummvm::MidiDriver_ADLIB> _adlib;
+    };
+}

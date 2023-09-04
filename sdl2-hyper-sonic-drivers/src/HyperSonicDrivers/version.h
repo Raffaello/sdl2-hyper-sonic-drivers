@@ -1,0 +1,9 @@
+#ifndef __VERSION_H__
+#define __VERSION_H__
+
+#define __SONIC_DRIVERS_VERSION "0.7.0"
+#define __SONIC_DRIVERS_VERSION_MAJOR 0
+#define __SONIC_DRIVERS_VERSION_MINOR 7
+#define __SONIC_DRIVERS_VERSION_PATCH 0
+
+#endif

@@ -30,9 +30,9 @@ jobs:
     strategy:
         fail-fast: false
         matrix:
-            triplet: [ x86-windows, x64-windows ]
+            triplet: [ x64-windows ]
             build_type: [ Debug, Release ]
-            os: [ '2019', '2022' ]
+            os: [ '2022' ]
     name: Build Windows
     runs-on: windows-${{ matrix.os }}
     steps:
@@ -77,7 +77,7 @@ jobs:
           cmake --build . --config=${{ matrix.build_type }} -j4
         working-directory: build
       - name: CTest
-        run: ctest --output-on-failure -j4
+        run: ctest --output-on-failure
         working-directory: build
       - name: cmake install
         run: cmake --build . --target install --config ${{ matrix.build_type }} -j4
@@ -87,7 +87,7 @@ jobs:
         working-directory: build
       - name: Release
         uses: softprops/action-gh-release@v1
-        if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.os == '2019' }}
+        if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.os == '2022' }}
         with:
             generate_release_notes: true
             prerelease: false

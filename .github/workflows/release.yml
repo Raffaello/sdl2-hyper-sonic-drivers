@@ -19,7 +19,7 @@ on:
 jobs:
   check:
     name: Check Version
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     if: ${{ !startsWith(github.ref, 'refs/tags/') }}
     steps:
       - uses: actions/checkout@v3
@@ -46,7 +46,7 @@ jobs:
           done
   publish:
     name: Publish Version
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     if: ${{ github.ref == 'refs/heads/master' }}
     needs:
       - check
