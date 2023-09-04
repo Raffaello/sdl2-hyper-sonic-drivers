@@ -194,7 +194,7 @@ namespace HyperSonicDrivers::audio::scummvm
     }
 
     void SdlMixerManager::sdlCallback(void* this_, uint8_t* samples, int len) {
-        SdlMixerManager* manager = (SdlMixerManager*)this_;
+        SdlMixerManager* manager = reinterpret_cast<SdlMixerManager*>(this_);
         assert(manager);
 
         manager->callbackHandler(samples, len);
