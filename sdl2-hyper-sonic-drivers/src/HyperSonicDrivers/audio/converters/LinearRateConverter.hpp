@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <array>
 #include <HyperSonicDrivers/audio/converters/IRateConverter.hpp>
 #include <HyperSonicDrivers/audio/scummvm/AudioStream.hpp>
 #include <HyperSonicDrivers/utils/algorithms.hpp>
@@ -126,10 +127,10 @@ namespace HyperSonicDrivers::audio::converters
                     out0);
 
                 // output left channel
-                utils::clampAdd(obuf[reverseStereo], (out0 * (int)vol_l) / scummvm::Mixer::MaxVolume::MIXER);
+                utils::clampAdd(obuf[reverseStereo], (out0 * static_cast<int>(vol_l)) / scummvm::Mixer::MaxVolume::MIXER);
 
                 // output right channel
-                utils::clampAdd(obuf[reverseStereo ^ 1], (out1 * (int)vol_r) / scummvm::Mixer::MaxVolume::MIXER);
+                utils::clampAdd(obuf[reverseStereo ^ 1], (out1 * static_cast<int>(vol_r)) / scummvm::Mixer::MaxVolume::MIXER);
 
                 obuf += 2;
 
@@ -137,6 +138,7 @@ namespace HyperSonicDrivers::audio::converters
                 opos += opos_inc;
             }
         }
+
         return (obuf - ostart) / 2;
     }
 }

@@ -9,20 +9,15 @@ namespace HyperSonicDrivers::audio::converters
     template<bool stereo, bool reverseStereo>
     IRateConverter* makeIRateConverter(const uint32_t inrate, const uint32_t outrate)
     {
-        if (inrate != outrate) {
+        if (inrate != outrate)
+        {
             if ((inrate % outrate) == 0 && (inrate < 65536))
-            {
                 return new SimpleRateConverter<stereo, reverseStereo>(inrate, outrate);
-            }
             else
-            {
                 return new LinearRateConverter<stereo, reverseStereo>(inrate, outrate);
-            }
         }
         else
-        {
             return new CopyRateConverter<stereo, reverseStereo>();
-        }
     }
 
     /**

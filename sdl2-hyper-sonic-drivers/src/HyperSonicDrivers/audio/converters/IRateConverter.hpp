@@ -16,11 +16,6 @@ namespace HyperSonicDrivers::audio::converters
     constexpr int intermediateBufferSize = 512;
 
     /**
-     * Fixed-point fractions, used by the sound rate converter and other code.
-     */
-    typedef int32_t frac_t;
-
-    /**
     * The default fractional type in frac.h (with 16 fractional bits) limits
     * the rate conversion code to 65536Hz audio: we need to able to handle
     * 96kHz audio, so we use fewer fractional bits in this code.

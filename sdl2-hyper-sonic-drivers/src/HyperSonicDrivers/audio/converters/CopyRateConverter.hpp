@@ -19,11 +19,11 @@ namespace HyperSonicDrivers::audio::converters
     class CopyRateConverter : public IRateConverter
     {
     private:
-        std::unique_ptr<int16_t[]> _buffer;
-        uint32_t _bufferSize;
+        std::unique_ptr<int16_t[]> _buffer = nullptr;
+        uint32_t _bufferSize = 0;
 
     public:
-        CopyRateConverter() : _buffer(nullptr), _bufferSize(0) {}
+        CopyRateConverter() = default;
         virtual ~CopyRateConverter() = default;
 
         int flow(scummvm::AudioStream& input, int16_t* obuf, uint32_t osamp, const uint16_t vol_l, const uint16_t vol_r) override
@@ -65,7 +65,6 @@ namespace HyperSonicDrivers::audio::converters
 
                 // output left channel
                 utils::clampAdd(obuf[reverseStereo], (out0 * static_cast<int>(vol_l)) / scummvm::Mixer::MaxVolume::MIXER);
-
                 // output right channel
                 utils::clampAdd(obuf[reverseStereo ^ 1], (out1 * static_cast<int>(vol_r)) / scummvm::Mixer::MaxVolume::MIXER);
 
