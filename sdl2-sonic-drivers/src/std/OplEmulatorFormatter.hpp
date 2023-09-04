@@ -17,21 +17,19 @@ namespace std
 
             switch (emu)
             {
-                using enum OplEmulator;
-
-            case AUTO:
+            case OplEmulator::AUTO:
                 str = "AUTO";
                 break;
-            case MAME:
+            case OplEmulator::MAME:
                 str = "MAME";
                 break;
-            case DOS_BOX:
+            case OplEmulator::DOS_BOX:
                 str = "DOS_BOX";
                 break;
-            case NUKED:
+            case OplEmulator::NUKED:
                 str = "NUKED";
                 break;
-            case WOODY:
+            case OplEmulator::WOODY:
                 str = "WOODY";
                 break;
             }
