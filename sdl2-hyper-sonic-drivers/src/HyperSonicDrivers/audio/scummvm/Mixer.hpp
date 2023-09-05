@@ -3,10 +3,11 @@
 #include <mutex>
 #include <HyperSonicDrivers/audio/scummvm/Timestamp.hpp>
 #include <HyperSonicDrivers/audio/scummvm/SoundHandle.hpp>
-#include <HyperSonicDrivers/audio/IAudiotStream.hpp>
+#include <HyperSonicDrivers/audio/IAudioStream.hpp>
 
 namespace HyperSonicDrivers::audio::scummvm
 {
+    // TODO: as parameter
     constexpr int MIXER_MAX_CHANNELS = 32;
 
     class Mixer

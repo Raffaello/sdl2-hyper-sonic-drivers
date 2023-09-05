@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <memory>
 #include <HyperSonicDrivers/audio/Sound.hpp>
-#include <HyperSonicDrivers/audio/IAudiotStream.hpp>
+#include <HyperSonicDrivers/audio/IAudioStream.hpp>
 #include <HyperSonicDrivers/audio/scummvm/SoundHandle.hpp>
 
 namespace HyperSonicDrivers::audio::streams

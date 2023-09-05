@@ -4,7 +4,7 @@
 #include <memory>
 #include <HyperSonicDrivers/audio/scummvm/Mixer.hpp>
 #include <HyperSonicDrivers/audio/converters/IRateConverter.hpp>
-#include <HyperSonicDrivers/audio/IAudiotStream.hpp>
+#include <HyperSonicDrivers/audio/IAudioStream.hpp>
 
 namespace HyperSonicDrivers::audio::scummvm
 {

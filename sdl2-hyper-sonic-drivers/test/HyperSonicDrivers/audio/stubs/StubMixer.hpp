@@ -2,7 +2,7 @@
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include <HyperSonicDrivers/audio/IAudiotStream.hpp>
+#include <HyperSonicDrivers/audio/IAudioStream.hpp>
 #include <HyperSonicDrivers/audio/scummvm/Mixer.hpp>
 #include <HyperSonicDrivers/audio/scummvm/Timestamp.hpp>
 

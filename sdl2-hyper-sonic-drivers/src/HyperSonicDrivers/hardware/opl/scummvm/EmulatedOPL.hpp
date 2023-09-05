@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <memory>
 #include <HyperSonicDrivers/hardware/opl/OPL.hpp>
-#include <HyperSonicDrivers/audio/IAudiotStream.hpp>
+#include <HyperSonicDrivers/audio/IAudioStream.hpp>
 #include <HyperSonicDrivers/audio/scummvm/SoundHandle.hpp>
 #include <HyperSonicDrivers/audio/scummvm/Mixer.hpp>
 #include <HyperSonicDrivers/hardware/opl/OplType.hpp>
