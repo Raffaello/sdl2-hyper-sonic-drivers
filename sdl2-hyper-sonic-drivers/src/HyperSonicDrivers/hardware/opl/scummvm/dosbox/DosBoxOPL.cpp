@@ -200,20 +200,21 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::dosbox
         _emulator->WriteReg(fullReg, val);
     }
 
-    void DosBoxOPL::generateSamples(int16_t* buffer, int length) noexcept
+    void DosBoxOPL::generateSamples(int16_t* buffer, const size_t length) noexcept
     {
         // For stereo OPL cards, we divide the sample count by 2,
         // to match stereo AudioStream behavior.
+        size_t length_ = length;
         if (type != OplType::OPL2) {
-            length >>= 1;
+            length_ >>= 1;
         }
 
         constexpr unsigned int bufferLength = 512;
         std::array<int32_t, bufferLength * 2> tempBuffer;
 
         if (_emulator->opl3Active) {
-            while (length > 0) {
-                const unsigned int readSamples = std::min<unsigned int>(length, bufferLength);
+            while (length_ > 0) {
+                const unsigned int readSamples = std::min<unsigned int>(length_, bufferLength);
 
                 _emulator->GenerateBlock3(readSamples, tempBuffer.data());
 
@@ -221,12 +222,12 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::dosbox
                     buffer[i] = static_cast<int16_t>(tempBuffer[i]);
 
                 buffer += static_cast<int16_t>(readSamples << 1);
-                length -= readSamples;
+                length_ -= readSamples;
             }
         }
         else {
-            while (length > 0) {
-                const unsigned int readSamples = std::min<unsigned int>(length, bufferLength << 1);
+            while (length_ > 0) {
+                const unsigned int readSamples = std::min<unsigned int>(length_, bufferLength << 1);
 
                 _emulator->GenerateBlock2(readSamples, tempBuffer.data());
 
@@ -234,7 +235,7 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::dosbox
                     buffer[i] = static_cast<int16_t>(tempBuffer[i]);
 
                 buffer += readSamples;
-                length -= readSamples;
+                length_ -= readSamples;
             }
         }
     }

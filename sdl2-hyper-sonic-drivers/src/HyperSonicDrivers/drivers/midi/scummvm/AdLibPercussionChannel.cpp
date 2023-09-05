@@ -7,24 +7,20 @@
 
 namespace HyperSonicDrivers::drivers::midi::scummvm
 {
-    AdLibPercussionChannel::~AdLibPercussionChannel() {
-        for (int i = 0; i < _customInstruments.size(); ++i) {
-            delete _customInstruments[i];
-        }
-    }
-
-    void AdLibPercussionChannel::init(MidiDriver_ADLIB* owner, uint8_t channel) {
+    void AdLibPercussionChannel::init(MidiDriver_ADLIB* owner, uint8_t channel)
+    {
         AdLibPart::init(owner, channel);
         _priEff = 0;
         _volEff = 127;
 
         // Initialize the custom instruments data
-        std::fill(_notes.begin(), _notes.end(), 0);
-        std::fill(_customInstruments.begin(), _customInstruments.end(), nullptr);
+        std::ranges::fill(_notes, 0);
+        std::ranges::fill(_customInstruments, nullptr);
     }
 
     void AdLibPercussionChannel::noteOff(uint8_t note) {
-        if (_customInstruments[note]) {
+        if (_customInstruments[note])
+        {
             note = _notes[note];
         }
 
@@ -42,27 +38,32 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
         // The custom instruments have priority over the default mapping
         // We do not support custom instruments in OPL3 mode though.
-        if (!_owner->_opl3Mode) {
-            inst = _customInstruments[note];
+        if (!_owner->_opl3Mode)
+        {
+            inst = _customInstruments[note].get();
             if (inst)
                 note = _notes[note];
         }
 
-        if (!inst) {
+        if (!inst)
+        {
             // Use the default GM to FM mapping as a fallback
             uint8_t key = g_gmPercussionInstrumentMap[note];
             if (key != 0xFF) {
-                if (!_owner->_opl3Mode) {
+                if (!_owner->_opl3Mode)
+                {
                     inst = &g_gmPercussionInstruments[key];
                 }
-                else {
+                else
+                {
                     inst = &g_gmPercussionInstrumentsOPL3[key][0];
                     sec = &g_gmPercussionInstrumentsOPL3[key][1];
                 }
             }
         }
 
-        if (!inst) {
+        if (!inst)
+        {
             SDL_LogDebug(SDL_LOG_CATEGORY_AUDIO, std::format("No instrument FM definition for GM percussion key {:d}", note).c_str());
             return;
         }
@@ -83,9 +84,10 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
             _notes[note] = instr[1];
 
             // Allocate memory for the new instruments
-            if (!_customInstruments[note]) {
-                _customInstruments[note] = new AdLibInstrument;
-                memset(_customInstruments[note], 0, sizeof(AdLibInstrument));
+            if (!_customInstruments[note])
+            {
+                _customInstruments[note] = std::make_unique<AdLibInstrument>();
+                memset(_customInstruments[note].get(), 0, sizeof(AdLibInstrument));
             }
 
             // Save the new instrument data

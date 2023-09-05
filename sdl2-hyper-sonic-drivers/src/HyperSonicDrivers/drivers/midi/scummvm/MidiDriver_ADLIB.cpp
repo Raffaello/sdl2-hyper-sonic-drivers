@@ -88,12 +88,12 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
     MidiDriver_ADLIB::MidiDriver_ADLIB(const std::shared_ptr<hardware::opl::OPL>& opl, const bool opl3mode)
         : _opl3Mode(opl3mode), _opl(opl)
     {
-        std::fill(_curNotTable.begin(), _curNotTable.end(), 0);
+        std::ranges::fill(_curNotTable, 0);
         for (size_t i = 0; i < _parts.size(); ++i) {
             _parts[i].init(this, static_cast<uint8_t>(i + ((i >= 9) ? 1 : 0)));
         }
 
-        std::fill(_channelTable2.begin(), _channelTable2.end(), 0);
+        std::ranges::fill(_channelTable2, 0);
         _percussion.init(this, 9);
     }
 
@@ -149,9 +149,10 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         // Stop the OPL timer
         _opl->stop();
 
-        for (unsigned int i = 0; i < _voices.size(); ++i) {
-            if (_voices[i]._part)
-                mcOff(&_voices[i]);
+        for (auto& v : _voices)
+        {
+            if (v._part != nullptr)
+                mcOff(&v);
         }
 
         free(_regCache);
@@ -258,7 +259,16 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
     MidiChannel* MidiDriver_ADLIB::allocateChannel()
     {
-        for (unsigned int i = 0; i < _parts.size(); ++i)
+        for(auto& part : _parts)
+        {
+            if (!part._allocated)
+            {
+                part.allocate();
+                return &part;
+            }
+        }
+
+        /*for (unsigned int i = 0; i < _parts.size(); ++i)
         {
             AdLibPart* part = &_parts[i];
             if (!part->_allocated)
@@ -266,7 +276,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
                 part->allocate();
                 return part;
             }
-        }
+        }*/
         return nullptr;
     }
 
@@ -519,7 +529,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         f = s10->active - 1;
 
         t = s10->tableA[f];
-        e = g_numStepsTable[g_volumeLookupTable[t & 0x7F][b]];
+        e = g_numStepsTable[g_volumeLookupTable[t & 64][b]];
         if (t & 0x80) {
             e = randomNr(e);
         }
@@ -532,7 +542,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
             c = s10->maxValue;
             g = s10->startValue;
             t = s10->tableB[f];
-            d = lookupVolume(c, (t & 0x7F) - 31);
+            d = lookupVolume(c, (t & 64) - 31);
             if (t & 0x80) {
                 d = randomNr(d);
             }

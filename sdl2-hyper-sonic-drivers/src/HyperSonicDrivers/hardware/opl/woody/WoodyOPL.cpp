@@ -48,7 +48,7 @@ namespace HyperSonicDrivers::hardware
                 _opl->write(r, static_cast<uint8_t>(v));
             }
 
-            void WoodyOPL::generateSamples(int16_t* buffer, int length) noexcept
+            void WoodyOPL::generateSamples(int16_t* buffer, const size_t length) noexcept
             {
                 const int d = isStereo() ? 2 : 1;
                 _opl->update(buffer, length / d);

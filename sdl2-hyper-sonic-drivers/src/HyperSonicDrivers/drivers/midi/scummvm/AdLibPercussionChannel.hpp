@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <array>
+#include <memory>
 #include <HyperSonicDrivers/drivers/midi/scummvm/AdLibPart.hpp>
 #include <HyperSonicDrivers/drivers/midi/scummvm/AdLibInstrument.h>
 
@@ -22,7 +23,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
     public:
         AdLibPercussionChannel() = default;
-        ~AdLibPercussionChannel() override;
+        ~AdLibPercussionChannel() override = default;
 
         void noteOff(uint8_t note) override;
         void noteOn(uint8_t note, uint8_t velocity) override;
@@ -39,7 +40,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         void sysEx_customInstrument(uint32_t type, const uint8_t* instr) override;
 
     private:
-        std::array<uint8_t, 256> _notes;
-        std::array<AdLibInstrument*, 256> _customInstruments;
+        std::array<uint8_t, 256> _notes = { 0 };
+        std::array<std::unique_ptr<AdLibInstrument>, 256> _customInstruments;
     };
 }

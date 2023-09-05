@@ -88,8 +88,7 @@ namespace HyperSonicDrivers::drivers::westwood
         // Drop all tracks that are still queued. These would point to the old
         // sound data.
         _programQueueStart = _programQueueEnd = 0;
-        for (int i = 0; i < _programQueue.size(); ++i)
-            _programQueue[i] = QueueEntry();
+        std::ranges::fill(_programQueue, QueueEntry());
 
         _sfxPointer = nullptr;
     }
@@ -697,7 +696,7 @@ namespace HyperSonicDrivers::drivers::westwood
         if (channel.pitchBend || flag) {
             const uint8_t* table;
             // For safety, limit the values used to index the tables.
-            uint8_t indexNote = std::clamp(rawNote & 0x0F, 0, 11);
+            uint8_t indexNote = std::clamp<uint8_t>(static_cast<uint8_t>(rawNote & 0x0F), 0, 11);
 
             if (channel.pitchBend >= 0) {
                 table = _pitchBendTables[indexNote + 2];
@@ -1085,7 +1084,7 @@ namespace HyperSonicDrivers::drivers::westwood
 
                 if (opcode & 0x80)
                 {
-                    opcode = std::clamp<int8_t>(opcode & 0x7F, 0, _parserOpcodeTableSize - 1);
+                    opcode = std::clamp<int8_t>(static_cast<int8_t>(opcode & 0x7F), 0, _parserOpcodeTableSize - 1);
                     const ParserOpcode& op = _parserOpcodeTable[opcode];
 
                     // Safety check for end of data.
@@ -1668,8 +1667,9 @@ namespace HyperSonicDrivers::drivers::westwood
         return 0;
     }
 
-    int ADLDriver::update_changeChannelTempo(Channel& channel, const uint8_t* values) {
-        channel.tempo = std::clamp(channel.tempo + (int8_t)values[0], 1, 255);
+    int ADLDriver::update_changeChannelTempo(Channel& channel, const uint8_t* values)
+    {
+        channel.tempo = std::clamp<uint8_t>(static_cast<uint8_t>(channel.tempo + values[0]), 1, 255);
         return 0;
     }
 

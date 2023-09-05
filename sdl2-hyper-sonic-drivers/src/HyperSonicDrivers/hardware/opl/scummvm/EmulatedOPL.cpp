@@ -45,22 +45,23 @@ namespace HyperSonicDrivers::hardware
                 return _handle;
             }
 
-            int EmulatedOPL::readBuffer(int16_t* buffer, const size_t numSamples)
+            size_t EmulatedOPL::readBuffer(int16_t* buffer, const size_t numSamples)
             {
                 const int stereoFactor = isStereo() ? 2 : 1;
-                int len = numSamples / stereoFactor;
-                int step;
+                size_t len = numSamples / stereoFactor;
 
                 do {
-                    step = len;
-                    if (step > (_nextTick >> FIXP_SHIFT)) {
+                    size_t step = len;
+                    if (step > (_nextTick >> FIXP_SHIFT))
+                    {
                         step = (_nextTick >> FIXP_SHIFT);
                     }
 
                     generateSamples(buffer, step * stereoFactor);
 
                     _nextTick -= step << FIXP_SHIFT;
-                    if (!(_nextTick >> FIXP_SHIFT)) {
+                    if (!(_nextTick >> FIXP_SHIFT))
+                    {
                         if (_callback.get() != nullptr)
                             (*_callback)();
 

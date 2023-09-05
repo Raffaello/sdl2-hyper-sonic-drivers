@@ -37,7 +37,7 @@ namespace HyperSonicDrivers::hardware
                 void setCallbackFrequency(int timerFrequency) override;
                 std::shared_ptr<audio::scummvm::SoundHandle> getSoundHandle() const noexcept override;
                 // AudioStream API
-                int readBuffer(int16_t* buffer, const size_t numSamples) override;
+                size_t readBuffer(int16_t* buffer, const size_t numSamples) override;
                 int getRate() const noexcept override;
                 bool endOfData() const noexcept override;
 
@@ -60,7 +60,7 @@ namespace HyperSonicDrivers::hardware
                  * So if you request 4 samples from a stereo OPL, you will get
                  * a total of two left channel and two right channel samples.
                  */
-                virtual void generateSamples(int16_t* buffer, int length) noexcept = 0;
+                virtual void generateSamples(int16_t* buffer, const size_t length) noexcept = 0;
             private:
                 int _baseFreq = 0;
 

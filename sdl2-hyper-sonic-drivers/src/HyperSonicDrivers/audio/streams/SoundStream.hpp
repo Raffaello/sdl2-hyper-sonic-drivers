@@ -14,7 +14,7 @@ namespace HyperSonicDrivers::audio::streams
         explicit SoundStream(const std::shared_ptr<Sound>& sound);
         ~SoundStream();
 
-        int readBuffer(int16_t* buffer, const size_t numSamples) override;
+        size_t readBuffer(int16_t* buffer, const size_t numSamples) override;
         bool isStereo() const override;
         int getRate() const override;
         bool endOfData() const override;
@@ -24,7 +24,7 @@ namespace HyperSonicDrivers::audio::streams
     private:
         std::shared_ptr<Sound> _sound;
         audio::scummvm::SoundHandle _handle;
-        int _curPos = 0;
+        uint32_t _curPos = 0;
         int _bitsFactor;
     };
 }

@@ -191,7 +191,7 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::mame
        OPLWriteReg(_opl, r, v);
     }
 
-    void MameOPL2::generateSamples(int16_t* buffer, int length) noexcept
+    void MameOPL2::generateSamples(int16_t* buffer, const size_t length) noexcept
     {
         YM3812UpdateOne(_opl, buffer, length);
     }

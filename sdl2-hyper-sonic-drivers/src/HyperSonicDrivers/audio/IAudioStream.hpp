@@ -11,7 +11,7 @@ namespace HyperSonicDrivers::audio
         IAudioStream() = default;
         virtual ~IAudioStream() = default;
 
-        virtual int readBuffer(int16_t* buffer, const size_t numSamples) = 0;
+        virtual size_t readBuffer(int16_t* buffer, const size_t numSamples) = 0;
 
         virtual bool isStereo() const = 0;
 

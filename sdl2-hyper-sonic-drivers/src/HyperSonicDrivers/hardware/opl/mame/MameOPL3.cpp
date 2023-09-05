@@ -74,7 +74,7 @@ namespace HyperSonicDrivers::hardware::opl::mame
         ymf262_write(_chip, 1, v);
     }
 
-    void MameOPL3::generateSamples(int16_t* buffer, int length) noexcept
+    void MameOPL3::generateSamples(int16_t* buffer, const size_t length) noexcept
     {
         constexpr int MAX_SIZE = 512;
         ymfm::ymf262::output_data b[MAX_SIZE];
