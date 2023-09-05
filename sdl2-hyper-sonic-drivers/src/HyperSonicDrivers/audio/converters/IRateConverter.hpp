@@ -51,11 +51,7 @@ namespace HyperSonicDrivers::audio::converters
          * @return Number of sample pairs written into the buffer.
          */
         virtual int flow(IAudioStream& input, int16_t* obuf, uint32_t osamp, uint16_t vol_l, uint16_t vol_r) = 0;
-
         virtual int drain(int16_t* obuf, uint32_t osamp, uint16_t vol) = 0;
-
-    protected:
-
     };
 
     std::unique_ptr<IRateConverter> makeIRateConverter(
