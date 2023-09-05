@@ -3,7 +3,7 @@
 #include <HyperSonicDrivers/audio/scummvm/Channel.hpp>
 #include <HyperSonicDrivers/audio/scummvm/Timestamp.hpp>
 #include <HyperSonicDrivers/utils/algorithms.hpp>
-#
+
 
 namespace HyperSonicDrivers::audio::scummvm
 {
