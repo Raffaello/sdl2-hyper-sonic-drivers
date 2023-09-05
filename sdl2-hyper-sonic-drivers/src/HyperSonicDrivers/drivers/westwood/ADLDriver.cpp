@@ -2064,7 +2064,7 @@ namespace HyperSonicDrivers::drivers::westwood
     // These tables are currently only used by updateCallback46(), which only ever
     // uses the first element of one of the sub-tables.
 
-    const std::array<const uint8_t*, 6> const ADLDriver::_unkTable2 = {
+    const std::array<const uint8_t*, 6> ADLDriver::_unkTable2 = {
         ADLDriver::_unkTable2_1,
         ADLDriver::_unkTable2_2,
         ADLDriver::_unkTable2_1,

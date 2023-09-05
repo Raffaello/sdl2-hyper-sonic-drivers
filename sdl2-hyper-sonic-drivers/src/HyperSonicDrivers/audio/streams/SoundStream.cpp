@@ -18,7 +18,7 @@ namespace HyperSonicDrivers::audio::streams
     {
     }
 
-    int SoundStream::readBuffer(int16_t* buffer, const int numSamples)
+    int SoundStream::readBuffer(int16_t* buffer, const size_t numSamples)
     {
         assert(_sound->dataSize % _bitsFactor == 0);
 
@@ -27,7 +27,7 @@ namespace HyperSonicDrivers::audio::streams
         int remaining = std::min(len, rest);
 
         for (int i = 0; i < remaining; i++) {
-            // TODO convert Audio stream before playback?
+            // TODO convert Audio stream before playback? (yes when loading the file)
             if (_sound->bitsDepth == 8) {
                 buffer[i] = static_cast<int16_t>((_sound->data[_curPos++] - 128) * 128);
             }

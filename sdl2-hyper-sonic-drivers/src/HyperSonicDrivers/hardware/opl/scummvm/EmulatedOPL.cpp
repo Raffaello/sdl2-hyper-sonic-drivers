@@ -45,7 +45,7 @@ namespace HyperSonicDrivers::hardware
                 return _handle;
             }
 
-            int EmulatedOPL::readBuffer(int16_t* buffer, const int numSamples)
+            int EmulatedOPL::readBuffer(int16_t* buffer, const size_t numSamples)
             {
                 const int stereoFactor = isStereo() ? 2 : 1;
                 int len = numSamples / stereoFactor;
