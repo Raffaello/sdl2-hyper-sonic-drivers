@@ -67,7 +67,7 @@ namespace HyperSonicDrivers::audio::scummvm
         void playStream(
             SoundType type,
             SoundHandle* handle,
-            AudioStream* input,
+            IAudioStream* input,
             int id, uint8_t volume, int8_t balance,
             bool autofreeStream,
             bool permanent,

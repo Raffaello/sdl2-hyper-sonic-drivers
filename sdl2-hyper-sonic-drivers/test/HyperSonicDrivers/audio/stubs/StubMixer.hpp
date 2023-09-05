@@ -2,6 +2,7 @@
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
+#include <HyperSonicDrivers/audio/IAudiotStream.hpp>
 #include <HyperSonicDrivers/audio/scummvm/Mixer.hpp>
 #include <HyperSonicDrivers/audio/scummvm/Timestamp.hpp>
 
@@ -19,7 +20,7 @@ namespace HyperSonicDrivers::audio::stubs
         virtual void playStream(
             SoundType type,
             scummvm::SoundHandle* handle,
-            scummvm::AudioStream* stream,
+            IAudioStream* stream,
             int id = -1,
             uint8_t volume = MaxVolume::CHANNEL,
             int8_t balance = 0,

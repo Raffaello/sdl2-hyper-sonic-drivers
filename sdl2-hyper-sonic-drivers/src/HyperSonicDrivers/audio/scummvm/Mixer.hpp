@@ -3,7 +3,7 @@
 #include <mutex>
 #include <HyperSonicDrivers/audio/scummvm/Timestamp.hpp>
 #include <HyperSonicDrivers/audio/scummvm/SoundHandle.hpp>
-#include <HyperSonicDrivers/audio/scummvm/AudioStream.hpp>
+#include <HyperSonicDrivers/audio/IAudiotStream.hpp>
 
 namespace HyperSonicDrivers::audio::scummvm
 {
@@ -78,7 +78,7 @@ namespace HyperSonicDrivers::audio::scummvm
         virtual void playStream(
             SoundType type,
             SoundHandle* handle,
-            AudioStream* stream,
+            IAudioStream* stream,
             int id = -1,
             uint8_t volume = MaxVolume::CHANNEL,
             int8_t balance = 0,

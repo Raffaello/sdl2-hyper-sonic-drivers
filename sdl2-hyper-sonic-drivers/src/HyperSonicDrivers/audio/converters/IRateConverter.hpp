@@ -5,8 +5,8 @@
 #include <bit>
 #include <memory>
 #include <algorithm>
-#include <HyperSonicDrivers/audio/scummvm/AudioStream.hpp> // TODO redo it, avoid to use scummvm namespace
 #include <HyperSonicDrivers/audio/scummvm/Mixer.hpp>
+#include <HyperSonicDrivers/audio/IAudiotStream.hpp>
 
 namespace HyperSonicDrivers::audio::converters
 {
@@ -50,7 +50,7 @@ namespace HyperSonicDrivers::audio::converters
         /**
          * @return Number of sample pairs written into the buffer.
          */
-        virtual int flow(HyperSonicDrivers::audio::scummvm::AudioStream& input, int16_t* obuf, uint32_t osamp, uint16_t vol_l, uint16_t vol_r) = 0;
+        virtual int flow(IAudioStream& input, int16_t* obuf, uint32_t osamp, uint16_t vol_l, uint16_t vol_r) = 0;
 
         virtual int drain(int16_t* obuf, uint32_t osamp, uint16_t vol) = 0;
 

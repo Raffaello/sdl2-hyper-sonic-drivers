@@ -41,7 +41,7 @@ namespace HyperSonicDrivers::audio::scummvm
     void MixerImpl::playStream(
         SoundType type,
         SoundHandle* handle,
-        AudioStream* stream,
+        IAudioStream* stream,
         int id, uint8_t volume, int8_t balance,
         bool autofreeStream,
         bool permanent,

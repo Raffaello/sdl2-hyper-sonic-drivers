@@ -18,7 +18,7 @@ namespace HyperSonicDrivers::audio::streams
     {
     }
 
-    int SoundStream::readBuffer(int16_t* buffer, const int numSamples)
+    int SoundStream::readBuffer(int16_t* buffer, const size_t numSamples)
     {
         assert(_sound->dataSize % _bitsFactor == 0);
 

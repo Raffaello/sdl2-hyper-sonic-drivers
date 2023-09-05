@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <memory>
 #include <HyperSonicDrivers/hardware/opl/OPL.hpp>
-#include <HyperSonicDrivers/audio/scummvm/AudioStream.hpp>
+#include <HyperSonicDrivers/audio/IAudiotStream.hpp>
 #include <HyperSonicDrivers/audio/scummvm/SoundHandle.hpp>
 #include <HyperSonicDrivers/audio/scummvm/Mixer.hpp>
 #include <HyperSonicDrivers/hardware/opl/OplType.hpp>
@@ -22,7 +22,7 @@ namespace HyperSonicDrivers::hardware
              * This will send callbacks based on the number of samples
              * decoded in readBuffer().
              */
-            class EmulatedOPL : public OPL, protected audio::scummvm::AudioStream
+            class EmulatedOPL : public OPL, protected audio::IAudioStream
             {
             public:
                 EmulatedOPL(const OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer);
@@ -37,7 +37,7 @@ namespace HyperSonicDrivers::hardware
                 void setCallbackFrequency(int timerFrequency) override;
                 std::shared_ptr<audio::scummvm::SoundHandle> getSoundHandle() const noexcept override;
                 // AudioStream API
-                int readBuffer(int16_t* buffer, const int numSamples) override;
+                int readBuffer(int16_t* buffer, const size_t numSamples) override;
                 int getRate() const noexcept override;
                 bool endOfData() const noexcept override;
 
