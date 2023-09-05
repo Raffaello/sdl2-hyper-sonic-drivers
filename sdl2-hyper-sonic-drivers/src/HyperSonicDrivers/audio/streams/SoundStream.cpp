@@ -22,7 +22,6 @@ namespace HyperSonicDrivers::audio::streams
     {
         assert(_sound->dataSize % _bitsFactor == 0);
 
-        //const size_t len = numSamples;
         const size_t rest = (_sound->dataSize - _curPos) / _bitsFactor;
         const size_t remaining = std::min<uint32_t>(numSamples, rest);
 

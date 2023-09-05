@@ -268,29 +268,17 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
             }
         }
 
-        /*for (unsigned int i = 0; i < _parts.size(); ++i)
-        {
-            AdLibPart* part = &_parts[i];
-            if (!part->_allocated)
-            {
-                part->allocate();
-                return part;
-            }
-        }*/
         return nullptr;
     }
 
     // All the code brought over from IMuseAdLib
 
-    void MidiDriver_ADLIB::adlibWrite(uint8_t reg, uint8_t value) {
-        if (_regCache[reg] == value) {
+    void MidiDriver_ADLIB::adlibWrite(uint8_t reg, uint8_t value)
+    {
+        if (_regCache[reg] == value)
             return;
-        }
-#ifdef DEBUG_ADLIB
-        debug(6, "%10d: adlibWrite[%x] = %x", g_tick, reg, value);
-#endif
-        _regCache[reg] = value;
 
+        _regCache[reg] = value;
         _opl->writeReg(reg, value);
     }
 
@@ -308,7 +296,8 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         _opl->writeReg(reg | 0x100, value);
     }
 
-    void MidiDriver_ADLIB::onTimer() {
+    void MidiDriver_ADLIB::onTimer()
+    {
         //if (_adlibTimerProc)
         //    (*_adlibTimerProc)(_adlibTimerParam);
 
@@ -322,19 +311,24 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
             if (_opl3Mode)
                 continue;
 
-            AdLibVoice* voice = _voices.data();
-            for (int i = 0; i != _voices.size(); i++, voice++) {
-                if (!voice->_part)
+            for(auto& voice : _voices)
+            {
+                if (voice._part == nullptr)
                     continue;
-                if (voice->_duration && (voice->_duration -= 0x11) <= 0) {
-                    mcOff(voice);
+
+                if (voice._duration && (voice._duration -= 0x11) <= 0)
+                {
+                    mcOff(&voice);
                     return;
                 }
-                if (voice->_s10a.active) {
-                    mcIncStuff(voice, &voice->_s10a, &voice->_s11a);
+
+                if (voice._s10a.active)
+                {
+                    mcIncStuff(&voice, &voice._s10a, &voice._s11a);
                 }
-                if (voice->_s10b.active) {
-                    mcIncStuff(voice, &voice->_s10b, &voice->_s11b);
+                if (voice._s10b.active)
+                {
+                    mcIncStuff(&voice, &voice._s10b, &voice._s11b);
                 }
             }
         }

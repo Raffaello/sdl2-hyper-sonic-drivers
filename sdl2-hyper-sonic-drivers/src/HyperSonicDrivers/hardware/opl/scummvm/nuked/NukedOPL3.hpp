@@ -35,6 +35,6 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::nuked
         void writeReg(const uint16_t r, const uint16_t v) noexcept override;
     
     protected:
-        void generateSamples(int16_t* buffer, size_t length) noexcept override;
+        void generateSamples(int16_t* buffer, const size_t length) noexcept override;
     };
 }
