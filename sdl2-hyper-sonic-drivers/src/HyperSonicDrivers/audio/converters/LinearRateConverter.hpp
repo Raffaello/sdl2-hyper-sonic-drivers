@@ -11,6 +11,11 @@
 
 namespace HyperSonicDrivers::audio::converters
 {
+    constexpr int16_t interpolate(const int16_t a, const int16_t b, const int32_t t)
+    {
+        return a + (((b - a) * t + fracHalfLow) >> fracBitsLow);
+    }
+
     /**
      * Audio rate converter based on simple linear Interpolation.
      *
@@ -121,10 +126,9 @@ namespace HyperSonicDrivers::audio::converters
             {
                 // interpolate
                 int16_t out0, out1;
-                out0 = static_cast<int16_t>(ilast0 + (((icur0 - ilast0) * opos + fracHalfLow) >> fracBitsLow));
-                out1 = (stereo ?
-                    static_cast<int16_t>(ilast1 + (((icur1 - ilast1) * opos + fracHalfLow) >> fracBitsLow)) :
-                    out0);
+
+                out0 = interpolate(ilast0, icur0, opos);
+                out1 = stereo ? interpolate(ilast1, icur1, opos) : out0;
 
                 // output left channel
                 utils::clampAdd(obuf[reverseStereo], (out0 * static_cast<int>(vol_l)) / scummvm::Mixer::MaxVolume::MIXER);
