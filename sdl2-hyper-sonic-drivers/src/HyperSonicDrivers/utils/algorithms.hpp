@@ -15,12 +15,6 @@ namespace HyperSonicDrivers::utils
     constexpr uint32_t MKID_BE(T1 a, T2  b, T3  c, T4  d) { return a | b << 8 | c << 16 | d << 24; }
 
     template<typename T>
-    constexpr void clampAdd(T& a, int b)
-    {
-        a = std::clamp<T>(a + b, std::numeric_limits<int16_t>::min(), std::numeric_limits<int16_t>::max());
-    }
-
-    template<typename T>
     inline T getMillis()
     {
         return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();

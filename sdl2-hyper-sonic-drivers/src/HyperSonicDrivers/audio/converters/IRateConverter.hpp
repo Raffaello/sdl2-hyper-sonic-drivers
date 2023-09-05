@@ -3,7 +3,10 @@
 #include <cstdint>
 #include <limits>
 #include <bit>
+#include <memory>
+#include <algorithm>
 #include <HyperSonicDrivers/audio/scummvm/AudioStream.hpp> // TODO redo it, avoid to use scummvm namespace
+#include <HyperSonicDrivers/audio/scummvm/Mixer.hpp>
 
 namespace HyperSonicDrivers::audio::converters
 {
@@ -24,6 +27,20 @@ namespace HyperSonicDrivers::audio::converters
     constexpr int fracOneLow = (1L << fracBitsLow);
     constexpr int fracHalfLow = (1L << (fracBitsLow - 1));
 
+    constexpr void clampAdd(int16_t& a, int b)
+    {
+        a = static_cast<int16_t>(std::clamp<int32_t>(
+                a + b,
+                std::numeric_limits<int16_t>::min(),
+                std::numeric_limits<int16_t>::max()
+        ));
+    }
+
+    constexpr void output_channel(int16_t& out_buf, const int16_t out, const uint16_t vol)
+    {
+        clampAdd(out_buf, (out * static_cast<int>(vol)) / scummvm::Mixer::MaxVolume::MIXER);
+    }
+
     class IRateConverter
     {
     public:
@@ -36,9 +53,12 @@ namespace HyperSonicDrivers::audio::converters
         virtual int flow(HyperSonicDrivers::audio::scummvm::AudioStream& input, int16_t* obuf, uint32_t osamp, uint16_t vol_l, uint16_t vol_r) = 0;
 
         virtual int drain(int16_t* obuf, uint32_t osamp, uint16_t vol) = 0;
+
+    protected:
+
     };
 
-    IRateConverter* makeIRateConverter(
+    std::unique_ptr<IRateConverter> makeIRateConverter(
         const uint32_t inrate,
         const uint32_t outrate,
         const bool stereo,

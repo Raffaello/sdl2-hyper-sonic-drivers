@@ -38,11 +38,6 @@ namespace HyperSonicDrivers::audio::scummvm
         return _mixerReady;
     }
 
-    /*std::mutex& MixerImpl::mutex()
-    {
-        return _mutex;
-    }*/
-
     void MixerImpl::playStream(
         SoundType type,
         SoundHandle* handle,

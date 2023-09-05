@@ -3,9 +3,6 @@
 #include <cstdint>
 #include <array>
 #include <HyperSonicDrivers/audio/converters/IRateConverter.hpp>
-#include <HyperSonicDrivers/audio/scummvm/AudioStream.hpp>
-#include <HyperSonicDrivers/utils/algorithms.hpp>
-#include <HyperSonicDrivers/audio/scummvm/Mixer.hpp>
 
 #include <SDL2/SDL_log.h>
 
@@ -20,7 +17,7 @@ namespace HyperSonicDrivers::audio::converters
     template<bool stereo, bool reverseStereo>
     class SimpleRateConverter : public IRateConverter
     {
-    protected:
+    private:
         std::array<int16_t, intermediateBufferSize> inBuf = {};
         const int16_t* inPtr = nullptr;
         int inLen = 0;
@@ -73,10 +70,8 @@ namespace HyperSonicDrivers::audio::converters
     template<bool stereo, bool reverseStereo>
     int SimpleRateConverter<stereo, reverseStereo>::flow(scummvm::AudioStream& input, int16_t* obuf, uint32_t osamp, const uint16_t vol_l, const uint16_t vol_r)
     {
-        int16_t* ostart, * oend;
-
-        ostart = obuf;
-        oend = obuf + osamp * 2;
+        const int16_t* ostart = obuf;
+        const int16_t* oend = obuf + osamp * 2;
 
         while (obuf < oend)
         {
@@ -99,18 +94,16 @@ namespace HyperSonicDrivers::audio::converters
                 }
             } while (opos >= 0);
 
-            int16_t out0, out1;
-            out0 = *inPtr++;
-            out1 = (stereo ? *inPtr++ : out0);
+            int16_t out0 = *inPtr++;
+            int16_t out1 = (stereo ? *inPtr++ : out0);
 
             // Increment output position
             opos += opos_inc;
 
             // output left channel
-            utils::clampAdd(obuf[reverseStereo], (out0 * static_cast<int>(vol_l)) / scummvm::Mixer::MaxVolume::MIXER);
+            output_channel(obuf[reverseStereo ? 0 : 1], out0, vol_l);
             // output right channel
-            utils::clampAdd(obuf[reverseStereo ^ 1], (out1 * static_cast<int>(vol_r)) / scummvm::Mixer::MaxVolume::MIXER);
-
+            output_channel(obuf[reverseStereo ? 1 : 0], out1, vol_r);
             obuf += 2;
         }
 

@@ -3,7 +3,7 @@
 #include <HyperSonicDrivers/audio/scummvm/Channel.hpp>
 #include <HyperSonicDrivers/audio/scummvm/Timestamp.hpp>
 #include <HyperSonicDrivers/utils/algorithms.hpp>
-
+#
 
 namespace HyperSonicDrivers::audio::scummvm
 {
@@ -20,7 +20,7 @@ namespace HyperSonicDrivers::audio::scummvm
         _stream = stream;
         _dispose_stream = autofreeStream;
         // Get a rate converter instance
-        _converter.reset(converters::makeIRateConverter(_stream->getRate(), mixer->getOutputRate(), _stream->isStereo(), reverseStereo));
+        _converter = converters::makeIRateConverter(_stream->getRate(), mixer->getOutputRate(), _stream->isStereo(), reverseStereo);
     }
 
     Channel::~Channel()

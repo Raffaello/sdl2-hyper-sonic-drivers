@@ -14,10 +14,10 @@ namespace HyperSonicDrivers::audio::streams
         explicit SoundStream(const std::shared_ptr<Sound>& sound);
         ~SoundStream();
 
-        virtual int readBuffer(int16_t* buffer, const int numSamples) override;
-        virtual bool isStereo() const override;
-        virtual int getRate() const override;
-        virtual bool endOfData() const override;
+        int readBuffer(int16_t* buffer, const int numSamples) override;
+        bool isStereo() const override;
+        int getRate() const override;
+        bool endOfData() const override;
 
         scummvm::SoundHandle* getSoundHandlePtr() noexcept;
         std::weak_ptr<Sound>  getSound() const noexcept;

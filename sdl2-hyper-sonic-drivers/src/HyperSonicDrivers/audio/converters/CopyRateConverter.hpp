@@ -2,11 +2,10 @@
 
 #include <cstdint>
 #include <memory>
+#include <vector>
 #include <cassert>
 #include <HyperSonicDrivers/audio/converters/IRateConverter.hpp>
-#include <HyperSonicDrivers/audio/scummvm/AudioStream.hpp>
-#include <HyperSonicDrivers/utils/algorithms.hpp>
-#include <HyperSonicDrivers/audio/scummvm/Mixer.hpp>
+
 
 #include <SDL2/SDL_log.h>
 
@@ -19,55 +18,38 @@ namespace HyperSonicDrivers::audio::converters
     class CopyRateConverter : public IRateConverter
     {
     private:
-        std::unique_ptr<int16_t[]> _buffer = nullptr;
-        uint32_t _bufferSize = 0;
+        std::vector<int16_t> _buffer;
 
     public:
         CopyRateConverter() = default;
-        virtual ~CopyRateConverter() = default;
+        ~CopyRateConverter() override = default;
 
         int flow(scummvm::AudioStream& input, int16_t* obuf, uint32_t osamp, const uint16_t vol_l, const uint16_t vol_r) override
         {
             assert(input.isStereo() == stereo);
 
-            int16_t* ptr;
-            uint32_t len;
-
-            int16_t* ostart = obuf;
-
             if (stereo)
                 osamp *= 2;
 
             // Reallocate temp buffer, if necessary
-            if (osamp > _bufferSize)
-            {
-                _buffer = std::make_unique<int16_t[]>(osamp);
-                _bufferSize = osamp;
-            }
+            if (osamp > _buffer.size())
+                _buffer.resize(osamp);
 
-            if (_buffer == nullptr)
-            {
-                SDL_LogError(SDL_LOG_CATEGORY_AUDIO, "[CopyRateConverter::flow] Cannot allocate memory for temp buffer");
-                return 0;
-            }
-
+            const int16_t* ostart = obuf;
             // Read up to 'osamp' samples into our temporary buffer
-            len = input.readBuffer(_buffer.get(), osamp);
+            uint32_t len = input.readBuffer(_buffer.data(), osamp);
 
             // Mix the data into the output buffer
-            ptr = _buffer.get();
-
+            auto it = _buffer.begin();
             for (; len > 0; len -= (stereo ? 2 : 1))
             {
-                int16_t out0, out1;
-                out0 = *ptr++;
-                out1 = (stereo ? *ptr++ : out0);
+                int16_t out0 = *it++;
+                int16_t out1 = (stereo ? *it++ : out0);
 
                 // output left channel
-                utils::clampAdd(obuf[reverseStereo], (out0 * static_cast<int>(vol_l)) / scummvm::Mixer::MaxVolume::MIXER);
+                output_channel(obuf[reverseStereo ? 1 : 0], out0, vol_l);
                 // output right channel
-                utils::clampAdd(obuf[reverseStereo ^ 1], (out1 * static_cast<int>(vol_r)) / scummvm::Mixer::MaxVolume::MIXER);
-
+                output_channel(obuf[reverseStereo ? 0 : 1], out1, vol_r);
                 obuf += 2;
             }
 

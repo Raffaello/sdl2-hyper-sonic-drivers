@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cstdint>
-#include <mutex>
 #include <array>
 #include <HyperSonicDrivers/audio/scummvm/Mixer.hpp>
 #include <HyperSonicDrivers/audio/scummvm/Channel.hpp>
@@ -64,8 +63,6 @@ namespace HyperSonicDrivers::audio::scummvm
         ~MixerImpl();
 
         bool isReady() override;
-
-        //std::mutex& mutex() override;
 
         void playStream(
             SoundType type,
