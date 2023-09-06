@@ -2,10 +2,13 @@
 #include <stdexcept>
 #include <HyperSonicDrivers/audio/DiskRendererMixerManager.hpp>
 #include <HyperSonicDrivers/audio/scummvm/MixerImpl.hpp>
-#include <SDL2/SDL_log.h>
+
+#include <HyperSonicDrivers/utils/ILogger.hpp>
 
 namespace HyperSonicDrivers::audio
 {
+    using utils::ILogger;
+
     DiskRendererMixerManager::DiskRendererMixerManager(const int rate, const uint8_t bits, const uint8_t channels) :
         _rate(rate), _bits(bits), _channels(channels)
     {
@@ -53,8 +56,9 @@ namespace HyperSonicDrivers::audio
         if (_file.is_open()) {
             _file.write(reinterpret_cast<const char*>(samples), len);
         }
-        else {
-            SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, "File not open");
+        else
+        {
+            ILogger::instance->warning("File not open", ILogger::eCategory::System);
         }
     }
     void DiskRendererMixerManager::rendererCallback(void* this_, uint8_t* samples, int len)

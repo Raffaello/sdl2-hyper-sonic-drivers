@@ -3,11 +3,12 @@
 #include <cstdint>
 #include <array>
 #include <HyperSonicDrivers/audio/converters/IRateConverter.hpp>
-
-#include <SDL2/SDL_log.h>
+#include <HyperSonicDrivers/utils/ILogger.hpp>
 
 namespace HyperSonicDrivers::audio::converters
 {
+    using utils::ILogger;
+
     constexpr int16_t interpolate(const int16_t a, const int16_t b, const int32_t t)
     {
         return static_cast<int16_t>(a + (((b - a) * t + fracHalfLow) >> fracBitsLow));
@@ -63,7 +64,7 @@ namespace HyperSonicDrivers::audio::converters
     {
         if (inrate >= 131072 || outrate >= 131072)
         {
-            SDL_LogError(SDL_LOG_CATEGORY_AUDIO, "rate effect can only handle rates < 131072");
+            ILogger::instance->error("rate effect can only handle rates < 131072", ILogger::eCategory::Audio);
         }
 
         opos = fracOneLow;

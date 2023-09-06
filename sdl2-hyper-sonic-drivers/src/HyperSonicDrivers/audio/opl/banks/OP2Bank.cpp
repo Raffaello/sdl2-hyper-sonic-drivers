@@ -1,9 +1,11 @@
-#include <HyperSonicDrivers/audio/opl/banks/OP2Bank.hpp>
-#include <SDL2/SDL_log.h>
 #include <format>
+#include <HyperSonicDrivers/audio/opl/banks/OP2Bank.hpp>
+#include <HyperSonicDrivers/utils/ILogger.hpp>
 
 namespace HyperSonicDrivers::audio::opl::banks
 {
+    using utils::ILogger;
+
     OP2Bank::OP2Bank(
         const std::array<Op2BankInstrument_t, OP2BANK_NUM_INSTRUMENTS>& instruments,
         const std::array<std::string, OP2BANK_NUM_INSTRUMENTS>& names
@@ -13,8 +15,9 @@ namespace HyperSonicDrivers::audio::opl::banks
 
     uint8_t OP2Bank::getPercussionIndex(const uint8_t note)
     {
-        if (note < 35 || note > 81) {
-            SDL_LogError(SDL_LOG_CATEGORY_AUDIO, std::format("wrong percussion number {}", note).c_str());
+        if (note < 35 || note > 81)
+        {
+            utils::ILogger::instance->error(std::format("wrong percussion number {}", note), ILogger::eCategory::Audio);
         }
 
         return note + (128 - 35);

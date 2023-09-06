@@ -271,10 +271,14 @@ target_sources(${LIB_NAME} PRIVATE
     # --- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/hardware/PCSpeaker.cpp
     # --- #
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/utils/algorithms.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/utils/constants.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/utils/endianness.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/utils/algorithms.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/utils/opl.cpp
+    # --- #
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/utils/ILogger.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/utils/sdl2/Logger.cpp
+    # --- #
 )
 
 target_link_libraries(${LIB_NAME} PUBLIC ${LIB_SDL2} RtMidi::rtmidi)

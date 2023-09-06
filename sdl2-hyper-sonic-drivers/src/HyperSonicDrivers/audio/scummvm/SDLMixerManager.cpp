@@ -3,12 +3,14 @@
 #include <format>
 #include <cassert>
 #include <HyperSonicDrivers/audio/scummvm/SDLMixerManager.hpp>
+#include <HyperSonicDrivers/utils/ILogger.hpp>
 
-#include <SDL2/SDL_log.h>
 #include <SDL2/SDL.h>
 
 namespace HyperSonicDrivers::audio::scummvm
 {
+    using utils::ILogger;
+
 #if defined(GP2X)
 #define SAMPLES_PER_SEC 11025
 #elif defined(PLAYSTATION3) || defined(PSP2) || defined(NINTENDO_SWITCH)
@@ -29,7 +31,7 @@ namespace HyperSonicDrivers::audio::scummvm
     uint8_t SDL_getBitsDepth(const SDL_AudioSpec& as)
     {
         uint8_t bits = as.format & 0xFF;
-        SDL_LogDebug(SDL_LOG_CATEGORY_AUDIO, std::format("Audio {} bits", bits).c_str());
+        ILogger::instance->debug(std::format("Audio {} bits", bits), ILogger::eCategory::Audio);
 
         return bits;
     }
@@ -37,9 +39,9 @@ namespace HyperSonicDrivers::audio::scummvm
     void SdlMixerManager::init()
     {
         // Start SDL Audio subsystem
-        if (SDL_InitSubSystem(SDL_INIT_AUDIO) == -1) {
-            SDL_LogError(SDL_LOG_CATEGORY_AUDIO, std::format("Could not initialize SDL: {}", std::string(SDL_GetError())).c_str());
-            SDL_ClearError();
+        if (SDL_InitSubSystem(SDL_INIT_AUDIO) == -1)
+        {
+            ILogger::instance->error("Can't initialize SDL Audio", ILogger::eCategory::Audio);
         }
 
 #if SDL_VERSION_ATLEAST(2, 0, 0)
@@ -50,7 +52,7 @@ namespace HyperSonicDrivers::audio::scummvm
         sdlDriverName[0] = '\0';
         SDL_AudioDriverName(sdlDriverName, maxNameLen);
 #endif
-        SDL_LogDebug(SDL_LOG_CATEGORY_AUDIO, std::format("Using SDL Audio Driver '{}'", sdlDriverName).c_str());
+        ILogger::instance->info(std::format("Using SDL Audio Driver '{}'", sdlDriverName), ILogger::eCategory::Audio);
         // Get the desired audio specs
         SDL_AudioSpec desired = getAudioSpec(SAMPLES_PER_SEC);
 
@@ -59,9 +61,9 @@ namespace HyperSonicDrivers::audio::scummvm
         SDL_AudioSpec fmt = desired;
         uint8_t bitsDepth = -1;
         // Start SDL audio with the desired specs
-        if (SDL_OpenAudio(&fmt, &_obtained) != 0) {
-            SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, std::format("Could not open audio device: {}", std::string(SDL_GetError())).c_str());
-            SDL_ClearError();
+        if (SDL_OpenAudio(&fmt, &_obtained) != 0)
+        {
+            ILogger::instance->warning("Can't open audio device", ILogger::eCategory::Audio);
 
             bitsDepth = SDL_getBitsDepth(fmt);
             // The mixer is not marked as ready
@@ -76,11 +78,12 @@ namespace HyperSonicDrivers::audio::scummvm
         // SDL to do resampling to the desired audio spec.
         if (_obtained.format != desired.format)
         {
-            SDL_LogDebug(SDL_LOG_CATEGORY_AUDIO, std::format("SDL mixer sound format: {:#04x} differs from desired: {:#04x}", _obtained.format, desired.format).c_str());
+            ILogger::instance->debug(std::format("SDL mixer sound format: {:#04x} differs from desired: {:#04x}", _obtained.format, desired.format), ILogger::eCategory::Audio);
             SDL_CloseAudio();
 
-            if (SDL_OpenAudio(&fmt, NULL) != 0) {
-                SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, std::format("Could not open audio device: {}", SDL_GetError()).c_str());
+            if (SDL_OpenAudio(&fmt, NULL) != 0)
+            {
+                ILogger::instance->error("Can't open audio device", ILogger::eCategory::Audio);
                 // The mixer is not marked as ready
                 //_mixer = new MixerImpl(desired.freq);
                 _mixer = std::make_shared<MixerImpl>(desired.freq, bitsDepth);
@@ -91,28 +94,32 @@ namespace HyperSonicDrivers::audio::scummvm
             bitsDepth = SDL_getBitsDepth(_obtained);
         }
 
-        SDL_LogDebug(SDL_LOG_CATEGORY_AUDIO, std::format("Output sample rate: {} Hz", _obtained.freq).c_str());
-        if (_obtained.freq != desired.freq) {
-            SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, std::format("SDL mixer output sample rate: {} differs from desired: {}", _obtained.freq, desired.freq).c_str());
+        ILogger::instance->info(std::format("Output sample rate: {} Hz", _obtained.freq), ILogger::eCategory::Audio);
+        if (_obtained.freq != desired.freq)
+        {
+            ILogger::instance->warning(std::format("SDL mixer output sample rate: {} differs from desired: {}", _obtained.freq, desired.freq), ILogger::eCategory::Audio);
         }
 
-        SDL_LogDebug(SDL_LOG_CATEGORY_AUDIO, std::format("Output buffer size: {}samples", _obtained.samples).c_str());
-        if (_obtained.samples != desired.samples) {
-            SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, std::format("SDL mixer output buffer size: {} differs from desired: {}", _obtained.samples, desired.samples).c_str());
+        ILogger::instance->info(std::format("Output buffer size: {}samples", _obtained.samples), ILogger::eCategory::Audio);
+        if (_obtained.samples != desired.samples)
+        {
+            ILogger::instance->warning(std::format("SDL mixer output buffer size: {} differs from desired: {}", _obtained.samples, desired.samples), ILogger::eCategory::Audio);
         }
 
-        SDL_LogDebug(SDL_LOG_CATEGORY_AUDIO, std::format("Output format: {}", _obtained.format).c_str());
-        if (_obtained.format != desired.format) {
-            SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, std::format("SDL mixer format: {} differs from desired: {}", _obtained.format, desired.format).c_str());
+        ILogger::instance->info(std::format("Output format: {}", _obtained.format), ILogger::eCategory::Audio);
+        if (_obtained.format != desired.format)
+        {
+            ILogger::instance->warning(std::format("SDL mixer format: {} differs from desired: {}", _obtained.format, desired.format), ILogger::eCategory::Audio);
         }
 
-#ifndef __SYMBIAN32__
+//#ifndef __SYMBIAN32__
         // The SymbianSdlMixerManager does stereo->mono downmixing,
         // but otherwise we require stereo output.
-        if (_obtained.channels != 2) {
-            SDL_LogError(SDL_LOG_CATEGORY_AUDIO, "SDL mixer output requires stereo output device");
+        if (_obtained.channels != 2)
+        {
+            ILogger::instance->critical("Mixer requires a stereo output device", ILogger::eCategory::System);
         }
-#endif
+//#endif
 
         //_mixer = new MixerImpl(_obtained.freq);
         _mixer = std::make_shared<MixerImpl>(_obtained.freq, bitsDepth);
