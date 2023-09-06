@@ -698,7 +698,7 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::mame
 
 
         ENV_CURVE = (int*)malloc(sizeof(int) * (2 * EG_ENT + 1));
-        if (!ENV_CURVE)
+        if (ENV_CURVE == nullptr)
         {
             throwLogC<std::runtime_error>("[OPLOpenTable] Cannot allocate memory");
         }
@@ -713,6 +713,9 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::mame
             ENV_CURVE[(EG_DST >> ENV_BITS) + i] = i;
         }
         /* off */
+#ifdef _MSC_VER
+#pragma warning(suppress:6011)
+#endif
         ENV_CURVE[EG_OFF >> ENV_BITS] = EG_ENT - 1;
         /* make LFO ams table */
         for (i = 0; i < AMS_ENT; i++) {

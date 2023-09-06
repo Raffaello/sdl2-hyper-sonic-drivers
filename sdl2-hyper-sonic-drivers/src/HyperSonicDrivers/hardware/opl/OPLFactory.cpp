@@ -33,7 +33,7 @@ namespace HyperSonicDrivers::hardware::opl
                 return nullptr;
             }
         case OplEmulator::AUTO:
-            [fallthrough];
+            [[fallthrough]];
         case OplEmulator::DOS_BOX:
             return std::make_shared<scummvm::dosbox::DosBoxOPL>(type, mixer);
         case OplEmulator::NUKED:

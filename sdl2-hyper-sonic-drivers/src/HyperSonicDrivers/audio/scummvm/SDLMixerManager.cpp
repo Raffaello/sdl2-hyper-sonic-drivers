@@ -121,7 +121,7 @@ namespace HyperSonicDrivers::audio::scummvm
         // but otherwise we require stereo output.
         if (_obtained.channels != 2)
         {
-            logC("Mixer requires a stereo output device", ILogger::eCategory::System);
+            logC("Mixer requires a stereo output device", utils::ILogger::eCategory::System);
         }
 //#endif
 
