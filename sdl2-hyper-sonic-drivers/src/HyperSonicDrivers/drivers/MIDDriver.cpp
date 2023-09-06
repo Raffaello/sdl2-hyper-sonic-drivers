@@ -217,7 +217,7 @@ namespace HyperSonicDrivers::drivers
                     case MIDI_META_EVENT::SET_TEMPO: {
                         setTempo((e.data[1] << 16) + (e.data[2] << 8) + (e.data[3]));
                         tempo_micros = tempo_to_micros(_tempo, division);
-                        logT(std::format("Tempo {}, ({} bpm) -- microseconds/tick {}", _tempo.load(), 60000000 / _tempo.load(), tempo_micros).c_str());
+                        logT(std::format("Tempo {}, ({} bpm) -- microseconds/tick {}", _tempo.load(), 60000000 / _tempo.load(), tempo_micros));
                         break;
                     }
                     case MIDI_META_EVENT::SMPTE_OFFSET:

@@ -68,7 +68,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
         if (!inst)
         {
-            logD(std::format("No instrument FM definition for GM percussion key {:d}", note).c_str());
+            logD(std::format("No instrument FM definition for GM percussion key {:d}", note));
             return;
         }
 

@@ -1381,15 +1381,15 @@ namespace HyperSonicDrivers::drivers::westwood
 
         // Safety check in case an invalid program is specified. This would make
         // getProgram return a nullptr and thus cause invalid memory reads.
-        if (!ptr)
+        if (ptr == nullptr)
         {
             logW(std::format("Invalid program {} specified", values[0]));
             return 0;
         }
 
-        int8_t chan = *ptr;
+        const int8_t chan = *ptr;
 
-        if (chan > NUM_CHANNELS || !_channels[chan].dataptr)
+        if (chan > NUM_CHANNELS || _channels[chan].dataptr == nullptr)
             return 0;
 
         channel.dataptr -= 2;
@@ -1729,7 +1729,7 @@ namespace HyperSonicDrivers::drivers::westwood
 
         const uint8_t* instrument;
         instrument = getInstrument(values[0]);
-        if (instrument)
+        if (instrument != nullptr)
         {
             setupInstrument(_curRegOffset, instrument, channel);
         }
@@ -1743,7 +1743,7 @@ namespace HyperSonicDrivers::drivers::westwood
         _curRegOffset = _regOffset[7];
 
         instrument = getInstrument(values[1]);
-        if (instrument)
+        if (instrument != nullptr)
         {
             setupInstrument(_curRegOffset, instrument, channel);
         }
@@ -1758,7 +1758,7 @@ namespace HyperSonicDrivers::drivers::westwood
         _curRegOffset = _regOffset[8];
 
         instrument = getInstrument(values[2]);
-        if (instrument)
+        if (instrument != nullptr)
         {
             setupInstrument(_curRegOffset, instrument, channel);
         }

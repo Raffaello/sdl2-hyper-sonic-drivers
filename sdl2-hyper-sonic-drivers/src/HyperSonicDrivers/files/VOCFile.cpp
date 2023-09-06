@@ -203,13 +203,13 @@ namespace HyperSonicDrivers::files
                 case 0x0200: // 16-bit to 4-bit ADPCM
                     //break;
                 default:
-                    logW(std::format("unknown/not-implemented format={}", format).c_str());
+                    logW(std::format("unknown/not-implemented format={}", format));
                 }
             }
                 break;
             default:
                 //return false;
-                logW(std::format("unknown data block type {}", db.type).c_str());
+                logW(std::format("unknown data block type {}", db.type));
             }
 
             lastType = db.type; // ?
