@@ -18,7 +18,8 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         std::ranges::fill(_customInstruments, nullptr);
     }
 
-    void AdLibPercussionChannel::noteOff(uint8_t note) {
+    void AdLibPercussionChannel::noteOff(uint8_t note)
+    {
         if (_customInstruments[note])
         {
             note = _notes[note];
