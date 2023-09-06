@@ -7,8 +7,6 @@
 
 namespace HyperSonicDrivers::audio
 {
-    using utils::ILogger;
-
     DiskRendererMixerManager::DiskRendererMixerManager(const int rate, const uint8_t bits, const uint8_t channels) :
         _rate(rate), _bits(bits), _channels(channels)
     {
@@ -58,7 +56,7 @@ namespace HyperSonicDrivers::audio
         }
         else
         {
-            ILogger::instance->warning("File not open", ILogger::eCategory::System);
+            utils::logW("File not open", utils::ILogger::eCategory::System);
         }
     }
     void DiskRendererMixerManager::rendererCallback(void* this_, uint8_t* samples, int len)

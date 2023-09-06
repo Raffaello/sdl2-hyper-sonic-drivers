@@ -4,8 +4,6 @@
 
 namespace HyperSonicDrivers::audio::opl::banks
 {
-    using utils::ILogger;
-
     OP2Bank::OP2Bank(
         const std::array<Op2BankInstrument_t, OP2BANK_NUM_INSTRUMENTS>& instruments,
         const std::array<std::string, OP2BANK_NUM_INSTRUMENTS>& names
@@ -17,7 +15,7 @@ namespace HyperSonicDrivers::audio::opl::banks
     {
         if (note < 35 || note > 81)
         {
-            utils::ILogger::instance->error(std::format("wrong percussion number {}", note), ILogger::eCategory::Audio);
+            utils::logE(std::format("wrong percussion number {}", note));
         }
 
         return note + (128 - 35);

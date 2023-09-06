@@ -7,8 +7,6 @@
 
 namespace HyperSonicDrivers::audio::converters
 {
-    using utils::ILogger;
-
     /**
      * Audio rate converter based on simple resampling. Used when no
      * interpolation is required.
@@ -48,12 +46,12 @@ namespace HyperSonicDrivers::audio::converters
     {
         if ((inrate % outrate) != 0)
         {
-            ILogger::instance->error("Input rate must be a multiple of output rate to use rate effect", ILogger::eCategory::Audio);
+            utils::logE("Input rate must be a multiple of output rate to use rate effect");
         }
 
         if (inrate >= 65536 || outrate >= 65536)
         {
-            ILogger::instance->error("rate effect can only handle rates < 65536", ILogger::eCategory::Audio);
+            utils::logE("rate effect can only handle rates < 65536");
         }
 
         opos = 1;

@@ -9,7 +9,11 @@
 
 namespace HyperSonicDrivers::audio::scummvm
 {
-    using utils::ILogger;
+    using utils::logD;
+    using utils::logW;
+    using utils::logI;
+    using utils::logE;
+    using utils::logC;
 
 #if defined(GP2X)
 #define SAMPLES_PER_SEC 11025
@@ -31,7 +35,7 @@ namespace HyperSonicDrivers::audio::scummvm
     uint8_t SDL_getBitsDepth(const SDL_AudioSpec& as)
     {
         uint8_t bits = as.format & 0xFF;
-        ILogger::instance->debug(std::format("Audio {} bits", bits), ILogger::eCategory::Audio);
+        logD(std::format("Audio {} bits", bits));
 
         return bits;
     }
@@ -41,7 +45,7 @@ namespace HyperSonicDrivers::audio::scummvm
         // Start SDL Audio subsystem
         if (SDL_InitSubSystem(SDL_INIT_AUDIO) == -1)
         {
-            ILogger::instance->error("Can't initialize SDL Audio", ILogger::eCategory::Audio);
+            logE("Can't initialize SDL Audio");
         }
 
 #if SDL_VERSION_ATLEAST(2, 0, 0)
@@ -52,7 +56,7 @@ namespace HyperSonicDrivers::audio::scummvm
         sdlDriverName[0] = '\0';
         SDL_AudioDriverName(sdlDriverName, maxNameLen);
 #endif
-        ILogger::instance->info(std::format("Using SDL Audio Driver '{}'", sdlDriverName), ILogger::eCategory::Audio);
+        logI(std::format("Using SDL Audio Driver '{}'", sdlDriverName));
         // Get the desired audio specs
         SDL_AudioSpec desired = getAudioSpec(SAMPLES_PER_SEC);
 
@@ -63,7 +67,7 @@ namespace HyperSonicDrivers::audio::scummvm
         // Start SDL audio with the desired specs
         if (SDL_OpenAudio(&fmt, &_obtained) != 0)
         {
-            ILogger::instance->warning("Can't open audio device", ILogger::eCategory::Audio);
+            logW("Can't open audio device");
 
             bitsDepth = SDL_getBitsDepth(fmt);
             // The mixer is not marked as ready
@@ -78,12 +82,12 @@ namespace HyperSonicDrivers::audio::scummvm
         // SDL to do resampling to the desired audio spec.
         if (_obtained.format != desired.format)
         {
-            ILogger::instance->debug(std::format("SDL mixer sound format: {:#04x} differs from desired: {:#04x}", _obtained.format, desired.format), ILogger::eCategory::Audio);
+            logD(std::format("SDL mixer sound format: {:#04x} differs from desired: {:#04x}", _obtained.format, desired.format));
             SDL_CloseAudio();
 
             if (SDL_OpenAudio(&fmt, NULL) != 0)
             {
-                ILogger::instance->error("Can't open audio device", ILogger::eCategory::Audio);
+                logE("Can't open audio device");
                 // The mixer is not marked as ready
                 //_mixer = new MixerImpl(desired.freq);
                 _mixer = std::make_shared<MixerImpl>(desired.freq, bitsDepth);
@@ -94,22 +98,22 @@ namespace HyperSonicDrivers::audio::scummvm
             bitsDepth = SDL_getBitsDepth(_obtained);
         }
 
-        ILogger::instance->info(std::format("Output sample rate: {} Hz", _obtained.freq), ILogger::eCategory::Audio);
+        logI(std::format("Output sample rate: {} Hz", _obtained.freq));
         if (_obtained.freq != desired.freq)
         {
-            ILogger::instance->warning(std::format("SDL mixer output sample rate: {} differs from desired: {}", _obtained.freq, desired.freq), ILogger::eCategory::Audio);
+            logW(std::format("SDL mixer output sample rate: {} differs from desired: {}", _obtained.freq, desired.freq));
         }
 
-        ILogger::instance->info(std::format("Output buffer size: {}samples", _obtained.samples), ILogger::eCategory::Audio);
+        logI(std::format("Output buffer size: {}samples", _obtained.samples));
         if (_obtained.samples != desired.samples)
         {
-            ILogger::instance->warning(std::format("SDL mixer output buffer size: {} differs from desired: {}", _obtained.samples, desired.samples), ILogger::eCategory::Audio);
+            logW(std::format("SDL mixer output buffer size: {} differs from desired: {}", _obtained.samples, desired.samples));
         }
 
-        ILogger::instance->info(std::format("Output format: {}", _obtained.format), ILogger::eCategory::Audio);
+        logI(std::format("Output format: {}", _obtained.format));
         if (_obtained.format != desired.format)
         {
-            ILogger::instance->warning(std::format("SDL mixer format: {} differs from desired: {}", _obtained.format, desired.format), ILogger::eCategory::Audio);
+            logW(std::format("SDL mixer format: {} differs from desired: {}", _obtained.format, desired.format));
         }
 
 //#ifndef __SYMBIAN32__
@@ -117,7 +121,7 @@ namespace HyperSonicDrivers::audio::scummvm
         // but otherwise we require stereo output.
         if (_obtained.channels != 2)
         {
-            ILogger::instance->critical("Mixer requires a stereo output device", ILogger::eCategory::System);
+            logC("Mixer requires a stereo output device", ILogger::eCategory::System);
         }
 //#endif
 

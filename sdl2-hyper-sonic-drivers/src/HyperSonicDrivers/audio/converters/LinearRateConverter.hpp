@@ -7,8 +7,6 @@
 
 namespace HyperSonicDrivers::audio::converters
 {
-    using utils::ILogger;
-
     constexpr int16_t interpolate(const int16_t a, const int16_t b, const int32_t t)
     {
         return static_cast<int16_t>(a + (((b - a) * t + fracHalfLow) >> fracBitsLow));
@@ -64,7 +62,7 @@ namespace HyperSonicDrivers::audio::converters
     {
         if (inrate >= 131072 || outrate >= 131072)
         {
-            ILogger::instance->error("rate effect can only handle rates < 131072", ILogger::eCategory::Audio);
+            utils::logE("rate effect can only handle rates < 131072");
         }
 
         opos = fracOneLow;

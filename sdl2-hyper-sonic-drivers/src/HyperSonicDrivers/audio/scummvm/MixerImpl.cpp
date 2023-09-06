@@ -8,8 +8,6 @@
 
 namespace HyperSonicDrivers::audio::scummvm
 {
-    using utils::ILogger;
-
     MixerImpl::MixerImpl(unsigned int sampleRate, const uint8_t bitsDepth)
         : _mutex(), _sampleRate(sampleRate), _bitsDepth(bitsDepth),
         _mixerReady(false), _handleSeed(0), _soundTypeSettings()
@@ -18,7 +16,7 @@ namespace HyperSonicDrivers::audio::scummvm
 
         if (bitsDepth != 16)
         {
-            ILogger::instance->warning(std::format("Audio {} bits not supported. Only 16 bits", bitsDepth), ILogger::eCategory::Audio);
+            utils::logW(std::format("Audio {} bits not supported. Only 16 bits", bitsDepth));
         }
 
         for (int i = 0; i != NUM_CHANNELS; i++) {
@@ -53,7 +51,7 @@ namespace HyperSonicDrivers::audio::scummvm
 
         if (stream == 0)
         {
-            ILogger::instance->warning("stream == 0", ILogger::eCategory::Audio);
+            utils::logW("stream == 0");
             return;
         }
 
@@ -337,7 +335,7 @@ namespace HyperSonicDrivers::audio::scummvm
         }
         if (index == -1)
         {
-            ILogger::instance->warning("MixerImpl::out of mixer slots", ILogger::eCategory::Audio);
+            utils::logW("out of mixer slots");
             delete chan;
             return;
         }
