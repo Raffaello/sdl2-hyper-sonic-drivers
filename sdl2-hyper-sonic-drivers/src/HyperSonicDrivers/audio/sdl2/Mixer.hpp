@@ -6,13 +6,16 @@
 #include <mutex>
 #include <HyperSonicDrivers/audio/IMixer.hpp>
 #include <HyperSonicDrivers/audio/mixer/Channel.hpp>
+#include <SDL2/SDL_audio.h>
 
 namespace HyperSonicDrivers::audio::sdl2
 {
     class Mixer : public IMixer
     {
     public:
-        Mixer(const uint8_t max_channels);
+        Mixer(const uint8_t max_channels,
+            const uint32_t freq, const uint16_t buffer_size);
+        ~Mixer() override;
 
         bool init() override;
 
@@ -49,6 +52,10 @@ namespace HyperSonicDrivers::audio::sdl2
     protected:
         void updateChannelsVolumePan_() noexcept;
 
+        size_t callback(uint8_t* samples, unsigned int len);
+        static void sdlCallback(void* this_, uint8_t* samples, int len);
+
+        SDL_AudioDeviceID m_device_id = 0;
         mutable std::mutex m_mutex;
         std::vector<std::unique_ptr<mixer::Channel>> m_channels;
         

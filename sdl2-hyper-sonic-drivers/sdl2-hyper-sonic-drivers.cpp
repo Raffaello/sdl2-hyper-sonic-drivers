@@ -31,9 +31,26 @@
 #include <HyperSonicDrivers/drivers/midi/devices/Adlib.hpp>
 #include <HyperSonicDrivers/drivers/midi/devices/SbPro2.hpp>
 
+#include <HyperSonicDrivers/audio/sdl2/Mixer.hpp>
+#include <HyperSonicDrivers/utils/sdl2/Logger.hpp>
+
 
 using namespace std;
 using namespace HyperSonicDrivers;
+
+void newMixerTest()
+{
+    using namespace audio;
+
+    utils::sdl2::Logger::instance->setLevelAll(utils::ILogger::eLevel::Trace);
+
+    auto mixer = sdl2::Mixer(8, 44100, 1024);
+    if (!mixer.init())
+        return;
+
+    if (!mixer.isReady())
+        return;
+}
 
 void playNotes(hardware::PCSpeaker *pcSpeaker, const hardware::PCSpeaker::eWaveForm waveForm, const int freq, const int length)
 {
@@ -508,6 +525,8 @@ int midi_adlib_xmi()
 
 int main(int argc, char* argv[])
 {
+    newMixerTest();
+    return 0;
     //sdlMixer();
     //SDL_Delay(100);
     //renderMixer();
@@ -515,7 +534,7 @@ int main(int argc, char* argv[])
     //xmi_parser();
     //midi_adlib_mus_file_CONCURRENCY_ERROR_ON_SAME_DEVICE();
     //midi_adlib_mus_op2_file();
-    midi_adlib_xmi();
+    //midi_adlib_xmi();
 
     SDL_Init(SDL_INIT_TIMER | SDL_INIT_AUDIO);
 

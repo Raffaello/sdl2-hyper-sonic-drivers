@@ -5,8 +5,13 @@
 
 namespace HyperSonicDrivers::audio
 {
-    IMixer::IMixer(const uint8_t max_channels) :
-        max_channels(max_channels)
+    IMixer::IMixer(const uint8_t max_channels,
+        const uint32_t freq, const uint16_t buffer_size//,
+        /*const uint8_t bitsDepth*/) :
+        max_channels(max_channels),
+        m_sampleRate(freq), m_samples(buffer_size),
+        //m_bitsDepth(bitsDepth)
+        m_bitsDepth(16)
     {
     }
 

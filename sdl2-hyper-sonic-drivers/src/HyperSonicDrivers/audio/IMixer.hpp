@@ -9,17 +9,19 @@
 
 namespace HyperSonicDrivers::audio
 {
+    /**
+    * 16 bit signed, stereo
+    **/
     class IMixer
     {
     public:
         IMixer(IMixer&) = delete;
         IMixer& operator=(IMixer&) = delete;
 
-        IMixer(const uint8_t max_channels);
+        IMixer(const uint8_t max_channels, const uint32_t freq, const uint16_t buffer_size/*, const uint8_t bitsDepth*/);
         virtual ~IMixer() = default;
 
         virtual bool init() = 0;
-
         inline bool isReady() const noexcept { return m_ready; };
  
         virtual void play(
@@ -61,6 +63,7 @@ namespace HyperSonicDrivers::audio
         void setChannelGroupVolume(const mixer::eChannelGroup group, const uint8_t volume) noexcept;
 
         inline uint32_t getOutputRate() const noexcept { return m_sampleRate; };
+        inline uint16_t getBufferSize() const noexcept { return m_samples; };
         inline uint8_t getBitsDepth() const noexcept { return m_bitsDepth; };
 
         const uint8_t max_channels;
@@ -68,7 +71,8 @@ namespace HyperSonicDrivers::audio
         std::array<mixer::channelGroupSettings_t, mixer::eChannelGroup_size> m_group_settings;
         //std::vector<mixer::Channel> m_channels;
         bool m_ready = false;
-        uint32_t m_sampleRate;
-        uint8_t m_bitsDepth;
+        const uint32_t m_sampleRate;
+        const uint16_t m_samples;
+        const uint8_t m_bitsDepth;
     };
 }
