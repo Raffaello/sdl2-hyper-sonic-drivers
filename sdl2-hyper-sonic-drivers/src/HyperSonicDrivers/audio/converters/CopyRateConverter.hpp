@@ -24,7 +24,7 @@ namespace HyperSonicDrivers::audio::converters
         CopyRateConverter() = default;
         ~CopyRateConverter() override = default;
 
-        int flow(IAudioStream& input, int16_t* obuf, uint32_t osamp, const uint16_t vol_l, const uint16_t vol_r) override
+        size_t flow(IAudioStream& input, int16_t* obuf, uint32_t osamp, const uint16_t vol_l, const uint16_t vol_r) override
         {
             assert(input.isStereo() == stereo);
 
@@ -56,7 +56,7 @@ namespace HyperSonicDrivers::audio::converters
             return (obuf - ostart) / 2;
         }
 
-        int drain(int16_t* obuf, uint32_t osamp, const uint16_t vol) override
+        size_t drain(int16_t* obuf, uint32_t osamp, const uint16_t vol) override
         {
             return 0;
         }

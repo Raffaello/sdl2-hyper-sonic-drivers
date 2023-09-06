@@ -62,7 +62,7 @@ namespace HyperSonicDrivers::audio::scummvm
 
         if (!_mixer->isSoundTypeMuted(_type))
         {
-            int vol = _mixer->getVolumeForSoundType(_type) * _volume;
+            const int vol = _mixer->getVolumeForSoundType(_type) * _volume;
 
             if (_balance == 0) {
                 _volL = vol / Mixer::MaxVolume::CHANNEL;
@@ -95,7 +95,7 @@ namespace HyperSonicDrivers::audio::scummvm
         else if (_pauseLevel > 0) {
             _pauseLevel--;
 
-            if (!_pauseLevel) {
+            if (_pauseLevel == 0) {
                 _pauseTime = (utils::getMillis<int32_t>() - _pauseStartTime);
                 _pauseStartTime = 0;
             }

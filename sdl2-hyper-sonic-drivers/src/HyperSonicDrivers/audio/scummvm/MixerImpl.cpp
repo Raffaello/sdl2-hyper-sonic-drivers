@@ -328,7 +328,7 @@ namespace HyperSonicDrivers::audio::scummvm
         int index = -1;
         for (int i = 0; i != NUM_CHANNELS; i++)
         {
-            if (_channels[i] == 0) {
+            if (_channels[i] == nullptr) {
                 index = i;
                 break;
             }

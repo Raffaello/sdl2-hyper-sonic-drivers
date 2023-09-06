@@ -19,6 +19,6 @@ namespace HyperSonicDrivers::audio
 
         virtual bool endOfData() const = 0;
 
-        virtual bool endOfStream() const { return endOfData(); }
+        virtual bool isEnded() const { return endOfData(); }
     };
 }

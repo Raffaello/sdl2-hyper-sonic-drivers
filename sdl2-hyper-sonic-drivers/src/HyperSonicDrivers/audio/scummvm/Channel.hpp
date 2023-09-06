@@ -28,7 +28,7 @@ namespace HyperSonicDrivers::audio::scummvm
         /**
          * Queries whether the channel is still playing or not.
          */
-        bool isFinished() const { return _stream->endOfStream(); }
+        bool isFinished() const { return _stream->isEnded(); }
 
         /**
          * Queries whether the channel is a permanent channel.
