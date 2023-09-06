@@ -44,11 +44,12 @@ void newMixerTest()
 
     utils::sdl2::Logger::instance->setLevelAll(utils::ILogger::eLevel::Trace);
 
-    auto mixer = sdl2::Mixer(8, 44100, 1024);
-    if (!mixer.init())
+    //auto mixer = sdl2::Mixer(8, 44100, 1024);
+    auto mixer = make_mixer<sdl2::Mixer>(8, 44100, 1024);
+    if (!mixer->init())
         return;
 
-    if (!mixer.isReady())
+    if (!mixer->isReady())
         return;
 }
 

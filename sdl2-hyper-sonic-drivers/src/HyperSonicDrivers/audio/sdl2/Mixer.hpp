@@ -27,6 +27,9 @@ namespace HyperSonicDrivers::audio::sdl2
             const bool reverseStereo
         ) override;
 
+        void suspend() noexcept override;
+        void resume() noexcept override;
+
         void stop() noexcept override;
         void stop(const uint8_t id) noexcept override;
 

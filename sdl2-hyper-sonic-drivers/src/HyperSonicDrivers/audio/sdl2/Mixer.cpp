@@ -1,3 +1,5 @@
+#include "Mixer.hpp"
+#include "Mixer.hpp"
 #include <algorithm>
 #include <cstring>
 #include <cassert>
@@ -96,6 +98,16 @@ namespace HyperSonicDrivers::audio::sdl2
         }
 
         m_channels[i]->setAudioStream(group, stream, vol, pan, reverseStereo);
+    }
+
+    void Mixer::suspend() noexcept
+    {
+        SDL_PauseAudioDevice(m_device_id, 1);
+    }
+
+    void Mixer::resume() noexcept
+    {
+        SDL_PauseAudioDevice(m_device_id, 0);
     }
 
     void Mixer::stop() noexcept

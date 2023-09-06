@@ -23,7 +23,7 @@ namespace HyperSonicDrivers::audio
 
         virtual bool init() = 0;
         inline bool isReady() const noexcept { return m_ready; };
- 
+
         virtual void play(
             const mixer::eChannelGroup group,
             const std::shared_ptr<IAudioStream>& stream,
@@ -31,11 +31,14 @@ namespace HyperSonicDrivers::audio
             const int8_t pan,
             const bool reverseStereo
         ) = 0;
-        
+
+        virtual void suspend() noexcept = 0;
+        virtual void resume() noexcept = 0;
+
         virtual void stop() noexcept = 0;
         virtual void stop(const uint8_t id) noexcept = 0;
         //virtual void stop(Handle )
-        
+
         virtual void pause() noexcept = 0;
         virtual void pause(const uint8_t id) noexcept = 0;
         //virtual void pause(const SoundHandle) = 0;
@@ -75,4 +78,10 @@ namespace HyperSonicDrivers::audio
         const uint16_t m_samples;
         const uint8_t m_bitsDepth;
     };
+
+    template<class T, typename... Args>
+    std::shared_ptr<IMixer> make_mixer(Args... args)
+    {
+        return std::make_shared<T>(args...);
+    }
 }
