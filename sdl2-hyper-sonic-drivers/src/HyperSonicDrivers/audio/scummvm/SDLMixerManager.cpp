@@ -85,7 +85,7 @@ namespace HyperSonicDrivers::audio::scummvm
             logD(std::format("SDL mixer sound format: {:#04x} differs from desired: {:#04x}", _obtained.format, desired.format));
             SDL_CloseAudio();
 
-            if (SDL_OpenAudio(&fmt, NULL) != 0)
+            if (SDL_OpenAudio(&fmt, nullptr) != 0)
             {
                 logE("Can't open audio device");
                 // The mixer is not marked as ready
@@ -116,16 +116,11 @@ namespace HyperSonicDrivers::audio::scummvm
             logW(std::format("SDL mixer format: {} differs from desired: {}", _obtained.format, desired.format));
         }
 
-//#ifndef __SYMBIAN32__
-        // The SymbianSdlMixerManager does stereo->mono downmixing,
-        // but otherwise we require stereo output.
         if (_obtained.channels != 2)
         {
             logC("Mixer requires a stereo output device", utils::ILogger::eCategory::System);
         }
-//#endif
 
-        //_mixer = new MixerImpl(_obtained.freq);
         _mixer = std::make_shared<MixerImpl>(_obtained.freq, bitsDepth);
         assert(_mixer);
         _mixer->setReady(true);

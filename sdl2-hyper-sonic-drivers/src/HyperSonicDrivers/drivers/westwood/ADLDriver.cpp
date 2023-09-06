@@ -116,9 +116,9 @@ namespace HyperSonicDrivers::drivers::westwood
         // We used to drop the new sound here, but that isn't the behavior of the original code.
         // It would cause more issues than do any good. Now, we just have a debug message and
         // then drop the oldest sound, like the original driver...
-        if (_programQueueEnd == _programQueueStart && _programQueue[_programQueueEnd].data != 0)
+        if (_programQueueEnd == _programQueueStart && _programQueue[_programQueueEnd].data != nullptr)
         {
-            logD(std::format("ADLDriver: Program queue full, dropping track {}", _programQueue[_programQueueEnd].id));
+            logD(std::format("Program queue full, dropping track {}", _programQueue[_programQueueEnd].id));
         }
 
         _programQueue[_programQueueEnd] = QueueEntry(trackData, track, volume);

@@ -4,10 +4,6 @@
 
 namespace HyperSonicDrivers::utils
 {
-    ILogger::~ILogger()
-    {
-    }
-
     void ILogger::log(const eLevel level, const std::string& str, const eCategory cat)
     {
         switch (level)

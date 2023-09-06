@@ -66,7 +66,7 @@ namespace HyperSonicDrivers::drivers
                 logW(std::format("Division SMPTE not known = {}", smpte));
             }
 
-            logD(std::format("Division: Ticks per frame = {}, smpte", ticksPerFrame, smpte));
+            logD(std::format("Division: Ticks per frame = {}, {}", ticksPerFrame, smpte));
             logW("division ticks per frame not implemented yet");
         }
         else

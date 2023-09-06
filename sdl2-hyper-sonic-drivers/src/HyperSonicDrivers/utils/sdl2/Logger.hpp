@@ -10,8 +10,12 @@ namespace HyperSonicDrivers::utils::sdl2
     class Logger : public ILogger
     {
     public:
+        Logger(Logger&) = delete;
+        Logger(Logger&&) = delete;
+        Logger& operator=(Logger&) = delete;
+
         Logger();
-        virtual ~Logger();
+        ~Logger() override;
 
         void setLevelAll(const eLevel level) override;
         void setLevel(const eLevel level, const eCategory cat = eCategory::Application) override;
@@ -25,6 +29,5 @@ namespace HyperSonicDrivers::utils::sdl2
 
         void enable() override;
         void disable() override;
-    private:
     };
 }

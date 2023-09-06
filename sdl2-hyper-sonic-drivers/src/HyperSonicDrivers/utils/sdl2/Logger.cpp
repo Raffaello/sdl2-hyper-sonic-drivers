@@ -129,17 +129,12 @@ namespace HyperSonicDrivers::utils::sdl2
     Logger::Logger() : ILogger()
     {
         SDL_LogGetOutputFunction(&default_log_output_function, &default_log_output_function_userdata);
-
-//#ifdef _DEBUG
-//        setLevelAll(Logger::eLevel::Debug);
-//        debug("Application is on Debug level logging.");
-//#endif
         instance = this;
     }
 
     Logger::~Logger()
     {
-        flushall();
+        fflush(nullptr);
     }
 
     void Logger::setLevelAll(const eLevel level)
@@ -185,9 +180,7 @@ namespace HyperSonicDrivers::utils::sdl2
 
     void Logger::enable()
     {
-        // TODO: not sure make sense to override the default SDL2 setting in a library...
         //SDL_LogSetOutputFunction(&log_output, nullptr);
-
         SDL_LogSetOutputFunction(default_log_output_function, default_log_output_function_userdata);
     }
 

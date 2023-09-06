@@ -211,7 +211,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
             break;
 
         default:
-            logW(std::format("Unknown send() command {0:#x}", cmd.val));
+            logW(std::format("Unknown send() command {:#0x}", cmd.val));
         }
     }
 

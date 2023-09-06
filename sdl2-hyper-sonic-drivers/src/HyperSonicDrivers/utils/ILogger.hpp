@@ -34,8 +34,12 @@ namespace HyperSonicDrivers::utils
             Render
         };
 
+        ILogger(ILogger&) = delete;
+        ILogger(ILogger&&) = delete;
+        ILogger& operator=(ILogger&) = delete;
+
         ILogger() = default;
-        virtual ~ILogger();
+        virtual ~ILogger() = default;
 
         virtual void setLevelAll(const eLevel level) = 0;
         virtual void setLevel(const eLevel level, const eCategory cat) = 0;

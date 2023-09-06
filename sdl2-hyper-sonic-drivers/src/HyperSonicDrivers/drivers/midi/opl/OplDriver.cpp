@@ -79,7 +79,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
             logW("META_SYSEX not supported");
             break;
         default:
-            logW(std::format("OplDriver: Unknown send() command {0:#x}", e.type.val));
+            logW(std::format("OplDriver: Unknown send() command {:#0x}", e.type.val));
             break;
         }
     }
