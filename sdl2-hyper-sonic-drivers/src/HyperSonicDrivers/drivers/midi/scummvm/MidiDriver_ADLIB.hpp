@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <array>
 #include <memory>
 #include <HyperSonicDrivers/drivers/midi/scummvm/MidiDriver.hpp>
 #include <HyperSonicDrivers/drivers/midi/scummvm/MidiChannel.hpp>
@@ -58,14 +59,14 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
         int _timerCounter = 0;
 
-        uint16_t _channelTable2[9];
+        std::array<uint16_t, 9> _channelTable2;
+        std::array<uint16_t, 9> _curNotTable;
+        std::array<AdLibPart, 32> _parts;
+        std::array<AdLibVoice, 9> _voices;
+        AdLibPercussionChannel _percussion;
         int _voiceIndex = -1;
         int _timerIncrease = 0xD69;
         int _timerThreshold = 0x411B;
-        uint16_t _curNotTable[9];
-        AdLibVoice _voices[9];
-        AdLibPart _parts[32];
-        AdLibPercussionChannel _percussion;
 
         bool _isOpen = false;
 

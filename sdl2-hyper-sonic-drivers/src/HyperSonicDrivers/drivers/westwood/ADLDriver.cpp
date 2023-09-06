@@ -14,12 +14,9 @@ constexpr int NUM_CHANNELS = 9;
 constexpr int RANDOM_SEED = 0x1234;
 constexpr int RANDOM_INC = 0x9248;
 
-// TODO: review it / remove / replace / refactor
-#define ARRAYSIZE(x) ((int)(sizeof(x) / sizeof(x[0])))
 
 namespace HyperSonicDrivers::drivers::westwood
 {
-    using utils::CLIP;
     using utils::READ_BE_UINT16;
     using utils::READ_LE_UINT16;
 
@@ -91,8 +88,7 @@ namespace HyperSonicDrivers::drivers::westwood
         // Drop all tracks that are still queued. These would point to the old
         // sound data.
         _programQueueStart = _programQueueEnd = 0;
-        for (int i = 0; i < ARRAYSIZE(_programQueue); ++i)
-            _programQueue[i] = QueueEntry();
+        std::ranges::fill(_programQueue, QueueEntry());
 
         _sfxPointer = nullptr;
     }
@@ -341,7 +337,7 @@ namespace HyperSonicDrivers::drivers::westwood
         int8_t note_on = channel.regBx & 0x20;
 
         // Limit slideStep to prevent integer overflow.
-        freq += CLIP<int16_t>(channel.slideStep, -0x3FF, 0x3FF);
+        freq += std::clamp<int16_t>(channel.slideStep, -0x3FF, 0x3FF);
 
         if (channel.slideStep >= 0 && freq >= 734)
         {
@@ -700,15 +696,15 @@ namespace HyperSonicDrivers::drivers::westwood
         if (channel.pitchBend || flag) {
             const uint8_t* table;
             // For safety, limit the values used to index the tables.
-            uint8_t indexNote = CLIP(rawNote & 0x0F, 0, 11);
+            uint8_t indexNote = std::clamp<uint8_t>(static_cast<uint8_t>(rawNote & 0x0F), 0, 11);
 
             if (channel.pitchBend >= 0) {
                 table = _pitchBendTables[indexNote + 2];
-                freq += table[CLIP(+channel.pitchBend, 0, 31)];
+                freq += table[std::clamp(+channel.pitchBend, 0, 31)];
             }
             else {
                 table = _pitchBendTables[indexNote];
-                freq -= table[CLIP(-channel.pitchBend, 0, 31)];
+                freq -= table[std::clamp(-channel.pitchBend, 0, 31)];
             }
         }
 
@@ -790,7 +786,7 @@ namespace HyperSonicDrivers::drivers::westwood
         // Update vibrato effect variables: vibratoStep is set to a
         // vibratoStepRange+1-bit value proportional to the note's f-number.
         // Reinitalize delay countdown; vibratoStepsCountdown reinitialization omitted.
-        uint8_t shift = 9 - CLIP<uint8_t>(channel.vibratoStepRange, 0, 9);
+        uint8_t shift = 9 - std::clamp<uint8_t>(channel.vibratoStepRange, 0, 9);
         uint16_t freq = ((channel.regBx << 8) | channel.regAx) & 0x3FF;
         channel.vibratoStep = (freq >> shift) & 0xFF;
         channel.vibratoDelayCountdown = channel.vibratoDelay;
@@ -842,7 +838,7 @@ namespace HyperSonicDrivers::drivers::westwood
             SDL_LogDebug(SDL_LOG_CATEGORY_AUDIO, "ADLDriver::calculateOpLevel1(): WORKAROUND - total level clipping uint/int bug encountered");
         }
 
-        value = CLIP<int8_t>(value, 0, 0x3F);
+        value = std::clamp<int8_t>(value, 0, 0x3F);
 
         if (!channel.volumeModifier)
             value = 0x3F;
@@ -869,7 +865,7 @@ namespace HyperSonicDrivers::drivers::westwood
         if (value & 0x80)
             SDL_LogDebug(SDL_LOG_CATEGORY_AUDIO, "ADLDriver::calculateOpLevel2(): WORKAROUND - total level clipping uint/int bug encountered");
         
-        value = CLIP<int8_t>(value, 0, 0x3F);
+        value = std::clamp<int8_t>(value, 0, 0x3F);
 
         if (!channel.volumeModifier)
             value = 0x3F;
@@ -880,7 +876,7 @@ namespace HyperSonicDrivers::drivers::westwood
 
     uint16_t ADLDriver::checkValue(int16_t val)
     {
-        return CLIP<int16_t>(val, 0, 0x3F);
+        return std::clamp<int16_t>(val, 0, 0x3F);
     }
 
     bool ADLDriver::advance(uint8_t& timer, uint8_t tempo)
@@ -1088,7 +1084,7 @@ namespace HyperSonicDrivers::drivers::westwood
 
                 if (opcode & 0x80)
                 {
-                    opcode = CLIP<int8_t>(opcode & 0x7F, 0, _parserOpcodeTableSize - 1);
+                    opcode = std::clamp<int8_t>(static_cast<int8_t>(opcode & 0x7F), 0, _parserOpcodeTableSize - 1);
                     const ParserOpcode& op = _parserOpcodeTable[opcode];
 
                     // Safety check for end of data.
@@ -1245,7 +1241,7 @@ namespace HyperSonicDrivers::drivers::westwood
         int16_t add = READ_LE_UINT16(values);
 
         // Safety checks: ignore jumps when stack is full or address is invalid.
-        if (channel.dataptrStackPos >= ARRAYSIZE(channel.dataptrStack)) {
+        if (channel.dataptrStackPos >= channel.dataptrStack.size()) {
             SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, "ADLDriver::update_jumpToSubroutine: Stack overflow");
             return 0;
         }
@@ -1671,8 +1667,9 @@ namespace HyperSonicDrivers::drivers::westwood
         return 0;
     }
 
-    int ADLDriver::update_changeChannelTempo(Channel& channel, const uint8_t* values) {
-        channel.tempo = CLIP(channel.tempo + (int8_t)values[0], 1, 255);
+    int ADLDriver::update_changeChannelTempo(Channel& channel, const uint8_t* values)
+    {
+        channel.tempo = std::clamp<uint8_t>(static_cast<uint8_t>(channel.tempo + values[0]), 1, 255);
         return 0;
     }
 
@@ -1927,9 +1924,9 @@ namespace HyperSonicDrivers::drivers::westwood
 
     // static res
 
-#define COMMAND(x, n) { &ADLDriver::x, #x, n }
+#define COMMAND(x, n) ADLDriver::ParserOpcode({ &ADLDriver::x, #x, n })
 
-    const ADLDriver::ParserOpcode ADLDriver::_parserOpcodeTable[] = {
+    const std::array<ADLDriver::ParserOpcode, 75> ADLDriver::_parserOpcodeTable = {
         // 0
         COMMAND(update_setRepeat, 1),
         COMMAND(update_checkRepeat, 2),
@@ -2046,7 +2043,7 @@ namespace HyperSonicDrivers::drivers::westwood
 
 #undef COMMAND
 
-    const int ADLDriver::_parserOpcodeTableSize = ARRAYSIZE(ADLDriver::_parserOpcodeTable);
+    constexpr int ADLDriver::_parserOpcodeTableSize = ADLDriver::_parserOpcodeTable.size();
 
     // This table holds the register offset for operator 1 for each of the nine
     // channels. To get the register offset for operator 2, simply add 3.
@@ -2067,7 +2064,7 @@ namespace HyperSonicDrivers::drivers::westwood
     // These tables are currently only used by updateCallback46(), which only ever
     // uses the first element of one of the sub-tables.
 
-    const uint8_t* const ADLDriver::_unkTable2[] = {
+    const std::array<const uint8_t*, 6> ADLDriver::_unkTable2 = {
         ADLDriver::_unkTable2_1,
         ADLDriver::_unkTable2_2,
         ADLDriver::_unkTable2_1,
@@ -2076,7 +2073,7 @@ namespace HyperSonicDrivers::drivers::westwood
         ADLDriver::_unkTable2_2
     };
 
-    const int ADLDriver::_unkTable2Size = ARRAYSIZE(ADLDriver::_unkTable2);
+    const int ADLDriver::_unkTable2Size = ADLDriver::_unkTable2.size();
 
     const uint8_t ADLDriver::_unkTable2_1[] = {
         0x50, 0x50, 0x4F, 0x4F, 0x4E, 0x4E, 0x4D, 0x4D,

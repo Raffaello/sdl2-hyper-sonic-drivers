@@ -38,17 +38,13 @@
 #include <HyperSonicDrivers/utils/constants.hpp>
 #include <HyperSonicDrivers/utils/algorithms.hpp>
 #include <exception>
+#include <array>
 
 #include <SDL2/SDL_log.h>
 
 
-// TODO: refactor move to utils, duplicated code (defined in ADLDriver.cpp too)
-#define ARRAYSIZE(x) ((int)(sizeof(x) / sizeof(x[0])))
-
 namespace HyperSonicDrivers::hardware::opl::scummvm::mame
 {
-    using utils::CLIP;
-
     /* -------------------- preliminary define section --------------------- */
     /* attack/decay rate time rate */
 #define OPL_ARRATE     141280  /* RATE 4 =  2826.24ms @ 3.6MHz */
@@ -113,16 +109,16 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::mame
 #define ENV_MOD_AR  0x02
 
 /* -------------------- tables --------------------- */
-    static const int slot_array[32] = {
+    static const std::array<int, 32> slot_array = {
          0, 2, 4, 1, 3, 5,-1,-1,
          6, 8,10, 7, 9,11,-1,-1,
         12,14,16,13,15,17,-1,-1,
         -1,-1,-1,-1,-1,-1,-1,-1
     };
 
-    static unsigned int KSL_TABLE[8 * 16];
+    static std::array<unsigned int, 8*16> KSL_TABLE;
 
-    static const double KSL_TABLE_SEED[8 * 16] = {
+    static const std::array<double, 8*16> KSL_TABLE_SEED = {
         /* OCT 0 */
         0.000, 0.000, 0.000, 0.000,
         0.000, 0.000, 0.000, 0.000,
@@ -168,9 +164,9 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::mame
     /* sustain level table (3db per step) */
     /* 0 - 15: 0, 3, 6, 9,12,15,18,21,24,27,30,33,36,39,42,93 (dB)*/
 
-    static int SL_TABLE[16];
+    static std::array<int, 16> SL_TABLE;
 
-    static const unsigned int SL_TABLE_SEED[16] = {
+    static const std::array<unsigned int, 16> SL_TABLE_SEED = {
         0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 31
     };
 
@@ -196,7 +192,7 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::mame
 
     /* multiple table */
 #define ML(a) (unsigned int)(a * 2)
-    static const unsigned int MUL_TABLE[16] = {
+    static const std::array<unsigned int, 16> MUL_TABLE = {
         /* 1/2, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15 */
             ML(0.50), ML(1.00), ML(2.00),  ML(3.00), ML(4.00), ML(5.00), ML(6.00), ML(7.00),
             ML(8.00), ML(9.00), ML(10.00), ML(10.00),ML(12.00),ML(12.00),ML(15.00),ML(15.00)
@@ -204,7 +200,7 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::mame
 #undef ML
 
     /* dummy attack / decay rate ( when rate == 0 ) */
-    static int RATE_0[16] =
+    static std::array<int, 16> RATE_0 =
     { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
 
     /* -------------------- static state --------------------- */
@@ -245,10 +241,10 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::mame
         EG_AED = EG_DST;
         //EG_STEP = (96.0/EG_ENT);
 
-        for (i = 0; i < ARRAYSIZE(KSL_TABLE_SEED); i++)
+        for (i = 0; i < KSL_TABLE_SEED.size(); i++)
             KSL_TABLE[i] = SC_KSL(KSL_TABLE_SEED[i]);
 
-        for (i = 0; i < ARRAYSIZE(SL_TABLE_SEED); i++)
+        for (i = 0; i < SL_TABLE_SEED.size(); i++)
             SL_TABLE[i] = SC_SL(SL_TABLE_SEED[i]);
     }
 
@@ -442,12 +438,12 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::mame
         int ar = v >> 4;
         int dr = v & 0x0f;
 
-        SLOT->AR = ar ? &OPL->AR_TABLE[ar << 2] : RATE_0;
+        SLOT->AR = ar ? &OPL->AR_TABLE[ar << 2] : RATE_0.data();
         SLOT->evsa = SLOT->AR[SLOT->ksr];
         if (SLOT->evm == ENV_MOD_AR)
             SLOT->evs = SLOT->evsa;
 
-        SLOT->DR = dr ? &OPL->DR_TABLE[dr << 2] : RATE_0;
+        SLOT->DR = dr ? &OPL->DR_TABLE[dr << 2] : RATE_0.data();
         SLOT->evsd = SLOT->DR[SLOT->ksr];
         if (SLOT->evm == ENV_MOD_DR)
             SLOT->evs = SLOT->evsd;
@@ -1052,7 +1048,7 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::mame
             if (rythm)
                 OPL_CALC_RH(OPL, S_CH);
             /* limit check */
-            data = CLIP(outd[0], OPL_MINOUT, OPL_MAXOUT);
+            data = std::clamp(outd[0], OPL_MINOUT, OPL_MAXOUT);
             /* store to sound buffer */
             buf[i] = data >> OPL_OUTSB;
         }

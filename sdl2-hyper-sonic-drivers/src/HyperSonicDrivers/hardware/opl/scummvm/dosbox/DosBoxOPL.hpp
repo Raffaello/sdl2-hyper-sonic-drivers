@@ -31,7 +31,7 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::dosbox
         void writeReg(const uint16_t r, const uint16_t v) noexcept override;
 
     protected:
-        void generateSamples(int16_t* buffer, int length) noexcept override;
+        void generateSamples(int16_t* buffer, const size_t length) noexcept override;
 
     private:
         unsigned int _rate = 0;

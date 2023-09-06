@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <array>
 #include <mutex>
 #include <HyperSonicDrivers/hardware/opl/OPL.hpp>
 #include <HyperSonicDrivers/files/westwood/ADLFile.hpp>
@@ -78,7 +79,7 @@ namespace HyperSonicDrivers::drivers::westwood
             int8_t baseOctave;
             uint8_t priority;
             uint8_t dataptrStackPos;
-            const uint8_t* dataptrStack[4];
+            std::array<const uint8_t*, 4> dataptrStack;
             int8_t baseNote;
             uint8_t slideTempo;
             uint8_t slideTimer;
@@ -158,14 +159,15 @@ namespace HyperSonicDrivers::drivers::westwood
         void setupPrograms();
         void executePrograms();
 
-        struct ParserOpcode {
+        struct ParserOpcode
+        {
             typedef int (ADLDriver::* POpcode)(Channel& channel, const uint8_t* values);
             POpcode function;
             const char* name;
             int values;
         };
 
-        static const ParserOpcode _parserOpcodeTable[];
+        static const std::array<ParserOpcode, 75> _parserOpcodeTable;
         static const int _parserOpcodeTableSize;
 
         int update_setRepeat(Channel& channel, const uint8_t* values);
@@ -262,7 +264,7 @@ namespace HyperSonicDrivers::drivers::westwood
             uint8_t volume;
         };
 
-        QueueEntry _programQueue[16];
+        std::array<QueueEntry, 16> _programQueue;
         int _programStartTimeout;
         int _programQueueStart, _programQueueEnd;
         bool _retrySounds;
@@ -285,7 +287,7 @@ namespace HyperSonicDrivers::drivers::westwood
 
         static const uint8_t _regOffset[];
         static const uint16_t _freqTable[];
-        static const uint8_t* const _unkTable2[];
+        static const std::array<const uint8_t*, 6> _unkTable2;
         static const int _unkTable2Size;
         static const uint8_t _unkTable2_1[];
         static const uint8_t _unkTable2_2[];
