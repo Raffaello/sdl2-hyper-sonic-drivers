@@ -16,8 +16,7 @@
 #include <HyperSonicDrivers/drivers/MIDDriverMock.hpp>
 #include <HyperSonicDrivers/files/MIDFile.hpp>
 #include <HyperSonicDrivers/utils/algorithms.hpp>
-
-#include <SDL2/SDL_log.h>
+#include <HyperSonicDrivers/utils/ILogger.hpp>
 
 namespace HyperSonicDrivers::drivers
 {
@@ -27,13 +26,14 @@ namespace HyperSonicDrivers::drivers
     using audio::midi::MIDI_META_EVENT_TYPES_LOW;
     using audio::midi::MIDI_META_EVENT;
     using audio::midi::MIDI_FORMAT;
+    using utils::ILogger;
 
     TEST(MIDDriver, SEQUENCE_NAME_META_EVENT)
     {
         auto mixer = std::make_shared<StubMixer>();
         auto device = std::make_shared<midi::devices::SpyDevice>();
 
-        SDL_LogSetPriority(SDL_LOG_CATEGORY_AUDIO, SDL_LogPriority::SDL_LOG_PRIORITY_DEBUG);
+        ILogger::instance->setLevel(ILogger::eLevel::Trace, ILogger::eCategory::Audio);
 
         // ---
         MIDIEvent e;
@@ -50,8 +50,6 @@ namespace HyperSonicDrivers::drivers
         //::testing::internal::CaptureStdout();
         ::testing::internal::CaptureStderr();
         MIDDriverMock middrv(mixer, device);
-
-        SDL_LogInfo(SDL_LOG_CATEGORY_AUDIO, "2TEST");
         middrv.protected_processTrack(midi_track, 0);
         //auto output = ::testing::internal::GetCapturedStdout();
         auto output2 = ::testing::internal::GetCapturedStderr();

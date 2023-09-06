@@ -5,10 +5,13 @@
 #include <HyperSonicDrivers/drivers/midi/scummvm/MidiDriver_ADLIB.hpp>
 #include <HyperSonicDrivers/drivers/midi/scummvm/AdLibPart.hpp>
 #include <HyperSonicDrivers/utils/algorithms.hpp>
-#include <SDL2/SDL_log.h>
+#include <HyperSonicDrivers/utils/ILogger.hpp>
 
 namespace HyperSonicDrivers::drivers::midi::scummvm
 {
+    using utils::logD;
+    using utils::logW;
+
     static const uint8_t g_operator1Offsets[9] = {
         0, 1, 2, 8,
         9, 10, 16, 17,
@@ -182,11 +185,11 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         switch (static_cast<MIDI_EVENT_TYPES_HIGH>(cmd.high)) {
         case MIDI_EVENT_TYPES_HIGH::NOTE_OFF:// Note Off
             part->noteOff(param1);
-            SDL_LogDebug(SDL_LOG_CATEGORY_AUDIO, std::format("noteOff {} {}", chan, param1).c_str());
+            logD(std::format("noteOff {} {}", chan, param1));
             break;
         case MIDI_EVENT_TYPES_HIGH::NOTE_ON: // Note On
             part->noteOn(param1, param2);
-            SDL_LogDebug(SDL_LOG_CATEGORY_AUDIO, std::format("noteOn {} {}", param1, param2).c_str());
+            logD(std::format("noteOn {} {}", param1, param2));
             break;
         case MIDI_EVENT_TYPES_HIGH::AFTERTOUCH: // Aftertouch
             break; // Not supported.
@@ -204,11 +207,11 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         case MIDI_EVENT_TYPES_HIGH::META_SYSEX: // SysEx
             // We should never get here! SysEx information has to be
             // sent via high-level semantic methods.
-            SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, "MidiDriver_ADLIB: Receiving SysEx command on a send() call");
+            logW("Receiving SysEx command on a send() call");
             break;
 
         default:
-            SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, std::format("MidiDriver_ADLIB: Unknown send() command {0:#x}", cmd.val).c_str());
+            logW(std::format("Unknown send() command {0:#x}", cmd.val));
         }
     }
 

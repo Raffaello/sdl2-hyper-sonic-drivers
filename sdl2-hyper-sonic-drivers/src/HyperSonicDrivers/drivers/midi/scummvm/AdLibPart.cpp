@@ -2,11 +2,14 @@
 #include <format>
 #include <HyperSonicDrivers/drivers/midi/scummvm/AdLibPart.hpp>
 #include <HyperSonicDrivers/drivers/midi/scummvm/MidiDriver_ADLIB.hpp>
-#include <SDL2/SDL_log.h>
+#include <HyperSonicDrivers/utils/ILogger.hpp>
 
 namespace HyperSonicDrivers::drivers::midi::scummvm
 {
-    void AdLibPart::init(MidiDriver_ADLIB* owner, uint8_t channel) {
+    using utils::logW;
+
+    void AdLibPart::init(MidiDriver_ADLIB* owner, uint8_t channel)
+    {
         _owner = owner;
         _channel = channel;
         _priEff = 127;
@@ -142,7 +145,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
             allNotesOff();
             break;
         default:
-            SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, std::format("AdLib: Unknown control change message {:d} {:d}", control, value).c_str());
+            logW(std::format("Unknown control change message {:d} {:d}", control, value));
         }
     }
 
@@ -249,8 +252,9 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
     {
         // Sam&Max allows for instrument overwrites, but we will not support it
         // until we can find any track actually using it.
-        if (_owner->_opl3Mode) {
-            SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, "AdLibPart::sysEx_customInstrument: Used in OPL3 mode, not supported");
+        if (_owner->_opl3Mode)
+        {
+            logW("Used in OPL3 mode, not supported");
             return;
         }
 

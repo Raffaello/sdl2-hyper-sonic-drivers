@@ -5,8 +5,7 @@
 #include <HyperSonicDrivers/drivers/westwood/ADLDriver.hpp>
 #include <HyperSonicDrivers/utils/algorithms.hpp>
 #include <HyperSonicDrivers/utils/endianness.hpp>
-#include <SDL2/SDL_log.h>
-
+#include <HyperSonicDrivers/utils/ILogger.hpp>
 
 constexpr int CALLBACKS_PER_SECOND = 72;
 
@@ -19,14 +18,18 @@ namespace HyperSonicDrivers::drivers::westwood
 {
     using utils::READ_BE_UINT16;
     using utils::READ_LE_UINT16;
+    using utils::logD;
+    using utils::logW;
+    using utils::logE;
 
     ADLDriver::ADLDriver(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<files::westwood::ADLFile>& adl_file)
         : _opl(opl)
     {
         // TODO: This doesn't work with DOS_BOX OPL3
 
-        if (!_opl || !_opl->init()) {
-            SDL_LogError(SDL_LOG_CATEGORY_AUDIO, "Failed to initialize OPL");
+        if (!_opl || !_opl->init())
+        {
+            logE("Failed to initialize OPL");
         }
 
         memset(_channels, 0, sizeof(_channels));
@@ -105,7 +108,7 @@ namespace HyperSonicDrivers::drivers::westwood
         const std::lock_guard<std::mutex> lock(_mutex);
 
         uint8_t* trackData = getProgram(track);
-        SDL_LogDebug(SDL_LOG_CATEGORY_AUDIO, std::format("getProgram[track={}]= {}", track, *trackData).c_str());
+        logD(std::format("getProgram[track={}]= {}", track, *trackData));
         if (trackData == nullptr) {
             return;
         }
@@ -113,8 +116,9 @@ namespace HyperSonicDrivers::drivers::westwood
         // We used to drop the new sound here, but that isn't the behavior of the original code.
         // It would cause more issues than do any good. Now, we just have a debug message and
         // then drop the oldest sound, like the original driver...
-        if (_programQueueEnd == _programQueueStart && _programQueue[_programQueueEnd].data != 0) {
-            SDL_LogDebug(SDL_LOG_CATEGORY_AUDIO, std::format("ADLDriver: Program queue full, dropping track {}", _programQueue[_programQueueEnd].id).c_str());
+        if (_programQueueEnd == _programQueueStart && _programQueue[_programQueueEnd].data != 0)
+        {
+            logD(std::format("ADLDriver: Program queue full, dropping track {}", _programQueue[_programQueueEnd].id));
         }
 
         _programQueue[_programQueueEnd] = QueueEntry(trackData, track, volume);
@@ -256,7 +260,7 @@ namespace HyperSonicDrivers::drivers::westwood
         if ((soundId == 0xFFFF && _version == 3) || (soundId == 0xFF && _version < 3) || _soundData == nullptr)
             return;
 
-        SDL_LogDebug(SDL_LOG_CATEGORY_AUDIO, std::format("trackEntries[track = {}] = {}", track, soundId).c_str());
+        logD(std::format("trackEntries[track = {}] = {}", track, soundId));
         startSound(soundId, volume);
     }
 
@@ -267,13 +271,14 @@ namespace HyperSonicDrivers::drivers::westwood
 
     uint8_t* ADLDriver::getProgram(const int progId, const files::westwood::ADLFile::PROG_TYPE progType)
     {
-        if (_adl_file == nullptr) {
-            SDL_LogError(SDL_LOG_CATEGORY_AUDIO, "ADLDriver::getProgram(): no ADL file loaded.");
+        if (_adl_file == nullptr)
+        {
+            logE("no ADL file loaded.");
             return nullptr;
         }
 
         const uint16_t offset = _adl_file->getProgramOffset(progId, progType);
-        SDL_LogDebug(SDL_LOG_CATEGORY_AUDIO, std::format("calling getProgram(prodIg={}){}", progId, offset).c_str());
+        logD(std::format("calling getProgram(prodIg={}){}", progId, offset));
 
         // In case an invalid offset is specified we return nullptr to
         // indicate an error. 0xFFFF seems to indicate "this is not a valid
@@ -284,8 +289,9 @@ namespace HyperSonicDrivers::drivers::westwood
         // read outside of the valid sound data in case an invalid offset is
         // encountered.
         // offset = 0 is valid now as offset are adjusted when read the file
-        if (offset >= _soundDataSize) {
-            SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, std::format("ADLDriver::getProgram(): invalid offset read. offset={} --- _soundDataSize={}", offset, _soundDataSize).c_str());
+        if (offset >= _soundDataSize)
+        {
+            logW(std::format("ADLDriver::getProgram(): invalid offset read. offset={} --- _soundDataSize={}", offset, _soundDataSize));
             return nullptr;
         }
 
@@ -319,7 +325,7 @@ namespace HyperSonicDrivers::drivers::westwood
     // slideTimer - keeps track of time
     void ADLDriver::primaryEffectSlide(Channel& channel)
     {
-        SDL_LogDebug(SDL_LOG_CATEGORY_AUDIO, std::format("Calling primaryEffectSlide (channel: {})", _curChannel).c_str());
+        logD(std::format("Calling primaryEffectSlide (channel: {})", _curChannel));
 
         if (_curChannel >= NUM_CHANNELS) {
             return;
@@ -403,7 +409,7 @@ namespace HyperSonicDrivers::drivers::westwood
     // initial value in noteOn() but isn't.
     void ADLDriver::primaryEffectVibrato(Channel& channel)
     {
-        SDL_LogDebug(SDL_LOG_CATEGORY_AUDIO, std::format("Calling primaryEffectVibrato (channel: {})", _curChannel).c_str());
+        logD(std::format("Calling primaryEffectVibrato (channel: {})", _curChannel));
         if (_curChannel >= NUM_CHANNELS) {
             return;
         }
@@ -463,8 +469,9 @@ namespace HyperSonicDrivers::drivers::westwood
     // secondaryEffectPos     - the current index into the data chunk
     // secondaryEffectRegbase - the operation to perform
     // secondaryEffectData    - the offset of the data chunk
-    void ADLDriver::secondaryEffect1(Channel& channel) {
-        SDL_LogDebug(SDL_LOG_CATEGORY_AUDIO, std::format("Calling secondaryEffect1 (channel: {})", _curChannel).c_str());
+    void ADLDriver::secondaryEffect1(Channel& channel)
+    {
+        logD(std::format("Calling secondaryEffect1 (channel: {})", _curChannel));
 
         if (_curChannel >= NUM_CHANNELS) {
             return;
@@ -519,7 +526,7 @@ namespace HyperSonicDrivers::drivers::westwood
 
     void ADLDriver::resetAdLibState()
     {
-        SDL_LogDebug(SDL_LOG_CATEGORY_AUDIO, "resetAdLibState()");
+        logD("resetAdLibState()");
 
         _rnd = 0x1234;
 
@@ -546,8 +553,9 @@ namespace HyperSonicDrivers::drivers::westwood
         _opl->writeReg(reg, val);
     }
 
-    void ADLDriver::initChannel(Channel& channel) {
-        SDL_LogDebug(SDL_LOG_CATEGORY_AUDIO, std::format("initChannel({})", (long)(&channel - _channels)).c_str());
+    void ADLDriver::initChannel(Channel& channel)
+    {
+        logD(std::format("initChannel({})", (long)(&channel - _channels)));
 
         int8_t backupEL2 = channel.opExtraLevel2;
         memset(&channel, 0, sizeof(Channel));
@@ -564,7 +572,7 @@ namespace HyperSonicDrivers::drivers::westwood
 
     void ADLDriver::noteOff(Channel& channel)
     {
-        SDL_LogDebug(SDL_LOG_CATEGORY_AUDIO, std::format("noteOff({})", (long)(&channel - _channels)).c_str());
+        logD(std::format("noteOff({})", (long)(&channel - _channels)));
 
         // The control channel has no corresponding AdLib channel
 
@@ -585,7 +593,7 @@ namespace HyperSonicDrivers::drivers::westwood
 
     void ADLDriver::initAdlibChannel(uint8_t chan)
     {
-        SDL_LogDebug(SDL_LOG_CATEGORY_AUDIO, std::format("initAdlibChannel({})", chan).c_str());
+        logD(std::format("initAdlibChannel({})", chan));
 
         // The control channel has no corresponding AdLib channel
 
@@ -640,7 +648,7 @@ namespace HyperSonicDrivers::drivers::westwood
 
     void ADLDriver::setupDuration(uint8_t duration, Channel& channel)
     {
-        SDL_LogDebug(SDL_LOG_CATEGORY_AUDIO, std::format("setupDuration({}, {})", duration, (long)(&channel - _channels)).c_str());
+        logD(std::format("setupDuration({}, {})", duration, (long)(&channel - _channels)));
         if (channel.durationRandomness) {
             channel.duration = duration + (getRandomNr() & channel.durationRandomness);
             return;
@@ -655,7 +663,7 @@ namespace HyperSonicDrivers::drivers::westwood
 
     void ADLDriver::setupNote(uint8_t rawNote, Channel& channel, bool flag)
     {
-        SDL_LogDebug(SDL_LOG_CATEGORY_AUDIO, std::format("setupNote({}, {})", rawNote, (long)(&channel - _channels)).c_str());
+        logD(std::format("setupNote({}, {})", rawNote, (long)(&channel - _channels)));
 
         if (_curChannel >= NUM_CHANNELS)
             return;
@@ -718,7 +726,7 @@ namespace HyperSonicDrivers::drivers::westwood
 
     void ADLDriver::setupInstrument(uint8_t regOffset, const uint8_t* dataptr, Channel& channel)
     {
-        SDL_LogDebug(SDL_LOG_CATEGORY_AUDIO, std::format("setupInstrument({}, {}, {})", regOffset, static_cast<const void*>(dataptr), static_cast<long>(&channel - _channels)).c_str());
+        logD(std::format("setupInstrument({}, {}, {})", regOffset, static_cast<const void*>(dataptr), static_cast<long>(&channel - _channels)));
         if (_curChannel >= NUM_CHANNELS)
             return;
 
@@ -773,7 +781,7 @@ namespace HyperSonicDrivers::drivers::westwood
 
     void ADLDriver::noteOn(Channel& channel)
     {
-        SDL_LogDebug(SDL_LOG_CATEGORY_AUDIO, std::format("noteOn({})", (long)(&channel - _channels)).c_str());
+        logD(std::format("noteOn({})", (long)(&channel - _channels)));
 
         // The "note on" bit is set, and the current note is played.
 
@@ -794,7 +802,7 @@ namespace HyperSonicDrivers::drivers::westwood
 
     void ADLDriver::adjustVolume(Channel& channel)
     {
-        SDL_LogDebug(SDL_LOG_CATEGORY_AUDIO, std::format("adjustVolume({})", (long)(&channel - _channels)).c_str());
+        logD(std::format("adjustVolume({})", (long)(&channel - _channels)));
 
         if (_curChannel >= NUM_CHANNELS)
             return;
@@ -834,8 +842,9 @@ namespace HyperSonicDrivers::drivers::westwood
         // opExtraLevels to the opLevel).
         // The later (HOF/LOL) original drivers do the same wrong clipping, too. But original LOL floppy
         // doesn't have volume settings either. And with max volume the logo sound is okay...
-        if (value & 0x80) {
-            SDL_LogDebug(SDL_LOG_CATEGORY_AUDIO, "ADLDriver::calculateOpLevel1(): WORKAROUND - total level clipping uint/int bug encountered");
+        if (value & 0x80)
+        {
+            logD("WORKAROUND - total level clipping uint/int bug encountered");
         }
 
         value = std::clamp<int8_t>(value, 0, 0x3F);
@@ -847,7 +856,8 @@ namespace HyperSonicDrivers::drivers::westwood
         return value | (channel.opLevel1 & 0xC0);
     }
 
-    uint8_t ADLDriver::calculateOpLevel2(Channel& channel) {
+    uint8_t ADLDriver::calculateOpLevel2(Channel& channel)
+    {
         int8_t value = channel.opLevel2 & 0x3F;
 
         value += channel.opExtraLevel1;
@@ -863,7 +873,7 @@ namespace HyperSonicDrivers::drivers::westwood
 
         // See comment in calculateOpLevel1()
         if (value & 0x80)
-            SDL_LogDebug(SDL_LOG_CATEGORY_AUDIO, "ADLDriver::calculateOpLevel2(): WORKAROUND - total level clipping uint/int bug encountered");
+            logD("WORKAROUND - total level clipping uint/int bug encountered");
         
         value = std::clamp<int8_t>(value, 0, 0x3F);
 
@@ -970,7 +980,7 @@ namespace HyperSonicDrivers::drivers::westwood
 
         if (retrySound.data)
         {
-            SDL_LogDebug(SDL_LOG_CATEGORY_AUDIO, std::format("ADLDriver::setupPrograms(): WORKAROUND - Restarting skipped sound {})", retrySound.id).c_str());
+            logD(std::format("WORKAROUND - Restarting skipped sound {})", retrySound.id));
             startSound(retrySound.id, retrySound.volume);
         }
     }
@@ -1094,7 +1104,7 @@ namespace HyperSonicDrivers::drivers::westwood
                         break;
                     }
 
-                    SDL_LogDebug(SDL_LOG_CATEGORY_AUDIO, std::format("Calling opcode '{}' ({}) (channel: {})", op.name, opcode, _curChannel).c_str());
+                    logD(std::format("Calling opcode '{}' ({}) (channel: {})", op.name, opcode, _curChannel));
 
                     dataptr += op.values;
                     result = (this->*(op.function))(channel, dataptr - op.values);
@@ -1108,7 +1118,7 @@ namespace HyperSonicDrivers::drivers::westwood
                     }
 
                     int8_t duration = *dataptr++;
-                    SDL_LogDebug(SDL_LOG_CATEGORY_AUDIO, std::format("Note on opcode {:#04x} (duration: {}) (channel: {})", opcode, duration, _curChannel).c_str());
+                    logD(std::format("Note on opcode {:#04x} (duration: {}) (channel: {})", opcode, duration, _curChannel));
 
                     setupNote(opcode, channel);
                     noteOn(channel);
@@ -1141,20 +1151,22 @@ namespace HyperSonicDrivers::drivers::westwood
         return 0;
     }
 
-    int ADLDriver::update_checkRepeat(Channel& channel, const uint8_t* values) {
+    int ADLDriver::update_checkRepeat(Channel& channel, const uint8_t* values)
+    {
         if (--channel.repeatCounter) {
             int16_t add = READ_LE_UINT16(values);
 
             // Safety check: ignore jump to invalid address
             if (!checkDataOffset(channel.dataptr, add))
-                SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, std::format("ADLDriver::update_checkRepeat: Ignoring invalid offset {}", add).c_str());
+                logW(std::format("Ignoring invalid offset {}", add));
             else
                 channel.dataptr += add;
         }
         return 0;
     }
 
-    int ADLDriver::update_setupProgram(Channel& channel, const uint8_t* values) {
+    int ADLDriver::update_setupProgram(Channel& channel, const uint8_t* values)
+    {
         if (values[0] == 0xFF)
             return 0;
 
@@ -1166,8 +1178,9 @@ namespace HyperSonicDrivers::drivers::westwood
         // them.
         // This, for example, happens in the Lands of Lore intro when Scotia gets
         // the ring in the intro.
-        if (!checkDataOffset(ptr, 2)) {
-            SDL_LogDebug(SDL_LOG_CATEGORY_AUDIO, std::format("ADLDriver::update_setupProgram: Invalid program {} specified", values[0]).c_str());
+        if (!checkDataOffset(ptr, 2))
+        {
+            logW(std::format("Invalid program {} specified", values[0]));
             return 0;
         }
 
@@ -1175,14 +1188,16 @@ namespace HyperSonicDrivers::drivers::westwood
         int8_t priority = *ptr++;
 
         // Safety check: ignore programs with invalid channel number.
-        if (chan > 9) {
-            SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, std::format("ADLDriver::update_setupProgram: Invalid channel {}", chan).c_str());
+        if (chan > 9)
+        {
+            logW(std::format("Invalid channel {}", chan).c_str());
             return 0;
         }
 
         Channel& channel2 = _channels[chan];
 
-        if (priority >= channel2.priority) {
+        if (priority >= channel2.priority)
+        {
             // The opcode is not allowed to modify its own data pointer.
             // To enforce that, we make a copy and restore it later.
             //
@@ -1220,7 +1235,8 @@ namespace HyperSonicDrivers::drivers::westwood
         return 0;
     }
 
-    int ADLDriver::update_jump(Channel& channel, const uint8_t* values) {
+    int ADLDriver::update_jump(Channel& channel, const uint8_t* values)
+    {
         int16_t add = READ_LE_UINT16(values);
         // Safety check: ignore jump to invalid address
         if (_version == 1)
@@ -1228,8 +1244,9 @@ namespace HyperSonicDrivers::drivers::westwood
         else
             channel.dataptr = checkDataOffset(channel.dataptr, add);
 
-        if (!channel.dataptr) {
-            SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, std::format("ADLDriver::update_jump: Invalid offset {}, stopping channel", add).c_str());
+        if (!channel.dataptr)
+        {
+            logW(std::format("Invalid offset {}, stopping channel", add));
             return update_stopChannel(channel, values);
         }
         if (_syncJumpMask & (1 << (&channel - _channels)))
@@ -1237,12 +1254,14 @@ namespace HyperSonicDrivers::drivers::westwood
         return 0;
     }
 
-    int ADLDriver::update_jumpToSubroutine(Channel& channel, const uint8_t* values) {
+    int ADLDriver::update_jumpToSubroutine(Channel& channel, const uint8_t* values)
+    {
         int16_t add = READ_LE_UINT16(values);
 
         // Safety checks: ignore jumps when stack is full or address is invalid.
-        if (channel.dataptrStackPos >= channel.dataptrStack.size()) {
-            SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, "ADLDriver::update_jumpToSubroutine: Stack overflow");
+        if (channel.dataptrStackPos >= channel.dataptrStack.size())
+        {
+            logW("Stack overflow");
             return 0;
         }
         channel.dataptrStack[channel.dataptrStackPos++] = channel.dataptr;
@@ -1256,10 +1275,12 @@ namespace HyperSonicDrivers::drivers::westwood
         return 0;
     }
 
-    int ADLDriver::update_returnFromSubroutine(Channel& channel, const uint8_t* values) {
+    int ADLDriver::update_returnFromSubroutine(Channel& channel, const uint8_t* values)
+    {
         // Safety check: stop track when stack is empty.
-        if (!channel.dataptrStackPos) {
-            SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, "ADLDriver::update_returnFromSubroutine: Stack underflow");
+        if (!channel.dataptrStackPos)
+        {
+            logW("Stack underflow");
             return update_stopChannel(channel, values);
         }
         channel.dataptr = channel.dataptrStack[--channel.dataptrStackPos];
@@ -1301,7 +1322,8 @@ namespace HyperSonicDrivers::drivers::westwood
         return 0;
     }
 
-    int ADLDriver::update_setupSecondaryEffect1(Channel& channel, const uint8_t* values) {
+    int ADLDriver::update_setupSecondaryEffect1(Channel& channel, const uint8_t* values)
+    {
         channel.secondaryEffectTimer = channel.secondaryEffectTempo = values[0];
         channel.secondaryEffectSize = channel.secondaryEffectPos = values[1];
         channel.secondaryEffectRegbase = values[2];
@@ -1324,8 +1346,9 @@ namespace HyperSonicDrivers::drivers::westwood
 
         // Safety check: don't enable effect when table location is invalid.
         int start = channel.secondaryEffectData + channel.secondaryEffectSize;
-        if (start < 0 || start >= (int)_soundDataSize) {
-            SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, "ADLDriver::update_setupSecondaryEffect1: Ignoring due to invalid table location");
+        if (start < 0 || start >= (int)_soundDataSize)
+        {
+            logW("Ignoring due to invalid table location");
             channel.secondaryEffect = nullptr;
         }
         return 0;
@@ -1334,8 +1357,9 @@ namespace HyperSonicDrivers::drivers::westwood
     int ADLDriver::update_stopOtherChannel(Channel& channel, const uint8_t* values)
     {
         // Safety check
-        if (values[0] > NUM_CHANNELS) {
-            SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, std::format("ADLDriver::update_stopOtherChannel: Ignoring invalid channel {}", values[0]).c_str());
+        if (values[0] > NUM_CHANNELS)
+        {
+            logW(std::format("Ignoring invalid channel {}", values[0]));
             return 0;
         }
 
@@ -1357,8 +1381,9 @@ namespace HyperSonicDrivers::drivers::westwood
 
         // Safety check in case an invalid program is specified. This would make
         // getProgram return a nullptr and thus cause invalid memory reads.
-        if (!ptr) {
-            SDL_LogDebug(SDL_LOG_CATEGORY_AUDIO, std::format("ADLDriver::update_waitForEndOfProgram: Invalid program {} specified", values[0]).c_str());
+        if (!ptr)
+        {
+            logW(std::format("Invalid program {} specified", values[0]));
             return 0;
         }
 
@@ -1371,7 +1396,8 @@ namespace HyperSonicDrivers::drivers::westwood
         return 2;
     }
 
-    int ADLDriver::update_setupInstrument(Channel& channel, const uint8_t* values) {
+    int ADLDriver::update_setupInstrument(Channel& channel, const uint8_t* values)
+    {
         const uint8_t* instrument = getInstrument(values[0]);
 
         // We add a safety check to avoid setting up invalid instruments. This is
@@ -1380,8 +1406,9 @@ namespace HyperSonicDrivers::drivers::westwood
         // This happens, for example, in Hand of Fate when using the swampsnake
         // potion on Zanthia to scare off the rat in the cave in the first chapter
         // of the game.
-        if (!instrument) {
-            SDL_LogDebug(SDL_LOG_CATEGORY_AUDIO, std::format("ADLDriver::update_setupInstrument: Invalid instrument {} specified", values[0]).c_str());
+        if (!instrument)
+        {
+            logW(std::format("Invalid instrument {} specified", values[0]));
             return 0;
         }
 
@@ -1516,8 +1543,9 @@ namespace HyperSonicDrivers::drivers::westwood
     int ADLDriver::update_setExtraLevel2(Channel& channel, const uint8_t* values)
     {
         // Safety check
-        if (values[0] > NUM_CHANNELS) {
-            SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, std::format("ADLDriver::update_setExtraLevel2: Ignore invalid channel {}", values[0]).c_str());
+        if (values[0] > NUM_CHANNELS)
+        {
+            logW(std::format("Ignore invalid channel {}", values[0]));
             return 0;
         }
 
@@ -1535,8 +1563,9 @@ namespace HyperSonicDrivers::drivers::westwood
     int ADLDriver::update_changeExtraLevel2(Channel& channel, const uint8_t* values)
     {
         // Safety check
-        if (values[0] > NUM_CHANNELS) {
-            SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, std::format("ADLDriver::update_changeExtraLevel2: Ignore invalid channel {}", values[0]).c_str());
+        if (values[0] > NUM_CHANNELS)
+        {
+            logW(std::format("Ignore invalid channel {}", values[0]));
             return 0;
         }
 
@@ -1582,8 +1611,9 @@ namespace HyperSonicDrivers::drivers::westwood
     int ADLDriver::update_clearChannel(Channel& channel, const uint8_t* values)
     {
         // Safety check
-        if (values[0] > NUM_CHANNELS) {
-            SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, std::format("ADLDriver::update_clearChannel: Ignore invalid channel {}", values[0]).c_str());
+        if (values[0] > NUM_CHANNELS)
+        {
+            logW(std::format("ADLDriver::update_clearChannel: Ignore invalid channel {}", values[0]));
             return 0;
         }
 
@@ -1689,7 +1719,8 @@ namespace HyperSonicDrivers::drivers::westwood
         return 0;
     }
 
-    int ADLDriver::update_setupRhythmSection(Channel& channel, const uint8_t* values) {
+    int ADLDriver::update_setupRhythmSection(Channel& channel, const uint8_t* values)
+    {
         int channelBackUp = _curChannel;
         int regOffsetBackUp = _curRegOffset;
 
@@ -1698,11 +1729,13 @@ namespace HyperSonicDrivers::drivers::westwood
 
         const uint8_t* instrument;
         instrument = getInstrument(values[0]);
-        if (instrument) {
+        if (instrument)
+        {
             setupInstrument(_curRegOffset, instrument, channel);
         }
-        else {
-            SDL_LogDebug(SDL_LOG_CATEGORY_AUDIO, std::format("ADLDriver::update_setupRhythmSection: Invalid instrument {} for channel 6 specified", values[0]).c_str());
+        else
+        {
+            logW(std::format("Invalid instrument {} for channel 6 specified", values[0]));
         }
         _opLevelBD = channel.opLevel2;
 
@@ -1710,11 +1743,13 @@ namespace HyperSonicDrivers::drivers::westwood
         _curRegOffset = _regOffset[7];
 
         instrument = getInstrument(values[1]);
-        if (instrument) {
+        if (instrument)
+        {
             setupInstrument(_curRegOffset, instrument, channel);
         }
-        else {
-            SDL_LogDebug(SDL_LOG_CATEGORY_AUDIO, std::format("ADLDriver::update_setupRhythmSection: Invalid instrument {} for channel 7 specified", values[1]).c_str());
+        else
+        {
+            logW(std::format("Invalid instrument {} for channel 7 specified", values[1]));
         }
         _opLevelHH = channel.opLevel1;
         _opLevelSD = channel.opLevel2;
@@ -1723,11 +1758,13 @@ namespace HyperSonicDrivers::drivers::westwood
         _curRegOffset = _regOffset[8];
 
         instrument = getInstrument(values[2]);
-        if (instrument) {
+        if (instrument)
+        {
             setupInstrument(_curRegOffset, instrument, channel);
         }
-        else {
-            SDL_LogDebug(SDL_LOG_CATEGORY_AUDIO, std::format("ADLDriver::update_setupRhythmSection: Invalid instrument {} for channel 8 specified", values[2]).c_str());
+        else
+        {
+            logW(std::format("Invalid instrument {} for channel 8 specified", values[2]));
         }
         _opLevelTT = channel.opLevel1;
         _opLevelCY = channel.opLevel2;

@@ -23,28 +23,25 @@
  *
  */
 
+#include <cmath>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <cstdarg>
-#include <cmath>
-
-#if defined(__DS__)
-#include "dsmain.h"
-#endif
+#include <array>
+#include <exception>
 
 #include <HyperSonicDrivers/hardware/opl/scummvm/mame/mame.hpp>
 #include <HyperSonicDrivers/audio/scummvm/Mixer.hpp>
 #include <HyperSonicDrivers/utils/constants.hpp>
 #include <HyperSonicDrivers/utils/algorithms.hpp>
-#include <exception>
-#include <array>
-
-#include <SDL2/SDL_log.h>
+#include <HyperSonicDrivers/utils/ILogger.hpp>
 
 
 namespace HyperSonicDrivers::hardware::opl::scummvm::mame
 {
+    using utils::logW;
+    using utils::throwLogC;
     /* -------------------- preliminary define section --------------------- */
     /* attack/decay rate time rate */
 #define OPL_ARRATE     141280  /* RATE 4 =  2826.24ms @ 3.6MHz */
@@ -701,10 +698,9 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::mame
 
 
         ENV_CURVE = (int*)malloc(sizeof(int) * (2 * EG_ENT + 1));
-        if (!ENV_CURVE) {
-            constexpr const char* e = "[OPLOpenTable] Cannot allocate memory";
-            SDL_LogCritical(SDL_LOG_CATEGORY_AUDIO, e);
-            throw std::runtime_error(e);
+        if (!ENV_CURVE)
+        {
+            throwLogC<std::runtime_error>("[OPLOpenTable] Cannot allocate memory");
         }
 
         /* envelope counter -> envelope output table */
@@ -1181,10 +1177,10 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::mame
         /* data port */
         switch (OPL->address) {
         case 0x05: /* KeyBoard IN */
-            SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, "OPL:read unmapped KEYBOARD port");
+            logW("read unmapped KEYBOARD port");
             return 0;
         case 0x19: /* I/O DATA    */
-            SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, "OPL:read unmapped I/O port");
+            logW("read unmapped I/O port");
             return 0;
         case 0x1a: /* PCM-DATA    */
             return 0;

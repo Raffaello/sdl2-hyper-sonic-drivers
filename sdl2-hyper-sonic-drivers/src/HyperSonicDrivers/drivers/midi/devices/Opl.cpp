@@ -2,19 +2,20 @@
 #include <cassert>
 #include <HyperSonicDrivers/drivers/midi/devices/Opl.hpp>
 #include <HyperSonicDrivers/hardware/opl/OPLFactory.hpp>
+#include <HyperSonicDrivers/utils/ILogger.hpp>
 #include <std/OplTypeFormatter.hpp>
 #include <std/OplEmulatorFormatter.hpp>
-#include <SDL2/SDL_log.h>
 
 namespace HyperSonicDrivers::drivers::midi::devices
 {
+    using utils::throwLogC;
+
     Opl::Opl(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank)
         : Device()/*, OplDriver(opl, op2Bank, opl3_mode)*/
     {
-        if (opl == nullptr) {
-            const char* msg = "opl is nullptr";
-            SDL_LogCritical(SDL_LOG_CATEGORY_AUDIO, msg);
-            throw std::runtime_error(msg);
+        if (opl == nullptr)
+        {
+            throwLogC<std::runtime_error>("opl is nullptr");
         }
 
         _oplDriver = std::make_shared<drivers::midi::opl::OplDriver>(opl, op2Bank);
@@ -28,9 +29,7 @@ namespace HyperSonicDrivers::drivers::midi::devices
         auto opl = hardware::opl::OPLFactory::create(emuType, type, mixer);
         if (opl == nullptr || opl->type != type)
         {
-            const std::string s = std::format("device Opl not supporting emu_type={}, type={}", emuType, type);
-            SDL_LogCritical(SDL_LOG_CATEGORY_AUDIO, s.c_str());
-            throw std::runtime_error(s);
+            throwLogC<std::runtime_error>(std::format("device Opl not supporting emu_type={}, type={}", emuType, type));
         }
         _oplDriver = std::make_shared<drivers::midi::opl::OplDriver>(opl, op2Bank);
     }

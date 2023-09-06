@@ -1,11 +1,11 @@
+#include <format>
+#include <queue>
+#include <bit>
+#include <cassert>
 #include <HyperSonicDrivers/files/miles/XMIFile.hpp>
 #include <HyperSonicDrivers/audio/midi/MIDITrack.hpp>
 #include <HyperSonicDrivers/utils/algorithms.hpp>
-#include <queue>
-#include <format>
-#include <cassert>
-#include <bit>
-#include <SDL2/SDL_log.h>
+#include <HyperSonicDrivers/utils/ILogger.hpp>
 
 namespace HyperSonicDrivers::files::miles
 {
@@ -14,6 +14,11 @@ namespace HyperSonicDrivers::files::miles
     using audio::midi::MIDITrack;
     using utils::decode_xmi_VLQ;
     using utils::decode_VLQ;
+
+    using utils::logD;
+    using utils::logW;
+    using utils::logE;
+    using utils::throwLogC;
 
     // This first "meta-header" is optional
     // [  FORM<len>XDIR
@@ -214,11 +219,11 @@ namespace HyperSonicDrivers::files::miles
                 {
                 case MIDI_META_EVENT_TYPES_LOW::SYS_EX0:
                     // sysEx-event
-                    SDL_LogError(SDL_LOG_CATEGORY_AUDIO, "sysEx 0x0 event not implemented yet");
+                    logE("sysEx 0x0 event not implemented yet");
                     break;
                 case MIDI_META_EVENT_TYPES_LOW::SYS_EX7:
                     // sysEx-event
-                    SDL_LogError(SDL_LOG_CATEGORY_AUDIO, "sysEx 0x7 event not implemented yet");
+                    logE("sysEx 0x7 event not implemented yet");
                     break;
                 case MIDI_META_EVENT_TYPES_LOW::META:
                 {
@@ -236,21 +241,21 @@ namespace HyperSonicDrivers::files::miles
                     if (MIDI_META_EVENT::END_OF_TRACK == TO_META(type))
                     {
                         endTrack = true;
-                        if (offs % 2 && offs < IFF_evnt.size) {
+                        if (offs % 2 && offs < IFF_evnt.size)
+                        {
                             // 1 spare byte?
-                            SDL_LogDebug(SDL_LOG_CATEGORY_AUDIO, std::format("End Of Track pad byte, valid={}", (buf[offs++] == 0)).c_str());
+                            logD(std::format("End Of Track pad byte, valid={}", (buf[offs++] == 0)));
                         }
                     }
 
                     // ignore set_tempo meta event
                     /*if (MIDI_META_EVENT::SET_TEMPO == TO_META(type))
                         continue;*/
-                    break;
                 }
+                break;
                 default:
-                    SDL_LogCritical(SDL_LOG_CATEGORY_AUDIO, std::format("XMIFile: sub-event {:#04x} not recognized", e.type.val).c_str());
-                    throw std::runtime_error("");
-
+                    throwLogC<std::runtime_error>(std::format("XMIFile: sub-event {:#04x} not recognized", e.type.val));
+                    break;
                 }
                 break;
             case MIDI_EVENT_TYPES_HIGH::PROGRAM_CHANGE:
@@ -260,9 +265,7 @@ namespace HyperSonicDrivers::files::miles
                 break;
             case MIDI_EVENT_TYPES_HIGH::NOTE_OFF:
             {
-                const char* err_msg = "Note OFF event found.";
-                SDL_LogCritical(SDL_LOG_CATEGORY_AUDIO, err_msg);
-                throw std::invalid_argument(err_msg);
+                throwLogC<std::invalid_argument>("Note OFF event found.");
             }
             break;
             case MIDI_EVENT_TYPES_HIGH::NOTE_ON: {
@@ -304,10 +307,9 @@ namespace HyperSonicDrivers::files::miles
                 e.data.push_back(buf[offs++]);
                 break;
             default:
-                SDL_LogCritical(SDL_LOG_CATEGORY_AUDIO,
-                    std::format("MIDFile: midi event {:#04x} not recognized {:#03x} - pos={}.",
-                        e.type.val, std::bit_cast<uint8_t>(e.type.high), static_cast<unsigned long>(tell())).c_str());
-                throw std::runtime_error("XMIFile: midi event type not recognized.");
+                throwLogC<std::runtime_error>(std::format("MIDFile: midi event {:#04x} not recognized {:#03x} - pos={}.",
+                        e.type.val, std::bit_cast<uint8_t>(e.type.high), static_cast<unsigned long>(tell())));
+                break;
             }
 
             e.data.shrink_to_fit();
@@ -315,14 +317,14 @@ namespace HyperSonicDrivers::files::miles
         }
 
         // sanity check
-        if (offs != IFF_evnt.size) {
-            SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, std::format("XMIFile: Fileanme '{}' track {} length mismatch real length {}", _filename, IFF_evnt.size, offs).c_str());
+        if (offs != IFF_evnt.size)
+        {
+            logW(std::format("Fileanme '{}' track {} length mismatch real length {}", _filename, IFF_evnt.size, offs));
         }
 
-        if (!endTrack) {
-            const char* err_msg = "XMIFile: not a valid XMI file, missing end of track midi event";
-            SDL_LogCritical(SDL_LOG_CATEGORY_AUDIO, err_msg);
-            throw std::invalid_argument(err_msg);
+        if (!endTrack)
+        {
+            throwLogC<std::invalid_argument>("not a valid XMI file, missing end of track midi event");
         }
 
         assert(notes.empty());
@@ -353,8 +355,6 @@ namespace HyperSonicDrivers::files::miles
         // UWORD # of branch point offsets, 0 - 127
         // { UWORD Sequence Branch Index controller value 0 - 127
         // ULONG controller offset from start of EVNT chunk } ...]
-        const char* err_msg = "XMIFile: ID_RBRN not implemented yet";
-        SDL_LogCritical(SDL_LOG_CATEGORY_AUDIO, err_msg);
-        throw std::runtime_error(err_msg);
+        throwLogC<std::runtime_error>("ID_RBRN not implemented yet");
     }
 }

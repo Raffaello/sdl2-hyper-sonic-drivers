@@ -3,7 +3,7 @@
 #include <cassert>
 #include <HyperSonicDrivers/drivers/midi/opl/OplDriver.hpp>
 #include <HyperSonicDrivers/hardware/opl/OplType.hpp>
-#include <SDL2/SDL_log.h>
+#include <HyperSonicDrivers/utils/ILogger.hpp>
 
 namespace HyperSonicDrivers::drivers::midi::opl
 {
@@ -11,6 +11,9 @@ namespace HyperSonicDrivers::drivers::midi::opl
     using audio::midi::MIDI_EVENT_TYPES_HIGH;
     using hardware::opl::OPL2instrument_t;
     using hardware::opl::OplType;
+    using utils::logW;
+    using utils::logE;
+    using utils::logC;
 
     // TODO: allocateVoice and getFreeSlot should be merged into 1 function
 
@@ -22,7 +25,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
         _oplWriter = std::make_unique<drivers::opl::OplWriter>(_opl, _opl3_mode);
 
         if (!_oplWriter->init())
-            SDL_LogError(SDL_LOG_CATEGORY_AUDIO, "[OplDriver] Can't initialize OPL Emulator chip.");
+            logE("Can't initialize OPL Emulator chip.");
 
         for (uint8_t i = 0; i < audio::midi::MIDI_MAX_CHANNELS; ++i) {
             _channels[i] = std::make_unique<OplChannel>(i);
@@ -58,7 +61,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
             noteOn(e.type.low, e.data[0], e.data[1]);
             break;
         case MIDI_EVENT_TYPES_HIGH::AFTERTOUCH:
-            SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, "AFTERTOUCH not supported");
+            logW("AFTERTOUCH not supported");
             break;
         case MIDI_EVENT_TYPES_HIGH::CONTROLLER:
             controller(e.type.low, e.data[0], e.data[1]);
@@ -67,18 +70,17 @@ namespace HyperSonicDrivers::drivers::midi::opl
             programChange(e.type.low, e.data[0]);
             break;
         case MIDI_EVENT_TYPES_HIGH::CHANNEL_AFTERTOUCH:
-            SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, "CHANNEL_AFTERTOUCH not supported");
+            logW("CHANNEL_AFTERTOUCH not supported");
             break;
         case MIDI_EVENT_TYPES_HIGH::PITCH_BEND:
             pitchBend(e.type.low, static_cast<uint16_t>((e.data[0] | (e.data[1] << 7) - 0x2000) >> 6));
             break;
         case MIDI_EVENT_TYPES_HIGH::META_SYSEX:
-            SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, "META_SYSEX not supported");
+            logW("META_SYSEX not supported");
             break;
-        default: {
-            SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, std::format("OplDriver: Unknown send() command {0:#x}", e.type.val).c_str());
+        default:
+            logW(std::format("OplDriver: Unknown send() command {0:#x}", e.type.val));
             break;
-        }
         }
     }
 
@@ -143,8 +145,9 @@ namespace HyperSonicDrivers::drivers::midi::opl
 
             //spdlog::debug("noteOn note={:d} ({:d}) - vol={:d} ({:d}) - pitch={:d} - ch={:d}", voice->_note, voice->_realnote, /*voice->volume*/ -1, /*voice->realvolume*/ -1, voice->pitch, voice->_channel);
         }
-        else {
-            SDL_LogCritical(SDL_LOG_CATEGORY_AUDIO, std::format("NO FREE CHANNEL? midi-ch={} - playingVoices={} -- free={}", chan, _voicesInUseIndex.size(), _voicesFreeIndex.size()).c_str());
+        else
+        {
+            logC(std::format("NO FREE CHANNEL? midi-ch={} - playingVoices={} -- free={}", chan, _voicesInUseIndex.size(), _voicesFreeIndex.size()));
         }
     }
 
@@ -156,7 +159,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
         case 0:
         case 32:
             // Bank select. Not supported
-            SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, std::format("bank select value {}", value).c_str());
+            logW(std::format("bank select value {}", value));
             break;
         case 1:
             ctrl_modulationWheel(chan, value);
@@ -172,15 +175,15 @@ namespace HyperSonicDrivers::drivers::midi::opl
             break;
         case 16:
             //pitchBendFactor(value);
-            SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, std::format("pitchBendFactor value {}", value).c_str());
+            logW(std::format("pitchBendFactor value {}", value));
             break;
         case 17:
             //detune(value);
-            SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, std::format("detune value {}", value).c_str());
+            logW(std::format("detune value {}", value));
             break;
         case 18:
             //priority(value);
-            SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, std::format("priority value {}", value).c_str());
+            logW(std::format("priority value {}", value));
             break;
         case 64:
             ctrl_sustain(chan, value);
@@ -188,20 +191,20 @@ namespace HyperSonicDrivers::drivers::midi::opl
         case 91:
             // Effects level. Not supported.
             //effectLevel(value);
-            SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, std::format("effect level value {}", value).c_str());
+            logW(std::format("effect level value {}", value));
             break;
         case 93:
             // Chorus level. Not supported.
             //chorusLevel(value);
-            SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, std::format("chorus level value {}", value).c_str());
+            logW(std::format("chorus level value {}", value));
             break;
         case 119:
             // Unknown, used in Simon the Sorcerer 2
-            SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, std::format("unknown value {}", value).c_str());
+            logW(std::format("unknown value {}", value));
             break;
         case 121:
             // reset all controllers
-            SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, "reset all controllers value");
+            logW("reset all controllers value");
             //modulationWheel(0);
             //pitchBendFactor(0);
             //detune(0);
@@ -212,7 +215,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
             _oplWriter->stopAll();
             break;
         default:
-            SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, std::format("OplDriver: Unknown control change message {:d} {:d}", control, value).c_str());
+            logW(std::format("OplDriver: Unknown control change message {:d} {:d}", control, value));
         }
     }
 
