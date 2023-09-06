@@ -108,10 +108,10 @@ namespace HyperSonicDrivers::drivers::westwood
         const std::lock_guard<std::mutex> lock(_mutex);
 
         uint8_t* trackData = getProgram(track);
-        logD(std::format("getProgram[track={}]= {}", track, *trackData));
         if (trackData == nullptr) {
             return;
         }
+        logD(std::format("getProgram[track={}]= {}", track, *trackData));
 
         // We used to drop the new sound here, but that isn't the behavior of the original code.
         // It would cause more issues than do any good. Now, we just have a debug message and
