@@ -30,7 +30,7 @@ namespace HyperSonicDrivers::hardware::opl
         public:
             const bool stereo;
             const uint32_t rate;
-           
+
             Stream(EmulatedOPL* opl, const bool stereo, const uint32_t rate, const uint32_t samplesPerTick) :
                 m_opl(opl), stereo(stereo), rate(rate), m_samplesPerTick(samplesPerTick) {};
 
@@ -68,8 +68,6 @@ namespace HyperSonicDrivers::hardware::opl
          */
         virtual void generateSamples(int16_t* buffer, const size_t length) noexcept = 0;
     private:
-        //int _baseFreq = 0;
-
         std::optional<uint8_t> m_channel_id;
         std::shared_ptr<audio::IAudioStream> m_stream;
     };
