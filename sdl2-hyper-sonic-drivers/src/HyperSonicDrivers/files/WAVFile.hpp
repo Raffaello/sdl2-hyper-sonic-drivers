@@ -5,6 +5,7 @@
 #include <HyperSonicDrivers/files/RIFFFile.hpp>
 #include <string>
 #include <memory>
+#include <vector>
 
 namespace HyperSonicDrivers::files
 {
@@ -31,7 +32,7 @@ namespace HyperSonicDrivers::files
         // BODY: could have a private format_1 struct
         // BODY: to copy over....
         // BODY: (PCM fmt size 16 bytes, non-PCM 18 bytes, float 40 bytes)
-        // BODY: can be splitted in format_common struct
+        // BODY: can be split in format_common struct
         // BODY: and in the specific format structures.
         // BODY: dynamically allocated
         typedef struct format_t
@@ -50,23 +51,22 @@ namespace HyperSonicDrivers::files
 
         const format_t&                  getFormat()   const noexcept;
         const uint32_t                   getDataSize() const noexcept;
-        const std::shared_ptr<uint8_t[]> getData()     const noexcept;
+        const std::shared_ptr<std::vector<uint8_t>> getData()     const noexcept;
         std::shared_ptr<audio::Sound>    getSound()    const noexcept;
-        
+
         ///static bool save(const int rate, const int bits, const int channels, const uint8_t* buffer, const int length);
         //static bool render(const uint8_t* buffer, int length);
 
-
     private:
-        format_t _fmt_chunk;
-        uint32_t _dataSize;
-        std::shared_ptr<uint8_t[]> _data;
-        std::shared_ptr<audio::Sound> _sound;
+        format_t m_fmt_chunk;
+        //uint32_t _dataSize;
+        std::shared_ptr<std::vector<uint8_t>> m_data = std::make_shared<std::vector<uint8_t>>();
+        std::shared_ptr<audio::Sound> m_sound;
 
-        bool _expDataChunk = false;
-        
+        bool m_expDataChunk = false;
+
         /// <summary>
-        /// read the 'fmt ' subchunks, file need to positioned
+        /// read the 'fmt ' subchunks, file need to be positioned
         /// just after the sub chunk header and pass it as
         /// parameter.
         /// </summary>

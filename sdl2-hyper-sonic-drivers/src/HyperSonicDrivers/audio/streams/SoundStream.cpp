@@ -17,9 +17,9 @@ namespace HyperSonicDrivers::audio::streams
 
     size_t SoundStream::readBuffer(int16_t* buffer, const size_t numSamples)
     {
-        assert(m_sound->dataSize % m_bitsFactor == 0);
+        assert(m_sound->data->size() % m_bitsFactor == 0);
 
-        const size_t rest = (m_sound->dataSize - m_curPos) / m_bitsFactor;
+        const size_t rest = (m_sound->data->size() - m_curPos) / m_bitsFactor;
         const size_t remaining = std::min<uint32_t>(numSamples, rest);
 
         for (size_t i = 0; i < remaining; i++)
@@ -27,15 +27,15 @@ namespace HyperSonicDrivers::audio::streams
             // TODO convert Audio stream before playback? (yes when loading the file)
             if (m_sound->bitsDepth == 8)
             {
-                buffer[i] = static_cast<int16_t>((m_sound->data[m_curPos++] - 128) * 128);
+                buffer[i] = static_cast<int16_t>(((*m_sound->data)[m_curPos++] - 128) * 128);
             }
             else {
-                buffer[i] = READ_LE_UINT16(&m_sound->data[m_curPos]);
+                buffer[i] = READ_LE_UINT16(&(*m_sound->data)[m_curPos]);
                 m_curPos += 2;
             }
         }
 
-        assert(m_curPos <= m_sound->dataSize);
+        assert(m_curPos <= m_sound->data->size());
         return remaining;
     }
 
@@ -51,7 +51,7 @@ namespace HyperSonicDrivers::audio::streams
 
     bool SoundStream::endOfData() const
     {
-        return m_curPos == m_sound->dataSize;
+        return m_curPos == m_sound->data->size();
     }
 
     std::weak_ptr<Sound> SoundStream::getSound() const noexcept
