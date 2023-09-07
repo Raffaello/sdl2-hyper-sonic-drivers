@@ -9,7 +9,7 @@
 #include <HyperSonicDrivers/hardware/opl/OplType.hpp>
 
 
-namespace HyperSonicDrivers::hardware::opl::scummvm
+namespace HyperSonicDrivers::hardware::opl
 {
     /**
      * An OPL that represents an emulated OPL.

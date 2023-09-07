@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <memory>
 #include <array>
-#include <HyperSonicDrivers/hardware/opl/scummvm/EmulatedOPL.hpp>
+#include <HyperSonicDrivers/hardware/opl/EmulatedOPL.hpp>
 #include <HyperSonicDrivers/hardware/opl/Timer.hpp>
 #include <HyperSonicDrivers/hardware/opl/Chip.hpp>
 

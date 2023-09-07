@@ -1,5 +1,5 @@
 #pragma once
-#include <HyperSonicDrivers/hardware/opl/scummvm/EmulatedOPL.hpp>
+#include <HyperSonicDrivers/hardware/opl/EmulatedOPL.hpp>
 #include <HyperSonicDrivers/hardware/opl/scummvm/mame/mame.hpp>
 #include <HyperSonicDrivers/hardware/opl/Chip.hpp>
 #include <cstdint>

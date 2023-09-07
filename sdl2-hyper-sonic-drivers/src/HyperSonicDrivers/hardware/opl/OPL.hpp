@@ -3,7 +3,6 @@
 #include <cstdint>
 #include <memory>
 #include <functional>
-#include <HyperSonicDrivers/audio/scummvm/SoundHandle.hpp>
 #include <HyperSonicDrivers/hardware/opl/OplType.hpp>
 
 namespace HyperSonicDrivers::hardware::opl

@@ -1,8 +1,8 @@
-#include <HyperSonicDrivers/hardware/opl/scummvm/EmulatedOPL.hpp>
+#include <HyperSonicDrivers/hardware/opl/EmulatedOPL.hpp>
 #include <HyperSonicDrivers/utils/ILogger.hpp>
 #include <cassert>
 
-namespace HyperSonicDrivers::hardware::opl::scummvm
+namespace HyperSonicDrivers::hardware::opl
 {
     constexpr int FIXP_SHIFT = 16;
 
