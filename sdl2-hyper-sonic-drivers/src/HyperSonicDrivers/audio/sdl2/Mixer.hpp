@@ -4,6 +4,7 @@
 #include <vector>
 #include <memory>
 #include <mutex>
+#include <optional>
 #include <HyperSonicDrivers/audio/IMixer.hpp>
 #include <HyperSonicDrivers/audio/mixer/Channel.hpp>
 #include <SDL2/SDL_audio.h>
@@ -19,7 +20,7 @@ namespace HyperSonicDrivers::audio::sdl2
 
         bool init() override;
 
-        void play(
+        std::optional<uint8_t> play(
             const mixer::eChannelGroup group,
             const std::shared_ptr<IAudioStream>& stream,
             const uint8_t vol,

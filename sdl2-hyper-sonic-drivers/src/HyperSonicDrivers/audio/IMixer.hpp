@@ -4,11 +4,13 @@
 #include <array>
 #include <vector>
 #include <memory>
+#include <optional>
 #include <HyperSonicDrivers/audio/mixer/ChannelGroup.hpp>
 #include <HyperSonicDrivers/audio/IAudioStream.hpp>
 
 namespace HyperSonicDrivers::audio
 {
+   
     /**
     * 16 bit signed, stereo
     **/
@@ -24,7 +26,10 @@ namespace HyperSonicDrivers::audio
         virtual bool init() = 0;
         inline bool isReady() const noexcept { return m_ready; };
 
-        virtual void play(
+        /**
+        * returns channel id used to play the stream
+        **/
+        virtual std::optional<uint8_t> play(
             const mixer::eChannelGroup group,
             const std::shared_ptr<IAudioStream>& stream,
             const uint8_t vol,
@@ -72,7 +77,6 @@ namespace HyperSonicDrivers::audio
         const uint8_t max_channels;
     protected:
         std::array<mixer::channelGroupSettings_t, mixer::eChannelGroup_size> m_group_settings;
-        //std::vector<mixer::Channel> m_channels;
         bool m_ready = false;
         const uint32_t m_sampleRate;
         const uint16_t m_samples;

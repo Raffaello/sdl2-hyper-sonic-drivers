@@ -51,6 +51,8 @@ void newMixerTest()
 
     if (!mixer->isReady())
         return;
+
+    utils::logI("OK");
 }
 
 void playNotes(hardware::PCSpeaker *pcSpeaker, const hardware::PCSpeaker::eWaveForm waveForm, const int freq, const int length)

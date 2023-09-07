@@ -1,5 +1,3 @@
-#include "Mixer.hpp"
-#include "Mixer.hpp"
 #include <algorithm>
 #include <cstring>
 #include <cassert>
@@ -28,6 +26,8 @@ namespace HyperSonicDrivers::audio::sdl2
     Mixer::~Mixer()
     {
         SDL_CloseAudioDevice(m_device_id);
+
+        SDL_QuitSubSystem(SDL_INIT_AUDIO);
     }
 
     bool Mixer::init()
@@ -79,7 +79,7 @@ namespace HyperSonicDrivers::audio::sdl2
         return true;
     }
 
-    void Mixer::play(
+    std::optional<uint8_t> Mixer::play(
         const mixer::eChannelGroup group,
         const std::shared_ptr<IAudioStream>& stream,
         const uint8_t vol, const int8_t pan, const bool reverseStereo)
@@ -94,10 +94,12 @@ namespace HyperSonicDrivers::audio::sdl2
         if (i == max_channels)
         {
             logW("no channels available. can't play");
-            return;
+            return std::nullopt;
         }
 
         m_channels[i]->setAudioStream(group, stream, vol, pan, reverseStereo);
+
+        return std::make_optional(static_cast<uint8_t>(i));
     }
 
     void Mixer::suspend() noexcept
