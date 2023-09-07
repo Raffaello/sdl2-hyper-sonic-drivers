@@ -32,7 +32,6 @@
 #include <exception>
 
 #include <HyperSonicDrivers/hardware/opl/scummvm/mame/mame.hpp>
-#include <HyperSonicDrivers/audio/scummvm/Mixer.hpp>
 #include <HyperSonicDrivers/utils/constants.hpp>
 #include <HyperSonicDrivers/utils/algorithms.hpp>
 #include <HyperSonicDrivers/utils/ILogger.hpp>

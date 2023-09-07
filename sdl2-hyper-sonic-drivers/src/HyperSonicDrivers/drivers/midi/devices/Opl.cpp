@@ -23,7 +23,7 @@ namespace HyperSonicDrivers::drivers::midi::devices
 
     Opl::Opl(const hardware::opl::OplType type,
         const hardware::opl::OplEmulator emuType,
-        const std::shared_ptr<audio::scummvm::Mixer>& mixer,
+        const std::shared_ptr<audio::IMixer>& mixer,
         const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank)
     {
         auto opl = hardware::opl::OPLFactory::create(emuType, type, mixer);

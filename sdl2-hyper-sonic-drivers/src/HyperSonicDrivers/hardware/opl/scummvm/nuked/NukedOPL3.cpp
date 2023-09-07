@@ -5,7 +5,7 @@
 
 namespace HyperSonicDrivers::hardware::opl::scummvm::nuked
 {
-    NukedOPL::NukedOPL(const OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer)
+    NukedOPL::NukedOPL(const OplType type, const std::shared_ptr<audio::IMixer>& mixer)
         : EmulatedOPL(type, mixer)
     {
         chip = std::make_unique<opl3_chip>();
@@ -14,7 +14,7 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::nuked
     bool NukedOPL::init()
     {
         memset(&_reg, 0, sizeof(_reg));
-        _rate = _mixer->getOutputRate();
+        _rate = m_mixer->getOutputRate();
         OPL3_Reset(chip.get(), _rate);
 
         if (type == OplType::DUAL_OPL2) {

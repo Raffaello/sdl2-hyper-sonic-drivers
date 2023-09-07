@@ -193,8 +193,11 @@ target_include_directories(${LIB_NAME} PUBLIC
 )
 
 target_sources(${LIB_NAME} PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/DiskRendererMixerManager.cpp
-    
+    # --- #
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/IMixer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/mixer/Channel.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/sdl2/Mixer.cpp
+    # --- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/MIDI.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/midi/MIDITrack.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/Sound.cpp
@@ -202,9 +205,6 @@ target_sources(${LIB_NAME} PRIVATE
     # --- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/converters/IRateConverter.cpp
     # --- #
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/scummvm/SDLMixerManager.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/scummvm/Channel.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/scummvm/MixerImpl.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/scummvm/Timestamp.cpp
     # --- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/opl/banks/OP2Bank.cpp
@@ -249,13 +249,13 @@ target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/hardware/opl/Timer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/hardware/opl/Chip.cpp
 
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/hardware/opl/EmulatedOPL.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/hardware/opl/scummvm/dosbox/DosBoxOPL.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/hardware/opl/scummvm/dosbox/dbopl/dbopl.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/hardware/opl/scummvm/mame/MameOPL2.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/hardware/opl/scummvm/mame/mame.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/hardware/opl/scummvm/nuked/NukedOPL3.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/hardware/opl/scummvm/nuked/opl3.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/hardware/opl/scummvm/EmulatedOPL.cpp
     # --- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/hardware/opl/mame/ymfm/ymfm_adpcm.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/hardware/opl/mame/ymfm/ymfm_fm.ipp

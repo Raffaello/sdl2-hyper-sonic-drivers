@@ -1,12 +1,12 @@
 #pragma once
 
-#include <HyperSonicDrivers/hardware/opl/scummvm/EmulatedOPL.hpp>
+#include <HyperSonicDrivers/hardware/opl/EmulatedOPL.hpp>
 #include <HyperSonicDrivers/hardware/opl/mame/ymfm/ymfm_opl.h>
 #include <HyperSonicDrivers/hardware/opl/mame/opl3/ymf262.h>
 
 namespace HyperSonicDrivers::hardware::opl::mame
 {
-    class MameOPL3 : public scummvm::EmulatedOPL
+    class MameOPL3 : public EmulatedOPL
     {
     private:
         // OPL3
@@ -14,7 +14,7 @@ namespace HyperSonicDrivers::hardware::opl::mame
         ymfm::ymfm_interface _ymfm;
         void* _chip;
     public:
-        explicit MameOPL3(const OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer);
+        explicit MameOPL3(const OplType type, const std::shared_ptr<audio::IMixer>& mixer);
         virtual ~MameOPL3();
 
         bool init() override;

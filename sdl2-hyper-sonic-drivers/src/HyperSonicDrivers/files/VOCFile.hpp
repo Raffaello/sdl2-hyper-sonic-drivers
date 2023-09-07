@@ -1,6 +1,6 @@
 #pragma once
 
-#include <HyperSonicDrivers/audio/scummvm/Mixer.hpp>
+#include <HyperSonicDrivers/audio/mixer/ChannelGroup.hpp>
 #include <HyperSonicDrivers/audio/Sound.hpp>
 #include <HyperSonicDrivers/files/File.hpp>
 #include <string>
@@ -13,8 +13,8 @@ namespace HyperSonicDrivers::files
     class VOCFile final : protected File
     {
     public:
-        VOCFile(const std::string& filename, const audio::scummvm::Mixer::SoundType soundType = audio::scummvm::Mixer::SoundType::PLAIN);
-        virtual ~VOCFile();
+        VOCFile(const std::string& filename, const audio::mixer::eChannelGroup group = audio::mixer::eChannelGroup::Unknown);
+        ~VOCFile() override = default;
 
         const std::string getVersion() const noexcept;
         const int getChannels() const noexcept;

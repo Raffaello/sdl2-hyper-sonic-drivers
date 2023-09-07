@@ -4,6 +4,7 @@
 
 namespace HyperSonicDrivers::audio::scummvm
 {
+    // NOTE: Not used at the moment
     /**
      * @defgroup audio_timestamp Timestamp
      * @ingroup audio

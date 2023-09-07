@@ -1,8 +1,8 @@
+#include <HyperSonicDrivers/audio/sdl2/Mixer.hpp>
 #include <HyperSonicDrivers/hardware/opl/OPL.hpp>
 #include <HyperSonicDrivers/hardware/opl/OPLFactory.hpp>
 #include <HyperSonicDrivers/utils/algorithms.hpp>
 #include <HyperSonicDrivers/utils/opl.hpp>
-#include <HyperSonicDrivers/audio/scummvm/SDLMixerManager.hpp>
 #include <spdlog/spdlog.h>
 #include <fmt/color.h>
 #include <memory>
@@ -12,7 +12,6 @@
 
 using namespace HyperSonicDrivers;
 
-using audio::scummvm::SdlMixerManager;
 using hardware::opl::OPLFactory;
 using hardware::opl::OplEmulator;
 using hardware::opl::OplType;
@@ -23,7 +22,7 @@ using utils::fm;
 using utils::Profm1;
 using utils::Profm2;
 
-void opl_test(const OplEmulator emu, const OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer)
+void opl_test(const OplEmulator emu, const OplType type, const std::shared_ptr<audio::IMixer>& mixer)
 {
     constexpr auto LEFT = 0x10;
     constexpr auto RIGHT = 0x20;
@@ -220,7 +219,7 @@ void opl_test(const OplEmulator emu, const OplType type, const std::shared_ptr<a
     opl->stop();
 }
 
-bool detect_opl2(const OplEmulator emu, const OplType type, std::shared_ptr<audio::scummvm::Mixer> mixer)
+bool detect_opl2(const OplEmulator emu, const OplType type, std::shared_ptr<audio::IMixer> mixer)
 {
     auto opl = OPLFactory::create(emu, type, mixer);
     if (opl == nullptr)
@@ -234,7 +233,7 @@ bool detect_opl2(const OplEmulator emu, const OplType type, std::shared_ptr<audi
     return utils::detectOPL2(opl);
 }
 
-bool detect_opl3(const OplEmulator emu, const OplType type, std::shared_ptr<audio::scummvm::Mixer> mixer)
+bool detect_opl3(const OplEmulator emu, const OplType type, std::shared_ptr<audio::IMixer> mixer)
 {
     // Detect OPL2. If present, continue.
     auto opl = OPLFactory::create(emu, type, mixer);
@@ -251,11 +250,7 @@ bool detect_opl3(const OplEmulator emu, const OplType type, std::shared_ptr<audi
 
 int main(int argc, char* argv[])
 {
-    SdlMixerManager mixerManager;
-
-    mixerManager.init();
-
-    auto mixer = mixerManager.getMixer();
+    auto mixer = audio::make_mixer<audio::sdl2::Mixer>(8, 44100, 1024);
 
     std::map<OplEmulator, std::string> emus = {
         { OplEmulator::DOS_BOX, "DOS_BOX" },

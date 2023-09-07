@@ -6,7 +6,7 @@
 #include <HyperSonicDrivers/hardware/opl/scummvm/dosbox/DosBoxOPL.hpp>
 #include <HyperSonicDrivers/hardware/opl/scummvm/mame/MameOPL2.hpp>
 #include <HyperSonicDrivers/hardware/opl/scummvm/nuked/NukedOPL3.hpp>
-#include <HyperSonicDrivers/hardware/opl/scummvm/EmulatedOPL.hpp>
+#include <HyperSonicDrivers/hardware/opl/EmulatedOPL.hpp>
 
 namespace HyperSonicDrivers::hardware::opl
 {

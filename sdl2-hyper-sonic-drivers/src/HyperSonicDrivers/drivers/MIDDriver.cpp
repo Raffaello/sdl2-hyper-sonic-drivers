@@ -29,8 +29,8 @@ namespace HyperSonicDrivers::drivers
         return utils::getMicro<uint32_t>();
     }
 
-    MIDDriver::MIDDriver(const std::shared_ptr<audio::scummvm::Mixer>& mixer, const std::shared_ptr<midi::Device>& device)
-        : _mixer(mixer), _device(device)
+    MIDDriver::MIDDriver(/*const std::shared_ptr<audio::IMixer>& mixer,*/ const std::shared_ptr<midi::Device>& device)
+        : /*_mixer(mixer),*/ m_device(device)
     {
     }
 
@@ -76,46 +76,46 @@ namespace HyperSonicDrivers::drivers
         }
 
         stop();
-        if (!_device->acquire(this)) {
+        if (!m_device->acquire(this)) {
             return;
         }
 
         //TODO: it would be better reusing the thread...
-        _player = std::thread(&MIDDriver::processTrack, this, midi->getTrack(), midi->division & 0x7FFF);
-        _isPlaying = true;
+        m_player = std::jthread(&MIDDriver::processTrack, this, midi->getTrack(), midi->division & 0x7FFF);
+        m_isPlaying = true;
     }
 
     void MIDDriver::stop(/*const bool wait*/) noexcept
     {
-        _force_stop = true;
-        _paused = false;
-        if (_player.joinable())
-            _player.join();
-        _force_stop = false;
-        _isPlaying = false;
-        _device->release(this);
+        m_force_stop = true;
+        m_paused = false;
+        if (m_player.joinable())
+            m_player.join();
+        m_force_stop = false;
+        m_isPlaying = false;
+        m_device->release(this);
     }
 
     void MIDDriver::pause() noexcept
     {
-        if (_isPlaying)
-            _paused = true;
+        if (m_isPlaying)
+            m_paused = true;
     }
 
     void MIDDriver::resume() noexcept
     {
-        if (_isPlaying)
-            _paused = false;
+        if (m_isPlaying)
+            m_paused = false;
     }
 
     bool MIDDriver::isPlaying() const noexcept
     {
-        return _isPlaying;
+        return m_isPlaying;
     }
 
     bool MIDDriver::isPaused() const noexcept
     {
-        return _paused;
+        return m_paused;
     }
 
     void MIDDriver::processTrack(const audio::midi::MIDITrack& track, const uint16_t division)
@@ -128,28 +128,28 @@ namespace HyperSonicDrivers::drivers
         using audio::midi::TO_META_LOW;
         using audio::midi::TO_META;
 
-        _isPlaying = true;
-        _force_stop = false;
+        m_isPlaying = true;
+        m_force_stop = false;
         setTempo(DEFAULT_MIDI_TEMPO); //120 BPM;
         int cur_time = 0; // ticks
-        unsigned int tempo_micros = tempo_to_micros(_tempo, division);
+        unsigned int tempo_micros = tempo_to_micros(m_tempo, division);
         logD(std::format("tempo_micros = {}", tempo_micros));
         uint32_t start = get_start_time();
         const auto& tes = track.getEvents();
         for (const auto& e : tes)
         {
-            if(_paused)
+            if(m_paused)
             {
-                _device->pause();
+                m_device->pause();
                 do
                 {
                     utils::delayMillis(PAUSE_MILLIS);
-                } while (_paused);
-                _device->resume();
+                } while (m_paused);
+                m_device->resume();
                 start = get_start_time();
             }
 
-            if (_force_stop)
+            if (m_force_stop)
                 break;
 
             switch (TO_HIGH(e.type.high))
@@ -216,8 +216,8 @@ namespace HyperSonicDrivers::drivers
                         break;
                     case MIDI_META_EVENT::SET_TEMPO: {
                         setTempo((e.data[1] << 16) + (e.data[2] << 8) + (e.data[3]));
-                        tempo_micros = tempo_to_micros(_tempo, division);
-                        logT(std::format("Tempo {}, ({} bpm) -- microseconds/tick {}", _tempo.load(), 60000000 / _tempo.load(), tempo_micros));
+                        tempo_micros = tempo_to_micros(m_tempo, division);
+                        logT(std::format("Tempo {}, ({} bpm) -- microseconds/tick {}", m_tempo.load(), 60000000 / m_tempo.load(), tempo_micros));
                         break;
                     }
                     case MIDI_META_EVENT::SMPTE_OFFSET:
@@ -239,12 +239,12 @@ namespace HyperSonicDrivers::drivers
                 case MIDI_META_EVENT_TYPES_LOW::SYS_EX0:
                     logD("SYS_EX0 META event");
                     // TODO: it should be sent as normal event?
-                    _device->sendSysEx(e);
+                    m_device->sendSysEx(e);
                     continue;
                 case MIDI_META_EVENT_TYPES_LOW::SYS_EX7:
                     logD("SYS_EX7 META event");
                     // TODO: it should be sent as normal event?
-                    _device->sendSysEx(e);
+                    m_device->sendSysEx(e);
                     continue;
                 default:
                     logW(std::format("MIDI_META_EVENT_TYPES_LOW not implemented/recognized: {:#02x}", e.type.low));
@@ -279,22 +279,22 @@ namespace HyperSonicDrivers::drivers
                 const uint32_t delta_delay = tempo_micros * e.delta_time  + start;
                 int32_t dd = delta_delay - get_start_time(); // microseconds to wait
 
-                while (dd > DELAY_CHUNK_MICROS && !_force_stop) {
+                while (dd > DELAY_CHUNK_MICROS && !m_force_stop) {
                     // preventing longer waits before stop a song
                     utils::delayMicro(DELAY_CHUNK_MICROS);
                     dd = delta_delay - get_start_time();
                 }
 
-                if (!_force_stop && dd > 0)
+                if (!m_force_stop && dd > 0)
                     utils::delayMicro(dd);
                 // TODO: replace with a timer (OS timer (Windows)?) that counts ticks based on midi tempo?
                 start = get_start_time();
             }
 
-            _device->sendEvent(e);
+            m_device->sendEvent(e);
         }
 
-        _device->release(this);
-        _isPlaying = false;
+        m_device->release(this);
+        m_isPlaying = false;
     }
 }
