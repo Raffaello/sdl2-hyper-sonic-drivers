@@ -2,7 +2,7 @@
 #include <gmock/gmock.h>
 #include <HyperSonicDrivers/files/VOCFile.hpp>
 #include <HyperSonicDrivers/audio/Sound.hpp>
-#include <HyperSonicDrivers/audio/scummvm/Mixer.hpp>
+#include <HyperSonicDrivers/audio/mixer/ChannelGroup.hpp>
 #include <cstdint>
 #include <memory>
 
@@ -16,9 +16,11 @@ namespace HyperSonicDrivers::files
         EXPECT_NO_THROW(VOCFile f("../fixtures/VSCREAM1.VOC"));
     }
 
+    //TODO: create a parametrized test
+
     TEST(VOCFile, VSCREAM1_VOC)
     {
-        VOCFile f("../fixtures/VSCREAM1.VOC", Mixer::SoundType::SFX);
+        VOCFile f("../fixtures/VSCREAM1.VOC", audio::mixer::eChannelGroup::Sfx);
 
         EXPECT_STRCASEEQ(f.getVersion().c_str(), "1.10");
         EXPECT_EQ(f.getChannels(), 1);
@@ -30,13 +32,13 @@ namespace HyperSonicDrivers::files
         std::shared_ptr<Sound> s = f.getSound();
         EXPECT_EQ(s->bitsDepth, f.getBitsDepth());
         EXPECT_FALSE(s->stereo);
-        EXPECT_EQ(s->rate, f.getSampleRate());
-        EXPECT_EQ(s->soundType, Mixer::SoundType::SFX);
+        EXPECT_EQ(s->freq, f.getSampleRate());
+        EXPECT_EQ(s->group, audio::mixer::eChannelGroup::Sfx);
     }
 
     TEST(VOCFile, DUNE_VOC)
     {
-        VOCFile f("../fixtures/DUNE.VOC", Mixer::SoundType::SPEECH);
+        VOCFile f("../fixtures/DUNE.VOC", audio::mixer::eChannelGroup::Speech);
 
         EXPECT_STRCASEEQ(f.getVersion().c_str(), "1.10");
         EXPECT_EQ(f.getChannels(), 1);
@@ -48,8 +50,8 @@ namespace HyperSonicDrivers::files
         std::shared_ptr<Sound> s = f.getSound();
         EXPECT_EQ(s->bitsDepth, f.getBitsDepth());
         EXPECT_FALSE(s->stereo);
-        EXPECT_EQ(s->rate, f.getSampleRate());
-        EXPECT_EQ(s->soundType, Mixer::SoundType::SPEECH);
+        EXPECT_EQ(s->freq, f.getSampleRate());
+        EXPECT_EQ(s->group, audio::mixer::eChannelGroup::Speech);
     }
 
 

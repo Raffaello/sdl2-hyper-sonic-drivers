@@ -9,7 +9,7 @@ namespace HyperSonicDrivers::files
 {
     TEST(WAVFile, cstorDefault)
     {
-        WAVFile f("../fixtures/Wav_868kb.wav", audio::scummvm::Mixer::SoundType::SPEECH);
+        WAVFile f("../fixtures/Wav_868kb.wav", audio::mixer::eChannelGroup::Speech);
 
         WAVFile::format_t fmt = f.getFormat();
         EXPECT_EQ(fmt.format, WAVFile::eFormat::WAVE_FORMAT_PCM);
@@ -27,9 +27,9 @@ namespace HyperSonicDrivers::files
 
         auto sound = f.getSound();
         EXPECT_TRUE(sound->stereo);
-        EXPECT_EQ(sound->rate, fmt.samplesPerSec);
+        EXPECT_EQ(sound->freq, fmt.samplesPerSec);
         EXPECT_EQ(sound->bitsDepth, fmt.bitsPerSample);
-        EXPECT_EQ(sound->soundType, audio::scummvm::Mixer::SoundType::SPEECH);
+        EXPECT_EQ(sound->group, audio::mixer::eChannelGroup::Sfx);
     }
 
     TEST(WAVFile, file_not_found)
