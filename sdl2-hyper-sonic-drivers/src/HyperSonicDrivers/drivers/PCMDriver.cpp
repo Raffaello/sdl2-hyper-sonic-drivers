@@ -1,4 +1,5 @@
 #include <HyperSonicDrivers/drivers/PCMDriver.hpp>
+#include <algorithm>
 
 namespace HyperSonicDrivers::drivers
 {
@@ -13,10 +14,9 @@ namespace HyperSonicDrivers::drivers
 
     bool PCMDriver::isPlaying() const noexcept
     {
-        for (int i = 0; i < m_max_streams; ++i)
+        for(const auto& ss: m_soundStreams)
         {
-            const auto& ss = m_soundStreams[i];
-            if(ss != nullptr && !ss->isEnded())
+            if (isSoundStreamPlaying_(ss))
                 return true;
         }
 
@@ -27,14 +27,10 @@ namespace HyperSonicDrivers::drivers
     {
         // TODO: should be returned the soundHandle or soundID in play method to be used later on?
         // BODY: so here it can be addressed in constant time instead of searching for sound in the slots?
-        for (int i = 0; i < m_max_streams; i++)
+        for(const auto& ss : m_soundStreams)
         {
-            const auto& ss = m_soundStreams[i];
-            if (ss != nullptr
-                && ss->getSound().lock() == sound
-                && !ss->isEnded()
-                )
-                return true;
+            if (ss->getSound().lock() == sound)
+                return isSoundStreamPlaying_(ss);
         }
 
         return false;
@@ -42,28 +38,24 @@ namespace HyperSonicDrivers::drivers
 
     std::optional<uint8_t> PCMDriver::play(const std::shared_ptr<audio::Sound>& sound, const uint8_t volume, const int8_t pan, const bool reverseStereo)
     {
-        // TODO: this method is not thread-safe at the moment.
-        int cur_stream;
-        
         // find first free slot
-        for (cur_stream = 0; cur_stream < m_max_streams ; ++cur_stream)
-        {
-            const auto& ss = m_soundStreams[cur_stream];
-            if (ss == nullptr || ss->isEnded())
-                break;
-        }
-
-        if (cur_stream == m_max_streams)
+        auto it = std::ranges::find_if_not(m_soundStreams, isSoundStreamPlaying_);
+        if (it == m_soundStreams.end())
             return std::nullopt;
 
-        m_soundStreams[cur_stream] = std::make_shared<SoundStream>(sound);
+        *it = std::make_shared<SoundStream>(sound);
 
         return m_mixer->play(
             sound->group,
-            m_soundStreams[cur_stream],
+            *it,
             volume,
             pan,
             reverseStereo
         );
+    }
+
+    inline bool PCMDriver::isSoundStreamPlaying_(const std::shared_ptr<audio::streams::SoundStream>& ss) noexcept
+    {
+        return ss != nullptr && !ss->isEnded();
     }
 }

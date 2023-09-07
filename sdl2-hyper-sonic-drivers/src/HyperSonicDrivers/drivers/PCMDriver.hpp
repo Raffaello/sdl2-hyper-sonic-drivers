@@ -37,5 +37,7 @@ namespace HyperSonicDrivers::drivers
         std::shared_ptr<audio::IMixer> m_mixer;
         std::vector<std::shared_ptr<audio::streams::SoundStream>> m_soundStreams;
         uint8_t m_max_streams;
+
+        static bool isSoundStreamPlaying_(const std::shared_ptr<audio::streams::SoundStream>& ss) noexcept;
     };
 }
