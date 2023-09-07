@@ -8,7 +8,7 @@ namespace HyperSonicDrivers::hardware::opl::mame
     constexpr int OPL3_INTERNAL_FREQ = 14400000;  // The OPL3 operates at 14.4MHz;
 
 
-    MameOPL3::MameOPL3(const OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer) : EmulatedOPL(type, mixer),
+    MameOPL3::MameOPL3(const OplType type, const std::shared_ptr<audio::IMixer>& mixer) : EmulatedOPL(type, mixer),
         _chip(nullptr), _opl(nullptr)
     {}
 
@@ -39,7 +39,7 @@ namespace HyperSonicDrivers::hardware::opl::mame
         //auto rate = _opl->sample_rate(OPL3_INTERNAL_FREQ);
         //_opl->sample_rate(_mixer->getOutputRate());
 
-        _chip = ymf262_init(0, OPL3_INTERNAL_FREQ, _mixer->getOutputRate());
+        _chip = ymf262_init(0, OPL3_INTERNAL_FREQ, m_mixer->getOutputRate());
         _init = _opl != nullptr;
 
         return _init;

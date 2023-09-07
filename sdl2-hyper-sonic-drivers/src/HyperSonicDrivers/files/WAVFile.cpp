@@ -7,7 +7,7 @@
 
 namespace HyperSonicDrivers::files
 {
-    WAVFile::WAVFile(const std::string& filename, const audio::scummvm::Mixer::SoundType soundType) : RIFFFile(filename),
+    WAVFile::WAVFile(const std::string& filename, const audio::mixer::eChannelGroup group) : RIFFFile(filename),
         _expDataChunk(false), _dataSize(0)
     {
         std::memset(&_fmt_chunk, 0, sizeof(format_t));
@@ -46,17 +46,13 @@ namespace HyperSonicDrivers::files
 
         // TODO: works only for mono and stereo (1 or 2 channels)
         _sound = std::make_shared<audio::Sound>(
-            soundType,
+            group,
             getFormat().channels == 2,
             getFormat().samplesPerSec,
             static_cast<uint8_t>(getFormat().bitsPerSample),
             getDataSize(),
             getData()
         );
-    }
-
-    WAVFile::~WAVFile()
-    {
     }
 
     const WAVFile::format_t& WAVFile::getFormat() const noexcept

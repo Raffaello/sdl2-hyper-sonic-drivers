@@ -3,8 +3,7 @@
 #include <cstdint>
 #include <array>
 #include <HyperSonicDrivers/audio/converters/IRateConverter.hpp>
-
-#include <SDL2/SDL_log.h>
+#include <HyperSonicDrivers/utils/ILogger.hpp>
 
 namespace HyperSonicDrivers::audio::converters
 {
@@ -46,9 +45,9 @@ namespace HyperSonicDrivers::audio::converters
 
     public:
         LinearRateConverter(uint32_t inrate, uint32_t outrate);
-        int flow(IAudioStream& input, int16_t* obuf, uint32_t osamp, const uint16_t vol_l, const uint16_t vol_r) override;
+        size_t flow(IAudioStream& input, int16_t* obuf, uint32_t osamp, const uint16_t vol_l, const uint16_t vol_r) override;
         
-        int drain(int16_t* obuf, uint32_t osamp, const uint16_t vol) override
+        size_t drain(int16_t* obuf, uint32_t osamp, const uint16_t vol) override
         {
             return 0;
         }
@@ -63,7 +62,7 @@ namespace HyperSonicDrivers::audio::converters
     {
         if (inrate >= 131072 || outrate >= 131072)
         {
-            SDL_LogError(SDL_LOG_CATEGORY_AUDIO, "rate effect can only handle rates < 131072");
+            utils::logE("rate effect can only handle rates < 131072");
         }
 
         opos = fracOneLow;
@@ -86,7 +85,7 @@ namespace HyperSonicDrivers::audio::converters
      * Return number of sample pairs processed.
      */
     template<bool stereo, bool reverseStereo>
-    int LinearRateConverter<stereo, reverseStereo>::flow(IAudioStream& input, int16_t* obuf, uint32_t osamp, const uint16_t vol_l, const uint16_t vol_r)
+    size_t LinearRateConverter<stereo, reverseStereo>::flow(IAudioStream& input, int16_t* obuf, uint32_t osamp, const uint16_t vol_l, const uint16_t vol_r)
     {
         const int16_t* ostart = obuf;
         const int16_t* oend = obuf + osamp * 2;

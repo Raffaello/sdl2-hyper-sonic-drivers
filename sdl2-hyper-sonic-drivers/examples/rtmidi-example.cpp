@@ -1,5 +1,3 @@
-#include <HyperSonicDrivers/audio/scummvm/Mixer.hpp>
-#include <HyperSonicDrivers/audio/scummvm/SDLMixerManager.hpp>
 #include <HyperSonicDrivers/files/MIDFile.hpp>
 #include <HyperSonicDrivers/drivers/MIDDriver.hpp>
 #include <HyperSonicDrivers/drivers/midi/devices/Native.hpp>
@@ -16,19 +14,17 @@
 
 using namespace HyperSonicDrivers;
 
-using namespace audio::scummvm;
 using std::cout;
 using std::endl;
 
 int main(int argc, char* argv[])
 {
-    // not initing the mixer will results in delay reproducing the midi file.
-    // not sure what is special in SDL2 when init audio to make not lagging
-    // the midi.
-    SdlMixerManager mixerManager;
-    mixerManager.init();
+    // TODO: as this example shows rtMidi is outside the mixer
+    //       it implies it can be muted, stopped panned, chnage volume, etc..
+    //       like other music/sounds going through the mixer.
+    //       Check if it can be wired to the mixer
+    //       Otherwise this device Native and rtMidi dependency must be optional (or even removed or not official)
 
-    auto mixer = mixerManager.getMixer();
     std::shared_ptr<RtMidiOut> midiout;
 
     try {
@@ -85,7 +81,7 @@ int main(int argc, char* argv[])
 
     // Device Native is using RtMidi
     auto native = std::make_shared<drivers::midi::devices::Native>();
-    drivers::MIDDriver middrv(mixer, native);
+    drivers::MIDDriver middrv(native);
     auto midi = files::MIDFile("midifile_sample.mid").getMIDI();
     middrv.play(midi);
 

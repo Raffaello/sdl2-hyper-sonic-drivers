@@ -1,7 +1,7 @@
+#include <HyperSonicDrivers/audio/sdl2/Mixer.hpp>
 #include <HyperSonicDrivers/hardware/opl/OPL.hpp>
 #include <HyperSonicDrivers/hardware/opl/OPLFactory.hpp>
 #include <HyperSonicDrivers/utils/algorithms.hpp>
-#include <HyperSonicDrivers/audio/scummvm/SDLMixerManager.hpp>
 #include <HyperSonicDrivers/files/westwood/ADLFile.hpp>
 #include <HyperSonicDrivers/drivers/westwood/ADLDriver.hpp>
 
@@ -15,7 +15,6 @@
 
 using namespace HyperSonicDrivers;
 
-using audio::scummvm::SdlMixerManager;
 using hardware::opl::OPLFactory;
 using hardware::opl::OplEmulator;
 using hardware::opl::OplType;
@@ -24,7 +23,7 @@ using files::westwood::ADLFile;
 using drivers::westwood::ADLDriver;
 
 
-void adl_test(const OplEmulator emu, const OplType type, std::shared_ptr<audio::scummvm::Mixer> mixer, const std::string& filename, const int track)
+void adl_test(const OplEmulator emu, const OplType type, std::shared_ptr<audio::IMixer> mixer, const std::string& filename, const int track)
 {
     //spdlog::set_level(spdlog::level::debug);
     auto opl = OPLFactory::create(emu, type, mixer);
@@ -50,11 +49,12 @@ void adl_test(const OplEmulator emu, const OplType type, std::shared_ptr<audio::
 
 int main(int argc, char* argv[])
 {
-    SdlMixerManager mixerManager;
-
-    mixerManager.init();
-
-    auto mixer = mixerManager.getMixer();
+    auto mixer = audio::make_mixer<audio::sdl2::Mixer>(8, 44100, 1024);
+    if (!mixer->init())
+    {
+        spdlog::error("can't init mixer");
+        return 1;
+    }
 
     std::map<OplEmulator, std::string> emus = {
         { OplEmulator::DOS_BOX, "DOS_BOX" },

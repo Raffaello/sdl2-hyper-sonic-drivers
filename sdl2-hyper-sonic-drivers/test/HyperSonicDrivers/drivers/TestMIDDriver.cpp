@@ -8,32 +8,28 @@
 #include <HyperSonicDrivers/audio/midi/MIDIEvent.hpp>
 #include <HyperSonicDrivers/audio/midi/MIDITrack.hpp>
 #include <HyperSonicDrivers/audio/midi/types.hpp>
-#include <HyperSonicDrivers/audio/scummvm/Mixer.hpp>
-#include <HyperSonicDrivers/audio/stubs/StubMixer.hpp>
 #include <HyperSonicDrivers/drivers/MIDDriver.hpp>
 #include <HyperSonicDrivers/drivers/midi/Device.hpp>
 #include <HyperSonicDrivers/drivers/midi/devices/SpyDevice.hpp>
 #include <HyperSonicDrivers/drivers/MIDDriverMock.hpp>
 #include <HyperSonicDrivers/files/MIDFile.hpp>
 #include <HyperSonicDrivers/utils/algorithms.hpp>
-
-#include <SDL2/SDL_log.h>
+#include <HyperSonicDrivers/utils/ILogger.hpp>
 
 namespace HyperSonicDrivers::drivers
 {
-    using audio::stubs::StubMixer;
     using audio::midi::MIDIEvent;
     using audio::midi::MIDI_EVENT_TYPES_HIGH;
     using audio::midi::MIDI_META_EVENT_TYPES_LOW;
     using audio::midi::MIDI_META_EVENT;
     using audio::midi::MIDI_FORMAT;
+    using utils::ILogger;
 
     TEST(MIDDriver, SEQUENCE_NAME_META_EVENT)
     {
-        auto mixer = std::make_shared<StubMixer>();
         auto device = std::make_shared<midi::devices::SpyDevice>();
 
-        SDL_LogSetPriority(SDL_LOG_CATEGORY_AUDIO, SDL_LogPriority::SDL_LOG_PRIORITY_DEBUG);
+        ILogger::instance->setLevel(ILogger::eLevel::Trace, ILogger::eCategory::Audio);
 
         // ---
         MIDIEvent e;
@@ -49,9 +45,7 @@ namespace HyperSonicDrivers::drivers
 
         //::testing::internal::CaptureStdout();
         ::testing::internal::CaptureStderr();
-        MIDDriverMock middrv(mixer, device);
-
-        SDL_LogInfo(SDL_LOG_CATEGORY_AUDIO, "2TEST");
+        MIDDriverMock middrv(device);
         middrv.protected_processTrack(midi_track, 0);
         //auto output = ::testing::internal::GetCapturedStdout();
         auto output2 = ::testing::internal::GetCapturedStderr();
@@ -61,7 +55,6 @@ namespace HyperSonicDrivers::drivers
 
     TEST(MIDDriver, force_stop_on_long_delta_time_delay)
     {
-        auto mixer = std::make_shared<StubMixer>();
         auto device = std::make_shared<midi::devices::SpyDevice>();
 
         MIDIEvent e;
@@ -91,7 +84,7 @@ namespace HyperSonicDrivers::drivers
         auto midi = std::make_shared<audio::MIDI>(MIDI_FORMAT::SINGLE_TRACK, 1, 192);
         midi->addTrack(midi_track);
 
-        MIDDriverMock middrv(mixer, device);
+        MIDDriverMock middrv(device);
         middrv.play(midi);
         ASSERT_TRUE(middrv.isPlaying());
         auto start = utils::getMillis<uint32_t>();
@@ -106,7 +99,6 @@ namespace HyperSonicDrivers::drivers
 
     TEST(MIDDriver, acquire)
     {
-        using audio::stubs::StubMixer;
         using audio::midi::MIDIEvent;
         using audio::midi::MIDI_EVENT_TYPES_HIGH;
         using audio::midi::MIDI_META_EVENT_TYPES_LOW;
@@ -134,12 +126,11 @@ namespace HyperSonicDrivers::drivers
 
         auto midi = std::make_shared<audio::MIDI>(MIDI_FORMAT::SINGLE_TRACK, 1, 96);
         midi->addTrack(midi_track);
-        auto mixer = std::make_shared<StubMixer>();
         auto device = std::make_shared<midi::devices::SpyDevice>();
 
-        MIDDriverMock middrv1(mixer, device);
+        MIDDriverMock middrv1(device);
         EXPECT_EQ(device.use_count(), 2);
-        MIDDriverMock middrv2(mixer, device);
+        MIDDriverMock middrv2(device);
         EXPECT_EQ(device.use_count(), 3);
 
         ASSERT_FALSE(device->isAcquired());
@@ -151,11 +142,11 @@ namespace HyperSonicDrivers::drivers
         ASSERT_FALSE(device->isAcquired());
     }
 
-    TEST(MIDDriver, getTempo) {
+    TEST(MIDDriver, getTempo)
+    {
         auto mf = files::MIDFile("../fixtures/midifile_sample.mid");
-        auto mixer = std::make_shared<StubMixer>();
         auto device = std::make_shared<midi::devices::SpyDevice>();
-        MIDDriver md(mixer, device);
+        MIDDriver md(device);
         EXPECT_EQ(md.getTempo(), 0);
         EXPECT_FALSE(md.isTempoChanged());
         md.play(mf.getMIDI());

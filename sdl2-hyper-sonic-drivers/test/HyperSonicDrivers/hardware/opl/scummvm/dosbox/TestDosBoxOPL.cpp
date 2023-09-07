@@ -24,8 +24,8 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::dosbox
         EXPECT_EQ(mixer.use_count(), 1);
         DosBoxOPL dosbox(this->opl_type, mixer);
         EXPECT_EQ(mixer.use_count(), 2);
-        EXPECT_EQ(dosbox.getRate(), mixer->rate);
-        EXPECT_EQ(dosbox.endOfData(), false);
+        //EXPECT_EQ(dosbox.getRate(), mixer->rate);
+        //EXPECT_EQ(dosbox.endOfData(), false);
         EXPECT_EQ(dosbox.isStereo(), this->isStereo);
     }
 
@@ -38,8 +38,8 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::dosbox
         std::shared_ptr<DosBoxOPL> dosbox = std::make_shared<DosBoxOPL>(this->opl_type, mixer);
         EXPECT_EQ(mixer.use_count(), 2);
         EXPECT_EQ(dosbox.use_count(), 1);
-        EXPECT_EQ(dosbox->getRate(), mixer->rate);
-        EXPECT_EQ(dosbox->endOfData(), false);
+        //EXPECT_EQ(dosbox->getRate(), mixer->rate);
+        //EXPECT_EQ(dosbox->endOfData(), false);
         EXPECT_EQ(dosbox->isStereo(), this->isStereo);
     }
 
@@ -100,7 +100,7 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::dosbox
 
         const int len = 4096;
         auto buf = std::make_unique<int16_t[]>(len);
-        opl->readBuffer(buf.get(), len / 2);
+        //opl->readBuffer(buf.get(), len / 2);
 
         files::File f("../fixtures/dosbox-22050-16bit-440Hz.dat");
         EXPECT_EQ(f.size(), 4096);

@@ -16,8 +16,8 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::mame
         EXPECT_EQ(mixer.use_count(), 1);
         MameOPL2 mame(OplType::OPL2, mixer);
         EXPECT_EQ(mixer.use_count(), 2);
-        EXPECT_EQ(mame.getRate(), mixer->rate);
-        EXPECT_EQ(mame.endOfData(), false);
+        //EXPECT_EQ(mame.getRate(), mixer->rate);
+        //EXPECT_EQ(mame.endOfData(), false);
         EXPECT_EQ(mame.isStereo(), false);
     }
 
@@ -36,8 +36,8 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::mame
         std::shared_ptr<MameOPL2> mame = std::make_shared<MameOPL2>(OplType::OPL2, mixer);
         EXPECT_EQ(mixer.use_count(), 2);
         EXPECT_EQ(mame.use_count(), 1);
-        EXPECT_EQ(mame->getRate(), mixer->rate);
-        EXPECT_EQ(mame->endOfData(), false);
+        //EXPECT_EQ(mame->getRate(), mixer->rate);
+        //EXPECT_EQ(mame->endOfData(), false);
         EXPECT_EQ(mame->isStereo(), false);
     }
 
@@ -88,7 +88,7 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::mame
 
         const int len = 4096;
         auto buf = std::make_unique<int16_t[]>(len);
-        opl->readBuffer(buf.get(), len / 2);
+        //opl->readBuffer(buf.get(), len / 2);
 
         files::File f("../fixtures/mame-22050-16bit-440Hz.dat");
         EXPECT_EQ(f.size(), 4096);

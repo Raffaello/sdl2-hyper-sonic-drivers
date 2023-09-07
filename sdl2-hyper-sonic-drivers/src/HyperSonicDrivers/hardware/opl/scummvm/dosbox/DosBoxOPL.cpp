@@ -7,7 +7,7 @@
 
 namespace HyperSonicDrivers::hardware::opl::scummvm::dosbox
 {
-    DosBoxOPL::DosBoxOPL(OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer)
+    DosBoxOPL::DosBoxOPL(OplType type, const std::shared_ptr<audio::IMixer>& mixer)
         : EmulatedOPL(type, mixer)
     {
     }
@@ -36,7 +36,7 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::dosbox
             return false;
 
         dbopl::InitTables();
-        _rate = _mixer->getOutputRate();
+        _rate = m_mixer->getOutputRate();
         _emulator->Setup(_rate);
 
         if (type == OplType::DUAL_OPL2) {

@@ -9,7 +9,6 @@
 #include <HyperSonicDrivers/hardware/opl/OPLFactory.hpp>
 #include <HyperSonicDrivers/hardware/opl/OPL.hpp>
 #include <HyperSonicDrivers/audio/opl/banks/OP2Bank.hpp>
-#include <HyperSonicDrivers/audio/scummvm/Mixer.hpp>
 #include <HyperSonicDrivers/drivers/midi/devices/OplDeviceMock.hpp>
 
 namespace HyperSonicDrivers::drivers::midi::devices

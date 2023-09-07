@@ -3,10 +3,13 @@
 #include <algorithm>
 #include <HyperSonicDrivers/drivers/midi/scummvm/AdLibPercussionChannel.hpp>
 #include <HyperSonicDrivers/drivers/midi/scummvm/MidiDriver_ADLIB.hpp>
-#include <SDL2/SDL_log.h>
+#include <HyperSonicDrivers/utils/ILogger.hpp>
 
 namespace HyperSonicDrivers::drivers::midi::scummvm
 {
+    using utils::logD;
+    using utils::logW;
+
     void AdLibPercussionChannel::init(MidiDriver_ADLIB* owner, uint8_t channel)
     {
         AdLibPart::init(owner, channel);
@@ -65,7 +68,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
         if (!inst)
         {
-            SDL_LogDebug(SDL_LOG_CATEGORY_AUDIO, std::format("No instrument FM definition for GM percussion key {:d}", note).c_str());
+            logD(std::format("No instrument FM definition for GM percussion key {:d}", note));
             return;
         }
 
@@ -74,8 +77,9 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
     void AdLibPercussionChannel::sysEx_customInstrument(uint32_t type, const uint8_t* instr) {
         // We do not allow custom instruments in OPL3 mode right now.
-        if (_owner->_opl3Mode) {
-            SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, "AdLibPercussionChannel::sysEx_customInstrument: Used in OPL3 mode");
+        if (_owner->_opl3Mode)
+        {
+            logW("Used in OPL3 mode");
             return;
         }
 

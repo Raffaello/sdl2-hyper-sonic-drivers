@@ -3,7 +3,6 @@
 #include <cstdint>
 #include <memory>
 #include <functional>
-#include <HyperSonicDrivers/audio/scummvm/SoundHandle.hpp>
 #include <HyperSonicDrivers/hardware/opl/OplType.hpp>
 
 namespace HyperSonicDrivers::hardware::opl
@@ -30,6 +29,11 @@ namespace HyperSonicDrivers::hardware::opl
         inline bool isInit() const noexcept
         {
             return _init;
+        }
+
+        inline bool isStereo() const noexcept
+        {
+            return type != OplType::OPL2;
         }
 
         /**
@@ -86,15 +90,7 @@ namespace HyperSonicDrivers::hardware::opl
          * Change the callback frequency. This must only be called from a
          * timer proc.
          */
-        virtual void setCallbackFrequency(int timerFrequency) = 0;
-
-        /**
-         * get Sound Handle for the mixer, used in Emulated Opl
-         * TODO: consider to remove the abastraction of EmulatedOPLs and RealOPLs
-         * TOOD: if this is returning this, probably should store the _handle here
-         *       instead of EmulatedOPL
-         */
-        virtual std::shared_ptr<audio::scummvm::SoundHandle> getSoundHandle() const noexcept = 0;
+        virtual uint32_t setCallbackFrequency(int timerFrequency) = 0;
 
     protected:
         bool _init = false;

@@ -10,13 +10,15 @@
 #include <HyperSonicDrivers/files/MIDFile.hpp>
 #include <HyperSonicDrivers/utils/algorithms.hpp>
 #include <HyperSonicDrivers/utils/endianness.hpp>
-
-#include <SDL2/SDL_log.h>
+#include <HyperSonicDrivers/utils/ILogger.hpp>
 
 
 namespace HyperSonicDrivers::files
 {
     using audio::midi::MIDI_FORMAT;
+    using utils::logW;
+    using utils::logE;
+    using utils::throwLogC;
 
     // TODO consider to "join" with IFFFile / or put common functions altogheter
     //      as it is similar to just the sub_header_chunk of IFF file.
@@ -273,12 +275,12 @@ namespace HyperSonicDrivers::files
                 {
                 case MIDI_META_EVENT_TYPES_LOW::SYS_EX0:
                     // sysEx-event
-                    SDL_LogError(SDL_LOG_CATEGORY_AUDIO, "sysEx event not implemented yet");
+                    logE("sysEx0 event not implemented yet");
                     break;
-                    case MIDI_META_EVENT_TYPES_LOW::SYS_EX7:
+                case MIDI_META_EVENT_TYPES_LOW::SYS_EX7:
                     // sysEx-event
-                    SDL_LogError(SDL_LOG_CATEGORY_AUDIO, "sysEx event not implemented yet");
-                    break;
+                    logE("sysEx7 event not implemented yet");
+                break;
                 case MIDI_META_EVENT_TYPES_LOW::META:
                 {
                     // meta-event
@@ -300,9 +302,8 @@ namespace HyperSonicDrivers::files
                     break;
                 }
                 default:
-                    SDL_LogCritical(SDL_LOG_CATEGORY_AUDIO, std::format("MIDFile sub-event {:#04x} not recognized", e.type.val).c_str());
-                    throw std::runtime_error("");
-
+                    throwLogC<std::runtime_error>(std::format("MIDFile sub-event {:#04x} not recognized", e.type.val));
+                    break;
                 }
                 break;
             case MIDI_EVENT_TYPES_HIGH::PROGRAM_CHANGE:
@@ -323,12 +324,13 @@ namespace HyperSonicDrivers::files
                 break;
             default:
                 // using previous status
-                if (lastStatus.val == 0) {
-                    SDL_LogCritical(SDL_LOG_CATEGORY_AUDIO, std::format("MIDFile: midi event {:#02x} not recognized {:#02x} - last status = {} (pos={}).",
+                if (lastStatus.val == 0)
+                {
+                    throwLogC<std::runtime_error>(std::format("MIDFile: midi event {:#02x} not recognized {:#02x} - last status = {} (pos={}).",
                         e.type.val, static_cast<unsigned int>(e.type.high),
                         lastStatus.val, static_cast<unsigned long>(tell())).c_str());
-                    throw std::runtime_error("MIDFile: midi event type not recognized.");
                 }
+                break;
             }
 
             e.data.shrink_to_fit();
@@ -337,8 +339,9 @@ namespace HyperSonicDrivers::files
         }
 
         // sanity check
-        if (offs != chunk.length) {
-            SDL_LogWarn(SDL_LOG_CATEGORY_AUDIO, std::format("MIDFile: Filename '{}' track {} length mismatch real length {}", _filename, chunk.length, offs).c_str());
+        if (offs != chunk.length)
+        {
+            logW(std::format("Filename '{}' track {} length mismatch real length {}", _filename, chunk.length, offs));
         }
 
         track.lock();

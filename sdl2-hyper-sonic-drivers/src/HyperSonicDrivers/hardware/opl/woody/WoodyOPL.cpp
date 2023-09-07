@@ -9,7 +9,7 @@ namespace HyperSonicDrivers::hardware
     {
         namespace woody
         {
-            WoodyOPL::WoodyOPL(const std::shared_ptr<audio::scummvm::Mixer>& mixer, const bool surround)
+            WoodyOPL::WoodyOPL(const std::shared_ptr<audio::IMixer>& mixer, const bool surround)
                 : EmulatedOPL(surround ? OplType::DUAL_OPL2 : OplType::OPL2, mixer)
             {}
 
@@ -17,9 +17,9 @@ namespace HyperSonicDrivers::hardware
             {
                 stop();
                 if (type == OplType::DUAL_OPL2)
-                    _opl =std::make_unique<SurroundOPL>(_mixer->getOutputRate());
+                    _opl =std::make_unique<SurroundOPL>(m_mixer->getOutputRate());
                 else
-                    _opl = std::make_unique<WoodyEmuOPL>(_mixer->getOutputRate());
+                    _opl = std::make_unique<WoodyEmuOPL>(m_mixer->getOutputRate());
 
                 _init = _opl != nullptr;
                 if (!_init)

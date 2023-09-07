@@ -2,8 +2,15 @@
 
 namespace HyperSonicDrivers::audio
 {
-    Sound::Sound(const scummvm::Mixer::SoundType soundType, const bool isStereo, const int rate, const uint8_t bitsDepth, const uint32_t dataSize, const std::shared_ptr<uint8_t[]>& data)
-        : soundType(soundType), rate(rate), stereo(isStereo), bitsDepth(bitsDepth), dataSize(dataSize), data(data)
+    Sound::Sound(const mixer::eChannelGroup group,
+        const bool isStereo, const uint32_t freq,
+        const uint8_t bitsDepth, const uint32_t dataSize, const std::shared_ptr<uint8_t[]>& data) :
+        group(group),
+        stereo(isStereo),
+        bitsDepth(bitsDepth),
+        freq(freq),
+        dataSize(dataSize),
+        data(data)
     {
     }
 }

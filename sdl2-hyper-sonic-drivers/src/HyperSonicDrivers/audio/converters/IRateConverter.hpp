@@ -5,8 +5,8 @@
 #include <bit>
 #include <memory>
 #include <algorithm>
-#include <HyperSonicDrivers/audio/scummvm/Mixer.hpp> // TOOD: remove it
 #include <HyperSonicDrivers/audio/IAudioStream.hpp>
+#include <HyperSonicDrivers/audio/mixer/ChannelGroup.hpp>
 
 namespace HyperSonicDrivers::audio::converters
 {
@@ -38,7 +38,7 @@ namespace HyperSonicDrivers::audio::converters
 
     constexpr void output_channel(int16_t& out_buf, const int16_t out, const uint16_t vol)
     {
-        clampAdd(out_buf, (out * static_cast<int>(vol)) / scummvm::Mixer::MaxVolume::MIXER);
+        clampAdd(out_buf, (out * static_cast<int>(vol)) / mixer::Mixer_max_volume);
     }
 
     class IRateConverter
@@ -50,8 +50,8 @@ namespace HyperSonicDrivers::audio::converters
         /**
          * @return Number of sample pairs written into the buffer.
          */
-        virtual int flow(IAudioStream& input, int16_t* obuf, uint32_t osamp, uint16_t vol_l, uint16_t vol_r) = 0;
-        virtual int drain(int16_t* obuf, uint32_t osamp, uint16_t vol) = 0;
+        virtual size_t flow(IAudioStream& input, int16_t* obuf, uint32_t osamp, uint16_t vol_l, uint16_t vol_r) = 0;
+        virtual size_t drain(int16_t* obuf, uint32_t osamp, uint16_t vol) = 0;
     };
 
     std::unique_ptr<IRateConverter> makeIRateConverter(

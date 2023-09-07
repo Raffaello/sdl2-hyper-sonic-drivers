@@ -1,7 +1,7 @@
 #pragma once
 
 #include <memory>
-#include <HyperSonicDrivers/hardware/opl/scummvm/EmulatedOPL.hpp>
+#include <HyperSonicDrivers/hardware/opl/EmulatedOPL.hpp>
 #include <HyperSonicDrivers/hardware/opl/woody/OPL.hpp>
 
 namespace HyperSonicDrivers::hardware
@@ -10,13 +10,10 @@ namespace HyperSonicDrivers::hardware
     {
         namespace woody
         {
-            /// <summary>
-            /// Wrapper Class to be used with scummvm opl emulation
-            /// </summary>
-            class WoodyOPL : public scummvm::EmulatedOPL
+            class WoodyOPL : public EmulatedOPL
             {
             public:
-                WoodyOPL(const std::shared_ptr<audio::scummvm::Mixer>& mixer, const bool surround);
+                WoodyOPL(const std::shared_ptr<audio::IMixer>& mixer, const bool surround);
                 ~WoodyOPL() override = default;
 
                 bool init() override;

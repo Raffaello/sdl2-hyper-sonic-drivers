@@ -3,19 +3,15 @@
 #include <HyperSonicDrivers/drivers/midi/Device.hpp>
 #include <HyperSonicDrivers/drivers/midi/devices/SpyDevice.hpp>
 #include <HyperSonicDrivers/drivers/MIDDriverMock.hpp>
-#include <HyperSonicDrivers/audio/stubs/StubMixer.hpp>
 
 namespace HyperSonicDrivers::drivers::midi
 {
     TEST(Device, acquire_release)
     {
-        using audio::stubs::StubMixer;
-        
-        auto mixer = std::make_shared<StubMixer>();
         auto device = std::make_shared<devices::SpyDevice>();
 
-        MIDDriverMock middrv(mixer, device);
-        MIDDriverMock middrv2(mixer, device);
+        MIDDriverMock middrv(device);
+        MIDDriverMock middrv2(device);
         
         EXPECT_FALSE(device->isAcquired());
         EXPECT_TRUE(device->release(&middrv));

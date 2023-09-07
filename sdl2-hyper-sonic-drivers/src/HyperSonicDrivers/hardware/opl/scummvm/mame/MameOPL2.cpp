@@ -4,7 +4,7 @@
 
 namespace HyperSonicDrivers::hardware::opl::scummvm::mame
 {
-    MameOPL2::MameOPL2(const OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer)
+    MameOPL2::MameOPL2(const OplType type, const std::shared_ptr<audio::IMixer>& mixer)
         : EmulatedOPL(type, mixer)
     {
         if (type != OplType::OPL2) {
@@ -26,7 +26,7 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::mame
             OPLDestroy(_opl);
         }
 
-        _opl = makeAdLibOPL(_mixer->getOutputRate());
+        _opl = makeAdLibOPL(m_mixer->getOutputRate());
         memset(&_reg, 0, sizeof(_reg));
         _init = (_opl != nullptr);
         return _init;

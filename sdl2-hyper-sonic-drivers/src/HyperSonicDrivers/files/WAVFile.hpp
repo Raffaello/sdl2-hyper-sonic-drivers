@@ -1,7 +1,7 @@
 #pragma once
 
 #include <HyperSonicDrivers/audio/Sound.hpp>
-#include <HyperSonicDrivers/audio/scummvm/Mixer.hpp>
+#include <HyperSonicDrivers/audio/mixer/ChannelGroup.hpp>
 #include <HyperSonicDrivers/files/RIFFFile.hpp>
 #include <string>
 #include <memory>
@@ -45,8 +45,8 @@ namespace HyperSonicDrivers::files
         } format_t;
         static_assert(2 + 2 + 4 + 4 + 2 + 2 == sizeof(format_t) - sizeof(eFormat));
 
-        WAVFile(const std::string& filename, const audio::scummvm::Mixer::SoundType soundType = audio::scummvm::Mixer::SoundType::PLAIN);
-        virtual ~WAVFile();
+        WAVFile(const std::string& filename, const audio::mixer::eChannelGroup group = audio::mixer::eChannelGroup::Unknown);
+        ~WAVFile() override = default;
 
         const format_t&                  getFormat()   const noexcept;
         const uint32_t                   getDataSize() const noexcept;
