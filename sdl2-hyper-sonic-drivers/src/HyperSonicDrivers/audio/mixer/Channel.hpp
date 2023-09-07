@@ -40,13 +40,13 @@ namespace HyperSonicDrivers::audio::mixer
          */
         size_t mix(int16_t* data, size_t len);
 
-        inline bool isEnded() const noexcept { return m_stream == nullptr; };
+        inline bool isEnded() const noexcept { return m_stream == nullptr || m_converter == nullptr ||  m_stream->isEnded(); };
         inline int getId() const noexcept { return m_id; };
 
         void pause() noexcept;
         void unpause() noexcept;
 
-        void stop() noexcept;
+        void reset() noexcept;
 
         inline bool isPaused() const noexcept { return m_pause; };
 
@@ -66,24 +66,10 @@ namespace HyperSonicDrivers::audio::mixer
          */
         //Timestamp getElapsedTime();
 
-        /**
-         * Sets the channel's sound handle.
-         *
-         * @param handle new handle
-         */
-        //void setHandle(const SoundHandle handle) { _handle = handle; }
-
-        /**
-         * Queries the channel's sound handle.
-         */
-        //SoundHandle getHandle() const { return _handle; }
-
     private:
         IMixer& m_mixer;
         const uint8_t m_id;
         mixer::eChannelGroup m_group = mixer::eChannelGroup::Unknown;
-        //SoundHandle _handle;
-        //bool _permanent;
 
         uint8_t m_volume = 0;
         int8_t m_pan = 0;

@@ -14,7 +14,7 @@ namespace HyperSonicDrivers::hardware::opl::mame
         ymfm::ymfm_interface _ymfm;
         void* _chip;
     public:
-        explicit MameOPL3(const OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer);
+        explicit MameOPL3(const OplType type, const std::shared_ptr<audio::IMixer>& mixer);
         virtual ~MameOPL3();
 
         bool init() override;

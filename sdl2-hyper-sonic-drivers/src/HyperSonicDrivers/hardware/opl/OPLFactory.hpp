@@ -3,8 +3,8 @@
 #include <cstdint>
 #include <string>
 #include <memory>
+#include <HyperSonicDrivers/audio/IMixer.hpp>
 #include <HyperSonicDrivers/hardware/opl/OPL.hpp>
-#include <HyperSonicDrivers/audio/scummvm/Mixer.hpp>
 #include <HyperSonicDrivers/hardware/opl/OplEmulator.hpp>
 #include <HyperSonicDrivers/hardware/opl/OplType.hpp>
 
@@ -23,6 +23,10 @@ namespace HyperSonicDrivers::hardware::opl
         /**
          * Creates the specific driver with a specific type setup.
          */
-        static std::shared_ptr<OPL> create(OplEmulator oplEmulator, OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer);
+        static std::shared_ptr<OPL> create(
+            OplEmulator oplEmulator,
+            OplType type,
+            const std::shared_ptr<audio::IMixer>& mixer
+        );
     };
 }

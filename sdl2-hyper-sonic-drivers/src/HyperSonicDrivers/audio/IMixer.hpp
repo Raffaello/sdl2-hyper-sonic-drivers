@@ -40,8 +40,8 @@ namespace HyperSonicDrivers::audio
         virtual void suspend() noexcept = 0;
         virtual void resume() noexcept = 0;
 
-        virtual void stop() noexcept = 0;
-        virtual void stop(const uint8_t id) noexcept = 0;
+        virtual void reset() noexcept = 0;
+        virtual void reset(const uint8_t id) noexcept = 0;
         //virtual void stop(Handle )
 
         virtual void pause() noexcept = 0;
@@ -52,6 +52,7 @@ namespace HyperSonicDrivers::audio
         virtual void unpause(const uint8_t id) noexcept = 0;
 
         virtual bool isChannelActive(const uint8_t id) const noexcept = 0;
+        virtual bool isPaused(const uint8_t id) const noexcept = 0;
         //virtual void isChannelActive(Handle) = 0;
         
         //virtual void getChannelId(handle)

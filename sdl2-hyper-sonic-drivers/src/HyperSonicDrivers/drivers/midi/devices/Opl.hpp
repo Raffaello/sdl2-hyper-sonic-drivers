@@ -1,7 +1,7 @@
 #pragma once
 
 #include <memory>
-#include <HyperSonicDrivers/audio/scummvm/Mixer.hpp>
+#include <HyperSonicDrivers/audio/IMixer.hpp>
 #include <HyperSonicDrivers/drivers/midi/Device.hpp>
 #include <HyperSonicDrivers/drivers/midi/opl/OplDriver.hpp>
 #include <HyperSonicDrivers/audio/opl/banks/OP2Bank.hpp>
@@ -30,7 +30,7 @@ namespace HyperSonicDrivers::drivers::midi::devices
         explicit Opl(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank);
         explicit Opl(const hardware::opl::OplType type,
             const hardware::opl::OplEmulator emuType,
-            const std::shared_ptr<audio::scummvm::Mixer>& mixer,
+            const std::shared_ptr<audio::IMixer>& mixer,
             const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank);
         virtual ~Opl() = default;
 

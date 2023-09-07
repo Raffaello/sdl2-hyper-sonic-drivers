@@ -112,19 +112,19 @@ namespace HyperSonicDrivers::audio::sdl2
         SDL_PauseAudioDevice(m_device_id, 0);
     }
 
-    void Mixer::stop() noexcept
+    void Mixer::reset() noexcept
     {
         std::scoped_lock lck(m_mutex);
 
         for (auto& ch : m_channels)
-            ch->stop();
+            ch->reset();
     }
 
-    void Mixer::stop(const uint8_t id) noexcept
+    void Mixer::reset(const uint8_t id) noexcept
     {
         std::scoped_lock lck(m_mutex);
 
-        m_channels[id]->stop();
+        m_channels[id]->reset();
     }
 
     void Mixer::pause() noexcept
@@ -162,6 +162,13 @@ namespace HyperSonicDrivers::audio::sdl2
         std::scoped_lock lck(m_mutex);
 
         return !m_channels[id]->isEnded();
+    }
+
+    bool Mixer::isPaused(const uint8_t id) const noexcept
+    {
+        std::scoped_lock lck(m_mutex);
+
+        return m_channels[id]->isPaused();
     }
 
     bool Mixer::isChannelGroupMuted(const mixer::eChannelGroup group) const noexcept
@@ -218,6 +225,8 @@ namespace HyperSonicDrivers::audio::sdl2
 
     void Mixer::updateChannelsVolumePan_() noexcept
     {
+        std::scoped_lock lck(m_mutex);
+
         for (auto& ch : m_channels)
             ch->updateVolumePan();
     }
@@ -238,15 +247,10 @@ namespace HyperSonicDrivers::audio::sdl2
         size_t res = 0;
         for (auto& ch : m_channels)
         {
-            if (ch->isEnded() || ch->isPaused())
-                continue;
-
-
             const size_t tmp = ch->mix(buf, len);
 
             if (tmp > res)
                 res = tmp;
-
         }
 
         return res;

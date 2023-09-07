@@ -16,7 +16,7 @@ namespace HyperSonicDrivers::hardware
             class WoodyOPL : public scummvm::EmulatedOPL
             {
             public:
-                WoodyOPL(const std::shared_ptr<audio::scummvm::Mixer>& mixer, const bool surround);
+                WoodyOPL(const std::shared_ptr<audio::IMixer>& mixer, const bool surround);
                 ~WoodyOPL() override = default;
 
                 bool init() override;

@@ -5,70 +5,76 @@
 #include <memory>
 #include <HyperSonicDrivers/hardware/opl/OPL.hpp>
 #include <HyperSonicDrivers/audio/IAudioStream.hpp>
-#include <HyperSonicDrivers/audio/scummvm/SoundHandle.hpp>
-#include <HyperSonicDrivers/audio/scummvm/Mixer.hpp>
+#include <HyperSonicDrivers/audio/IMixer.hpp>
 #include <HyperSonicDrivers/hardware/opl/OplType.hpp>
 
 
-namespace HyperSonicDrivers::hardware
+namespace HyperSonicDrivers::hardware::opl::scummvm
 {
-    namespace opl
+    /**
+     * An OPL that represents an emulated OPL.
+     *
+     * This will send callbacks based on the number of samples
+     * decoded in readBuffer().
+     */
+    class EmulatedOPL : public OPL/*, protected audio::IAudioStream*/
     {
-        namespace scummvm
+        class Stream : public audio::IAudioStream
         {
-            /**
-             * An OPL that represents an emulated OPL.
-             *
-             * This will send callbacks based on the number of samples
-             * decoded in readBuffer().
-             */
-            class EmulatedOPL : public OPL, protected audio::IAudioStream
-            {
-            public:
-                EmulatedOPL(const OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer);
-                virtual ~EmulatedOPL();
+        private:
+            EmulatedOPL* m_opl = nullptr;
 
-                inline bool isStereo() const noexcept override
-                {
-                    return type != OplType::OPL2;
-                }
+        public:
+            const bool stereo;
+            const uint32_t rate;
+           
+            Stream(EmulatedOPL* opl, const bool stereo, const uint32_t rate): m_opl(opl), stereo(stereo), rate(rate) {};
 
-                // OPL API
-                void setCallbackFrequency(int timerFrequency) override;
-                std::shared_ptr<audio::scummvm::SoundHandle> getSoundHandle() const noexcept override;
-                // AudioStream API
-                size_t readBuffer(int16_t* buffer, const size_t numSamples) override;
-                int getRate() const noexcept override;
-                bool endOfData() const noexcept override;
+            inline bool isStereo() const noexcept override { return stereo; }
+            size_t readBuffer(int16_t* buffer, const size_t numSamples) override;
+            uint32_t getRate() const noexcept override { return rate; };
+            bool endOfData() const noexcept override { return false; };
+        };
+    public:
+        EmulatedOPL(const OplType type, const std::shared_ptr<audio::IMixer>& mixer);
+        virtual ~EmulatedOPL();
 
-                // TODO: this can be bring up to OPL interface
-                std::shared_ptr<audio::scummvm::Mixer> getMixer() const noexcept;
+        // OPL API
+        void setCallbackFrequency(int timerFrequency) override;
+        
+        // AudioStream API
+        
+        //size_t readBuffer(int16_t* buffer, const size_t numSamples) override;
+        //int getRate() const noexcept override;
+        //bool endOfData() const noexcept override;
 
-            protected:
-                std::shared_ptr<audio::scummvm::Mixer> _mixer;
-                // OPL API
-                void startCallbacks(int timerFrequency) override;
-                void stopCallbacks() override;
+        // TODO: this can be in OPL interface
+        std::shared_ptr<audio::IMixer> getMixer() const noexcept;
 
-                /**
-                 * Read up to 'length' samples.
-                 *
-                 * Data will be in native endianess, 16 bit per sample, signed.
-                 * For stereo OPL, buffer will be filled with interleaved
-                 * left and right channel samples, starting with a left sample.
-                 * Furthermore, the samples in the left and right are summed up.
-                 * So if you request 4 samples from a stereo OPL, you will get
-                 * a total of two left channel and two right channel samples.
-                 */
-                virtual void generateSamples(int16_t* buffer, const size_t length) noexcept = 0;
-            private:
-                int _baseFreq = 0;
+    protected:
+        std::shared_ptr<audio::IMixer> m_mixer;
+        // OPL API
+        void startCallbacks(int timerFrequency) override;
+        void stopCallbacks() override;
 
-                int _nextTick = 0;
-                int _samplesPerTick = 0;
+        /**
+         * Read up to 'length' samples.
+         *
+         * Data will be in native endianess, 16 bit per sample, signed.
+         * For stereo OPL, buffer will be filled with interleaved
+         * left and right channel samples, starting with a left sample.
+         * Furthermore, the samples in the left and right are summed up.
+         * So if you request 4 samples from a stereo OPL, you will get
+         * a total of two left channel and two right channel samples.
+         */
+        virtual void generateSamples(int16_t* buffer, const size_t length) noexcept = 0;
+    private:
+        int _baseFreq = 0;
 
-                std::shared_ptr<audio::scummvm::SoundHandle> _handle;
-            };
-        }
-    }
+        int _nextTick = 0;
+        int _samplesPerTick = 0;
+
+        std::optional<uint8_t> m_channel_id;
+        std::shared_ptr<audio::IAudioStream> m_self;
+    };
 }

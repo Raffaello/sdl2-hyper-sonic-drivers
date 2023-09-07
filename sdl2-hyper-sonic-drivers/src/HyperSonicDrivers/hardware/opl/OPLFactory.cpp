@@ -15,7 +15,10 @@ namespace HyperSonicDrivers::hardware::opl
     using utils::logW;
     using utils::logE;
 
-    std::shared_ptr<OPL> OPLFactory::create(OplEmulator oplEmulator, OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer)
+    std::shared_ptr<OPL> OPLFactory::create(
+        OplEmulator oplEmulator,
+        OplType type,
+        const std::shared_ptr<audio::IMixer>& mixer)
     {
         switch (oplEmulator)
         {

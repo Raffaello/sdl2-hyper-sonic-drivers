@@ -47,7 +47,7 @@ namespace HyperSonicDrivers::audio::streams
         return m_sound->stereo;
     }
 
-    int SoundStream::getRate() const
+    uint32_t SoundStream::getRate() const
     {
         return m_sound->freq;
     }

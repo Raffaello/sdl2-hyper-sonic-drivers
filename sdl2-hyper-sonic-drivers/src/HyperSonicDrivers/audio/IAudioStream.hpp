@@ -15,7 +15,7 @@ namespace HyperSonicDrivers::audio
 
         virtual bool isStereo() const = 0;
 
-        virtual int getRate() const = 0;
+        virtual uint32_t getRate() const = 0;
 
         virtual bool endOfData() const = 0;
 

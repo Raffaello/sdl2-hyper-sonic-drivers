@@ -16,7 +16,7 @@ namespace HyperSonicDrivers::audio::streams
 
         size_t readBuffer(int16_t* buffer, const size_t numSamples) override;
         bool isStereo() const override;
-        int getRate() const override;
+        uint32_t getRate() const override;
         bool endOfData() const override;
 
         //scummvm::SoundHandle* getSoundHandlePtr() noexcept;

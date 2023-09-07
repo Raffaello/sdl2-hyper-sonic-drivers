@@ -31,8 +31,8 @@ namespace HyperSonicDrivers::audio::sdl2
         void suspend() noexcept override;
         void resume() noexcept override;
 
-        void stop() noexcept override;
-        void stop(const uint8_t id) noexcept override;
+        void reset() noexcept override;
+        void reset(const uint8_t id) noexcept override;
 
         void pause() noexcept override;
         void pause(const uint8_t id) noexcept override;
@@ -41,6 +41,8 @@ namespace HyperSonicDrivers::audio::sdl2
         void unpause(const uint8_t id) noexcept override;
 
         bool isChannelActive(const uint8_t id) const noexcept override;
+        bool isPaused(const uint8_t id) const noexcept override;
+
 
         bool isChannelGroupMuted(const mixer::eChannelGroup group) const noexcept override;;
         void muteChannelGroup(const mixer::eChannelGroup group) noexcept override;

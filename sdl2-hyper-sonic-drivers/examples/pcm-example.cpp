@@ -10,7 +10,6 @@
 
 using namespace HyperSonicDrivers;
 
-using namespace audio::scummvm;
 using drivers::PCMDriver;
 using std::cout;
 using std::endl;

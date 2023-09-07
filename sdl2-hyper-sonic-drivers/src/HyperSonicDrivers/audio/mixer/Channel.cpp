@@ -1,3 +1,5 @@
+#include "Channel.hpp"
+#include "Channel.hpp"
 #include <cstdint>
 #include <HyperSonicDrivers/audio/mixer/Channel.hpp>
 #include <HyperSonicDrivers/audio/mixer/config.hpp>
@@ -15,7 +17,7 @@ namespace HyperSonicDrivers::audio::mixer
     {
         assert(&stream != nullptr && stream.get() != nullptr);
 
-        stop();
+        reset();
         m_group = group;
         m_stream = stream;
         m_converter = converters::makeIRateConverter(m_stream->getRate(), m_mixer.getOutputRate(), m_stream->isStereo(), reverseStereo);
@@ -32,20 +34,21 @@ namespace HyperSonicDrivers::audio::mixer
 
     size_t Channel::mix(int16_t* data, size_t len)
     {
-        assert(m_stream);
-
         size_t res = 0;
+
+        if (isPaused() || isEnded())
+            return res;
+
         if (m_stream->isEnded())
         {
             // NOTE: drain is doing nothing
             //       not sure what should do.
             //       probably filling in the interpolation missing bytes
-            res = m_converter->drain(nullptr, 0, 0);
-            stop();
+            //res = m_converter->drain(nullptr, 0, 0);
+            reset();
         }
         else
         {
-            assert(m_converter);
             //m_samplesConsumed = m_samplesDecoded;
             //m_mixerTimeStamp = utils::getMillis<int32_t>();
             m_pauseTime = 0;
@@ -73,7 +76,7 @@ namespace HyperSonicDrivers::audio::mixer
         m_pauseStartTime = 0;
     }
 
-    void Channel::stop() noexcept
+    void Channel::reset() noexcept
     {
         m_stream.reset();
         m_converter.reset();

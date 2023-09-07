@@ -40,7 +40,7 @@ namespace HyperSonicDrivers::drivers
         return false;
     }
 
-    void PCMDriver::play(const std::shared_ptr<audio::Sound>& sound, const uint8_t volume, const int8_t pan)
+    std::optional<uint8_t> PCMDriver::play(const std::shared_ptr<audio::Sound>& sound, const uint8_t volume, const int8_t pan, const bool reverseStereo)
     {
         // TODO: this method is not thread-safe at the moment.
         int cur_stream;
@@ -54,35 +54,16 @@ namespace HyperSonicDrivers::drivers
         }
 
         if (cur_stream == m_max_streams)
-            return;
+            return std::nullopt;
 
         m_soundStreams[cur_stream] = std::make_shared<SoundStream>(SoundStream(sound));
 
-        // TODO: could be autofree stream and create directly on the playStream method simplified all?
-        // BODY: Yes, but loosing the handle for checking if is it playing.
-        // BODY: alternatively could be stored the ID?
-        /*m_mixer->playStream(
-            sound->soundType,
-            m_soundStreams[cur_stream]->getSoundHandlePtr(),
-            m_soundStreams[cur_stream].get(),
-            -1,
-            volume,
-            balance,
-            false
-        );*/
-
-        auto channelId = m_mixer->play(
+        return m_mixer->play(
             sound->group,
             m_soundStreams[cur_stream],
             volume,
             pan,
-            false
+            reverseStereo
         );
     }
-
-    /*inline bool PCMDriver::isSoundHandleActive(const int index) const noexcept
-    {
-        return nullptr != m_soundStreams[index] &&
-            m_mixer->isSoundHandleActive(*m_soundStreams[index]->getSoundHandlePtr());
-    }*/
 }

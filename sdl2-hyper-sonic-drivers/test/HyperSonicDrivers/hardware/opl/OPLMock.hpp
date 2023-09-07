@@ -2,7 +2,6 @@
 
 #include <HyperSonicDrivers/hardware/opl/OPL.hpp>
 #include <HyperSonicDrivers/hardware/opl/OplType.hpp>
-#include <HyperSonicDrivers/audio/scummvm/SoundHandle.hpp>
 #include <cstdint>
 
 namespace HyperSonicDrivers::hardware::opl
@@ -19,6 +18,5 @@ namespace HyperSonicDrivers::hardware::opl
         void setCallbackFrequency(int timerFrequency) override {}
         void startCallbacks(int timerFrequency) override {};
         void stopCallbacks() override {};
-        std::shared_ptr<audio::scummvm::SoundHandle> getSoundHandle() const noexcept override { return nullptr; }
     };
 }

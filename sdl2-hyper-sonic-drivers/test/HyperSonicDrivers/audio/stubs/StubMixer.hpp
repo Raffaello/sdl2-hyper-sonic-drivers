@@ -2,99 +2,54 @@
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
+#include <HyperSonicDrivers/audio/IMixer.hpp>
 #include <HyperSonicDrivers/audio/IAudioStream.hpp>
-#include <HyperSonicDrivers/audio/scummvm/Mixer.hpp>
 #include <HyperSonicDrivers/audio/scummvm/Timestamp.hpp>
 
 namespace HyperSonicDrivers::audio::stubs
 {
-    class StubMixer : public scummvm::Mixer
+    class StubMixer : public IMixer
     {
     public:
         int rate = 44100;
 
-        virtual bool isReady() override
-        {
-            return true;
+        StubMixer() : IMixer(32, 44100, 1024/*, const uint8_t bitsDepth*/) {};
+
+        bool init() override { return true; };
+
+        std::optional<uint8_t> play(
+            const mixer::eChannelGroup group,
+            const std::shared_ptr<IAudioStream>& stream,
+            const uint8_t vol,
+            const int8_t pan,
+            const bool reverseStereo
+        ) override {
+            return std::make_optional(0);
         };
-        virtual void playStream(
-            SoundType type,
-            scummvm::SoundHandle* handle,
-            IAudioStream* stream,
-            int id = -1,
-            uint8_t volume = MaxVolume::CHANNEL,
-            int8_t balance = 0,
-            bool autofreeStream = true,
-            bool permanent = false,
-            bool reverseStereo = false) override
-        {};
-        virtual void stopAll() override
-        {};
-        virtual void stopID(int id) override
-        {};
-        virtual void stopHandle(scummvm::SoundHandle handle) override
-        {};
-        virtual void pauseAll(bool paused) override
-        {}
-        virtual void pauseID(int id, bool paused) override
-        {}
-        virtual void pauseHandle(scummvm::SoundHandle handle, bool paused) override
-        {}
-        virtual bool isSoundIDActive(int id) override
-        {
-            return true;
-        }
-        virtual int getSoundID(scummvm::SoundHandle handle) override
-        {
-            return 0;
-        }
-        virtual bool isSoundHandleActive(scummvm::SoundHandle handle) override
-        {
-            return true;
-        }
-        virtual void muteSoundType(SoundType type, bool mute) override
-        {}
-        virtual bool isSoundTypeMuted(SoundType type) const override
-        {
-            return true;
-        }
-        virtual void setChannelVolume(scummvm::SoundHandle handle, uint8_t volume) override
-        {}
-        virtual uint8_t getChannelVolume(scummvm::SoundHandle handle) override
-        {
-            return 0;
-        }
-        virtual void setChannelBalance(scummvm::SoundHandle handle, int8_t balance) override
-        {}
-        virtual int8_t getChannelBalance(scummvm::SoundHandle handle) override
-        {
-            return 0;
-        }
-        virtual uint32_t getSoundElapsedTime(scummvm::SoundHandle handle) override
-        {
-            return 0;
-        }
-        virtual scummvm::Timestamp getElapsedTime(scummvm::SoundHandle handle) override
-        {
-            return scummvm::Timestamp();
-        }
-        virtual bool hasActiveChannelOfType(SoundType type) override
-        {
-            return true;
-        };
-        virtual void setVolumeForSoundType(SoundType type, int volume) override
-        {};
-        virtual int getVolumeForSoundType(SoundType type) const override
-        {
-            return 0;
-        };
-        virtual unsigned int getOutputRate() const override
-        {
-            return rate;
-        }
-        virtual uint8_t getBitsDepth() const override
-        {
-            return 16;
-        }
+
+        void suspend() noexcept override {};
+        void resume() noexcept override {};
+
+        void reset() noexcept override {};
+        void reset(const uint8_t id) noexcept override {};
+
+        void pause() noexcept override {};
+        void pause(const uint8_t id) noexcept override {};
+        
+        void unpause() noexcept override {};
+        void unpause(const uint8_t id) noexcept override {};
+
+        bool isChannelActive(const uint8_t id) const noexcept override { return true; };
+        bool isPaused(const uint8_t id) const noexcept override { return false; }
+        bool isChannelGroupMuted(const mixer::eChannelGroup group) const noexcept override { return false; };
+        void muteChannelGroup(const mixer::eChannelGroup group) noexcept override {};
+        void unmuteChannelGroup(const mixer::eChannelGroup group) noexcept override {};
+
+        uint8_t getChannelVolume(const uint8_t id) const noexcept override { return audio::mixer::Channel_max_volume; };
+        void setChannelVolume(const uint8_t id, const uint8_t volume) noexcept override {};
+        uint8_t getChannelPan(const uint8_t id) const noexcept override { return 0; };
+        void setChannelPan(const uint8_t id, const int8_t pan) noexcept override {};
+
+        void setChannelVolumePan(const uint8_t id, const uint8_t volume, const int8_t pan) noexcept override {};
     };
 }

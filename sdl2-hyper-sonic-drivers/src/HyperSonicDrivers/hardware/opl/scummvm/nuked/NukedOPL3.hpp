@@ -4,7 +4,6 @@
 #include <memory>
 #include <array>
 #include <HyperSonicDrivers/hardware/opl/scummvm/EmulatedOPL.hpp>
-#include <HyperSonicDrivers/audio/scummvm/Mixer.hpp>
 #include <HyperSonicDrivers/hardware/opl/scummvm/nuked/opl3.h>
 #include <HyperSonicDrivers/hardware/opl/Chip.hpp>
 
@@ -21,7 +20,7 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::nuked
         // TODO: this is same in DOSBOX, it can be bring into the parent, and just change the last line
         void dualWrite(const uint8_t index, const uint8_t reg, uint8_t val) noexcept;
     public:
-        NukedOPL(const OplType type, const std::shared_ptr<audio::scummvm::Mixer>& mixer);
+        NukedOPL(const OplType type, const std::shared_ptr<audio::IMixer>& mixer);
         ~NukedOPL() override = default;
 
         bool init() override;
