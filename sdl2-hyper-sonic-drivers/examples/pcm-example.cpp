@@ -1,12 +1,12 @@
-#include <HyperSonicDrivers/audio/scummvm/Mixer.hpp>
-#include <HyperSonicDrivers/audio/scummvm/SDLMixerManager.hpp>
+#include <HyperSonicDrivers/audio/sdl2/Mixer.hpp>
 #include <HyperSonicDrivers/drivers/PCMDriver.hpp>
 #include <HyperSonicDrivers/files/WAVFile.hpp>
 #include <HyperSonicDrivers/files/VOCFile.hpp>
 #include <HyperSonicDrivers/audio/Sound.hpp>
+#include <HyperSonicDrivers/utils/algorithms.hpp>
+#include <HyperSonicDrivers/utils/ILogger.hpp>
 
 #include <iostream>
-#include <SDL2/SDL.h>
 
 using namespace HyperSonicDrivers;
 
@@ -15,12 +15,18 @@ using drivers::PCMDriver;
 using std::cout;
 using std::endl;
 
+using utils::logI;
+using utils::delayMillis;
+
 int main(int argc, char* argv[])
 {
-    SdlMixerManager mixerManager;
-    mixerManager.init();
+    auto mixer = audio::make_mixer<audio::sdl2::Mixer>(8, 44100, 1024);
+    if (!mixer->init())
+    {
+        utils::logI("can't init mixer");
+        return 1;
+    }
 
-    auto mixer = mixerManager.getMixer();
     auto wavFile = std::make_shared<files::WAVFile>("Wav_868kb.wav");
     auto vocFile = std::make_shared<files::VOCFile>("DUNE.VOC");
     auto wavSound = wavFile->getSound();
@@ -30,33 +36,33 @@ int main(int argc, char* argv[])
 
     while (!mixer->isReady()) {
         cout << "mixer not ready" << endl;
-        SDL_Delay(100);
+        delayMillis(100);
     }
 
     drv.play(wavSound);
     while(drv.isPlaying(wavSound))
     {
         cout << "is playing" << endl;
-        SDL_Delay(1000);
+        delayMillis(1000);
     }
 
-    SDL_Delay(500);
+    delayMillis(500);
 
     drv.play(vocSound);
     while (drv.isPlaying(vocSound))
     {
         cout << "is playing" << endl;
-        SDL_Delay(1000);
+        delayMillis(1000);
     }
 
-    SDL_Delay(500);
+    delayMillis(500);
 
     drv.play(wavSound, 150, -127);
     drv.play(vocSound, 255, 127);
     for (int i = 0, sig = +1; i < 3; i++, sig *= -1)
     {
         cout << i << ". playing same sound again reversed balance" << endl;
-        SDL_Delay(200);
+        delayMillis(200);
         drv.play(wavSound, 150, 127 * sig);
         drv.play(vocSound, 255, -127 * sig);
     }
@@ -64,7 +70,7 @@ int main(int argc, char* argv[])
     while(drv.isPlaying())
     {
         cout << "is playing" << endl;
-        SDL_Delay(1000);
+        delayMillis(1000);
     }
 
     return 0;

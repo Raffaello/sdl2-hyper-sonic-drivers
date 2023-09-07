@@ -1,5 +1,5 @@
 #include <HyperSonicDrivers/audio/IMixer.hpp>
-#include <HyperSonicDrivers/audio/mixer/consts.hpp>
+#include <HyperSonicDrivers/audio/mixer/config.hpp>
 #include <algorithm>
 
 

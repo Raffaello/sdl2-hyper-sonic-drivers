@@ -5,13 +5,13 @@
 namespace HyperSonicDrivers::audio::streams
 {
     using utils::READ_LE_UINT16;
-    using audio::scummvm::SoundHandle;
+    //using audio::scummvm::SoundHandle;
 
     SoundStream::SoundStream(const std::shared_ptr<Sound>& sound)
-        : _sound(sound)
+        : m_sound(sound)
     {
-        _handle = SoundHandle();
-        _bitsFactor = _sound->bitsDepth == 16 ? 2 : 1;
+        //_handle = SoundHandle();
+        m_bitsFactor = m_sound->bitsDepth == 16 ? 2 : 1;
     }
 
     SoundStream::~SoundStream()
@@ -20,50 +20,50 @@ namespace HyperSonicDrivers::audio::streams
 
     size_t SoundStream::readBuffer(int16_t* buffer, const size_t numSamples)
     {
-        assert(_sound->dataSize % _bitsFactor == 0);
+        assert(m_sound->dataSize % m_bitsFactor == 0);
 
-        const size_t rest = (_sound->dataSize - _curPos) / _bitsFactor;
+        const size_t rest = (m_sound->dataSize - m_curPos) / m_bitsFactor;
         const size_t remaining = std::min<uint32_t>(numSamples, rest);
 
         for (size_t i = 0; i < remaining; i++)
         {
             // TODO convert Audio stream before playback? (yes when loading the file)
-            if (_sound->bitsDepth == 8)
+            if (m_sound->bitsDepth == 8)
             {
-                buffer[i] = static_cast<int16_t>((_sound->data[_curPos++] - 128) * 128);
+                buffer[i] = static_cast<int16_t>((m_sound->data[m_curPos++] - 128) * 128);
             }
             else {
-                buffer[i] = READ_LE_UINT16(&_sound->data[_curPos]);
-                _curPos += 2;
+                buffer[i] = READ_LE_UINT16(&m_sound->data[m_curPos]);
+                m_curPos += 2;
             }
         }
 
-        assert(_curPos <= _sound->dataSize);
+        assert(m_curPos <= m_sound->dataSize);
         return remaining;
     }
 
     bool SoundStream::isStereo() const
     {
-        return _sound->stereo;
+        return m_sound->stereo;
     }
 
     int SoundStream::getRate() const
     {
-        return _sound->rate;
+        return m_sound->freq;
     }
 
     bool SoundStream::endOfData() const
     {
-        return _curPos == _sound->dataSize;
+        return m_curPos == m_sound->dataSize;
     }
 
-    scummvm::SoundHandle* SoundStream::getSoundHandlePtr() noexcept
+    /*scummvm::SoundHandle* SoundStream::getSoundHandlePtr() noexcept
     {
         return &_handle;
-    }
+    }*/
 
     std::weak_ptr<Sound> SoundStream::getSound() const noexcept
     {
-        return _sound;
+        return m_sound;
     }
 }

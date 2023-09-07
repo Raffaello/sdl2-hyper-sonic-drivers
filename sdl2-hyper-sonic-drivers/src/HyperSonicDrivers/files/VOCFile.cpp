@@ -11,14 +11,14 @@ namespace HyperSonicDrivers::files
     constexpr const char* MAGIC = "Creative Voice File\x1A";
     constexpr const uint16_t VALIDATION_MAGIC = 0x1234;
 
-    VOCFile::VOCFile(const std::string& filename, const audio::scummvm::Mixer::SoundType soundType) : File(filename),
+    VOCFile::VOCFile(const std::string& filename, const audio::mixer::eChannelGroup group) : File(filename),
         _version(0), _channels(1), _bitsDepth(8)
     {
         _assertValid(readHeader());
         _assertValid(readDataBlockHeader());
 
         _sound = std::make_shared<audio::Sound>(
-            soundType,
+            group,
             getChannels() == 2,
             getSampleRate(),
             getBitsDepth(),
@@ -26,9 +26,6 @@ namespace HyperSonicDrivers::files
             getData()
         );
     }
-
-    VOCFile::~VOCFile()
-    {}
 
     const std::string VOCFile::getVersion() const noexcept
     {

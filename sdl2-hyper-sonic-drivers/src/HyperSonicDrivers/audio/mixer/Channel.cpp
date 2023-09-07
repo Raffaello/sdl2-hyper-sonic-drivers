@@ -1,6 +1,6 @@
 #include <cstdint>
 #include <HyperSonicDrivers/audio/mixer/Channel.hpp>
-#include <HyperSonicDrivers/audio/mixer/consts.hpp>
+#include <HyperSonicDrivers/audio/mixer/config.hpp>
 #include <HyperSonicDrivers/utils/algorithms.hpp>
 #include <cassert>
 
