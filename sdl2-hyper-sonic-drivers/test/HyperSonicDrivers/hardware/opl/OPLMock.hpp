@@ -15,7 +15,7 @@ namespace HyperSonicDrivers::hardware::opl
         void write(const uint32_t port, const uint16_t val) noexcept override {};
         uint8_t read(const uint32_t port) noexcept override { return 0; };
         void writeReg(const uint16_t r, const uint16_t v) noexcept override {};
-        void setCallbackFrequency(int timerFrequency) override {}
+        uint32_t setCallbackFrequency(int timerFrequency) override { return 1; }
         void startCallbacks(int timerFrequency) override {};
         void stopCallbacks() override {};
     };

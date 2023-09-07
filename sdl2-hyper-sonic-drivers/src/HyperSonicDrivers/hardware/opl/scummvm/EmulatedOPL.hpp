@@ -17,37 +17,35 @@ namespace HyperSonicDrivers::hardware::opl::scummvm
      * This will send callbacks based on the number of samples
      * decoded in readBuffer().
      */
-    class EmulatedOPL : public OPL/*, protected audio::IAudioStream*/
+    class EmulatedOPL : public OPL
     {
+    protected:
         class Stream : public audio::IAudioStream
         {
         private:
             EmulatedOPL* m_opl = nullptr;
-
+            uint32_t m_nextTick = 0;
+            const uint32_t m_samplesPerTick;
         public:
             const bool stereo;
             const uint32_t rate;
            
-            Stream(EmulatedOPL* opl, const bool stereo, const uint32_t rate): m_opl(opl), stereo(stereo), rate(rate) {};
+            Stream(EmulatedOPL* opl, const bool stereo, const uint32_t rate, const uint32_t samplesPerTick) :
+                m_opl(opl), stereo(stereo), rate(rate), m_samplesPerTick(samplesPerTick) {};
 
             inline bool isStereo() const noexcept override { return stereo; }
             size_t readBuffer(int16_t* buffer, const size_t numSamples) override;
             uint32_t getRate() const noexcept override { return rate; };
             bool endOfData() const noexcept override { return false; };
         };
+
     public:
         EmulatedOPL(const OplType type, const std::shared_ptr<audio::IMixer>& mixer);
         virtual ~EmulatedOPL();
 
         // OPL API
-        void setCallbackFrequency(int timerFrequency) override;
+        uint32_t setCallbackFrequency(int timerFrequency) override;
         
-        // AudioStream API
-        
-        //size_t readBuffer(int16_t* buffer, const size_t numSamples) override;
-        //int getRate() const noexcept override;
-        //bool endOfData() const noexcept override;
-
         // TODO: this can be in OPL interface
         std::shared_ptr<audio::IMixer> getMixer() const noexcept;
 
@@ -69,12 +67,9 @@ namespace HyperSonicDrivers::hardware::opl::scummvm
          */
         virtual void generateSamples(int16_t* buffer, const size_t length) noexcept = 0;
     private:
-        int _baseFreq = 0;
-
-        int _nextTick = 0;
-        int _samplesPerTick = 0;
+        //int _baseFreq = 0;
 
         std::optional<uint8_t> m_channel_id;
-        std::shared_ptr<audio::IAudioStream> m_self;
+        std::shared_ptr<audio::IAudioStream> m_stream;
     };
 }

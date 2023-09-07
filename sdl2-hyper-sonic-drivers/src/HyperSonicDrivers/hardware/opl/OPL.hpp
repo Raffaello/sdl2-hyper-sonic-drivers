@@ -91,15 +91,7 @@ namespace HyperSonicDrivers::hardware::opl
          * Change the callback frequency. This must only be called from a
          * timer proc.
          */
-        virtual void setCallbackFrequency(int timerFrequency) = 0;
-
-        /**
-         * get Sound Handle for the mixer, used in Emulated Opl
-         * TODO: consider to remove the abastraction of EmulatedOPLs and RealOPLs
-         * TOOD: if this is returning this, probably should store the _handle here
-         *       instead of EmulatedOPL
-         */
-        //virtual std::shared_ptr<audio::scummvm::SoundHandle> getSoundHandle() const noexcept = 0;
+        virtual uint32_t setCallbackFrequency(int timerFrequency) = 0;
 
     protected:
         bool _init = false;
