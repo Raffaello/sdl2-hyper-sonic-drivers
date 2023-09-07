@@ -10,7 +10,6 @@
 
 namespace HyperSonicDrivers::audio
 {
-   
     /**
     * 16 bit signed, stereo
     **/
