@@ -29,7 +29,7 @@ namespace HyperSonicDrivers::files
         EXPECT_TRUE(sound->stereo);
         EXPECT_EQ(sound->freq, fmt.samplesPerSec);
         EXPECT_EQ(sound->bitsDepth, fmt.bitsPerSample);
-        EXPECT_EQ(sound->group, audio::mixer::eChannelGroup::Sfx);
+        EXPECT_EQ(sound->group, audio::mixer::eChannelGroup::Speech);
     }
 
     TEST(WAVFile, file_not_found)
