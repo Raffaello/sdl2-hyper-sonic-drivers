@@ -73,7 +73,7 @@ namespace HyperSonicDrivers::audio::sdl2
             logW(std::format("channels different: obtained={}, desired={}", obtained.channels, desired.channels));
         }
 
-        SDL_PauseAudioDevice(m_device_id, 0);
+        resume();
         m_ready = true;
 
         return true;

@@ -5,13 +5,10 @@
 namespace HyperSonicDrivers::audio::streams
 {
     using utils::READ_LE_UINT16;
-    //using audio::scummvm::SoundHandle;
 
     SoundStream::SoundStream(const std::shared_ptr<Sound>& sound)
-        : m_sound(sound)
+        : m_sound(sound), m_bitsFactor(m_sound->bitsDepth == 16 ? 2 : 1)
     {
-        //_handle = SoundHandle();
-        m_bitsFactor = m_sound->bitsDepth == 16 ? 2 : 1;
     }
 
     SoundStream::~SoundStream()
@@ -56,11 +53,6 @@ namespace HyperSonicDrivers::audio::streams
     {
         return m_curPos == m_sound->dataSize;
     }
-
-    /*scummvm::SoundHandle* SoundStream::getSoundHandlePtr() noexcept
-    {
-        return &_handle;
-    }*/
 
     std::weak_ptr<Sound> SoundStream::getSound() const noexcept
     {

@@ -1,5 +1,3 @@
-#include "Channel.hpp"
-#include "Channel.hpp"
 #include <cstdint>
 #include <HyperSonicDrivers/audio/mixer/Channel.hpp>
 #include <HyperSonicDrivers/audio/mixer/config.hpp>

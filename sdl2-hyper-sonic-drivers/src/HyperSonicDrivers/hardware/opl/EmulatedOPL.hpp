@@ -33,8 +33,8 @@ namespace HyperSonicDrivers::hardware::opl
             Stream(EmulatedOPL* opl, const bool stereo, const uint32_t rate, const uint32_t samplesPerTick) :
                 m_opl(opl), stereo(stereo), rate(rate), m_samplesPerTick(samplesPerTick) {};
 
-            inline bool isStereo() const noexcept override { return stereo; }
             size_t readBuffer(int16_t* buffer, const size_t numSamples) override;
+            inline bool isStereo() const noexcept override { return stereo; }
             uint32_t getRate() const noexcept override { return rate; };
             bool endOfData() const noexcept override { return false; };
         };

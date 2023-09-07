@@ -4,7 +4,6 @@
 #include <memory>
 #include <HyperSonicDrivers/audio/Sound.hpp>
 #include <HyperSonicDrivers/audio/IAudioStream.hpp>
-//#include <HyperSonicDrivers/audio/scummvm/SoundHandle.hpp>
 
 namespace HyperSonicDrivers::audio::streams
 {
@@ -19,12 +18,10 @@ namespace HyperSonicDrivers::audio::streams
         uint32_t getRate() const override;
         bool endOfData() const override;
 
-        //scummvm::SoundHandle* getSoundHandlePtr() noexcept;
         std::weak_ptr<Sound>  getSound() const noexcept;
     private:
         std::shared_ptr<Sound> m_sound;
-        //audio::scummvm::SoundHandle _handle;
         uint32_t m_curPos = 0;
-        int m_bitsFactor;
+        const int m_bitsFactor;
     };
 }

@@ -64,6 +64,5 @@ namespace HyperSonicDrivers::audio::sdl2
         SDL_AudioDeviceID m_device_id = 0;
         mutable std::mutex m_mutex;
         std::vector<std::unique_ptr<mixer::Channel>> m_channels;
-        
     };
 }
