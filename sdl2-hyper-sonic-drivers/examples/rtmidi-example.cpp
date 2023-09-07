@@ -25,7 +25,6 @@ int main(int argc, char* argv[])
     //       Check if it can be wired to the mixer
     //       Otherwise this device Native and rtMidi dependency must be optional (or even removed or not official)
 
-    //auto mixer = mixerManager.getMixer();
     std::shared_ptr<RtMidiOut> midiout;
 
     try {

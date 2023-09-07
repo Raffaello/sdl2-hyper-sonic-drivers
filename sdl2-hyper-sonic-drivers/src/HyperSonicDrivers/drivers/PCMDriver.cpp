@@ -56,7 +56,7 @@ namespace HyperSonicDrivers::drivers
         if (cur_stream == m_max_streams)
             return std::nullopt;
 
-        m_soundStreams[cur_stream] = std::make_shared<SoundStream>(SoundStream(sound));
+        m_soundStreams[cur_stream] = std::make_shared<SoundStream>(sound);
 
         return m_mixer->play(
             sound->group,

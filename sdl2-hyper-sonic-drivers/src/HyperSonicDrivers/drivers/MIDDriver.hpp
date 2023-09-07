@@ -39,7 +39,7 @@ namespace HyperSonicDrivers::drivers
 
         // TODO: consider to create a utils/Thread class
         //       to handle for each OS specific realtime and initialization step.
-        std::thread m_player;
+        std::jthread m_player;
 
         std::atomic<bool> m_isPlaying = false;
         std::atomic<bool> m_force_stop = false;

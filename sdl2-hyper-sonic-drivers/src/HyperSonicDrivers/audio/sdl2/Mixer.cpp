@@ -116,7 +116,7 @@ namespace HyperSonicDrivers::audio::sdl2
     {
         std::scoped_lock lck(m_mutex);
 
-        for (auto& ch : m_channels)
+        for (const auto& ch : m_channels)
             ch->reset();
     }
 
@@ -131,7 +131,7 @@ namespace HyperSonicDrivers::audio::sdl2
     {
         std::scoped_lock lck(m_mutex);
 
-        for (auto& ch : m_channels)
+        for (const auto& ch : m_channels)
             ch->pause();
     }
 
@@ -146,7 +146,7 @@ namespace HyperSonicDrivers::audio::sdl2
     {
         std::scoped_lock lck(m_mutex);
 
-        for (auto& ch : m_channels)
+        for (const auto& ch : m_channels)
             ch->unpause();
     }
 
@@ -227,7 +227,7 @@ namespace HyperSonicDrivers::audio::sdl2
     {
         std::scoped_lock lck(m_mutex);
 
-        for (auto& ch : m_channels)
+        for (const auto& ch : m_channels)
             ch->updateVolumePan();
     }
 
@@ -235,7 +235,7 @@ namespace HyperSonicDrivers::audio::sdl2
     {
         const std::scoped_lock lck(m_mutex);
 
-        int16_t* buf = reinterpret_cast<int16_t*>(samples);
+        int16_t* buf = std::bit_cast<int16_t*>(samples);
         // we store stereo, 16-bit samples (2 for stereo, 2 from 8 to 16 bits)
         assert(len % 4 == 0);
         len >>= 2;
@@ -245,7 +245,7 @@ namespace HyperSonicDrivers::audio::sdl2
 
         // mix all channels
         size_t res = 0;
-        for (auto& ch : m_channels)
+        for (const auto& ch : m_channels)
         {
             const size_t tmp = ch->mix(buf, len);
 

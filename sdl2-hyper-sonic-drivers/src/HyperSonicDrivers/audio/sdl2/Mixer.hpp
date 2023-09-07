@@ -55,7 +55,7 @@ namespace HyperSonicDrivers::audio::sdl2
 
         void setChannelVolumePan(const uint8_t id, const uint8_t volume, const int8_t pan) noexcept override;
 
-    protected:
+    private:
         void updateChannelsVolumePan_() noexcept;
 
         size_t callback(uint8_t* samples, unsigned int len);

@@ -81,7 +81,7 @@ namespace HyperSonicDrivers::drivers
         }
 
         //TODO: it would be better reusing the thread...
-        m_player = std::thread(&MIDDriver::processTrack, this, midi->getTrack(), midi->division & 0x7FFF);
+        m_player = std::jthread(&MIDDriver::processTrack, this, midi->getTrack(), midi->division & 0x7FFF);
         m_isPlaying = true;
     }
 

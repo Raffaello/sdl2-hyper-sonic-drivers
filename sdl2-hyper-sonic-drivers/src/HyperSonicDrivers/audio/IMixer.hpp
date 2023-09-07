@@ -41,20 +41,15 @@ namespace HyperSonicDrivers::audio
 
         virtual void reset() noexcept = 0;
         virtual void reset(const uint8_t id) noexcept = 0;
-        //virtual void stop(Handle )
 
         virtual void pause() noexcept = 0;
         virtual void pause(const uint8_t id) noexcept = 0;
-        //virtual void pause(const SoundHandle) = 0;
 
         virtual void unpause() noexcept = 0;
         virtual void unpause(const uint8_t id) noexcept = 0;
 
         virtual bool isChannelActive(const uint8_t id) const noexcept = 0;
         virtual bool isPaused(const uint8_t id) const noexcept = 0;
-        //virtual void isChannelActive(Handle) = 0;
-        
-        //virtual void getChannelId(handle)
 
         virtual bool isChannelGroupMuted(const mixer::eChannelGroup group) const noexcept = 0;
         virtual void muteChannelGroup(const mixer::eChannelGroup group) noexcept = 0;
@@ -70,6 +65,7 @@ namespace HyperSonicDrivers::audio
         uint8_t getChannelGroupVolume(const mixer::eChannelGroup group) const noexcept;
         void setChannelGroupVolume(const mixer::eChannelGroup group, const uint8_t volume) noexcept;
 
+        // TODO: these 3 methods are useless if those 3 vars are consts...
         inline uint32_t getOutputRate() const noexcept { return m_sampleRate; };
         inline uint16_t getBufferSize() const noexcept { return m_samples; };
         inline uint8_t getBitsDepth() const noexcept { return m_bitsDepth; };
@@ -80,7 +76,7 @@ namespace HyperSonicDrivers::audio
         bool m_ready = false;
         const uint32_t m_sampleRate;
         const uint16_t m_samples;
-        const uint8_t m_bitsDepth;
+        const uint8_t m_bitsDepth = 16; // forced to be 16-bits for now
     };
 
     template<class T, typename... Args>

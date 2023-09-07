@@ -25,10 +25,10 @@ namespace HyperSonicDrivers::hardware::opl
         private:
             EmulatedOPL* m_opl = nullptr;
             uint32_t m_nextTick = 0;
-            const uint32_t m_samplesPerTick;
         public:
             const bool stereo;
             const uint32_t rate;
+            const uint32_t m_samplesPerTick;
 
             Stream(EmulatedOPL* opl, const bool stereo, const uint32_t rate, const uint32_t samplesPerTick) :
                 m_opl(opl), stereo(stereo), rate(rate), m_samplesPerTick(samplesPerTick) {};
@@ -41,12 +41,11 @@ namespace HyperSonicDrivers::hardware::opl
 
     public:
         EmulatedOPL(const OplType type, const std::shared_ptr<audio::IMixer>& mixer);
-        virtual ~EmulatedOPL();
+        ~EmulatedOPL() override;
 
         // OPL API
         uint32_t setCallbackFrequency(int timerFrequency) override;
-        
-        // TODO: this can be in OPL interface
+
         std::shared_ptr<audio::IMixer> getMixer() const noexcept;
 
     protected:
