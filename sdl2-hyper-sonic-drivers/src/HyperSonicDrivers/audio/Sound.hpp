@@ -21,7 +21,6 @@ namespace HyperSonicDrivers::audio
             const bool isStereo,
             const uint32_t freq,
             const uint8_t bitsDepth,
-            //const uint32_t dataSize,
             const std::shared_ptr<std::vector<uint8_t>>& data
         );
 
@@ -29,7 +28,6 @@ namespace HyperSonicDrivers::audio
         const bool stereo;
         const uint8_t bitsDepth;
         const uint32_t freq;
-        //const uint32_t dataSize;
         const std::shared_ptr<std::vector<uint8_t>> data;
     };
 }
