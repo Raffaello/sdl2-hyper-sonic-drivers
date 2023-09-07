@@ -19,9 +19,6 @@ namespace HyperSonicDrivers::drivers
     class PCMDriver final
     {
     public:
-        // TODO: review max_channels default value
-        // BODY: can use max_channel = 0 to be dynamic instead of fixed size
-        // BODY: can be -1 (check if < 0) to use mixer max channels
         explicit PCMDriver(const std::shared_ptr<audio::IMixer>& mixer, const uint8_t max_channels = 0xFF);
         ~PCMDriver() = default;
 
@@ -33,10 +30,11 @@ namespace HyperSonicDrivers::drivers
             const int8_t pan = 0,
             const bool reverseStereo = false
         );
+
+        const uint8_t max_streams;
     private:
         std::shared_ptr<audio::IMixer> m_mixer;
         std::vector<std::shared_ptr<audio::streams::SoundStream>> m_soundStreams;
-        uint8_t m_max_streams;
 
         static bool isSoundStreamPlaying_(const std::shared_ptr<audio::streams::SoundStream>& ss) noexcept;
     };

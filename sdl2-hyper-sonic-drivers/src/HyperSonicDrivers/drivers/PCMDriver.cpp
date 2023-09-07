@@ -1,15 +1,14 @@
-#include <HyperSonicDrivers/drivers/PCMDriver.hpp>
 #include <algorithm>
+#include <HyperSonicDrivers/drivers/PCMDriver.hpp>
 
 namespace HyperSonicDrivers::drivers
 {
     using audio::streams::SoundStream;
 
     PCMDriver::PCMDriver(const std::shared_ptr<audio::IMixer>& mixer, const uint8_t max_channels) :
-        m_mixer(mixer)
+        m_mixer(mixer), max_streams(std::min(mixer->max_channels, max_channels))
     {
-        m_max_streams = std::min(m_mixer->max_channels, max_channels);
-        m_soundStreams.resize(m_max_streams);
+        m_soundStreams.resize(max_streams);
     }
 
     bool PCMDriver::isPlaying() const noexcept
@@ -25,8 +24,17 @@ namespace HyperSonicDrivers::drivers
 
     bool PCMDriver::isPlaying(const std::shared_ptr<audio::Sound>& sound) const noexcept
     {
-        // TODO: should be returned the soundHandle or soundID in play method to be used later on?
-        // BODY: so here it can be addressed in constant time instead of searching for sound in the slots?
+        // TODO:
+        // should map channelId to check directly in the mixer?
+        // how to find a free slot then? 
+        // does we need to really track it?
+        // probably using a map instead of a vector is ok,
+        // no need to define nether max-channels.
+        // but that is because if wanting to reserve some channels for something
+        // else that is not PCM related...
+        // anyway... it could be achieved having the mixer a "lock or reserved channel"
+        // feature or something that that one won't be used unless
+        // it is for the resources that has been reserved for.....
         for(const auto& ss : m_soundStreams)
         {
             if (ss->getSound().lock() == sound)
@@ -45,13 +53,18 @@ namespace HyperSonicDrivers::drivers
 
         *it = std::make_shared<SoundStream>(sound);
 
-        return m_mixer->play(
+        auto channelId =  m_mixer->play(
             sound->group,
             *it,
             volume,
             pan,
             reverseStereo
         );
+
+        if (!channelId.has_value())
+            *it = nullptr;
+
+        return channelId;
     }
 
     inline bool PCMDriver::isSoundStreamPlaying_(const std::shared_ptr<audio::streams::SoundStream>& ss) noexcept
