@@ -20,7 +20,6 @@ namespace HyperSonicDrivers::hardware::opl
     class EmulatedOPL : public OPL
     {
     protected:
-        // Or declare it as a friend class...
         class Stream : public audio::IAudioStream
         {
         private:
