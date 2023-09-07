@@ -9,7 +9,6 @@
 namespace HyperSonicDrivers::files
 {
     using audio::Sound;
-    using audio::scummvm::Mixer;
 
     TEST(VOCFile, cstorDefault)
     {

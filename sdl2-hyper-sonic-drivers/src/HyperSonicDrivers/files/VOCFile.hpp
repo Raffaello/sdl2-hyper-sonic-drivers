@@ -1,6 +1,5 @@
 #pragma once
 
-#include <HyperSonicDrivers/audio/scummvm/Mixer.hpp>
 #include <HyperSonicDrivers/audio/mixer/ChannelGroup.hpp>
 #include <HyperSonicDrivers/audio/Sound.hpp>
 #include <HyperSonicDrivers/files/File.hpp>

@@ -46,7 +46,7 @@ namespace HyperSonicDrivers::files
         static_assert(2 + 2 + 4 + 4 + 2 + 2 == sizeof(format_t) - sizeof(eFormat));
 
         WAVFile(const std::string& filename, const audio::mixer::eChannelGroup group = audio::mixer::eChannelGroup::Unknown);
-        virtual ~WAVFile();
+        ~WAVFile() override = default;
 
         const format_t&                  getFormat()   const noexcept;
         const uint32_t                   getDataSize() const noexcept;

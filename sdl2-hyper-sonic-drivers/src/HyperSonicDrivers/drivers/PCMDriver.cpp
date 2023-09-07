@@ -1,10 +1,7 @@
 #include <HyperSonicDrivers/drivers/PCMDriver.hpp>
-#include <HyperSonicDrivers/audio/scummvm/MixerImpl.hpp>
-#include <HyperSonicDrivers/audio/scummvm/Mixer.hpp>
 
 namespace HyperSonicDrivers::drivers
 {
-    using audio::scummvm::Mixer;
     using audio::streams::SoundStream;
 
     PCMDriver::PCMDriver(const std::shared_ptr<audio::IMixer>& mixer, const uint8_t max_channels) :

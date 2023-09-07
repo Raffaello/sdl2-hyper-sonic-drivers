@@ -55,10 +55,6 @@ namespace HyperSonicDrivers::files
         );
     }
 
-    WAVFile::~WAVFile()
-    {
-    }
-
     const WAVFile::format_t& WAVFile::getFormat() const noexcept
     {
         return _fmt_chunk;
