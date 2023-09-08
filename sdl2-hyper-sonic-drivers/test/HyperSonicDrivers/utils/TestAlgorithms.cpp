@@ -1,12 +1,25 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <HyperSonicDrivers/utils/algorithms.hpp>
+#include <HyperSonicDrivers/softsynths/generators/generators.hpp>
+#include <vector>
 
 namespace HyperSonicDrivers::utils
 {
     TEST(DISABLE_algorithms, RMS)
     {
-        // generate a sinwave
+        using namespace softsynths::generators;
+        // generate a full scale sine wave
+        const int length = 1000;
+        std::vector<int16_t> wave;
+        wave.resize(length);
+        for (int i = 0; i < length; i++)
+            wave[i] = generateWave<int16_t>(eWaveForm::SINE, i, length);
+
+        double rms = RMS(wave);
+        EXPECT_EQ(dBFS(wave), dBFS(rms));
+        EXPECT_NEAR(dBFS(wave), 0.0, 0.01);
+        EXPECT_NEAR(dBFS(rms), 0.0, 0.01);
     }
 
     class VLQTest : public ::testing::TestWithParam<std::tuple<std::vector<uint8_t>, uint32_t, int>> {};

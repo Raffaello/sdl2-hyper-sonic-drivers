@@ -16,9 +16,12 @@ namespace HyperSonicDrivers::utils
     constexpr double RMS(const std::vector<T>& samples)
     {
         double sum = 0.0;
-        for (const auto& s : samples)
-            sum += s*s;
-        return sqrt(sum / static_cast<double>(samples.size() * (std::numeric_limits<T>::max() - std::numeric_limits<T>::min())));
+        constexpr auto range = std::numeric_limits<T>::max()/* - std::numeric_limits<T>::min()*/;
+        constexpr double range2 = range * range;
+        for (const auto& s : samples) {
+            sum += (s * s) / range2;
+        }
+        return sqrt(sum / static_cast<double>(samples.size()));
     }
 
     double dBFS(const double rms);
@@ -26,7 +29,7 @@ namespace HyperSonicDrivers::utils
     template<typename T>
     double dBFS(const std::vector<T>& samples)
     {
-        return dbFS(RMS(samples));
+        return dBFS(RMS(samples));
     }
 
     template<typename T1, typename T2, typename T3, typename T4>
