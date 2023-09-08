@@ -189,8 +189,8 @@ namespace HyperSonicDrivers::files
         const int d = buf.size() % divisor;
         for (int i = 0; i < d; i++)
             buf.push_back(0);
-        
-        m_dataSize = buf.size();
+
+        m_dataSize = static_cast<uint32_t>(buf.size());
         m_data = std::make_shared<uint8_t[]>(m_dataSize);
         std::memcpy(m_data.get(), buf.data(), sizeof(uint8_t)* m_dataSize);
 
