@@ -28,7 +28,7 @@ namespace HyperSonicDrivers::audio::converters
     private:
         std::array<int16_t, intermediateBufferSize> inBuf = {};
         const int16_t* inPtr = nullptr;
-        int inLen = 0;
+        size_t inLen = 0;
 
         /** fractional position of the output stream in input stream unit */
         int32_t opos = 0;

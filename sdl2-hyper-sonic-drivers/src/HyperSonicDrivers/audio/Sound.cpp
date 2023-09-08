@@ -1,5 +1,4 @@
 #include <HyperSonicDrivers/audio/Sound.hpp>
-#include <HyperSonicDrivers/audio/converters/SimpleBitsConverter.hpp>
 #include <HyperSonicDrivers/utils/ILogger.hpp>
 
 namespace HyperSonicDrivers::audio

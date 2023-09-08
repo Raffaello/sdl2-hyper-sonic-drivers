@@ -37,7 +37,7 @@ namespace HyperSonicDrivers::files
         EXPECT_EQ(f.getData()[0], data0);
 
         std::shared_ptr<Sound> s = f.getSound();
-        //EXPECT_EQ(s->bitsDepth, f.getBitsDepth());
+        EXPECT_EQ(8, f.getBitsDepth());
         EXPECT_FALSE(s->stereo);
         EXPECT_EQ(s->freq, f.getSampleRate());
         EXPECT_EQ(s->group, group);

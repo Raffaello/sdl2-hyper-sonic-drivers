@@ -11,7 +11,6 @@
 
 namespace HyperSonicDrivers::files
 {
-    // TODO create&implement a PCMFile interface?
     class VOCFile final : protected File, public IPCMFile
     {
     public:

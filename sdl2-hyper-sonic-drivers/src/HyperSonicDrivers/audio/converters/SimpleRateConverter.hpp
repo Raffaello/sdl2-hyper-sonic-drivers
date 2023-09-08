@@ -19,7 +19,7 @@ namespace HyperSonicDrivers::audio::converters
     private:
         std::array<int16_t, intermediateBufferSize> inBuf = {};
         const int16_t* inPtr = nullptr;
-        int inLen = 0;
+        size_t inLen = 0;
 
         /** position of how far output is ahead of input */
         /** Holds what would have been opos-ipos */

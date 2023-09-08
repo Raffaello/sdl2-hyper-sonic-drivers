@@ -3,7 +3,6 @@
 #include <format>
 #include <HyperSonicDrivers/files/VOCFile.hpp>
 #include <HyperSonicDrivers/utils/ILogger.hpp>
-#include <HyperSonicDrivers/audio/converters/SimpleBitsConverter.hpp>
 
 namespace HyperSonicDrivers::files
 {

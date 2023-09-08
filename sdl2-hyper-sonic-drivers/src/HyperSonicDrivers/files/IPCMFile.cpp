@@ -1,7 +1,7 @@
+#include <HyperSonicDrivers/audio/converters/bitsConverter.hpp>
 #include <HyperSonicDrivers/files/IPCMFile.hpp>
 #include <HyperSonicDrivers/utils/ILogger.hpp>
 #include <format>
-#include <HyperSonicDrivers/audio/converters/SimpleBitsConverter.hpp>
 
 namespace HyperSonicDrivers::files
 {
@@ -12,7 +12,7 @@ namespace HyperSonicDrivers::files
         switch (getBitsDepth())
         {
         case 8:
-            data.reset(audio::converters::SimpleBitsConverter::convert8to16(getData().get(), size));
+            data.reset(audio::converters::convert8to16(getData().get(), size));
             break;
         case 16:
             data = std::reinterpret_pointer_cast<int16_t[]>(getData());
@@ -22,6 +22,9 @@ namespace HyperSonicDrivers::files
             utils::throwLogC<std::invalid_argument>(std::format("bitsDepth = {}, not supported/implemented", getBitsDepth()));
             break;
         }
+
+        if (getChannels() > 2)
+            utils::throwLogC<std::runtime_error>(std::format("only mono or stereo PCM files are supported (num_channels = {})", getChannels()));
 
         m_sound = std::make_shared<audio::Sound>(
             group,

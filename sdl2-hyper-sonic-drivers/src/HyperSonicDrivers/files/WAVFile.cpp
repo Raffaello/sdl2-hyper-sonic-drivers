@@ -1,5 +1,4 @@
 #include <HyperSonicDrivers/files/WAVFile.hpp>
-#include <HyperSonicDrivers/audio/converters/SimpleBitsConverter.hpp>
 #include <HyperSonicDrivers/utils/ILogger.hpp>
 #include <format>
 #include <string>
