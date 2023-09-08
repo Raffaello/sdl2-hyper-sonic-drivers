@@ -59,14 +59,13 @@ namespace HyperSonicDrivers::files
 
     private:
         format_t m_fmt_chunk;
-        //uint32_t _dataSize;
         std::shared_ptr<std::vector<uint8_t>> m_data = std::make_shared<std::vector<uint8_t>>();
         std::shared_ptr<audio::Sound> m_sound;
 
         bool m_expDataChunk = false;
 
         /// <summary>
-        /// read the 'fmt ' subchunks, file need to be positioned
+        /// read the 'fmt ' sub-chunks, file need to be positioned
         /// just after the sub chunk header and pass it as
         /// parameter.
         /// </summary>
