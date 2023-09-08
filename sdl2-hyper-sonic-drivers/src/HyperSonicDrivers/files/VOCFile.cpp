@@ -12,54 +12,53 @@ namespace HyperSonicDrivers::files
     constexpr const uint16_t VALIDATION_MAGIC = 0x1234;
 
     VOCFile::VOCFile(const std::string& filename, const audio::mixer::eChannelGroup group) : File(filename),
-        _version(0), _channels(1), _bitsDepth(8)
+        m_version(0), m_channels(1), m_bitsDepth(8)
     {
         _assertValid(readHeader());
         _assertValid(readDataBlockHeader());
 
-        _sound = std::make_shared<audio::Sound>(
+        m_sound = std::make_shared<audio::Sound>(
             group,
             getChannels() == 2,
             getSampleRate(),
             getBitsDepth(),
-            getDataSize(),
             getData()
         );
     }
 
     const std::string VOCFile::getVersion() const noexcept
     {
-        return std::to_string(_version >> 8) + '.' + std::to_string(_version & 0xFF);
+        return std::format("{}.{}", (m_version >> 8), (m_version & 0xFF));
     }
 
     const int VOCFile::getChannels() const noexcept
     {
-        return _channels;
+        return m_channels;
     }
 
     const uint32_t VOCFile::getSampleRate() const noexcept
     {
-        return _sampleRate;
+        return m_sampleRate;
     }
 
     const uint8_t VOCFile::getBitsDepth() const noexcept
     {
-        return _bitsDepth;
+        return m_bitsDepth;
     }
 
-    const int VOCFile::getDataSize() const noexcept
+    const uint32_t VOCFile::getDataSize() const noexcept
     {
-        return _dataSize;
+        return static_cast<uint32_t>(m_data->size());
     }
 
-    const std::shared_ptr<uint8_t[]> VOCFile::getData() const noexcept
+    std::shared_ptr<std::vector<uint8_t>> VOCFile::getData() const noexcept
     {
-        return _data;
+        return m_data;
     }
 
     std::shared_ptr<audio::Sound> VOCFile::getSound() const noexcept
     {
-        return _sound;
+        return m_sound;
     }
 
     bool VOCFile::readHeader()
@@ -71,14 +70,13 @@ namespace HyperSonicDrivers::files
         res = strncmp(header.magic, MAGIC, MAGIC_SIZE) == 0;
         res &= ((~header.version) + VALIDATION_MAGIC) == header.validation_code;
         res &= tell() == header.data_block_offset;
-        _version = header.version;
+        m_version = header.version;
 
         return res;
     }
 
     bool VOCFile::readDataBlockHeader()
     {
-        std::vector<uint8_t> buf;
         uint8_t lastType;
 
         while (true)
@@ -108,15 +106,15 @@ namespace HyperSonicDrivers::files
                 // channels default = 1
                 // timeConstant = 65536 - (256000000 / (channels * sampleRate);
                 // sampleRate = 256000000 / ((65536 - (timeConstant<<8))*channels)
-                _sampleRate = 256000000L / ((65536 - (timeConstant << 8)) * _channels);
+                m_sampleRate = 256000000L / ((65536 - (timeConstant << 8)) * m_channels);
                 //_sampleRate = 1000000 / (256 - timeConstant);
-                _assertValid(_sampleRate == (1000000 / (256 - timeConstant)));
+                _assertValid(m_sampleRate == (1000000 / (256 - timeConstant)));
                 // pack Method
                 switch (packMethod)
                 {
                 case 0: // 8-bit PCM
                     for (int i = 2; i < db.size; i++) {
-                        buf.push_back(db.data[i]);
+                        m_data->push_back(db.data[i]);
                     }
                     break;
                 case 1: // 8-bit 4-bit ADPCM
@@ -133,7 +131,7 @@ namespace HyperSonicDrivers::files
             case 2: // continue sound block
             {
                 for (int i = 0; i < db.size; i++) {
-                    buf.push_back(db.data[i]);
+                    m_data->push_back(db.data[i]);
                 }
             }
             break;
@@ -170,10 +168,10 @@ namespace HyperSonicDrivers::files
                 break;
             case 9:
             {
-                _assertValid(_version >= 0x0114);
-                _sampleRate = db.data[0] + (db.data[1] << 8) + (db.data[2] << 16) + (db.data[3] << 24);
-                _bitsDepth = db.data[4];
-                _channels = db.data[5];
+                _assertValid(m_version >= 0x0114);
+                m_sampleRate = db.data[0] + (db.data[1] << 8) + (db.data[2] << 16) + (db.data[3] << 24);
+                m_bitsDepth = db.data[4];
+                m_channels = db.data[5];
                 uint16_t format = db.data[6] + (db.data[7] << 8);
                 for (int i = 0; i < 4; i++)
                     _assertValid(db.data[i + 8] == 0);
@@ -184,7 +182,7 @@ namespace HyperSonicDrivers::files
                 case 0: // 8-bit unsigned PCM
                 case 4: // 16-bit signed PCM
                     for (int i = 12; i < db.size; i++) {
-                        buf.push_back(db.data[i]);
+                        m_data->push_back(db.data[i]);
                     }
                     break;
                 case 1: // 8-bit 4-bit ADPCM
@@ -212,30 +210,19 @@ namespace HyperSonicDrivers::files
             lastType = db.type; // ?
         }
 
-        // copy vector buf to _data
-        _dataSize = buf.size();
-        // sanity check
         int divisor = 1;
-        if (_bitsDepth == 16) {
+        if (m_bitsDepth == 16) {
             divisor *= 2;
         }
-        if (_channels == 2) {
+        if (m_channels == 2) {
             divisor *= 2;
         }
 
-        //_assertValid(_dataSize % divisor == 0);
-        _dataSize = buf.size() + (buf.size() % divisor);
-        uint8_t* b = new uint8_t[_dataSize];
-        for (int i = 0; i < buf.size(); i++) {
-            b[i] = buf[i];
-        }
+        const int d = m_data->size() % divisor;
+        for (int i = 0; i < d; i++)
+            m_data->push_back(0);
 
-        for (int i = buf.size(); i < _dataSize; i++) {
-            b[i] = 0;
-        }
-
-        _data.reset(b);
-        buf.clear();
+        m_data->shrink_to_fit();
 
         return true;
     }

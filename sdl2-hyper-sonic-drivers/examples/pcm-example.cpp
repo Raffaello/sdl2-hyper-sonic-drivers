@@ -1,3 +1,4 @@
+#include <HyperSonicDrivers/audio/mixer/ChannelGroup.hpp>
 #include <HyperSonicDrivers/audio/sdl2/Mixer.hpp>
 #include <HyperSonicDrivers/drivers/PCMDriver.hpp>
 #include <HyperSonicDrivers/files/WAVFile.hpp>
@@ -5,15 +6,16 @@
 #include <HyperSonicDrivers/audio/Sound.hpp>
 #include <HyperSonicDrivers/utils/algorithms.hpp>
 #include <HyperSonicDrivers/utils/ILogger.hpp>
+#include <HyperSonicDrivers/files/loaders.hpp>
 
 #include <iostream>
 
 using namespace HyperSonicDrivers;
 
+using audio::mixer::eChannelGroup;
 using drivers::PCMDriver;
 using std::cout;
 using std::endl;
-
 using utils::logI;
 using utils::delayMillis;
 
@@ -26,14 +28,13 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    auto wavFile = std::make_shared<files::WAVFile>("Wav_868kb.wav");
-    auto vocFile = std::make_shared<files::VOCFile>("DUNE.VOC");
-    auto wavSound = wavFile->getSound();
-    auto vocSound = vocFile->getSound();
+    auto wavSound = files::loadSoundFromFile<files::WAVFile>("Wav_868kb.wav", eChannelGroup::Speech);
+    auto vocSound = files::loadSoundFromFile<files::VOCFile>("DUNE.VOC", eChannelGroup::Speech);
 
     PCMDriver drv(mixer);
 
-    while (!mixer->isReady()) {
+    while (!mixer->isReady())
+    {
         cout << "mixer not ready" << endl;
         delayMillis(100);
     }

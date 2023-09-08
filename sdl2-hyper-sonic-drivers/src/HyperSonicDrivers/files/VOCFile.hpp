@@ -6,6 +6,7 @@
 #include <string>
 #include <cstdint>
 #include <memory>
+#include <vector>
 
 namespace HyperSonicDrivers::files
 {
@@ -20,8 +21,8 @@ namespace HyperSonicDrivers::files
         const int getChannels() const noexcept;
         const uint32_t getSampleRate() const noexcept;
         const uint8_t getBitsDepth() const noexcept;
-        const int getDataSize() const noexcept;
-        const std::shared_ptr<uint8_t[]> getData() const noexcept;
+        const uint32_t getDataSize() const noexcept;
+        std::shared_ptr<std::vector<uint8_t>> getData() const noexcept;
 
         std::shared_ptr<audio::Sound> getSound() const noexcept;
 
@@ -43,14 +44,13 @@ namespace HyperSonicDrivers::files
             std::shared_ptr<uint8_t[]> data;
         } sub_data_block_t;
 
-        uint16_t _version;
+        uint16_t m_version;
         // VOC to PCM info
-        int       _channels;
-        uint32_t  _sampleRate;
-        int       _dataSize;
-        uint8_t   _bitsDepth;
-        std::shared_ptr<uint8_t[]> _data;
-        std::shared_ptr<audio::Sound> _sound;
+        int       m_channels;
+        uint32_t  m_sampleRate;
+        uint8_t   m_bitsDepth;
+        std::shared_ptr<std::vector<uint8_t>> m_data = std::make_shared<std::vector<uint8_t>>();
+        std::shared_ptr<audio::Sound> m_sound;
 
         bool readHeader();
         bool readDataBlockHeader();

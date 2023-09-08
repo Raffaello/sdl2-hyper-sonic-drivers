@@ -21,9 +21,9 @@ namespace HyperSonicDrivers::files
 
         uint32_t size = f.getDataSize();
         EXPECT_EQ(size, 889344);
-        EXPECT_EQ(f.getData()[0], 0);
-        EXPECT_EQ(f.getData()[size-1], 0);
-        EXPECT_EQ(f.getData()[size/2], 0x6D);
+        EXPECT_EQ((*f.getData())[0], 0);
+        EXPECT_EQ((*f.getData())[size-1], 0);
+        EXPECT_EQ((*f.getData())[size/2], 0x6D);
 
         auto sound = f.getSound();
         EXPECT_TRUE(sound->stereo);
