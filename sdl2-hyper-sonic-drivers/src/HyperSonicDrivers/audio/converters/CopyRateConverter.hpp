@@ -37,7 +37,7 @@ namespace HyperSonicDrivers::audio::converters
 
             const int16_t* ostart = obuf;
             // Read up to 'osamp' samples into our temporary buffer
-            uint32_t len = input.readBuffer(_buffer.data(), osamp);
+            size_t len = input.readBuffer(_buffer.data(), osamp);
 
             // Mix the data into the output buffer
             auto it = _buffer.begin();
@@ -54,11 +54,6 @@ namespace HyperSonicDrivers::audio::converters
             }
 
             return (obuf - ostart) / 2;
-        }
-
-        size_t drain(int16_t* obuf, uint32_t osamp, const uint16_t vol) override
-        {
-            return 0;
         }
     };
 }

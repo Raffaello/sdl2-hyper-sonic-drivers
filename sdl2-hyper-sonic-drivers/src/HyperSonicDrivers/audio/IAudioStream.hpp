@@ -5,6 +5,9 @@
 
 namespace HyperSonicDrivers::audio
 {
+    /**
+    * This stream must be same bits of the mixer output
+    **/
     class IAudioStream
     {
     public:

@@ -14,7 +14,6 @@ namespace HyperSonicDrivers::audio::mixer
     void Channel::setAudioStream(const mixer::eChannelGroup group, const std::shared_ptr<IAudioStream>& stream, const bool reverseStereo)
     {
         assert(&stream != nullptr && stream.get() != nullptr);
-
         reset();
         m_group = group;
         m_stream = stream;

@@ -8,26 +8,32 @@
 
 namespace HyperSonicDrivers::audio
 {
+    /**
+    * 16 bits signed PCM sound
+    * if the original data is not in this format must be converted first
+    **/
     class Sound final
     {
     public:
         Sound(Sound&) = delete;
         Sound(Sound&&) = delete;
         Sound& operator=(Sound&) = delete;
-        // TODO: convert sound to "mixer bits depts at the constructor level.
-        //       use a unique_ptr for data instead of shared?
         Sound(
             const mixer::eChannelGroup group,
             const bool isStereo,
             const uint32_t freq,
-            const uint8_t bitsDepth,
-            const std::shared_ptr<std::vector<uint8_t>>& data
+            const uint32_t dataSize,
+            const std::shared_ptr<int16_t[]> &data
         );
 
         const mixer::eChannelGroup group;
         const bool stereo;
-        const uint8_t bitsDepth;
         const uint32_t freq;
-        const std::shared_ptr<std::vector<uint8_t>> data;
+
+        inline uint32_t dataSize() const noexcept { return m_dataSize; };
+        inline std::shared_ptr<int16_t[]> data() const noexcept { return m_data; };
+    private:
+        uint32_t m_dataSize;
+        std::shared_ptr<int16_t[]> m_data;
     };
 }

@@ -3,6 +3,7 @@
 #include <format>
 #include <HyperSonicDrivers/files/VOCFile.hpp>
 #include <HyperSonicDrivers/utils/ILogger.hpp>
+#include <HyperSonicDrivers/audio/converters/SimpleBitsConverter.hpp>
 
 namespace HyperSonicDrivers::files
 {
@@ -11,54 +12,21 @@ namespace HyperSonicDrivers::files
     constexpr const char* MAGIC = "Creative Voice File\x1A";
     constexpr const uint16_t VALIDATION_MAGIC = 0x1234;
 
-    VOCFile::VOCFile(const std::string& filename, const audio::mixer::eChannelGroup group) : File(filename),
-        m_version(0), m_channels(1), m_bitsDepth(8)
+    VOCFile::VOCFile(const std::string& filename, const audio::mixer::eChannelGroup group) :
+        File(filename), IPCMFile(),
+        m_version(0)
     {
+        m_channels = 1;
+        m_bitsDepth = 8;
         _assertValid(readHeader());
         _assertValid(readDataBlockHeader());
 
-        m_sound = std::make_shared<audio::Sound>(
-            group,
-            getChannels() == 2,
-            getSampleRate(),
-            getBitsDepth(),
-            getData()
-        );
+        make_sound_(group);
     }
 
     const std::string VOCFile::getVersion() const noexcept
     {
         return std::format("{}.{}", (m_version >> 8), (m_version & 0xFF));
-    }
-
-    const int VOCFile::getChannels() const noexcept
-    {
-        return m_channels;
-    }
-
-    const uint32_t VOCFile::getSampleRate() const noexcept
-    {
-        return m_sampleRate;
-    }
-
-    const uint8_t VOCFile::getBitsDepth() const noexcept
-    {
-        return m_bitsDepth;
-    }
-
-    const uint32_t VOCFile::getDataSize() const noexcept
-    {
-        return static_cast<uint32_t>(m_data->size());
-    }
-
-    std::shared_ptr<std::vector<uint8_t>> VOCFile::getData() const noexcept
-    {
-        return m_data;
-    }
-
-    std::shared_ptr<audio::Sound> VOCFile::getSound() const noexcept
-    {
-        return m_sound;
     }
 
     bool VOCFile::readHeader()
@@ -78,6 +46,7 @@ namespace HyperSonicDrivers::files
     bool VOCFile::readDataBlockHeader()
     {
         uint8_t lastType;
+        std::vector<uint8_t> buf;
 
         while (true)
         {
@@ -114,7 +83,7 @@ namespace HyperSonicDrivers::files
                 {
                 case 0: // 8-bit PCM
                     for (int i = 2; i < db.size; i++) {
-                        m_data->push_back(db.data[i]);
+                        buf.push_back(db.data[i]);
                     }
                     break;
                 case 1: // 8-bit 4-bit ADPCM
@@ -131,7 +100,7 @@ namespace HyperSonicDrivers::files
             case 2: // continue sound block
             {
                 for (int i = 0; i < db.size; i++) {
-                    m_data->push_back(db.data[i]);
+                    buf.push_back(db.data[i]);
                 }
             }
             break;
@@ -182,7 +151,7 @@ namespace HyperSonicDrivers::files
                 case 0: // 8-bit unsigned PCM
                 case 4: // 16-bit signed PCM
                     for (int i = 12; i < db.size; i++) {
-                        m_data->push_back(db.data[i]);
+                        buf.push_back(db.data[i]);
                     }
                     break;
                 case 1: // 8-bit 4-bit ADPCM
@@ -218,11 +187,13 @@ namespace HyperSonicDrivers::files
             divisor *= 2;
         }
 
-        const int d = m_data->size() % divisor;
+        const int d = buf.size() % divisor;
         for (int i = 0; i < d; i++)
-            m_data->push_back(0);
-
-        m_data->shrink_to_fit();
+            buf.push_back(0);
+        
+        m_dataSize = buf.size();
+        m_data = std::make_shared<uint8_t[]>(m_dataSize);
+        std::memcpy(m_data.get(), buf.data(), sizeof(uint8_t)* m_dataSize);
 
         return true;
     }

@@ -1,15 +1,34 @@
 #pragma once
 
 #include <cstdint>
+#include <cmath>
 #include <chrono>
 #include <thread>
 #include <vector>
 #include <algorithm>
 #include <string>
 #include <stdexcept>
+#include <limits>
 
 namespace HyperSonicDrivers::utils
 {
+    template<typename T>
+    constexpr double RMS(const std::vector<T>& samples)
+    {
+        double sum = 0.0;
+        for (const auto& s : samples)
+            sum += s*s;
+        return sqrt(sum / static_cast<double>(samples.size() * (std::numeric_limits<T>::max() - std::numeric_limits<T>::min())));
+    }
+
+    double dBFS(const double rms);
+
+    template<typename T>
+    double dBFS(const std::vector<T>& samples)
+    {
+        return dbFS(RMS(samples));
+    }
+
     template<typename T1, typename T2, typename T3, typename T4>
     constexpr uint32_t MKID_BE(T1 a, T2  b, T3  c, T4  d) { return a | b << 8 | c << 16 | d << 24; }
 

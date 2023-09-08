@@ -3,6 +3,7 @@
 #include <HyperSonicDrivers/audio/mixer/ChannelGroup.hpp>
 #include <HyperSonicDrivers/audio/Sound.hpp>
 #include <HyperSonicDrivers/files/File.hpp>
+#include <HyperSonicDrivers/files/IPCMFile.hpp>
 #include <string>
 #include <cstdint>
 #include <memory>
@@ -11,20 +12,13 @@
 namespace HyperSonicDrivers::files
 {
     // TODO create&implement a PCMFile interface?
-    class VOCFile final : protected File
+    class VOCFile final : protected File, public IPCMFile
     {
     public:
         VOCFile(const std::string& filename, const audio::mixer::eChannelGroup group = audio::mixer::eChannelGroup::Unknown);
         ~VOCFile() override = default;
 
         const std::string getVersion() const noexcept;
-        const int getChannels() const noexcept;
-        const uint32_t getSampleRate() const noexcept;
-        const uint8_t getBitsDepth() const noexcept;
-        const uint32_t getDataSize() const noexcept;
-        std::shared_ptr<std::vector<uint8_t>> getData() const noexcept;
-
-        std::shared_ptr<audio::Sound> getSound() const noexcept;
 
     private:
         static const int MAGIC_SIZE = 19 + 1;
@@ -45,12 +39,6 @@ namespace HyperSonicDrivers::files
         } sub_data_block_t;
 
         uint16_t m_version;
-        // VOC to PCM info
-        int       m_channels;
-        uint32_t  m_sampleRate;
-        uint8_t   m_bitsDepth;
-        std::shared_ptr<std::vector<uint8_t>> m_data = std::make_shared<std::vector<uint8_t>>();
-        std::shared_ptr<audio::Sound> m_sound;
 
         bool readHeader();
         bool readDataBlockHeader();

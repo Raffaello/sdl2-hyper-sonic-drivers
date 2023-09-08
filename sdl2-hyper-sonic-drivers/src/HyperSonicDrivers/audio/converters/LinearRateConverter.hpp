@@ -46,11 +46,6 @@ namespace HyperSonicDrivers::audio::converters
     public:
         LinearRateConverter(uint32_t inrate, uint32_t outrate);
         size_t flow(IAudioStream& input, int16_t* obuf, uint32_t osamp, const uint16_t vol_l, const uint16_t vol_r) override;
-        
-        size_t drain(int16_t* obuf, uint32_t osamp, const uint16_t vol) override
-        {
-            return 0;
-        }
     };
 
 

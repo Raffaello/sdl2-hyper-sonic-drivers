@@ -4,6 +4,11 @@
 
 namespace HyperSonicDrivers::utils
 {
+    TEST(DISABLE_algorithms, RMS)
+    {
+        // generate a sinwave
+    }
+
     class VLQTest : public ::testing::TestWithParam<std::tuple<std::vector<uint8_t>, uint32_t, int>> {};
     TEST_P(VLQTest, variable_length_quantities)
     {
