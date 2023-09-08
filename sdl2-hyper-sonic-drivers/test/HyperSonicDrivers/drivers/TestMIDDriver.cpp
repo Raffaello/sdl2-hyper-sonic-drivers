@@ -150,7 +150,9 @@ namespace HyperSonicDrivers::drivers
         EXPECT_EQ(md.getTempo(), 0);
         EXPECT_FALSE(md.isTempoChanged());
         md.play(mf.getMIDI());
-        while (!md.isTempoChanged());
+        while (!md.isTempoChanged()) {
+            utils::delayMillis(10);
+        }
         EXPECT_TRUE(md.isTempoChanged());
         EXPECT_EQ(md.getTempo(), 500000);
         EXPECT_FALSE(md.isTempoChanged());
