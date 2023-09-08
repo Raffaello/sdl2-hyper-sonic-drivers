@@ -29,11 +29,7 @@ namespace HyperSonicDrivers::audio
         const mixer::eChannelGroup group;
         const bool stereo;
         const uint32_t freq;
-
-        inline uint32_t dataSize() const noexcept { return m_dataSize; };
-        inline std::shared_ptr<int16_t[]> data() const noexcept { return m_data; };
-    private:
-        uint32_t m_dataSize;
-        std::shared_ptr<int16_t[]> m_data;
+        uint32_t dataSize;
+        std::shared_ptr<int16_t[]> data;
     };
 }

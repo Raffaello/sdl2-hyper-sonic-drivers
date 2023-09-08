@@ -13,13 +13,13 @@ namespace HyperSonicDrivers::audio::streams
 
     size_t SoundStream::readBuffer(int16_t* buffer, const size_t numSamples)
     {
-        const size_t rest = (m_sound->dataSize() - m_curPos);
+        const size_t rest = (m_sound->dataSize - m_curPos);
         const size_t remaining = std::min<uint32_t>(numSamples, rest);
  
         for (size_t i = 0; i < remaining; i++)
-            buffer[i] = m_sound->data()[m_curPos++];
+            buffer[i] = m_sound->data[m_curPos++];
 
-        assert(m_curPos <= m_sound->dataSize());
+        assert(m_curPos <= m_sound->dataSize);
         return remaining;
     }
 
@@ -35,7 +35,7 @@ namespace HyperSonicDrivers::audio::streams
 
     bool SoundStream::endOfData() const
     {
-        return m_curPos == m_sound->dataSize();
+        return m_curPos == m_sound->dataSize;
     }
 
     std::weak_ptr<Sound> SoundStream::getSound() const noexcept

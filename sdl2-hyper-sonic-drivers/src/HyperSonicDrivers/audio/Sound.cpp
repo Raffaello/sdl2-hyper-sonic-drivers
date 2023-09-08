@@ -13,11 +13,10 @@ namespace HyperSonicDrivers::audio
         group(group),
         stereo(isStereo),
         freq(freq),
-        m_dataSize(dataSize),
-        m_data(data)
+        dataSize(dataSize),
+        data(data)
     {
         if (data == nullptr)
             utils::throwLogC<std::runtime_error>("passed nullptr data");
-        
     }
 }
