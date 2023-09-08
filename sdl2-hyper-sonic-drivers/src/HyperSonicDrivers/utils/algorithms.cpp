@@ -3,6 +3,11 @@
 
 namespace HyperSonicDrivers::utils
 {
+    double dBFS(const double rms)
+    {
+        return 20 * std::log10(rms * sqrt(2.0));
+    }
+
     int decode_VLQ(const uint8_t buf[], uint32_t& out_value)
     {
         int i = 0;

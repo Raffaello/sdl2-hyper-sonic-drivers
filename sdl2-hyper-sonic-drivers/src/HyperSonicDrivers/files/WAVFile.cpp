@@ -1,6 +1,9 @@
 #include <HyperSonicDrivers/files/WAVFile.hpp>
-#include <stdexcept>
+#include <HyperSonicDrivers/utils/ILogger.hpp>
+#include <format>
 #include <string>
+#include <memory>
+#include <stdexcept>
 //#ifdef __GNUC__
 #include <cstring>
 //#endif
@@ -44,34 +47,12 @@ namespace HyperSonicDrivers::files
         } while (data.id.id != eRIFF_ID::ID_DATA);
         read_data_sub_chunk(data);
 
-        // TODO: works only for mono and stereo (1 or 2 channels)
-        m_sound = std::make_shared<audio::Sound>(
-            group,
-            getFormat().channels == 2,
-            getFormat().samplesPerSec,
-            static_cast<uint8_t>(getFormat().bitsPerSample),
-            getData()
-        );
+        make_sound_(group);
     }
 
     const WAVFile::format_t& WAVFile::getFormat() const noexcept
     {
         return m_fmt_chunk;
-    }
-
-    const uint32_t WAVFile::getDataSize() const noexcept
-    {
-        return static_cast<uint32_t>(m_data->size());
-    }
-
-    std::shared_ptr<std::vector<uint8_t>> WAVFile::getData() const noexcept
-    {
-        return m_data;
-    }
-
-    std::shared_ptr<audio::Sound> WAVFile::getSound() const noexcept
-    {
-        return m_sound;
     }
 
     bool WAVFile::read_fmt_sub_chunk(const RIFF_sub_chunk_header_t& chunk)
@@ -102,6 +83,9 @@ namespace HyperSonicDrivers::files
 
         // fmt always before data chunk
         m_expDataChunk = true;
+        m_bitsDepth = static_cast<uint8_t>(m_fmt_chunk.bitsPerSample);
+        m_channels = m_fmt_chunk.channels;
+        m_sampleRate = m_fmt_chunk.samplesPerSec;
 
         return true;
     }
@@ -111,9 +95,9 @@ namespace HyperSonicDrivers::files
         _assertValid(m_expDataChunk);
         _assertValid(chunk.id.id == eRIFF_ID::ID_DATA);
 
-        m_data->resize(chunk.length);
-        read(m_data->data(), chunk.length);
-        m_data->shrink_to_fit();
+        m_dataSize = chunk.length;
+        m_data = std::make_shared<uint8_t[]>(m_dataSize);
+        read(m_data.get(), m_dataSize);
 
         return true;
     }

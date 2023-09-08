@@ -3,13 +3,13 @@
 #include <HyperSonicDrivers/audio/Sound.hpp>
 #include <HyperSonicDrivers/audio/mixer/ChannelGroup.hpp>
 #include <HyperSonicDrivers/files/RIFFFile.hpp>
+#include <HyperSonicDrivers/files/IPCMFile.hpp>
 #include <string>
 #include <memory>
-#include <vector>
 
 namespace HyperSonicDrivers::files
 {
-    class WAVFile final : protected RIFFFile
+    class WAVFile final : protected RIFFFile, public IPCMFile
     {
     public:
         enum class eFormat
@@ -49,18 +49,13 @@ namespace HyperSonicDrivers::files
         WAVFile(const std::string& filename, const audio::mixer::eChannelGroup group = audio::mixer::eChannelGroup::Unknown);
         ~WAVFile() override = default;
 
-        const format_t&                  getFormat()   const noexcept;
-        const uint32_t                   getDataSize() const noexcept;
-        std::shared_ptr<std::vector<uint8_t>> getData()     const noexcept;
-        std::shared_ptr<audio::Sound>    getSound()    const noexcept;
+        const format_t&  getFormat() const noexcept;
 
         ///static bool save(const int rate, const int bits, const int channels, const uint8_t* buffer, const int length);
         //static bool render(const uint8_t* buffer, int length);
 
     private:
         format_t m_fmt_chunk;
-        std::shared_ptr<std::vector<uint8_t>> m_data = std::make_shared<std::vector<uint8_t>>();
-        std::shared_ptr<audio::Sound> m_sound;
 
         bool m_expDataChunk = false;
 

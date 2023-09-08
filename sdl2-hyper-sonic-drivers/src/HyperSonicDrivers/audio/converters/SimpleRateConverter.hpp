@@ -19,7 +19,7 @@ namespace HyperSonicDrivers::audio::converters
     private:
         std::array<int16_t, intermediateBufferSize> inBuf = {};
         const int16_t* inPtr = nullptr;
-        int inLen = 0;
+        size_t inLen = 0;
 
         /** position of how far output is ahead of input */
         /** Holds what would have been opos-ipos */
@@ -31,11 +31,6 @@ namespace HyperSonicDrivers::audio::converters
     public:
         SimpleRateConverter(uint32_t inrate, uint32_t outrate);
         size_t flow(IAudioStream& input, int16_t* obuf, uint32_t osamp, const uint16_t vol_l, const uint16_t vol_r) override;
-        
-        size_t drain(int16_t* obuf, uint32_t osamp, const uint16_t vol) override
-        {
-            return 0;
-        }
     };
 
     /*
