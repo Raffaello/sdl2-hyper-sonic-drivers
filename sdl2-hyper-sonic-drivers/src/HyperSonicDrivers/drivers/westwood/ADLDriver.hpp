@@ -6,6 +6,7 @@
 #include <mutex>
 #include <HyperSonicDrivers/hardware/opl/OPL.hpp>
 #include <HyperSonicDrivers/files/westwood/ADLFile.hpp>
+#include <HyperSonicDrivers/drivers/opl/OplWriter.hpp>
 
 
 namespace HyperSonicDrivers::drivers::westwood
@@ -60,10 +61,12 @@ namespace HyperSonicDrivers::drivers::westwood
         void initDriver();
         void startSound(const int track, const int volume);
 
-        std::shared_ptr<files::westwood::ADLFile> _adl_file = nullptr;
+        std::unique_ptr<drivers::opl::OplWriter> m_oplWriter;
+        std::shared_ptr<files::westwood::ADLFile> m_adl_file = nullptr;
 
-        std::shared_ptr<uint8_t[]> _soundData = nullptr;
-        uint32_t _soundDataSize;
+        // TODO: replace with std::span
+        std::shared_ptr<uint8_t[]> m_soundData = nullptr;
+        uint32_t m_soundDataSize;
 
         // The sound data has two lookup tables:
         uint8_t* getProgram(const int progId);
@@ -253,7 +256,7 @@ namespace HyperSonicDrivers::drivers::westwood
         uint8_t _opExtraLevel1BD;
         uint8_t _opExtraLevel2BD;
 
-        std::shared_ptr<hardware::opl::OPL> _opl;
+        std::shared_ptr<hardware::opl::OPL> m_opl;
 
         struct QueueEntry
         {
@@ -274,7 +277,7 @@ namespace HyperSonicDrivers::drivers::westwood
         int _sfxPriority;
         int _sfxVelocity;
 
-        Channel _channels[10];
+        std::array<Channel, 10>  m_channels;
 
         uint8_t _vibratoAndAMDepthBits;
         uint8_t _rhythmSectionBits;
@@ -296,12 +299,12 @@ namespace HyperSonicDrivers::drivers::westwood
 
         uint16_t _syncJumpMask;
 
-        std::mutex _mutex;
+        mutable std::mutex m_mutex;
 
-        uint8_t _musicVolume;
-        uint8_t _sfxVolume;
+        uint8_t m_musicVolume;
+        uint8_t m_sfxVolume;
 
         // Version 1,2,3 possible values, version 3&4 merged into version 3
-        uint8_t _version = 0;
+        uint8_t m_version = 0;
     };
 }

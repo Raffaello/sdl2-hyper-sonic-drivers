@@ -24,8 +24,8 @@ namespace HyperSonicDrivers::hardware::opl
          * Creates the specific driver with a specific type setup.
          */
         static std::shared_ptr<OPL> create(
-            OplEmulator oplEmulator,
-            OplType type,
+            const OplEmulator oplEmulator,
+            const OplType type,
             const std::shared_ptr<audio::IMixer>& mixer
         );
     };
