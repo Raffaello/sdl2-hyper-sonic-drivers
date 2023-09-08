@@ -21,8 +21,8 @@ namespace HyperSonicDrivers::files
         const int getChannels() const noexcept;
         const uint32_t getSampleRate() const noexcept;
         const uint8_t getBitsDepth() const noexcept;
-        const int getDataSize() const noexcept;
-        const std::shared_ptr<std::vector<uint8_t>> getData() const noexcept;
+        const uint32_t getDataSize() const noexcept;
+        std::shared_ptr<std::vector<uint8_t>> getData() const noexcept;
 
         std::shared_ptr<audio::Sound> getSound() const noexcept;
 
@@ -48,9 +48,7 @@ namespace HyperSonicDrivers::files
         // VOC to PCM info
         int       m_channels;
         uint32_t  m_sampleRate;
-        //int       _dataSize;
         uint8_t   m_bitsDepth;
-        //std::shared_ptr<uint8_t[]> _data;
         std::shared_ptr<std::vector<uint8_t>> m_data = std::make_shared<std::vector<uint8_t>>();
         std::shared_ptr<audio::Sound> m_sound;
 

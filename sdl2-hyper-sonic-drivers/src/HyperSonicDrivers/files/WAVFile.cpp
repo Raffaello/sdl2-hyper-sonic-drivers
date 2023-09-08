@@ -61,10 +61,10 @@ namespace HyperSonicDrivers::files
 
     const uint32_t WAVFile::getDataSize() const noexcept
     {
-        return m_data->size();
+        return static_cast<uint32_t>(m_data->size());
     }
 
-    const std::shared_ptr<std::vector<uint8_t>> WAVFile::getData() const noexcept
+    std::shared_ptr<std::vector<uint8_t>> WAVFile::getData() const noexcept
     {
         return m_data;
     }
@@ -78,7 +78,7 @@ namespace HyperSonicDrivers::files
     {
         _assertValid(chunk.id.id == eRIFF_ID::ID_FMT);
         
-        // <common-fields> 
+        // <common-fields>
         m_fmt_chunk.format = static_cast<eFormat>(readLE16());
         m_fmt_chunk.channels = readLE16();
         m_fmt_chunk.samplesPerSec = readLE32();

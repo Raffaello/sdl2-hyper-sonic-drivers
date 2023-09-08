@@ -28,7 +28,7 @@ namespace HyperSonicDrivers::files
 
     const std::string VOCFile::getVersion() const noexcept
     {
-        return std::to_string(m_version >> 8) + '.' + std::to_string(m_version & 0xFF);
+        return std::format("{}.{}", (m_version >> 8), (m_version & 0xFF));
     }
 
     const int VOCFile::getChannels() const noexcept
@@ -46,12 +46,12 @@ namespace HyperSonicDrivers::files
         return m_bitsDepth;
     }
 
-    const int VOCFile::getDataSize() const noexcept
+    const uint32_t VOCFile::getDataSize() const noexcept
     {
-        return m_data->size();
+        return static_cast<uint32_t>(m_data->size());
     }
 
-    const std::shared_ptr<std::vector<uint8_t>> VOCFile::getData() const noexcept
+    std::shared_ptr<std::vector<uint8_t>> VOCFile::getData() const noexcept
     {
         return m_data;
     }

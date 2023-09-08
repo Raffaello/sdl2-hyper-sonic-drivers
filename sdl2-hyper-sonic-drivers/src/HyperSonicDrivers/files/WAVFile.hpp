@@ -51,7 +51,7 @@ namespace HyperSonicDrivers::files
 
         const format_t&                  getFormat()   const noexcept;
         const uint32_t                   getDataSize() const noexcept;
-        const std::shared_ptr<std::vector<uint8_t>> getData()     const noexcept;
+        std::shared_ptr<std::vector<uint8_t>> getData()     const noexcept;
         std::shared_ptr<audio::Sound>    getSound()    const noexcept;
 
         ///static bool save(const int rate, const int bits, const int channels, const uint8_t* buffer, const int length);
