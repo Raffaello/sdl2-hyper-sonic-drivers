@@ -4,10 +4,8 @@
 #include <memory>
 #include <array>
 #include <mutex>
-#include <span>
 #include <HyperSonicDrivers/hardware/opl/OPL.hpp>
 #include <HyperSonicDrivers/files/westwood/ADLFile.hpp>
-#include <HyperSonicDrivers/drivers/midi/devices/Adlib.hpp>
 
 
 namespace HyperSonicDrivers::drivers::westwood
