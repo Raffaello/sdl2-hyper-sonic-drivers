@@ -6,6 +6,7 @@
 #include <mutex>
 #include <HyperSonicDrivers/hardware/opl/OPL.hpp>
 #include <HyperSonicDrivers/files/westwood/ADLFile.hpp>
+#include <HyperSonicDrivers/drivers/midi/devices/Adlib.hpp>
 
 
 namespace HyperSonicDrivers::drivers::westwood
@@ -30,7 +31,10 @@ namespace HyperSonicDrivers::drivers::westwood
     class ADLDriver
     {
     public:
-        ADLDriver(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<files::westwood::ADLFile>& adl_file);
+        [[deprecated]]
+        explicit ADLDriver(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<files::westwood::ADLFile>& adl_file);
+        // NOTE: midi:devices:Adlib, it should receive devices::Adlib instead of OPL, but those are working only with MIDDriver
+        //explicit ADLDriver(const midi::devices::Adlib& opl, const std::shared_ptr<files::westwood::ADLFile>& adl_file);
         virtual ~ADLDriver();
         void setADLFile(const std::shared_ptr<files::westwood::ADLFile>& adl_file) noexcept;
 
