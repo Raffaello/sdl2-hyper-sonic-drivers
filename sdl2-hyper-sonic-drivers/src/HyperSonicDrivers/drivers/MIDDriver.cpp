@@ -60,14 +60,14 @@ namespace HyperSonicDrivers::drivers
             case -25:
             case -29:
             case -30:
-                logW("SMPTE not implemented yet", this);
+                logW("SMPTE not implemented yet");
                 break;
             default:
-                logW(std::format("Division SMPTE not known = {}", smpte), this);
+                logW(std::format("Division SMPTE not known = {}", smpte));
             }
 
             logD(std::format("Division: Ticks per frame = {}, {}", ticksPerFrame, smpte));
-            logW("division ticks per frame not implemented yet", this);
+            logW("division ticks per frame not implemented yet");
         }
         else
         {
@@ -165,7 +165,7 @@ namespace HyperSonicDrivers::drivers
                     switch (TO_META(type))
                     {
                     case MIDI_META_EVENT::CHANNEL_PREFIX:
-                        logW(std::format("CHANNEL_PREFIX {:d} not implemented", e.data[1]), this);
+                        logW(std::format("CHANNEL_PREFIX {:d} not implemented", e.data[1]));
                         break;
                     case MIDI_META_EVENT::COPYRIGHT:
                         str = utils::chars_vector_to_string_skip_first(e.data);
@@ -177,7 +177,7 @@ namespace HyperSonicDrivers::drivers
                         break;
                     case MIDI_META_EVENT::DEVICE_NAME:
                         str = utils::chars_vector_to_string_skip_first(e.data);
-                        logW(std::format("[Not Implemented] Device Name: {}", str), this);
+                        logW(std::format("[Not Implemented] Device Name: {}", str));
                         break;
                     case MIDI_META_EVENT::END_OF_TRACK:
                         logD("MIDI end of track.");
@@ -198,21 +198,21 @@ namespace HyperSonicDrivers::drivers
                         logT(std::format("Marker: {}", str));
                         break;
                     case MIDI_META_EVENT::MIDI_PORT:
-                        logW(std::format("MIDI_PORT {:d} not implemented", e.data[1]), this);
+                        logW(std::format("MIDI_PORT {:d} not implemented", e.data[1]));
                         break;
                     case MIDI_META_EVENT::PROGRAM_NAME:
                         str = utils::chars_vector_to_string_skip_first(e.data);
                         logT(std::format("PROGRAM_NAME: {}", str));
                         break;
                     case MIDI_META_EVENT::SEQUENCER_SPECIFIC:
-                        logW("SEQUENCE_SPECIFIC not implemented", this);
+                        logW("SEQUENCE_SPECIFIC not implemented");
                         break;
                     case MIDI_META_EVENT::SEQUENCE_NAME: // a.k.a track name
                         str = utils::chars_vector_to_string(++(e.data.begin()), e.data.end());
                         logT(std::format("SEQUENCE NAME: {}", str));
                         break;
                     case MIDI_META_EVENT::SEQUENCE_NUMBER:
-                        logW("Sequence number not implemented", this);
+                        logW("Sequence number not implemented");
                         break;
                     case MIDI_META_EVENT::SET_TEMPO: {
                         setTempo((e.data[1] << 16) + (e.data[2] << 8) + (e.data[3]));
@@ -221,7 +221,7 @@ namespace HyperSonicDrivers::drivers
                         break;
                     }
                     case MIDI_META_EVENT::SMPTE_OFFSET:
-                        logW("SMPTE_OFFSET not implemented", this);
+                        logW("SMPTE_OFFSET not implemented");
                         break;
                     case MIDI_META_EVENT::TEXT:
                         str = utils::chars_vector_to_string(++(e.data.begin()), e.data.end());
@@ -231,7 +231,7 @@ namespace HyperSonicDrivers::drivers
                         logT(std::format("TIME_SIGNATURE: {:d}/{:d} - clocks {:d} - bb {:d} ", e.data[1], utils::powerOf2(e.data[2]), e.data[3], e.data[4]));
                         break;
                     default:
-                        logW(std::format("MIDI_META_EVENT_TYPES_LOW not implemented/recognized: {:#02x}", type), this);
+                        logW(std::format("MIDI_META_EVENT_TYPES_LOW not implemented/recognized: {:#02x}", type));
                         break;
                     }
                     continue; // META event processed, go on next MIDI event
@@ -247,7 +247,7 @@ namespace HyperSonicDrivers::drivers
                     m_device->sendSysEx(e);
                     continue;
                 default:
-                    logW(std::format("MIDI_META_EVENT_TYPES_LOW not implemented/recognized: {:#02x}", e.type.low), this);
+                    logW(std::format("MIDI_META_EVENT_TYPES_LOW not implemented/recognized: {:#02x}", e.type.low));
                     break;
                 }
             }
@@ -269,7 +269,7 @@ namespace HyperSonicDrivers::drivers
                 msg_size = 2;*/
                 break;
             default:
-                logW(std::format("unrecognized MIDI EVENT type high {:#02x}", e.type.high), this);
+                logW(std::format("unrecognized MIDI EVENT type high {:#02x}", e.type.high));
                 break;
             }
 

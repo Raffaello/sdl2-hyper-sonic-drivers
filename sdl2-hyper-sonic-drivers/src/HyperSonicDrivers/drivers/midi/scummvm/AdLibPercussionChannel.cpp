@@ -79,7 +79,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         // We do not allow custom instruments in OPL3 mode right now.
         if (_owner->_opl3Mode)
         {
-            logW("Used in OPL3 mode", this);
+            logW("Used in OPL3 mode");
             return;
         }
 

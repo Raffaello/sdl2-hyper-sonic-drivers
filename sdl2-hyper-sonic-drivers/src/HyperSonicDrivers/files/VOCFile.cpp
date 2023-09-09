@@ -92,7 +92,7 @@ namespace HyperSonicDrivers::files
                 case 3:// 8-bit 2-bit ADPCM
                     //break;
                 default:
-                    logW(std::format("unknown/not-implemented packMethod={:x}", packMethod), this);
+                    logW(std::format("unknown/not-implemented packMethod={:x}", packMethod));
                 }
             }
             break;
@@ -108,12 +108,12 @@ namespace HyperSonicDrivers::files
                 // TODO
                 //uint16_t pausePeriod = readLE16(); // pause in sample + 1
                 //uint8_t  timeConstant = readU8(); // same as block 1
-                logW("pause block not-implemented", this);
+                logW("pause block not-implemented");
             }
             break;
             case 4: // Marker block
                 //uint16_t marker = readLE16();
-                logW("marker block not-implemented", this);
+                logW("marker block not-implemented");
                 break;
             case 5: // null-terminating string block
                 // TODO
@@ -121,18 +121,18 @@ namespace HyperSonicDrivers::files
                 //char* string = new char[data_block_size];
                 //read(string, data_block_size);
                 //delete string;
-                logW("string block not-implemented", this);
+                logW("string block not-implemented");
                 break;
             case 6: // loop block
                 // TODO
                 //uint16_t repeatTimes = readLE16();
-                logW("start loop block not-implemented", this);
+                logW("start loop block not-implemented");
                 break;
             case 7:
-                logW("end loop block not-implemented", this);
+                logW("end loop block not-implemented");
                 break;
             case 8:
-                logW("special block 8 not-implemented", this);
+                logW("special block 8 not-implemented");
                 break;
             case 9:
             {
@@ -166,13 +166,13 @@ namespace HyperSonicDrivers::files
                 case 0x0200: // 16-bit to 4-bit ADPCM
                     //break;
                 default:
-                    logW(std::format("unknown/not-implemented format={}", format), this);
+                    logW(std::format("unknown/not-implemented format={}", format));
                 }
             }
                 break;
             default:
                 //return false;
-                logW(std::format("unknown data block type {}", db.type), this);
+                logW(std::format("unknown data block type {}", db.type));
             }
 
             lastType = db.type; // ?

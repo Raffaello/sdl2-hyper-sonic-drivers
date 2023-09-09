@@ -61,7 +61,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
             noteOn(e.type.low, e.data[0], e.data[1]);
             break;
         case MIDI_EVENT_TYPES_HIGH::AFTERTOUCH:
-            logW("AFTERTOUCH not supported", this);
+            logW("AFTERTOUCH not supported");
             break;
         case MIDI_EVENT_TYPES_HIGH::CONTROLLER:
             controller(e.type.low, e.data[0], e.data[1]);
@@ -70,16 +70,16 @@ namespace HyperSonicDrivers::drivers::midi::opl
             programChange(e.type.low, e.data[0]);
             break;
         case MIDI_EVENT_TYPES_HIGH::CHANNEL_AFTERTOUCH:
-            logW("CHANNEL_AFTERTOUCH not supported", this);
+            logW("CHANNEL_AFTERTOUCH not supported");
             break;
         case MIDI_EVENT_TYPES_HIGH::PITCH_BEND:
             pitchBend(e.type.low, static_cast<uint16_t>((e.data[0] | (e.data[1] << 7) - 0x2000) >> 6));
             break;
         case MIDI_EVENT_TYPES_HIGH::META_SYSEX:
-            logW("META_SYSEX not supported", this);
+            logW("META_SYSEX not supported");
             break;
         default:
-            logW(std::format("OplDriver: Unknown send() command {:#0x}", e.type.val), this);
+            logW(std::format("OplDriver: Unknown send() command {:#0x}", e.type.val));
             break;
         }
     }
@@ -159,7 +159,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
         case 0:
         case 32:
             // Bank select. Not supported
-            logW(std::format("bank select value {}", value), this);
+            logW(std::format("bank select value {}", value));
             break;
         case 1:
             ctrl_modulationWheel(chan, value);
@@ -175,15 +175,15 @@ namespace HyperSonicDrivers::drivers::midi::opl
             break;
         case 16:
             //pitchBendFactor(value);
-            logW(std::format("pitchBendFactor value {}", value), this);
+            logW(std::format("pitchBendFactor value {}", value));
             break;
         case 17:
             //detune(value);
-            logW(std::format("detune value {}", value), this);
+            logW(std::format("detune value {}", value));
             break;
         case 18:
             //priority(value);
-            logW(std::format("priority value {}", value), this);
+            logW(std::format("priority value {}", value));
             break;
         case 64:
             ctrl_sustain(chan, value);
@@ -191,20 +191,20 @@ namespace HyperSonicDrivers::drivers::midi::opl
         case 91:
             // Effects level. Not supported.
             //effectLevel(value);
-            logW(std::format("effect level value {}", value), this);
+            logW(std::format("effect level value {}", value));
             break;
         case 93:
             // Chorus level. Not supported.
             //chorusLevel(value);
-            logW(std::format("chorus level value {}", value), this);
+            logW(std::format("chorus level value {}", value));
             break;
         case 119:
             // Unknown, used in Simon the Sorcerer 2
-            logW(std::format("unknown value {}", value), this);
+            logW(std::format("unknown value {}", value));
             break;
         case 121:
             // reset all controllers
-            logW("reset all controllers value", this);
+            logW("reset all controllers value");
             //modulationWheel(0);
             //pitchBendFactor(0);
             //detune(0);
@@ -215,7 +215,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
             _oplWriter->stopAll();
             break;
         default:
-            logW(std::format("OplDriver: Unknown control change message {:d} {:d}", control, value), this);
+            logW(std::format("OplDriver: Unknown control change message {:d} {:d}", control, value));
         }
     }
 

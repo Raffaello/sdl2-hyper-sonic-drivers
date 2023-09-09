@@ -97,13 +97,6 @@ namespace HyperSonicDrivers::utils
         ILogger::instance->info(logMsg_(loc, msg), cat);
     }
 
-    constexpr void logI(const std::string& msg,
-        const void* this_,
-        const ILogger::eCategory cat = ILogger::eCategory::Audio)
-    {
-        ILogger::instance->info(logMsg_(this_, msg), cat);
-    }
-
     constexpr void logW(const std::string& msg,
         const ILogger::eCategory cat = ILogger::eCategory::Audio,
         const std::source_location& loc =
@@ -112,12 +105,6 @@ namespace HyperSonicDrivers::utils
         ILogger::instance->warning(logMsg_(loc, msg), cat);
     }
 
-    constexpr void logW(const std::string& msg,
-        const void* this_,
-        const ILogger::eCategory cat = ILogger::eCategory::Audio)
-    {
-        ILogger::instance->warning(logMsg_(this_, msg), cat);
-    }
 
     constexpr void logE(const std::string& msg,
         const ILogger::eCategory cat = ILogger::eCategory::Audio,

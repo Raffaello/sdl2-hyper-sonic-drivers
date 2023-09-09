@@ -207,11 +207,11 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         case MIDI_EVENT_TYPES_HIGH::META_SYSEX: // SysEx
             // We should never get here! SysEx information has to be
             // sent via high-level semantic methods.
-            logW("Receiving SysEx command on a send() call", this);
+            logW("Receiving SysEx command on a send() call");
             break;
 
         default:
-            logW(std::format("Unknown send() command {:#0x}", cmd.val), this);
+            logW(std::format("Unknown send() command {:#0x}", cmd.val));
         }
     }
 

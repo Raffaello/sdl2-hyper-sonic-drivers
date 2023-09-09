@@ -40,7 +40,7 @@ namespace HyperSonicDrivers::audio::sdl2
         }
 
         const char* sdlDriverName = SDL_GetCurrentAudioDriver();
-        logI(std::format("Using SDL Audio Driver '{}'", sdlDriverName), this);
+        logI(std::format("Using SDL Audio Driver '{}'", sdlDriverName));
 
         // Get the desired audio specs
         SDL_AudioSpec desired = {
@@ -62,15 +62,15 @@ namespace HyperSonicDrivers::audio::sdl2
 
         if (obtained.format != desired.format)
         {
-            logW("format different", this);
+            logW("format different");
         }
         if (obtained.freq != desired.freq)
         {
-            logW(std::format("freq different: obtained={}, desired={}", obtained.freq, desired.freq), this);
+            logW(std::format("freq different: obtained={}, desired={}", obtained.freq, desired.freq));
         }
         if (obtained.channels != desired.channels)
         {
-            logW(std::format("channels different: obtained={}, desired={}", obtained.channels, desired.channels), this);
+            logW(std::format("channels different: obtained={}, desired={}", obtained.channels, desired.channels));
         }
 
         resume();
@@ -93,7 +93,7 @@ namespace HyperSonicDrivers::audio::sdl2
         }
         if (i == max_channels)
         {
-            logW("no channels available. can't play", this);
+            logW("no channels available. can't play");
             return std::nullopt;
         }
 
