@@ -6,6 +6,7 @@ namespace HyperSonicDrivers::files
 {
     IFFFile::IFFFile(const std::string& filename) : File(filename)
     {
+        _assertValid(size() >= sizeof(IFF_chunk_header_t));
     }
 
     void IFFFile::readChunkHeader(IFF_chunk_header_t& header) const noexcept

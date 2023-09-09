@@ -141,7 +141,7 @@ namespace HyperSonicDrivers::files
         ~IFFFile() override = default;
 
     protected:
-        typedef union
+        typedef union IFF_ID
         {
             char     str[4];
             uint32_t value;
