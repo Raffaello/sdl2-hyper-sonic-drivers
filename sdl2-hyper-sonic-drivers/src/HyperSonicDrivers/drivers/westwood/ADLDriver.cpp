@@ -202,6 +202,7 @@ namespace HyperSonicDrivers::drivers::westwood
             chan.volumeModifier = volume;
 
             // NOTE: regeOffset table is OplWriter::writeChannel table
+            //       thes 3 lines can be replaced using OplWriter::writeChannel
             const int8_t regOffset = _regOffset[i];
 
             // Level Key Scaling / Total Level
@@ -530,11 +531,21 @@ namespace HyperSonicDrivers::drivers::westwood
 
         _rnd = 0x1234;
 
-        
+        // Authorize the control of the waveforms
+        writeOPL(0x01, 0x20);
+
+        // Select FM music mode
+        writeOPL(0x08, 0x00);
+
+        // I would guess the main purpose of this is to turn off the rhythm,
+        // thus allowing us to use 9 melodic voices instead of 6.
+        writeOPL(0xBD, 0x00);
 
         initChannel(m_channels[NUM_CHANNELS]);
         for (int loop = 8; loop >= 0; loop--) {
             // Silence the channel
+            writeOPL(0x40 + _regOffset[loop], 0x3F);
+            writeOPL(0x43 + _regOffset[loop], 0x3F);
             initChannel(m_channels[loop]);
         }
     }

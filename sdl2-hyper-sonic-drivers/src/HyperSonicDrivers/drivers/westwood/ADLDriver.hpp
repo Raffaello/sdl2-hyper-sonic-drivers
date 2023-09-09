@@ -6,7 +6,6 @@
 #include <mutex>
 #include <HyperSonicDrivers/hardware/opl/OPL.hpp>
 #include <HyperSonicDrivers/files/westwood/ADLFile.hpp>
-//#include <HyperSonicDrivers/drivers/opl/OplWriter.hpp>
 
 
 namespace HyperSonicDrivers::drivers::westwood
