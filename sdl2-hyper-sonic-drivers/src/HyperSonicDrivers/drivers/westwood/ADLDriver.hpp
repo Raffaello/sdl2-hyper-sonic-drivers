@@ -4,6 +4,7 @@
 #include <memory>
 #include <array>
 #include <mutex>
+#include <span>
 #include <HyperSonicDrivers/hardware/opl/OPL.hpp>
 #include <HyperSonicDrivers/files/westwood/ADLFile.hpp>
 #include <HyperSonicDrivers/drivers/midi/devices/Adlib.hpp>
@@ -57,7 +58,6 @@ namespace HyperSonicDrivers::drivers::westwood
 
         std::shared_ptr<files::westwood::ADLFile> m_adl_file = nullptr;
 
-        // TODO: replace with std::span
         std::shared_ptr<uint8_t[]> m_soundData = nullptr;
         uint32_t m_soundDataSize;
 

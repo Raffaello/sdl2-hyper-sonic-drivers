@@ -209,27 +209,22 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::dosbox
         // to match stereo AudioStream behavior.
         size_t length_ = length;
 
-        //if (type != OplType::OPL2)
-        if(_emulator->opl3Active)
-        {
-            length_ >>= 1;
-        }
-
         constexpr unsigned int bufferLength = 512;
         std::array<int32_t, bufferLength * 2> tempBuffer;
 
         if (_emulator->opl3Active)
         {
+            length_ >>= 1;
             while (length_ > 0)
             {
                 const unsigned int readSamples = std::min<unsigned int>(length_, bufferLength);
+                const unsigned int readSamples2 = (readSamples << 1);
 
                 _emulator->GenerateBlock3(readSamples, tempBuffer.data());
-
-                for (unsigned int i = 0; i < (readSamples << 1); ++i)
+                for (unsigned int i = 0; i < readSamples2; ++i)
                     buffer[i] = static_cast<int16_t>(tempBuffer[i]);
 
-                buffer += static_cast<int16_t>(readSamples << 1);
+                buffer += static_cast<int16_t>(readSamples2);
                 length_ -= readSamples;
             }
         }
