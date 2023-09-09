@@ -78,7 +78,7 @@ namespace HyperSonicDrivers::files
         case eFormat::IBM_FORMAT_ADPCM:
             //break;
         default:
-            throw std::invalid_argument("WAVFile: unknown or unsupported format " + std::to_string(static_cast<int>(m_fmt_chunk.format)) + " of file: " + _filename);
+            throw std::invalid_argument("WAVFile: unknown or unsupported format " + std::to_string(static_cast<int>(m_fmt_chunk.format)) + " of file: " + m_filename);
         }
 
         // fmt always before data chunk

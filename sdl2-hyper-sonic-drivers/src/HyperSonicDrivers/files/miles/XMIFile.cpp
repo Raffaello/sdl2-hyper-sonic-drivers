@@ -108,7 +108,7 @@ namespace HyperSonicDrivers::files::miles
                     break;
                 default:
                     std::string s(chunk.id.str, 4);
-                    throw std::invalid_argument("Not a valid XMI file: " + _filename + " (IFF_ID: " + s + ")");
+                    throw std::invalid_argument("Not a valid XMI file: " + m_filename + " (IFF_ID: " + s + ")");
                 }
             } while (chunk.id.id != eIFF_ID::ID_EVNT);
 
@@ -317,7 +317,7 @@ namespace HyperSonicDrivers::files::miles
         // sanity check
         if (offs != IFF_evnt.size)
         {
-            logW(std::format("Fileanme '{}' track {} length mismatch real length {}", _filename, IFF_evnt.size, offs));
+            logW(std::format("Fileanme '{}' track {} length mismatch real length {}", m_filename, IFF_evnt.size, offs));
         }
 
         if (!endTrack)
