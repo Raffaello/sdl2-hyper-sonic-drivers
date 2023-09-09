@@ -57,17 +57,13 @@ void scummvm_mid_test(const OplEmulator emu, const OplType type, const std::shar
 void mid_test(const OplEmulator emu, const OplType type, const std::shared_ptr<audio::IMixer>& mixer,
     const std::shared_ptr<audio::MIDI> midi)
 {
-    auto opl = OPLFactory::create(emu, type, mixer);
-    if (opl == nullptr)
-        return;
-
     const bool isOpl3 = type == OplType::OPL3;
     auto op2file = files::dmx::OP2File("GENMIDI.OP2");
     std::shared_ptr<drivers::midi::Device> midi_device;
     if (isOpl3)
-        midi_device = std::make_shared<drivers::midi::devices::SbPro2>(opl, op2file.getBank());
+        midi_device = std::make_shared<drivers::midi::devices::SbPro2>(mixer, op2file.getBank(), emu);
     else
-        midi_device = std::make_shared<drivers::midi::devices::Adlib>(opl, op2file.getBank());
+        midi_device = std::make_shared<drivers::midi::devices::Adlib>(mixer, op2file.getBank(), emu);
 
     drivers::MIDDriver midDrv(/*mixer,*/ midi_device);
 

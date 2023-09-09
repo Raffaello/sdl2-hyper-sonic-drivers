@@ -2,21 +2,11 @@
 
 namespace HyperSonicDrivers::drivers::midi::devices
 {
-    Adlib::Adlib(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank)
-        : Opl(opl, op2Bank)
-    {
-    }
-
-    Adlib::Adlib(const hardware::opl::OplEmulator emuType,
+    Adlib::Adlib(
         const std::shared_ptr<audio::IMixer>& mixer,
-        const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank)
-        : Opl(hardware::opl::OplType::OPL2, emuType, mixer, op2Bank)
-    {
-    }
-
-    Adlib::Adlib(const std::shared_ptr<audio::IMixer>& mixer,
-        const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank)
-        : Adlib(hardware::opl::OplEmulator::AUTO, mixer, op2Bank)
+        const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank,
+        const hardware::opl::OplEmulator emulator)
+        : Opl(hardware::opl::OplType::OPL2, emulator, mixer, op2Bank)
     {
     }
 }

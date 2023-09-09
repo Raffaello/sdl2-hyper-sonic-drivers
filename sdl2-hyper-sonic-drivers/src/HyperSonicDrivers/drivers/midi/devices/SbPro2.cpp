@@ -2,21 +2,11 @@
 
 namespace HyperSonicDrivers::drivers::midi::devices
 {
-    SbPro2::SbPro2(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank)
-        : Opl(opl, op2Bank)
-    {
-    }
-
-    SbPro2::SbPro2(const hardware::opl::OplEmulator emuType,
+    SbPro2::SbPro2(
         const std::shared_ptr<audio::IMixer>& mixer,
-        const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank)
-        : Opl(hardware::opl::OplType::OPL3, emuType, mixer, op2Bank)
-    {
-    }
-
-    SbPro2::SbPro2(const std::shared_ptr<audio::IMixer>& mixer,
-        const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank)
-        : SbPro2(hardware::opl::OplEmulator::AUTO, mixer, op2Bank)
+        const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank,
+        const hardware::opl::OplEmulator emulator)
+        : Opl(hardware::opl::OplType::OPL3, emulator, mixer, op2Bank)
     {
     }
 }

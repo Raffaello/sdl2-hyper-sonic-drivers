@@ -27,7 +27,7 @@ namespace HyperSonicDrivers::drivers::midi::devices
 
         // TODO review the constructors and use a load bank instead..
         /** @deprecated */
-        [[deprecated("use the other constructor that will create the Opl chip internally")]] explicit Opl(
+        [[deprecated("use the other constructor that creates the OPL chip internally")]] explicit Opl(
             const std::shared_ptr<hardware::opl::OPL>& opl,
             const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank);
 
@@ -36,7 +36,7 @@ namespace HyperSonicDrivers::drivers::midi::devices
             const hardware::opl::OplEmulator emuType,
             const std::shared_ptr<audio::IMixer>& mixer,
             const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank);
-        virtual ~Opl() = default;
+        ~Opl() override = default;
 
     private:
         std::shared_ptr<drivers::midi::opl::OplDriver> _oplDriver;

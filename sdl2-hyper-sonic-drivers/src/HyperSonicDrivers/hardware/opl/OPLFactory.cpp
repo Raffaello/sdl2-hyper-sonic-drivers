@@ -35,6 +35,7 @@ namespace HyperSonicDrivers::hardware::opl
                 //return std::make_shared<hardware::opl::mame::MameOPL>(mixer);
                 return nullptr;
             }
+            break;
         case OplEmulator::AUTO:
             [[fallthrough]];
         case OplEmulator::DOS_BOX:

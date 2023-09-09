@@ -17,7 +17,7 @@ namespace HyperSonicDrivers::drivers
         {
         public:
             Device() = default;
-            ~Device() = default;
+            virtual ~Device() = default;
 
             virtual void sendEvent(const audio::midi::MIDIEvent& e) const noexcept = 0;
             virtual void sendMessage(const uint8_t msg[], const uint8_t size) const noexcept = 0;

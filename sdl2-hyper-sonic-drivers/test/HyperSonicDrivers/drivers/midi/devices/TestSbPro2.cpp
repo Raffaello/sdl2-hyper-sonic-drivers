@@ -22,10 +22,7 @@ namespace HyperSonicDrivers::drivers::midi::devices
     {
         auto op2File = OP2File(GENMIDI_OP2);
         auto mixer = std::make_shared<StubMixer>();
-        auto opl = OPLFactory::create(OplEmulator::AUTO, OplType::OPL2, mixer);
-        EXPECT_NO_THROW(SbPro2(opl, op2File.getBank()));
-        opl = nullptr;
-        EXPECT_THROW(SbPro2(opl, op2File.getBank()), std::runtime_error);
+        EXPECT_NO_THROW(auto s = SbPro2(mixer, op2File.getBank()));
     }
 
     class SbPro2Emulator_ : public ::testing::TestWithParam<std::tuple<hardware::opl::OplEmulator, bool>>
@@ -41,12 +38,12 @@ namespace HyperSonicDrivers::drivers::midi::devices
     {
         if (this->shouldThrow) {
             EXPECT_THROW(
-                devices::SbPro2(this->oplEmu, this->mixer, this->op2File.getBank()),
+                devices::SbPro2(this->mixer, this->op2File.getBank(), this->oplEmu),
                 std::runtime_error
             );
         }
         else {
-            EXPECT_NO_THROW(devices::SbPro2(this->oplEmu, this->mixer, this->op2File.getBank()));
+            EXPECT_NO_THROW(devices::SbPro2(this->mixer, this->op2File.getBank(), this->oplEmu));
         }
     }
     INSTANTIATE_TEST_SUITE_P(
