@@ -10,15 +10,12 @@
 
 namespace HyperSonicDrivers::drivers::westwood
 {
-    // TODO: clean up the code,
-    //       instead of passing the file pass an AudioADL type returned from
-    //       the file itself
     // TODO: fix DosBox OPL3 not working
 
 
     /// <summary>
-    /// TODO: Works only with OPL2 emulator mostly.
-    /// TODO: This doesn't work with DOS_BOX in OPL3 mode
+    /// It works best with OPL2 emulator mostly.
+    /// NOTE: This doesn't work with DOS_BOX in OPL3 mode
     /// ------------------------------------------------------------
     /// Driver for .ADL files and OPL Chips
     /// Originally it should be the DUNE2 ALFX.DRV file
