@@ -422,7 +422,7 @@ int midi_adlib_mus_op2_file()
         if (opl.get() == nullptr)
             return -1;
 
-        auto adlib_midi = std::make_shared<drivers::midi::devices::Adlib>(opl, op2File->getBank());
+        auto adlib_midi = std::make_shared<drivers::midi::devices::Adlib>(mixer, op2File->getBank(), emu);
         drivers::MIDDriver midDrv(adlib_midi);
         //spdlog::info("playing midi (OPL2) D_E1M1.MUS...");
         midDrv.play(midi);
@@ -434,11 +434,7 @@ int midi_adlib_mus_op2_file()
             utils::delayMillis(1000);
     }
     {
-        
-        auto opl = OPLFactory::create(OplEmulator::DOS_BOX, OplType::OPL3, mixer);
-        if (opl.get() == nullptr)
-            return -1;
-        auto sbpro_midi = std::make_shared<drivers::midi::devices::SbPro2>(opl, op2File->getBank());
+        auto sbpro_midi = std::make_shared<drivers::midi::devices::SbPro2>(mixer, op2File->getBank(), emu);
         drivers::MIDDriver midDrv(sbpro_midi);
 
         //spdlog::info("playing midi (OPL3) D_E1M1.MUS...");
@@ -492,7 +488,7 @@ int midi_adlib_xmi()
     
     auto scumm_midi = std::make_shared<drivers::midi::devices::ScummVM>(opl, false);
     files::dmx::OP2File op2File("test/fixtures/GENMIDI.OP2");
-    auto opl_midi = std::make_shared<drivers::midi::devices::Adlib>(opl, op2File.getBank());
+    auto opl_midi = std::make_shared<drivers::midi::devices::Adlib>(mixer, op2File.getBank(), emu);
     //drivers::MIDDriver midDrv(mixer, scumm_midi);
     drivers::MIDDriver midDrv(opl_midi);
 

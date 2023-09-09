@@ -1,4 +1,5 @@
 #pragma once
+
 #include <HyperSonicDrivers/hardware/opl/EmulatedOPL.hpp>
 #include <HyperSonicDrivers/hardware/opl/scummvm/mame/mame.hpp>
 #include <HyperSonicDrivers/hardware/opl/Chip.hpp>
@@ -14,8 +15,6 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::mame
         std::array<hardware::opl::Chip, 2> _chip;
         hardware::opl::Chip::register_u _reg = { 0 };
 
-        // TODO: not used as it is OPL2
-        void dualWrite(const uint8_t index, const uint8_t reg, uint8_t val) noexcept;
     public:
         explicit MameOPL2(const OplType type, const std::shared_ptr<audio::IMixer>& mixer);
         ~MameOPL2() override;

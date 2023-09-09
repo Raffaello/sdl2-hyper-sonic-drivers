@@ -84,17 +84,20 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::dosbox
         else {
             // Ask the handler to write the address
             // Make sure to clip them in the right range
-            switch (type) {
+            switch (type)
+            {
             case OplType::OPL2:
                 _reg.normal = _emulator->WriteAddr(port, v) & 0xff;
                 break;
             case OplType::DUAL_OPL2:
                 // Not a 0x?88 port, when write to a specific side
-                if (!(port & 0x8)) {
+                if (!(port & 0x8))
+                {
                     uint8_t index = (port & 2) >> 1;
                     _reg.dual[index] = val & 0xff;
                 }
-                else {
+                else
+                {
                     _reg.dual[0] = val & 0xff;
                     _reg.dual[1] = val & 0xff;
                 }
@@ -205,28 +208,30 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::dosbox
         // For stereo OPL cards, we divide the sample count by 2,
         // to match stereo AudioStream behavior.
         size_t length_ = length;
-        if (type != OplType::OPL2) {
-            length_ >>= 1;
-        }
 
         constexpr unsigned int bufferLength = 512;
         std::array<int32_t, bufferLength * 2> tempBuffer;
 
-        if (_emulator->opl3Active) {
-            while (length_ > 0) {
+        if (_emulator->opl3Active)
+        {
+            length_ >>= 1;
+            while (length_ > 0)
+            {
                 const unsigned int readSamples = std::min<unsigned int>(length_, bufferLength);
+                const unsigned int readSamples2 = (readSamples << 1);
 
                 _emulator->GenerateBlock3(readSamples, tempBuffer.data());
-
-                for (unsigned int i = 0; i < (readSamples << 1); ++i)
+                for (unsigned int i = 0; i < readSamples2; ++i)
                     buffer[i] = static_cast<int16_t>(tempBuffer[i]);
 
-                buffer += static_cast<int16_t>(readSamples << 1);
+                buffer += static_cast<int16_t>(readSamples2);
                 length_ -= readSamples;
             }
         }
-        else {
-            while (length_ > 0) {
+        else
+        {
+            while (length_ > 0)
+            {
                 const unsigned int readSamples = std::min<unsigned int>(length_, bufferLength << 1);
 
                 _emulator->GenerateBlock2(readSamples, tempBuffer.data());

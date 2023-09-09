@@ -7,15 +7,15 @@
 
 namespace HyperSonicDrivers::drivers::midi::devices
 {
-    class Adlib : public Opl
+    class SbPro : public Opl
     {
     public:
-        explicit Adlib(
+        explicit SbPro(
             const std::shared_ptr<audio::IMixer>& mixer,
             const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank,
             const hardware::opl::OplEmulator emulator = hardware::opl::OplEmulator::AUTO);
 
-        ~Adlib() override = default;
+        ~SbPro() override = default;
 
         //void loadBankOP2();
     };

@@ -152,6 +152,14 @@ macro_test(
 )
 
 macro_test(
+    EXE TestSbPro
+    FILES "drivers/midi/devices/TestSbPro.cpp"
+    LINKS_PRIVATE hyper-sonic-drivers-static
+    FIXTURES
+        "../fixtures/GENMIDI.OP2"
+)
+
+macro_test(
     EXE TestSbPro2
     FILES "drivers/midi/devices/TestSbPro2.cpp"
     LINKS_PRIVATE hyper-sonic-drivers-static

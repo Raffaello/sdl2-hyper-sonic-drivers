@@ -22,17 +22,21 @@ namespace HyperSonicDrivers::drivers::midi::devices
         //void loadBankOP2();
     protected:
         // NOTE/TODO: it shouldn't use a shared_ptr for OPL emulator, but it should have ownership of the OPL.
-        //            So it would be better that the Opl Device is creating is own hardware::opl emulator to use.
+        //            So it would be better that the Opl Device is creating its own hardware::opl emulator to use.
         // At the moment i don't see any reason why the OPL should be shared outside the "device" ...
 
         // TODO review the constructors and use a load bank instead..
         /** @deprecated */
-        explicit Opl(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank);
-        explicit Opl(const hardware::opl::OplType type,
+        [[deprecated("use the other constructor that creates the OPL chip internally")]] explicit Opl(
+            const std::shared_ptr<hardware::opl::OPL>& opl,
+            const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank);
+
+        explicit Opl(
+            const hardware::opl::OplType type,
             const hardware::opl::OplEmulator emuType,
             const std::shared_ptr<audio::IMixer>& mixer,
             const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank);
-        virtual ~Opl() = default;
+        ~Opl() override = default;
 
     private:
         std::shared_ptr<drivers::midi::opl::OplDriver> _oplDriver;

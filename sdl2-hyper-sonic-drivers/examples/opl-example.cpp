@@ -251,6 +251,10 @@ bool detect_opl3(const OplEmulator emu, const OplType type, std::shared_ptr<audi
 int main(int argc, char* argv[])
 {
     auto mixer = audio::make_mixer<audio::sdl2::Mixer>(8, 44100, 1024);
+    if (!mixer->init())
+    {
+        spdlog::error("can't init mixer");
+    }
 
     std::map<OplEmulator, std::string> emus = {
         { OplEmulator::DOS_BOX, "DOS_BOX" },
@@ -274,30 +278,38 @@ int main(int argc, char* argv[])
                              fmt::color::lime_green,  fmt::color::blue_violet, fmt::color::indian_red }) {
                 spdlog::info(fmt::format(fg(c), m, emu.second, type.second));
             }
-            // by default all are OPL2 compatible,
-            // so this value should be always be true.
-            bool opl2 = detect_opl2(emu.first, type.first, mixer);
-            // only OPL3 should be true, maybe DUAL_OPL2 as well?
-            bool opl3 = detect_opl3(emu.first, type.first, mixer);
-
-            std::string msg;
-
-            msg = fmt::format("detect opl2: {}", opl2);
-            if (opl2) spdlog::info(msg);
-            else spdlog::error(msg);
-
-            msg = fmt::format("detect opl3: {}", opl3);
-            if (type.first == OplType::OPL3)
+            try
             {
-                if (opl3) spdlog::info(msg);
-                else spdlog::error(msg);
-            }
-            else {
-                if (!opl3) spdlog::info(msg);
-                else spdlog::error(msg);
-            }
+                // by default all are OPL2 compatible,
+                // so this value should be always be true.
+                const bool opl2 = detect_opl2(emu.first, type.first, mixer);
+                // only OPL3 should be true, maybe DUAL_OPL2 as well?
+                const bool opl3 = detect_opl3(emu.first, type.first, mixer);
 
-            opl_test(emu.first, type.first, mixer);
+                std::string msg;
+
+                msg = fmt::format("detect opl2: {}", opl2);
+                if (opl2) spdlog::info(msg);
+                else spdlog::error(msg);
+
+                msg = fmt::format("detect opl3: {}", opl3);
+                if (type.first == OplType::OPL3)
+                {
+                    if (opl3) spdlog::info(msg);
+                    else spdlog::error(msg);
+                }
+                else {
+                    if (!opl3) spdlog::info(msg);
+                    else spdlog::error(msg);
+                }
+
+
+                opl_test(emu.first, type.first, mixer);
+            }
+            catch (const std::exception& e)
+            {
+                spdlog::default_logger()->error(e.what());
+            }
         }
     }
 

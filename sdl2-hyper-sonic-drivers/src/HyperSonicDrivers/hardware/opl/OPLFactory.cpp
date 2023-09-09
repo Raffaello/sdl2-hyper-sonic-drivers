@@ -16,8 +16,8 @@ namespace HyperSonicDrivers::hardware::opl
     using utils::logE;
 
     std::shared_ptr<OPL> OPLFactory::create(
-        OplEmulator oplEmulator,
-        OplType type,
+        const OplEmulator oplEmulator,
+        const OplType type,
         const std::shared_ptr<audio::IMixer>& mixer)
     {
         switch (oplEmulator)
@@ -32,9 +32,10 @@ namespace HyperSonicDrivers::hardware::opl
                 return nullptr;
             case OplType::OPL3:
                 logW("MameOPL3 not working yet.");
-                //return std::make_shared<hardware::opl::mame::MameOPL>(mixer);
+                //return std::make_shared<hardware::opl::mame::MameOPL3>(type, mixer);
                 return nullptr;
             }
+            break;
         case OplEmulator::AUTO:
             [[fallthrough]];
         case OplEmulator::DOS_BOX:

@@ -10,21 +10,12 @@
 
 namespace HyperSonicDrivers::drivers::westwood
 {
-    // TODO: clean up the code,
-    //       instead of passing the file pass an AudioADL type returned from
-    //       the file itself
-    // TODO: fix DosBox OPL3 not working
-
-
     /// <summary>
-    /// TODO: Works only with OPL2 emulator mostly.
-    /// TODO: This doesn't work with DOS_BOX in OPL3 mode
-    /// ------------------------------------------------------------
     /// Driver for .ADL files and OPL Chips
     /// Originally it should be the DUNE2 ALFX.DRV file
     /// (and PCSOUND.DRV instead for fx)
-    /// This file was propretary for optimized Westwood .ADL files
-    /// and they were not using Miles driver for musics in OPL Chips
+    /// This file was proprietary for optimized Westwood .ADL files
+    /// and they were not using Miles driver for music in OPL Chips
     /// as those were only for .XMI files and only used for MT-32/GM
     /// ------------------------------------------------------------
     /// AdLib implementation of the sound output device (OPL2).
@@ -39,7 +30,10 @@ namespace HyperSonicDrivers::drivers::westwood
     class ADLDriver
     {
     public:
-        ADLDriver(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<files::westwood::ADLFile>& adl_file);
+        [[deprecated]]
+        explicit ADLDriver(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<files::westwood::ADLFile>& adl_file);
+        // NOTE: midi:devices:Adlib, it should receive devices::Adlib instead of OPL, but those are working only with MIDDriver
+        //explicit ADLDriver(const midi::devices::Adlib& opl, const std::shared_ptr<files::westwood::ADLFile>& adl_file);
         virtual ~ADLDriver();
         void setADLFile(const std::shared_ptr<files::westwood::ADLFile>& adl_file) noexcept;
 
@@ -60,10 +54,10 @@ namespace HyperSonicDrivers::drivers::westwood
         void initDriver();
         void startSound(const int track, const int volume);
 
-        std::shared_ptr<files::westwood::ADLFile> _adl_file = nullptr;
+        std::shared_ptr<files::westwood::ADLFile> m_adl_file = nullptr;
 
-        std::shared_ptr<uint8_t[]> _soundData = nullptr;
-        uint32_t _soundDataSize;
+        std::shared_ptr<uint8_t[]> m_soundData = nullptr;
+        uint32_t m_soundDataSize;
 
         // The sound data has two lookup tables:
         uint8_t* getProgram(const int progId);
@@ -253,7 +247,7 @@ namespace HyperSonicDrivers::drivers::westwood
         uint8_t _opExtraLevel1BD;
         uint8_t _opExtraLevel2BD;
 
-        std::shared_ptr<hardware::opl::OPL> _opl;
+        std::shared_ptr<hardware::opl::OPL> m_opl;
 
         struct QueueEntry
         {
@@ -274,7 +268,7 @@ namespace HyperSonicDrivers::drivers::westwood
         int _sfxPriority;
         int _sfxVelocity;
 
-        Channel _channels[10];
+        std::array<Channel, 10>  m_channels;
 
         uint8_t _vibratoAndAMDepthBits;
         uint8_t _rhythmSectionBits;
@@ -296,12 +290,12 @@ namespace HyperSonicDrivers::drivers::westwood
 
         uint16_t _syncJumpMask;
 
-        std::mutex _mutex;
+        mutable std::mutex m_mutex;
 
-        uint8_t _musicVolume;
-        uint8_t _sfxVolume;
+        uint8_t m_musicVolume;
+        uint8_t m_sfxVolume;
 
         // Version 1,2,3 possible values, version 3&4 merged into version 3
-        uint8_t _version = 0;
+        uint8_t m_version = 0;
     };
 }

@@ -29,24 +29,25 @@ namespace HyperSonicDrivers::hardware::opl::mame
     }
     bool MameOPL3::init()
     {
-        _init = _opl != nullptr;
-        if (_init) {
+        if (_init)
+        {
             return true;
         }
 
         _opl = new ymfm::ymf262(_ymfm);
 
-        //auto rate = _opl->sample_rate(OPL3_INTERNAL_FREQ);
-        //_opl->sample_rate(_mixer->getOutputRate());
+        auto rate = _opl->sample_rate(OPL3_INTERNAL_FREQ);
+        _opl->sample_rate(m_mixer->getOutputRate());
 
         _chip = ymf262_init(0, OPL3_INTERNAL_FREQ, m_mixer->getOutputRate());
-        _init = _opl != nullptr;
+        //_init = _opl != nullptr;
+        _init = _chip != nullptr;
 
         return _init;
     }
     void MameOPL3::reset()
     {
-        _opl->reset();
+        //_opl->reset();
         ymf262_reset_chip(_chip);
     }
     void MameOPL3::write(const uint32_t port, const uint16_t val) noexcept
@@ -54,21 +55,21 @@ namespace HyperSonicDrivers::hardware::opl::mame
         // ???
         //_opl->write_address(a);
         //_opl->write_data(v);
-        _opl->write(port, val);
+        //_opl->write(port, val);
 
-        //ymf262_write(_chip, port, val);
+        ymf262_write(_chip, port, val);
     }
     uint8_t MameOPL3::read(const uint32_t port) noexcept
     {
-        return _opl->read(port);
+        //return _opl->read(port);
 
-        //return ymf262_read(_chip, a);
+        return ymf262_read(_chip, port);
     }
 
     void MameOPL3::writeReg(const uint16_t r, const uint16_t v) noexcept
     {
-        _opl->write(0, r);
-        _opl->write(1, v);
+        //_opl->write(0, r);
+        //_opl->write(1, v);
 
         ymf262_write(_chip, 0, r);
         ymf262_write(_chip, 1, v);
@@ -78,9 +79,10 @@ namespace HyperSonicDrivers::hardware::opl::mame
     {
         constexpr int MAX_SIZE = 512;
         ymfm::ymf262::output_data b[MAX_SIZE];
-        int remaining = length * 2 / _opl->OUTPUTS;
+        //int remaining = length * 2 / _opl->OUTPUTS;
+        int remaining = length;
 
-        int16_t buf[4][512];
+        int16_t buf[4][MAX_SIZE];
         int16_t* buffers[4] = { buf[0], buf[1], buf[2], buf[3] };
 
         std::memset(buffer, 0, length * sizeof(int16_t));
@@ -88,19 +90,19 @@ namespace HyperSonicDrivers::hardware::opl::mame
         {
             const int numSamples = std::min(remaining, MAX_SIZE);
             // or using _opl object or the c api yaml262_* functions.
-            _opl->generate(b, numSamples);
+            //_opl->generate(b, numSamples);
 
             ymf262_update_one(_chip, buffers, numSamples);
             //Interleave the samples before mixing
             for (int i = 0; i < numSamples; i++) {
-                //buffer[i * 2] = buffers[0][i];
-                //buffer[i * 2 + 1] = buffers[1][i];
-                //buffer[i * 4 + 2] = buffers[2][i];
-                //buffer[i * 4 + 3] = buffers[3][i];
+                buffer[i * 2] = buffers[0][i];
+                buffer[i * 2 + 1] = buffers[1][i];
+                buffer[i * 4 + 2] = buffers[2][i];
+                buffer[i * 4 + 3] = buffers[3][i];
 
 
-                buffer[i + 0] = b[i].data[0];
-                buffer[i * 2 + 1] = b[i].data[1];
+                //buffer[i + 0] = b[i].data[0];
+                //buffer[i * 2 + 1] = b[i].data[1];
                 //buffer[i * 2 + 2] = b[i].data[2] * 128;
                 //buffer[i * 2 + 3] = b[i].data[3] * 128;
 
@@ -122,13 +124,13 @@ namespace HyperSonicDrivers::hardware::opl::mame
             //    buffer[i*2] = b[i].data[0];
             //    buffer[i*2 + 1] = b[i].data[1];
             //    auto a = b[i];
-            //    if (a.data[0] != 0 ||
-            //        a.data[1] != 0 ||
-            //        a.data[2] != 0 ||
-            //        a.data[3] != 0)
-            //    {
-            //        //spdlog::info("MameOPL: b[{}]= [ {}, {}, {}, {} ]", i, a.data[0], a.data[1], a.data[2], a.data[3]);
-            //    }
+            //    //if (a.data[0] != 0 ||
+            //    //    a.data[1] != 0 ||
+            //    //    a.data[2] != 0 ||
+            //    //    a.data[3] != 0)
+            //    //{
+            //    //    //spdlog::info("MameOPL: b[{}]= [ {}, {}, {}, {} ]", i, a.data[0], a.data[1], a.data[2], a.data[3]);
+            //    //}
             //}
 
             remaining -= numSamples;

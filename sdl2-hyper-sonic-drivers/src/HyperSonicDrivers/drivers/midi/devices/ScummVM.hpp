@@ -12,13 +12,16 @@ namespace HyperSonicDrivers::drivers::midi::devices
     /**
      * @brief Wrapper around ScummVM MidiDriver (MidiDriver_ADLIB)
      * At the moment support only OPL
-     * Better rename to OPL?
+     * TODO: this is more a driver than a device...
+     * TODO: MI.MID percussions sounds not right
     */
-    class ScummVM : public Device
+    class [[deprecated]] ScummVM : public Device
     {
     public:
+        [[deprecated]]
         explicit ScummVM(const std::shared_ptr<hardware::opl::OPL>& opl, const bool opl3mode);
-        ~ScummVM();
+
+        ~ScummVM() override;
 
         void sendEvent(const audio::midi::MIDIEvent& e) const noexcept override;
         void sendMessage(const uint8_t msg[], const uint8_t size) const noexcept override;
