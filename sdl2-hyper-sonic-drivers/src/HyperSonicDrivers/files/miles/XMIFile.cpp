@@ -47,7 +47,7 @@ namespace HyperSonicDrivers::files::miles
     //             UBYTE <MIDI event>(if > 127) } ...
     //         } ...
     // }
-    XMIFile::XMIFile(const std::string& filename) : IFFFile(filename)
+    XMIFile::XMIFile(const std::string& filename) : IFFFile(filename), File(filename)
     {
         uint16_t num_tracks = 0;
         IFF_chunk_header_t header;

@@ -134,7 +134,7 @@ namespace HyperSonicDrivers::files
        ID_FILLER = utils::MKID_BE(0, 0, 0, 0)
     };
 
-    class IFFFile : public File
+    class IFFFile : public virtual File
     {
     public:
         IFFFile(const std::string& filename);
