@@ -79,7 +79,8 @@ namespace HyperSonicDrivers::drivers::westwood
 
     void ADLDriver::setADLFile(const std::shared_ptr<files::westwood::ADLFile>& adl_file) noexcept
     {
-        const std::lock_guard<std::mutex> lock(m_mutex);
+        const std::scoped_lock lock(m_mutex);
+        
 
         m_adl_file = adl_file;
         m_version = m_adl_file->getVersion();
@@ -96,14 +97,14 @@ namespace HyperSonicDrivers::drivers::westwood
 
     void ADLDriver::initDriver()
     {
-        const std::lock_guard<std::mutex> lock(m_mutex);
+        const std::scoped_lock lock(m_mutex);
 
         resetAdLibState();
     }
 
     void ADLDriver::startSound(const int track, const int volume)
     {
-        const std::lock_guard<std::mutex> lock(m_mutex);
+        const std::scoped_lock lock(m_mutex);
 
         uint8_t* trackData = getProgram(track);
         if (trackData == nullptr) {
@@ -125,7 +126,7 @@ namespace HyperSonicDrivers::drivers::westwood
 
     bool ADLDriver::isChannelPlaying(const int channel)
     {
-        const std::lock_guard<std::mutex> lock(m_mutex);
+        const std::scoped_lock lock(m_mutex);
 
         assert(channel >= 0 && channel <= NUM_CHANNELS);
         return (m_channels[channel].dataptr != nullptr);
@@ -133,7 +134,7 @@ namespace HyperSonicDrivers::drivers::westwood
 
     void ADLDriver::stopAllChannels()
     {
-        const std::lock_guard<std::mutex> lock(m_mutex);
+        const std::scoped_lock lock(m_mutex);
 
         for (int channel = 0; channel <= 9; ++channel) {
             _curChannel = channel;
@@ -169,7 +170,7 @@ namespace HyperSonicDrivers::drivers::westwood
     // can synchronize on.
     void ADLDriver::callback()
     {
-        const std::lock_guard<std::mutex> lock(m_mutex);
+        const std::scoped_lock lock(m_mutex);
 
         if (_programStartTimeout)
             --_programStartTimeout;
@@ -192,7 +193,7 @@ namespace HyperSonicDrivers::drivers::westwood
 
     void ADLDriver::setMusicVolume(const uint8_t volume)
     {
-        const std::lock_guard<std::mutex> lock(m_mutex);
+        const std::scoped_lock lock(m_mutex);
 
         m_musicVolume = volume;
 
@@ -236,7 +237,7 @@ namespace HyperSonicDrivers::drivers::westwood
         if (m_version < 3)
             return;
 
-        const std::lock_guard<std::mutex> lock(m_mutex);
+        const std::scoped_lock lock(m_mutex);
 
         m_sfxVolume = volume;
 
