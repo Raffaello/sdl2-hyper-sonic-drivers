@@ -208,6 +208,7 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::dosbox
         // For stereo OPL cards, we divide the sample count by 2,
         // to match stereo AudioStream behavior.
         size_t length_ = length;
+
         //if (type != OplType::OPL2)
         if(_emulator->opl3Active)
         {
