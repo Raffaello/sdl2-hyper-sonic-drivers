@@ -60,7 +60,6 @@ namespace HyperSonicDrivers::drivers::westwood
         void initDriver();
         void startSound(const int track, const int volume);
 
-        //std::unique_ptr<drivers::opl::OplWriter> m_oplWriter;
         std::shared_ptr<files::westwood::ADLFile> m_adl_file = nullptr;
 
         // TODO: replace with std::span
