@@ -13,6 +13,9 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::nuked
 
     bool NukedOPL::init()
     {
+        if (_init)
+            return true;
+
         memset(&_reg, 0, sizeof(_reg));
         _rate = m_mixer->getOutputRate();
         OPL3_Reset(chip.get(), _rate);

@@ -6,7 +6,7 @@
 #include <mutex>
 #include <HyperSonicDrivers/hardware/opl/OPL.hpp>
 #include <HyperSonicDrivers/files/westwood/ADLFile.hpp>
-#include <HyperSonicDrivers/drivers/opl/OplWriter.hpp>
+//#include <HyperSonicDrivers/drivers/opl/OplWriter.hpp>
 
 
 namespace HyperSonicDrivers::drivers::westwood
@@ -61,7 +61,7 @@ namespace HyperSonicDrivers::drivers::westwood
         void initDriver();
         void startSound(const int track, const int volume);
 
-        std::unique_ptr<drivers::opl::OplWriter> m_oplWriter;
+        //std::unique_ptr<drivers::opl::OplWriter> m_oplWriter;
         std::shared_ptr<files::westwood::ADLFile> m_adl_file = nullptr;
 
         // TODO: replace with std::span
@@ -131,7 +131,7 @@ namespace HyperSonicDrivers::drivers::westwood
         void secondaryEffect1(Channel& channel);
 
         void resetAdLibState();
-        void writeOPL_(uint8_t reg, uint8_t val);
+        void writeOPL(uint8_t reg, uint8_t val);
         void initChannel(Channel& channel);
         void noteOff(Channel& channel);
         void initAdlibChannel(uint8_t num);

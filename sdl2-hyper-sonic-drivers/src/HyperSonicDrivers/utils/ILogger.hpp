@@ -4,6 +4,8 @@
 #include <format>
 #include <source_location>
 #include <functional>
+#include <type_traits>
+#include <typeinfo>
 
 namespace HyperSonicDrivers::utils
 {
@@ -61,12 +63,22 @@ namespace HyperSonicDrivers::utils
         //eLevel m_level = eLevel::INFO;
     };
 
+    template<class T>
+    std::string logMsg_(T loc, const std::string& msg)
+    {
+        if constexpr (std::is_pointer_v<T>)
+        {
+            return std::format("[{}::{}] {}", typeid(T).name(), __func__, msg);
+        } else
+            return std::format("[{}] {}", loc.function_name(), msg).c_str();
+    }
+
     constexpr void logT(const std::string& msg,
         const ILogger::eCategory cat = ILogger::eCategory::Audio,
         const std::source_location& loc =
         std::source_location::current())
     {
-        ILogger::instance->trace(std::format("[{}] {}", loc.function_name(), msg), cat);
+        ILogger::instance->trace(logMsg_(loc, msg), cat);
     }
 
     constexpr void logD(const std::string& msg,
@@ -74,7 +86,7 @@ namespace HyperSonicDrivers::utils
         const std::source_location& loc =
         std::source_location::current())
     {
-        ILogger::instance->debug(std::format("[{}] {}", loc.function_name(), msg), cat);
+        ILogger::instance->debug(logMsg_(loc, msg), cat);
     }
 
     constexpr void logI(const std::string& msg,
@@ -82,7 +94,14 @@ namespace HyperSonicDrivers::utils
         const std::source_location& loc =
         std::source_location::current())
     {
-        ILogger::instance->info(std::format("[{}] {}", loc.function_name(), msg), cat);
+        ILogger::instance->info(logMsg_(loc, msg), cat);
+    }
+
+    constexpr void logI(const std::string& msg,
+        const void* this_,
+        const ILogger::eCategory cat = ILogger::eCategory::Audio)
+    {
+        ILogger::instance->info(logMsg_(this_, msg), cat);
     }
 
     constexpr void logW(const std::string& msg,
@@ -90,7 +109,14 @@ namespace HyperSonicDrivers::utils
         const std::source_location& loc =
         std::source_location::current())
     {
-        ILogger::instance->warning(std::format("[{}] {}", loc.function_name(), msg), cat);
+        ILogger::instance->warning(logMsg_(loc, msg), cat);
+    }
+
+    constexpr void logW(const std::string& msg,
+        const void* this_,
+        const ILogger::eCategory cat = ILogger::eCategory::Audio)
+    {
+        ILogger::instance->warning(logMsg_(this_, msg), cat);
     }
 
     constexpr void logE(const std::string& msg,
@@ -98,7 +124,7 @@ namespace HyperSonicDrivers::utils
         const std::source_location& loc =
         std::source_location::current())
     {
-        ILogger::instance->error(std::format("[{}] {}", loc.function_name(), msg), cat);
+        ILogger::instance->error(logMsg_(loc, msg), cat);
     }
 
     constexpr void logC(const std::string& msg,
@@ -106,7 +132,7 @@ namespace HyperSonicDrivers::utils
         const std::source_location& loc =
         std::source_location::current())
     {
-        ILogger::instance->critical(std::format("[{}] {}", loc.function_name(), msg), cat);
+        ILogger::instance->critical(logMsg_(loc, msg), cat);
     }
 
     template<class e>
