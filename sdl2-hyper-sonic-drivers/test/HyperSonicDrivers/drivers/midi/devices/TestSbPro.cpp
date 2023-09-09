@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include <HyperSonicDrivers/drivers/midi/devices/SbPro2.hpp>
+#include <HyperSonicDrivers/drivers/midi/devices/SbPro.hpp>
 #include <HyperSonicDrivers/drivers/MIDDriverMock.hpp>
 #include <HyperSonicDrivers/audio/stubs/StubMixer.hpp>
 #include <HyperSonicDrivers/hardware/opl/OplEmulator.hpp>
@@ -18,11 +18,11 @@ namespace HyperSonicDrivers::drivers::midi::devices
 
     const std::string GENMIDI_OP2 = std::string("../fixtures/GENMIDI.OP2");
 
-    TEST(SbPro2, cstor_)
+    TEST(SbPro, cstor_)
     {
         auto op2File = OP2File(GENMIDI_OP2);
         auto mixer = std::make_shared<StubMixer>();
-        EXPECT_NO_THROW(auto s = SbPro2(mixer, op2File.getBank()));
+        EXPECT_NO_THROW(auto s = SbPro(mixer, op2File.getBank()));
     }
 
     class SbPro2Emulator_ : public ::testing::TestWithParam<std::tuple<hardware::opl::OplEmulator, bool>>
@@ -38,31 +38,31 @@ namespace HyperSonicDrivers::drivers::midi::devices
     {
         if (this->shouldThrow) {
             EXPECT_THROW(
-                devices::SbPro2(this->mixer, this->op2File.getBank(), this->oplEmu),
+                devices::SbPro(this->mixer, this->op2File.getBank(), this->oplEmu),
                 std::runtime_error
             );
         }
         else {
-            EXPECT_NO_THROW(devices::SbPro2(this->mixer, this->op2File.getBank(), this->oplEmu));
+            EXPECT_NO_THROW(devices::SbPro(this->mixer, this->op2File.getBank(), this->oplEmu));
         }
     }
     INSTANTIATE_TEST_SUITE_P(
-        SbPro2,
+        SbPro,
         SbPro2Emulator_,
         ::testing::Values(
             std::make_tuple<>(OplEmulator::AUTO, false),
             std::make_tuple<>(OplEmulator::DOS_BOX, false),
             std::make_tuple<>(OplEmulator::MAME, true),
-            std::make_tuple<>(OplEmulator::WOODY, true),
+            std::make_tuple<>(OplEmulator::WOODY, false),
             std::make_tuple<>(OplEmulator::NUKED, false)
         )
     );
 
-    TEST(SbPro2, cstr_AUTO)
+    TEST(SbPro, cstr_AUTO)
     {
         auto op2File = OP2File(GENMIDI_OP2);
         auto mixer = std::make_shared<StubMixer>();
-        EXPECT_NO_THROW(SbPro2(mixer, op2File.getBank()));
+        EXPECT_NO_THROW(SbPro(mixer, op2File.getBank()));
     }
 }
 

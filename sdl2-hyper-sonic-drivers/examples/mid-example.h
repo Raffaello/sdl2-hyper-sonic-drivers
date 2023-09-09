@@ -6,6 +6,7 @@
 #include <HyperSonicDrivers/drivers/midi/devices/Native.hpp>
 #include <HyperSonicDrivers/drivers/midi/devices/ScummVM.hpp>
 #include <HyperSonicDrivers/drivers/midi/devices/Adlib.hpp>
+#include <HyperSonicDrivers/drivers/midi/devices/SbPro.hpp>
 #include <HyperSonicDrivers/drivers/midi/devices/SbPro2.hpp>
 #include <HyperSonicDrivers/drivers/midi/Device.hpp>
 
@@ -13,6 +14,7 @@
 
 #include <HyperSonicDrivers/hardware/opl/OPLFactory.hpp>
 #include <HyperSonicDrivers/utils/algorithms.hpp>
+#include <std/OplTypeFormatter.hpp>
 
 #include <memory>
 #include <spdlog/spdlog.h>
@@ -57,17 +59,27 @@ void scummvm_mid_test(const OplEmulator emu, const OplType type, const std::shar
 void mid_test(const OplEmulator emu, const OplType type, const std::shared_ptr<audio::IMixer>& mixer,
     const std::shared_ptr<audio::MIDI> midi)
 {
-    const bool isOpl3 = type == OplType::OPL3;
     auto op2file = files::dmx::OP2File("GENMIDI.OP2");
     std::shared_ptr<drivers::midi::Device> midi_device;
-    if (isOpl3)
-        midi_device = std::make_shared<drivers::midi::devices::SbPro2>(mixer, op2file.getBank(), emu);
-    else
+    switch (type)
+    {
+        using enum OplType;
+    case OPL2:
         midi_device = std::make_shared<drivers::midi::devices::Adlib>(mixer, op2file.getBank(), emu);
+        break;
+    case DUAL_OPL2:
+        midi_device = std::make_shared<drivers::midi::devices::SbPro>(mixer, op2file.getBank(), emu);
+        break;
+    case OPL3:
+        midi_device = std::make_shared<drivers::midi::devices::SbPro2>(mixer, op2file.getBank(), emu);
+        break;
+    default:
+        throw std::runtime_error("?");
+    }
 
     drivers::MIDDriver midDrv(/*mixer,*/ midi_device);
 
-    spdlog::info("playing midi OPL3={}...", isOpl3);
+    spdlog::info(std::format("playing midi (OPL type={})...", type));
     mid_test_run(midDrv, midi);
 }
 
@@ -118,10 +130,11 @@ int run(const std::shared_ptr<audio::MIDI>& midi, const bool use_opldrv)
     {
         for (const auto& type : types)
         {
-            try {
-                for (const auto& c : colors) {
+            try
+            {
+                for (const auto& c : colors)
                     spdlog::info(fmt::format(fg(c), m, emu.second, type.second));
-                }
+
                 if (use_opldrv)
                     mid_test(emu.first, type.first, mixer, midi);
                 else
