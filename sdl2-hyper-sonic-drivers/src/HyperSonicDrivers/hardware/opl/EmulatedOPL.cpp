@@ -86,8 +86,9 @@ namespace HyperSonicDrivers::hardware::opl
             false
         );
 
-        if (!m_channel_id.has_value())
+        if (!m_channel_id.has_value()) {
             utils::logC("can't start opl playback");
+        }
     }
 
     void EmulatedOPL::stopCallbacks()

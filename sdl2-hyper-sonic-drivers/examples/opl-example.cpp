@@ -251,6 +251,10 @@ bool detect_opl3(const OplEmulator emu, const OplType type, std::shared_ptr<audi
 int main(int argc, char* argv[])
 {
     auto mixer = audio::make_mixer<audio::sdl2::Mixer>(8, 44100, 1024);
+    if (!mixer->init())
+    {
+        spdlog::error("can't init mixer");
+    }
 
     std::map<OplEmulator, std::string> emus = {
         { OplEmulator::DOS_BOX, "DOS_BOX" },
