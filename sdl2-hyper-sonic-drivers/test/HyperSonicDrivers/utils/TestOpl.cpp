@@ -10,7 +10,6 @@
 
 namespace HyperSonicDrivers::utils
 {
-    // NOTE: Only DOS_BOX OPL Emulator is detected correctly as a normal OPL chip.
     // NOTE: Disabled due to CI Linux and Mac
 
     using hardware::opl::OPL;

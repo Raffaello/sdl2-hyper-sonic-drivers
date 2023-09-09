@@ -16,8 +16,6 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::mame
         EXPECT_EQ(mixer.use_count(), 1);
         MameOPL2 mame(OplType::OPL2, mixer);
         EXPECT_EQ(mixer.use_count(), 2);
-        //EXPECT_EQ(mame.getRate(), mixer->rate);
-        //EXPECT_EQ(mame.endOfData(), false);
         EXPECT_EQ(mame.isStereo(), false);
     }
 
@@ -25,7 +23,7 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::mame
     {
         std::shared_ptr<StubMixer> mixer = std::make_shared<StubMixer>();
         EXPECT_EQ(mixer.use_count(), 1);
-        EXPECT_THROW(MameOPL2 mame(OplType::OPL3, mixer), std::runtime_error);
+        EXPECT_THROW(MameOPL2 mame(OplType::OPL3, mixer), std::invalid_argument);
     }
 
     TEST(MameOPL2, share_ptrDefault)
@@ -36,8 +34,6 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::mame
         std::shared_ptr<MameOPL2> mame = std::make_shared<MameOPL2>(OplType::OPL2, mixer);
         EXPECT_EQ(mixer.use_count(), 2);
         EXPECT_EQ(mame.use_count(), 1);
-        //EXPECT_EQ(mame->getRate(), mixer->rate);
-        //EXPECT_EQ(mame->endOfData(), false);
         EXPECT_EQ(mame->isStereo(), false);
     }
 
