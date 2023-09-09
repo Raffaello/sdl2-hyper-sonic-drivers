@@ -7,14 +7,17 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::mame
     MameOPL2::MameOPL2(const OplType type, const std::shared_ptr<audio::IMixer>& mixer)
         : EmulatedOPL(type, mixer)
     {
-        if (type != OplType::OPL2) {
-            throw std::runtime_error("ScummVM::MAME only support OPL2");
+        if (type != OplType::OPL2)
+        {
+            throw std::runtime_error("MameOPL2 only support OPL2");
         }
     }
 
-    MameOPL2::~MameOPL2() {
+    MameOPL2::~MameOPL2()
+    {
         stop();
-        OPLDestroy(_opl);
+        if(_opl != nullptr)
+            OPLDestroy(_opl);
         _opl = nullptr;
     }
 

@@ -32,7 +32,7 @@ namespace HyperSonicDrivers::hardware::opl
                 return nullptr;
             case OplType::OPL3:
                 logW("MameOPL3 not working yet.");
-                //return std::make_shared<hardware::opl::mame::MameOPL>(mixer);
+                //return std::make_shared<hardware::opl::mame::MameOPL3>(type, mixer);
                 return nullptr;
             }
             break;
