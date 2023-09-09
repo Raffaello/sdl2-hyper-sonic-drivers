@@ -25,7 +25,7 @@ namespace HyperSonicDrivers::drivers::midi::devices
         EXPECT_NO_THROW(auto s = SbPro(mixer, op2File.getBank()));
     }
 
-    class SbPro2Emulator_ : public ::testing::TestWithParam<std::tuple<hardware::opl::OplEmulator, bool>>
+    class SbProEmulator_ : public ::testing::TestWithParam<std::tuple<hardware::opl::OplEmulator, bool>>
     {
     public:
         const OplEmulator oplEmu = std::get<0>(GetParam());
@@ -34,7 +34,7 @@ namespace HyperSonicDrivers::drivers::midi::devices
         const std::shared_ptr<StubMixer> mixer = std::make_shared<StubMixer>();
 
     };
-    TEST_P(SbPro2Emulator_, cstr_TYPE)
+    TEST_P(SbProEmulator_, cstr_TYPE)
     {
         if (this->shouldThrow) {
             EXPECT_THROW(
@@ -48,13 +48,13 @@ namespace HyperSonicDrivers::drivers::midi::devices
     }
     INSTANTIATE_TEST_SUITE_P(
         SbPro,
-        SbPro2Emulator_,
+        SbProEmulator_,
         ::testing::Values(
             std::make_tuple<>(OplEmulator::AUTO, false),
             std::make_tuple<>(OplEmulator::DOS_BOX, false),
             std::make_tuple<>(OplEmulator::MAME, true),
             std::make_tuple<>(OplEmulator::WOODY, false),
-            std::make_tuple<>(OplEmulator::NUKED, false)
+            std::make_tuple<>(OplEmulator::NUKED, true)
         )
     );
 
