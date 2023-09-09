@@ -10,18 +10,12 @@
 
 namespace HyperSonicDrivers::drivers::westwood
 {
-    // TODO: fix DosBox OPL3 not working
-
-
     /// <summary>
-    /// It works best with OPL2 emulator mostly.
-    /// NOTE: This doesn't work with DOS_BOX in OPL3 mode
-    /// ------------------------------------------------------------
     /// Driver for .ADL files and OPL Chips
     /// Originally it should be the DUNE2 ALFX.DRV file
     /// (and PCSOUND.DRV instead for fx)
-    /// This file was propretary for optimized Westwood .ADL files
-    /// and they were not using Miles driver for musics in OPL Chips
+    /// This file was proprietary for optimized Westwood .ADL files
+    /// and they were not using Miles driver for music in OPL Chips
     /// as those were only for .XMI files and only used for MT-32/GM
     /// ------------------------------------------------------------
     /// AdLib implementation of the sound output device (OPL2).
