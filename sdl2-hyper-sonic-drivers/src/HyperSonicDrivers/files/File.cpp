@@ -17,9 +17,7 @@ namespace HyperSonicDrivers::files
         m_file.open(filename, mode);
         if (!m_file.is_open())
         {
-            const std::string e = std::format("Can't read file: {} ({} - )[{}]", m_filename, errno, strerror(errno), std::system_category());
-            utils::logC(e, utils::ILogger::eCategory::System);
-            throw std::system_error(errno, std::system_category(), e);
+            throwCriticalSystemError_("Can't open file");
         }
     }
 
@@ -38,9 +36,7 @@ namespace HyperSonicDrivers::files
         m_file.seekg(offs, whence);
         if (!m_file.good())
         {
-            const std::string e = std::format("Can't read file: {} ({} - )[{}]", m_filename, errno, strerror(errno), std::system_category());
-            utils::logC(e, utils::ILogger::eCategory::System);
-            throw std::system_error(errno, std::system_category(), e);
+            throwCriticalSystemError_("Can't seek file");
         }
     }
 
@@ -48,9 +44,7 @@ namespace HyperSonicDrivers::files
     {
         if (!m_file.read(reinterpret_cast<char*>(buf), size))
         {
-            const std::string e = std::format("Can't read file: {} ({} - )[{}]", m_filename, errno, strerror(errno), std::system_category());
-            utils::logC(e, utils::ILogger::eCategory::System);
-            throw std::system_error(errno, std::system_category(), e);
+            throwCriticalSystemError_("Can't read file");
         }
     }
 
@@ -108,9 +102,7 @@ namespace HyperSonicDrivers::files
         m_file.write(buf, size);
         if (!m_file.good())
         {
-            const std::string e = std::format("Can't write file: {} ({} - )[{}]", m_filename, errno, strerror(errno), std::system_category());
-            utils::logC(e, utils::ILogger::eCategory::System);
-            throw std::system_error(errno, std::system_category(), e);
+            throwCriticalSystemError_("Can't write file");
         }
     }
 
@@ -130,5 +122,17 @@ namespace HyperSonicDrivers::files
         {
             utils::throwLogE<std::invalid_argument>(std::format("Not a valid file: {}", m_filename));
         }
+    }
+
+    void File::throwCriticalSystemError_(const std::string& msg) const
+    {
+        const auto ec = std::system_category().default_error_condition(errno);
+        const std::string e = std::format("{}: {} ({} - {})[{}: ({}) {}]",
+            msg, m_filename,
+            errno, strerror(errno),
+            ec.category().name(), ec.value(), ec.message()
+        );
+        utils::logC(e, utils::ILogger::eCategory::System);
+        throw std::system_error(errno, std::system_category(), e);
     }
 }

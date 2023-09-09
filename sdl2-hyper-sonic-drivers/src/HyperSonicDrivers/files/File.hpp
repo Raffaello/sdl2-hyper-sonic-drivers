@@ -40,13 +40,15 @@ namespace HyperSonicDrivers::files
         std::string _getPath() const noexcept;
         void _assertValid(const bool expr) const;
 
+        void throwCriticalSystemError_(const std::string& msg) const;
+
     private:
         mutable std::fstream  m_file;
 
-        template<typename T> T read() const noexcept;
+        template<typename T> T read() const;
     };
 
-    template<typename T> T File::read() const noexcept
+    template<typename T> T File::read() const
     {
         T i;
 
