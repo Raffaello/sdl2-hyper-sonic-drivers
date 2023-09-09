@@ -4,8 +4,6 @@
 #include <format>
 #include <source_location>
 #include <functional>
-#include <type_traits>
-#include <typeinfo>
 
 namespace HyperSonicDrivers::utils
 {
@@ -63,14 +61,9 @@ namespace HyperSonicDrivers::utils
         //eLevel m_level = eLevel::INFO;
     };
 
-    template<class T>
-    std::string logMsg_(T loc, const std::string& msg)
+    std::string logMsg_(const std::source_location& loc, const std::string& msg)
     {
-        if constexpr (std::is_class_v<T>)
-            return std::format("[{}::{}] {}", typeid(T).name(), __func__, msg);
-        else if constexpr (std::is_same_v<std::string, std::decay_t<T>>)
-            return std::format("[{}::{}] {}", loc, __func__, msg);
-        else return std::format("[???::{}] {}", __func__, msg);
+        return std::format("[{}] {}", loc.function_name(), msg);
     }
 
     constexpr void logT(const std::string& msg,
