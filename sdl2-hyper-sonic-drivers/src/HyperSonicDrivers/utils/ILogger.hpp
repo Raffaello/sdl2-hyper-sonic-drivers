@@ -61,9 +61,9 @@ namespace HyperSonicDrivers::utils
         //eLevel m_level = eLevel::INFO;
     };
 
-    std::string logMsg_(const std::source_location& loc, const std::string& msg)
+    constexpr auto logMsg_(const std::source_location& loc, const std::string& msg)
     {
-        return std::format("[{}] {}", loc.function_name(), msg);
+        return std::format("[{}] {}", loc.function_name(), msg).c_str();
     }
 
     constexpr void logT(const std::string& msg,
