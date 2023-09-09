@@ -96,25 +96,25 @@ int run(const std::shared_ptr<audio::MIDI>& midi, const bool use_opldrv)
     }
 
     // Reproducing MIDI file
-    std::map<OplEmulator, std::string> emus = {
+    const std::map<OplEmulator, std::string> emus = {
        { OplEmulator::DOS_BOX, "DOS_BOX" },
        { OplEmulator::MAME, "MAME" },
        { OplEmulator::NUKED, "NUKED" },
        { OplEmulator::WOODY, "WOODY" },
     };
 
-    std::map<OplType, std::string> types = {
+    const std::map<OplType, std::string> types = {
         {OplType::OPL2, "OPL2"},
         {OplType::DUAL_OPL2, "DUAL_OPL2"},
         {OplType::OPL3, "OPL3"},
     };
 
-    std::string m = "##### {} {} #####";
+    const std::string m = "##### {} {} #####";
 
     // Emulators
     using enum fmt::color;
 
-    auto colors = {
+    const auto colors = {
         white_smoke, yellow,      aqua,
         lime_green,  blue_violet, indian_red };
 
@@ -133,7 +133,7 @@ int run(const std::shared_ptr<audio::MIDI>& midi, const bool use_opldrv)
     }
 
     // Native Midi
-    for (auto& c : colors) {
+    for (const auto& c : colors) {
         spdlog::info(fmt::format(fg(c), m, "Native", "MIDI"));
     }
     mid_test_native(/*mixer,*/ midi);

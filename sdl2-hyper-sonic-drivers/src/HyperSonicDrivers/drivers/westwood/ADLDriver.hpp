@@ -6,26 +6,16 @@
 #include <mutex>
 #include <HyperSonicDrivers/hardware/opl/OPL.hpp>
 #include <HyperSonicDrivers/files/westwood/ADLFile.hpp>
-#include <HyperSonicDrivers/drivers/opl/OplWriter.hpp>
 
 
 namespace HyperSonicDrivers::drivers::westwood
 {
-    // TODO: clean up the code,
-    //       instead of passing the file pass an AudioADL type returned from
-    //       the file itself
-    // TODO: fix DosBox OPL3 not working
-
-
     /// <summary>
-    /// TODO: Works only with OPL2 emulator mostly.
-    /// TODO: This doesn't work with DOS_BOX in OPL3 mode
-    /// ------------------------------------------------------------
     /// Driver for .ADL files and OPL Chips
     /// Originally it should be the DUNE2 ALFX.DRV file
     /// (and PCSOUND.DRV instead for fx)
-    /// This file was propretary for optimized Westwood .ADL files
-    /// and they were not using Miles driver for musics in OPL Chips
+    /// This file was proprietary for optimized Westwood .ADL files
+    /// and they were not using Miles driver for music in OPL Chips
     /// as those were only for .XMI files and only used for MT-32/GM
     /// ------------------------------------------------------------
     /// AdLib implementation of the sound output device (OPL2).
@@ -61,7 +51,6 @@ namespace HyperSonicDrivers::drivers::westwood
         void initDriver();
         void startSound(const int track, const int volume);
 
-        std::unique_ptr<drivers::opl::OplWriter> m_oplWriter;
         std::shared_ptr<files::westwood::ADLFile> m_adl_file = nullptr;
 
         // TODO: replace with std::span

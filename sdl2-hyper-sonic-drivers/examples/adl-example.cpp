@@ -4,6 +4,7 @@
 #include <HyperSonicDrivers/utils/algorithms.hpp>
 #include <HyperSonicDrivers/files/westwood/ADLFile.hpp>
 #include <HyperSonicDrivers/drivers/westwood/ADLDriver.hpp>
+#include <HyperSonicDrivers/utils/ILogger.hpp>
 
 #include <spdlog/spdlog.h>
 #include <fmt/color.h>
@@ -25,7 +26,6 @@ using drivers::westwood::ADLDriver;
 
 void adl_test(const OplEmulator emu, const OplType type, std::shared_ptr<audio::IMixer> mixer, const std::string& filename, const int track)
 {
-    //spdlog::set_level(spdlog::level::debug);
     auto opl = OPLFactory::create(emu, type, mixer);
     if (opl == nullptr)
         return;
@@ -56,27 +56,30 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    std::map<OplEmulator, std::string> emus = {
+    const std::map<OplEmulator, std::string> emus = {
         { OplEmulator::DOS_BOX, "DOS_BOX" },
         { OplEmulator::MAME, "MAME" },
         { OplEmulator::NUKED, "NUKED" },
         { OplEmulator::WOODY, "WOODY" },
     };
 
-    std::map<OplType, std::string> types = {
+    const std::map<OplType, std::string> types = {
         {OplType::OPL2, "OPL2"},
         {OplType::DUAL_OPL2, "DUAL_OPL2"},
         {OplType::OPL3, "OPL3"},
     };
 
-    std::string m = "##### {} {} #####";
-    for (auto& emu : emus)
+    const std::string m = "##### {} {} #####";
+
+    spdlog::set_level(spdlog::level::info);
+    HyperSonicDrivers::utils::ILogger::instance->setLevelAll(HyperSonicDrivers::utils::ILogger::eLevel::Info);
+    for (const auto& emu : emus)
     {
-        for (auto& type : types)
+        for (const auto& type : types)
         {
             using enum fmt::color;
 
-            for (auto& c : { white_smoke, yellow,      aqua,
+            for (const auto& c : { white_smoke, yellow,      aqua,
                              lime_green,  blue_violet, indian_red }) {
                 spdlog::info(fmt::format(fg(c), m, emu.second, type.second));
             }

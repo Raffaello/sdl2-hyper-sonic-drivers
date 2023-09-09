@@ -13,6 +13,7 @@ namespace HyperSonicDrivers::drivers::midi::devices
      * @brief Wrapper around ScummVM MidiDriver (MidiDriver_ADLIB)
      * At the moment support only OPL
      * Better rename to OPL?
+     * TODO: MI.MID percussions sounds not right
     */
     class ScummVM : public Device
     {
