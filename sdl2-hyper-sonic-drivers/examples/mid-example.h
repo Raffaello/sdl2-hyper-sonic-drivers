@@ -118,13 +118,19 @@ int run(const std::shared_ptr<audio::MIDI>& midi, const bool use_opldrv)
     {
         for (const auto& type : types)
         {
-            for (const auto& c : colors) {
-                spdlog::info(fmt::format(fg(c), m, emu.second, type.second));
+            try {
+                for (const auto& c : colors) {
+                    spdlog::info(fmt::format(fg(c), m, emu.second, type.second));
+                }
+                if (use_opldrv)
+                    mid_test(emu.first, type.first, mixer, midi);
+                else
+                    scummvm_mid_test(emu.first, type.first, mixer, midi);
             }
-            if (use_opldrv)
-                mid_test(emu.first, type.first, mixer, midi);
-            else
-                scummvm_mid_test(emu.first, type.first, mixer, midi);
+            catch (const std::exception& e)
+            {
+                spdlog::default_logger()->error(e.what());
+            }
         }
     }
 

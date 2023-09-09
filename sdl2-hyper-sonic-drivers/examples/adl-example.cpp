@@ -84,9 +84,16 @@ int main(int argc, char* argv[])
                 spdlog::info(fmt::format(fg(c), m, emu.second, type.second));
             }
 
-            adl_test(emu.first, type.first, mixer, "DUNE0.ADL", 4);
-            //adl_test(emu.first, type.first, mixer, "EOBSOUND.ADL", 1);
-            //adl_test(emu.first, type.first, mixer, "LOREINTR.ADL", 3);
+            try
+            {
+                adl_test(emu.first, type.first, mixer, "DUNE0.ADL", 4);
+                //adl_test(emu.first, type.first, mixer, "EOBSOUND.ADL", 1);
+                //adl_test(emu.first, type.first, mixer, "LOREINTR.ADL", 3);
+            }
+            catch (const std::exception& e)
+            {
+                spdlog::default_logger()->error(e.what());
+            }
         }
     }
 

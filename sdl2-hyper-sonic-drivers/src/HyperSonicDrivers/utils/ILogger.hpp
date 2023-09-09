@@ -93,7 +93,6 @@ namespace HyperSonicDrivers::utils
         ILogger::instance->warning(std::format("[{}] {}", loc.function_name(), msg), cat);
     }
 
-
     constexpr void logE(const std::string& msg,
         const ILogger::eCategory cat = ILogger::eCategory::Audio,
         const std::source_location& loc =

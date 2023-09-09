@@ -297,7 +297,14 @@ int main(int argc, char* argv[])
                 else spdlog::error(msg);
             }
 
-            opl_test(emu.first, type.first, mixer);
+            try
+            {
+                opl_test(emu.first, type.first, mixer);
+            }
+            catch (const std::exception& e)
+            {
+                spdlog::default_logger()->error(e.what());
+            }
         }
     }
 
