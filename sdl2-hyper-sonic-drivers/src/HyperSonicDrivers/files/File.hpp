@@ -34,7 +34,7 @@ namespace HyperSonicDrivers::files
         uint32_t readLE32() const noexcept;
         uint32_t readBE16() const noexcept;
         uint32_t readBE32() const noexcept;
-        void _write(const char* buf, const size_t size, const size_t maxnum);
+        void _write(const char* buf, const size_t size);
 
         std::string _getFilename() const noexcept;
         std::string _getPath() const noexcept;

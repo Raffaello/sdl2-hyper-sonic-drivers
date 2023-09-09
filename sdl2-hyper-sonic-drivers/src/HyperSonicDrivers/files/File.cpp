@@ -96,7 +96,7 @@ namespace HyperSonicDrivers::files
         return utils::swapBE32(read<int32_t>());
     }
 
-    void File::_write(const char* buf, const size_t size, const size_t maxnum)
+    void File::_write(const char* buf, const size_t size)
     {
         _assertValid(buf != nullptr);
         m_file.write(buf, size);
