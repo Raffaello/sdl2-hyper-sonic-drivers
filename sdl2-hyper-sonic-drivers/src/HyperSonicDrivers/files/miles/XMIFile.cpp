@@ -116,14 +116,12 @@ namespace HyperSonicDrivers::files::miles
         }
     }
 
-    XMIFile::~XMIFile() = default;
-
     std::shared_ptr<audio::MIDI> XMIFile::getMIDI() const noexcept
     {
         return _midi;
     }
 
-    uint16_t XMIFile::_readFormXdirChunk(IFF_chunk_header_t& form_xdir)
+    uint16_t XMIFile::_readFormXdirChunk(IFF_chunk_header_t& form_xdir) const noexcept
     {
         // the FORM<len>XDIR chunk is already read and pass as a paramter
         // [  FORM<len>XDIR
@@ -146,7 +144,7 @@ namespace HyperSonicDrivers::files::miles
         return num_tracks;
     }
 
-    MIDITrack XMIFile::_readEvnts(const IFF_sub_chunk_header_t& IFF_evnt, const int16_t track)
+    MIDITrack XMIFile::_readEvnts(const IFF_sub_chunk_header_t& IFF_evnt, const int16_t track) const noexcept
     {
         // { UBYTE interval count(if < 128)
         //     UBYTE <MIDI event>(if > 127) } ...

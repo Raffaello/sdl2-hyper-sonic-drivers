@@ -20,22 +20,17 @@ namespace HyperSonicDrivers::files
         }
     }
 
-    //File::~File() noexcept
-    //{
-    //    //this->close();
-    //}
-
-    std::streampos File::tell() noexcept
-    {
-        return _file.tellg();
-    }
-
     uintmax_t File::size() const noexcept
     {
         return std::filesystem::file_size(_filename);
     }
 
-    void File::seek(const std::streamoff offs, const std::fstream::seekdir whence)
+    std::streampos File::tell() const noexcept
+    {
+        return _file.tellg();
+    }
+
+    void File::seek(const std::streamoff offs, const std::fstream::seekdir whence) const
     {
         _file.seekg(offs, whence);
         if (!_file.good()) {
@@ -43,7 +38,7 @@ namespace HyperSonicDrivers::files
         }
     }
 
-    void File::read(void* buf, std::streamsize size)
+    void File::read(void* buf, std::streamsize size) const
     {
         if (!_file.read(reinterpret_cast<char*>(buf), size)) {
             throw std::system_error(errno, std::system_category(), "Cannot read file: " + _filename + " (" + strerror(errno) + ")");
@@ -57,7 +52,7 @@ namespace HyperSonicDrivers::files
         }
     }
 
-    std::string File::_readStringFromFile() noexcept
+    std::string File::_readStringFromFile() const noexcept
     {
         string filename;
         char c = -1;
@@ -74,27 +69,27 @@ namespace HyperSonicDrivers::files
     }
 
 
-    uint16_t File::readLE16()
+    uint16_t File::readLE16() const noexcept
     {
         return utils::swapLE16(read<int16_t>());
     }
 
-    uint32_t File::readLE32()
+    uint32_t File::readLE32() const noexcept
     {
         return utils::swapLE32(read<int32_t>());
     }
 
-    uint8_t File::readU8()
+    uint8_t File::readU8() const noexcept
     {
         return read<uint8_t>();
     }
 
-    uint32_t File::readBE32()
+    uint32_t File::readBE32() const noexcept
     {
         return utils::swapBE32(read<int32_t>());
     }
 
-    uint32_t File::readBE16()
+    uint32_t File::readBE16() const noexcept
     {
         return utils::swapBE16(read<int16_t>());
     }

@@ -56,8 +56,8 @@ namespace HyperSonicDrivers::files::dmx
 
         typedef struct mus_event_t
         {
-            mus_event_desc_u desc;
-            uint32_t delta_time;
+            mus_event_desc_u desc = { 0 };
+            uint32_t delta_time = 0;
             std::vector<uint8_t> data;
         } mus_event_t;
 

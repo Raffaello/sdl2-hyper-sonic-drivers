@@ -51,7 +51,7 @@ namespace HyperSonicDrivers::files
     {
     public:
         RIFFFile(const std::string& filename);
-        virtual ~RIFFFile();
+        ~RIFFFile() override = default;
     protected:
         typedef union
         {
@@ -75,8 +75,8 @@ namespace HyperSonicDrivers::files
         } RIFF_chunk_header_t;
         static_assert(sizeof(RIFF_chunk_header_t) == 12);
 
-        void readChunkHeader(RIFF_chunk_header_t& header);
-        void readSubChunkHeader(RIFF_sub_chunk_header_t& header);
-        void readId(RIFF_ID& iff_id);;
+        void readChunkHeader(RIFF_chunk_header_t& header) const noexcept;
+        void readSubChunkHeader(RIFF_sub_chunk_header_t& header) const noexcept;
+        void readId(RIFF_ID& iff_id) const noexcept;
     };
 }

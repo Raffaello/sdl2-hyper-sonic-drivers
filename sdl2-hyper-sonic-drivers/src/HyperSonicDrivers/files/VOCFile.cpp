@@ -197,7 +197,7 @@ namespace HyperSonicDrivers::files
         return true;
     }
 
-    VOCFile::sub_data_block_t VOCFile::readSubDataBlock(const uint32_t data_block_size, const uint8_t type)
+    VOCFile::sub_data_block_t VOCFile::readSubDataBlock(const uint32_t data_block_size, const uint8_t type) const noexcept
     {
         std::shared_ptr<uint8_t[]> buf(new uint8_t[data_block_size]);
         read(buf.get(), data_block_size);

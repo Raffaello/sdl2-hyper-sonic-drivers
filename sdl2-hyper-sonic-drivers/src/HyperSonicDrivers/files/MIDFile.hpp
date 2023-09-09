@@ -15,7 +15,7 @@ namespace HyperSonicDrivers::files
     {
     public:
         MIDFile(const std::string& filename);
-        virtual ~MIDFile();
+        ~MIDFile() override;
 
         std::shared_ptr<audio::MIDI> getOriginalMIDI() const noexcept;
         /**
@@ -31,7 +31,7 @@ namespace HyperSonicDrivers::files
         /// <param name="buf">the max 4 bytes array to decode</param>
         /// <param name="out_value">the resulting decoded value</param>
         /// <returns>byte reads</returns>
-        int decode_VLQ(uint32_t& out_value);
+        int decode_VLQ(uint32_t& out_value) const;
         
         typedef struct midi_chunk_t
         {
@@ -39,10 +39,10 @@ namespace HyperSonicDrivers::files
             uint32_t length;
         } midi_header_t;
 
-        midi_chunk_t read_chunk();
-        void read_header();
-        void check_format();
-        void read_track();
+        midi_chunk_t read_chunk() const noexcept;
+        void read_header() noexcept;
+        void check_format() const;
+        void read_track() const;
 
         std::shared_ptr<audio::MIDI> _midi;
     };

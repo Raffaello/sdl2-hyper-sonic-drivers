@@ -18,32 +18,32 @@ namespace HyperSonicDrivers::files
         virtual ~File() noexcept = default;
 
         uintmax_t size() const noexcept;
-        std::streampos tell() noexcept;
-        void seek(const std::streamoff offs, const std::fstream::seekdir whence = std::fstream::beg);
-        void read(void* buf, std::streamsize size);
+        std::streampos tell() const noexcept;
+        void seek(const std::streamoff offs, const std::fstream::seekdir whence = std::fstream::beg) const;
+        void read(void* buf, std::streamsize size) const;
         void close() noexcept;
 
     protected:
         const std::string _filename;
-        std::string _readStringFromFile() noexcept;
+        std::string _readStringFromFile() const noexcept;
 
-        uint16_t readLE16();
-        uint32_t readLE32();
-        uint8_t  readU8();
-        uint32_t readBE32();
-        uint32_t readBE16();
+        uint16_t readLE16() const noexcept;
+        uint32_t readLE32() const noexcept;
+        uint8_t  readU8() const noexcept;
+        uint32_t readBE32() const noexcept;
+        uint32_t readBE16() const noexcept;
 
         std::string _getFilename() const noexcept;
         std::string _getPath() const noexcept;
         void _assertValid(const bool expr) const;
 
     private:
-        std::fstream  _file;
+        mutable std::fstream  _file;
 
-        template<typename T> T read();
+        template<typename T> T read() const noexcept;
     };
 
-    template<typename T> T File::read()
+    template<typename T> T File::read() const noexcept
     {
         T i;
 

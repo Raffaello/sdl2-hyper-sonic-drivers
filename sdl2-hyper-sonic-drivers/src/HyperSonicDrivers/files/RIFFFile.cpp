@@ -6,17 +6,15 @@ namespace HyperSonicDrivers::files
     {
     }
 
-    RIFFFile::~RIFFFile() = default;
-
-    void RIFFFile::readChunkHeader(RIFF_chunk_header_t& header)
+    void RIFFFile::readChunkHeader(RIFF_chunk_header_t& header) const noexcept
     {
         read(&header, sizeof(RIFF_chunk_header_t));
     }
-    void RIFFFile::readSubChunkHeader(RIFF_sub_chunk_header_t& header)
+    void RIFFFile::readSubChunkHeader(RIFF_sub_chunk_header_t& header) const noexcept
     {
         read(&header, sizeof(RIFF_sub_chunk_header_t));
     }
-    void RIFFFile::readId(RIFF_ID& iff_id)
+    void RIFFFile::readId(RIFF_ID& iff_id) const noexcept
     {
         read(&iff_id, sizeof(RIFF_ID));
     }

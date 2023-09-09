@@ -18,8 +18,8 @@ namespace HyperSonicDrivers::utils
         int32_t i;
         char c[sizeof(int32_t)];
     } bytes4;
-     
-    constexpr bool is_big_endian()
+
+    constexpr static bool is_big_endian() noexcept
     {
 #ifdef IS_BIG_ENDIAN
         return true;
@@ -28,19 +28,19 @@ namespace HyperSonicDrivers::utils
 #endif
     }
 
-     inline void swap4(bytes4& n)
+     inline static void swap4(bytes4& n) noexcept
      {
         //0,1,2,3 => 3,2,1,0
         std::swap(n.c[0], n.c[3]);
         std::swap(n.c[1], n.c[2]);
     }
 
-    inline void swap2(bytes2& n)
+    inline static void swap2(bytes2& n) noexcept
     {
         std::swap(n.c[0], n.c[1]);
     }
 
-    int32_t swapLE32(const int32_t num)
+    int32_t swapLE32(const int32_t num) noexcept
     {
         if constexpr (is_big_endian())
         {
@@ -52,7 +52,7 @@ namespace HyperSonicDrivers::utils
             return num;
     }
 
-    int32_t swapBE32(const int32_t num)
+    int32_t swapBE32(const int32_t num) noexcept
     {
         if constexpr (!is_big_endian())
         {
@@ -64,7 +64,7 @@ namespace HyperSonicDrivers::utils
             return num;
     }
 
-    int16_t swapLE16(const int16_t num)
+    int16_t swapLE16(const int16_t num) noexcept
     {
         if constexpr (is_big_endian())
         {
@@ -76,7 +76,7 @@ namespace HyperSonicDrivers::utils
             return num;
     }
 
-    int16_t swapBE16(const int16_t num)
+    int16_t swapBE16(const int16_t num) noexcept
     {
         if constexpr (!is_big_endian())
         {
@@ -88,14 +88,14 @@ namespace HyperSonicDrivers::utils
             return num;
     }
 
-    uint16_t READ_LE_UINT16(const void* ptr)
+    uint16_t READ_LE_UINT16(const void* ptr) noexcept
     {
         const uint8_t* b = reinterpret_cast<const uint8_t*>(ptr);
 
         return (b[1] << 8) + b[0];
     }
 
-    uint16_t READ_BE_UINT16(const void* ptr)
+    uint16_t READ_BE_UINT16(const void* ptr) noexcept
     {
         const uint8_t* b = reinterpret_cast<const uint8_t*>(ptr);
 

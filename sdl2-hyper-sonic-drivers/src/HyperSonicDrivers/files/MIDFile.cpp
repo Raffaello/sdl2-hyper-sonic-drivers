@@ -60,12 +60,12 @@ namespace HyperSonicDrivers::files
 
         auto midi = std::make_shared<audio::MIDI>(audio::midi::MIDI_FORMAT::SINGLE_TRACK, 1, _midi->division);
 
-        using midi_tuple_t = struct midi_tuple_t
+        typedef struct midi_tuple_t
         {
             MIDIEvent e;
-            uint32_t abs_time;
-            uint16_t track;
-        };
+            uint32_t abs_time = 0;
+            uint16_t track = 0;
+        } midi_tuple_t;
 
         using VecTuple = std::vector<midi_tuple_t>;
         VecTuple events_tuple;
@@ -165,7 +165,7 @@ namespace HyperSonicDrivers::files
         return midi;
     }
 
-    int MIDFile::decode_VLQ(uint32_t& out_value)
+    int MIDFile::decode_VLQ(uint32_t& out_value) const
     {
         uint8_t buf[4] = { 0, 0, 0, 0 };
         uint8_t i = 0;
@@ -179,7 +179,7 @@ namespace HyperSonicDrivers::files
         return utils::decode_VLQ(buf, out_value);
     }
 
-    MIDFile::midi_chunk_t MIDFile::read_chunk()
+    MIDFile::midi_chunk_t MIDFile::read_chunk() const noexcept
     {
         midi_chunk_t chunk;
 
@@ -189,7 +189,7 @@ namespace HyperSonicDrivers::files
         return chunk;
     }
 
-    void MIDFile::read_header()
+    void MIDFile::read_header() noexcept
     {
         midi_chunk_t header = read_chunk();
         _assertValid(strncmp(header.id, MIDI_HEADER, sizeof(header.id)) == 0);
@@ -203,7 +203,7 @@ namespace HyperSonicDrivers::files
         _midi = std::make_shared<audio::MIDI>(static_cast<MIDI_FORMAT>(format), nTracks, division);
     }
 
-    void MIDFile::check_format()
+    void MIDFile::check_format() const
     {
         switch (_midi->format)
         {
@@ -219,7 +219,7 @@ namespace HyperSonicDrivers::files
         }
     }
 
-    void MIDFile::read_track()
+    void MIDFile::read_track() const
     {
         using audio::midi::MIDI_EVENT_type_u;
         using audio::midi::MIDI_META_EVENT;

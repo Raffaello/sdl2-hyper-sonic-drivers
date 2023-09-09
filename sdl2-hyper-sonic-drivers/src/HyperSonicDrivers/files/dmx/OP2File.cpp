@@ -34,17 +34,18 @@ namespace HyperSonicDrivers::files::dmx
         return _bank;
     }
 
-    void OP2File::_readInstrumentVoice(hardware::opl::OPL2instrument_t* buf)
+    void OP2File::_readInstrumentVoice(hardware::opl::OPL2instrument_t* buf) const noexcept
     {
         read(buf, sizeof(hardware::opl::OPL2instrument_t));
     }
 
-    void OP2File::_readInstrument(Op2BankInstrument_t* buf)
+    void OP2File::_readInstrument(Op2BankInstrument_t* buf) const noexcept
     {
         buf->flags = readLE16();
         buf->fineTune = readU8();
         buf->noteNum = readU8();
-        for (int i = 0; i < OP2BANK_INSTRUMENT_NUM_VOICES; i++) {
+        for (int i = 0; i < OP2BANK_INSTRUMENT_NUM_VOICES; i++)
+        {
             _readInstrumentVoice(&(buf->voices[i]));
         }
     }
