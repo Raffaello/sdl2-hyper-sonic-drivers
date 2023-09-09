@@ -131,7 +131,7 @@ namespace HyperSonicDrivers::drivers::westwood
         void secondaryEffect1(Channel& channel);
 
         void resetAdLibState();
-        void writeOPL(uint8_t reg, uint8_t val);
+        void writeOPL_(uint8_t reg, uint8_t val);
         void initChannel(Channel& channel);
         void noteOff(Channel& channel);
         void initAdlibChannel(uint8_t num);

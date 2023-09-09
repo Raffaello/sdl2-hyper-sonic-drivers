@@ -21,10 +21,7 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::mame
     bool MameOPL2::init()
     {
         if (_init)
-        {
-            stopCallbacks();
-            OPLDestroy(_opl);
-        }
+            return true;
 
         _opl = makeAdLibOPL(m_mixer->getOutputRate());
         memset(&_reg, 0, sizeof(_reg));

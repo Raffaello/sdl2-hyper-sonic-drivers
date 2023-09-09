@@ -201,11 +201,13 @@ namespace HyperSonicDrivers::drivers::westwood
             Channel& chan = m_channels[i];
             chan.volumeModifier = volume;
 
-            const int8_t regOffset = _regOffset[i];
+            // NOTE: regeOffset table is OplWriter::writeChannel table
+            //const int8_t regOffset = _regOffset[i];
 
             // Level Key Scaling / Total Level
-            writeOPL(0x40 + regOffset, calculateOpLevel1(chan));
-            writeOPL(0x43 + regOffset, calculateOpLevel2(chan));
+            //writeOPL(0x40 + regOffset, calculateOpLevel1(chan));
+            //writeOPL(0x43 + regOffset, calculateOpLevel2(chan));
+            m_oplWriter->writeChannel(0x40, i, calculateOpLevel1(chan), calculateOpLevel2(chan));
         }
 
         // For now we use the music volume for both sfx and music in Kyra1 and EoB
@@ -219,11 +221,12 @@ namespace HyperSonicDrivers::drivers::westwood
                 Channel& chan = m_channels[i];
                 chan.volumeModifier = volume;
 
-                const int8_t regOffset = _regOffset[i];
+                //const int8_t regOffset = _regOffset[i];
 
                 // Level Key Scaling / Total Level
-                writeOPL(0x40 + regOffset, calculateOpLevel1(chan));
-                writeOPL(0x43 + regOffset, calculateOpLevel2(chan));
+                //writeOPL(0x40 + regOffset, calculateOpLevel1(chan));
+                //writeOPL(0x43 + regOffset, calculateOpLevel2(chan));
+                m_oplWriter->writeChannel(0x40, i, calculateOpLevel1(chan), calculateOpLevel2(chan));
             }
         }
     }
@@ -242,11 +245,12 @@ namespace HyperSonicDrivers::drivers::westwood
             Channel& chan = m_channels[i];
             chan.volumeModifier = volume;
 
-            const int8_t regOffset = _regOffset[i];
+            //const int8_t regOffset = _regOffset[i];
 
             // Level Key Scaling / Total Level
-            writeOPL(0x40 + regOffset, calculateOpLevel1(chan));
-            writeOPL(0x43 + regOffset, calculateOpLevel2(chan));
+            //writeOPL(0x40 + regOffset, calculateOpLevel1(chan));
+            //writeOPL(0x43 + regOffset, calculateOpLevel2(chan));
+            m_oplWriter->writeChannel(0x40, i, calculateOpLevel1(chan), calculateOpLevel2(chan));
         }
     }
 
@@ -529,21 +533,13 @@ namespace HyperSonicDrivers::drivers::westwood
 
         _rnd = 0x1234;
 
-        // Authorize the control of the waveforms
-        writeOPL(0x01, 0x20);
-
-        // Select FM music mode
-        writeOPL(0x08, 0x00);
-
-        // I would guess the main purpose of this is to turn off the rhythm,
-        // thus allowing us to use 9 melodic voices instead of 6.
-        writeOPL(0xBD, 0x00);
+        if (!m_oplWriter->init())
+            logE("can't resetAdlibState");
 
         initChannel(m_channels[NUM_CHANNELS]);
         for (int loop = 8; loop >= 0; loop--) {
             // Silence the channel
-            writeOPL(0x40 + _regOffset[loop], 0x3F);
-            writeOPL(0x43 + _regOffset[loop], 0x3F);
+            m_oplWriter->writeChannel(0x40, loop, 0x3F, 0x3F);
             initChannel(m_channels[loop]);
         }
     }
@@ -808,7 +804,7 @@ namespace HyperSonicDrivers::drivers::westwood
             return;
 
         // Level Key Scaling / Total Level
-
+        m_oplWriter->wr
         writeOPL(0x43 + _regOffset[_curChannel], calculateOpLevel2(channel));
         if (channel.twoChan)
             writeOPL(0x40 + _regOffset[_curChannel], calculateOpLevel1(channel));
