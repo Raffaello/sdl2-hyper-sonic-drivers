@@ -341,7 +341,7 @@ namespace HyperSonicDrivers::files
         // sanity check
         if (offs != chunk.length)
         {
-            logW(std::format("Filename '{}' track {} length mismatch real length {}", _filename, chunk.length, offs));
+            logW(std::format("Filename '{}' track {} length mismatch real length {}", _filename, chunk.length, offs), this);
         }
 
         track.lock();

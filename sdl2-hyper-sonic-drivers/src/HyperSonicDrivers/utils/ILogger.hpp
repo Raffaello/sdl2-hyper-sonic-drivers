@@ -66,11 +66,11 @@ namespace HyperSonicDrivers::utils
     template<class T>
     std::string logMsg_(T loc, const std::string& msg)
     {
-        if constexpr (std::is_pointer_v<T>)
-        {
+        if constexpr (std::is_class_v<T>)
             return std::format("[{}::{}] {}", typeid(T).name(), __func__, msg);
-        } else
-            return std::format("[{}] {}", loc.function_name(), msg).c_str();
+        else if constexpr (std::is_same_v<std::string, std::decay_t<T>>)
+            return std::format("[{}::{}] {}", loc, __func__, msg);
+        else return std::format("[???::{}] {}", __func__, msg);
     }
 
     constexpr void logT(const std::string& msg,

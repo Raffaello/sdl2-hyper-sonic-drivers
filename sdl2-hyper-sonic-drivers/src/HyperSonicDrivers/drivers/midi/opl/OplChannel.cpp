@@ -17,7 +17,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
     {
         if (program > 127)
         {
-            logW(std::format("Progam change value >= 127 -> {}", program));
+            logW(std::format("Progam change value >= 127 -> {}", program), this);
         }
 
         // NOTE: if program is not changed shouldn't be required to do anything ...

@@ -28,7 +28,7 @@ namespace HyperSonicDrivers::hardware::opl
             case OplType::OPL2:
                 return std::make_shared<scummvm::mame::MameOPL2>(type, mixer);
             case OplType::DUAL_OPL2:
-                logW("MameOPL2 emulator doesn't support DUAL_OPL2 emulation");
+                logW("MameOPL2 emulator doesn't support DUAL_OPL2 emulation", __func__);
                 return nullptr;
             case OplType::OPL3:
                 logW("MameOPL3 not working yet.");

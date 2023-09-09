@@ -292,7 +292,7 @@ namespace HyperSonicDrivers::drivers::westwood
         // offset = 0 is valid now as offset are adjusted when read the file
         if (offset >= m_soundDataSize)
         {
-            logW(std::format("ADLDriver::getProgram(): invalid offset read. offset={} --- m_soundDataSize={}", offset, m_soundDataSize));
+            logW(std::format("ADLDriver::getProgram(): invalid offset read. offset={} --- m_soundDataSize={}", offset, m_soundDataSize), this);
             return nullptr;
         }
 
@@ -1158,7 +1158,7 @@ namespace HyperSonicDrivers::drivers::westwood
 
             // Safety check: ignore jump to invalid address
             if (!checkDataOffset(channel.dataptr, add))
-                logW(std::format("Ignoring invalid offset {}", add));
+                logW(std::format("Ignoring invalid offset {}", add), this);
             else
                 channel.dataptr += add;
         }
@@ -1180,7 +1180,7 @@ namespace HyperSonicDrivers::drivers::westwood
         // the ring in the intro.
         if (!checkDataOffset(ptr, 2))
         {
-            logW(std::format("Invalid program {} specified", values[0]));
+            logW(std::format("Invalid program {} specified", values[0]), this);
             return 0;
         }
 
@@ -1190,7 +1190,7 @@ namespace HyperSonicDrivers::drivers::westwood
         // Safety check: ignore programs with invalid channel number.
         if (chan > 9)
         {
-            logW(std::format("Invalid channel {}", chan).c_str());
+            logW(std::format("Invalid channel {}", chan).c_str(), this);
             return 0;
         }
 
@@ -1246,7 +1246,7 @@ namespace HyperSonicDrivers::drivers::westwood
 
         if (!channel.dataptr)
         {
-            logW(std::format("Invalid offset {}, stopping channel", add));
+            logW(std::format("Invalid offset {}, stopping channel", add), this);
             return update_stopChannel(channel, values);
         }
         if (_syncJumpMask & (1 << (&channel - m_channels.data())))
@@ -1261,7 +1261,7 @@ namespace HyperSonicDrivers::drivers::westwood
         // Safety checks: ignore jumps when stack is full or address is invalid.
         if (channel.dataptrStackPos >= channel.dataptrStack.size())
         {
-            logW("Stack overflow");
+            logW("Stack overflow", this);
             return 0;
         }
         channel.dataptrStack[channel.dataptrStackPos++] = channel.dataptr;
@@ -1280,7 +1280,7 @@ namespace HyperSonicDrivers::drivers::westwood
         // Safety check: stop track when stack is empty.
         if (!channel.dataptrStackPos)
         {
-            logW("Stack underflow");
+            logW("Stack underflow", this);
             return update_stopChannel(channel, values);
         }
         channel.dataptr = channel.dataptrStack[--channel.dataptrStackPos];
@@ -1348,7 +1348,7 @@ namespace HyperSonicDrivers::drivers::westwood
         int start = channel.secondaryEffectData + channel.secondaryEffectSize;
         if (start < 0 || start >= (int)m_soundDataSize)
         {
-            logW("Ignoring due to invalid table location");
+            logW("Ignoring due to invalid table location", this);
             channel.secondaryEffect = nullptr;
         }
         return 0;
@@ -1359,7 +1359,7 @@ namespace HyperSonicDrivers::drivers::westwood
         // Safety check
         if (values[0] > NUM_CHANNELS)
         {
-            logW(std::format("Ignoring invalid channel {}", values[0]));
+            logW(std::format("Ignoring invalid channel {}", values[0]), this);
             return 0;
         }
 
@@ -1383,7 +1383,7 @@ namespace HyperSonicDrivers::drivers::westwood
         // getProgram return a nullptr and thus cause invalid memory reads.
         if (ptr == nullptr)
         {
-            logW(std::format("Invalid program {} specified", values[0]));
+            logW(std::format("Invalid program {} specified", values[0]), this);
             return 0;
         }
 
@@ -1408,7 +1408,7 @@ namespace HyperSonicDrivers::drivers::westwood
         // of the game.
         if (!instrument)
         {
-            logW(std::format("Invalid instrument {} specified", values[0]));
+            logW(std::format("Invalid instrument {} specified", values[0]), this);
             return 0;
         }
 
@@ -1545,7 +1545,7 @@ namespace HyperSonicDrivers::drivers::westwood
         // Safety check
         if (values[0] > NUM_CHANNELS)
         {
-            logW(std::format("Ignore invalid channel {}", values[0]));
+            logW(std::format("Ignore invalid channel {}", values[0]), this);
             return 0;
         }
 
@@ -1565,7 +1565,7 @@ namespace HyperSonicDrivers::drivers::westwood
         // Safety check
         if (values[0] > NUM_CHANNELS)
         {
-            logW(std::format("Ignore invalid channel {}", values[0]));
+            logW(std::format("Ignore invalid channel {}", values[0]), this);
             return 0;
         }
 
@@ -1613,7 +1613,7 @@ namespace HyperSonicDrivers::drivers::westwood
         // Safety check
         if (values[0] > NUM_CHANNELS)
         {
-            logW(std::format("ADLDriver::update_clearChannel: Ignore invalid channel {}", values[0]));
+            logW(std::format("ADLDriver::update_clearChannel: Ignore invalid channel {}", values[0]), this);
             return 0;
         }
 
@@ -1735,7 +1735,7 @@ namespace HyperSonicDrivers::drivers::westwood
         }
         else
         {
-            logW(std::format("Invalid instrument {} for channel 6 specified", values[0]));
+            logW(std::format("Invalid instrument {} for channel 6 specified", values[0]), this);
         }
         _opLevelBD = channel.opLevel2;
 
@@ -1749,7 +1749,7 @@ namespace HyperSonicDrivers::drivers::westwood
         }
         else
         {
-            logW(std::format("Invalid instrument {} for channel 7 specified", values[1]));
+            logW(std::format("Invalid instrument {} for channel 7 specified", values[1]), this);
         }
         _opLevelHH = channel.opLevel1;
         _opLevelSD = channel.opLevel2;
@@ -1764,7 +1764,7 @@ namespace HyperSonicDrivers::drivers::westwood
         }
         else
         {
-            logW(std::format("Invalid instrument {} for channel 8 specified", values[2]));
+            logW(std::format("Invalid instrument {} for channel 8 specified", values[2]), this);
         }
         _opLevelTT = channel.opLevel1;
         _opLevelCY = channel.opLevel2;

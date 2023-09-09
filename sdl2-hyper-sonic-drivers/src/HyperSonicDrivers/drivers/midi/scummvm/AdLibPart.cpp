@@ -145,7 +145,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
             allNotesOff();
             break;
         default:
-            logW(std::format("Unknown control change message {:d} {:d}", control, value));
+            logW(std::format("Unknown control change message {:d} {:d}", control, value), this);
         }
     }
 
@@ -254,7 +254,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         // until we can find any track actually using it.
         if (_owner->_opl3Mode)
         {
-            logW("Used in OPL3 mode, not supported");
+            logW("Used in OPL3 mode, not supported", this);
             return;
         }
 
