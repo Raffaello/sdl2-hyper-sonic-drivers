@@ -93,10 +93,10 @@ namespace HyperSonicDrivers::files::westwood
 
     ADLFile::ADLFile(const std::string& filename) : File(filename)
     {
-        _assertValid(size() >= FILE_SIZE_MIN);
+        assertValid_(size() >= FILE_SIZE_MIN);
         detectVersion();
         // validate version with file size
-        _assertValid(size() > _meta_version.data_offset);
+        assertValid_(size() > _meta_version.data_offset);
         // read Header
         seek(0, std::fstream::beg);
         readHeaderFromFile(_meta_version.num_headers, _read);
@@ -214,7 +214,7 @@ namespace HyperSonicDrivers::files::westwood
             for (int i = 0; i < V1_NUM_TRACK_OFFSETS; i++)
             {
                 uint16_t w = readLE16();
-                _assertValid(w >= V1_OFFSET_START || w == 0);
+                assertValid_(w >= V1_OFFSET_START || w == 0);
                 if (min_w > w && w > 0) {
                     min_w = w;
                 }
@@ -224,11 +224,11 @@ namespace HyperSonicDrivers::files::westwood
             {
                 _version = 1;
                 _meta_version = mv1;
-                _assertValid(min_w == V1_OFFSET_START);
+                assertValid_(min_w == V1_OFFSET_START);
             }
             else
             {
-                _assertValid(min_w == V2_OFFSET_START);
+                assertValid_(min_w == V2_OFFSET_START);
             }
         }
     }
@@ -241,24 +241,24 @@ namespace HyperSonicDrivers::files::westwood
             _header[i] = read();
         }
 
-        _assertValid(_header.size() == header_size);
+        assertValid_(_header.size() == header_size);
     }
 
     void ADLFile::readOffsetsFromFile(const int num_offsets, std::vector<uint16_t>& vec, const int offset_start) const noexcept
     {
-        _assertValid(tell() == offset_start);
+        assertValid_(tell() == offset_start);
         vec.resize(num_offsets);
         for (int i = 0; i < num_offsets; i++) {
             vec[i] = readLE16();
         }
-        _assertValid(vec.size() == num_offsets);
+        assertValid_(vec.size() == num_offsets);
     }
 
     void ADLFile::readDataFromFile(const int data_offsets, const int data_heder_size)
     {
         _dataSize = size() - data_offsets;
-        _assertValid(_dataSize > 0);
-        _assertValid(tell() == data_offsets);
+        assertValid_(_dataSize > 0);
+        assertValid_(tell() == data_offsets);
         _data.reset(new uint8_t[_dataSize]);
         read(_data.get(), _dataSize);
         _dataHeaderSize = data_heder_size;
@@ -274,7 +274,7 @@ namespace HyperSonicDrivers::files::westwood
             if (v == 0xFFFF)
                 continue;
 
-            _assertValid(v >= _dataHeaderSize);
+            assertValid_(v >= _dataHeaderSize);
             v -= _dataHeaderSize;
         }
     }

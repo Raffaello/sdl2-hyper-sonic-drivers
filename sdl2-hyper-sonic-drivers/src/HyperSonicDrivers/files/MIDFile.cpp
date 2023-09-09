@@ -173,7 +173,7 @@ namespace HyperSonicDrivers::files
         
         do {
             buf[i++] = v = readU8();
-            _assertValid(i <= 4);
+            assertValid_(i <= 4);
         } while (v & 0x80);
 
         return utils::decode_VLQ(buf, out_value);
@@ -192,8 +192,8 @@ namespace HyperSonicDrivers::files
     void MIDFile::read_header() noexcept
     {
         midi_chunk_t header = read_chunk();
-        _assertValid(strncmp(header.id, MIDI_HEADER, sizeof(header.id)) == 0);
-        _assertValid(header.length == 6);
+        assertValid_(strncmp(header.id, MIDI_HEADER, sizeof(header.id)) == 0);
+        assertValid_(header.length == 6);
 
 
         uint16_t format = readBE16();
@@ -208,11 +208,11 @@ namespace HyperSonicDrivers::files
         switch (_midi->format)
         {
         case MIDI_FORMAT::SINGLE_TRACK:
-            _assertValid(_midi->numTracks == 1);
+            assertValid_(_midi->numTracks == 1);
             break;
         case MIDI_FORMAT::SIMULTANEOUS_TRACK:
         case MIDI_FORMAT::MULTI_TRACK:
-            _assertValid(_midi->numTracks >= 1);
+            assertValid_(_midi->numTracks >= 1);
             break;
         default:
             throw std::runtime_error("MIDFile: _format invalid");
@@ -234,7 +234,7 @@ namespace HyperSonicDrivers::files
         MIDI_EVENT_type_u lastStatus = { 0 };
         // Read Track
         midi_chunk_t chunk = read_chunk();
-        _assertValid(strncmp(chunk.id, MIDI_TRACK, sizeof(chunk.id)) == 0);
+        assertValid_(strncmp(chunk.id, MIDI_TRACK, sizeof(chunk.id)) == 0);
 
         // events
         int offs = 0;
@@ -286,7 +286,7 @@ namespace HyperSonicDrivers::files
                     // meta-event
                     uint8_t type = readU8();
                     offs++;
-                    _assertValid(type < 128);
+                    assertValid_(type < 128);
                     uint32_t length = 0;
                     offs += decode_VLQ(length);
                     e.data.reserve(length + 1);

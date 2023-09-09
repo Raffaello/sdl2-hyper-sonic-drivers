@@ -55,7 +55,7 @@ namespace HyperSonicDrivers::files
         }
     }
 
-    std::string File::_readStringFromFile() const noexcept
+    std::string File::readStringFromFile_() const noexcept
     {
         string filename;
         char c = -1;
@@ -73,32 +73,32 @@ namespace HyperSonicDrivers::files
 
     uint8_t File::readU8() const noexcept
     {
-        return read<uint8_t>();
+        return read_<uint8_t>();
     }
 
     uint16_t File::readLE16() const noexcept
     {
-        return utils::swapLE16(read<int16_t>());
+        return utils::swapLE16(read_<int16_t>());
     }
 
     uint32_t File::readLE32() const noexcept
     {
-        return utils::swapLE32(read<int32_t>());
+        return utils::swapLE32(read_<int32_t>());
     }
 
     uint32_t File::readBE16() const noexcept
     {
-        return utils::swapBE16(read<int16_t>());
+        return utils::swapBE16(read_<int16_t>());
     }
 
     uint32_t File::readBE32() const noexcept
     {
-        return utils::swapBE32(read<int32_t>());
+        return utils::swapBE32(read_<int32_t>());
     }
 
-    void File::_write(const char* buf, const size_t size)
+    void File::write(const char* buf, const size_t size)
     {
-        _assertValid(buf != nullptr);
+        assertValid_(buf != nullptr);
         m_file.write(buf, size);
         if (!m_file.good())
         {
@@ -106,17 +106,17 @@ namespace HyperSonicDrivers::files
         }
     }
 
-    std::string File::_getFilename() const noexcept
+    std::string File::getFilename() const noexcept
     {
         return std::filesystem::path(m_filename).filename().string();
     }
 
-    std::string File::_getPath() const noexcept
+    std::string File::getPath() const noexcept
     {
         return std::filesystem::path(m_filename).parent_path().string();
     }
 
-    void File::_assertValid(const bool expr) const
+    void File::assertValid_(const bool expr) const
     {
         if (!expr)
         {
@@ -132,6 +132,7 @@ namespace HyperSonicDrivers::files
             errno, strerror(errno),
             ec.category().name(), ec.value(), ec.message()
         );
+
         utils::logC(e, utils::ILogger::eCategory::System);
         throw std::system_error(errno, std::system_category(), e);
     }
