@@ -58,19 +58,6 @@ namespace HyperSonicDrivers::files
 
     std::string File::readStringFromFile_() const noexcept
     {
-        //string filename;
-        //char c = -1;
-        //
-        //while (m_file.good() && c != 0) {
-        //    c = m_file.get();
-        //    filename += c;
-        //}
-
-        //// removing the last c==0 inserted before stop the loop.
-        //filename.pop_back();
-
-        //return filename;
-
         std::stringbuf sb;
         m_file.get(sb, '\0');
         m_file.get();//waster the delimeter char
