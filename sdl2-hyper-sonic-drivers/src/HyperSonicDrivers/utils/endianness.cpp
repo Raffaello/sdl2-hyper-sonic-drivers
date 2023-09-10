@@ -1,6 +1,5 @@
 #include <HyperSonicDrivers/utils/endianness.hpp>
 #include <algorithm>
-#include <bit>
 
 // TODO: using c++23 could use std::endianness
 namespace HyperSonicDrivers::utils
