@@ -6,6 +6,7 @@
 #include <filesystem>
 #include <cstring>
 #include <format>
+#include <sstream>
 
 namespace HyperSonicDrivers::files
 {
@@ -57,18 +58,25 @@ namespace HyperSonicDrivers::files
 
     std::string File::readStringFromFile_() const noexcept
     {
-        string filename;
-        char c = -1;
+        //string filename;
+        //char c = -1;
+        //
+        //while (m_file.good() && c != 0) {
+        //    c = m_file.get();
+        //    filename += c;
+        //}
 
-        while (m_file.good() && c != 0) {
-            c = m_file.get();
-            filename += c;
-        }
+        //// removing the last c==0 inserted before stop the loop.
+        //filename.pop_back();
 
-        // removing the last c==0 inserted before stop the loop.
-        filename.pop_back();
+        //return filename;
 
-        return filename;
+        std::stringbuf sb;
+        m_file.get(sb, '\0');
+        m_file.get();//waster the delimeter char
+        if (!m_file.good())
+            throwCriticalSystemError_("Can't readStringFromFile");
+        return sb.str();
     }
 
     uint8_t File::readU8() const noexcept
