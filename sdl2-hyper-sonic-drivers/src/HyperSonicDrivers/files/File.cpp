@@ -115,7 +115,10 @@ namespace HyperSonicDrivers::files
     {
         if (!expr)
         {
-            utils::throwLogE<std::invalid_argument>(std::format("Not a valid file: {}", m_filename));
+            utils::throwLogE<std::invalid_argument>(
+                std::format("Not a valid file: {}", m_filename),
+                utils::ILogger::eCategory::Error
+                );
         }
     }
 
