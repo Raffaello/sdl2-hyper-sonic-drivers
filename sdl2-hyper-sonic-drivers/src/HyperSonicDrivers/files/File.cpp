@@ -56,7 +56,7 @@ namespace HyperSonicDrivers::files
         }
     }
 
-    std::string File::readStringFromFile_() const noexcept
+    std::string File::readStringFromFile_() const
     {
         std::stringbuf sb;
         m_file.get(sb, '\0');

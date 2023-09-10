@@ -38,7 +38,7 @@ namespace HyperSonicDrivers::files
 
     protected:
         const std::string m_filename;
-        std::string readStringFromFile_() const noexcept;
+        std::string readStringFromFile_() const;
         void assertValid_(const bool expr) const;
         void throwCriticalSystemError_(const std::string& msg) const;
 

@@ -121,7 +121,7 @@ namespace HyperSonicDrivers::files::miles
         return _midi;
     }
 
-    uint16_t XMIFile::_readFormXdirChunk(IFF_chunk_header_t& form_xdir) const noexcept
+    uint16_t XMIFile::_readFormXdirChunk(const IFF_chunk_header_t& form_xdir) const noexcept
     {
         // the FORM<len>XDIR chunk is already read and pass as a paramter
         // [  FORM<len>XDIR
@@ -335,7 +335,7 @@ namespace HyperSonicDrivers::files::miles
         // UWORD # of timbre list entries, 0 - 16384
         // { UBYTE patch number 0 - 127
         // UBYTE timbre bank 0 - 127 } ...]
-        assertValid_(_timbre_patch_numbers[track].size() == 0 && _timbre_bank[track].size() == 0);
+        assertValid_(_timbre_patch_numbers[track].empty() && _timbre_bank[track].empty());
         const uint16_t timbre_list_entries = readLE16();
         assertValid_(timbre_list_entries == (IFF_timb.size - sizeof(uint16_t)) / 2);
         for (int i = 0; i < timbre_list_entries; i++)

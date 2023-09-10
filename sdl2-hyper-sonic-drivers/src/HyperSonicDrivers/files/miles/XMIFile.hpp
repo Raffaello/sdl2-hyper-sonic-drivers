@@ -30,7 +30,7 @@ namespace HyperSonicDrivers::files::miles
 
         std::shared_ptr<audio::MIDI> getMIDI() const noexcept override;
     private:
-        uint16_t _readFormXdirChunk(IFF_chunk_header_t& form_xdir) const noexcept;
+        uint16_t _readFormXdirChunk(const IFF_chunk_header_t& form_xdir) const noexcept;
         audio::midi::MIDITrack _readEvnts(const IFF_sub_chunk_header_t& IFF_evnt, const int16_t track) const noexcept;
         void _readTimb(const IFF_sub_chunk_header_t& IFF_timb, const int16_t track);
         void _readRbrn(const IFF_sub_chunk_header_t& IFF_rbrn, const int16_t track);
