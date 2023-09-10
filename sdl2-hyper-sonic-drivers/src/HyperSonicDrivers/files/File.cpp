@@ -61,26 +61,16 @@ namespace HyperSonicDrivers::files
         constexpr const char delim = '\0';
         std::stringbuf sb;
 
-        if (m_file.peek() == delim)
-        {
-            // it could be an empty string or EOF
-            // considering it an empty string
-        }
-        else
-        {
+        // it could be an empty string or EOF
+        // considering it an empty string
+        if (m_file.peek() != delim)
             m_file.get(sb, delim);
-        }
 
-        m_file.seekg(1, fstream::cur); //waster the delimeter char
+        m_file.seekg(1, fstream::cur); //skip the delimeter char
 
-        auto b = m_file.bad();
-        auto c = m_file.eof();
-        auto d = m_file.fail();
-        auto e = m_file.flags();
-        auto f = m_file.good();
-        auto g = m_file.rdstate();
         if (!m_file.good())
             throwCriticalSystemError_("Can't readStringFromFile");
+
         return sb.str();
     }
 
