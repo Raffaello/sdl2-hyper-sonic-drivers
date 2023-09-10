@@ -72,6 +72,16 @@ namespace HyperSonicDrivers::files
             throwCriticalSystemError_("Can't readStringFromFile");
 
         return sb.str();
+
+        /*string s;
+        char c = -1;
+        do
+        {
+            c = m_file.get();
+            s += c;
+        } while (c != 0 && m_file.good());
+        s.pop_back();
+        return s;*/
     }
 
     uint8_t File::readU8() const
