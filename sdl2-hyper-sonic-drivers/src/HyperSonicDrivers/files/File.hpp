@@ -24,11 +24,11 @@ namespace HyperSonicDrivers::files
         void seek(const std::streamoff offs, const std::fstream::seekdir whence = std::fstream::beg) const;
         void read(void* buf, std::streamsize size) const;
         
-        uint8_t  readU8() const noexcept;
-        uint16_t readLE16() const noexcept;
-        uint32_t readLE32() const noexcept;
-        uint32_t readBE16() const noexcept;
-        uint32_t readBE32() const noexcept;
+        uint8_t  readU8() const;
+        uint16_t readLE16() const;
+        uint32_t readLE32() const;
+        uint32_t readBE16() const;
+        uint32_t readBE32() const;
 
         void write(const char* buf, const size_t size);
         void close() noexcept;

@@ -79,27 +79,27 @@ namespace HyperSonicDrivers::files
         return sb.str();
     }
 
-    uint8_t File::readU8() const noexcept
+    uint8_t File::readU8() const
     {
         return read_<uint8_t>();
     }
 
-    uint16_t File::readLE16() const noexcept
+    uint16_t File::readLE16() const
     {
         return utils::swapLE16(read_<int16_t>());
     }
 
-    uint32_t File::readLE32() const noexcept
+    uint32_t File::readLE32() const
     {
         return utils::swapLE32(read_<int32_t>());
     }
 
-    uint32_t File::readBE16() const noexcept
+    uint32_t File::readBE16() const
     {
         return utils::swapBE16(read_<int16_t>());
     }
 
-    uint32_t File::readBE32() const noexcept
+    uint32_t File::readBE32() const
     {
         return utils::swapBE32(read_<int32_t>());
     }
@@ -134,7 +134,7 @@ namespace HyperSonicDrivers::files
 
     void File::throwCriticalSystemError_(const std::string& msg) const
     {
-        const auto ec = std::system_category().default_error_condition(errno);
+        const auto ec = std::error_condition(errno, std::system_category());
         const std::string e = std::format("{}: {} ({} - {})[{}: ({}) {}]",
             msg, m_filename,
             errno, strerror(errno),
