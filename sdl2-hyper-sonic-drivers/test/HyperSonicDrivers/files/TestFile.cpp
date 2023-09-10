@@ -15,9 +15,14 @@ namespace HyperSonicDrivers::files
         f.close();
     }
 
-    TEST(File, file_not_found)
+    TEST(File, invalid_argument)
     {
         EXPECT_THROW(File f(""), std::system_error);
+    }
+
+    TEST(File, file_not_found)
+    {
+        EXPECT_THROW(File f("nofile.nofile"), std::system_error);
     }
 }
 

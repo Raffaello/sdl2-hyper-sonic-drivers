@@ -29,8 +29,8 @@ namespace HyperSonicDrivers::files::dmx
         std::array<std::string, audio::opl::banks::OP2BANK_NUM_INSTRUMENTS> _instrument_names;
         std::shared_ptr<audio::opl::banks::OP2Bank> _bank;
 
-        void _readInstrumentVoice(hardware::opl::OPL2instrument_t* buf);
-        void _readInstrument(audio::opl::banks::Op2BankInstrument_t* buf);
+        void _readInstrumentVoice(hardware::opl::OPL2instrument_t* buf) const noexcept;
+        void _readInstrument(audio::opl::banks::Op2BankInstrument_t* buf) const noexcept;
         void _readInstruments();
         void _readInstrumentNames();
     };

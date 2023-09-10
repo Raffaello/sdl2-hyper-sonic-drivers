@@ -1,119 +1,134 @@
 #include <HyperSonicDrivers/files/File.hpp>
 #include <HyperSonicDrivers/utils/endianness.hpp>
+#include <HyperSonicDrivers/utils/ILogger.hpp>
+
 #include <exception>
 #include <filesystem>
-//#ifdef __GNUC__
 #include <cstring>
-//#endif
+#include <format>
+#include <sstream>
 
 namespace HyperSonicDrivers::files
 {
     using std::string;
     using std::fstream;
 
-    File::File(const string& filename) : _filename(filename)
+    File::File(const string& filename, const std::fstream::openmode mode) : m_filename(filename)
     {
-        //_file.exceptions(fstream::eofbit | fstream::failbit | fstream::badbit);
-        _file.open(filename, fstream::in | fstream::binary);
-        if (!_file.is_open()) {
-            throw std::system_error(errno, std::system_category(), "Cannot open file: " + _filename);
+        m_file.open(filename, mode);
+        if (!m_file.is_open())
+        {
+            throwCriticalSystemError_("Can't open file");
         }
-    }
-
-    //File::~File() noexcept
-    //{
-    //    //this->close();
-    //}
-
-    std::streampos File::tell() noexcept
-    {
-        return _file.tellg();
     }
 
     uintmax_t File::size() const noexcept
     {
-        return std::filesystem::file_size(_filename);
+        return std::filesystem::file_size(m_filename);
     }
 
-    void File::seek(const std::streamoff offs, const std::fstream::seekdir whence)
+    std::streampos File::tell() const noexcept
     {
-        _file.seekg(offs, whence);
-        if (!_file.good()) {
-            throw std::system_error(errno, std::system_category(), "Cannot seek file: " + _filename);
+        return m_file.tellg();
+    }
+
+    void File::seek(const std::streamoff offs, const std::fstream::seekdir whence) const
+    {
+        m_file.seekg(offs, whence);
+        if (!m_file.good())
+        {
+            throwCriticalSystemError_("Can't seek file");
         }
     }
 
-    void File::read(void* buf, std::streamsize size)
+    void File::read(void* buf, std::streamsize size) const
     {
-        if (!_file.read(reinterpret_cast<char*>(buf), size)) {
-            throw std::system_error(errno, std::system_category(), "Cannot read file: " + _filename + " (" + strerror(errno) + ")");
+        if (!m_file.read(reinterpret_cast<char*>(buf), size))
+        {
+            throwCriticalSystemError_("Can't read file");
         }
     }
 
     void File::close() noexcept
     {
-        if (_file.is_open()) {
-            _file.close();
+        if (m_file.is_open()) {
+            m_file.close();
         }
     }
 
-    std::string File::_readStringFromFile() noexcept
+    std::string File::readStringFromFile_() const
     {
-        string filename;
-        char c = -1;
+        std::stringbuf sb;
+        m_file.get(sb, '\0');
+        m_file.get();//waster the delimeter char
+        if (!m_file.good())
+            throwCriticalSystemError_("Can't readStringFromFile");
+        return sb.str();
+    }
 
-        while (_file.good() && c != 0) {
-            c = _file.get();
-            filename += c;
+    uint8_t File::readU8() const
+    {
+        return read_<uint8_t>();
+    }
+
+    uint16_t File::readLE16() const
+    {
+        return utils::swapLE16(read_<int16_t>());
+    }
+
+    uint32_t File::readLE32() const
+    {
+        return utils::swapLE32(read_<int32_t>());
+    }
+
+    uint32_t File::readBE16() const
+    {
+        return utils::swapBE16(read_<int16_t>());
+    }
+
+    uint32_t File::readBE32() const
+    {
+        return utils::swapBE32(read_<int32_t>());
+    }
+
+    void File::write(const char* buf, const size_t size)
+    {
+        assertValid_(buf != nullptr);
+        m_file.write(buf, size);
+        if (!m_file.good())
+        {
+            throwCriticalSystemError_("Can't write file");
         }
-
-        // removing the last c==0 inserted before stop the loop.
-        filename.pop_back();
-
-        return filename;
     }
 
-
-    uint16_t File::readLE16()
+    std::string File::getFilename() const noexcept
     {
-        return utils::swapLE16(read<int16_t>());
+        return std::filesystem::path(m_filename).filename().string();
     }
 
-    uint32_t File::readLE32()
+    std::string File::getPath() const noexcept
     {
-        return utils::swapLE32(read<int32_t>());
+        return std::filesystem::path(m_filename).parent_path().string();
     }
 
-    uint8_t File::readU8()
+    void File::assertValid_(const bool expr) const
     {
-        return read<uint8_t>();
-    }
-
-    uint32_t File::readBE32()
-    {
-        return utils::swapBE32(read<int32_t>());
-    }
-
-    uint32_t File::readBE16()
-    {
-        return utils::swapBE16(read<int16_t>());
-    }
-
-    std::string File::_getFilename() const noexcept
-    {
-        return std::filesystem::path(_filename).filename().string();
-    }
-
-    std::string File::_getPath() const noexcept
-    {
-        return std::filesystem::path(_filename).parent_path().string();
-    }
-
-    void File::_assertValid(const bool expr) const
-    {
-        if (!expr) {
-            std::string str = std::string("Not a valid file: ") + _filename + " (" + std::string(typeid(*this).name()) + ")";
-            throw std::invalid_argument(str.c_str());
+        if (!expr)
+        {
+            utils::throwLogE<std::invalid_argument>(std::format("Not a valid file: {}", m_filename));
         }
+    }
+
+    void File::throwCriticalSystemError_(const std::string& msg) const
+    {
+        const auto ec = std::error_condition(errno, std::system_category());
+        const std::string e = std::format("{}: {} ({} - {})[{}: ({}) {}]",
+            msg, m_filename,
+            errno, strerror(errno),
+            ec.category().name(), ec.value(), ec.message()
+        );
+
+        utils::logC(e, utils::ILogger::eCategory::System);
+        throw std::system_error(errno, std::system_category(), e);
     }
 }

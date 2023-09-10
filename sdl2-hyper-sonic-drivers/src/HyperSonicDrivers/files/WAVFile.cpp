@@ -17,9 +17,9 @@ namespace HyperSonicDrivers::files
 
         RIFF_chunk_header_t header;
         readChunkHeader(header);
-        _assertValid(header.chunk.id.id == eRIFF_ID::ID_RIFF);
-        _assertValid(header.type.id == eRIFF_ID::ID_WAVE);
-        _assertValid(header.chunk.length == size() - sizeof(RIFF_sub_chunk_header_t));
+        assertValid_(header.chunk.id.id == eRIFF_ID::ID_RIFF);
+        assertValid_(header.type.id == eRIFF_ID::ID_WAVE);
+        assertValid_(header.chunk.length == size() - sizeof(RIFF_sub_chunk_header_t));
         
         // TODO read the optional chunks?
         // BODY FACT Chunk                        <fact-ck>
@@ -57,7 +57,7 @@ namespace HyperSonicDrivers::files
 
     bool WAVFile::read_fmt_sub_chunk(const RIFF_sub_chunk_header_t& chunk)
     {
-        _assertValid(chunk.id.id == eRIFF_ID::ID_FMT);
+        assertValid_(chunk.id.id == eRIFF_ID::ID_FMT);
         
         // <common-fields>
         m_fmt_chunk.format = static_cast<eFormat>(readLE16());
@@ -78,7 +78,7 @@ namespace HyperSonicDrivers::files
         case eFormat::IBM_FORMAT_ADPCM:
             //break;
         default:
-            throw std::invalid_argument("WAVFile: unknown or unsupported format " + std::to_string(static_cast<int>(m_fmt_chunk.format)) + " of file: " + _filename);
+            throw std::invalid_argument("WAVFile: unknown or unsupported format " + std::to_string(static_cast<int>(m_fmt_chunk.format)) + " of file: " + m_filename);
         }
 
         // fmt always before data chunk
@@ -92,8 +92,8 @@ namespace HyperSonicDrivers::files
 
     bool WAVFile::read_data_sub_chunk(const RIFF_sub_chunk_header_t& chunk)
     {
-        _assertValid(m_expDataChunk);
-        _assertValid(chunk.id.id == eRIFF_ID::ID_DATA);
+        assertValid_(m_expDataChunk);
+        assertValid_(chunk.id.id == eRIFF_ID::ID_DATA);
 
         m_dataSize = chunk.length;
         m_data = std::make_shared<uint8_t[]>(m_dataSize);

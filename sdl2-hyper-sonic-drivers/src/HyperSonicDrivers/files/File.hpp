@@ -14,41 +14,46 @@ namespace HyperSonicDrivers::files
         File(const File&&) = delete;
         File& operator=(const  File&) = delete;
 
-        File(const std::string& filename);
+        File(
+            const std::string& filename,
+            const std::fstream::openmode mode = std::fstream::in | std::fstream::binary);
         virtual ~File() noexcept = default;
 
         uintmax_t size() const noexcept;
-        std::streampos tell() noexcept;
-        void seek(const std::streamoff offs, const std::fstream::seekdir whence = std::fstream::beg);
-        void read(void* buf, std::streamsize size);
+        std::streampos tell() const noexcept;
+        void seek(const std::streamoff offs, const std::fstream::seekdir whence = std::fstream::beg) const;
+        void read(void* buf, std::streamsize size) const;
+        
+        uint8_t  readU8() const;
+        uint16_t readLE16() const;
+        uint32_t readLE32() const;
+        uint32_t readBE16() const;
+        uint32_t readBE32() const;
+
+        void write(const char* buf, const size_t size);
         void close() noexcept;
 
+        std::string getFilename() const noexcept;
+        std::string getPath() const noexcept;
+
     protected:
-        const std::string _filename;
-        std::string _readStringFromFile() noexcept;
-
-        uint16_t readLE16();
-        uint32_t readLE32();
-        uint8_t  readU8();
-        uint32_t readBE32();
-        uint32_t readBE16();
-
-        std::string _getFilename() const noexcept;
-        std::string _getPath() const noexcept;
-        void _assertValid(const bool expr) const;
+        const std::string m_filename;
+        std::string readStringFromFile_() const;
+        void assertValid_(const bool expr) const;
+        void throwCriticalSystemError_(const std::string& msg) const;
 
     private:
-        std::fstream  _file;
+        mutable std::fstream  m_file;
 
-        template<typename T> T read();
+        template<typename T> T read_() const;
     };
 
-    template<typename T> T File::read()
+    template<typename T> T File::read_() const
     {
         T i;
 
-        if (!_file.read(reinterpret_cast<char*>(&i), sizeof(T))) {
-            throw std::system_error(errno, std::system_category(), "Cannot read file: " + _filename);
+        if (!m_file.read(reinterpret_cast<char*>(&i), sizeof(T))) {
+            throw std::system_error(errno, std::system_category(), "Cannot read file: " + m_filename);
         }
 
         return i;

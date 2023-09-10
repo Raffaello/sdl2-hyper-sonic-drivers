@@ -91,7 +91,7 @@ namespace HyperSonicDrivers::files::miles
 
         read(buf1, FUNCTION_BEGIN_SIZE);
         for (int i = 0; i < FUNCTION_BEGIN_SIZE; i++) {
-            _assertValid(buf1[i] == FUNCTION_BEGIN[i]);
+            assertValid_(buf1[i] == FUNCTION_BEGIN[i]);
         }
 
         std::vector<uint8_t> buf;
@@ -122,7 +122,7 @@ namespace HyperSonicDrivers::files::miles
 
         read(buf2, FUNCTION_RETURN_SIZE);
         for (int i = 0; i < FUNCTION_RETURN_SIZE; i++) {
-            _assertValid(buf2[i] == FUNCTION_RETURN[i]);
+            assertValid_(buf2[i] == FUNCTION_RETURN[i]);
         }
 
 
@@ -134,15 +134,15 @@ namespace HyperSonicDrivers::files::miles
         _header.driver_index_offset = readLE16();
         read(_header.magic, DRIVER_MAGIC_SIZE);
 
-        _assertValid(strncmp(DRIVER_MAGIC, _header.magic, DRIVER_MAGIC_SIZE) == 0);
-        _assertValid(tell() == _header.driver_index_offset);
+        assertValid_(strncmp(DRIVER_MAGIC, _header.magic, DRIVER_MAGIC_SIZE) == 0);
+        assertValid_(tell() == _header.driver_index_offset);
     }
 
     void AILDriverFile::readFunctions()
     {
         read(_funcs, sizeof(driver_index_t) * NUM_DRIVER_FUNCTIONS);
         int16_t minusOne = readLE16();
-        _assertValid(minusOne == -1);
+        assertValid_(minusOne == -1);
 
         // sanity check, might not be ok, could be not in 0 position.
         //_assertValid(_funcs[0].id == static_cast<int>(eDriverFunction::AIL_DESC_DRVR));
@@ -156,15 +156,15 @@ namespace HyperSonicDrivers::files::miles
         read(&_ddt, sizeof(driver_descriptor_table_t));
         if (_ddt.offset_devname_o != 0) {
             seek(_ddt.offset_devname_o, std::fstream::beg);
-            _deviceName_o = _readStringFromFile();
+            _deviceName_o = readStringFromFile_();
         }
 
         if (_ddt.offset_devname_s != 0) {
             seek(_ddt.offset_devname_s, std::fstream::beg);
-            _deviceName_s = _readStringFromFile();
+            _deviceName_s = readStringFromFile_();
         }
 
-        _assertValid(readU8() == 0); // 0 extra padding
+        assertValid_(readU8() == 0); // 0 extra padding
 
         // setStereo()
         _isStereo = strncmp(_ddt.data_suffix, "OPL", 4) == 0;

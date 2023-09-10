@@ -134,13 +134,14 @@ namespace HyperSonicDrivers::files
        ID_FILLER = utils::MKID_BE(0, 0, 0, 0)
     };
 
-    class IFFFile : public File
+    class IFFFile : public virtual File
     {
     public:
         IFFFile(const std::string& filename);
-        virtual ~IFFFile();
+        ~IFFFile() override = default;
+
     protected:
-        typedef union
+        typedef union IFF_ID
         {
             char     str[4];
             uint32_t value;
@@ -150,7 +151,7 @@ namespace HyperSonicDrivers::files
 
         typedef struct IFF_sub_chunk_header_t
         {
-            IFF_ID   id;
+            IFF_ID   id = { 0 };
             uint32_t size = 0;  // <! Big Endian
         } IFF_sub_chunk_header_t;
         static_assert(sizeof(IFF_sub_chunk_header_t) == 8);
@@ -162,8 +163,8 @@ namespace HyperSonicDrivers::files
         } IFF_chunk_header_t;
         static_assert(sizeof(IFF_chunk_header_t) == 12);
 
-        void readChunkHeader(IFF_chunk_header_t& header);
-        void readSubChunkHeader(IFF_sub_chunk_header_t& header);
-        void readId(IFF_ID& iff_id);
+        void readChunkHeader(IFF_chunk_header_t& header) const noexcept;
+        void readSubChunkHeader(IFF_sub_chunk_header_t& header) const noexcept;
+        void readId(IFF_ID& iff_id) const noexcept;
     };
 }

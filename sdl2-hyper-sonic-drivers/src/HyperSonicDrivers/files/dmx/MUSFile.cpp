@@ -53,7 +53,7 @@ namespace HyperSonicDrivers::files::dmx
     MUSFile::MUSFile(const std::string& filename, const int playback_speed) : File(filename),
         playback_speed(playback_speed)
     {
-        _assertValid(size() <= MAX_SIZE);
+        assertValid_(size() <= MAX_SIZE);
         readHeader();
         readTrack();
 
@@ -68,16 +68,16 @@ namespace HyperSonicDrivers::files::dmx
     void MUSFile::readHeader()
     {
         read(_header.id, sizeof(ID_MAGIC));
-        _assertValid(strncmp(_header.id, ID_MAGIC, sizeof(ID_MAGIC)) == 0);
+        assertValid_(strncmp(_header.id, ID_MAGIC, sizeof(ID_MAGIC)) == 0);
         _header.score_len = readLE16();
         _header.score_start = readLE16();
         _header.channels = readLE16();
-        _assertValid(_header.channels <= MUS_PRIMARY_CHANNELS);
+        assertValid_(_header.channels <= MUS_PRIMARY_CHANNELS);
         _header.secondary_channels = readLE16();
-        _assertValid(_header.secondary_channels <= MUS_SECONDARY_CHANNLES);
+        assertValid_(_header.secondary_channels <= MUS_SECONDARY_CHANNLES);
         _header.instrument_counts = readLE16();
         _header.padding = readLE16();
-        _assertValid(_header.padding == 0);
+        assertValid_(_header.padding == 0);
 
         instruments.reserve(_header.instrument_counts);
 
@@ -87,12 +87,12 @@ namespace HyperSonicDrivers::files::dmx
             instruments.push_back(readLE16());
 
         instruments.shrink_to_fit();
-        _assertValid(_header.channels + _header.secondary_channels < MIDI_MAX_CHANNELS);
+        assertValid_(_header.channels + _header.secondary_channels < MIDI_MAX_CHANNELS);
     }
 
     void MUSFile::readTrack()
     {
-        _assertValid(tell() == _header.score_start);
+        assertValid_(tell() == _header.score_start);
 
         std::array<int8_t, MIDI_MAX_CHANNELS> channelVol;
         channelVol.fill(127);
@@ -110,7 +110,7 @@ namespace HyperSonicDrivers::files::dmx
             {
             case MUS_EVENT_TYPE_RELEASE_NOTE:
                 d1 = readU8();
-                _assertValid(d1 < 128);
+                assertValid_(d1 < 128);
                 event.data.push_back(d1);
                 break;
             case MUS_EVENT_TYPE_PLAY_NOTE:
@@ -119,7 +119,7 @@ namespace HyperSonicDrivers::files::dmx
                 {
                     d1 &= 0x7F;
                     d2 = readU8();
-                    _assertValid((d2 & 0x80) == 0);
+                    assertValid_((d2 & 0x80) == 0);
                     channelVol[std::bit_cast<uint8_t>(event.desc.e.channel)] = d2;
                 }
                 d2 = channelVol[std::bit_cast<uint8_t>(event.desc.e.channel)];
@@ -132,14 +132,14 @@ namespace HyperSonicDrivers::files::dmx
                 break;
             case MUS_EVENT_TYPE_SYS_EVENT:
                 d1 = readU8();
-                _assertValid(d1 < 0x80);
+                assertValid_(d1 < 0x80);
                 event.data.push_back(d1);
                 break;
             case MUS_EVENT_TYPE_CONTROLLER:
                 d1 = readU8();
                 d2 = readU8();
-                _assertValid(d1 < 128); // bit 2^7 always 0
-                _assertValid(d2 < 128); // bit 2^7 always 0
+                assertValid_(d1 < 128); // bit 2^7 always 0
+                assertValid_(d2 < 128); // bit 2^7 always 0
 
                 event.data.push_back(d1);
                 event.data.push_back(d2);

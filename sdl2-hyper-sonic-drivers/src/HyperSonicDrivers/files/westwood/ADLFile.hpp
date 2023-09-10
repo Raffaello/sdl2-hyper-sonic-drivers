@@ -13,10 +13,14 @@ namespace HyperSonicDrivers::files::westwood
     class ADLFile : protected File
     {
     public:
-        enum class PROG_TYPE {
+        enum class PROG_TYPE
+        {
             TRACK, INSTRUMENT
         };
+
         ADLFile(const std::string& filename);
+        ~ADLFile() override = default;
+
         uint8_t getVersion() const noexcept;
         int getNumTracks() const noexcept;
         int getNumTrackOffsets() const noexcept;
@@ -47,7 +51,7 @@ namespace HyperSonicDrivers::files::westwood
         void detectVersion();
 
         void readHeaderFromFile(const int header_size, std::function<uint16_t()> read);
-        void readOffsetsFromFile(const int num_offsets, std::vector<uint16_t>& vec, const int offset_start);
+        void readOffsetsFromFile(const int num_offsets, std::vector<uint16_t>& vec, const int offset_start) const noexcept;
         void readDataFromFile(const int data_offsets, const int data_heder_size);
 
         std::vector<uint8_t> _header;

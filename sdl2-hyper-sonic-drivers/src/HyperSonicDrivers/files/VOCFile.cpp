@@ -17,8 +17,8 @@ namespace HyperSonicDrivers::files
     {
         m_channels = 1;
         m_bitsDepth = 8;
-        _assertValid(readHeader());
-        _assertValid(readDataBlockHeader());
+        assertValid_(readHeader());
+        assertValid_(readDataBlockHeader());
 
         make_sound_(group);
     }
@@ -64,7 +64,7 @@ namespace HyperSonicDrivers::files
             switch (db.type)
             {
             case 0: // End of Data block
-                _assertValid(db.data[0] == 0 && db.size == 1);
+                assertValid_(db.data[0] == 0 && db.size == 1);
                 break;
             case 1: // sound block
             {
@@ -76,7 +76,7 @@ namespace HyperSonicDrivers::files
                 // sampleRate = 256000000 / ((65536 - (timeConstant<<8))*channels)
                 m_sampleRate = 256000000L / ((65536 - (timeConstant << 8)) * m_channels);
                 //_sampleRate = 1000000 / (256 - timeConstant);
-                _assertValid(m_sampleRate == (1000000 / (256 - timeConstant)));
+                assertValid_(m_sampleRate == (1000000 / (256 - timeConstant)));
                 // pack Method
                 switch (packMethod)
                 {
@@ -136,13 +136,13 @@ namespace HyperSonicDrivers::files
                 break;
             case 9:
             {
-                _assertValid(m_version >= 0x0114);
+                assertValid_(m_version >= 0x0114);
                 m_sampleRate = db.data[0] + (db.data[1] << 8) + (db.data[2] << 16) + (db.data[3] << 24);
                 m_bitsDepth = db.data[4];
                 m_channels = db.data[5];
                 uint16_t format = db.data[6] + (db.data[7] << 8);
                 for (int i = 0; i < 4; i++)
-                    _assertValid(db.data[i + 8] == 0);
+                    assertValid_(db.data[i + 8] == 0);
                 // TODO is a super set of case 1, 4 first cases.
                 // BODY: create a function to process format.
                 switch (format)
@@ -197,7 +197,7 @@ namespace HyperSonicDrivers::files
         return true;
     }
 
-    VOCFile::sub_data_block_t VOCFile::readSubDataBlock(const uint32_t data_block_size, const uint8_t type)
+    VOCFile::sub_data_block_t VOCFile::readSubDataBlock(const uint32_t data_block_size, const uint8_t type) const noexcept
     {
         std::shared_ptr<uint8_t[]> buf(new uint8_t[data_block_size]);
         read(buf.get(), data_block_size);

@@ -47,7 +47,7 @@ namespace HyperSonicDrivers::files::miles
     //             UBYTE <MIDI event>(if > 127) } ...
     //         } ...
     // }
-    XMIFile::XMIFile(const std::string& filename) : IFFFile(filename)
+    XMIFile::XMIFile(const std::string& filename) : IFFFile(filename), File(filename)
     {
         uint16_t num_tracks = 0;
         IFF_chunk_header_t header;
@@ -66,12 +66,12 @@ namespace HyperSonicDrivers::files::miles
             cat = header;
             break;
         default:
-            _assertValid(false);
+            assertValid_(false);
         }
 
-        _assertValid(cat.chunk.id.id == eIFF_ID::ID_CAT);
-        _assertValid(cat.type.id == eIFF_ID::ID_XMID);
-        _assertValid(num_tracks >= 1);
+        assertValid_(cat.chunk.id.id == eIFF_ID::ID_CAT);
+        assertValid_(cat.type.id == eIFF_ID::ID_XMID);
+        assertValid_(num_tracks >= 1);
 
         _timbre_patch_numbers.resize(num_tracks);
         _timbre_bank.resize(num_tracks);
@@ -88,8 +88,8 @@ namespace HyperSonicDrivers::files::miles
             MIDITrack midi_track;
             IFF_chunk_header_t form_xmid;
             readChunkHeader(form_xmid);
-            _assertValid(form_xmid.chunk.id.id == eIFF_ID::ID_FORM);
-            _assertValid(form_xmid.type.id == eIFF_ID::ID_XMID);
+            assertValid_(form_xmid.chunk.id.id == eIFF_ID::ID_FORM);
+            assertValid_(form_xmid.type.id == eIFF_ID::ID_XMID);
 
             IFF_sub_chunk_header_t chunk;
             do
@@ -108,7 +108,7 @@ namespace HyperSonicDrivers::files::miles
                     break;
                 default:
                     std::string s(chunk.id.str, 4);
-                    throw std::invalid_argument("Not a valid XMI file: " + _filename + " (IFF_ID: " + s + ")");
+                    throw std::invalid_argument("Not a valid XMI file: " + m_filename + " (IFF_ID: " + s + ")");
                 }
             } while (chunk.id.id != eIFF_ID::ID_EVNT);
 
@@ -116,14 +116,12 @@ namespace HyperSonicDrivers::files::miles
         }
     }
 
-    XMIFile::~XMIFile() = default;
-
     std::shared_ptr<audio::MIDI> XMIFile::getMIDI() const noexcept
     {
         return _midi;
     }
 
-    uint16_t XMIFile::_readFormXdirChunk(IFF_chunk_header_t& form_xdir)
+    uint16_t XMIFile::_readFormXdirChunk(const IFF_chunk_header_t& form_xdir) const noexcept
     {
         // the FORM<len>XDIR chunk is already read and pass as a paramter
         // [  FORM<len>XDIR
@@ -131,22 +129,22 @@ namespace HyperSonicDrivers::files::miles
         //     INFO<len>
         //         UWORD # of FORMs XMID in file, 1 - 65535
         // }  ]
-        _assertValid(form_xdir.chunk.id.id == eIFF_ID::ID_FORM);
-        _assertValid(form_xdir.chunk.size == sizeof(IFF_chunk_header_t) + sizeof(uint16_t));
-        _assertValid(form_xdir.type.id == eIFF_ID::ID_XDIR);
+        assertValid_(form_xdir.chunk.id.id == eIFF_ID::ID_FORM);
+        assertValid_(form_xdir.chunk.size == sizeof(IFF_chunk_header_t) + sizeof(uint16_t));
+        assertValid_(form_xdir.type.id == eIFF_ID::ID_XDIR);
 
         IFF_sub_chunk_header_t xdir_info;
         readSubChunkHeader(xdir_info);
-        _assertValid(xdir_info.id.id == eIFF_ID::ID_INFO);
-        _assertValid(xdir_info.size == sizeof(uint16_t));
+        assertValid_(xdir_info.id.id == eIFF_ID::ID_INFO);
+        assertValid_(xdir_info.size == sizeof(uint16_t));
 
         uint16_t num_tracks = readLE16();
-        _assertValid(num_tracks >= 1);
+        assertValid_(num_tracks >= 1);
 
         return num_tracks;
     }
 
-    MIDITrack XMIFile::_readEvnts(const IFF_sub_chunk_header_t& IFF_evnt, const int16_t track)
+    MIDITrack XMIFile::_readEvnts(const IFF_sub_chunk_header_t& IFF_evnt, const int16_t track) const noexcept
     {
         // { UBYTE interval count(if < 128)
         //     UBYTE <MIDI event>(if > 127) } ...
@@ -229,7 +227,7 @@ namespace HyperSonicDrivers::files::miles
                 {
                     // meta-event
                     uint8_t type = buf[offs++];
-                    _assertValid(type < 128);
+                    assertValid_(type < 128);
                     uint32_t length = 0;
                     offs += decode_VLQ(&buf[offs], length);
                     e.data.reserve(length + 1);
@@ -319,7 +317,7 @@ namespace HyperSonicDrivers::files::miles
         // sanity check
         if (offs != IFF_evnt.size)
         {
-            logW(std::format("Fileanme '{}' track {} length mismatch real length {}", _filename, IFF_evnt.size, offs));
+            logW(std::format("Fileanme '{}' track {} length mismatch real length {}", m_filename, IFF_evnt.size, offs));
         }
 
         if (!endTrack)
@@ -337,15 +335,15 @@ namespace HyperSonicDrivers::files::miles
         // UWORD # of timbre list entries, 0 - 16384
         // { UBYTE patch number 0 - 127
         // UBYTE timbre bank 0 - 127 } ...]
-        _assertValid(_timbre_patch_numbers[track].size() == 0 && _timbre_bank[track].size() == 0);
+        assertValid_(_timbre_patch_numbers[track].empty() && _timbre_bank[track].empty());
         const uint16_t timbre_list_entries = readLE16();
-        _assertValid(timbre_list_entries == (IFF_timb.size - sizeof(uint16_t)) / 2);
+        assertValid_(timbre_list_entries == (IFF_timb.size - sizeof(uint16_t)) / 2);
         for (int i = 0; i < timbre_list_entries; i++)
         {
             _timbre_patch_numbers[track].push_back(readU8());
             _timbre_bank[track].push_back(readU8());
         }
-        _assertValid(
+        assertValid_(
             timbre_list_entries == _timbre_patch_numbers[track].size()
             && timbre_list_entries == _timbre_bank[track].size()
         );

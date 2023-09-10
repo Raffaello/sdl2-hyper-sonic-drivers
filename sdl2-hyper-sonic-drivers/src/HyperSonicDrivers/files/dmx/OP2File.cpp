@@ -18,7 +18,7 @@ namespace HyperSonicDrivers::files::dmx
         char buf[OP2FILE_MAGIC_HEADER_SIZE + 1];
         read(buf, OP2FILE_MAGIC_HEADER_SIZE);
         buf[OP2FILE_MAGIC_HEADER_SIZE] = 0;
-        _assertValid(strncmp(buf, OP2FILE_MAGIC_HEADER, OP2FILE_MAGIC_HEADER_SIZE) == 0);
+        assertValid_(strncmp(buf, OP2FILE_MAGIC_HEADER, OP2FILE_MAGIC_HEADER_SIZE) == 0);
 
         // instruments
         _readInstruments();
@@ -34,17 +34,18 @@ namespace HyperSonicDrivers::files::dmx
         return _bank;
     }
 
-    void OP2File::_readInstrumentVoice(hardware::opl::OPL2instrument_t* buf)
+    void OP2File::_readInstrumentVoice(hardware::opl::OPL2instrument_t* buf) const noexcept
     {
         read(buf, sizeof(hardware::opl::OPL2instrument_t));
     }
 
-    void OP2File::_readInstrument(Op2BankInstrument_t* buf)
+    void OP2File::_readInstrument(Op2BankInstrument_t* buf) const noexcept
     {
         buf->flags = readLE16();
         buf->fineTune = readU8();
         buf->noteNum = readU8();
-        for (int i = 0; i < OP2BANK_INSTRUMENT_NUM_VOICES; i++) {
+        for (int i = 0; i < OP2BANK_INSTRUMENT_NUM_VOICES; i++)
+        {
             _readInstrumentVoice(&(buf->voices[i]));
         }
     }
@@ -60,7 +61,7 @@ namespace HyperSonicDrivers::files::dmx
     {
         for (int i = 0; i < OP2BANK_NUM_INSTRUMENTS; i++) {
             _instrument_names[i].reserve(OP2FILE_INSTRUMENT_NAME_MAX_SIZE);
-            _instrument_names[i] = _readStringFromFile();
+            _instrument_names[i] = readStringFromFile_();
             _instrument_names[i].shrink_to_fit();
             seek(OP2FILE_INSTRUMENT_NAME_MAX_SIZE - 1 - _instrument_names[i].size(), std::ios::cur);
         }
