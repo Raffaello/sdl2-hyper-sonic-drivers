@@ -89,6 +89,9 @@ macro_test(
     EXE TestFile
     FILES "files/TestFile.cpp"
     LINKS_PRIVATE hyper-sonic-drivers-static
+    FIXTURES
+        "../fixtures/empty.empty"
+        "../fixtures/empty.zero"
 )
 
 macro_test(

@@ -58,11 +58,19 @@ namespace HyperSonicDrivers::files
 
     std::string File::readStringFromFile_() const
     {
+        constexpr const char delim = '\0';
         std::stringbuf sb;
-        m_file.get(sb, '\0');
-        m_file.get();//waster the delimeter char
+
+        // it could be an empty string or EOF
+        // considering it an empty string
+        if (m_file.peek() != delim)
+            m_file.get(sb, delim);
+
+        m_file.seekg(1, fstream::cur); //skip the delimeter char
+
         if (!m_file.good())
             throwCriticalSystemError_("Can't readStringFromFile");
+
         return sb.str();
     }
 

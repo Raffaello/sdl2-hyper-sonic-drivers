@@ -3,6 +3,7 @@
 #include <string>
 #include <stdexcept>
 #include <fstream>
+#include <format>
 
 namespace HyperSonicDrivers::files
 {
@@ -52,9 +53,8 @@ namespace HyperSonicDrivers::files
     {
         T i;
 
-        if (!m_file.read(reinterpret_cast<char*>(&i), sizeof(T))) {
-            throw std::system_error(errno, std::system_category(), "Cannot read file: " + m_filename);
-        }
+        if (!m_file.read(reinterpret_cast<char*>(&i), sizeof(T)))
+            throwCriticalSystemError_(std::format("Cannot read size of {} in file {}: ",sizeof(T), m_filename));
 
         return i;
     }
