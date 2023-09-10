@@ -106,7 +106,7 @@ namespace HyperSonicDrivers::files::dmx
             uint8_t d2 = 0;
 
             event.desc.val = std::bit_cast<uint8_t>(readU8());
-            switch (event.desc.e.type)
+            switch (std::bit_cast<uint8_t>(event.desc.e.type))
             {
             case MUS_EVENT_TYPE_RELEASE_NOTE:
                 d1 = readU8();
@@ -120,9 +120,9 @@ namespace HyperSonicDrivers::files::dmx
                     d1 &= 0x7F;
                     d2 = readU8();
                     assertValid_((d2 & 0x80) == 0);
-                    channelVol[std::bit_cast<uint8_t>(event.desc.e.channel)] = d2;
+                    channelVol[std::bit_cast<uint8_t>(std::bit_cast<uint8_t>(event.desc.e.channel))] = d2;
                 }
-                d2 = channelVol[std::bit_cast<uint8_t>(event.desc.e.channel)];
+                d2 = channelVol[std::bit_cast<uint8_t>(std::bit_cast<uint8_t>(event.desc.e.channel))];
                 event.data.push_back(d1);
                 event.data.push_back(d2);
                 break;
@@ -160,7 +160,7 @@ namespace HyperSonicDrivers::files::dmx
             if (!event.data.empty())
                 _mus.push_back(event);
 
-            if (event.desc.e.last != 0)
+            if (std::bit_cast<uint8_t>(event.desc.e.last) != 0)
             {
                 // compute delay
                 uint32_t dd = 0;
