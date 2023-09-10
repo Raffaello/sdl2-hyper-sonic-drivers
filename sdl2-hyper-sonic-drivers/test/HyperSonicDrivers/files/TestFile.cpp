@@ -24,6 +24,32 @@ namespace HyperSonicDrivers::files
     {
         EXPECT_THROW(File f("nofile.nofile"), std::system_error);
     }
+
+    class FileMock : public File
+    {
+    public:
+        FileMock(const std::string& filename) : File(filename) {}
+        std::string readStringFromFile() const
+        {
+            return readStringFromFile_();
+        }
+    };
+
+    TEST(File, readEmptyString)
+    {
+        FileMock f("../fixtures/empty.zero");
+
+        std::string s = "test";
+        EXPECT_NO_THROW(s = f.readStringFromFile());
+        EXPECT_TRUE(s.empty());
+    }
+
+    TEST(File, readString_EOF)
+    {
+        FileMock f("../fixtures/empty.empty");
+
+        EXPECT_THROW(f.readStringFromFile(), std::system_error);
+    }
 }
 
 int main(int argc, char** argv)
