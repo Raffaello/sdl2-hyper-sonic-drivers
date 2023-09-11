@@ -115,8 +115,6 @@ namespace HyperSonicDrivers::drivers::midi::opl
             else
                 ++it;
         }
-
-        //spdlog::debug("noteOff {} {} ({})", chan, note, _voiceIndexesInUse.size());
     }
 
     void OplDriver::noteOn(const uint8_t chan, const uint8_t note, const uint8_t vol) noexcept
@@ -142,8 +140,6 @@ namespace HyperSonicDrivers::drivers::midi::opl
                 if (freeSlot != -1)
                     allocateVoice(freeSlot, chan, note, vol, instr, true);
             }
-
-            //spdlog::debug("noteOn note={:d} ({:d}) - vol={:d} ({:d}) - pitch={:d} - ch={:d}", voice->_note, voice->_realnote, /*voice->volume*/ -1, /*voice->realvolume*/ -1, voice->pitch, voice->_channel);
         }
         else
         {

@@ -129,6 +129,11 @@ namespace HyperSonicDrivers::audio::mixer
         {
             m_volR = m_volL = vol / mixer::Channel_max_volume;
         }
+
+        // adjust for master volume
+        const auto m_vol = m_mixer.getMasterVolume();
+        m_volL = ((m_volL * m_vol) / mixer::Mixer_max_volume);
+        m_volR = ((m_volR * m_vol) / mixer::Mixer_max_volume);
     }
 
 }
