@@ -39,7 +39,9 @@ install(
 install(DIRECTORY
     src/
     DESTINATION static/include
-    FILES_MATCHING PATTERN "*.hpp"
+    FILES_MATCHING
+        PATTERN "*.hpp"
+        PATTERN "*.h"
 )
 
 ## NOTE: very error prone in this way...
