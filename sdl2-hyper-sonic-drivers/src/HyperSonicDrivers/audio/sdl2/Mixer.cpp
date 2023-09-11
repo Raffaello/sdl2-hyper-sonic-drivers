@@ -39,9 +39,6 @@ namespace HyperSonicDrivers::audio::sdl2
             return false;
         }
 
-        const char* sdlDriverName = SDL_GetCurrentAudioDriver();
-        logI(std::format("Using SDL Audio Driver '{}'", sdlDriverName));
-
         // Get the desired audio specs
         SDL_AudioSpec desired = {
             .freq = static_cast<int>(m_sampleRate),
@@ -53,12 +50,15 @@ namespace HyperSonicDrivers::audio::sdl2
         };
 
         SDL_AudioSpec obtained;
-        m_device_id = SDL_OpenAudioDevice(nullptr, 0, &desired, &obtained, 0);
+        m_device_id = SDL_OpenAudioDevice(SDL_GetAudioDeviceName(10, 0), 0, &desired, &obtained, 0);
         if (m_device_id == 0)
         {
             logE("can't open audio device");
             return false;
         }
+
+        const char* sdlDriverName = SDL_GetCurrentAudioDriver();
+        logI(std::format("Using SDL Audio Driver '{}'", sdlDriverName));
 
         if (obtained.format != desired.format)
         {
@@ -225,14 +225,14 @@ namespace HyperSonicDrivers::audio::sdl2
 
     void Mixer::setMasterVolume(const uint8_t master_volume) noexcept
     {
+        std::scoped_lock lck(m_mutex);
+
         m_master_volume = master_volume;
         updateChannelsVolumePan_();
     }
 
     void Mixer::updateChannelsVolumePan_() noexcept
     {
-        std::scoped_lock lck(m_mutex);
-
         for (const auto& ch : m_channels)
             ch->updateVolumePan();
     }
