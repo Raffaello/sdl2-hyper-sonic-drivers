@@ -113,27 +113,15 @@ namespace HyperSonicDrivers::audio::mixer
         }
 
         const uint16_t vol = m_volume * m_mixer.getChannelGroupVolume(m_group);
-        if (m_pan < 0)
-        {
-            // left linear pan
-            m_volL = vol / mixer::Channel_max_volume;
-            m_volR = ((127 + m_pan) * vol) / (mixer::Channel_max_volume * 127);
-        }
-        else if (m_pan > 0)
-        {
-            // right linear pan
-            m_volL = ((127 + m_pan) * vol) / (mixer::Channel_max_volume * 127);
-            m_volR = vol / mixer::Channel_max_volume;
-        }
-        else
-        {
-            m_volR = m_volL = vol / mixer::Channel_max_volume;
-        }
+        const float pan = (127.5f + m_pan) / 255.0f;
+        // TODO: create different selectable pan laws
+        // -3dB pan law
+        m_volL = sqrt(1 - pan) * vol / mixer::Channel_max_volume;
+        m_volR = sqrt(pan) * vol / mixer::Channel_max_volume;;
 
         // adjust for master volume
         const auto m_vol = m_mixer.getMasterVolume();
         m_volL = ((m_volL * m_vol) / mixer::Mixer_max_volume);
         m_volR = ((m_volR * m_vol) / mixer::Mixer_max_volume);
     }
-
 }

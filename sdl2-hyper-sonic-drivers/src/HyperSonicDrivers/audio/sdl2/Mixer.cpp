@@ -82,8 +82,8 @@ namespace HyperSonicDrivers::audio::sdl2
     std::optional<uint8_t> Mixer::play(
         const mixer::eChannelGroup group,
         const std::shared_ptr<IAudioStream>& stream,
-        const uint8_t vol, const int8_t pan)
-    {
+        const uint8_t vol, const int8_t pan
+    ) {
         // find a free channel
         int i = 0;
         for (; i < max_channels; i++)

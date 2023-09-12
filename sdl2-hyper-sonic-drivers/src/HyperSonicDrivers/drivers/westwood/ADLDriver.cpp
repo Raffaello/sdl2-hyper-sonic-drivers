@@ -23,7 +23,7 @@ namespace HyperSonicDrivers::drivers::westwood
     using utils::logE;
     using utils::throwLogE;
 
-    ADLDriver::ADLDriver(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<files::westwood::ADLFile>& adl_file)
+    /*ADLDriver::ADLDriver(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<files::westwood::ADLFile>& adl_file)
         : m_opl(opl), m_rnd(random_seed)
     {
         if (!m_opl || !m_opl->init())
@@ -46,8 +46,38 @@ namespace HyperSonicDrivers::drivers::westwood
         stopAllChannels();
         setADLFile(adl_file);
         initDriver();
-        setMusicVolume(255);
-        setSfxVolume(255);
+        setOplMusicVolume(255);
+        setOplSfxVolume(255);
+    }*/
+
+    ADLDriver::ADLDriver(
+        const std::shared_ptr<hardware::opl::OPL>& opl,
+        const audio::mixer::eChannelGroup group,
+        const uint8_t volume,
+        const uint8_t pan
+    ) : m_opl(opl), m_rnd(random_seed)
+    {
+        if (!m_opl || !m_opl->init())
+        {
+            throwLogE<std::runtime_error>("Failed to initialize OPL or OPL is null");
+        }
+
+        memset(m_channels.data(), 0, sizeof(m_channels));
+
+        hardware::opl::TimerCallBack cb = std::bind(&ADLDriver::callback, this);
+        auto p = std::make_shared<hardware::opl::TimerCallBack>(cb);
+        m_opl->start(
+            p,
+            group,
+            volume,
+            pan,
+            callbacks_per_second
+        );
+
+        stopAllChannels();
+        initDriver();
+        setOplMusicVolume(255);
+        setOplSfxVolume(255);
     }
 
     void ADLDriver::setADLFile(const std::shared_ptr<files::westwood::ADLFile>& adl_file) noexcept
@@ -163,11 +193,11 @@ namespace HyperSonicDrivers::drivers::westwood
         m_syncJumpMask = mask;
     }
 
-    void ADLDriver::setMusicVolume(const uint8_t volume)
+    void ADLDriver::setOplMusicVolume(const uint8_t volume)
     {
         const std::scoped_lock lock(m_mutex);
 
-        m_musicVolume = volume;
+        m_oplMusicVolume = volume;
 
         for (uint8_t i = 0; i < 6; ++i)
         {
@@ -187,7 +217,7 @@ namespace HyperSonicDrivers::drivers::westwood
         //if (m_version < 4)
         if (m_version < 3)
         {
-            m_sfxVolume = volume;
+            m_oplSfxVolume = volume;
 
             for (uint8_t i = 6; i < NUM_CHANNELS; ++i)
             {
@@ -203,7 +233,7 @@ namespace HyperSonicDrivers::drivers::westwood
         }
     }
 
-    void ADLDriver::setSfxVolume(const uint8_t volume)
+    void ADLDriver::setOplSfxVolume(const uint8_t volume)
     {
         // We only support sfx volume in version 4 games.
         if (m_version < 3)
@@ -211,7 +241,7 @@ namespace HyperSonicDrivers::drivers::westwood
 
         const std::scoped_lock lock(m_mutex);
 
-        m_sfxVolume = volume;
+        m_oplSfxVolume = volume;
 
         for (uint8_t i = 6; i < 9; ++i) {
             Channel& chan = m_channels[i];
@@ -937,9 +967,9 @@ namespace HyperSonicDrivers::drivers::westwood
             channel.duration = 1;
 
             if (chan <= 5)
-                channel.volumeModifier = m_musicVolume;
+                channel.volumeModifier = m_oplMusicVolume;
             else
-                channel.volumeModifier = m_sfxVolume;
+                channel.volumeModifier = m_oplSfxVolume;
 
             initAdlibChannel(chan);
 
@@ -1191,9 +1221,9 @@ namespace HyperSonicDrivers::drivers::westwood
             channel2.duration = 1;
 
             if (chan <= 5)
-                channel2.volumeModifier = m_musicVolume;
+                channel2.volumeModifier = m_oplMusicVolume;
             else
-                channel2.volumeModifier = m_sfxVolume;
+                channel2.volumeModifier = m_oplSfxVolume;
 
             initAdlibChannel(chan);
 

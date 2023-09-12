@@ -20,7 +20,8 @@ namespace HyperSonicDrivers::drivers::westwood
         EXPECT_EQ(opl.use_count(), 1);
         EXPECT_EQ(mixer.use_count(), 2);
 
-        ADLDriver adlDrv(opl, adlFile);
+        ADLDriver adlDrv(opl, audio::mixer::eChannelGroup::Plain);
+        adlDrv.setADLFile(adlFile);
         EXPECT_EQ(opl.use_count(), 2);
         EXPECT_EQ(adlFile.use_count(), 2);
     }
@@ -37,7 +38,8 @@ namespace HyperSonicDrivers::drivers::westwood
         EXPECT_EQ(opl.use_count(), 1);
         EXPECT_EQ(mixer.use_count(), 2);
 
-        auto adlDrv = std::make_shared<ADLDriver>(opl, adlFile);
+        auto adlDrv = std::make_shared<ADLDriver>(opl, audio::mixer::eChannelGroup::Plain);
+        adlDrv->setADLFile(adlFile);
         EXPECT_EQ(adlDrv.use_count(), 1);
         EXPECT_EQ(opl.use_count(), 2);
         EXPECT_EQ(adlFile.use_count(), 2);

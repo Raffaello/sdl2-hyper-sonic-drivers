@@ -31,12 +31,13 @@ void adl_test(const OplEmulator emu, const OplType type, std::shared_ptr<audio::
         return;
 
     auto adlFile = std::make_shared<ADLFile>(filename);
-    ADLDriver adlDrv(opl, adlFile);
+    ADLDriver adlDrv(opl, audio::mixer::eChannelGroup::Music);
+    adlDrv.setADLFile(adlFile);
     adlDrv.play(track, 0xFF);
 
-    while (!mixer->isReady()) {
-        spdlog::info("mixer not ready yet..");
-        delayMillis(100);
+    if(!mixer->isReady()) {
+        spdlog::error("mixer not ready yet..");
+        return;
     }
 
     do

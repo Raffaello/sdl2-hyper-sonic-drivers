@@ -31,7 +31,12 @@ namespace HyperSonicDrivers::drivers::westwood
     {
     public:
         [[deprecated]]
-        explicit ADLDriver(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<files::westwood::ADLFile>& adl_file);
+        explicit ADLDriver(
+            const std::shared_ptr<hardware::opl::OPL>& opl,
+            const audio::mixer::eChannelGroup group,
+            const uint8_t volume = 255,
+            const uint8_t pan = 0
+        );
         // NOTE: midi:devices:Adlib, it should receive devices::Adlib instead of OPL, but those are working only with MIDDriver
         //explicit ADLDriver(const midi::devices::Adlib& opl, const std::shared_ptr<files::westwood::ADLFile>& adl_file);
         virtual ~ADLDriver() = default;
@@ -45,8 +50,8 @@ namespace HyperSonicDrivers::drivers::westwood
         void callback();
         void setSyncJumpMask(const uint16_t mask);
 
-        void setMusicVolume(const uint8_t volume);
-        void setSfxVolume(const uint8_t volume);
+        void setOplMusicVolume(const uint8_t volume);
+        void setOplSfxVolume(const uint8_t volume);
 
         void play(const uint8_t track, const uint8_t volume);
         bool isPlaying();
@@ -294,8 +299,8 @@ namespace HyperSonicDrivers::drivers::westwood
 
         mutable std::mutex m_mutex;
 
-        uint8_t m_musicVolume = 0;
-        uint8_t m_sfxVolume = 0;
+        uint8_t m_oplMusicVolume = 0;
+        uint8_t m_oplSfxVolume = 0;
 
         // Version 1,2,3 possible values, version 3&4 merged into version 3
         uint8_t m_version = 0;
