@@ -16,18 +16,19 @@ namespace HyperSonicDrivers::drivers::westwood
     constexpr int random_seed = 0x1234;
     constexpr int random_inc = 0x9248;
 
-    using utils::READ_BE_UINT16;
-    using utils::READ_LE_UINT16;
+    using utils::readBE_uint16;
+    using utils::readLE_uint16;
     using utils::logD;
     using utils::logW;
     using utils::logE;
+    using utils::throwLogE;
 
     ADLDriver::ADLDriver(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<files::westwood::ADLFile>& adl_file)
         : m_opl(opl), m_rnd(random_seed)
     {
         if (!m_opl || !m_opl->init())
         {
-            logE("Failed to initialize OPL");
+            throwLogE<std::runtime_error>("Failed to initialize OPL or OPL is null");
         }
 
         memset(m_channels.data(), 0, sizeof(m_channels));
@@ -1126,7 +1127,7 @@ namespace HyperSonicDrivers::drivers::westwood
     int ADLDriver::update_checkRepeat(Channel& channel, const uint8_t* values)
     {
         if (--channel.repeatCounter) {
-            int16_t add = READ_LE_UINT16(values);
+            int16_t add = readLE_uint16(values);
 
             // Safety check: ignore jump to invalid address
             if (!checkDataOffset(channel.dataptr, add))
@@ -1209,7 +1210,7 @@ namespace HyperSonicDrivers::drivers::westwood
 
     int ADLDriver::update_jump(Channel& channel, const uint8_t* values)
     {
-        int16_t add = READ_LE_UINT16(values);
+        int16_t add = readLE_uint16(values);
         // Safety check: ignore jump to invalid address
         if (m_version == 1)
             channel.dataptr = checkDataOffset(m_soundData.get(), add - 191);
@@ -1228,7 +1229,7 @@ namespace HyperSonicDrivers::drivers::westwood
 
     int ADLDriver::update_jumpToSubroutine(Channel& channel, const uint8_t* values)
     {
-        int16_t add = READ_LE_UINT16(values);
+        int16_t add = readLE_uint16(values);
 
         // Safety checks: ignore jumps when stack is full or address is invalid.
         if (channel.dataptrStackPos >= channel.dataptrStack.size())
@@ -1313,7 +1314,7 @@ namespace HyperSonicDrivers::drivers::westwood
         // since the sound data is exactly the same.
         // In DOSBox the teleporters will sound different in EOB I and II, due to different sound
         // data offsets.
-        channel.secondaryEffectData = READ_LE_UINT16(&values[3]) - 191;
+        channel.secondaryEffectData = readLE_uint16(&values[3]) - 191;
         channel.secondaryEffect = &ADLDriver::secondaryEffect1;
 
         // Safety check: don't enable effect when table location is invalid.
@@ -1390,7 +1391,7 @@ namespace HyperSonicDrivers::drivers::westwood
 
     int ADLDriver::update_setupPrimaryEffectSlide(Channel& channel, const uint8_t* values) {
         channel.slideTempo = values[0];
-        channel.slideStep = READ_BE_UINT16(&values[1]);
+        channel.slideStep = readBE_uint16(&values[1]);
         channel.primaryEffect = &ADLDriver::primaryEffectSlide;
         channel.slideTimer = 0xFF;
         return 0;
@@ -1628,7 +1629,7 @@ namespace HyperSonicDrivers::drivers::westwood
         if (m_curChannel >= NUM_CHANNELS)
             return 0;
 
-        uint16_t mask = READ_BE_UINT16(values);
+        uint16_t mask = readBE_uint16(values);
 
         uint16_t note = ((channel.regBx & 0x1F) << 8) | channel.regAx;
 

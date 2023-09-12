@@ -11,6 +11,6 @@ namespace HyperSonicDrivers::utils
     int16_t swapLE16(const int16_t num) noexcept;
     int16_t swapBE16(const int16_t num) noexcept;
 
-    uint16_t READ_LE_UINT16(const void* ptr) noexcept;
-    uint16_t READ_BE_UINT16(const void* ptr) noexcept;
+    uint16_t readLE_uint16(const void* ptr) noexcept;
+    uint16_t readBE_uint16(const void* ptr) noexcept;
 }
