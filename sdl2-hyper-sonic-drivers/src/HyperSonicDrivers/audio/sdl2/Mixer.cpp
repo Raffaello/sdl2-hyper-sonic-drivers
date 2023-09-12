@@ -242,12 +242,12 @@ namespace HyperSonicDrivers::audio::sdl2
         const std::scoped_lock lck(m_mutex);
 
         int16_t* buf = std::bit_cast<int16_t*>(samples);
-        // we store stereo, 16-bit samples (2 for stereo, 2 from 8 to 16 bits)
+        // we store stereo, 16-bit samples (div 2 for stereo and 2 from 8 to 16 bits)
         assert(len % 4 == 0);
-        len >>= 2;
-
-        //  zero the buf
-        memset(buf, 0, 2 * len * sizeof(int16_t));
+        len >>= 1;
+        //  zero the buf (size of 2ch stereo: len*2 of 16 bits)
+        memset(buf, 0, len * sizeof(int16_t));
+        len >>= 1; // size of the stereo 16 bits buffer.
 
         // mix all channels
         size_t res = 0;
@@ -255,6 +255,7 @@ namespace HyperSonicDrivers::audio::sdl2
         {
             const size_t tmp = ch->mix(buf, len);
 
+            // TODO: returning a value can be removed
             if (tmp > res)
                 res = tmp;
         }
