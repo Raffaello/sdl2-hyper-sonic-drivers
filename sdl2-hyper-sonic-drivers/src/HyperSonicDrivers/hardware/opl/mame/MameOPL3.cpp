@@ -29,7 +29,7 @@ namespace HyperSonicDrivers::hardware::opl::mame
     }
     bool MameOPL3::init()
     {
-        if (_init)
+        if (m_init)
         {
             return true;
         }
@@ -41,9 +41,9 @@ namespace HyperSonicDrivers::hardware::opl::mame
 
         _chip = ymf262_init(0, OPL3_INTERNAL_FREQ, m_mixer->getOutputRate());
         //_init = _opl != nullptr;
-        _init = _chip != nullptr;
+        m_init = _chip != nullptr;
 
-        return _init;
+        return m_init;
     }
     void MameOPL3::reset()
     {

@@ -24,15 +24,20 @@ namespace HyperSonicDrivers::hardware::opl
         _hasInstance = false;
     }
 
-    void OPL::start(const std::shared_ptr<TimerCallBack>& callback, int timerFrequency)
+    void OPL::start(
+        const std::shared_ptr<TimerCallBack>& callback,
+        const audio::mixer::eChannelGroup group,
+        const uint8_t volume,
+        const uint8_t pan,
+        const int timerFrequency)
     {
-        _callback = callback;
-        startCallbacks(timerFrequency);
+        m_callback = callback;
+        startCallbacks(group, volume, pan, timerFrequency);
     }
 
     void OPL::stop()
     {
         stopCallbacks();
-        _callback.reset();
+        m_callback.reset();
     }
 }

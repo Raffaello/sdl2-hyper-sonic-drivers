@@ -4,10 +4,11 @@
 #include <memory>
 #include <functional>
 #include <HyperSonicDrivers/hardware/opl/OplType.hpp>
+#include <HyperSonicDrivers/audio/mixer/ChannelGroup.hpp>
 
 namespace HyperSonicDrivers::hardware::opl
 {
-    constexpr int DEFAULT_CALLBACK_FREQUENCY = 250;
+    constexpr int default_opl_callback_freq = 250;
 
     typedef std::function<void()> TimerCallBack;
 
@@ -26,15 +27,9 @@ namespace HyperSonicDrivers::hardware::opl
 
         const OplType type;
 
-        inline bool isInit() const noexcept
-        {
-            return _init;
-        }
+        inline bool isInit() const noexcept { return m_init; }
 
-        inline bool isStereo() const noexcept
-        {
-            return type != OplType::OPL2;
-        }
+        inline bool isStereo() const noexcept { return type != OplType::OPL2; }
 
         /**
          * Initializes the OPL emulator.
@@ -79,7 +74,13 @@ namespace HyperSonicDrivers::hardware::opl
         /**
          * Start the OPL with callbacks.
          */
-        void start(const std::shared_ptr<TimerCallBack>& callback, int timerFrequency = DEFAULT_CALLBACK_FREQUENCY);
+        //void start(const std::shared_ptr<TimerCallBack>& callback, int timerFrequency = default_opl_callback_freq);
+        void start(
+            const std::shared_ptr<TimerCallBack>& callback,
+            const audio::mixer::eChannelGroup group = audio::mixer::eChannelGroup::Plain,
+            const uint8_t volume = 0,
+            const uint8_t pan = 0,
+            int timerFrequency = default_opl_callback_freq);
 
         /**
          * Stop the OPL
@@ -90,14 +91,19 @@ namespace HyperSonicDrivers::hardware::opl
          * Change the callback frequency. This must only be called from a
          * timer proc.
          */
-        virtual uint32_t setCallbackFrequency(int timerFrequency) = 0;
+        virtual uint32_t setCallbackFrequency(const int timerFrequency) = 0;
 
     protected:
-        bool _init = false;
+        bool m_init = false;
         /**
          * Start the callbacks.
          */
-        virtual void startCallbacks(int timerFrequency) = 0;
+        virtual void startCallbacks(
+            const audio::mixer::eChannelGroup group,
+            const uint8_t volume,
+            const uint8_t pan,
+            const int timerFrequency
+        ) = 0;
 
         /**
          * Stop the callbacks.
@@ -107,7 +113,7 @@ namespace HyperSonicDrivers::hardware::opl
         /**
          * The functor for callbacks.
          */
-        std::shared_ptr<TimerCallBack> _callback;
+        std::shared_ptr<TimerCallBack> m_callback;
     private:
         // moved into cpp file
         //static bool _hasInstance;

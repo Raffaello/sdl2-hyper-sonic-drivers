@@ -36,7 +36,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         void send(int8_t channel, uint32_t b) override; // Supports higher than channel 15
         uint32_t property(int prop, uint32_t param) override;
         bool isOpen() const override { return _isOpen; }
-        uint32_t getBaseTempo() override { return 1000000 / hardware::opl::DEFAULT_CALLBACK_FREQUENCY; }
+        uint32_t getBaseTempo() override { return 1000000 / hardware::opl::default_opl_callback_freq; }
 
         void setPitchBendRange(uint8_t channel, unsigned int range) override;
         void sysEx_customInstrument(uint8_t channel, uint32_t type, const uint8_t* instr) override;

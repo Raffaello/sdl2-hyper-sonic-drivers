@@ -15,7 +15,7 @@ namespace HyperSonicDrivers::hardware
 
             bool WoodyOPL::init()
             {
-                if (_init)
+                if (m_init)
                     return true;
 
                 stop();
@@ -24,9 +24,9 @@ namespace HyperSonicDrivers::hardware
                 else
                     _opl = std::make_unique<WoodyEmuOPL>(m_mixer->getOutputRate());
 
-                _init = _opl != nullptr;
+                m_init = _opl != nullptr;
 
-                if (!_init)
+                if (!m_init)
                     return false;
 
                 _opl->init();
