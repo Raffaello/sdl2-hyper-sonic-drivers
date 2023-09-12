@@ -38,7 +38,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
 
         hardware::opl::TimerCallBack cb = std::bind(&OplDriver::onTimer, this);
         auto p = std::make_shared<hardware::opl::TimerCallBack>(cb);
-        _opl->start(p);
+        _opl->start(p,);
     }
 
     OplDriver::~OplDriver()
