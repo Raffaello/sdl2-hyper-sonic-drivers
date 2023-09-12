@@ -81,9 +81,7 @@ namespace HyperSonicDrivers::hardware::opl
             audio::mixer::eChannelGroup::Plain,
             m_stream,
             audio::mixer::Channel_max_volume,
-            0,
-            // TODO: reverseStereo flag instead of false
-            false
+            0
         );
 
         if (!m_channel_id.has_value()) {

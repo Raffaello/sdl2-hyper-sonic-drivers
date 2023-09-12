@@ -57,8 +57,7 @@ namespace HyperSonicDrivers::drivers
             sound->group,
             *it,
             volume,
-            pan,
-            reverseStereo
+            pan
         );
 
         if (!channelId.has_value())

@@ -21,8 +21,7 @@ namespace HyperSonicDrivers::audio::stubs
             const mixer::eChannelGroup group,
             const std::shared_ptr<IAudioStream>& stream,
             const uint8_t vol,
-            const int8_t pan,
-            const bool reverseStereo
+            const int8_t pan
         ) override {
             return std::make_optional(0);
         };

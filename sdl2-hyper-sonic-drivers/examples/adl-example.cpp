@@ -38,7 +38,7 @@ void adl_test(const OplEmulator emu, const OplType type, std::shared_ptr<audio::
         spdlog::info("mixer not ready yet..");
         delayMillis(100);
     }
-    mixer->setMasterVolume(audio::mixer::Mixer_max_volume);
+
     do
     {
         //spdlog::info("is playing");

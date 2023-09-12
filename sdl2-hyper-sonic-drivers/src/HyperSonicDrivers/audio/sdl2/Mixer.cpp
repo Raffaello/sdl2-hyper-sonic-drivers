@@ -82,7 +82,7 @@ namespace HyperSonicDrivers::audio::sdl2
     std::optional<uint8_t> Mixer::play(
         const mixer::eChannelGroup group,
         const std::shared_ptr<IAudioStream>& stream,
-        const uint8_t vol, const int8_t pan, const bool reverseStereo)
+        const uint8_t vol, const int8_t pan)
     {
         // find a free channel
         int i = 0;
@@ -97,7 +97,7 @@ namespace HyperSonicDrivers::audio::sdl2
             return std::nullopt;
         }
 
-        m_channels[i]->setAudioStream(group, stream, vol, pan, reverseStereo);
+        m_channels[i]->setAudioStream(group, stream, vol, pan, m_reverseStereo);
 
         return std::make_optional(static_cast<uint8_t>(i));
     }
