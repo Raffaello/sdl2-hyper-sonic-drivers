@@ -50,7 +50,7 @@ namespace HyperSonicDrivers::audio::sdl2
         };
 
         SDL_AudioSpec obtained;
-        m_device_id = SDL_OpenAudioDevice(SDL_GetAudioDeviceName(10, 0), 0, &desired, &obtained, 0);
+        m_device_id = SDL_OpenAudioDevice(nullptr, 0, &desired, &obtained, 0);
         if (m_device_id == 0)
         {
             logE("can't open audio device");
