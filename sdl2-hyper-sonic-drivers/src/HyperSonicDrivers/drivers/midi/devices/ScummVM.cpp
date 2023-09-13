@@ -4,10 +4,13 @@
 
 namespace HyperSonicDrivers::drivers::midi::devices
 {
-    ScummVM::ScummVM(const std::shared_ptr<hardware::opl::OPL>& opl, const bool opl3mode) : Device()
+    ScummVM::ScummVM(const std::shared_ptr<hardware::opl::OPL>& opl, const bool opl3mode,
+        const audio::mixer::eChannelGroup group,
+        const uint8_t volume,
+        const uint8_t pan) : Device()
     {
         _adlib = std::make_shared<drivers::midi::scummvm::MidiDriver_ADLIB>(opl, opl3mode);
-        _adlib->open();
+        _adlib->open(group, volume, pan);
     }
 
     ScummVM::~ScummVM()

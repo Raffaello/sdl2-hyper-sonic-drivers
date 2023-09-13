@@ -30,7 +30,9 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         MidiDriver_ADLIB(const std::shared_ptr<hardware::opl::OPL>& opl, const bool opl3mode);
         ~MidiDriver_ADLIB() override;
 
-        int open() override;
+        int open(const audio::mixer::eChannelGroup group,
+            const uint8_t volume,
+            const uint8_t pan) override;
         void close() override;
         void send(uint32_t b) override;
         void send(int8_t channel, uint32_t b) override; // Supports higher than channel 15

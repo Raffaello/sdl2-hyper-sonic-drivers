@@ -12,6 +12,9 @@ namespace HyperSonicDrivers::drivers::midi::devices
     public:
         explicit SbPro(
             const std::shared_ptr<audio::IMixer>& mixer,
+            const audio::mixer::eChannelGroup group,
+            const uint8_t volume,
+            const uint8_t pan,
             const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank,
             const hardware::opl::OplEmulator emulator = hardware::opl::OplEmulator::AUTO);
 

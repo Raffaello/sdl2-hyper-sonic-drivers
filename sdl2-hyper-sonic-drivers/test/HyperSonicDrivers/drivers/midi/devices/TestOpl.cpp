@@ -21,6 +21,7 @@ namespace HyperSonicDrivers::drivers::midi::devices
     using hardware::opl::OPL;
     using files::dmx::OP2File;
     using files::dmx::OP2File;
+    using audio::mixer::eChannelGroup;
 
     const std::string GENMIDI_OP2 = std::string("../fixtures/GENMIDI.OP2");
 

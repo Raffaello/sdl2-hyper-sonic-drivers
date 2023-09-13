@@ -27,8 +27,12 @@ namespace HyperSonicDrivers::drivers::midi::opl
     class OplDriver
     {
     public:
+        [[deprecated("replace opl argument with device")]]
         OplDriver(const std::shared_ptr<hardware::opl::OPL>& opl,
-            const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank);
+            const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank,
+            const audio::mixer::eChannelGroup group,
+            const uint8_t volume,
+            const uint8_t pan);
         ~OplDriver();
 
         void send(const audio::midi::MIDIEvent& e) /*const*/ noexcept;
@@ -43,7 +47,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
         std::array<std::unique_ptr<OplChannel>, audio::midi::MIDI_MAX_CHANNELS>  _channels;
 
         // TODO: this if is OPL2 should have less
-        std::array<std::unique_ptr<OplVoice>, drivers::opl::OPL3_NUM_CHANNELS> _voices;
+        std::array<std::unique_ptr<OplVoice>, drivers::opl::opl3_num_channels> _voices;
         std::unique_ptr<drivers::opl::OplWriter> _oplWriter;
 
         // TODO review to make this index more efficient (and its complementary)

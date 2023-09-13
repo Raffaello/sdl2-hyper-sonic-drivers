@@ -4,11 +4,12 @@
 #include <memory>
 #include <HyperSonicDrivers/hardware/opl/OPL.hpp>
 #include <HyperSonicDrivers/hardware/opl/OPL2instrument.h>
+#include <HyperSonicDrivers/audio/mixer/ChannelGroup.hpp>
 
 namespace HyperSonicDrivers::drivers::opl
 {
-    constexpr uint8_t OPL2_NUM_CHANNELS = 9;
-    constexpr uint8_t OPL3_NUM_CHANNELS = 18;
+    constexpr uint8_t opl2_num_channels = 9;
+    constexpr uint8_t opl3_num_channels = 18;
 
     class OplWriter
     {
@@ -17,6 +18,7 @@ namespace HyperSonicDrivers::drivers::opl
         OplWriter(OplWriter&) = delete;
         OplWriter(OplWriter&&) = delete;
         OplWriter& operator=(const OplWriter&) = delete;
+
         explicit OplWriter(const std::shared_ptr<hardware::opl::OPL>& opl, const bool opl3_mode);
         ~OplWriter();
 

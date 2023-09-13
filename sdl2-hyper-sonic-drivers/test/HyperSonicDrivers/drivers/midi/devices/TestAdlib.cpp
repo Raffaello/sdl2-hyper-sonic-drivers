@@ -15,6 +15,7 @@ namespace HyperSonicDrivers::drivers::midi::devices
     using hardware::opl::OplEmulator;
     using hardware::opl::OPLFactory;
     using files::dmx::OP2File;
+    using audio::mixer::eChannelGroup;
 
     const std::string GENMIDI_OP2 = std::string("../fixtures/GENMIDI.OP2");
 
@@ -22,7 +23,7 @@ namespace HyperSonicDrivers::drivers::midi::devices
     {
         auto op2File = OP2File(GENMIDI_OP2);
         auto mixer = std::make_shared<StubMixer>();
-        EXPECT_NO_THROW(auto a = std::make_shared<Adlib>(mixer, op2File.getBank()));
+        EXPECT_NO_THROW(auto a = std::make_shared<Adlib>(mixer, eChannelGroup::Plain, 255, 0, op2File.getBank()));
     }
 
     class AdliblEmulator_ : public ::testing::TestWithParam<std::tuple<hardware::opl::OplEmulator, bool>>
@@ -38,12 +39,12 @@ namespace HyperSonicDrivers::drivers::midi::devices
     {
         if (this->shouldThrow) {
             EXPECT_THROW(
-                auto a = std::make_shared<devices::Adlib>(this->mixer, this->op2File.getBank(), this->oplEmu),
+                auto a = std::make_shared<devices::Adlib>(this->mixer, eChannelGroup::Plain, 255, 0, this->op2File.getBank(), this->oplEmu),
                 std::runtime_error
             );
         }
         else {
-            EXPECT_NO_THROW(auto a = std::make_shared<devices::Adlib>(this->mixer, this->op2File.getBank(), this->oplEmu));
+            EXPECT_NO_THROW(auto a = std::make_shared<devices::Adlib>(this->mixer, eChannelGroup::Plain, 255, 0, this->op2File.getBank(), this->oplEmu));
         }
     }
 
@@ -63,7 +64,7 @@ namespace HyperSonicDrivers::drivers::midi::devices
     {
         auto op2File = OP2File(GENMIDI_OP2);
         auto mixer = std::make_shared<StubMixer>();
-        EXPECT_NO_THROW(Adlib(mixer, op2File.getBank()));
+        EXPECT_NO_THROW(Adlib(mixer, eChannelGroup::Plain, 255, 0, op2File.getBank()));
     }
 }
 

@@ -78,7 +78,7 @@ namespace HyperSonicDrivers::hardware::opl
         void start(
             const std::shared_ptr<TimerCallBack>& callback,
             const audio::mixer::eChannelGroup group = audio::mixer::eChannelGroup::Plain,
-            const uint8_t volume = 0,
+            const uint8_t volume = 255,
             const uint8_t pan = 0,
             int timerFrequency = default_opl_callback_freq);
 

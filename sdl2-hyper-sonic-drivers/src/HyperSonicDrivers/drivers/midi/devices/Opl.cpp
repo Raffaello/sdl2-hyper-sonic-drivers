@@ -10,7 +10,12 @@ namespace HyperSonicDrivers::drivers::midi::devices
 {
     using utils::throwLogC;
 
-    Opl::Opl(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank)
+    Opl::Opl(
+        const std::shared_ptr<hardware::opl::OPL>& opl,
+        const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank,
+        const audio::mixer::eChannelGroup group,
+        const uint8_t volume,
+        const uint8_t pan)
         : Device()/*, OplDriver(opl, op2Bank, opl3_mode)*/
     {
         if (opl == nullptr)
@@ -18,20 +23,23 @@ namespace HyperSonicDrivers::drivers::midi::devices
             throwLogC<std::runtime_error>("opl is nullptr");
         }
 
-        _oplDriver = std::make_shared<drivers::midi::opl::OplDriver>(opl, op2Bank);
+        _oplDriver = std::make_shared<drivers::midi::opl::OplDriver>(opl, op2Bank, group, volume, pan);
     }
 
     Opl::Opl(const hardware::opl::OplType type,
         const hardware::opl::OplEmulator emuType,
         const std::shared_ptr<audio::IMixer>& mixer,
-        const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank)
+        const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank,
+        const audio::mixer::eChannelGroup group,
+        const uint8_t volume,
+        const uint8_t pan)
     {
         auto opl = hardware::opl::OPLFactory::create(emuType, type, mixer);
         if (opl == nullptr || opl->type != type)
         {
             throwLogC<std::runtime_error>(std::format("device Opl not supporting emu_type={}, type={}", emuType, type));
         }
-        _oplDriver = std::make_shared<drivers::midi::opl::OplDriver>(opl, op2Bank);
+        _oplDriver = std::make_shared<drivers::midi::opl::OplDriver>(opl, op2Bank, group, volume, pan);
     }
 
     void Opl::sendEvent(const audio::midi::MIDIEvent& e) const noexcept
