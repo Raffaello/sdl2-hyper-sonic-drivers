@@ -43,7 +43,6 @@ namespace HyperSonicDrivers::drivers::midi::devices
         const bool shouldThrow = std::get<2>(GetParam());
         const OP2File op2File = OP2File(GENMIDI_OP2);
         const std::shared_ptr<StubMixer> mixer = std::make_shared<StubMixer>();
-
     };
     TEST_P(OplEmulator_, cstr_type_emu)
     {

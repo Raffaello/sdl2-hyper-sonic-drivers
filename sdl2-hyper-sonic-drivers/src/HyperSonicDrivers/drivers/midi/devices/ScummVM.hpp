@@ -21,8 +21,8 @@ namespace HyperSonicDrivers::drivers::midi::devices
         [[deprecated]]
         explicit ScummVM(const std::shared_ptr<hardware::opl::OPL>& opl, const bool opl3mode,
             const audio::mixer::eChannelGroup group,
-            const uint8_t volume,
-            const uint8_t pan);
+            const uint8_t volume = 255,
+            const uint8_t pan = 0);
 
         ~ScummVM() override;
 

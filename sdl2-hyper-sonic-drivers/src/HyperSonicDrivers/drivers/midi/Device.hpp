@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <atomic>
+#include <memory>
 #include <HyperSonicDrivers/audio/midi/MIDIEvent.hpp>
 
 
@@ -54,5 +55,12 @@ namespace HyperSonicDrivers::drivers
             std::atomic<bool> _acquired = false;
             std::atomic<drivers::MIDDriver*> _owner = nullptr;
         };
+
+        // TODO: replace variadic template with exact arguments
+        template<class T, typename... Args>
+        std::shared_ptr<T> make_device(Args... args)
+        {
+            return std::make_shared<T>(args...);
+        }
     }
 }
