@@ -72,15 +72,11 @@ namespace HyperSonicDrivers::drivers::westwood
 
     void ADLDriver::initDriver_()
     {
-        //const std::scoped_lock lock(m_mutex);
-
         resetAdLibState_();
     }
 
     void ADLDriver::startSound_(const int track, const int volume)
     {
-        //const std::scoped_lock lock(m_mutex);
-
         uint8_t* trackData = getProgram_(track);
         if (trackData == nullptr) {
             return;
