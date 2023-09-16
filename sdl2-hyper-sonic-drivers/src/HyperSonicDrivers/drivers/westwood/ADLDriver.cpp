@@ -28,7 +28,7 @@ namespace HyperSonicDrivers::drivers::westwood
         const audio::mixer::eChannelGroup group,
         const uint8_t volume,
         const uint8_t pan
-    ) : m_opl(opl), m_rnd(random_seed)
+    ) : m_rnd(random_seed), m_opl(opl)
     {
         if (!m_opl || !m_opl->init())
         {
@@ -75,7 +75,7 @@ namespace HyperSonicDrivers::drivers::westwood
         resetAdLibState_();
     }
 
-    void ADLDriver::startSound_(const int track, const int volume)
+    void ADLDriver::startSound_(const uint8_t track, const uint8_t volume)
     {
         uint8_t* trackData = getProgram_(track);
         if (trackData == nullptr) {

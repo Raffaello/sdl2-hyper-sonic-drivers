@@ -57,7 +57,7 @@ namespace HyperSonicDrivers::drivers::westwood
         bool isPlaying();
     private:
         void initDriver_();
-        void startSound_(const int track, const int volume);
+        void startSound_(const uint8_t track, const uint8_t volume);
 
         std::shared_ptr<files::westwood::ADLFile> m_adl_file = nullptr;
 
@@ -271,7 +271,7 @@ namespace HyperSonicDrivers::drivers::westwood
         bool m_retrySounds = false;
 
         void adjustSfxData(uint8_t* data, int volume);
-        uint8_t* m_sfxPointer = 0;
+        uint8_t* m_sfxPointer = nullptr;
         int m_sfxPriority;
         int m_sfxVelocity;
 
