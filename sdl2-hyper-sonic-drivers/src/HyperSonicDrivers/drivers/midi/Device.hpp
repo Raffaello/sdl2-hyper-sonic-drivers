@@ -20,6 +20,9 @@ namespace HyperSonicDrivers::drivers
             Device() = default;
             virtual ~Device() = default;
 
+            // TODO: integrate MT-32 first as a device
+            //virtual bool init() noexcept = 0;
+
             virtual void sendEvent(const audio::midi::MIDIEvent& e) const noexcept = 0;
             virtual void sendMessage(const uint8_t msg[], const uint8_t size) const noexcept = 0;
             virtual void sendSysEx(const audio::midi::MIDIEvent& e) const noexcept = 0;
