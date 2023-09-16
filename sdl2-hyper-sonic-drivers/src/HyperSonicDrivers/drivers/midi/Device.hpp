@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <atomic>
+#include <memory>
 #include <HyperSonicDrivers/audio/midi/MIDIEvent.hpp>
 
 
@@ -18,6 +19,9 @@ namespace HyperSonicDrivers::drivers
         public:
             Device() = default;
             virtual ~Device() = default;
+
+            // TODO: integrate MT-32 first as a device
+            //virtual bool init() noexcept = 0;
 
             virtual void sendEvent(const audio::midi::MIDIEvent& e) const noexcept = 0;
             virtual void sendMessage(const uint8_t msg[], const uint8_t size) const noexcept = 0;
@@ -54,5 +58,12 @@ namespace HyperSonicDrivers::drivers
             std::atomic<bool> _acquired = false;
             std::atomic<drivers::MIDDriver*> _owner = nullptr;
         };
+
+        // TODO: replace variadic template with exact arguments
+        template<class T, typename... Args>
+        std::shared_ptr<T> make_device(Args... args)
+        {
+            return std::make_shared<T>(args...);
+        }
     }
 }

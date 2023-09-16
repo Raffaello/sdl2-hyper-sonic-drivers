@@ -13,7 +13,7 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::nuked
 
     bool NukedOPL::init()
     {
-        if (_init)
+        if (m_init)
             return true;
 
         memset(&_reg, 0, sizeof(_reg));
@@ -24,8 +24,8 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::nuked
             OPL3_WriteReg(chip.get(), 0x105, 0x01);
         }
 
-        _init = true;
-        return _init;
+        m_init = true;
+        return m_init;
     }
 
     void NukedOPL::reset()

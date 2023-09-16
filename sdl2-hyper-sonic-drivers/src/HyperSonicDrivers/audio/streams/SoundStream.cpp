@@ -4,7 +4,7 @@
 
 namespace HyperSonicDrivers::audio::streams
 {
-    using utils::READ_LE_UINT16;
+    using utils::readLE_uint16;
 
     SoundStream::SoundStream(const std::shared_ptr<Sound>& sound)
         : m_sound(sound)

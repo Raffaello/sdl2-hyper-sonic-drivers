@@ -24,8 +24,7 @@ namespace HyperSonicDrivers::audio::sdl2
             const mixer::eChannelGroup group,
             const std::shared_ptr<IAudioStream>& stream,
             const uint8_t vol,
-            const int8_t pan,
-            const bool reverseStereo
+            const int8_t pan
         ) override;
 
         void suspend() noexcept override;
@@ -54,6 +53,8 @@ namespace HyperSonicDrivers::audio::sdl2
         void setChannelPan(const uint8_t id, const int8_t pan) noexcept override;
 
         void setChannelVolumePan(const uint8_t id, const uint8_t volume, const int8_t pan) noexcept override;
+
+        void setMasterVolume(const uint8_t master_volume) noexcept override;
 
     private:
         void updateChannelsVolumePan_() noexcept;

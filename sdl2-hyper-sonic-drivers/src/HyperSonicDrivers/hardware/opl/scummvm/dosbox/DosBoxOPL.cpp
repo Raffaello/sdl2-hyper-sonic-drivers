@@ -26,7 +26,7 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::dosbox
 
     bool DosBoxOPL::init()
     {
-        _init = false;
+        m_init = false;
         free();
 
         memset(&_reg, 0, sizeof(_reg));
@@ -44,7 +44,7 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::dosbox
             _emulator->WriteReg(0x105, 1);
         }
 
-        _init = true;
+        m_init = true;
         return true;
     }
 

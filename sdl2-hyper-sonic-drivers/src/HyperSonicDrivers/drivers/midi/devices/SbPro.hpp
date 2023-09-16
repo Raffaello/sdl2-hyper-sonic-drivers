@@ -13,7 +13,10 @@ namespace HyperSonicDrivers::drivers::midi::devices
         explicit SbPro(
             const std::shared_ptr<audio::IMixer>& mixer,
             const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank,
-            const hardware::opl::OplEmulator emulator = hardware::opl::OplEmulator::AUTO);
+            const audio::mixer::eChannelGroup group,
+            const hardware::opl::OplEmulator emulator = hardware::opl::OplEmulator::AUTO,
+            const uint8_t volume = 255,
+            const uint8_t pan = 0);
 
         ~SbPro() override = default;
 

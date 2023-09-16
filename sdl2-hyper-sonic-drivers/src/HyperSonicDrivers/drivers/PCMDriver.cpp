@@ -44,7 +44,7 @@ namespace HyperSonicDrivers::drivers
         return false;
     }
 
-    std::optional<uint8_t> PCMDriver::play(const std::shared_ptr<audio::Sound>& sound, const uint8_t volume, const int8_t pan, const bool reverseStereo)
+    std::optional<uint8_t> PCMDriver::play(const std::shared_ptr<audio::Sound>& sound, const uint8_t volume, const int8_t pan)
     {
         // find first free slot
         auto it = std::ranges::find_if_not(m_soundStreams, isSoundStreamPlaying_);
@@ -57,8 +57,7 @@ namespace HyperSonicDrivers::drivers
             sound->group,
             *it,
             volume,
-            pan,
-            reverseStereo
+            pan
         );
 
         if (!channelId.has_value())

@@ -7,44 +7,21 @@
 #include <HyperSonicDrivers/hardware/opl/OplType.hpp>
 #include <HyperSonicDrivers/files/dmx/OP2File.hpp>
 #include <HyperSonicDrivers/hardware/opl/OPLFactory.hpp>
+#include <HyperSonicDrivers/drivers/midi/devices/EmulatorTestCase.hpp>
 
 namespace HyperSonicDrivers::drivers::midi::devices
 {
-    using audio::stubs::StubMixer;
-    using hardware::opl::OplType;
-    using hardware::opl::OplEmulator;
-    using hardware::opl::OPLFactory;
-    using files::dmx::OP2File;
-
-    const std::string GENMIDI_OP2 = std::string("../fixtures/GENMIDI.OP2");
-
     TEST(Adlib, cstor_)
     {
         auto op2File = OP2File(GENMIDI_OP2);
         auto mixer = std::make_shared<StubMixer>();
-        EXPECT_NO_THROW(auto a = std::make_shared<Adlib>(mixer, op2File.getBank()));
+        EXPECT_NO_THROW(auto a = std::make_shared<Adlib>(mixer, op2File.getBank(), eChannelGroup::Plain));
     }
 
-    class AdliblEmulator_ : public ::testing::TestWithParam<std::tuple<hardware::opl::OplEmulator, bool>>
-    {
-    public:
-        const OplEmulator oplEmu = std::get<0>(GetParam());
-        const bool shouldThrow   = std::get<1>(GetParam());
-        const OP2File op2File    = OP2File(GENMIDI_OP2);
-        const std::shared_ptr<StubMixer> mixer = std::make_shared<StubMixer>();
-
-    };
+    class AdliblEmulator_ : public EmulatorTestCase<Adlib> {};
     TEST_P(AdliblEmulator_, cstr_TYPE)
     {
-        if (this->shouldThrow) {
-            EXPECT_THROW(
-                auto a = std::make_shared<devices::Adlib>(this->mixer, this->op2File.getBank(), this->oplEmu),
-                std::runtime_error
-            );
-        }
-        else {
-            EXPECT_NO_THROW(auto a = std::make_shared<devices::Adlib>(this->mixer, this->op2File.getBank(), this->oplEmu));
-        }
+        test_case();
     }
 
     INSTANTIATE_TEST_SUITE_P(
@@ -63,7 +40,7 @@ namespace HyperSonicDrivers::drivers::midi::devices
     {
         auto op2File = OP2File(GENMIDI_OP2);
         auto mixer = std::make_shared<StubMixer>();
-        EXPECT_NO_THROW(Adlib(mixer, op2File.getBank()));
+        EXPECT_NO_THROW(Adlib(mixer, op2File.getBank(), eChannelGroup::Plain));
     }
 }
 

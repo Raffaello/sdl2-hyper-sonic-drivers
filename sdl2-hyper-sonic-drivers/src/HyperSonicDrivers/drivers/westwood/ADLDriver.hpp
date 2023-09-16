@@ -30,11 +30,16 @@ namespace HyperSonicDrivers::drivers::westwood
     class ADLDriver
     {
     public:
-        [[deprecated]]
-        explicit ADLDriver(const std::shared_ptr<hardware::opl::OPL>& opl, const std::shared_ptr<files::westwood::ADLFile>& adl_file);
+        [[deprecated("use an opl device instead of opl")]]
+        explicit ADLDriver(
+            const std::shared_ptr<hardware::opl::OPL>& opl,
+            const audio::mixer::eChannelGroup group,
+            const uint8_t volume = 255,
+            const uint8_t pan = 0
+        );
         // NOTE: midi:devices:Adlib, it should receive devices::Adlib instead of OPL, but those are working only with MIDDriver
         //explicit ADLDriver(const midi::devices::Adlib& opl, const std::shared_ptr<files::westwood::ADLFile>& adl_file);
-        virtual ~ADLDriver();
+        virtual ~ADLDriver() = default;
         void setADLFile(const std::shared_ptr<files::westwood::ADLFile>& adl_file) noexcept;
 
         bool isChannelPlaying(const int channel);
@@ -45,14 +50,14 @@ namespace HyperSonicDrivers::drivers::westwood
         void callback();
         void setSyncJumpMask(const uint16_t mask);
 
-        void setMusicVolume(const uint8_t volume);
-        void setSfxVolume(const uint8_t volume);
+        void setOplMusicVolume(const uint8_t volume);
+        void setOplSfxVolume(const uint8_t volume);
 
-        void play(const uint8_t track, const uint8_t volume);
+        void play(const uint8_t track, const uint8_t volume = 0xFF);
         bool isPlaying();
     private:
-        void initDriver();
-        void startSound(const int track, const int volume);
+        void initDriver_();
+        void startSound_(const uint8_t track, const uint8_t volume);
 
         std::shared_ptr<files::westwood::ADLFile> m_adl_file = nullptr;
 
@@ -60,11 +65,12 @@ namespace HyperSonicDrivers::drivers::westwood
         uint32_t m_soundDataSize;
 
         // The sound data has two lookup tables:
-        uint8_t* getProgram(const int progId);
-        const uint8_t* getInstrument(const int instrumentId);
-        uint8_t* getProgram(const int progId, const files::westwood::ADLFile::PROG_TYPE progType);
+        uint8_t* getProgram_(const int progId) const;
+        const uint8_t* getInstrument_(const int instrumentId) const;
+        uint8_t* getProgram_(const int progId, const files::westwood::ADLFile::PROG_TYPE progType) const;
 
-        struct Channel {
+        struct Channel
+        {
             bool lock;	// New to ScummVM
             uint8_t opExtraLevel2;
             const uint8_t* dataptr;
@@ -117,41 +123,41 @@ namespace HyperSonicDrivers::drivers::westwood
             uint8_t volumeModifier;
         };
 
-        void primaryEffectSlide(Channel& channel);
-        void primaryEffectVibrato(Channel& channel);
-        void secondaryEffect1(Channel& channel);
+        void primaryEffectSlide_(Channel& channel);
+        void primaryEffectVibrato_(Channel& channel);
+        void secondaryEffect1_(Channel& channel);
 
-        void resetAdLibState();
-        void writeOPL(uint8_t reg, uint8_t val);
-        void initChannel(Channel& channel);
-        void noteOff(Channel& channel);
-        void initAdlibChannel(uint8_t num);
+        void resetAdLibState_();
+        void writeOPL_(uint8_t reg, uint8_t val);
+        void initChannel_(Channel& channel);
+        void noteOff_(Channel& channel);
+        void initAdlibChannel_(uint8_t num);
 
-        uint16_t getRandomNr();
-        void setupDuration(uint8_t duration, Channel& channel);
+        uint16_t getRandomNr_();
+        void setupDuration_(uint8_t duration, Channel& channel);
 
-        void setupNote(uint8_t rawNote, Channel& channel, bool flag = false);
+        void setupNote_(uint8_t rawNote, Channel& channel, bool flag = false);
         // TODO: dataptr can be replace with Opl2Instrument_t, it might requires to be mapped
         //       as is organized differently internally in the file.
-        void setupInstrument(uint8_t regOffset, const uint8_t* dataptr, Channel& channel);
-        void noteOn(Channel& channel);
+        void setupInstrument_(uint8_t regOffset, const uint8_t* dataptr, Channel& channel);
+        void noteOn_(Channel& channel);
 
-        void adjustVolume(Channel& channel);
+        void adjustVolume_(Channel& channel);
 
-        uint8_t calculateOpLevel1(Channel& channel);
-        uint8_t calculateOpLevel2(Channel& channel);
+        uint8_t calculateOpLevel1_(Channel& channel);
+        uint8_t calculateOpLevel2_(Channel& channel);
 
-        static uint16_t checkValue(int16_t val);
+        static uint16_t checkValue_(int16_t val);
 
         // The driver uses timer/tempo pairs in several places. On every
         // callback, the tempo is added to the timer. This will frequently
         // cause the timer to "wrap around", which is the signal to go ahead
         // and do more stuff.
-        static bool advance(uint8_t& timer, uint8_t tempo);
-        const uint8_t* checkDataOffset(const uint8_t* ptr, long n);
+        static bool advance_(uint8_t& timer, uint8_t tempo);
+        const uint8_t* checkDataOffset_(const uint8_t* ptr, long n);
 
-        void setupPrograms();
-        void executePrograms();
+        void setupPrograms_();
+        void executePrograms_();
 
         struct ParserOpcode
         {
@@ -161,8 +167,8 @@ namespace HyperSonicDrivers::drivers::westwood
             int values;
         };
 
-        static const std::array<ParserOpcode, 75> _parserOpcodeTable;
-        static const int _parserOpcodeTableSize;
+        static const std::array<ParserOpcode, 75> m_parserOpcodeTable;
+        static const int m_parserOpcodeTableSize;
 
         int update_setRepeat(Channel& channel, const uint8_t* values);
         int update_checkRepeat(Channel& channel, const uint8_t* values);
@@ -221,31 +227,31 @@ namespace HyperSonicDrivers::drivers::westwood
         int updateCallback56(Channel& channel, const uint8_t* values);
 
     private:
-        int _curChannel;
-        uint8_t _soundTrigger;
+        int m_curChannel = 0;
+        uint8_t m_soundTrigger = 0;
 
-        uint16_t _rnd;
+        uint16_t m_rnd;
 
-        uint8_t _beatDivider;
-        uint8_t _beatDivCnt;
-        uint8_t _callbackTimer;
-        uint8_t _beatCounter;
-        uint8_t _beatWaiting;
-        uint8_t _opLevelBD;
-        uint8_t _opLevelHH;
-        uint8_t _opLevelSD;
-        uint8_t _opLevelTT;
-        uint8_t _opLevelCY;
-        uint8_t _opExtraLevel1HH;
-        uint8_t _opExtraLevel2HH;
-        uint8_t _opExtraLevel1CY;
-        uint8_t _opExtraLevel2CY;
-        uint8_t _opExtraLevel2TT;
-        uint8_t _opExtraLevel1TT;
-        uint8_t _opExtraLevel1SD;
-        uint8_t _opExtraLevel2SD;
-        uint8_t _opExtraLevel1BD;
-        uint8_t _opExtraLevel2BD;
+        uint8_t m_beatDivider = 0;
+        uint8_t m_beatDivCnt = 0;
+        uint8_t m_callbackTimer = 0xFF;
+        uint8_t m_beatCounter = 0;
+        uint8_t m_beatWaiting = 0;
+        uint8_t m_opLevelBD = 0;
+        uint8_t m_opLevelHH = 0;
+        uint8_t m_opLevelSD = 0;
+        uint8_t m_opLevelTT = 0;
+        uint8_t m_opLevelCY = 0;
+        uint8_t m_opExtraLevel1HH = 0;
+        uint8_t m_opExtraLevel2HH = 0;
+        uint8_t m_opExtraLevel1CY = 0;
+        uint8_t m_opExtraLevel2CY = 0;
+        uint8_t m_opExtraLevel2TT = 0;
+        uint8_t m_opExtraLevel1TT = 0;
+        uint8_t m_opExtraLevel1SD = 0;
+        uint8_t m_opExtraLevel2SD = 0;
+        uint8_t m_opExtraLevel1BD = 0;
+        uint8_t m_opExtraLevel2BD = 0;
 
         std::shared_ptr<hardware::opl::OPL> m_opl;
 
@@ -258,42 +264,43 @@ namespace HyperSonicDrivers::drivers::westwood
             uint8_t volume;
         };
 
-        std::array<QueueEntry, 16> _programQueue;
-        int _programStartTimeout;
-        int _programQueueStart, _programQueueEnd;
-        bool _retrySounds;
+        std::array<QueueEntry, 16> m_programQueue;
+        int m_programStartTimeout = 0;
+        int m_programQueueStart = 0;
+        int m_programQueueEnd = 0;
+        bool m_retrySounds = false;
 
         void adjustSfxData(uint8_t* data, int volume);
-        uint8_t* _sfxPointer;
-        int _sfxPriority;
-        int _sfxVelocity;
+        uint8_t* m_sfxPointer = nullptr;
+        int m_sfxPriority;
+        int m_sfxVelocity;
 
         std::array<Channel, 10>  m_channels;
 
-        uint8_t _vibratoAndAMDepthBits;
-        uint8_t _rhythmSectionBits;
+        uint8_t m_vibratoAndAMDepthBits = 0;
+        uint8_t m_rhythmSectionBits = 0;
 
-        uint8_t _curRegOffset;
-        uint8_t _tempo;
+        uint8_t m_curRegOffset = 0;
+        uint8_t m_tempo = 0;
 
-        const uint8_t* _tablePtr1;
-        const uint8_t* _tablePtr2;
+        const uint8_t* m_tablePtr1 = nullptr;
+        const uint8_t* m_tablePtr2 = nullptr;
 
-        static const uint8_t _regOffset[];
-        static const uint16_t _freqTable[];
+        static const std::array<uint8_t, 9> m_regOffset;
+        static const std::array<uint16_t, 12> m_freqTable;
         static const std::array<const uint8_t*, 6> _unkTable2;
-        static const int _unkTable2Size;
-        static const uint8_t _unkTable2_1[];
-        static const uint8_t _unkTable2_2[];
-        static const uint8_t _unkTable2_3[];
-        static const uint8_t _pitchBendTables[][32];
+        static const int m_unkTable2Size;
+        static const uint8_t m_unkTable2_1[];
+        static const uint8_t m_unkTable2_2[];
+        static const uint8_t m_unkTable2_3[];
+        static const uint8_t m_pitchBendTables[][32];
 
-        uint16_t _syncJumpMask;
+        uint16_t m_syncJumpMask = 0;
 
         mutable std::mutex m_mutex;
 
-        uint8_t m_musicVolume;
-        uint8_t m_sfxVolume;
+        uint8_t m_oplMusicVolume = 0;
+        uint8_t m_oplSfxVolume = 0;
 
         // Version 1,2,3 possible values, version 3&4 merged into version 3
         uint8_t m_version = 0;

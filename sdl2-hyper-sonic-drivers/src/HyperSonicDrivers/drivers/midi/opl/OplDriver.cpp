@@ -18,9 +18,12 @@ namespace HyperSonicDrivers::drivers::midi::opl
     // TODO: allocateVoice and getFreeSlot should be merged into 1 function
 
     OplDriver::OplDriver(const std::shared_ptr<hardware::opl::OPL>& opl,
-        const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank) :
+        const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank,
+        const audio::mixer::eChannelGroup group,
+        const uint8_t volume,
+        const uint8_t pan) :
         _opl(opl), _op2Bank(op2Bank), _opl3_mode(opl->type == OplType::OPL3),
-        _oplNumChannels(_opl3_mode ? drivers::opl::OPL3_NUM_CHANNELS : drivers::opl::OPL2_NUM_CHANNELS)
+        _oplNumChannels(_opl3_mode ? drivers::opl::opl3_num_channels : drivers::opl::opl2_num_channels)
     {
         _oplWriter = std::make_unique<drivers::opl::OplWriter>(_opl, _opl3_mode);
 
@@ -38,7 +41,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
 
         hardware::opl::TimerCallBack cb = std::bind(&OplDriver::onTimer, this);
         auto p = std::make_shared<hardware::opl::TimerCallBack>(cb);
-        _opl->start(p);
+        _opl->start(p, group, volume, pan);
     }
 
     OplDriver::~OplDriver()
@@ -115,8 +118,6 @@ namespace HyperSonicDrivers::drivers::midi::opl
             else
                 ++it;
         }
-
-        //spdlog::debug("noteOff {} {} ({})", chan, note, _voiceIndexesInUse.size());
     }
 
     void OplDriver::noteOn(const uint8_t chan, const uint8_t note, const uint8_t vol) noexcept
@@ -142,8 +143,6 @@ namespace HyperSonicDrivers::drivers::midi::opl
                 if (freeSlot != -1)
                     allocateVoice(freeSlot, chan, note, vol, instr, true);
             }
-
-            //spdlog::debug("noteOn note={:d} ({:d}) - vol={:d} ({:d}) - pitch={:d} - ch={:d}", voice->_note, voice->_realnote, /*voice->volume*/ -1, /*voice->realvolume*/ -1, voice->pitch, voice->_channel);
         }
         else
         {

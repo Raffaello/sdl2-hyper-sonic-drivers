@@ -88,14 +88,14 @@ namespace HyperSonicDrivers::utils
             return num;
     }
 
-    uint16_t READ_LE_UINT16(const void* ptr) noexcept
+    uint16_t readLE_uint16(const void* ptr) noexcept
     {
         const uint8_t* b = reinterpret_cast<const uint8_t*>(ptr);
 
         return (b[1] << 8) + b[0];
     }
 
-    uint16_t READ_BE_UINT16(const void* ptr) noexcept
+    uint16_t readBE_uint16(const void* ptr) noexcept
     {
         const uint8_t* b = reinterpret_cast<const uint8_t*>(ptr);
 

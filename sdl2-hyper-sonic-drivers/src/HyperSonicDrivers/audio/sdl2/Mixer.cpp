@@ -39,9 +39,6 @@ namespace HyperSonicDrivers::audio::sdl2
             return false;
         }
 
-        const char* sdlDriverName = SDL_GetCurrentAudioDriver();
-        logI(std::format("Using SDL Audio Driver '{}'", sdlDriverName));
-
         // Get the desired audio specs
         SDL_AudioSpec desired = {
             .freq = static_cast<int>(m_sampleRate),
@@ -59,6 +56,9 @@ namespace HyperSonicDrivers::audio::sdl2
             logE("can't open audio device");
             return false;
         }
+
+        const char* sdlDriverName = SDL_GetCurrentAudioDriver();
+        logI(std::format("Using SDL Audio Driver '{}'", sdlDriverName));
 
         if (obtained.format != desired.format)
         {
@@ -82,8 +82,8 @@ namespace HyperSonicDrivers::audio::sdl2
     std::optional<uint8_t> Mixer::play(
         const mixer::eChannelGroup group,
         const std::shared_ptr<IAudioStream>& stream,
-        const uint8_t vol, const int8_t pan, const bool reverseStereo)
-    {
+        const uint8_t vol, const int8_t pan
+    ) {
         // find a free channel
         int i = 0;
         for (; i < max_channels; i++)
@@ -97,7 +97,7 @@ namespace HyperSonicDrivers::audio::sdl2
             return std::nullopt;
         }
 
-        m_channels[i]->setAudioStream(group, stream, vol, pan, reverseStereo);
+        m_channels[i]->setAudioStream(group, stream, vol, pan, m_reverseStereo);
 
         return std::make_optional(static_cast<uint8_t>(i));
     }
@@ -223,10 +223,16 @@ namespace HyperSonicDrivers::audio::sdl2
         m_channels[id]->setVolumePan(volume, pan);
     }
 
-    void Mixer::updateChannelsVolumePan_() noexcept
+    void Mixer::setMasterVolume(const uint8_t master_volume) noexcept
     {
         std::scoped_lock lck(m_mutex);
 
+        m_master_volume = master_volume;
+        updateChannelsVolumePan_();
+    }
+
+    void Mixer::updateChannelsVolumePan_() noexcept
+    {
         for (const auto& ch : m_channels)
             ch->updateVolumePan();
     }
@@ -236,12 +242,12 @@ namespace HyperSonicDrivers::audio::sdl2
         const std::scoped_lock lck(m_mutex);
 
         int16_t* buf = std::bit_cast<int16_t*>(samples);
-        // we store stereo, 16-bit samples (2 for stereo, 2 from 8 to 16 bits)
+        // we store stereo, 16-bit samples (div 2 for stereo and 2 from 8 to 16 bits)
         assert(len % 4 == 0);
-        len >>= 2;
-
-        //  zero the buf
-        memset(buf, 0, 2 * len * sizeof(int16_t));
+        len >>= 1;
+        //  zero the buf (size of 2ch stereo: len*2 of 16 bits)
+        memset(buf, 0, len * sizeof(int16_t));
+        len >>= 1; // size of the stereo 16 bits buffer.
 
         // mix all channels
         size_t res = 0;
@@ -249,6 +255,7 @@ namespace HyperSonicDrivers::audio::sdl2
         {
             const size_t tmp = ch->mix(buf, len);
 
+            // TODO: returning a value can be removed
             if (tmp > res)
                 res = tmp;
         }

@@ -23,8 +23,8 @@ namespace HyperSonicDrivers::hardware::opl
             m_nextTick -= step << FIXP_SHIFT;
             if (!(m_nextTick >> FIXP_SHIFT))
             {
-                if (m_opl->_callback.get() != nullptr)
-                    (*m_opl->_callback)();
+                if (m_opl->m_callback.get() != nullptr)
+                    (*m_opl->m_callback)();
 
                 m_nextTick += m_samplesPerTick;
             }
@@ -50,7 +50,7 @@ namespace HyperSonicDrivers::hardware::opl
         stop();
     }
 
-    uint32_t EmulatedOPL::setCallbackFrequency(int timerFrequency)
+    uint32_t EmulatedOPL::setCallbackFrequency(const int timerFrequency)
     {
         const uint32_t baseFreq = timerFrequency;
         assert(baseFreq != 0);
@@ -68,8 +68,12 @@ namespace HyperSonicDrivers::hardware::opl
         return m_mixer;
     }
 
-    void EmulatedOPL::startCallbacks(int timerFrequency)
-    {
+    void EmulatedOPL::startCallbacks(
+        const audio::mixer::eChannelGroup group,
+        const uint8_t volume,
+        const uint8_t pan,
+        const int timerFrequency
+    ) {
         m_stream = std::make_shared<Stream>(
             this,
             isStereo(),
@@ -78,12 +82,10 @@ namespace HyperSonicDrivers::hardware::opl
         );
 
         m_channel_id = m_mixer->play(
-            audio::mixer::eChannelGroup::Plain,
+            group,
             m_stream,
-            audio::mixer::Channel_max_volume,
-            0,
-            // TODO: reverseStereo flag instead of false
-            false
+            volume,
+            pan
         );
 
         if (!m_channel_id.has_value()) {

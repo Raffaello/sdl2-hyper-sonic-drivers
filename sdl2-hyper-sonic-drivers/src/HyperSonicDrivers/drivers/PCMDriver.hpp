@@ -27,8 +27,7 @@ namespace HyperSonicDrivers::drivers
         std::optional<uint8_t> play(
             const std::shared_ptr<audio::Sound>& sound,
             const uint8_t volume = audio::mixer::Channel_max_volume,
-            const int8_t pan = 0,
-            const bool reverseStereo = false
+            const int8_t pan = 0
         );
 
         const uint8_t max_streams;

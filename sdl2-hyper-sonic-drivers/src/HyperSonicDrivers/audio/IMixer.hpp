@@ -32,8 +32,7 @@ namespace HyperSonicDrivers::audio
             const mixer::eChannelGroup group,
             const std::shared_ptr<IAudioStream>& stream,
             const uint8_t vol,
-            const int8_t pan,
-            const bool reverseStereo
+            const int8_t pan
         ) = 0;
 
         virtual void suspend() noexcept = 0;
@@ -65,18 +64,29 @@ namespace HyperSonicDrivers::audio
         uint8_t getChannelGroupVolume(const mixer::eChannelGroup group) const noexcept;
         void setChannelGroupVolume(const mixer::eChannelGroup group, const uint8_t volume) noexcept;
 
+
         // TODO: these 3 methods are useless if those 3 vars are consts...
         inline uint32_t getOutputRate() const noexcept { return m_sampleRate; };
         inline uint16_t getBufferSize() const noexcept { return m_samples; };
         inline uint8_t getBitsDepth() const noexcept { return m_bitsDepth; };
+        inline uint8_t getMasterVolume() const noexcept { return m_master_volume; };
+
+        virtual void setMasterVolume(const uint8_t master_volume) noexcept = 0;
+        
+        inline void toggleReverseStereo() noexcept { m_reverseStereo = !m_reverseStereo; };
 
         const uint8_t max_channels;
     protected:
         std::array<mixer::channelGroupSettings_t, mixer::eChannelGroup_size> m_group_settings;
-        bool m_ready = false;
+        bool m_ready = false; // TODO: not really useful if not used anywhere else except init.
+                              //       unless remove init method and do it in the constructor
+                              //       and then check if it is ready before use the mixer
+                              //       otherwise can just be removed.
+        bool m_reverseStereo = false;
         const uint32_t m_sampleRate;
         const uint16_t m_samples;
         const uint8_t m_bitsDepth = 16; // forced to be 16-bits for now
+        uint8_t m_master_volume = mixer::Mixer_max_volume;
     };
 
     template<class T, typename... Args>

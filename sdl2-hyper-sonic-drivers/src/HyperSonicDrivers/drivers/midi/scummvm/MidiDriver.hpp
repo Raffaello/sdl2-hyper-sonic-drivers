@@ -3,6 +3,7 @@
 #include <string>
 #include <cstdint>
 #include <HyperSonicDrivers/drivers/midi/scummvm/MidiDriver_BASE.hpp>
+#include <HyperSonicDrivers/audio/mixer/ChannelGroup.hpp>
 
 namespace HyperSonicDrivers::drivers::midi::scummvm
 {
@@ -105,7 +106,10 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
          * Open the midi driver.
          * @return 0 if successful, otherwise an error code.
          */
-        virtual int open() = 0;
+        virtual int open(
+            const audio::mixer::eChannelGroup group,
+            const uint8_t volume,
+            const uint8_t pan) = 0;
 
         /**
          * Check whether the midi driver has already been opened.

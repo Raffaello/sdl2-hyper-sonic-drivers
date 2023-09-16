@@ -20,6 +20,11 @@ namespace HyperSonicDrivers::hardware::opl
     class OPLFactory
     {
     public:
+        OPLFactory(OPLFactory&) = delete;
+        OPLFactory(OPLFactory&&) = delete;
+        OPLFactory& operator=(OPLFactory&) = delete;
+        OPLFactory() = delete;
+        ~OPLFactory() = delete;
         /**
          * Creates the specific driver with a specific type setup.
          */

@@ -6,7 +6,7 @@ namespace HyperSonicDrivers::drivers::opl
 {
     OplWriter::OplWriter(const std::shared_ptr<hardware::opl::OPL>& opl, const bool opl3_mode) :
         _opl(opl), _opl3_mode(opl3_mode),
-        _oplNumChannels(opl3_mode ? OPL3_NUM_CHANNELS : OPL2_NUM_CHANNELS)
+        _oplNumChannels(opl3_mode ? opl3_num_channels : opl2_num_channels)
     {
     }
 

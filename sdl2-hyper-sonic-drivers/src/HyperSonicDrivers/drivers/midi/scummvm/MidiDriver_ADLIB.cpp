@@ -106,7 +106,10 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
             close();
     }
 
-    int MidiDriver_ADLIB::open()
+    int MidiDriver_ADLIB::open(
+        const audio::mixer::eChannelGroup group,
+        const uint8_t volume,
+        const uint8_t pan)
     {
         if (_isOpen)
             return 4; //MERR_ALREADY_OPEN;
@@ -138,7 +141,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
         hardware::opl::TimerCallBack cb = std::bind(&MidiDriver_ADLIB::onTimer, this);
         auto p = std::make_shared<hardware::opl::TimerCallBack>(cb);
-        _opl->start(p);
+        _opl->start(p, group, volume, pan);
 
         return 0;
     }

@@ -44,14 +44,18 @@ namespace HyperSonicDrivers::hardware::opl
         ~EmulatedOPL() override;
 
         // OPL API
-        uint32_t setCallbackFrequency(int timerFrequency) override;
+        uint32_t setCallbackFrequency(const int timerFrequency) override;
 
         std::shared_ptr<audio::IMixer> getMixer() const noexcept;
 
     protected:
         std::shared_ptr<audio::IMixer> m_mixer;
         // OPL API
-        void startCallbacks(int timerFrequency) override;
+        void startCallbacks(
+            const audio::mixer::eChannelGroup group,
+            const uint8_t volume,
+            const uint8_t pan,
+            const int timerFrequency) override;
         void stopCallbacks() override;
 
         /**

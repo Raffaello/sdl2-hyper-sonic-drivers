@@ -52,7 +52,7 @@ At the moment the only implemented emulators are OPL chips.
 
 ### Adlib/Sound Blaster PRO 2.0 chips
 - [x] Mame OPL2
-- [/] Mame OPL3
+- [x] Mame OPL3
 - [x] DosBox OPL2
 - [x] DosBox Dual OPL2
 - [x] DosBox OPL3

@@ -26,7 +26,7 @@ namespace HyperSonicDrivers::files::dmx
     using audio::midi::MIDI_MAX_CHANNELS;
     using audio::midi::MIDI_PERCUSSION_CHANNEL;
 
-    using utils::READ_LE_UINT16;
+    using utils::readLE_uint16;
 
     const int MUSFile::MUS_PLAYBACK_SPEED_DEFAULT = 140;
     const int MUSFile::MUS_PLAYBACK_SPEED_ALTERNATE = 70;

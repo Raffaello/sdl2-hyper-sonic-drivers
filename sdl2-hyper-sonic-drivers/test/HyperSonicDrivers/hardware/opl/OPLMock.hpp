@@ -10,13 +10,19 @@ namespace HyperSonicDrivers::hardware::opl
     {
     public:
         OPLMock() : OPL(OplType::OPL2) {}
-        bool init() override { _init = true; return true; }
+        bool init() override { m_init = true; return true; }
         void reset() override {};
         void write(const uint32_t port, const uint16_t val) noexcept override {};
         uint8_t read(const uint32_t port) noexcept override { return 0; };
         void writeReg(const uint16_t r, const uint16_t v) noexcept override {};
         uint32_t setCallbackFrequency(int timerFrequency) override { return 1; }
-        void startCallbacks(int timerFrequency) override {};
+        void startCallbacks(
+            const audio::mixer::eChannelGroup group,
+            const uint8_t volume,
+            const uint8_t pan,
+            const int timerFrequency
+        ) override {};
         void stopCallbacks() override {};
+
     };
 }
