@@ -6,22 +6,8 @@ namespace HyperSonicDrivers::hardware::opl
 {
     using utils::logE;
 
-    // TODO: review to allow to have multiple OPL chips instead.
-    static bool _hasInstance;
-
     OPL::OPL(const OplType type) : type(type)
     {
-        if (_hasInstance)
-        {
-            logE("There are multiple OPL output instances running");
-        }
-
-        _hasInstance = true;
-    }
-
-    OPL::~OPL()
-    {
-        _hasInstance = false;
     }
 
     void OPL::start(

@@ -23,7 +23,7 @@ namespace HyperSonicDrivers::hardware::opl
         OPL& operator=(const  OPL&) = delete;
 
         explicit OPL(const OplType type);
-        virtual ~OPL();
+        virtual ~OPL() = default;
 
         const OplType type;
 
@@ -80,7 +80,7 @@ namespace HyperSonicDrivers::hardware::opl
             const audio::mixer::eChannelGroup group = audio::mixer::eChannelGroup::Plain,
             const uint8_t volume = 255,
             const uint8_t pan = 0,
-            int timerFrequency = default_opl_callback_freq);
+            const int timerFrequency = default_opl_callback_freq);
 
         /**
          * Stop the OPL
@@ -114,8 +114,5 @@ namespace HyperSonicDrivers::hardware::opl
          * The functor for callbacks.
          */
         std::shared_ptr<TimerCallBack> m_callback;
-    private:
-        // moved into cpp file
-        //static bool _hasInstance;
     };
 }

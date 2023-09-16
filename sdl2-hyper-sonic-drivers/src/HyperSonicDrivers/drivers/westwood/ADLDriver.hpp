@@ -30,7 +30,7 @@ namespace HyperSonicDrivers::drivers::westwood
     class ADLDriver
     {
     public:
-        [[deprecated]]
+        [[deprecated("use an opl device instead of opl")]]
         explicit ADLDriver(
             const std::shared_ptr<hardware::opl::OPL>& opl,
             const audio::mixer::eChannelGroup group,
@@ -53,11 +53,11 @@ namespace HyperSonicDrivers::drivers::westwood
         void setOplMusicVolume(const uint8_t volume);
         void setOplSfxVolume(const uint8_t volume);
 
-        void play(const uint8_t track, const uint8_t volume);
+        void play(const uint8_t track, const uint8_t volume = 0xFF);
         bool isPlaying();
     private:
-        void initDriver();
-        void startSound(const int track, const int volume);
+        void initDriver_();
+        void startSound_(const int track, const int volume);
 
         std::shared_ptr<files::westwood::ADLFile> m_adl_file = nullptr;
 
@@ -65,9 +65,9 @@ namespace HyperSonicDrivers::drivers::westwood
         uint32_t m_soundDataSize;
 
         // The sound data has two lookup tables:
-        uint8_t* getProgram(const int progId);
-        const uint8_t* getInstrument(const int instrumentId);
-        uint8_t* getProgram(const int progId, const files::westwood::ADLFile::PROG_TYPE progType);
+        uint8_t* getProgram_(const int progId) const;
+        const uint8_t* getInstrument_(const int instrumentId) const;
+        uint8_t* getProgram_(const int progId, const files::westwood::ADLFile::PROG_TYPE progType) const;
 
         struct Channel
         {
@@ -123,41 +123,41 @@ namespace HyperSonicDrivers::drivers::westwood
             uint8_t volumeModifier;
         };
 
-        void primaryEffectSlide(Channel& channel);
-        void primaryEffectVibrato(Channel& channel);
-        void secondaryEffect1(Channel& channel);
+        void primaryEffectSlide_(Channel& channel);
+        void primaryEffectVibrato_(Channel& channel);
+        void secondaryEffect1_(Channel& channel);
 
-        void resetAdLibState();
-        void writeOPL(uint8_t reg, uint8_t val);
-        void initChannel(Channel& channel);
-        void noteOff(Channel& channel);
-        void initAdlibChannel(uint8_t num);
+        void resetAdLibState_();
+        void writeOPL_(uint8_t reg, uint8_t val);
+        void initChannel_(Channel& channel);
+        void noteOff_(Channel& channel);
+        void initAdlibChannel_(uint8_t num);
 
-        uint16_t getRandomNr();
-        void setupDuration(uint8_t duration, Channel& channel);
+        uint16_t getRandomNr_();
+        void setupDuration_(uint8_t duration, Channel& channel);
 
-        void setupNote(uint8_t rawNote, Channel& channel, bool flag = false);
+        void setupNote_(uint8_t rawNote, Channel& channel, bool flag = false);
         // TODO: dataptr can be replace with Opl2Instrument_t, it might requires to be mapped
         //       as is organized differently internally in the file.
-        void setupInstrument(uint8_t regOffset, const uint8_t* dataptr, Channel& channel);
-        void noteOn(Channel& channel);
+        void setupInstrument_(uint8_t regOffset, const uint8_t* dataptr, Channel& channel);
+        void noteOn_(Channel& channel);
 
-        void adjustVolume(Channel& channel);
+        void adjustVolume_(Channel& channel);
 
-        uint8_t calculateOpLevel1(Channel& channel);
-        uint8_t calculateOpLevel2(Channel& channel);
+        uint8_t calculateOpLevel1_(Channel& channel);
+        uint8_t calculateOpLevel2_(Channel& channel);
 
-        static uint16_t checkValue(int16_t val);
+        static uint16_t checkValue_(int16_t val);
 
         // The driver uses timer/tempo pairs in several places. On every
         // callback, the tempo is added to the timer. This will frequently
         // cause the timer to "wrap around", which is the signal to go ahead
         // and do more stuff.
-        static bool advance(uint8_t& timer, uint8_t tempo);
-        const uint8_t* checkDataOffset(const uint8_t* ptr, long n);
+        static bool advance_(uint8_t& timer, uint8_t tempo);
+        const uint8_t* checkDataOffset_(const uint8_t* ptr, long n);
 
-        void setupPrograms();
-        void executePrograms();
+        void setupPrograms_();
+        void executePrograms_();
 
         struct ParserOpcode
         {
