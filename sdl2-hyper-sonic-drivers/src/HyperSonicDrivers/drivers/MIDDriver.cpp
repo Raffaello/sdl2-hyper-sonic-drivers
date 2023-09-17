@@ -29,8 +29,8 @@ namespace HyperSonicDrivers::drivers
         return utils::getMicro<uint32_t>();
     }
 
-    MIDDriver::MIDDriver(/*const std::shared_ptr<audio::IMixer>& mixer,*/ const std::shared_ptr<midi::Device>& device)
-        : /*_mixer(mixer),*/ m_device(device)
+    MIDDriver::MIDDriver(const std::shared_ptr<midi::Device>& device)
+        : m_device(device)
     {
     }
 

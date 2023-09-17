@@ -14,7 +14,7 @@ namespace HyperSonicDrivers::drivers
     class MIDDriver
     {
     public:
-        explicit MIDDriver(/*const std::shared_ptr<audio::IMixer>& mixer,*/ const std::shared_ptr<midi::Device>& device);
+        explicit MIDDriver(const std::shared_ptr<midi::Device>& device);
         ~MIDDriver();
         void play(const std::shared_ptr<audio::MIDI>& midi) noexcept;
         void stop() noexcept;
@@ -32,9 +32,6 @@ namespace HyperSonicDrivers::drivers
         inline void setTempo(const uint32_t tempo) noexcept { m_midiTempoChanged = true; m_tempo = tempo; }
 
     private:
-        // mixer is not used, but ensuring is initialized
-        // if not initialized there are delays otherwise
-        //std::shared_ptr<audio::scummvm::Mixer> _mixer; // TODO can be removed
         std::shared_ptr<midi::Device> m_device;
 
         // TODO: consider to create a utils/Thread class

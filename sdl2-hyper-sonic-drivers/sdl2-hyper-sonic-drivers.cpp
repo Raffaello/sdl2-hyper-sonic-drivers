@@ -535,11 +535,46 @@ void testMultiOpl()
         utils::delayMillis(1000);
 }
 
+void testMOplMultiDrv()
+{
+    // NOTE more driver on the same OPL won't work.
+    //      in MIDDrv an acquire lock mechanism has been performed
+    //      not for ADL.
+    using hardware::opl::OplEmulator;
+    using hardware::opl::OplType;
+    using audio::mixer::eChannelGroup;
+    using utils::ILogger;
+
+    ILogger::instance->setLevelAll(ILogger::eLevel::Info);
+
+    auto mixer = audio::make_mixer<audio::sdl2::Mixer>(8, 44100, 1024);
+    if (!mixer->init())
+        std::cerr << "can't init mixer";
+
+    auto opl_a = hardware::opl::OPLFactory::create(OplEmulator::AUTO, OplType::OPL2, mixer);
+
+    auto af = std::make_shared< files::westwood::ADLFile>("test/fixtures/DUNE0.ADL");
+    auto drv1 = drivers::westwood::ADLDriver(opl_a, eChannelGroup::Music);
+    drv1.setADLFile(af);
+    auto drv2 = drivers::westwood::ADLDriver(opl_a, eChannelGroup::Sfx);
+    drv2.setADLFile(af);
+
+    std::cout << af->getNumTracks() << std::endl;
+
+    drv2.play(2);
+    utils::delayMillis(2000);
+    drv1.play(4);
+
+    while (drv1.isPlaying() || drv2.isPlaying())
+        utils::delayMillis(1000);
+}
+
 
 int main(int argc, char* argv[])
 {
     //newMixerTest();
-    testMultiOpl();
+    //testMultiOpl();
+    testMOplMultiDrv();
     return 0;
     //sdlMixer();
     //SDL_Delay(100);
