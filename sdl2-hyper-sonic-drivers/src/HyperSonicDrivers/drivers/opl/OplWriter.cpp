@@ -122,13 +122,13 @@ namespace HyperSonicDrivers::drivers::opl
 
     void OplWriter::writeNote(const uint8_t slot, const uint8_t note, int pitch, const bool keyOn) const noexcept
     {
-        uint16_t freq = freqtable[note];
-        uint8_t octave = octavetable[note];
+        uint16_t freq = freq_table[note];
+        uint8_t octave = octave_table[note];
 
         if (pitch != 0)
         {
             pitch = std::clamp(pitch, -128, 127);
-            freq = static_cast<uint16_t>((static_cast<uint32_t>(freq) * pitchtable[pitch + 128]) >> 15);
+            freq = static_cast<uint16_t>((static_cast<uint32_t>(freq) * pitch_table[pitch + 128]) >> 15);
             if (freq >= 1024)
             {
                 freq >>= 1;
@@ -154,7 +154,7 @@ namespace HyperSonicDrivers::drivers::opl
         return (0x3F - n) | (data & 0xC0);
 #else
         return 0x3F - (((0x3F - data) *
-            (unsigned)volumetable[std::min<uint8_t>(volume, 127)]) >> 7);
+            (unsigned)volume_table[std::min<uint8_t>(volume, 127)]) >> 7);
 #endif
     }
 
