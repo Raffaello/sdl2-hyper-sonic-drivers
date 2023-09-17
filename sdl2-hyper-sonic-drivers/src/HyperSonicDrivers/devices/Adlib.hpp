@@ -38,7 +38,5 @@ namespace HyperSonicDrivers::devices
         //void play()
 
     private:
-        
-
     };
 }
