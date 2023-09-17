@@ -19,7 +19,7 @@ namespace HyperSonicDrivers::devices
         IDevice& operator=(IDevice&) = delete;
 
 
-        void playMidi();
+        //void playMidi();
 
         //inline audio::mixer::eChannelGroup getGroup() const noexcept { return m_group; };
         //inline uint8_t getVolume() const noexcept { return m_volume; };
