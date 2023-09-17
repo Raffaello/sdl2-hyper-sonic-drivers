@@ -1,6 +1,6 @@
 #pragma once
 
-#include <HyperSonicDrivers/devices/Device.hpp>
+#include <HyperSonicDrivers/devices/Opl.hpp>
 #include <HyperSonicDrivers/drivers/westwood/ADLDriver.hpp>
 #include <HyperSonicDrivers/drivers/MIDDriver.hpp>
 #include <HyperSonicDrivers/hardware/opl/OPL.hpp>
@@ -18,14 +18,14 @@ namespace HyperSonicDrivers::devices
     //       but..... anyway.
     //       just create a Sound Blaster that was adlib (OPL2) with digi sound
 
-    class Adlib : public Device
+    class Adlib : public Opl
     {
     public:
         Adlib(Adlib&) = delete;
         Adlib(Adlib&&) = delete;
         Adlib& operator=(Adlib&) = delete;
 
-        Adlib(
+        explicit Adlib(
             const std::shared_ptr<audio::IMixer>& mixer,
             const audio::mixer::eChannelGroup group,
             const hardware::opl::OplEmulator emulator,
@@ -37,20 +37,8 @@ namespace HyperSonicDrivers::devices
 
         //void play()
 
-    protected:
-        // the "to the parent" means move to Deivce, also not really used after constructor...
-        std::shared_ptr<audio::IMixer> m_mixer; // to the parent
-        const audio::mixer::eChannelGroup m_group; // to the parent
-        const uint8_t m_volume; // to the parent
-        const uint8_t m_pan; // to the parent
     private:
-        const hardware::opl::OplEmulator m_opl_emulator;
-        std::shared_ptr<hardware::opl::OPL> m_opl;
-        std::unique_ptr<drivers::westwood::ADLDriver> m_adl_drv;
-        // TODO: MIDDrv is using midi::devices, and those must be integrated here... or  not?
-        //       for now just finishing this interface/adlib "general device" then let see.
-        std::unique_ptr<drivers::MIDDriver> m_mid_drv;
-        std::unique_ptr<drivers::midi::devices::Adlib> m_midi_adlib;
+        
 
     };
 }

@@ -37,6 +37,8 @@ namespace HyperSonicDrivers::drivers::westwood
             const uint8_t volume = 255,
             const uint8_t pan = 0
         );
+
+
         // NOTE: midi:devices:Adlib, it should receive devices::Adlib instead of OPL, but those are working only with MIDDriver
         //explicit ADLDriver(const midi::devices::Adlib& opl, const std::shared_ptr<files::westwood::ADLFile>& adl_file);
         virtual ~ADLDriver() = default;

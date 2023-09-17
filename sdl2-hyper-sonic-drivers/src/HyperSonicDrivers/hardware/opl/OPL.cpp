@@ -2,6 +2,7 @@
 #include <HyperSonicDrivers/hardware/opl/OPL.hpp>
 #include <HyperSonicDrivers/utils/ILogger.hpp>
 
+
 namespace HyperSonicDrivers::hardware::opl
 {
     using utils::logE;
