@@ -58,29 +58,8 @@ namespace HyperSonicDrivers::drivers::westwood
         const audio::mixer::eChannelGroup group,
         const uint8_t volume,
         const uint8_t pan
-    ) : m_rnd(random_seed), m_opl(opl.getOpl())
+    ) : ADLDriver(opl.getOpl(), group, volume, pan)
     {
-        if (!m_opl || !m_opl->init())
-        {
-            throwLogE<std::runtime_error>("Failed to initialize OPL or OPL is null");
-        }
-
-        memset(m_channels.data(), 0, sizeof(m_channels));
-
-        hardware::opl::TimerCallBack cb = std::bind(&ADLDriver::callback, this);
-        auto p = std::make_shared<hardware::opl::TimerCallBack>(cb);
-        m_opl->start(
-            p,
-            group,
-            volume,
-            pan,
-            callbacks_per_second
-        );
-
-        stopAllChannels();
-        initDriver_();
-        setOplMusicVolume(255);
-        setOplSfxVolume(255);
     }
 
     void ADLDriver::setADLFile(const std::shared_ptr<files::westwood::ADLFile>& adl_file) noexcept

@@ -6,7 +6,8 @@
 namespace HyperSonicDrivers::devices
 {
     /**
-    * general interface for sound cards.
+    * general interface for sound cards helping playing sounds & musics
+    * embedding drivers and play controls
     * NOTE:
     * At the moment only to aim to play OPL/Adlib ADLFiles as a lot of rewriting is required to generalize it
     **/
@@ -16,6 +17,9 @@ namespace HyperSonicDrivers::devices
         IDevice(IDevice&) = delete;
         IDevice(IDevice&&) = delete;
         IDevice& operator=(IDevice&) = delete;
+
+
+        void playMidi();
 
         //inline audio::mixer::eChannelGroup getGroup() const noexcept { return m_group; };
         //inline uint8_t getVolume() const noexcept { return m_volume; };
@@ -33,6 +37,9 @@ namespace HyperSonicDrivers::devices
         virtual ~IDevice() = default;
 
     protected:
+        //TODO: get the mixer channel used for the emulated device
+        // ----
+ 
         //std::shared_ptr<audio::IMixer> m_mixer;
         //const audio::mixer::eChannelGroup m_group;
         //const uint8_t m_volume;

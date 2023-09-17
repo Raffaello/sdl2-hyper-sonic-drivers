@@ -25,10 +25,13 @@ namespace HyperSonicDrivers::devices
         );
 
     public:
+        //void playAdl();
+        //void playMidi();
+
         inline std::shared_ptr<hardware::opl::OPL> getOpl() const noexcept { return m_opl; };
 
     protected:
-        const hardware::opl::OplEmulator m_opl_emulator;
+        //const hardware::opl::OplEmulator m_opl_emulator;
         std::shared_ptr<hardware::opl::OPL> m_opl;
     };
 }

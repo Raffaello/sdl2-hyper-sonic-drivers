@@ -10,17 +10,17 @@ namespace HyperSonicDrivers::devices
         //const audio::mixer::eChannelGroup group,
         const hardware::opl::OplEmulator emulator,
         const hardware::opl::OplType type,
-        const uint8_t volume, const uint8_t pan) :
+        const uint8_t volume, const uint8_t pan) //:
         //IDevice(mixer, group, volume, pan),
-        m_opl_emulator(emulator)
+        //m_opl_emulator(emulator)
     {
         using hardware::opl::OPLFactory;
         using utils::logC;
 
-        m_opl = OPLFactory::create(m_opl_emulator, type, mixer);
+        m_opl = OPLFactory::create(emulator, type, mixer);
         if (m_opl == nullptr || !m_opl->init())
         {
-            logC(std::format("can't initialize adlib emulator type: {}", m_opl_emulator));
+            logC("can't initialize opl emulator");
         }
     }
 }
