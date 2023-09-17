@@ -15,7 +15,7 @@ namespace HyperSonicDrivers::files::westwood
     public:
         enum class PROG_TYPE
         {
-            TRACK, INSTRUMENT
+            Track, Instrument
         };
 
         ADLFile(const std::string& filename);
@@ -44,33 +44,33 @@ namespace HyperSonicDrivers::files::westwood
             uint16_t data_header_size;
         } meta_version_t;
     private:
-        uint8_t _version = 0;
-        meta_version_t _meta_version;
-        std::function<uint16_t()> _read;
+        uint8_t m_version = 0;
+        meta_version_t m_meta_version;
+        std::function<uint16_t()> m_read;
 
-        void detectVersion();
+        void detectVersion_();
 
-        void readHeaderFromFile(const int header_size, std::function<uint16_t()> read);
-        void readOffsetsFromFile(const int num_offsets, std::vector<uint16_t>& vec, const int offset_start) const noexcept;
-        void readDataFromFile(const int data_offsets, const int data_heder_size);
+        void readHeaderFromFile_(const int header_size, std::function<uint16_t()> read);
+        void readOffsetsFromFile_(const int num_offsets, std::vector<uint16_t>& vec, const int offset_start) const noexcept;
+        void readDataFromFile_(const int data_offsets, const int data_heder_size);
 
-        std::vector<uint8_t> _header;
-        std::vector<uint16_t> _track_offsets;
-        std::vector<uint16_t> _instrument_offsets;
-        std::shared_ptr<uint8_t[]> _data;
-        uint32_t _dataSize = 0;
-        int _dataHeaderSize = 0;
+        std::vector<uint8_t> m_header;
+        std::vector<uint16_t> m_track_offsets;
+        std::vector<uint16_t> m_instrument_offsets;
+        std::shared_ptr<uint8_t[]> m_data;
+        uint32_t m_dataSize = 0;
+        int m_dataHeaderSize = 0;
 
         template<typename T>
-        int count_loop(const int num_offs, const std::vector<T>& vec);
-        void adjust_offsets(std::vector<uint16_t>& vec);
-        int _num_tracks = -1;
-        int _num_track_offsets = -1;
-        int _num_instrument_offsets = -1;
+        int count_loop_(const int num_offs, const std::vector<T>& vec);
+        void adjust_offsets_(std::vector<uint16_t>& vec);
+        int m_num_tracks = -1;
+        int m_num_track_offsets = -1;
+        int m_num_instrument_offsets = -1;
     };
 
     template<typename T>
-    int ADLFile::count_loop(const int offs_start, const std::vector<T>& vec)
+    int ADLFile::count_loop_(const int offs_start, const std::vector<T>& vec)
     {
         int tot = 0;
         constexpr T max_ = std::numeric_limits<T>::max();

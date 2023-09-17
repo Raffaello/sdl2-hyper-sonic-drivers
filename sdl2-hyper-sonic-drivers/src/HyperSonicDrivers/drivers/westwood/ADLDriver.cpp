@@ -275,12 +275,12 @@ namespace HyperSonicDrivers::drivers::westwood
 
     uint8_t* ADLDriver::getProgram_(const int progId) const
     {
-        return getProgram_(progId, files::westwood::ADLFile::PROG_TYPE::TRACK);
+        return getProgram_(progId, files::westwood::ADLFile::PROG_TYPE::Track);
     }
 
     const uint8_t* ADLDriver::getInstrument_(const int instrumentId) const
     {
-        return getProgram_(instrumentId, files::westwood::ADLFile::PROG_TYPE::INSTRUMENT);
+        return getProgram_(instrumentId, files::westwood::ADLFile::PROG_TYPE::Instrument);
     }
 
     // This is presumably only used for some sound effects, e.g. Malcolm blowing up
