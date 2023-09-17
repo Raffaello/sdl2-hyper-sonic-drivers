@@ -142,25 +142,25 @@ namespace HyperSonicDrivers::drivers::westwood
         void initAdlibChannel_(uint8_t num);
 
         uint16_t getRandomNr_();
-        void setupDuration_(uint8_t duration, Channel& channel);
+        void setupDuration_(const uint8_t duration, Channel& channel);
 
-        void setupNote_(uint8_t rawNote, Channel& channel, bool flag = false);
+        void setupNote_(const uint8_t rawNote, Channel& channel, const bool flag = false);
         //void setupInstrument_(uint8_t regOffset, const uint8_t* dataptr, Channel& channel);
-        void setupOPL2Instrument_(uint8_t regOffset, const hardware::opl::OPL2instrument_t& instr, Channel& channel);
+        void setupOPL2Instrument_(const uint8_t regOffset, const hardware::opl::OPL2instrument_t& instr, Channel& channel);
         void noteOn_(Channel& channel);
 
         void adjustVolume_(Channel& channel);
 
-        uint8_t calculateOpLevel1_(Channel& channel);
-        uint8_t calculateOpLevel2_(Channel& channel);
+        uint8_t calculateOpLevel1_(const Channel& channel);
+        uint8_t calculateOpLevel2_(const Channel& channel);
 
-        static uint16_t checkValue_(int16_t val);
+        static uint16_t checkValue_(const int16_t val);
 
         // The driver uses timer/tempo pairs in several places. On every
         // callback, the tempo is added to the timer. This will frequently
         // cause the timer to "wrap around", which is the signal to go ahead
         // and do more stuff.
-        static bool advance_(uint8_t& timer, uint8_t tempo);
+        static bool advance_(uint8_t& timer, const uint8_t tempo);
         const uint8_t* checkDataOffset_(const uint8_t* ptr, long n);
 
         void setupPrograms_();

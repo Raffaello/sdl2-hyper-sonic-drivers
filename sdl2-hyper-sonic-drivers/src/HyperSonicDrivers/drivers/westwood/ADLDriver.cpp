@@ -635,7 +635,7 @@ namespace HyperSonicDrivers::drivers::westwood
         return m_rnd;
     }
 
-    void ADLDriver::setupDuration_(uint8_t duration, Channel& channel)
+    void ADLDriver::setupDuration_(const uint8_t duration, Channel& channel)
     {
         logD(std::format("setupDuration({}, {})", duration, (long)(&channel - m_channels.data())));
         if (channel.durationRandomness) {
@@ -650,7 +650,7 @@ namespace HyperSonicDrivers::drivers::westwood
     // This function may or may not play the note. It's usually followed by a call
     // to noteOn(), which will always play the current note.
 
-    void ADLDriver::setupNote_(uint8_t rawNote, Channel& channel, bool flag)
+    void ADLDriver::setupNote_(const uint8_t rawNote, Channel& channel, const bool flag)
     {
         logD(std::format("setupNote({}, {})", rawNote, (long)(&channel - m_channels.data())));
 
@@ -765,7 +765,7 @@ namespace HyperSonicDrivers::drivers::westwood
     //    writeOPL_(0x83 + regOffset, *dataptr++);
     //}
 
-    void ADLDriver::setupOPL2Instrument_(uint8_t regOffset, const hardware::opl::OPL2instrument_t& instr, Channel& channel)
+    void ADLDriver::setupOPL2Instrument_(const uint8_t regOffset, const hardware::opl::OPL2instrument_t& instr, Channel& channel)
     {
         // Amplitude Modulation / Vibrato / Envelope Generator Type /
         // Keyboard Scaling Rate / Modulator Frequency Multiple
@@ -844,7 +844,7 @@ namespace HyperSonicDrivers::drivers::westwood
             writeOPL_(0x40 + m_regOffset[m_curChannel], calculateOpLevel1_(channel));
     }
 
-    uint8_t ADLDriver::calculateOpLevel1_(Channel& channel)
+    uint8_t ADLDriver::calculateOpLevel1_(const Channel& channel)
     {
         int8_t value = channel.opLevel1 & 0x3F;
 
@@ -886,7 +886,7 @@ namespace HyperSonicDrivers::drivers::westwood
         return value | (channel.opLevel1 & 0xC0);
     }
 
-    uint8_t ADLDriver::calculateOpLevel2_(Channel& channel)
+    uint8_t ADLDriver::calculateOpLevel2_(const Channel& channel)
     {
         int8_t value = channel.opLevel2 & 0x3F;
 
@@ -914,12 +914,12 @@ namespace HyperSonicDrivers::drivers::westwood
         return value | (channel.opLevel2 & 0xC0);
     }
 
-    uint16_t ADLDriver::checkValue_(int16_t val)
+    uint16_t ADLDriver::checkValue_(const int16_t val)
     {
         return std::clamp<int16_t>(val, 0, 0x3F);
     }
 
-    bool ADLDriver::advance_(uint8_t& timer, uint8_t tempo)
+    bool ADLDriver::advance_(uint8_t& timer, const uint8_t tempo)
     {
         uint8_t old = timer;
         timer += tempo;

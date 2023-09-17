@@ -32,6 +32,7 @@
 #include <HyperSonicDrivers/audio/sdl2/Mixer.hpp>
 #include <HyperSonicDrivers/utils/sdl2/Logger.hpp>
 #include <HyperSonicDrivers/devices/Adlib.hpp>
+#include <HyperSonicDrivers/audio/sdl2/Renderer.hpp>
 
 
 using namespace std;
@@ -573,12 +574,37 @@ void testMOplMultiDrv()
         utils::delayMillis(1000);
 }
 
+void renderer()
+{
+    using hardware::opl::OplEmulator;
+    using hardware::opl::OplType;
+    using audio::mixer::eChannelGroup;
+    using utils::ILogger;
+
+    audio::sdl2::Renderer r(44100, 1024);
+
+    r.setOutputFile("renderer.dat");
+
+    auto mixer = r.getMixer();
+
+    auto adlib = devices::Adlib(mixer, OplEmulator::AUTO);
+    auto drv1 = drivers::westwood::ADLDriver(adlib, eChannelGroup::Music);
+    auto af = std::make_shared< files::westwood::ADLFile>("test/fixtures/DUNE0.ADL");
+    drv1.setADLFile(af);
+
+    drv1.play(4);
+    while (drv1.isPlaying())
+        utils::delayMillis(1);
+    //utils::delayMillis(1000);
+}
+
 
 int main(int argc, char* argv[])
 {
     //newMixerTest();
     //testMultiOpl();
-    testMOplMultiDrv();
+    //testMOplMultiDrv();
+    renderer();
     return 0;
     //sdlMixer();
     //SDL_Delay(100);

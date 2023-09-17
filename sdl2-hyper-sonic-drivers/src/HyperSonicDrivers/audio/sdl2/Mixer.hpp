@@ -11,8 +11,12 @@
 
 namespace HyperSonicDrivers::audio::sdl2
 {
+    class Renderer;
+
     class Mixer : public IMixer
     {
+        friend Renderer;
+
     public:
         Mixer(const uint8_t max_channels,
             const uint32_t freq, const uint16_t buffer_size);
@@ -57,6 +61,7 @@ namespace HyperSonicDrivers::audio::sdl2
         void setMasterVolume(const uint8_t master_volume) noexcept override;
 
     private:
+        bool init_(SDL_AudioCallback callback, void* userdata);
         void updateChannelsVolumePan_() noexcept;
 
         size_t callback(uint8_t* samples, unsigned int len);
