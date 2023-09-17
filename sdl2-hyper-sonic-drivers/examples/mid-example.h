@@ -67,13 +67,13 @@ void mid_test(const OplEmulator emu, const OplType type, const std::shared_ptr<a
         using namespace drivers::midi;
 
     case OPL2:
-        midi_device = make_device<devices::Adlib>(mixer, op2file.getBank(), audio::mixer::eChannelGroup::Music, emu);
+        midi_device = make_midi_device<devices::Adlib>(mixer, op2file.getBank(), audio::mixer::eChannelGroup::Music, emu);
         break;
     case DUAL_OPL2:
-        midi_device = make_device<devices::SbPro>(mixer, op2file.getBank(), audio::mixer::eChannelGroup::Music, emu);
+        midi_device = make_midi_device<devices::SbPro>(mixer, op2file.getBank(), audio::mixer::eChannelGroup::Music, emu);
         break;
     case OPL3:
-        midi_device = make_device<devices::SbPro2>(mixer, op2file.getBank(), audio::mixer::eChannelGroup::Music, emu);
+        midi_device = make_midi_device<devices::SbPro2>(mixer, op2file.getBank(), audio::mixer::eChannelGroup::Music, emu);
         break;
     default:
         throw std::runtime_error("?");

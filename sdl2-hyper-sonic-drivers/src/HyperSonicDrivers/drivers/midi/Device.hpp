@@ -32,7 +32,6 @@ namespace HyperSonicDrivers::drivers
             inline bool isAcquired() const noexcept { return _acquired; }
             inline bool isOwned(const /*void**/ drivers::MIDDriver* owner) const noexcept { return _owner == owner; }
 
-            // TODO: a binary semaphore could be also used i suppose...
             inline bool acquire(/*void**/ drivers::MIDDriver* owner)
             {
                 if (!_acquired) {
@@ -54,14 +53,13 @@ namespace HyperSonicDrivers::drivers
                 return !isAcquired();
             }
         private:
-            // TODO: this could be replaced with a unique_lock mutex instead?
             std::atomic<bool> _acquired = false;
             std::atomic<drivers::MIDDriver*> _owner = nullptr;
         };
 
         // TODO: replace variadic template with exact arguments
         template<class T, typename... Args>
-        std::shared_ptr<T> make_device(Args... args)
+        std::shared_ptr<T> make_midi_device(Args... args)
         {
             return std::make_shared<T>(args...);
         }
