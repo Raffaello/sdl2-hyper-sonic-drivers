@@ -6,7 +6,8 @@
 #include <mutex>
 #include <HyperSonicDrivers/hardware/opl/OPL.hpp>
 #include <HyperSonicDrivers/files/westwood/ADLFile.hpp>
-
+#include <HyperSonicDrivers/hardware/opl/OPL2instrument.h>
+#include <HyperSonicDrivers/devices/Opl.hpp>
 
 namespace HyperSonicDrivers::drivers::westwood
 {
@@ -38,6 +39,12 @@ namespace HyperSonicDrivers::drivers::westwood
             const uint8_t pan = 0
         );
 
+        explicit ADLDriver(
+            const devices::Opl& opl,
+            const audio::mixer::eChannelGroup group,
+            const uint8_t volume = 255,
+            const uint8_t pan = 0
+        );
 
         // NOTE: midi:devices:Adlib, it should receive devices::Adlib instead of OPL, but those are working only with MIDDriver
         //explicit ADLDriver(const midi::devices::Adlib& opl, const std::shared_ptr<files::westwood::ADLFile>& adl_file);
@@ -68,7 +75,8 @@ namespace HyperSonicDrivers::drivers::westwood
 
         // The sound data has two lookup tables:
         uint8_t* getProgram_(const int progId) const;
-        const uint8_t* getInstrument_(const int instrumentId) const;
+        //const uint8_t* getInstrument_(const int instrumentId) const;
+        const hardware::opl::OPL2instrument_t getOPL2Instrument_(const int instrumentId) const;
         uint8_t* getProgram_(const int progId, const files::westwood::ADLFile::PROG_TYPE progType) const;
 
         struct Channel
@@ -139,9 +147,8 @@ namespace HyperSonicDrivers::drivers::westwood
         void setupDuration_(uint8_t duration, Channel& channel);
 
         void setupNote_(uint8_t rawNote, Channel& channel, bool flag = false);
-        // TODO: dataptr can be replace with Opl2Instrument_t, it might requires to be mapped
-        //       as is organized differently internally in the file.
-        void setupInstrument_(uint8_t regOffset, const uint8_t* dataptr, Channel& channel);
+        //void setupInstrument_(uint8_t regOffset, const uint8_t* dataptr, Channel& channel);
+        void setupOPL2Instrument_(uint8_t regOffset, const hardware::opl::OPL2instrument_t& instr, Channel& channel);
         void noteOn_(Channel& channel);
 
         void adjustVolume_(Channel& channel);

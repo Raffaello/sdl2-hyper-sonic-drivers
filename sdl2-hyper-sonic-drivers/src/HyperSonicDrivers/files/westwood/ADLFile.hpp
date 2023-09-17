@@ -1,11 +1,12 @@
 #pragma once
 
-#include <HyperSonicDrivers/files/File.hpp>
 #include <string>
 #include <vector>
 #include <functional>
 #include <limits>
 #include <memory>
+#include <HyperSonicDrivers/files/File.hpp>
+#include <HyperSonicDrivers/hardware/opl/OPL2instrument.h>
 
 
 namespace HyperSonicDrivers::files::westwood
@@ -18,20 +19,6 @@ namespace HyperSonicDrivers::files::westwood
             Track, Instrument
         };
 
-        ADLFile(const std::string& filename);
-        ~ADLFile() override = default;
-
-        uint8_t getVersion() const noexcept;
-        int getNumTracks() const noexcept;
-        int getNumTrackOffsets() const noexcept;
-        int getNumInstrumentOffsets() const noexcept;
-        uint8_t getTrack(const int track) const;
-        uint16_t getTrackOffset(const int programId) const;
-        uint16_t getInstrumentOffset(const int instrument) const;
-        uint16_t getProgramOffset(const int progId, const PROG_TYPE prog_type) const;
-        uint32_t getDataSize() const noexcept;
-        std::shared_ptr<uint8_t[]> getData() const noexcept;
-
         typedef struct meta_version_t
         {
             uint8_t  num_headers;
@@ -43,6 +30,26 @@ namespace HyperSonicDrivers::files::westwood
             uint16_t offset_start;
             uint16_t data_header_size;
         } meta_version_t;
+
+        ADLFile(const std::string& filename);
+        ~ADLFile() override = default;
+
+        uint8_t getVersion() const noexcept;
+
+        int getNumTracks() const noexcept;
+        int getNumTrackOffsets() const noexcept;
+        int getNumInstrumentOffsets() const noexcept;
+
+        uint8_t getTrack(const int track) const;
+        uint16_t getTrackOffset(const int programId) const;
+        uint16_t getInstrumentOffset(const int instrument) const;
+        uint16_t getProgramOffset(const int progId, const PROG_TYPE prog_type) const;
+
+        uint32_t getDataSize() const noexcept;
+        std::shared_ptr<uint8_t[]> getData() const noexcept;
+
+        const hardware::opl::OPL2instrument_t getInstrument(const int instrument) const;
+
     private:
         uint8_t m_version = 0;
         meta_version_t m_meta_version;

@@ -182,6 +182,32 @@ namespace HyperSonicDrivers::files::westwood
         return m_data;
     }
 
+    const hardware::opl::OPL2instrument_t ADLFile::getInstrument(const int instrument) const
+    {
+        using hardware::opl::OPL2instrument_t;
+
+        const uint8_t* instr = m_data.get() + getInstrumentOffset(instrument);
+        return OPL2instrument_t(
+            {
+                .trem_vibr_1 = instr[0],
+                .att_dec_1 = instr[7],
+                .sust_rel_1 = instr[9],
+                .wave_1 = instr[3],
+                .scale_1 = 0, // ???
+                .level_1 = instr[5],
+                .feedback = instr[2],
+                .trem_vibr_2 = instr[1],
+                .att_dec_2 = instr[8],
+                .sust_rel_2 = instr[10],
+                .wave_2 = instr[4],
+                .scale_2 = 0, // ???
+                .level_2 = instr[6],
+                .unused = 0,
+                .basenote = 0 /// ???
+            }
+        );
+    }
+
     void ADLFile::detectVersion_()
     {
         seek(0, std::fstream::beg);

@@ -14,7 +14,6 @@ namespace HyperSonicDrivers::devices
         IDevice(mixer, group, volume, pan),
         m_opl_emulator(emulator)
     {
-        using drivers::westwood::ADLDriver;
         using hardware::opl::OPLFactory;
         using utils::logC;
 
@@ -23,11 +22,5 @@ namespace HyperSonicDrivers::devices
         {
             logC(std::format("can't initialize adlib emulator type: {}", m_opl_emulator));
         }
-
-        m_adl_drv = std::make_unique<ADLDriver>(m_opl, m_group, m_volume, m_pan);
-
-        // TODO:
-        //m_midi_adlib = std::make_unique<drivers::midi::devices::Adlib>(m_mixer,)
-        //m_mid_drv = std::make_unique<MIDDriver>()
     }
 }

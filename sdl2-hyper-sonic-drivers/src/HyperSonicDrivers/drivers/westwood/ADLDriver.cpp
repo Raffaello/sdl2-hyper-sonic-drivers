@@ -53,6 +53,36 @@ namespace HyperSonicDrivers::drivers::westwood
         setOplSfxVolume(255);
     }
 
+    ADLDriver::ADLDriver(
+        const devices::Opl& opl,
+        const audio::mixer::eChannelGroup group,
+        const uint8_t volume,
+        const uint8_t pan
+    ) : m_rnd(random_seed), m_opl(opl.getOpl())
+    {
+        if (!m_opl || !m_opl->init())
+        {
+            throwLogE<std::runtime_error>("Failed to initialize OPL or OPL is null");
+        }
+
+        memset(m_channels.data(), 0, sizeof(m_channels));
+
+        hardware::opl::TimerCallBack cb = std::bind(&ADLDriver::callback, this);
+        auto p = std::make_shared<hardware::opl::TimerCallBack>(cb);
+        m_opl->start(
+            p,
+            group,
+            volume,
+            pan,
+            callbacks_per_second
+        );
+
+        stopAllChannels();
+        initDriver_();
+        setOplMusicVolume(255);
+        setOplSfxVolume(255);
+    }
+
     void ADLDriver::setADLFile(const std::shared_ptr<files::westwood::ADLFile>& adl_file) noexcept
     {
         const std::scoped_lock lock(m_mutex);
@@ -278,9 +308,14 @@ namespace HyperSonicDrivers::drivers::westwood
         return getProgram_(progId, files::westwood::ADLFile::PROG_TYPE::Track);
     }
 
-    const uint8_t* ADLDriver::getInstrument_(const int instrumentId) const
+    /*const uint8_t* ADLDriver::getInstrument_(const int instrumentId) const
     {
         return getProgram_(instrumentId, files::westwood::ADLFile::PROG_TYPE::Instrument);
+    }*/
+
+    const hardware::opl::OPL2instrument_t ADLDriver::getOPL2Instrument_(const int instrumentId) const
+    {
+        return m_adl_file->getInstrument(instrumentId);
     }
 
     // This is presumably only used for some sound effects, e.g. Malcolm blowing up
@@ -533,7 +568,7 @@ namespace HyperSonicDrivers::drivers::westwood
     {
         logD(std::format("initChannel({})", (long)(&channel - m_channels.data())));
 
-        int8_t backupEL2 = channel.opExtraLevel2;
+        const int8_t backupEL2 = channel.opExtraLevel2;
         memset(&channel, 0, sizeof(Channel));
 
         channel.opExtraLevel2 = backupEL2;
@@ -699,29 +734,71 @@ namespace HyperSonicDrivers::drivers::westwood
         writeOPL_(0xB0 + m_curChannel, channel.regBx);
     }
 
-    void ADLDriver::setupInstrument_(uint8_t regOffset, const uint8_t* dataptr, Channel& channel)
+    //void ADLDriver::setupInstrument_(uint8_t regOffset, const uint8_t* dataptr, Channel& channel)
+    //{
+    //    logD(std::format("setupInstrument({}, {}, {})", regOffset, static_cast<const void*>(dataptr), static_cast<long>(&channel - m_channels.data())));
+    //    if (m_curChannel >= NUM_CHANNELS)
+    //        return;
+
+    //    // Safety check: need 11 bytes of data.
+    //    if (!checkDataOffset_(dataptr, 11))
+    //        return;
+
+    //    // Amplitude Modulation / Vibrato / Envelope Generator Type /
+    //    // Keyboard Scaling Rate / Modulator Frequency Multiple
+    //    writeOPL_(0x20 + regOffset, *dataptr++);
+    //    writeOPL_(0x23 + regOffset, *dataptr++);
+
+    //    uint8_t temp = *dataptr++;
+
+    //    // Feedback / Algorithm
+
+    //    // It is very likely that _curChannel really does refer to the same
+    //    // channel as regOffset, but there's only one Cx register per channel.
+
+    //    writeOPL_(0xC0 + m_curChannel, temp);
+
+    //    // The algorithm bit. I don't pretend to understand this fully, but
+    //    // "If set to 0, operator 1 modulates operator 2. In this case,
+    //    // operator 2 is the only one producing sound. If set to 1, both
+    //    // operators produce sound directly. Complex sounds are more easily
+    //    // created if the algorithm is set to 0."
+
+    //    channel.twoChan = temp & 1;
+
+    //    // Waveform Select
+    //    writeOPL_(0xE0 + regOffset, *dataptr++);
+    //    writeOPL_(0xE3 + regOffset, *dataptr++);
+
+    //    channel.opLevel1 = *dataptr++;
+    //    channel.opLevel2 = *dataptr++;
+
+    //    // Level Key Scaling / Total Level
+    //    writeOPL_(0x40 + regOffset, calculateOpLevel1_(channel));
+    //    writeOPL_(0x43 + regOffset, calculateOpLevel2_(channel));
+
+    //    // Attack Rate / Decay Rate
+    //    writeOPL_(0x60 + regOffset, *dataptr++);
+    //    writeOPL_(0x63 + regOffset, *dataptr++);
+
+    //    // Sustain Level / Release Rate
+    //    writeOPL_(0x80 + regOffset, *dataptr++);
+    //    writeOPL_(0x83 + regOffset, *dataptr++);
+    //}
+
+    void ADLDriver::setupOPL2Instrument_(uint8_t regOffset, const hardware::opl::OPL2instrument_t& instr, Channel& channel)
     {
-        logD(std::format("setupInstrument({}, {}, {})", regOffset, static_cast<const void*>(dataptr), static_cast<long>(&channel - m_channels.data())));
-        if (m_curChannel >= NUM_CHANNELS)
-            return;
-
-        // Safety check: need 11 bytes of data.
-        if (!checkDataOffset_(dataptr, 11))
-            return;
-
         // Amplitude Modulation / Vibrato / Envelope Generator Type /
         // Keyboard Scaling Rate / Modulator Frequency Multiple
-        writeOPL_(0x20 + regOffset, *dataptr++);
-        writeOPL_(0x23 + regOffset, *dataptr++);
-
-        uint8_t temp = *dataptr++;
+        writeOPL_(0x20 + regOffset, instr.trem_vibr_1);
+        writeOPL_(0x23 + regOffset, instr.trem_vibr_2);
 
         // Feedback / Algorithm
 
         // It is very likely that _curChannel really does refer to the same
         // channel as regOffset, but there's only one Cx register per channel.
 
-        writeOPL_(0xC0 + m_curChannel, temp);
+        writeOPL_(0xC0 + m_curChannel, instr.feedback);
 
         // The algorithm bit. I don't pretend to understand this fully, but
         // "If set to 0, operator 1 modulates operator 2. In this case,
@@ -729,26 +806,26 @@ namespace HyperSonicDrivers::drivers::westwood
         // operators produce sound directly. Complex sounds are more easily
         // created if the algorithm is set to 0."
 
-        channel.twoChan = temp & 1;
+        channel.twoChan = instr.feedback & 1;
 
         // Waveform Select
-        writeOPL_(0xE0 + regOffset, *dataptr++);
-        writeOPL_(0xE3 + regOffset, *dataptr++);
+        writeOPL_(0xE0 + regOffset, instr.wave_1);
+        writeOPL_(0xE3 + regOffset, instr.wave_2);
 
-        channel.opLevel1 = *dataptr++;
-        channel.opLevel2 = *dataptr++;
+        channel.opLevel1 = instr.level_1;
+        channel.opLevel2 = instr.level_2;
 
         // Level Key Scaling / Total Level
         writeOPL_(0x40 + regOffset, calculateOpLevel1_(channel));
         writeOPL_(0x43 + regOffset, calculateOpLevel2_(channel));
 
         // Attack Rate / Decay Rate
-        writeOPL_(0x60 + regOffset, *dataptr++);
-        writeOPL_(0x63 + regOffset, *dataptr++);
+        writeOPL_(0x60 + regOffset, instr.att_dec_1);
+        writeOPL_(0x63 + regOffset, instr.att_dec_2);
 
         // Sustain Level / Release Rate
-        writeOPL_(0x80 + regOffset, *dataptr++);
-        writeOPL_(0x83 + regOffset, *dataptr++);
+        writeOPL_(0x80 + regOffset, instr.sust_rel_1);
+        writeOPL_(0x83 + regOffset, instr.sust_rel_2);
     }
 
     // Apart from playing the note, this function also updates the variables for
@@ -1372,7 +1449,7 @@ namespace HyperSonicDrivers::drivers::westwood
 
     int ADLDriver::update_setupInstrument(Channel& channel, const uint8_t* values)
     {
-        const uint8_t* instrument = getInstrument_(values[0]);
+        //const uint8_t* instrument = getInstrument_(values[0]);
 
         // We add a safety check to avoid setting up invalid instruments. This is
         // not done in the original. However, to avoid crashes due to invalid
@@ -1380,13 +1457,13 @@ namespace HyperSonicDrivers::drivers::westwood
         // This happens, for example, in Hand of Fate when using the swampsnake
         // potion on Zanthia to scare off the rat in the cave in the first chapter
         // of the game.
-        if (!instrument)
-        {
-            logW(std::format("Invalid instrument {} specified", values[0]));
-            return 0;
-        }
+        //if (!instrument)
+        //{
+        //    logW(std::format("Invalid instrument {} specified", values[0]));
+        //    return 0;
+        //}
 
-        setupInstrument_(m_curRegOffset, instrument, channel);
+        setupOPL2Instrument_(m_curRegOffset, getOPL2Instrument_(values[0]), channel);
         return 0;
     }
 
@@ -1702,7 +1779,7 @@ namespace HyperSonicDrivers::drivers::westwood
         m_curRegOffset = m_regOffset[6];
 
         const uint8_t* instrument;
-        instrument = getInstrument_(values[0]);
+        /*instrument = getInstrument_(values[0]);
         if (instrument != nullptr)
         {
             setupInstrument_(m_curRegOffset, instrument, channel);
@@ -1710,13 +1787,14 @@ namespace HyperSonicDrivers::drivers::westwood
         else
         {
             logW(std::format("Invalid instrument {} for channel 6 specified", values[0]));
-        }
+        }*/
+        setupOPL2Instrument_(m_curRegOffset, getOPL2Instrument_(values[0]), channel);
         m_opLevelBD = channel.opLevel2;
 
         m_curChannel = 7;
         m_curRegOffset = m_regOffset[7];
 
-        instrument = getInstrument_(values[1]);
+        /*instrument = getInstrument_(values[1]);
         if (instrument != nullptr)
         {
             setupInstrument_(m_curRegOffset, instrument, channel);
@@ -1724,14 +1802,17 @@ namespace HyperSonicDrivers::drivers::westwood
         else
         {
             logW(std::format("Invalid instrument {} for channel 7 specified", values[1]));
-        }
+        }*/
+
+        setupOPL2Instrument_(m_curRegOffset, getOPL2Instrument_(values[1]), channel);
+
         m_opLevelHH = channel.opLevel1;
         m_opLevelSD = channel.opLevel2;
 
         m_curChannel = 8;
         m_curRegOffset = m_regOffset[8];
 
-        instrument = getInstrument_(values[2]);
+        /*instrument = getInstrument_(values[2]);
         if (instrument != nullptr)
         {
             setupInstrument_(m_curRegOffset, instrument, channel);
@@ -1739,7 +1820,9 @@ namespace HyperSonicDrivers::drivers::westwood
         else
         {
             logW(std::format("Invalid instrument {} for channel 8 specified", values[2]));
-        }
+        }*/
+        setupOPL2Instrument_(m_curRegOffset, getOPL2Instrument_(values[2]), channel);
+
         m_opLevelTT = channel.opLevel1;
         m_opLevelCY = channel.opLevel2;
 
