@@ -31,6 +31,7 @@
 
 #include <HyperSonicDrivers/audio/sdl2/Mixer.hpp>
 #include <HyperSonicDrivers/utils/sdl2/Logger.hpp>
+#include <HyperSonicDrivers/devices/Adlib.hpp>
 
 
 using namespace std;
@@ -552,16 +553,19 @@ void testMOplMultiDrv()
         std::cerr << "can't init mixer";
 
     auto opl_a = hardware::opl::OPLFactory::create(OplEmulator::AUTO, OplType::OPL2, mixer);
+    auto adlib = devices::Adlib(mixer, OplEmulator::AUTO);
 
     auto af = std::make_shared< files::westwood::ADLFile>("test/fixtures/DUNE0.ADL");
-    auto drv1 = drivers::westwood::ADLDriver(opl_a, eChannelGroup::Music);
+    //auto drv1 = drivers::westwood::ADLDriver(opl_a, eChannelGroup::Music);
+    //auto drv2 = drivers::westwood::ADLDriver(opl_a, eChannelGroup::Sfx);
+    auto drv1 = drivers::westwood::ADLDriver(adlib, eChannelGroup::Music);
+    auto drv2 = drivers::westwood::ADLDriver(adlib, eChannelGroup::Music);
     drv1.setADLFile(af);
-    auto drv2 = drivers::westwood::ADLDriver(opl_a, eChannelGroup::Sfx);
     drv2.setADLFile(af);
 
     std::cout << af->getNumTracks() << std::endl;
 
-    drv2.play(2);
+    //drv2.play(2);
     utils::delayMillis(2000);
     drv1.play(4);
 

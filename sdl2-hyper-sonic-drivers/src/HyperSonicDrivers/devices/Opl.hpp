@@ -17,7 +17,7 @@ namespace HyperSonicDrivers::devices
     protected:
         explicit Opl(
             const std::shared_ptr<audio::IMixer>& mixer,
-            const audio::mixer::eChannelGroup group,
+            //const audio::mixer::eChannelGroup group,
             const hardware::opl::OplEmulator emulator,
             const hardware::opl::OplType type,
             const uint8_t volume,

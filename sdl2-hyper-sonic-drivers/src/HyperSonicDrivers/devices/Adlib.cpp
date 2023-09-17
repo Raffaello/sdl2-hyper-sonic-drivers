@@ -10,10 +10,10 @@ namespace HyperSonicDrivers::devices
 
     Adlib::Adlib(
         const std::shared_ptr<audio::IMixer>& mixer,
-        const audio::mixer::eChannelGroup group,
+        //const audio::mixer::eChannelGroup group,
         const hardware::opl::OplEmulator emulator,
         const uint8_t volume, const uint8_t pan) :
-        Opl(mixer, group, emulator, OplType::OPL2, volume, pan)
+        Opl(mixer/*, group*/, emulator, OplType::OPL2, volume, pan)
     {
     }
 }

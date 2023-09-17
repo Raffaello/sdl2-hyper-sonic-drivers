@@ -27,10 +27,10 @@ namespace HyperSonicDrivers::devices
 
         explicit Adlib(
             const std::shared_ptr<audio::IMixer>& mixer,
-            const audio::mixer::eChannelGroup group,
+            //const audio::mixer::eChannelGroup group,
             const hardware::opl::OplEmulator emulator,
-            const uint8_t volume,
-            const uint8_t pan
+            const uint8_t volume = 255,
+            const uint8_t pan = 0
         );
 
         ~Adlib() override = default;

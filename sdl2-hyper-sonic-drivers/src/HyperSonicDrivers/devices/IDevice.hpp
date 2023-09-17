@@ -17,20 +17,25 @@ namespace HyperSonicDrivers::devices
         IDevice(IDevice&&) = delete;
         IDevice& operator=(IDevice&) = delete;
 
+        //inline audio::mixer::eChannelGroup getGroup() const noexcept { return m_group; };
+        //inline uint8_t getVolume() const noexcept { return m_volume; };
+        //inline uint8_t getPan() const noexcept { return m_pan; };
     protected:
-        IDevice(const std::shared_ptr<audio::IMixer>& mixer,
-            const audio::mixer::eChannelGroup group,
-            const uint8_t volume,
-            const uint8_t pan) :
-            m_mixer(mixer), m_group(group), m_volume(volume), m_pan(pan)
-        {};
+        IDevice() = default;
+        //IDevice(const std::shared_ptr<audio::IMixer>& mixer,
+        //    const audio::mixer::eChannelGroup group//,
+            //const uint8_t volume,
+            //const uint8_t pan
+        //)// :
+         //   m_mixer(mixer), m_group(group)//, m_volume(volume), m_pan(pan)
+        //{};
 
         virtual ~IDevice() = default;
 
     protected:
-        std::shared_ptr<audio::IMixer> m_mixer;
-        const audio::mixer::eChannelGroup m_group;
-        const uint8_t m_volume;
-        const uint8_t m_pan;
+        //std::shared_ptr<audio::IMixer> m_mixer;
+        //const audio::mixer::eChannelGroup m_group;
+        //const uint8_t m_volume;
+        //const uint8_t m_pan;
     };
 }
