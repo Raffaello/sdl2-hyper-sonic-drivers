@@ -47,7 +47,7 @@ namespace HyperSonicDrivers::hardware::opl
         uint32_t setCallbackFrequency(const int timerFrequency) override;
 
         std::shared_ptr<audio::IMixer> getMixer() const noexcept;
-
+        inline audio::IAudioStream* getStreamTest() const noexcept { return m_stream.get(); };
     protected:
         std::shared_ptr<audio::IMixer> m_mixer;
         // OPL API

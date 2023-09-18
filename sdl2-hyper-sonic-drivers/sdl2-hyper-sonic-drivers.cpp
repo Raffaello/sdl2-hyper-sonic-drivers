@@ -580,6 +580,7 @@ void renderer()
     using hardware::opl::OplType;
     using audio::mixer::eChannelGroup;
     using utils::ILogger;
+    using hardware::opl::EmulatedOPL;
 
     audio::sdl2::Renderer r(44100, 1024);
 
@@ -589,12 +590,19 @@ void renderer()
 
     auto adlib = devices::Adlib(mixer, OplEmulator::AUTO);
     auto drv1 = drivers::westwood::ADLDriver(adlib, eChannelGroup::Music);
-    auto af = std::make_shared< files::westwood::ADLFile>("test/fixtures/DUNE0.ADL");
+    auto af = std::make_shared<files::westwood::ADLFile>("test/fixtures/DUNE0.ADL");
     drv1.setADLFile(af);
 
     drv1.play(4);
-    while (drv1.isPlaying())
-        utils::delayMillis(1);
+    while(drv1.isPlaying())
+        r.renderBuffer(std::dynamic_pointer_cast<EmulatedOPL>(adlib.getOpl())->getStreamTest());
+
+    r.setOutputFile("render2.dat");
+    drv1.play(2);
+    while(drv1.isPlaying())
+        r.renderBuffer(std::dynamic_pointer_cast<EmulatedOPL>(adlib.getOpl())->getStreamTest());
+    //while (drv1.isPlaying())
+    //    utils::delayMillis(1);
     //utils::delayMillis(1000);
 }
 

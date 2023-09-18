@@ -27,17 +27,27 @@ namespace HyperSonicDrivers::audio::sdl2
         }
     }
 
-    size_t Renderer::callback(uint8_t* samples, unsigned int len)
+    void Renderer::renderBuffer(IAudioStream* stream)
+    {
+        std::vector<int16_t> buf;
+        buf.resize(m_mixer->getBufferSize());
+        const bool stereo = stream->isStereo();
+        const int read = stream->readBuffer(buf.data(), buf.size());
+        m_out.write(reinterpret_cast<const char*>(buf.data()), buf.size() * (sizeof(int16_t) / sizeof(char)));
+    }
+
+    /*size_t Renderer::callback(uint8_t* samples, unsigned int len)
     {
         const auto res = m_mixer->callback(samples, len);
         m_out.write(reinterpret_cast<const char*>(samples), len);
         return res;
-    }
+    }*/
 
     void Renderer::sdlCallback(void* userdata, uint8_t* stream, int len)
     {
-        Renderer* r = reinterpret_cast<Renderer*>(userdata);
-        assert(r != nullptr);
-        r->callback(stream, len);
+        memset(stream, 0, len);
+        //Renderer* r = reinterpret_cast<Renderer*>(userdata);
+        //assert(r != nullptr);
+        //r->callback(stream, len);
     }
 }

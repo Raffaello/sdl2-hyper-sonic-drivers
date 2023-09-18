@@ -23,7 +23,7 @@ namespace HyperSonicDrivers::hardware::opl
             m_nextTick -= step << FIXP_SHIFT;
             if (!(m_nextTick >> FIXP_SHIFT))
             {
-                if (m_opl->m_callback.get() != nullptr)
+                if (m_opl->m_callback != nullptr)
                     (*m_opl->m_callback)();
 
                 m_nextTick += m_samplesPerTick;
