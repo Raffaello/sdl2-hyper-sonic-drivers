@@ -10,17 +10,30 @@
 
 namespace HyperSonicDrivers::files
 {
-    WAVFile::WAVFile(const std::string& filename, const audio::mixer::eChannelGroup group) : RIFFFile(filename),
-        m_expDataChunk(false)
+        WAVFile::WAVFile(
+        const std::string& filename,
+        const audio::mixer::eChannelGroup group,
+        const bool read_mode) :
+        RIFFFile(
+            filename,
+            read_mode ?
+            std::fstream::in | std::fstream::binary :
+            std::fstream::out | std::fstream::binary
+        ),
+        m_read_mode(read_mode)
     {
         std::memset(&m_fmt_chunk, 0, sizeof(format_t));
+        
+        if (!read_mode)
+            return;
 
         RIFF_chunk_header_t header;
         readChunkHeader(header);
         assertValid_(header.chunk.id.id == eRIFF_ID::ID_RIFF);
         assertValid_(header.type.id == eRIFF_ID::ID_WAVE);
+        auto debug = size() - sizeof(RIFF_sub_chunk_header_t);
         assertValid_(header.chunk.length == size() - sizeof(RIFF_sub_chunk_header_t));
-        
+
         // TODO read the optional chunks?
         // BODY FACT Chunk                        <fact-ck>
         // BODY Cue-Points Chunk                  <cue-ck>
@@ -30,29 +43,138 @@ namespace HyperSonicDrivers::files
 
         // fmt always before data chunk
         RIFF_sub_chunk_header_t fmt;
-        do {
-            readSubChunkHeader(fmt);
-            if (fmt.id.id != eRIFF_ID::ID_FMT) {
-                seek(fmt.length, std::fstream::cur);
-            }
-        } while (fmt.id.id != eRIFF_ID::ID_FMT);
+        readSubChunkHeader(eRIFF_ID::ID_FMT, fmt);
         read_fmt_sub_chunk(fmt);
 
         RIFF_sub_chunk_header_t data;
-        do {
-            readSubChunkHeader(data);
-            if (data.id.id != eRIFF_ID::ID_DATA) {
-                seek(data.length, std::fstream::cur);
-            }
-        } while (data.id.id != eRIFF_ID::ID_DATA);
+        readSubChunkHeader(eRIFF_ID::ID_DATA, data);
         read_data_sub_chunk(data);
 
         make_sound_(group);
     }
 
+    WAVFile::~WAVFile()
+    {
+        if (!m_read_mode && m_isSaving)
+            save_end();
+    }
+
     const WAVFile::format_t& WAVFile::getFormat() const noexcept
     {
         return m_fmt_chunk;
+    }
+
+    void WAVFile::save_prepare(const uint32_t freq, const bool stereo)
+    {
+        if (m_isSaving)
+            return;
+
+        RIFF_chunk_header_t header;
+        header.chunk.id.id = eRIFF_ID::ID_RIFF;
+        header.chunk.length = m_saving_data_length_pos; // empty wav file
+        header.type.id = eRIFF_ID::ID_WAVE;
+        writeChunkHeader(header); // 12 bytes
+
+        // FMT chunk
+        RIFF_sub_chunk_header_t sub_header;
+        sub_header.id.id = eRIFF_ID::ID_FMT;
+        sub_header.length = sizeof(format_t);
+        writeSubChunkHeader(sub_header); // 20 bytes
+
+        // writing FMT data (PCM, 2 extra byte in FMT data)
+        m_fmt_chunk.format = eFormat::WAVE_FORMAT_PCM;
+        m_fmt_chunk.channels = stereo ? 2 : 1;
+        m_fmt_chunk.samplesPerSec = freq;
+        m_fmt_chunk.blockAlign = sizeof(int16_t) * m_fmt_chunk.channels;
+        m_fmt_chunk.avgBytesPerSec = freq * m_fmt_chunk.blockAlign;
+        m_fmt_chunk.bitsPerSample = 8 * sizeof(int16_t);
+        write(reinterpret_cast<const char*>(&m_fmt_chunk), sizeof(format_t)); // 36 bytes
+        //write(reinterpret_cast<const char*>(&m_fmt_chunk.format), sizeof(eFormat));
+        //write(reinterpret_cast<const char*>(&m_fmt_chunk.channels), sizeof(uint16_t));
+        //write(reinterpret_cast<const char*>(&m_fmt_chunk.samplesPerSec), sizeof(uint32_t));
+        //write(reinterpret_cast<const char*>(&m_fmt_chunk.avgBytesPerSec), sizeof(uint32_t));
+        //write(reinterpret_cast<const char*>(&m_fmt_chunk.blockAlign), sizeof(uint16_t));
+        //write(reinterpret_cast<const char*>(&m_fmt_chunk.bitsPerSample), sizeof(uint16_t));
+
+        // DATA chunk
+        sub_header.id.id = eRIFF_ID::ID_DATA;
+        sub_header.length = 0;
+        writeSubChunkHeader(sub_header); // 44 bytes
+
+        m_isSaving = true;
+    }
+
+    void WAVFile::save_streaming(const int16_t* buffer, const size_t length)
+    {
+        if (!m_isSaving)
+            return;
+
+        if (length == 0 || buffer == nullptr)
+            return;
+
+        write(reinterpret_cast<const char*>(buffer), length * (sizeof(int16_t) / sizeof(char)));
+    }
+
+    void WAVFile::save_end()
+    {
+        if (!m_isSaving)
+            return;
+
+        flush();
+        if (size() % 2 == 1)
+        {
+            const char pad = 0;
+            write(&pad, sizeof(char));
+            flush();
+        }
+
+        const auto size = this->size();
+        const uint32_t length = size - m_saving_data_length_pos - sizeof(uint32_t); // extra PCM_FORMAT field (2 bytes) (if present)
+        const uint32_t size4 = size - sizeof(RIFF_sub_chunk_header_t);
+
+        seek(m_saving_length_pos);
+        write(reinterpret_cast<const char*>(&size4), sizeof(uint32_t));
+        seek(m_saving_data_length_pos);
+        write(reinterpret_cast<const char*>(&length), sizeof(uint32_t));
+        flush();
+        m_isSaving = false;
+    }
+
+    void WAVFile::save(const uint32_t freq, const bool stereo, const int16_t* sound, const size_t length)
+    {
+        //RIFF_chunk_header_t header;
+        //header.chunk.id.id = eRIFF_ID::ID_RIFF;
+        //header.chunk.length = sizeof(RIFF_sub_chunk_header_t);
+        //header.type.id = eRIFF_ID::ID_WAVE;
+        //writeChunkHeader(header);
+
+        //// FMT chunk
+        //RIFF_sub_chunk_header_t sub_header;
+        //sub_header.id.id = eRIFF_ID::ID_FMT;
+        //sub_header.length = sizeof(format_t);
+        //m_fmt_chunk.format = eFormat::WAVE_FORMAT_PCM;
+        //m_fmt_chunk.channels = stereo ? 2 : 1;
+        //m_fmt_chunk.samplesPerSec = freq;
+        //m_fmt_chunk.avgBytesPerSec = 0;
+        //m_fmt_chunk.blockAlign = 0;
+        //m_fmt_chunk.bitsPerSample = 16;
+        //writeSubChunkHeader(sub_header);
+        //write(reinterpret_cast<const char*>(&m_fmt_chunk), sizeof(format_t));
+
+        //// DATA chunk
+        //sub_header.id.id = eRIFF_ID::ID_DATA;
+        //sub_header.length = length;
+        //writeSubChunkHeader(sub_header);
+        //write(reinterpret_cast<const char*>(sound), length * (sizeof(int16_t) / sizeof(char)));
+
+        save_prepare(freq, stereo);
+        save_streaming(sound, length);
+        save_end();
+    }
+
+    void WAVFile::save(const audio::Sound& sound)
+    {
+        save(sound.freq, sound.stereo, sound.data.get(), sound.dataSize);
     }
 
     bool WAVFile::read_fmt_sub_chunk(const RIFF_sub_chunk_header_t& chunk)

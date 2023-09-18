@@ -109,6 +109,11 @@ namespace HyperSonicDrivers::files
         }
     }
 
+    void File::flush() noexcept
+    {
+        m_file.flush();
+    }
+
     std::string File::getFilename() const noexcept
     {
         return std::filesystem::path(m_filename).filename().string();

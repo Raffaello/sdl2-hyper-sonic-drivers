@@ -15,6 +15,7 @@ namespace HyperSonicDrivers::audio
         virtual ~IRenderer() = default;
 
         virtual void setOutputFile(const std::filesystem::path& path) = 0;
+        virtual void releaseOutputFile() noexcept = 0;
         virtual inline std::shared_ptr<IMixer> getMixer() const noexcept = 0;
 
         virtual void renderBuffer(IAudioStream* stream) = 0;

@@ -11,12 +11,8 @@
 
 namespace HyperSonicDrivers::audio::sdl2
 {
-    class Renderer;
-
     class Mixer : public IMixer
     {
-        friend Renderer;
-
     public:
         Mixer(const uint8_t max_channels,
             const uint32_t freq, const uint16_t buffer_size);

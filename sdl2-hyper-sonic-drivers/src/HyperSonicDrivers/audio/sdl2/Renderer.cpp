@@ -1,5 +1,6 @@
 #include <HyperSonicDrivers/audio/sdl2/Renderer.hpp>
 #include <HyperSonicDrivers/audio/sdl2/Mixer.hpp>
+#include <HyperSonicDrivers/utils/ILogger.hpp>
 
 namespace HyperSonicDrivers::audio::sdl2
 {
@@ -14,23 +15,32 @@ namespace HyperSonicDrivers::audio::sdl2
 
     void Renderer::setOutputFile(const std::filesystem::path& path)
     {
-        if (m_out.is_open())
-            m_out.close();
-
-        m_out.open(path, std::ios::binary | std::ios::out);
+        m_out = std::make_unique<files::WAVFile>(path.string(), audio::mixer::eChannelGroup::Unknown, false);
+        /*m_out.open(path, std::ios::binary | std::ios::out);
         if (!m_out.good() || !m_out.is_open())
         {
+            utils::throwLogE<>()
             throw std::runtime_error("???");
-        }
+        }*/
+        m_buf.resize(0);
+    }
+
+    void Renderer::releaseOutputFile() noexcept
+    {
+        m_out.reset();
     }
 
     void Renderer::renderBuffer(IAudioStream* stream)
     {
-        std::vector<int16_t> buf;
-        buf.resize(m_mixer->getBufferSize());
-        const bool stereo = stream->isStereo();
-        const int read = stream->readBuffer(buf.data(), buf.size());
-        m_out.write(reinterpret_cast<const char*>(buf.data()), buf.size() * (sizeof(int16_t) / sizeof(char)));
+        if (m_buf.size() == 0) {
+            m_out->save_prepare(stream->getRate(), stream->isStereo());
+            m_buf.resize(m_mixer->getBufferSize());
+        }
+
+        const int read = stream->readBuffer(m_buf.data(), m_buf.size());
+
+        //m_out.write(reinterpret_cast<const char*>(buf.data()), buf.size() * (sizeof(int16_t) / sizeof(char)));
+        m_out->save_streaming(m_buf.data(), m_buf.size());
     }
 
     /*void Renderer::renderBuffer(std::shared_ptr<hardware::opl::EmulatedOPL>& opl)

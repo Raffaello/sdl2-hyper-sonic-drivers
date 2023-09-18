@@ -584,7 +584,7 @@ void renderer()
 
     audio::sdl2::Renderer r(44100, 1024);
 
-    r.setOutputFile("renderer.dat");
+    r.setOutputFile("renderer.wav");
 
     auto mixer = r.getMixer();
 
@@ -598,10 +598,15 @@ void renderer()
     while(drv1.isPlaying())
         r.renderBuffer(eo);
 
-    r.setOutputFile("render2.dat");
-    drv1.play(2);
-    while(drv1.isPlaying())
-        r.renderBuffer(eo);
+    r.releaseOutputFile();
+
+    files::WAVFile w("renderer.wav");
+    auto sound = w.getSound();
+
+    //r.setOutputFile("render2.dat");
+    //drv1.play(2);
+    //while(drv1.isPlaying())
+    //    r.renderBuffer(eo);
     //while (drv1.isPlaying())
     //    utils::delayMillis(1);
     //utils::delayMillis(1000);
