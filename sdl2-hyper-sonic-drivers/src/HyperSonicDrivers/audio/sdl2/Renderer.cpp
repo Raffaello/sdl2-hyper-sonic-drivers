@@ -29,6 +29,6 @@ namespace HyperSonicDrivers::audio::sdl2
 
         const int read = stream->readBuffer(m_buf.data(), m_buf.size());
 
-        m_out->save_streaming(m_buf.data(), m_buf.size());
+        m_out->save_streaming(m_buf.data(), read);
     }
 }
