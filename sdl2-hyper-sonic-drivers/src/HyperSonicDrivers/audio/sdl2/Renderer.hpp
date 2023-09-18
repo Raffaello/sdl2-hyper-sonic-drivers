@@ -15,19 +15,16 @@ namespace HyperSonicDrivers::audio::sdl2
     {
     public:
         Renderer(const uint32_t freq, const uint16_t buffer_size);
-        ~Renderer() = default;
+        ~Renderer() override = default;
 
         void setOutputFile(const std::filesystem::path& path) override;
         void releaseOutputFile() noexcept override;
-
-        inline std::shared_ptr<IMixer> getMixer() const noexcept override { return m_mixer; };
 
         void renderBuffer(IAudioStream* stream) override;
         using IRenderer::renderBuffer;
 
         //void render(const std::filesystem::path& outfile);
     private:
-        std::shared_ptr<IMixer> m_mixer;
         std::unique_ptr<files::WAVFile> m_out;
         std::vector<int16_t> m_buf;
     };

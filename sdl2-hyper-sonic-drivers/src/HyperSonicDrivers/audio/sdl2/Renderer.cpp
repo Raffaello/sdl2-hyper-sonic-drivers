@@ -22,13 +22,13 @@ namespace HyperSonicDrivers::audio::sdl2
 
     void Renderer::renderBuffer(IAudioStream* stream)
     {
-        if (m_buf.size() == 0) {
+        if (m_buf.empty())
+        {
             m_out->save_prepare(stream->getRate(), stream->isStereo());
             m_buf.resize(m_mixer->getBufferSize());
         }
 
-        const int read = stream->readBuffer(m_buf.data(), m_buf.size());
-
+        const size_t read = stream->readBuffer(m_buf.data(), m_buf.size());
         m_out->save_streaming(m_buf.data(), read);
     }
 }
