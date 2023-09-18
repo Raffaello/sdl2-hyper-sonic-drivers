@@ -574,7 +574,7 @@ void testMOplMultiDrv()
         utils::delayMillis(1000);
 }
 
-void renderer()
+void rendererADL()
 {
     using hardware::opl::OplEmulator;
     using hardware::opl::OplType;
@@ -612,13 +612,18 @@ void renderer()
     //utils::delayMillis(1000);
 }
 
+void rendererMIDI()
+{
+    // TODO:
+}
+
 
 int main(int argc, char* argv[])
 {
     //newMixerTest();
     //testMultiOpl();
     //testMOplMultiDrv();
-    renderer();
+    rendererADL();
     return 0;
     //sdlMixer();
     //SDL_Delay(100);
