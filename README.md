@@ -59,10 +59,16 @@ At the moment the only implemented emulators are OPL chips.
 - [x] Nuked OPL3
 - [x] "woody" OPL2/Surround OPL2 (adding a sort of chrous effect)
 
+## Render Audio to Disk
+
+It is possible to render the audio buffer to disk into a 16 bits PCM WAVE file of:
+
+- [x] OPL emulated chips
+
 
 ## Usage
 
-see the `example` folder for some basic usage.
+see the `examples` folder for some various basic usage.
 
 ## Credits
 
