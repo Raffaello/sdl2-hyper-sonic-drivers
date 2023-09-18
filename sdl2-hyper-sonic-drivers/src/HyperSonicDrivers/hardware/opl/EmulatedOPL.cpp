@@ -1,42 +1,12 @@
 #include <HyperSonicDrivers/hardware/opl/EmulatedOPL.hpp>
+#include <HyperSonicDrivers/audio/streams/OplStream.hpp>
 #include <HyperSonicDrivers/utils/ILogger.hpp>
 #include <cassert>
 
 namespace HyperSonicDrivers::hardware::opl
 {
-    constexpr int FIXP_SHIFT = 16;
-
-    size_t EmulatedOPL::Stream::readBuffer(int16_t* buffer, const size_t numSamples)
-    {
-        const int stereoFactor = stereo ? 2 : 1;
-        size_t len = numSamples / stereoFactor;
-
-        do {
-            size_t step = len;
-            if (step > (m_nextTick >> FIXP_SHIFT))
-            {
-                step = (m_nextTick >> FIXP_SHIFT);
-            }
-
-            m_opl->generateSamples(buffer, step * stereoFactor);
-
-            m_nextTick -= step << FIXP_SHIFT;
-            if (!(m_nextTick >> FIXP_SHIFT))
-            {
-                if (m_opl->m_callback != nullptr)
-                    (*m_opl->m_callback)();
-
-                m_nextTick += m_samplesPerTick;
-            }
-
-            buffer += step * stereoFactor;
-            len -= step;
-        } while (len);
-
-        return numSamples;
-    }
-
-    EmulatedOPL::EmulatedOPL(const OplType type, const std::shared_ptr<audio::IMixer>& mixer) : OPL(type),
+    EmulatedOPL::EmulatedOPL(const OplType type, const std::shared_ptr<audio::IMixer>& mixer) :
+        OPL(type),
         m_mixer(mixer)
     {
     }
@@ -74,7 +44,7 @@ namespace HyperSonicDrivers::hardware::opl
         const uint8_t pan,
         const int timerFrequency
     ) {
-        m_stream = std::make_shared<Stream>(
+        m_stream = std::make_shared<audio::streams::OplStream>(
             this,
             isStereo(),
             m_mixer->getOutputRate(),

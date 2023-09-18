@@ -260,6 +260,7 @@ target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/hardware/opl/Timer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/hardware/opl/Chip.cpp
 
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/streams/OplStream.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/hardware/opl/EmulatedOPL.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/hardware/opl/scummvm/dosbox/DosBoxOPL.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/hardware/opl/scummvm/dosbox/dbopl/dbopl.cpp

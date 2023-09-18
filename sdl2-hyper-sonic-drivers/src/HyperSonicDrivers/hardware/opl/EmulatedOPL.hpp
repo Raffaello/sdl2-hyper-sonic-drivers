@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include <cstdint>
@@ -8,9 +7,15 @@
 #include <HyperSonicDrivers/audio/IMixer.hpp>
 #include <HyperSonicDrivers/hardware/opl/OplType.hpp>
 
+namespace HyperSonicDrivers::audio::streams
+{
+    class OplStream;
+}
 
 namespace HyperSonicDrivers::hardware::opl
 {
+    constexpr int FIXP_SHIFT = 16;
+
     /**
      * An OPL that represents an emulated OPL.
      *
@@ -19,25 +24,7 @@ namespace HyperSonicDrivers::hardware::opl
      */
     class EmulatedOPL : public OPL
     {
-    protected:
-        class Stream : public audio::IAudioStream
-        {
-        private:
-            EmulatedOPL* m_opl = nullptr;
-            uint32_t m_nextTick = 0;
-        public:
-            const bool stereo;
-            const uint32_t rate;
-            const uint32_t m_samplesPerTick;
-
-            Stream(EmulatedOPL* opl, const bool stereo, const uint32_t rate, const uint32_t samplesPerTick) :
-                m_opl(opl), stereo(stereo), rate(rate), m_samplesPerTick(samplesPerTick) {};
-
-            size_t readBuffer(int16_t* buffer, const size_t numSamples) override;
-            inline bool isStereo() const noexcept override { return stereo; }
-            uint32_t getRate() const noexcept override { return rate; };
-            bool endOfData() const noexcept override { return false; };
-        };
+        friend audio::streams::OplStream;
 
     public:
         EmulatedOPL(const OplType type, const std::shared_ptr<audio::IMixer>& mixer);
