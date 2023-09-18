@@ -593,14 +593,15 @@ void renderer()
     auto af = std::make_shared<files::westwood::ADLFile>("test/fixtures/DUNE0.ADL");
     drv1.setADLFile(af);
 
+    auto eo = std::dynamic_pointer_cast<EmulatedOPL>(adlib.getOpl());
     drv1.play(4);
     while(drv1.isPlaying())
-        r.renderBuffer(std::dynamic_pointer_cast<EmulatedOPL>(adlib.getOpl())->getStreamTest());
+        r.renderBuffer(eo);
 
     r.setOutputFile("render2.dat");
     drv1.play(2);
     while(drv1.isPlaying())
-        r.renderBuffer(std::dynamic_pointer_cast<EmulatedOPL>(adlib.getOpl())->getStreamTest());
+        r.renderBuffer(eo);
     //while (drv1.isPlaying())
     //    utils::delayMillis(1);
     //utils::delayMillis(1000);

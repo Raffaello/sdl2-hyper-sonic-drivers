@@ -7,9 +7,14 @@
 #include <HyperSonicDrivers/audio/IMixer.hpp>
 #include <HyperSonicDrivers/hardware/opl/OplType.hpp>
 
-namespace HyperSonicDrivers::audio::streams
+namespace HyperSonicDrivers::audio
 {
-    class OplStream;
+    class IRenderer;
+
+    namespace streams
+    {
+        class OplStream;
+    }
 }
 
 namespace HyperSonicDrivers::hardware::opl
@@ -24,6 +29,7 @@ namespace HyperSonicDrivers::hardware::opl
      */
     class EmulatedOPL : public OPL
     {
+        friend audio::IRenderer;
         friend audio::streams::OplStream;
 
     public:
@@ -34,7 +40,6 @@ namespace HyperSonicDrivers::hardware::opl
         uint32_t setCallbackFrequency(const int timerFrequency) override;
 
         std::shared_ptr<audio::IMixer> getMixer() const noexcept;
-        inline audio::IAudioStream* getStreamTest() const noexcept { return m_stream.get(); };
     protected:
         std::shared_ptr<audio::IMixer> m_mixer;
         // OPL API
