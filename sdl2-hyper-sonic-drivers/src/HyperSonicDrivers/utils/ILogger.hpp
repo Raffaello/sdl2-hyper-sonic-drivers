@@ -4,8 +4,6 @@
 #include <format>
 #include <source_location>
 #include <functional>
-#include <stdexcept>
-#include <system_error>
 
 namespace HyperSonicDrivers::utils
 {

@@ -8,7 +8,6 @@
 #include <vector>
 #include <memory>
 #include <filesystem>
-#include <fstream>
 
 namespace HyperSonicDrivers::audio::sdl2
 {
@@ -29,10 +28,7 @@ namespace HyperSonicDrivers::audio::sdl2
         //void render(const std::filesystem::path& outfile);
     private:
         std::shared_ptr<IMixer> m_mixer;
-        //std::ofstream m_out;
         std::unique_ptr<files::WAVFile> m_out;
         std::vector<int16_t> m_buf;
-        //size_t callback(uint8_t* samples, unsigned int len);
-        //static void sdlCallback(void* this_, uint8_t* samples, int len);
     };
 }

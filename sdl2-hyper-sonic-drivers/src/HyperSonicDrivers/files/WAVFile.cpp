@@ -31,7 +31,6 @@ namespace HyperSonicDrivers::files
         readChunkHeader(header);
         assertValid_(header.chunk.id.id == eRIFF_ID::ID_RIFF);
         assertValid_(header.type.id == eRIFF_ID::ID_WAVE);
-        auto debug = size() - sizeof(RIFF_sub_chunk_header_t);
         assertValid_(header.chunk.length == size() - sizeof(RIFF_sub_chunk_header_t));
 
         // TODO read the optional chunks?
@@ -89,12 +88,6 @@ namespace HyperSonicDrivers::files
         m_fmt_chunk.avgBytesPerSec = freq * m_fmt_chunk.blockAlign;
         m_fmt_chunk.bitsPerSample = 8 * sizeof(int16_t);
         write(reinterpret_cast<const char*>(&m_fmt_chunk), sizeof(format_t)); // 36 bytes
-        //write(reinterpret_cast<const char*>(&m_fmt_chunk.format), sizeof(eFormat));
-        //write(reinterpret_cast<const char*>(&m_fmt_chunk.channels), sizeof(uint16_t));
-        //write(reinterpret_cast<const char*>(&m_fmt_chunk.samplesPerSec), sizeof(uint32_t));
-        //write(reinterpret_cast<const char*>(&m_fmt_chunk.avgBytesPerSec), sizeof(uint32_t));
-        //write(reinterpret_cast<const char*>(&m_fmt_chunk.blockAlign), sizeof(uint16_t));
-        //write(reinterpret_cast<const char*>(&m_fmt_chunk.bitsPerSample), sizeof(uint16_t));
 
         // DATA chunk
         sub_header.id.id = eRIFF_ID::ID_DATA;
@@ -142,31 +135,6 @@ namespace HyperSonicDrivers::files
 
     void WAVFile::save(const uint32_t freq, const bool stereo, const int16_t* sound, const size_t length)
     {
-        //RIFF_chunk_header_t header;
-        //header.chunk.id.id = eRIFF_ID::ID_RIFF;
-        //header.chunk.length = sizeof(RIFF_sub_chunk_header_t);
-        //header.type.id = eRIFF_ID::ID_WAVE;
-        //writeChunkHeader(header);
-
-        //// FMT chunk
-        //RIFF_sub_chunk_header_t sub_header;
-        //sub_header.id.id = eRIFF_ID::ID_FMT;
-        //sub_header.length = sizeof(format_t);
-        //m_fmt_chunk.format = eFormat::WAVE_FORMAT_PCM;
-        //m_fmt_chunk.channels = stereo ? 2 : 1;
-        //m_fmt_chunk.samplesPerSec = freq;
-        //m_fmt_chunk.avgBytesPerSec = 0;
-        //m_fmt_chunk.blockAlign = 0;
-        //m_fmt_chunk.bitsPerSample = 16;
-        //writeSubChunkHeader(sub_header);
-        //write(reinterpret_cast<const char*>(&m_fmt_chunk), sizeof(format_t));
-
-        //// DATA chunk
-        //sub_header.id.id = eRIFF_ID::ID_DATA;
-        //sub_header.length = length;
-        //writeSubChunkHeader(sub_header);
-        //write(reinterpret_cast<const char*>(sound), length * (sizeof(int16_t) / sizeof(char)));
-
         save_prepare(freq, stereo);
         save_streaming(sound, length);
         save_end();
