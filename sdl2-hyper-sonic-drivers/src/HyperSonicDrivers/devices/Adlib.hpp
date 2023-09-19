@@ -7,7 +7,6 @@
 #include <HyperSonicDrivers/audio/IMixer.hpp>
 #include <HyperSonicDrivers/audio/mixer/ChannelGroup.hpp>
 #include <HyperSonicDrivers/hardware/opl/OplEmulator.hpp>
-//#include <HyperSonicDrivers/drivers/midi/devices/Adlib.hpp> // TODO: try to merge...
 #include <cstdint>
 #include <memory>
 
@@ -34,9 +33,5 @@ namespace HyperSonicDrivers::devices
         );
 
         ~Adlib() override = default;
-
-        //void play()
-
-    private:
     };
 }
