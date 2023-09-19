@@ -809,7 +809,6 @@ namespace HyperSonicDrivers::drivers::westwood
 
     // Apart from playing the note, this function also updates the variables for
     // the vibrato primary effect.
-
     void ADLDriver::noteOn_(Channel& channel)
     {
         logD(std::format("noteOn({})", (long)(&channel - m_channels.data())));
@@ -1022,7 +1021,7 @@ namespace HyperSonicDrivers::drivers::westwood
     //
     // Each channel has its own individual tempo and timer. The timer is updated,
     // and when it wraps around, we go ahead and do more stuff with that channel.
-    // Otherwise we skip straiht to the effect callbacks.
+    // Otherwise we skip straight to the effect callbacks.
     //
     // Each channel also has a duration, indicating how much time is left on its
     // current task. This duration is decreased by one. As long as it still has

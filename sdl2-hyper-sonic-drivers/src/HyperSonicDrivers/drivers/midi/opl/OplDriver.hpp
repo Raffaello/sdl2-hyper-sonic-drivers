@@ -35,26 +35,30 @@ namespace HyperSonicDrivers::drivers::midi::opl
             const uint8_t pan);
         ~OplDriver();
 
+        inline void setOP2Bank(const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank) { m_op2Bank = op2Bank; };
+
         void send(const audio::midi::MIDIEvent& e) /*const*/ noexcept;
         void pause() const noexcept;
         void resume() const noexcept;
 
-        inline std::shared_ptr<hardware::opl::OPL> getOpl() const noexcept { return _opl; };
+        inline std::shared_ptr<hardware::opl::OPL> getOpl() const noexcept { return m_opl; };
 
     private:
-        std::shared_ptr<hardware::opl::OPL> _opl;
-        std::shared_ptr<audio::opl::banks::OP2Bank> _op2Bank;
-        const bool _opl3_mode;
-        const uint8_t _oplNumChannels;
-        std::array<std::unique_ptr<OplChannel>, audio::midi::MIDI_MAX_CHANNELS>  _channels;
+        std::shared_ptr<hardware::opl::OPL> m_opl;
+        std::shared_ptr<audio::opl::banks::OP2Bank> m_op2Bank;
+        // TODO: better write it the other way m_opl2_mode, otherwise is stereo/ opl3/dualopl 
+        const bool m_opl3_mode;
+        const uint8_t m_oplNumChannels;
+        std::array<std::unique_ptr<OplChannel>, audio::midi::MIDI_MAX_CHANNELS>  m_channels;
 
         // TODO: this if is OPL2 should have less
+        // replace with a vector and resize to right size in the constructor
         std::array<std::unique_ptr<OplVoice>, drivers::opl::opl3_num_channels> _voices;
-        std::unique_ptr<drivers::opl::OplWriter> _oplWriter;
+        std::unique_ptr<drivers::opl::OplWriter> m_oplWriter;
 
         // TODO review to make this index more efficient (and its complementary)
-        std::list<uint8_t> _voicesInUseIndex;
-        std::list<uint8_t> _voicesFreeIndex;
+        std::list<uint8_t> m_voicesInUseIndex;
+        std::list<uint8_t> m_voicesFreeIndex;
 
         // MIDI Events
         void noteOff(const uint8_t chan, const uint8_t note) noexcept;

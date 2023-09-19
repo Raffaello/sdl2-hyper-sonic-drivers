@@ -22,15 +22,14 @@ namespace HyperSonicDrivers::hardware::opl
 
     uint32_t EmulatedOPL::setCallbackFrequency(const int timerFrequency)
     {
-        const uint32_t baseFreq = timerFrequency;
-        assert(baseFreq != 0);
+        assert(timerFrequency != 0);
 
-        int d = m_mixer->getOutputRate() / baseFreq;
-        int r = m_mixer->getOutputRate() % baseFreq;
+        const int d = m_mixer->getOutputRate() / timerFrequency;
+        const int r = m_mixer->getOutputRate() % timerFrequency;
 
         // This is equivalent to (getRate() << FIXP_SHIFT) / BASE_FREQ
         // but less prone to arithmetic overflow.
-        return (d << FIXP_SHIFT) + (r << FIXP_SHIFT) / baseFreq;
+        return (d << FIXP_SHIFT) + (r << FIXP_SHIFT) / timerFrequency;
     }
 
     std::shared_ptr<audio::IMixer> EmulatedOPL::getMixer() const noexcept

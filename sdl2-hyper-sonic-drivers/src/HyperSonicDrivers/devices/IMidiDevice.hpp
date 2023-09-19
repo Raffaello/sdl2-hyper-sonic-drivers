@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <atomic>
 #include <memory>
+#include <functional>
 #include <HyperSonicDrivers/audio/midi/MIDIEvent.hpp>
 
 

@@ -11,6 +11,8 @@
 
 namespace HyperSonicDrivers::drivers
 {
+    // TODO/NOTE: this is more the OnTimer logic and setup of OplDriver, but generalized
+    //            for whatever midi::driver ... need to be reivewed
     class MIDDriver
     {
     public:
