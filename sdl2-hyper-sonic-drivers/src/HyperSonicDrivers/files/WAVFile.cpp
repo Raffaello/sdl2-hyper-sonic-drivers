@@ -70,7 +70,7 @@ namespace HyperSonicDrivers::files
 
         RIFF_chunk_header_t header;
         header.chunk.id.id = eRIFF_ID::ID_RIFF;
-        header.chunk.length = m_saving_data_length_pos; // empty wav file
+        header.chunk.length = static_cast<uint32_t>(m_saving_data_length_pos); // empty wav file
         header.type.id = eRIFF_ID::ID_WAVE;
         writeChunkHeader(header); // 12 bytes
 
@@ -122,8 +122,8 @@ namespace HyperSonicDrivers::files
         }
 
         const auto size = this->size();
-        const uint32_t length = size - m_saving_data_length_pos - sizeof(uint32_t); // extra PCM_FORMAT field (2 bytes) (if present)
-        const uint32_t size4 = size - sizeof(RIFF_sub_chunk_header_t);
+        const uint32_t length = static_cast<uint32_t>(size - m_saving_data_length_pos - sizeof(uint32_t)); // extra PCM_FORMAT field (2 bytes) (if present)
+        const uint32_t size4 = static_cast<uint32_t>(size - sizeof(RIFF_sub_chunk_header_t));
 
         seek(m_saving_length_pos);
         write(reinterpret_cast<const char*>(&size4), sizeof(uint32_t));

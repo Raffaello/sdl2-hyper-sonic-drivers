@@ -74,7 +74,7 @@ namespace HyperSonicDrivers::drivers::westwood
         // The sound data has two lookup tables:
         uint8_t* getProgram_(const int progId) const;
         //const uint8_t* getInstrument_(const int instrumentId) const;
-        const hardware::opl::OPL2instrument_t getOPL2Instrument_(const int instrumentId) const;
+        hardware::opl::OPL2instrument_t getOPL2Instrument_(const int instrumentId) const;
         uint8_t* getProgram_(const int progId, const files::westwood::ADLFile::PROG_TYPE progType) const;
 
         struct Channel

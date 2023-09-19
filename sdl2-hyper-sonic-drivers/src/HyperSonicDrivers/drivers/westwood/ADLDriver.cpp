@@ -292,7 +292,7 @@ namespace HyperSonicDrivers::drivers::westwood
         return getProgram_(instrumentId, files::westwood::ADLFile::PROG_TYPE::Instrument);
     }*/
 
-    const hardware::opl::OPL2instrument_t ADLDriver::getOPL2Instrument_(const int instrumentId) const
+    hardware::opl::OPL2instrument_t ADLDriver::getOPL2Instrument_(const int instrumentId) const
     {
         return m_adl_file->getInstrument(instrumentId);
     }

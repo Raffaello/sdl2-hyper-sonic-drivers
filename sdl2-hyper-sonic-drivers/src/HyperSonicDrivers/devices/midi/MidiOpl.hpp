@@ -16,10 +16,10 @@ namespace HyperSonicDrivers::devices::midi
         void sendEvent(const audio::midi::MIDIEvent& e) const noexcept override;
         void sendMessage(const uint8_t msg[], const uint8_t size) const noexcept override;
         void sendSysEx(const audio::midi::MIDIEvent& e) const noexcept override;
-        virtual void pause() const noexcept override;
-        virtual void resume() const noexcept override;
+        void pause() const noexcept override;
+        void resume() const noexcept override;
 
-        inline std::shared_ptr<hardware::opl::OPL> getOpl() { return _oplDriver->getOpl(); };
+        inline std::shared_ptr<hardware::opl::OPL> getOpl() const noexcept { return _oplDriver->getOpl(); };
         //void loadBankOP2();
     protected:
         // NOTE/TODO: it shouldn't use a shared_ptr for OPL emulator, but it should have ownership of the OPL.

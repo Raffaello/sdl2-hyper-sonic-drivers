@@ -48,7 +48,7 @@ namespace HyperSonicDrivers::files::westwood
         uint32_t getDataSize() const noexcept;
         std::shared_ptr<uint8_t[]> getData() const noexcept;
 
-        const hardware::opl::OPL2instrument_t getInstrument(const int instrument) const;
+        hardware::opl::OPL2instrument_t getInstrument(const int instrument) const;
 
     private:
         uint8_t m_version = 0;

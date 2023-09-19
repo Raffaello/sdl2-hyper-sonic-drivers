@@ -182,7 +182,7 @@ namespace HyperSonicDrivers::files::westwood
         return m_data;
     }
 
-    const hardware::opl::OPL2instrument_t ADLFile::getInstrument(const int instrument) const
+    hardware::opl::OPL2instrument_t ADLFile::getInstrument(const int instrument) const
     {
         using hardware::opl::OPL2instrument_t;
 
@@ -214,7 +214,7 @@ namespace HyperSonicDrivers::files::westwood
         // detect version 3
         m_version = 3;
         m_meta_version = mv3;
-        m_read = std::bind([this]() {return readLE16(); });
+        m_read = [this]() {return readLE16(); };
         for (int i = 0; i < V1_HEADER_SIZE; i++)
         {
             uint16_t v = readLE16();
@@ -226,7 +226,7 @@ namespace HyperSonicDrivers::files::westwood
                 //v1,2
                 m_version = 2;
                 m_meta_version = mv2;
-                m_read = std::bind([this]() {return readU8(); });
+                m_read = [this]() {return readU8(); };
                 break;
             }
         }

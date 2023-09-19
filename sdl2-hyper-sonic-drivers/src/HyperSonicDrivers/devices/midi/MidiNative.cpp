@@ -4,11 +4,10 @@
 
 namespace HyperSonicDrivers::devices::midi
 {
-    MidiNative::MidiNative(const int port) : IMidiDevice(),
-        _midiout(std::make_shared<RtMidiOut>())
+    MidiNative::MidiNative(const int port) : IMidiDevice()
     {
         // default open port 0
-        _midiout->openPort(port);
+        m_midiOut->openPort(port);
     }
 
     void MidiNative::sendEvent(const audio::midi::MIDIEvent& e) const noexcept
@@ -20,13 +19,13 @@ namespace HyperSonicDrivers::devices::midi
         if (size == 3)
             m[2] = e.data[1];
 
-        _midiout->sendMessage(m.data(), size);
+        m_midiOut->sendMessage(m.data(), size);
     }
 
     void MidiNative::sendMessage(const uint8_t msg[], const uint8_t size) const noexcept
     {
         assert(size >= 2 && size <= 3);
-        _midiout->sendMessage(msg, size);
+        m_midiOut->sendMessage(msg, size);
     }
 
     void MidiNative::sendSysEx(const audio::midi::MIDIEvent& e) const noexcept

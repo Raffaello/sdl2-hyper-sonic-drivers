@@ -18,7 +18,7 @@ namespace HyperSonicDrivers::devices::midi
     {
     public:
         explicit MidiNative(const int port = 0);
-        virtual ~MidiNative() = default;
+        ~MidiNative() override = default;
 
         void sendEvent(const audio::midi::MIDIEvent& e) const noexcept override;
         void sendMessage(const uint8_t msg[], const uint8_t size) const noexcept override;
@@ -27,7 +27,6 @@ namespace HyperSonicDrivers::devices::midi
         void resume() const noexcept override;
 
     private:
-        std::shared_ptr<RtMidiOut> _midiout;
+        std::unique_ptr<RtMidiOut> m_midiOut = std::make_unique<RtMidiOut>();
     };
 }
-    

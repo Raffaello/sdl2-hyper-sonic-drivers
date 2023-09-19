@@ -15,10 +15,10 @@ namespace HyperSonicDrivers::devices::midi
      * TODO: this is more a driver than a device...
      * TODO: MI.MID percussions sounds not right
     */
-    class [[deprecated]] MidiScummVM : public IMidiDevice
+    class [[deprecated("it is needed to use a Scumm driver for OPL, later on it should be unified with a common OPL driver")]] MidiScummVM : public IMidiDevice
     {
     public:
-        [[deprecated]]
+        [[deprecated("the same reason for the class deprecation")]]
         explicit MidiScummVM(const std::shared_ptr<hardware::opl::OPL>& opl, const bool opl3mode,
             const audio::mixer::eChannelGroup group,
             const uint8_t volume = 255,
