@@ -19,6 +19,7 @@ namespace HyperSonicDrivers::drivers::midi::devices
         virtual void pause() const noexcept override;
         virtual void resume() const noexcept override;
 
+        inline std::shared_ptr<hardware::opl::OPL> getOpl() { return _oplDriver->getOpl(); };
         //void loadBankOP2();
     protected:
         // NOTE/TODO: it shouldn't use a shared_ptr for OPL emulator, but it should have ownership of the OPL.

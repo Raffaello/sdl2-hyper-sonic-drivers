@@ -614,7 +614,43 @@ void rendererADL()
 
 void rendererMIDI()
 {
-    // TODO:
+    // TODO: need to review the MIDDrv as it is time dependant
+    //       and it is not good for rendering midi.
+    //       at the moment the simpler thing would be 
+    //       creating a MIDI_Renderer driver
+    //       just to achieve the result, that will skip the
+    //       delays.
+    //       or better change the driver instead of using a detached thread
+    //       that is keeping track of the time.
+    //       set up the callback for the emulated OPL
+    //       that is triggered by the device, to process the next MIDI events.
+    //       or something.
+    using hardware::opl::OplEmulator;
+    using hardware::opl::OplType;
+    using audio::mixer::eChannelGroup;
+    using utils::ILogger;
+    using hardware::opl::EmulatedOPL;
+
+    audio::sdl2::Renderer r(44100, 1024);
+
+    r.setOutputFile("renderer_midi.wav");
+
+    auto mixer = r.getMixer();
+    auto op2f = files::dmx::OP2File("test/fixtures/GENMIDI.OP2");
+    auto midi_adlib = std::make_shared<drivers::midi::devices::Adlib>(mixer, op2f.getBank(), audio::mixer::eChannelGroup::Music);
+    auto mid_drv = drivers::MIDDriver(midi_adlib);
+    auto mus = files::dmx::MUSFile("test/fixtures/D_E1M1.mus");
+    mid_drv.play(mus.getMIDI());
+    auto eo = std::dynamic_pointer_cast<EmulatedOPL>(midi_adlib->getOpl());
+
+    // TODO: doesn't work, due to the driver internal timing
+    while (mid_drv.isPlaying())
+        r.renderBuffer(eo);
+
+    r.releaseOutputFile();
+
+    files::WAVFile w("renderer.wav");
+    auto sound = w.getSound();
 }
 
 
@@ -623,7 +659,8 @@ int main(int argc, char* argv[])
     //newMixerTest();
     //testMultiOpl();
     //testMOplMultiDrv();
-    rendererADL();
+    //rendererADL();
+    rendererMIDI();
     return 0;
     //sdlMixer();
     //SDL_Delay(100);

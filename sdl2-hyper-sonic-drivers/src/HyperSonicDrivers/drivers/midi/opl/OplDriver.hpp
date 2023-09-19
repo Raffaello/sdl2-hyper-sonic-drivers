@@ -39,6 +39,8 @@ namespace HyperSonicDrivers::drivers::midi::opl
         void pause() const noexcept;
         void resume() const noexcept;
 
+        inline std::shared_ptr<hardware::opl::OPL> getOpl() const noexcept { return _opl; };
+
     private:
         std::shared_ptr<hardware::opl::OPL> _opl;
         std::shared_ptr<audio::opl::banks::OP2Bank> _op2Bank;
