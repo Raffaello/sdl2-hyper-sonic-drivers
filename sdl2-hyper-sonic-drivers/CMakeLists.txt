@@ -2,6 +2,7 @@
 
 find_package(SDL2 CONFIG REQUIRED)
 find_package(rtmidi CONFIG REQUIRED)
+find_package(MT32emu CONFIG REQUIRED)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_DEBUG_POSTFIX d)
