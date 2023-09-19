@@ -2,6 +2,7 @@
 #include <HyperSonicDrivers/audio/sdl2/Mixer.hpp>
 #include <HyperSonicDrivers/utils/ILogger.hpp>
 
+
 namespace HyperSonicDrivers::audio::sdl2
 {
     Renderer::Renderer(const uint32_t freq, const uint16_t buffer_size)

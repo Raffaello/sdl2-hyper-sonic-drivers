@@ -2,47 +2,33 @@
 
 #include <cstdint>
 #include <memory>
+#include <optional>
+#include <HyperSonicDrivers/audio/IMixer.hpp>
 
 namespace HyperSonicDrivers::devices
 {
     /**
-    * general interface for sound cards helping playing sounds & musics
-    * embedding drivers and play controls
-    * NOTE:
-    * At the moment only to aim to play OPL/Adlib ADLFiles as a lot of rewriting is required to generalize it
+    * general interface for sound cards used by the drivers
     **/
     class IDevice
     {
-    public:
+    protected:
         IDevice(IDevice&) = delete;
         IDevice(IDevice&&) = delete;
         IDevice& operator=(IDevice&) = delete;
 
-
-        //void playMidi();
-
-        //inline audio::mixer::eChannelGroup getGroup() const noexcept { return m_group; };
-        //inline uint8_t getVolume() const noexcept { return m_volume; };
-        //inline uint8_t getPan() const noexcept { return m_pan; };
-    protected:
-        IDevice() = default;
-        //IDevice(const std::shared_ptr<audio::IMixer>& mixer,
-        //    const audio::mixer::eChannelGroup group//,
-            //const uint8_t volume,
-            //const uint8_t pan
-        //)// :
-         //   m_mixer(mixer), m_group(group)//, m_volume(volume), m_pan(pan)
-        //{};
-
+        IDevice(const std::shared_ptr<audio::IMixer>& mixer);
         virtual ~IDevice() = default;
 
+        virtual std::optional<uint8_t> getChannelId() const noexcept = 0;
+
+        // helpers methods
+        void setVolume(const uint8_t volume);
+        void setPan(const uint8_t pan);
+        void setVolumePan(const uint8_t volume, const uint8_t pan);
+
+        inline std::shared_ptr<audio::IMixer> getMixer() const noexcept { return m_mixer; };
     protected:
-        //TODO: get the mixer channel used for the emulated device
-        // ----
- 
-        //std::shared_ptr<audio::IMixer> m_mixer;
-        //const audio::mixer::eChannelGroup m_group;
-        //const uint8_t m_volume;
-        //const uint8_t m_pan;
+        std::shared_ptr<audio::IMixer> m_mixer;
     };
 }

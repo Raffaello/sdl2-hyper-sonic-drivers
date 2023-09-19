@@ -15,6 +15,9 @@ namespace HyperSonicDrivers
 
     namespace devices
     {
+        // TODO this can be merged into Device
+        //      or added as aggregate
+        // TODO: MT-32 still missing though
         class IMidiDevice
         {
         public:
@@ -50,7 +53,7 @@ namespace HyperSonicDrivers
                     return true;
                 }
 
-                // maybe here should always return false... it can be true just because is not aquired i guess...
+                // maybe here should always return false... it can be true just because is not acquired i guess...
                 return !isAcquired();
             }
         private:

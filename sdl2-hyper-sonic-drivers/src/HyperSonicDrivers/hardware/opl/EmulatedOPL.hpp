@@ -36,19 +36,22 @@ namespace HyperSonicDrivers::hardware::opl
         EmulatedOPL(const OplType type, const std::shared_ptr<audio::IMixer>& mixer);
         ~EmulatedOPL() override;
 
-        // OPL API
         uint32_t setCallbackFrequency(const int timerFrequency) override;
 
-        std::shared_ptr<audio::IMixer> getMixer() const noexcept;
+        std::shared_ptr<audio::IMixer> getMixer() const noexcept override;
+
+        std::optional<uint8_t> getChannelId() const noexcept override;
+
     protected:
         std::shared_ptr<audio::IMixer> m_mixer;
-        // OPL API
         void startCallbacks(
             const audio::mixer::eChannelGroup group,
             const uint8_t volume,
             const uint8_t pan,
             const int timerFrequency) override;
         void stopCallbacks() override;
+
+        std::shared_ptr<audio::IAudioStream> getAudioStream() const noexcept override;
 
         /**
          * Read up to 'length' samples.
@@ -61,6 +64,7 @@ namespace HyperSonicDrivers::hardware::opl
          * a total of two left channel and two right channel samples.
          */
         virtual void generateSamples(int16_t* buffer, const size_t length) noexcept = 0;
+
     private:
         std::optional<uint8_t> m_channel_id;
         std::shared_ptr<audio::IAudioStream> m_stream;

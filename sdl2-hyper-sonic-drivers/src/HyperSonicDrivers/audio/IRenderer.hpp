@@ -20,7 +20,7 @@ namespace HyperSonicDrivers::audio
         inline std::shared_ptr<IMixer> getMixer() const noexcept { return m_mixer; };
 
         virtual void renderBuffer(IAudioStream* stream) = 0;
-        inline void renderBuffer(const std::shared_ptr<hardware::opl::EmulatedOPL>& opl) { renderBuffer(opl->m_stream.get()); };
+        inline void renderBuffer(const std::shared_ptr<hardware::opl::EmulatedOPL>& opl) { renderBuffer(opl->getAudioStream().get()); };
 
     protected:
         std::shared_ptr<IMixer> m_mixer;

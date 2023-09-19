@@ -22,8 +22,6 @@ namespace HyperSonicDrivers::audio::sdl2
 
         void renderBuffer(IAudioStream* stream) override;
         using IRenderer::renderBuffer;
-
-        //void render(const std::filesystem::path& outfile);
     private:
         std::unique_ptr<files::WAVFile> m_out;
         std::vector<int16_t> m_buf;

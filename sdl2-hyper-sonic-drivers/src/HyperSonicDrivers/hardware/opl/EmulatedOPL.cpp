@@ -38,6 +38,11 @@ namespace HyperSonicDrivers::hardware::opl
         return m_mixer;
     }
 
+    std::optional<uint8_t> EmulatedOPL::getChannelId() const noexcept
+    {
+        return m_channel_id;
+    }
+
     void EmulatedOPL::startCallbacks(
         const audio::mixer::eChannelGroup group,
         const uint8_t volume,
@@ -70,5 +75,10 @@ namespace HyperSonicDrivers::hardware::opl
             m_mixer->reset(m_channel_id.value());
             m_channel_id = std::nullopt;
         }
+    }
+
+    std::shared_ptr<audio::IAudioStream> EmulatedOPL::getAudioStream() const noexcept
+    {
+        return m_stream;
     }
 }
