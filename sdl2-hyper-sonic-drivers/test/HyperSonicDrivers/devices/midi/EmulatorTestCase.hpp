@@ -10,7 +10,7 @@
 #include <HyperSonicDrivers/hardware/opl/OPLFactory.hpp>
 #include <stdexcept>
 
-namespace HyperSonicDrivers::drivers::midi::devices
+namespace HyperSonicDrivers::devices::midi
 {
     using audio::stubs::StubMixer;
     using hardware::opl::OplType;

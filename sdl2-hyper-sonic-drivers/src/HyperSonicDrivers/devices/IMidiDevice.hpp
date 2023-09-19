@@ -6,19 +6,20 @@
 #include <HyperSonicDrivers/audio/midi/MIDIEvent.hpp>
 
 
-// TODO: namespace drivers::midi::devices could be considered
-//       to be replaced instead as devices:: and devices::midi ?
-namespace HyperSonicDrivers::drivers
+namespace HyperSonicDrivers
 {
-    class MIDDriver;
-
-    namespace midi
+    namespace drivers
     {
-        class Device
+        class MIDDriver;
+    }
+
+    namespace devices
+    {
+        class IMidiDevice
         {
         public:
-            Device() = default;
-            virtual ~Device() = default;
+            IMidiDevice() = default;
+            virtual ~IMidiDevice() = default;
 
             // TODO: integrate MT-32 first as a device
             //virtual bool init() noexcept = 0;

@@ -1,17 +1,17 @@
 #include <array>
 #include <cassert>
-#include <HyperSonicDrivers/drivers/midi/devices/Native.hpp>
+#include <HyperSonicDrivers/devices/midi/MidiNative.hpp>
 
-namespace HyperSonicDrivers::drivers::midi::devices
+namespace HyperSonicDrivers::devices::midi
 {
-    Native::Native(const int port) : Device(),
+    MidiNative::MidiNative(const int port) : IMidiDevice(),
         _midiout(std::make_shared<RtMidiOut>())
     {
         // default open port 0
         _midiout->openPort(port);
     }
 
-    void Native::sendEvent(const audio::midi::MIDIEvent& e) const noexcept
+    void MidiNative::sendEvent(const audio::midi::MIDIEvent& e) const noexcept
     {
         std::array<uint8_t, 3> m;
         const size_t size = e.data.size() + 1;
@@ -23,23 +23,23 @@ namespace HyperSonicDrivers::drivers::midi::devices
         _midiout->sendMessage(m.data(), size);
     }
 
-    void Native::sendMessage(const uint8_t msg[], const uint8_t size) const noexcept
+    void MidiNative::sendMessage(const uint8_t msg[], const uint8_t size) const noexcept
     {
         assert(size >= 2 && size <= 3);
         _midiout->sendMessage(msg, size);
     }
 
-    void Native::sendSysEx(const audio::midi::MIDIEvent& e) const noexcept
+    void MidiNative::sendSysEx(const audio::midi::MIDIEvent& e) const noexcept
     {
         // TODO
     }
 
-    void Native::pause() const noexcept
+    void MidiNative::pause() const noexcept
     {
         // TODO
     }
 
-    void Native::resume() const noexcept
+    void MidiNative::resume() const noexcept
     {
         // TODO
     }

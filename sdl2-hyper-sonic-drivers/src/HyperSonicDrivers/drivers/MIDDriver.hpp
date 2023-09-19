@@ -7,14 +7,14 @@
 #include <HyperSonicDrivers/audio/IMixer.hpp>
 #include <HyperSonicDrivers/audio/midi/types.hpp>
 #include <HyperSonicDrivers/audio/MIDI.hpp>
-#include <HyperSonicDrivers/drivers/midi/Device.hpp>
+#include <HyperSonicDrivers/devices/IMidiDevice.hpp>
 
 namespace HyperSonicDrivers::drivers
 {
     class MIDDriver
     {
     public:
-        explicit MIDDriver(const std::shared_ptr<midi::Device>& device);
+        explicit MIDDriver(const std::shared_ptr<devices::IMidiDevice>& device);
         ~MIDDriver();
         void play(const std::shared_ptr<audio::MIDI>& midi) noexcept;
         void stop() noexcept;
@@ -32,7 +32,7 @@ namespace HyperSonicDrivers::drivers
         inline void setTempo(const uint32_t tempo) noexcept { m_midiTempoChanged = true; m_tempo = tempo; }
 
     private:
-        std::shared_ptr<midi::Device> m_device;
+        std::shared_ptr<devices::IMidiDevice> m_device;
 
         // TODO: consider to create a utils/Thread class
         //       to handle for each OS specific realtime and initialization step.

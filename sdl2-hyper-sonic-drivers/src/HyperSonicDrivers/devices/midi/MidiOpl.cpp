@@ -1,22 +1,22 @@
 #include <format>
 #include <cassert>
-#include <HyperSonicDrivers/drivers/midi/devices/Opl.hpp>
+#include <HyperSonicDrivers/devices/midi/MidiOpl.hpp>
 #include <HyperSonicDrivers/hardware/opl/OPLFactory.hpp>
 #include <HyperSonicDrivers/utils/ILogger.hpp>
 #include <std/OplTypeFormatter.hpp>
 #include <std/OplEmulatorFormatter.hpp>
 
-namespace HyperSonicDrivers::drivers::midi::devices
+namespace HyperSonicDrivers::devices::midi
 {
     using utils::throwLogC;
 
-    Opl::Opl(
+    MidiOpl::MidiOpl(
         const std::shared_ptr<hardware::opl::OPL>& opl,
         const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank,
         const audio::mixer::eChannelGroup group,
         const uint8_t volume,
         const uint8_t pan)
-        : Device()/*, OplDriver(opl, op2Bank, opl3_mode)*/
+        : IMidiDevice()/*, OplDriver(opl, op2Bank, opl3_mode)*/
     {
         if (opl == nullptr)
         {
@@ -26,7 +26,7 @@ namespace HyperSonicDrivers::drivers::midi::devices
         _oplDriver = std::make_shared<drivers::midi::opl::OplDriver>(opl, op2Bank, group, volume, pan);
     }
 
-    Opl::Opl(const hardware::opl::OplType type,
+    MidiOpl::MidiOpl(const hardware::opl::OplType type,
         const hardware::opl::OplEmulator emuType,
         const std::shared_ptr<audio::IMixer>& mixer,
         const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank,
@@ -42,13 +42,13 @@ namespace HyperSonicDrivers::drivers::midi::devices
         _oplDriver = std::make_shared<drivers::midi::opl::OplDriver>(opl, op2Bank, group, volume, pan);
     }
 
-    void Opl::sendEvent(const audio::midi::MIDIEvent& e) const noexcept
+    void MidiOpl::sendEvent(const audio::midi::MIDIEvent& e) const noexcept
     {
         //this->send(e);
         _oplDriver->send(e);
     }
 
-    void Opl::sendMessage(const uint8_t msg[], const uint8_t size) const noexcept
+    void MidiOpl::sendMessage(const uint8_t msg[], const uint8_t size) const noexcept
     {
         assert(size >= 2 && size <= 3);
         audio::midi::MIDIEvent e;
@@ -62,18 +62,18 @@ namespace HyperSonicDrivers::drivers::midi::devices
         sendEvent(e);
     }
 
-    void Opl::sendSysEx(const audio::midi::MIDIEvent& e) const noexcept
+    void MidiOpl::sendSysEx(const audio::midi::MIDIEvent& e) const noexcept
     {
         // TODO
         //_adlib->send(e);
     }
 
-    void Opl::pause() const noexcept
+    void MidiOpl::pause() const noexcept
     {
         _oplDriver->pause();
     }
 
-    void Opl::resume() const noexcept
+    void MidiOpl::resume() const noexcept
     {
         _oplDriver->resume();
     }

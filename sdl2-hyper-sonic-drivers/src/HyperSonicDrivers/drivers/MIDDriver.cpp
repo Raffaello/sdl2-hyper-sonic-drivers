@@ -29,7 +29,7 @@ namespace HyperSonicDrivers::drivers
         return utils::getMicro<uint32_t>();
     }
 
-    MIDDriver::MIDDriver(const std::shared_ptr<midi::Device>& device)
+    MIDDriver::MIDDriver(const std::shared_ptr<devices::IMidiDevice>& device)
         : m_device(device)
     {
     }

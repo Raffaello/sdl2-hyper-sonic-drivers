@@ -1,6 +1,6 @@
 #include <HyperSonicDrivers/files/MIDFile.hpp>
 #include <HyperSonicDrivers/drivers/MIDDriver.hpp>
-#include <HyperSonicDrivers/drivers/midi/devices/Native.hpp>
+#include <HyperSonicDrivers/devices/midi/MidiNative.hpp>
 #include <HyperSonicDrivers/utils/algorithms.hpp>
 
 #include <iostream>
@@ -80,7 +80,7 @@ int main(int argc, char* argv[])
     midiout->closePort();
 
     // Device Native is using RtMidi
-    auto native = std::make_shared<drivers::midi::devices::Native>();
+    auto native = std::make_shared<devices::midi::MidiNative>();
     drivers::MIDDriver middrv(native);
     auto midi = files::MIDFile("midifile_sample.mid").getMIDI();
     middrv.play(midi);

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <HyperSonicDrivers/audio/midi/MIDITrack.hpp>
-#include <HyperSonicDrivers/drivers/midi/Device.hpp>
+#include <HyperSonicDrivers/devices/IMidiDevice.hpp>
 #include <HyperSonicDrivers/drivers/MIDDriver.hpp>
 #include <memory>
 
@@ -10,7 +10,7 @@ namespace HyperSonicDrivers::drivers
     class MIDDriverMock : public MIDDriver
     {
     public:
-        explicit MIDDriverMock(const std::shared_ptr<midi::Device>& device) :
+        explicit MIDDriverMock(const std::shared_ptr<devices::IMidiDevice>& device) :
             MIDDriver(device)
         {
 

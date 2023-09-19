@@ -19,15 +19,15 @@
 #include <HyperSonicDrivers/utils/algorithms.hpp>
 
 
-#include <HyperSonicDrivers/drivers/midi/devices/ScummVM.hpp>
+#include <HyperSonicDrivers/devices/midi/MidiScummVM.hpp>
 #include <HyperSonicDrivers/drivers/MIDDriver.hpp>
 
 #include <HyperSonicDrivers/files/dmx/MUSFile.hpp>
 #include <HyperSonicDrivers/files/dmx/OP2File.hpp>
-#include <HyperSonicDrivers/drivers/midi/devices/Native.hpp>
+#include <HyperSonicDrivers/devices/midi/MidiNative.hpp>
 
-#include <HyperSonicDrivers/drivers/midi/devices/Adlib.hpp>
-#include <HyperSonicDrivers/drivers/midi/devices/SbPro2.hpp>
+#include <HyperSonicDrivers/devices/midi/MidiAdlib.hpp>
+#include <HyperSonicDrivers/devices/midi/MidiSbPro2.hpp>
 
 #include <HyperSonicDrivers/audio/sdl2/Mixer.hpp>
 #include <HyperSonicDrivers/utils/sdl2/Logger.hpp>
@@ -344,7 +344,7 @@ int midi_adlib()
     //std::shared_ptr<files::MIDFile> midFile = std::make_shared<files::MIDFile>("test/fixtures/MI_intro.mid");
     auto midFile = std::make_shared<files::MIDFile>("test/fixtures/midifile_sample.mid");
     auto midi = midFile->getMIDI();
-    auto scumm_midi = std::make_shared<drivers::midi::devices::ScummVM>(opl, true, audio::mixer::eChannelGroup::Music);
+    auto scumm_midi = std::make_shared<devices::midi::MidiScummVM>(opl, true, audio::mixer::eChannelGroup::Music);
     drivers::MIDDriver midDrv(scumm_midi);
 
 
@@ -374,7 +374,7 @@ int midi_adlib_mus_file_CONCURRENCY_ERROR_ON_SAME_DEVICE()
     auto midFile = std::make_shared<files::MIDFile>("test/fixtures/MI_intro.mid");
     auto musFile = std::make_shared<files::dmx::MUSFile>("test/fixtures/D_E1M1.MUS");
     auto midi = musFile->getMIDI();
-    auto scumm_midi = std::make_shared<drivers::midi::devices::ScummVM>(opl, false, audio::mixer::eChannelGroup::Music, 255, 0);
+    auto scumm_midi = std::make_shared<devices::midi::MidiScummVM>(opl, false, audio::mixer::eChannelGroup::Music, 255, 0);
     //spdlog::info("isAquired: {}", scumm_midi->isAcquired());
     drivers::MIDDriver midDrv(scumm_midi);
     // TODO: declare a same driver with the device shouldn't be possible.
@@ -424,7 +424,7 @@ int midi_adlib_mus_op2_file()
         if (opl.get() == nullptr)
             return -1;
 
-        auto adlib_midi = std::make_shared<drivers::midi::devices::Adlib>(mixer, op2File->getBank(), audio::mixer::eChannelGroup::Music, emu);
+        auto adlib_midi = std::make_shared<devices::midi::MidiAdlib>(mixer, op2File->getBank(), audio::mixer::eChannelGroup::Music, emu);
         drivers::MIDDriver midDrv(adlib_midi);
         //spdlog::info("playing midi (OPL2) D_E1M1.MUS...");
         midDrv.play(midi);
@@ -436,7 +436,7 @@ int midi_adlib_mus_op2_file()
             utils::delayMillis(1000);
     }
     {
-        auto sbpro_midi = std::make_shared<drivers::midi::devices::SbPro2>(mixer, op2File->getBank(), audio::mixer::eChannelGroup::Music, emu);
+        auto sbpro_midi = std::make_shared<devices::midi::MidiSbPro2>(mixer, op2File->getBank(), audio::mixer::eChannelGroup::Music, emu);
         drivers::MIDDriver midDrv(sbpro_midi);
 
         //spdlog::info("playing midi (OPL3) D_E1M1.MUS...");
@@ -488,9 +488,9 @@ int midi_adlib_xmi()
     auto midi = std::make_shared<audio::MIDI>(audio::midi::MIDI_FORMAT::SINGLE_TRACK, 1, m->division);
     midi->addTrack(m->getTrack(0));
     
-    auto scumm_midi = std::make_shared<drivers::midi::devices::ScummVM>(opl, false, audio::mixer::eChannelGroup::Music);
+    auto scumm_midi = std::make_shared<devices::midi::MidiScummVM>(opl, false, audio::mixer::eChannelGroup::Music);
     files::dmx::OP2File op2File("test/fixtures/GENMIDI.OP2");
-    auto opl_midi = std::make_shared<drivers::midi::devices::Adlib>(mixer, op2File.getBank(), audio::mixer::eChannelGroup::Music, emu);
+    auto opl_midi = std::make_shared<devices::midi::MidiAdlib>(mixer, op2File.getBank(), audio::mixer::eChannelGroup::Music, emu);
     //drivers::MIDDriver midDrv(mixer, scumm_midi);
     drivers::MIDDriver midDrv(opl_midi);
 
@@ -637,7 +637,7 @@ void rendererMIDI()
 
     auto mixer = r.getMixer();
     auto op2f = files::dmx::OP2File("test/fixtures/GENMIDI.OP2");
-    auto midi_adlib = std::make_shared<drivers::midi::devices::Adlib>(mixer, op2f.getBank(), audio::mixer::eChannelGroup::Music);
+    auto midi_adlib = std::make_shared<devices::midi::MidiAdlib>(mixer, op2f.getBank(), audio::mixer::eChannelGroup::Music);
     auto mid_drv = drivers::MIDDriver(midi_adlib);
     auto mus = files::dmx::MUSFile("test/fixtures/D_E1M1.mus");
     mid_drv.play(mus.getMIDI());
