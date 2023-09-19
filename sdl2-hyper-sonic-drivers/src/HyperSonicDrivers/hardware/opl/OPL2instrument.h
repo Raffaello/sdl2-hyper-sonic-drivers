@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+
 namespace HyperSonicDrivers::hardware
 {
     namespace opl
@@ -23,5 +25,6 @@ namespace HyperSonicDrivers::hardware
             /*0D*/  uint8_t     unused;
             /*0E*/  uint16_t    basenote;       /* base note offset */
         } OPL2instrument_t;
+        static_assert(sizeof(OPL2instrument_t) == 16);
     }
 }

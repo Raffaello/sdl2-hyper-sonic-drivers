@@ -57,6 +57,7 @@ namespace HyperSonicDrivers::audio::sdl2
         void setMasterVolume(const uint8_t master_volume) noexcept override;
 
     private:
+        bool init_(SDL_AudioCallback callback, void* userdata);
         void updateChannelsVolumePan_() noexcept;
 
         size_t callback(uint8_t* samples, unsigned int len);

@@ -48,7 +48,7 @@ namespace HyperSonicDrivers::audio::mixer
         {
             //m_samplesConsumed = m_samplesDecoded;
             //m_mixerTimeStamp = utils::getMillis<int32_t>();
-            m_pauseTime = 0;
+            //m_pauseTime = 0;
             res = m_converter->flow(*m_stream, data, len, m_volL, m_volR);
             //m_samplesDecoded += res;
         }
@@ -61,6 +61,7 @@ namespace HyperSonicDrivers::audio::mixer
         if (m_pause)
             return;
 
+        m_pauseTime = 0;
         m_pauseStartTime = utils::getMillis<uint32_t>();
     }
 

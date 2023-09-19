@@ -2,12 +2,12 @@
 
 #include <cstdint>
 #include <memory>
-#include <HyperSonicDrivers/drivers/midi/Device.hpp>
+#include <HyperSonicDrivers/devices/IMidiDevice.hpp>
 #include <HyperSonicDrivers/drivers/midi/scummvm/MidiDriver_ADLIB.hpp>
 #include <HyperSonicDrivers/hardware/opl/OPL.hpp>
 
 
-namespace HyperSonicDrivers::drivers::midi::devices
+namespace HyperSonicDrivers::devices::midi
 {
     /**
      * @brief Wrapper around ScummVM MidiDriver (MidiDriver_ADLIB)
@@ -15,16 +15,16 @@ namespace HyperSonicDrivers::drivers::midi::devices
      * TODO: this is more a driver than a device...
      * TODO: MI.MID percussions sounds not right
     */
-    class [[deprecated]] ScummVM : public Device
+    class [[deprecated("it is needed to use a Scumm driver for OPL, later on it should be unified with a common OPL driver")]] MidiScummVM : public IMidiDevice
     {
     public:
-        [[deprecated]]
-        explicit ScummVM(const std::shared_ptr<hardware::opl::OPL>& opl, const bool opl3mode,
+        [[deprecated("the same reason for the class deprecation")]]
+        explicit MidiScummVM(const std::shared_ptr<hardware::opl::OPL>& opl, const bool opl3mode,
             const audio::mixer::eChannelGroup group,
             const uint8_t volume = 255,
             const uint8_t pan = 0);
 
-        ~ScummVM() override;
+        ~MidiScummVM() override;
 
         void sendEvent(const audio::midi::MIDIEvent& e) const noexcept override;
         void sendMessage(const uint8_t msg[], const uint8_t size) const noexcept override;

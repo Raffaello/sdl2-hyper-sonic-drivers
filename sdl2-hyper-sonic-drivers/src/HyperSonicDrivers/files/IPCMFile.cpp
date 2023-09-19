@@ -9,6 +9,7 @@ namespace HyperSonicDrivers::files
     {
         std::shared_ptr<int16_t[]> data;
         uint32_t size = getDataSize();
+
         switch (getBitsDepth())
         {
         case 8:

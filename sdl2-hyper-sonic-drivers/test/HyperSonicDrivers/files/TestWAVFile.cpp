@@ -38,6 +38,43 @@ namespace HyperSonicDrivers::files
     {
         EXPECT_THROW(WAVFile f(""), std::system_error);
     }
+
+    TEST(WAVFile, save_empty)
+    {
+        {
+            // TODO review group channel, especially when saving it.
+            //      also it would be better passing it when getting sound probably.. anyway
+            WAVFile f2("../fixtures/save_empty.wav", audio::mixer::eChannelGroup::Unknown, false);
+            f2.save(44100, true, nullptr, 0);
+        }
+
+        WAVFile f2("../fixtures/save_empty.wav");
+        EXPECT_EQ(f2.getSampleRate(), 44100);
+        EXPECT_EQ(f2.getBitsDepth(), 16);
+        EXPECT_EQ(f2.getChannels(), 2);
+        EXPECT_EQ(f2.getDataSize(), 0);
+        EXPECT_EQ(f2.getFormat().format, WAVFile::eFormat::WAVE_FORMAT_PCM);
+
+    }
+
+    TEST(WAVFile, save)
+    {
+        WAVFile f("../fixtures/Wav_868kb.wav", audio::mixer::eChannelGroup::Speech);
+        {
+            // TODO review group channel, especially when saving it.
+            //      also it would be better passing it when getting sound probably.. anyway
+            WAVFile f2("../fixtures/save.wav", audio::mixer::eChannelGroup::Speech, false);
+            auto s = f.getSound();
+            f2.save(*f.getSound());
+        }
+
+        WAVFile f2("../fixtures/save.wav");
+        EXPECT_EQ(f.getBitsDepth(), f2.getBitsDepth());
+        EXPECT_EQ(f.getChannels(), f2.getChannels());
+        EXPECT_EQ(f.getDataSize(), f2.getDataSize());
+        EXPECT_EQ(f.getDataSize(), f2.getDataSize());
+
+    }
 }
 
 int main(int argc, char** argv)

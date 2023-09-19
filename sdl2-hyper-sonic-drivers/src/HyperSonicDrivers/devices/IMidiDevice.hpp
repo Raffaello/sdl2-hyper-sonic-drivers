@@ -3,22 +3,27 @@
 #include <cstdint>
 #include <atomic>
 #include <memory>
+#include <functional>
 #include <HyperSonicDrivers/audio/midi/MIDIEvent.hpp>
 
 
-// TODO: namespace drivers::midi::devices could be considered
-//       to be replaced instead as devices:: and devices::midi ?
-namespace HyperSonicDrivers::drivers
+namespace HyperSonicDrivers
 {
-    class MIDDriver;
-
-    namespace midi
+    namespace drivers
     {
-        class Device
+        class MIDDriver;
+    }
+
+    namespace devices
+    {
+        // TODO this can be merged into Device
+        //      or added as aggregate
+        // TODO: MT-32 still missing though
+        class IMidiDevice
         {
         public:
-            Device() = default;
-            virtual ~Device() = default;
+            IMidiDevice() = default;
+            virtual ~IMidiDevice() = default;
 
             // TODO: integrate MT-32 first as a device
             //virtual bool init() noexcept = 0;
@@ -32,7 +37,6 @@ namespace HyperSonicDrivers::drivers
             inline bool isAcquired() const noexcept { return _acquired; }
             inline bool isOwned(const /*void**/ drivers::MIDDriver* owner) const noexcept { return _owner == owner; }
 
-            // TODO: a binary semaphore could be also used i suppose...
             inline bool acquire(/*void**/ drivers::MIDDriver* owner)
             {
                 if (!_acquired) {
@@ -50,18 +54,17 @@ namespace HyperSonicDrivers::drivers
                     return true;
                 }
 
-                // maybe here should always return false... it can be true just because is not aquired i guess...
+                // maybe here should always return false... it can be true just because is not acquired i guess...
                 return !isAcquired();
             }
         private:
-            // TODO: this could be replaced with a unique_lock mutex instead?
             std::atomic<bool> _acquired = false;
             std::atomic<drivers::MIDDriver*> _owner = nullptr;
         };
 
         // TODO: replace variadic template with exact arguments
         template<class T, typename... Args>
-        std::shared_ptr<T> make_device(Args... args)
+        std::shared_ptr<T> make_midi_device(Args... args)
         {
             return std::make_shared<T>(args...);
         }

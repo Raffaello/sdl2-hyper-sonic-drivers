@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include <HyperSonicDrivers/drivers/midi/devices/Opl.hpp>
+#include <HyperSonicDrivers/devices/midi/MidiOpl.hpp>
 #include <HyperSonicDrivers/drivers/MIDDriverMock.hpp>
 #include <HyperSonicDrivers/audio/stubs/StubMixer.hpp>
 #include <HyperSonicDrivers/hardware/opl/OplEmulator.hpp>
@@ -9,9 +9,9 @@
 #include <HyperSonicDrivers/hardware/opl/OPLFactory.hpp>
 #include <HyperSonicDrivers/hardware/opl/OPL.hpp>
 #include <HyperSonicDrivers/audio/opl/banks/OP2Bank.hpp>
-#include <HyperSonicDrivers/drivers/midi/devices/OplDeviceMock.hpp>
+#include <HyperSonicDrivers/devices/midi/MidiOplDeviceMock.hpp>
 
-namespace HyperSonicDrivers::drivers::midi::devices
+namespace HyperSonicDrivers::devices::midi
 {
     using audio::stubs::StubMixer;
     using audio::opl::banks::OP2Bank;
@@ -25,14 +25,14 @@ namespace HyperSonicDrivers::drivers::midi::devices
 
     const std::string GENMIDI_OP2 = std::string("../fixtures/GENMIDI.OP2");
 
-    TEST(Opl, cstor_)
+    TEST(MidiOpl, cstor_)
     {
         auto op2File = OP2File(GENMIDI_OP2);
         auto mixer = std::make_shared<StubMixer>();
         auto opl = OPLFactory::create(OplEmulator::AUTO, OplType::OPL2, mixer);
-        EXPECT_NO_THROW(OplDeviceMock(opl, op2File.getBank()));
+        EXPECT_NO_THROW(MidiOplDeviceMock(opl, op2File.getBank()));
         opl = nullptr;
-        EXPECT_THROW(OplDeviceMock(opl, op2File.getBank()), std::runtime_error);
+        EXPECT_THROW(MidiOplDeviceMock(opl, op2File.getBank()), std::runtime_error);
     }
 
     class OplEmulator_ : public ::testing::TestWithParam<std::tuple<OplType, OplEmulator, bool>>
@@ -48,17 +48,17 @@ namespace HyperSonicDrivers::drivers::midi::devices
     {
         if (this->shouldThrow) {
             EXPECT_THROW(
-                devices::OplDeviceMock(this->oplType, this->oplEmu, this->mixer, this->op2File.getBank()),
+                MidiOplDeviceMock(this->oplType, this->oplEmu, this->mixer, this->op2File.getBank()),
                 std::runtime_error
             );
         }
         else {
-            EXPECT_NO_THROW(devices::OplDeviceMock(this->oplType, this->oplEmu, this->mixer, this->op2File.getBank()));
+            EXPECT_NO_THROW(MidiOplDeviceMock(this->oplType, this->oplEmu, this->mixer, this->op2File.getBank()));
         }
     }
 
     INSTANTIATE_TEST_SUITE_P(
-        Opl,
+        MidiOpl,
         OplEmulator_,
         ::testing::Values(
             std::make_tuple<>(OplType::OPL2, OplEmulator::AUTO, false),

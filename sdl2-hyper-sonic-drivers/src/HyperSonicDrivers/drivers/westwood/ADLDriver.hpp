@@ -6,7 +6,8 @@
 #include <mutex>
 #include <HyperSonicDrivers/hardware/opl/OPL.hpp>
 #include <HyperSonicDrivers/files/westwood/ADLFile.hpp>
-
+#include <HyperSonicDrivers/hardware/opl/OPL2instrument.h>
+#include <HyperSonicDrivers/devices/Opl.hpp>
 
 namespace HyperSonicDrivers::drivers::westwood
 {
@@ -37,8 +38,14 @@ namespace HyperSonicDrivers::drivers::westwood
             const uint8_t volume = 255,
             const uint8_t pan = 0
         );
-        // NOTE: midi:devices:Adlib, it should receive devices::Adlib instead of OPL, but those are working only with MIDDriver
-        //explicit ADLDriver(const midi::devices::Adlib& opl, const std::shared_ptr<files::westwood::ADLFile>& adl_file);
+
+        explicit ADLDriver(
+            const devices::Opl& opl,
+            const audio::mixer::eChannelGroup group,
+            const uint8_t volume = 255,
+            const uint8_t pan = 0
+        );
+
         virtual ~ADLDriver() = default;
         void setADLFile(const std::shared_ptr<files::westwood::ADLFile>& adl_file) noexcept;
 
@@ -66,7 +73,8 @@ namespace HyperSonicDrivers::drivers::westwood
 
         // The sound data has two lookup tables:
         uint8_t* getProgram_(const int progId) const;
-        const uint8_t* getInstrument_(const int instrumentId) const;
+        //const uint8_t* getInstrument_(const int instrumentId) const;
+        hardware::opl::OPL2instrument_t getOPL2Instrument_(const int instrumentId) const;
         uint8_t* getProgram_(const int progId, const files::westwood::ADLFile::PROG_TYPE progType) const;
 
         struct Channel
@@ -134,26 +142,25 @@ namespace HyperSonicDrivers::drivers::westwood
         void initAdlibChannel_(uint8_t num);
 
         uint16_t getRandomNr_();
-        void setupDuration_(uint8_t duration, Channel& channel);
+        void setupDuration_(const uint8_t duration, Channel& channel);
 
-        void setupNote_(uint8_t rawNote, Channel& channel, bool flag = false);
-        // TODO: dataptr can be replace with Opl2Instrument_t, it might requires to be mapped
-        //       as is organized differently internally in the file.
-        void setupInstrument_(uint8_t regOffset, const uint8_t* dataptr, Channel& channel);
+        void setupNote_(const uint8_t rawNote, Channel& channel, const bool flag = false);
+        //void setupInstrument_(uint8_t regOffset, const uint8_t* dataptr, Channel& channel);
+        void setupOPL2Instrument_(const uint8_t regOffset, const hardware::opl::OPL2instrument_t& instr, Channel& channel);
         void noteOn_(Channel& channel);
 
         void adjustVolume_(Channel& channel);
 
-        uint8_t calculateOpLevel1_(Channel& channel);
-        uint8_t calculateOpLevel2_(Channel& channel);
+        uint8_t calculateOpLevel1_(const Channel& channel);
+        uint8_t calculateOpLevel2_(const Channel& channel);
 
-        static uint16_t checkValue_(int16_t val);
+        static uint16_t checkValue_(const int16_t val);
 
         // The driver uses timer/tempo pairs in several places. On every
         // callback, the tempo is added to the timer. This will frequently
         // cause the timer to "wrap around", which is the signal to go ahead
         // and do more stuff.
-        static bool advance_(uint8_t& timer, uint8_t tempo);
+        static bool advance_(uint8_t& timer, const uint8_t tempo);
         const uint8_t* checkDataOffset_(const uint8_t* ptr, long n);
 
         void setupPrograms_();

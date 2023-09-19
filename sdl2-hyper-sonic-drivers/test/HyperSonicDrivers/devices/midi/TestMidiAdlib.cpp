@@ -1,31 +1,31 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include <HyperSonicDrivers/drivers/midi/devices/Adlib.hpp>
+#include <HyperSonicDrivers/devices/midi/MidiAdlib.hpp>
 #include <HyperSonicDrivers/drivers/MIDDriverMock.hpp>
 #include <HyperSonicDrivers/audio/stubs/StubMixer.hpp>
 #include <HyperSonicDrivers/hardware/opl/OplEmulator.hpp>
 #include <HyperSonicDrivers/hardware/opl/OplType.hpp>
 #include <HyperSonicDrivers/files/dmx/OP2File.hpp>
 #include <HyperSonicDrivers/hardware/opl/OPLFactory.hpp>
-#include <HyperSonicDrivers/drivers/midi/devices/EmulatorTestCase.hpp>
+#include <HyperSonicDrivers/devices/midi/EmulatorTestCase.hpp>
 
-namespace HyperSonicDrivers::drivers::midi::devices
+namespace HyperSonicDrivers::devices::midi
 {
-    TEST(Adlib, cstor_)
+    TEST(MidiAdlib, cstor_)
     {
         auto op2File = OP2File(GENMIDI_OP2);
         auto mixer = std::make_shared<StubMixer>();
-        EXPECT_NO_THROW(auto a = std::make_shared<Adlib>(mixer, op2File.getBank(), eChannelGroup::Plain));
+        EXPECT_NO_THROW(auto a = std::make_shared<MidiAdlib>(mixer, op2File.getBank(), eChannelGroup::Plain));
     }
 
-    class AdliblEmulator_ : public EmulatorTestCase<Adlib> {};
+    class AdliblEmulator_ : public EmulatorTestCase<MidiAdlib> {};
     TEST_P(AdliblEmulator_, cstr_TYPE)
     {
         test_case();
     }
 
     INSTANTIATE_TEST_SUITE_P(
-        Adlib,
+        MidiAdlib,
         AdliblEmulator_,
         ::testing::Values(
             std::make_tuple<>(OplEmulator::AUTO, false),
@@ -36,11 +36,11 @@ namespace HyperSonicDrivers::drivers::midi::devices
         )
     );
 
-    TEST(Adlib, cstr_AUTO)
+    TEST(MidiAdlib, cstr_AUTO)
     {
         auto op2File = OP2File(GENMIDI_OP2);
         auto mixer = std::make_shared<StubMixer>();
-        EXPECT_NO_THROW(Adlib(mixer, op2File.getBank(), eChannelGroup::Plain));
+        EXPECT_NO_THROW(MidiAdlib(mixer, op2File.getBank(), eChannelGroup::Plain));
     }
 }
 

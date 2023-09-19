@@ -1,14 +1,16 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include <HyperSonicDrivers/drivers/midi/Device.hpp>
-#include <HyperSonicDrivers/drivers/midi/devices/SpyDevice.hpp>
+#include <HyperSonicDrivers/devices/IMidiDevice.hpp>
+#include <HyperSonicDrivers/devices/midi/SpyMidiDevice.hpp>
 #include <HyperSonicDrivers/drivers/MIDDriverMock.hpp>
 
-namespace HyperSonicDrivers::drivers::midi
+namespace HyperSonicDrivers::devices
 {
-    TEST(Device, acquire_release)
+    using drivers::MIDDriverMock;
+
+    TEST(IMidiDevice, acquire_release)
     {
-        auto device = std::make_shared<devices::SpyDevice>();
+        auto device = std::make_shared<midi::SpyMidiDevice>();
 
         MIDDriverMock middrv(device);
         MIDDriverMock middrv2(device);

@@ -9,13 +9,16 @@ namespace HyperSonicDrivers::hardware::opl
     class OPLMock : public OPL
     {
     public:
-        OPLMock() : OPL(OplType::OPL2) {}
-        bool init() override { m_init = true; return true; }
+        OPLMock() : OPL(OplType::OPL2) {};
+        bool init() override { m_init = true; return true; };
         void reset() override {};
         void write(const uint32_t port, const uint16_t val) noexcept override {};
         uint8_t read(const uint32_t port) noexcept override { return 0; };
         void writeReg(const uint16_t r, const uint16_t v) noexcept override {};
-        uint32_t setCallbackFrequency(int timerFrequency) override { return 1; }
+        uint32_t setCallbackFrequency(int timerFrequency) override { return 1; };
+        std::shared_ptr<audio::IMixer> getMixer() const noexcept override { return nullptr; };
+        std::optional<uint8_t> getChannelId() const noexcept override { return 0; };
+
         void startCallbacks(
             const audio::mixer::eChannelGroup group,
             const uint8_t volume,
@@ -24,5 +27,6 @@ namespace HyperSonicDrivers::hardware::opl
         ) override {};
         void stopCallbacks() override {};
 
+        std::shared_ptr<audio::IAudioStream> getAudioStream() const noexcept override { return nullptr; };
     };
 }

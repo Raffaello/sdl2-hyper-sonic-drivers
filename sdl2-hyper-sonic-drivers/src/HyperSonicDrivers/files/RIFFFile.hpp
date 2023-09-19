@@ -50,7 +50,10 @@ namespace HyperSonicDrivers::files
     class RIFFFile : protected File
     {
     public:
-        RIFFFile(const std::string& filename);
+        RIFFFile(
+            const std::string& filename,
+            const std::fstream::openmode mode = std::fstream::in | std::fstream::binary
+        );
         ~RIFFFile() override = default;
     protected:
         typedef union
@@ -78,5 +81,11 @@ namespace HyperSonicDrivers::files
         void readChunkHeader(RIFF_chunk_header_t& header) const noexcept;
         void readSubChunkHeader(RIFF_sub_chunk_header_t& header) const noexcept;
         void readId(RIFF_ID& iff_id) const noexcept;
+
+        void writeChunkHeader(const RIFF_chunk_header_t& header) noexcept;
+        void writeSubChunkHeader(const RIFF_sub_chunk_header_t& header) noexcept;
+        void writeId(const RIFF_ID& iff_id) noexcept;
+
+        void readSubChunkHeader(const eRIFF_ID& id, RIFF_sub_chunk_header_t& s);
     };
 }

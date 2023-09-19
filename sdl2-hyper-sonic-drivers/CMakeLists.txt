@@ -199,6 +199,7 @@ target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/IMixer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/mixer/Channel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/sdl2/Mixer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/sdl2/Renderer.cpp
     # --- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/MIDI.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/midi/MIDITrack.cpp
@@ -211,28 +212,33 @@ target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/scummvm/Timestamp.cpp
     # --- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/opl/banks/OP2Bank.cpp
+    # --- #
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/devices/IDevice.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/devices/Opl.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/devices/Adlib.cpp
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/devices/midi/MidiNative.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/devices/midi/MidiOpl.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/devices/midi/MidiAdlib.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/devices/midi/MidiSbPro.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/devices/midi/MidiSbPro2.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/devices/midi/MidiScummVM.cpp
     # --- # 
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/westwood/ADLDriver.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/PCMDriver.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/MIDDriver.cpp
-   
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/midi/devices/Native.cpp
-    
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/westwood/ADLDriver.cpp
+
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/midi/scummvm/MidiDriver_BASE.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/midi/scummvm/MidiDriver.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/midi/scummvm/AdLibInstrument.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/midi/scummvm/AdLibPart.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/midi/scummvm/AdLibPercussionChannel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/midi/scummvm/MidiDriver_ADLIB.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/midi/devices/ScummVM.cpp
 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/midi/opl/OplDriver.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/midi/opl/OplChannel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/midi/opl/OplVoice.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/midi/devices/Opl.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/midi/devices/Adlib.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/midi/devices/SbPro.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/midi/devices/SbPro2.cpp
+
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/opl/OplWriter.cpp
     # --- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/files/File.cpp
@@ -254,6 +260,7 @@ target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/hardware/opl/Timer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/hardware/opl/Chip.cpp
 
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/streams/OplStream.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/hardware/opl/EmulatedOPL.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/hardware/opl/scummvm/dosbox/DosBoxOPL.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/hardware/opl/scummvm/dosbox/dbopl/dbopl.cpp

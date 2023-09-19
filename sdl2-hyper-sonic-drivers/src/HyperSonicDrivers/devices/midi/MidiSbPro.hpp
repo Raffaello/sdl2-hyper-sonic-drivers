@@ -2,15 +2,15 @@
 
 #include <memory>
 #include <HyperSonicDrivers/audio/opl/banks/OP2Bank.hpp>
-#include <HyperSonicDrivers/drivers/midi/devices/Opl.hpp>
+#include <HyperSonicDrivers/devices/midi/MidiOpl.hpp>
 #include <HyperSonicDrivers/hardware/opl/OPL.hpp>
 
-namespace HyperSonicDrivers::drivers::midi::devices
+namespace HyperSonicDrivers::devices::midi
 {
-    class Adlib : public Opl
+    class MidiSbPro : public MidiOpl
     {
     public:
-        explicit Adlib(
+        explicit MidiSbPro(
             const std::shared_ptr<audio::IMixer>& mixer,
             const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank,
             const audio::mixer::eChannelGroup group,
@@ -18,7 +18,7 @@ namespace HyperSonicDrivers::drivers::midi::devices
             const uint8_t volume = 255,
             const uint8_t pan = 0);
 
-        ~Adlib() override = default;
+        ~MidiSbPro() override = default;
 
         //void loadBankOP2();
     };

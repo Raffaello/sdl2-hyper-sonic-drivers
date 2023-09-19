@@ -32,51 +32,7 @@ namespace HyperSonicDrivers::audio::sdl2
 
     bool Mixer::init()
     {
-        m_ready = false;
-        if (SDL_InitSubSystem(SDL_INIT_AUDIO) == -1)
-        {
-            logE("Can't initialize SDL Audio");
-            return false;
-        }
-
-        // Get the desired audio specs
-        SDL_AudioSpec desired = {
-            .freq = static_cast<int>(m_sampleRate),
-            .format = AUDIO_S16,
-            .channels = 2,
-            .samples = m_samples,
-            .callback = sdlCallback,
-            .userdata = this
-        };
-
-        SDL_AudioSpec obtained;
-        m_device_id = SDL_OpenAudioDevice(nullptr, 0, &desired, &obtained, 0);
-        if (m_device_id == 0)
-        {
-            logE("can't open audio device");
-            return false;
-        }
-
-        const char* sdlDriverName = SDL_GetCurrentAudioDriver();
-        logI(std::format("Using SDL Audio Driver '{}'", sdlDriverName));
-
-        if (obtained.format != desired.format)
-        {
-            logW("format different");
-        }
-        if (obtained.freq != desired.freq)
-        {
-            logW(std::format("freq different: obtained={}, desired={}", obtained.freq, desired.freq));
-        }
-        if (obtained.channels != desired.channels)
-        {
-            logW(std::format("channels different: obtained={}, desired={}", obtained.channels, desired.channels));
-        }
-
-        resume();
-        m_ready = true;
-
-        return true;
+        return init_(sdlCallback, this);
     }
 
     std::optional<uint8_t> Mixer::play(
@@ -229,6 +185,55 @@ namespace HyperSonicDrivers::audio::sdl2
 
         m_master_volume = master_volume;
         updateChannelsVolumePan_();
+    }
+
+    bool Mixer::init_(SDL_AudioCallback callback, void* userdata)
+    {
+        m_ready = false;
+        if (SDL_InitSubSystem(SDL_INIT_AUDIO) == -1)
+        {
+            logE("Can't initialize SDL Audio");
+            return false;
+        }
+
+        // Get the desired audio specs
+        SDL_AudioSpec desired = {
+            .freq = static_cast<int>(m_sampleRate),
+            .format = AUDIO_S16,
+            .channels = 2,
+            .samples = m_samples,
+            .callback = callback,
+            .userdata = userdata
+        };
+
+        SDL_AudioSpec obtained;
+        m_device_id = SDL_OpenAudioDevice(nullptr, 0, &desired, &obtained, 0);
+        if (m_device_id == 0)
+        {
+            logE("can't open audio device");
+            return false;
+        }
+
+        const char* sdlDriverName = SDL_GetCurrentAudioDriver();
+        logI(std::format("Using SDL Audio Driver '{}'", sdlDriverName));
+
+        if (obtained.format != desired.format)
+        {
+            logW("format different");
+        }
+        if (obtained.freq != desired.freq)
+        {
+            logW(std::format("freq different: obtained={}, desired={}", obtained.freq, desired.freq));
+        }
+        if (obtained.channels != desired.channels)
+        {
+            logW(std::format("channels different: obtained={}, desired={}", obtained.channels, desired.channels));
+        }
+
+        resume();
+        m_ready = true;
+
+        return true;
     }
 
     void Mixer::updateChannelsVolumePan_() noexcept

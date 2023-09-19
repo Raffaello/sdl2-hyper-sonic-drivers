@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <array>
 #include <HyperSonicDrivers/drivers/opl/OplWriter.hpp>
 #include <HyperSonicDrivers/drivers/opl/tables.h>
 
@@ -60,7 +61,7 @@ namespace HyperSonicDrivers::drivers::opl
     void OplWriter::writeValue(const uint16_t regbase, const uint8_t channel, const uint8_t value) const noexcept
     {
         // OPL3 compatible channels
-        static constexpr uint16_t reg_num[] = {
+        static constexpr const std::array<uint16_t, opl3_num_channels> reg_num = {
         0x000, 0x001, 0x002, 0x003, 0x004, 0x005, 0x006, 0x007, 0x008,
         0x100, 0x101, 0x102, 0x103, 0x104, 0x105, 0x106, 0x107, 0x108 };
 
@@ -70,7 +71,7 @@ namespace HyperSonicDrivers::drivers::opl
     void OplWriter::writeChannel(const uint16_t regbase, const uint8_t channel, const uint8_t data1, const uint8_t data2) const noexcept
     {
         // OPL3 compatible channels
-        static constexpr uint16_t op_num[] = {
+        static constexpr const std::array<uint16_t, opl3_num_channels> op_num = {
         0x000, 0x001, 0x002, 0x008, 0x009, 0x00A, 0x010, 0x011, 0x012,
         0x100, 0x101, 0x102, 0x108, 0x109, 0x10A, 0x110, 0x111, 0x112 };
 
@@ -121,13 +122,13 @@ namespace HyperSonicDrivers::drivers::opl
 
     void OplWriter::writeNote(const uint8_t slot, const uint8_t note, int pitch, const bool keyOn) const noexcept
     {
-        uint16_t freq = freqtable[note];
-        uint8_t octave = octavetable[note];
+        uint16_t freq = freq_table[note];
+        uint8_t octave = octave_table[note];
 
         if (pitch != 0)
         {
             pitch = std::clamp(pitch, -128, 127);
-            freq = static_cast<uint16_t>((static_cast<uint32_t>(freq) * pitchtable[pitch + 128]) >> 15);
+            freq = static_cast<uint16_t>((static_cast<uint32_t>(freq) * pitch_table[pitch + 128]) >> 15);
             if (freq >= 1024)
             {
                 freq >>= 1;
@@ -153,7 +154,7 @@ namespace HyperSonicDrivers::drivers::opl
         return (0x3F - n) | (data & 0xC0);
 #else
         return 0x3F - (((0x3F - data) *
-            (unsigned)volumetable[std::min<uint8_t>(volume, 127)]) >> 7);
+            (unsigned)volume_table[std::min<uint8_t>(volume, 127)]) >> 7);
 #endif
     }
 

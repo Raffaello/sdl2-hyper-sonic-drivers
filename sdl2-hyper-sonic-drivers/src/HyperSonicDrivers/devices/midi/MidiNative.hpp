@@ -2,11 +2,11 @@
 
 #include <cstdint>
 #include <memory>
-#include <HyperSonicDrivers/drivers/midi/Device.hpp>
+#include <HyperSonicDrivers/devices/IMidiDevice.hpp>
 #include <rtmidi/RtMidi.h>
 
 
-namespace HyperSonicDrivers::drivers::midi::devices
+namespace HyperSonicDrivers::devices::midi
 {
     /**
      * @brief This is using OS Midi devices
@@ -14,11 +14,11 @@ namespace HyperSonicDrivers::drivers::midi::devices
      * It wasn't neither planned to use it, but it could
      * be useful to have it.
     */
-    class Native : public Device
+    class MidiNative : public IMidiDevice
     {
     public:
-        explicit Native(const int port = 0);
-        virtual ~Native() = default;
+        explicit MidiNative(const int port = 0);
+        ~MidiNative() override = default;
 
         void sendEvent(const audio::midi::MIDIEvent& e) const noexcept override;
         void sendMessage(const uint8_t msg[], const uint8_t size) const noexcept override;
@@ -27,7 +27,6 @@ namespace HyperSonicDrivers::drivers::midi::devices
         void resume() const noexcept override;
 
     private:
-        std::shared_ptr<RtMidiOut> _midiout;
+        std::unique_ptr<RtMidiOut> m_midiOut = std::make_unique<RtMidiOut>();
     };
 }
-    

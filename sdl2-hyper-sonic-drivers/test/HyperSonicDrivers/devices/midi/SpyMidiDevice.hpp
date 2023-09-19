@@ -1,11 +1,11 @@
 #pragma once
 
 #include <HyperSonicDrivers/audio/midi/MIDIEvent.hpp>
-#include <HyperSonicDrivers/drivers/midi/Device.hpp>
+#include <HyperSonicDrivers/devices/IMidiDevice.hpp>
 
-namespace HyperSonicDrivers::drivers::midi::devices
+namespace HyperSonicDrivers::devices::midi
 {
-    class SpyDevice : public Device
+    class SpyMidiDevice : public IMidiDevice
     {
         virtual void sendEvent(const audio::midi::MIDIEvent& e) const noexcept override
         {

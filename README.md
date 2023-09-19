@@ -12,7 +12,9 @@ reading some old files too as utility and give the capability to render them in 
 or play them in real time
 
 ## Digital sound files
+
 Partially reading these types of files, depending of their format.
+
 - [x] VOC files
 - [x] WAV files
 
@@ -37,7 +39,7 @@ Are converted to MIDI.
 
 ### XMI Files
 
-eXtended MIDI files those will be converted to MIDI Format 2 when 
+eXtended MIDI files will be converted to MIDI Format 2 when
 there is more than 1 track.
 each track is like a format 0 MIDI file with eXtensions.
 
@@ -48,21 +50,28 @@ each track is like a format 0 MIDI file with eXtensions.
 
 
 ## Emulators
+
 At the moment the only implemented emulators are OPL chips.
 
 ### Adlib/Sound Blaster PRO 2.0 chips
+
 - [x] Mame OPL2
 - [x] Mame OPL3
 - [x] DosBox OPL2
 - [x] DosBox Dual OPL2
 - [x] DosBox OPL3
 - [x] Nuked OPL3
-- [x] "woody" OPL2/Surround OPL2 (adding a sort of chrous effect)
+- [x] "woody" OPL2/Surround OPL2 (adding a sort of chorus effect)
 
+## Render Audio to Disk
+
+It is possible to render the audio buffer to disk into a 16 bits PCM WAVE file of:
+
+- [x] OPL emulated chips (ADL Files only at the moment)
 
 ## Usage
 
-see the `example` folder for some basic usage.
+see the `examples` folder for some various basic usage.
 
 ## Credits
 
