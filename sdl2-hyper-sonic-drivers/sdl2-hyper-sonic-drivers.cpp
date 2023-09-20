@@ -33,7 +33,8 @@
 #include <HyperSonicDrivers/utils/sdl2/Logger.hpp>
 #include <HyperSonicDrivers/devices/Adlib.hpp>
 #include <HyperSonicDrivers/audio/sdl2/Renderer.hpp>
-
+#include <mt32emu/c_interface/cpp_interface.h>
+#include <HyperSonicDrivers/hardware/mt32/MT32.hpp>
 
 using namespace std;
 using namespace HyperSonicDrivers;
@@ -653,6 +654,19 @@ void rendererMIDI()
     auto sound = w.getSound();
 }
 
+void testMT32()
+{
+    utils::ILogger::instance->setLevelAll(utils::ILogger::eLevel::Info);
+
+    const std::string cr = "mt32_roms/MT32_CONTROL.1987-10-07.v1.07.ROM";
+    const std::string pr = "mt32_roms/MT32_PCM.ROM";
+
+    auto mixer = audio::make_mixer<audio::sdl2::Mixer>(8, 44100, 1024);
+    hardware::mt32::MT32 mt32(cr, pr, mixer);
+
+    if (!mt32.init())
+        std::cerr << "can't init mt32" << std::endl;
+}
 
 int main(int argc, char* argv[])
 {
@@ -660,7 +674,8 @@ int main(int argc, char* argv[])
     //testMultiOpl();
     //testMOplMultiDrv();
     //rendererADL();
-    rendererMIDI();
+    //rendererMIDI();
+    testMT32();
     return 0;
     //sdlMixer();
     //SDL_Delay(100);
