@@ -69,15 +69,6 @@ Roland MT-32 is emulated through [MUNT](https://github.com/munt/munt).
 
 ROMs are required to use MT-32.
 
-#### NOTE on MT-32 ROMs
-
-Roland doesn't sell MT-32 anymore and doesn't provide ROMs upgrade if you have an old MT-32 module.
-
-Not sure what is the point to keep them copyrighted,
-i am quite convinced that their stock price will rise up if they announce to make MT-32 ROMs available
-from Roland Cloud.
-
-
 ## Render Audio to Disk
 
 It is possible to render the audio buffer to disk into a 16 bits PCM WAVE file of:
