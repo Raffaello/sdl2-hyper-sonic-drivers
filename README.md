@@ -65,7 +65,7 @@ At the moment the only implemented emulators are OPL chips.
 
 ### Roland MT-32
 
-Roland MT-32 is emulated through (MUNT)[https://github.com/munt/munt].
+Roland MT-32 is emulated through [MUNT](https://github.com/munt/munt).
 
 ROMs are required to use MT-32.
 
