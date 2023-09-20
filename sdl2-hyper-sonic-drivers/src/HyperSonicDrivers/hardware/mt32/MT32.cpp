@@ -81,7 +81,6 @@ namespace HyperSonicDrivers::hardware::mt32
         m_init = true;
 
         reset();
-
         return true;
     }
 

@@ -35,6 +35,7 @@
 #include <HyperSonicDrivers/audio/sdl2/Renderer.hpp>
 #include <mt32emu/c_interface/cpp_interface.h>
 #include <HyperSonicDrivers/hardware/mt32/MT32.hpp>
+#include <HyperSonicDrivers/devices/makers.hpp>
 
 using namespace std;
 using namespace HyperSonicDrivers;
@@ -662,10 +663,14 @@ void testMT32()
     const std::string pr = "mt32_roms/MT32_PCM.ROM";
 
     auto mixer = audio::make_mixer<audio::sdl2::Mixer>(8, 44100, 1024);
-    hardware::mt32::MT32 mt32(cr, pr, mixer);
+    auto midi_mt32 = devices::make_midi_device<devices::midi::MidiMT32>(mixer, cr, pr);
 
-    if (!mt32.init())
-        std::cerr << "can't init mt32" << std::endl;
+    std::shared_ptr<files::MIDFile> midFile = std::make_shared<files::MIDFile>("test/fixtures/MI_intro.mid");
+    drivers::MIDDriver midDrv(midi_mt32);
+
+    midDrv.play(midFile->getMIDI());
+    while (midDrv.isPlaying())
+        utils::delayMillis(1000);
 }
 
 int main(int argc, char* argv[])

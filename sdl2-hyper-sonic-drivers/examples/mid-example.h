@@ -9,6 +9,7 @@
 #include <HyperSonicDrivers/devices/midi/MidiSbPro.hpp>
 #include <HyperSonicDrivers/devices/midi/MidiSbPro2.hpp>
 #include <HyperSonicDrivers/devices/IMidiDevice.hpp>
+#include <HyperSonicDrivers/devices/makers.hpp>
 
 #include <HyperSonicDrivers/files/dmx/OP2File.hpp>
 

@@ -61,12 +61,5 @@ namespace HyperSonicDrivers
             std::atomic<bool> _acquired = false;
             std::atomic<drivers::MIDDriver*> _owner = nullptr;
         };
-
-        // TODO: replace variadic template with exact arguments
-        template<class T, typename... Args>
-        std::shared_ptr<T> make_midi_device(Args... args)
-        {
-            return std::make_shared<T>(args...);
-        }
     }
 }

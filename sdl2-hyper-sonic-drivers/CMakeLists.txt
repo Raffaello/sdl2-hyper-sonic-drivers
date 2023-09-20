@@ -102,6 +102,7 @@ target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/devices/midi/MidiSbPro.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/devices/midi/MidiSbPro2.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/devices/midi/MidiScummVM.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/devices/midi/MidiMT32.cpp
     # --- # 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/PCMDriver.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/MIDDriver.cpp

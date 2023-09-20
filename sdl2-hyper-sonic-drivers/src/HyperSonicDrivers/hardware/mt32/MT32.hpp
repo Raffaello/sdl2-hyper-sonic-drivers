@@ -8,10 +8,20 @@
 #include <mt32emu/c_interface/cpp_interface.h>
 #include <HyperSonicDrivers/audio/IMixer.hpp>
 
+namespace HyperSonicDrivers::devices::midi
+{
+    class MidiMT32;
+}
+
 namespace HyperSonicDrivers::hardware::mt32
 {
+    // TODO: create a "hardware interface" among MT32 and OPL
+    //  in common: isInit, isStereo, init, reset, getMixer, getChannelId,
+    //  etc...
     class MT32
     {
+        friend devices::midi::MidiMT32;
+
     public:
         MT32(const std::filesystem::path& control_rom, const std::filesystem::path& pcm_rom,
             const std::shared_ptr<audio::IMixer>& mixer
@@ -28,7 +38,7 @@ namespace HyperSonicDrivers::hardware::mt32
         inline std::shared_ptr<audio::IMixer> getMixer() const noexcept { return m_mixer; };
         inline std::optional<uint8_t> getChannelId() const noexcept { return m_channelId; };
 
-    protected:
+    private:
         bool m_init = false;
         std::shared_ptr<audio::IMixer> m_mixer;
         std::optional<uint8_t> m_channelId;
