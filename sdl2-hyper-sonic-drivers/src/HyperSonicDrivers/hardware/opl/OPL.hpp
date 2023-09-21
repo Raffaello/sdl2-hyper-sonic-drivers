@@ -2,18 +2,16 @@
 
 #include <cstdint>
 #include <memory>
-#include <functional>
 #include <optional>
 #include <HyperSonicDrivers/hardware/opl/OplType.hpp>
 #include <HyperSonicDrivers/audio/mixer/ChannelGroup.hpp>
 #include <HyperSonicDrivers/audio/IAudioStream.hpp>
 #include <HyperSonicDrivers/audio/IMixer.hpp>
+#include <HyperSonicDrivers/hardware/types.hpp>
 
 namespace HyperSonicDrivers::hardware::opl
 {
     constexpr int default_opl_callback_freq = 250;
-
-    typedef std::function<void()> TimerCallBack;
 
     /**
      * A representation of a Yamaha OPL chip.

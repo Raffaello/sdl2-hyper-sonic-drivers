@@ -39,8 +39,8 @@ namespace HyperSonicDrivers::drivers::midi::opl
             m_voicesFreeIndex.push_back(i);
         }
 
-        hardware::opl::TimerCallBack cb = std::bind(&OplDriver::onTimer, this);
-        auto p = std::make_shared<hardware::opl::TimerCallBack>(cb);
+        hardware::TimerCallBack cb = std::bind(&OplDriver::onTimer, this);
+        auto p = std::make_shared<hardware::TimerCallBack>(cb);
         m_opl->start(p, group, volume, pan);
     }
 

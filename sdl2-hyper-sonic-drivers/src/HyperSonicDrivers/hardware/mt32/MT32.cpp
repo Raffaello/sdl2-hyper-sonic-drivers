@@ -11,18 +11,6 @@ namespace HyperSonicDrivers::hardware::mt32
     MT32::MT32(const std::filesystem::path& control_rom, const std::filesystem::path& pcm_rom,
         const std::shared_ptr<audio::IMixer>& mixer) : m_mixer(mixer)
     {
-        //files::File control_rom_file(control_rom.string());
-        //files::File pcm_rom_file(pcm_rom.string());
-
-        //m_control_rom_data_size = control_rom_file.size();
-        //m_pcm_rom_data_size = pcm_rom_file.size();
-
-        //m_control_rom_data = std::make_unique<uint8_t[]>(m_control_rom_data_size);
-        //m_pcm_rom_data = std::make_unique<uint8_t[]>(m_pcm_rom_data_size);
-
-        //control_rom_file.read(m_control_rom_data.get(), m_control_rom_data_size);
-        //pcm_rom_file.read(m_control_rom_data.get(), m_pcm_rom_data_size);
-
         // TODO: do i need a report handler? i guess so for logging purposes
         m_service.createContext();
 
@@ -37,17 +25,6 @@ namespace HyperSonicDrivers::hardware::mt32
         {
             utils::throwLogC<std::runtime_error>(std::format("can't add pcm ROM data (ret_code: {})", ret));
         }
-        /*mt32emu_return_code ret = m_service.addROMData(m_control_rom_data.get(), m_control_rom_data_size);
-        if (ret != MT32EMU_RC_ADDED_CONTROL_ROM)
-        {
-            utils::throwLogC<std::runtime_error>(std::format("can't add control ROM data (ret_code: {})", ret));
-        }*/
-
-        /*ret = m_service.addROMData(m_pcm_rom_data.get(), m_pcm_rom_data_size);
-        if (ret != MT32EMU_RC_ADDED_PCM_ROM)
-        {
-            utils::throwLogC<std::runtime_error>(std::format("can't add pcm ROM data (ret_code: {})", ret));
-        }*/
 
         mt32emu_rom_info info;
         m_service.getROMInfo(&info);

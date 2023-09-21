@@ -37,8 +37,8 @@ namespace HyperSonicDrivers::drivers::westwood
 
         memset(m_channels.data(), 0, sizeof(m_channels));
 
-        hardware::opl::TimerCallBack cb = std::bind(&ADLDriver::callback, this);
-        auto p = std::make_shared<hardware::opl::TimerCallBack>(cb);
+        hardware::TimerCallBack cb = std::bind(&ADLDriver::callback, this);
+        auto p = std::make_shared<hardware::TimerCallBack>(cb);
         m_opl->start(
             p,
             group,

@@ -139,8 +139,8 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
             adlibWriteSecondary(5, 1);
         }
 
-        hardware::opl::TimerCallBack cb = std::bind(&MidiDriver_ADLIB::onTimer, this);
-        auto p = std::make_shared<hardware::opl::TimerCallBack>(cb);
+        hardware::TimerCallBack cb = std::bind(&MidiDriver_ADLIB::onTimer, this);
+        auto p = std::make_shared<hardware::TimerCallBack>(cb);
         _opl->start(p, group, volume, pan);
 
         return 0;
