@@ -28,8 +28,9 @@ namespace HyperSonicDrivers::audio::streams
             m_nextTick -= step << FIXP_SHIFT;
             if (!(m_nextTick >> FIXP_SHIFT))
             {
-                if (m_opl->m_callback != nullptr)
-                    (*m_opl->m_callback)();
+                //if (m_opl->m_callback != nullptr)
+                //    (*m_opl->m_callback)();
+                m_opl->callCallback();
 
                 m_nextTick += m_samplesPerTick;
             }

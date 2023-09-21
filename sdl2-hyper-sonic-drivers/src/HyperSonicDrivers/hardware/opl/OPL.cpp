@@ -7,7 +7,9 @@ namespace HyperSonicDrivers::hardware::opl
 {
     using utils::logE;
 
-    OPL::OPL(const OplType type) : type(type)
+    OPL::OPL(const std::shared_ptr<audio::IMixer>& mixer, const OplType type) :
+        IHardware(mixer),
+        type(type)
     {
     }
 
@@ -18,13 +20,12 @@ namespace HyperSonicDrivers::hardware::opl
         const uint8_t pan,
         const int timerFrequency)
     {
-        m_callback = callback;
-        startCallbacks(group, volume, pan, timerFrequency);
+        start_(callback, group, volume, pan, timerFrequency);
     }
 
-    void OPL::stop()
+    /*void OPL::stop()
     {
         stopCallbacks();
         m_callback.reset();
-    }
+    }*/
 }

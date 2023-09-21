@@ -38,12 +38,11 @@ namespace HyperSonicDrivers::hardware::opl
 
         uint32_t setCallbackFrequency(const int timerFrequency) override;
 
-        std::shared_ptr<audio::IMixer> getMixer() const noexcept override;
+        //std::shared_ptr<audio::IMixer> getMixer() const noexcept override;
 
         std::optional<uint8_t> getChannelId() const noexcept override;
 
     protected:
-        std::shared_ptr<audio::IMixer> m_mixer;
         void startCallbacks(
             const audio::mixer::eChannelGroup group,
             const uint8_t volume,

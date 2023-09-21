@@ -6,8 +6,7 @@
 namespace HyperSonicDrivers::hardware::opl
 {
     EmulatedOPL::EmulatedOPL(const OplType type, const std::shared_ptr<audio::IMixer>& mixer) :
-        OPL(type),
-        m_mixer(mixer)
+        OPL(mixer, type)
     {
     }
 
@@ -32,10 +31,10 @@ namespace HyperSonicDrivers::hardware::opl
         return (d << FIXP_SHIFT) + (r << FIXP_SHIFT) / timerFrequency;
     }
 
-    std::shared_ptr<audio::IMixer> EmulatedOPL::getMixer() const noexcept
+    /*std::shared_ptr<audio::IMixer> EmulatedOPL::getMixer() const noexcept
     {
         return m_mixer;
-    }
+    }*/
 
     std::optional<uint8_t> EmulatedOPL::getChannelId() const noexcept
     {
