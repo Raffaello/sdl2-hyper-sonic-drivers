@@ -18,11 +18,13 @@ namespace HyperSonicDrivers::hardware::opl
         void writeReg(const uint16_t r, const uint16_t v) noexcept override {};
         uint32_t setCallbackFrequency(int timerFrequency) override { return 1; };
 
-        void startCallbacks(
+        /*void startCallbacks(
             const audio::mixer::eChannelGroup group,
             const uint8_t volume,
             const uint8_t pan,
             const int timerFrequency
-        ) override {};
+        ) override {};*/
+
+        void generateSamples(int16_t* buffer, const size_t length) noexcept {}
     };
 }

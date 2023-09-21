@@ -3,22 +3,22 @@
 #include <cstdint>
 #include <cstddef>
 #include <HyperSonicDrivers/audio/IAudioStream.hpp>
-#include <HyperSonicDrivers/hardware/opl/EmulatedOPL.hpp>
+#include <HyperSonicDrivers/hardware/opl/OPL.hpp>
 
 namespace HyperSonicDrivers::audio::streams
 {
     class OplStream : public audio::IAudioStream
     {
     private:
-        hardware::opl::EmulatedOPL* m_opl = nullptr;
+        hardware::opl::OPL* m_opl = nullptr;
         uint32_t m_nextTick = 0;
     public:
         const bool stereo;
         const uint32_t rate;
-        const uint32_t m_samplesPerTick;
+        const uint32_t samplesPerTick;
 
         OplStream(
-            hardware::opl::EmulatedOPL* opl,
+            hardware::opl::OPL* opl,
             const bool stereo, const uint32_t rate, const uint32_t samplesPerTick);
         ~OplStream() override = default;
 

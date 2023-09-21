@@ -6,6 +6,16 @@
 #include <HyperSonicDrivers/hardware/opl/OplType.hpp>
 #include <HyperSonicDrivers/audio/IMixer.hpp>
 
+namespace HyperSonicDrivers::audio
+{
+    class IRenderer;
+
+    namespace streams
+    {
+        class OplStream;
+    }
+}
+
 namespace HyperSonicDrivers::hardware::opl
 {
     constexpr int default_opl_callback_freq = 250;
@@ -15,6 +25,9 @@ namespace HyperSonicDrivers::hardware::opl
      */
     class OPL : public IHardware
     {
+        friend audio::IRenderer;
+        friend audio::streams::OplStream;
+
     public:
         OPL(const OPL&) = delete;
         OPL(const OPL&&) = delete;
@@ -64,5 +77,13 @@ namespace HyperSonicDrivers::hardware::opl
             const uint8_t volume = 255,
             const uint8_t pan = 0,
             const int timerFrequency = default_opl_callback_freq) override;
+
+    protected:
+        void startCallbacks(
+            const audio::mixer::eChannelGroup group,
+            const uint8_t volume,
+            const uint8_t pan,
+            const int timerFrequency
+        ) override;
     };
 }

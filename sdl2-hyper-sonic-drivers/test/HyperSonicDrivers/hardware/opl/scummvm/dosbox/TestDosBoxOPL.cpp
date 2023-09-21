@@ -24,6 +24,7 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::dosbox
         EXPECT_EQ(mixer.use_count(), 1);
         DosBoxOPL dosbox(this->opl_type, mixer);
         EXPECT_EQ(mixer.use_count(), 2);
+        ASSERT_TRUE(dosbox.init());
         //EXPECT_EQ(dosbox.getRate(), mixer->rate);
         //EXPECT_EQ(dosbox.endOfData(), false);
         EXPECT_EQ(dosbox.isStereo(), this->isStereo);
@@ -38,6 +39,7 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::dosbox
         std::shared_ptr<DosBoxOPL> dosbox = std::make_shared<DosBoxOPL>(this->opl_type, mixer);
         EXPECT_EQ(mixer.use_count(), 2);
         EXPECT_EQ(dosbox.use_count(), 1);
+        ASSERT_TRUE(dosbox->init());
         //EXPECT_EQ(dosbox->getRate(), mixer->rate);
         //EXPECT_EQ(dosbox->endOfData(), false);
         EXPECT_EQ(dosbox->isStereo(), this->isStereo);

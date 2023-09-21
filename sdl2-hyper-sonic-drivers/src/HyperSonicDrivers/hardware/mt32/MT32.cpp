@@ -9,7 +9,7 @@ namespace HyperSonicDrivers::hardware::mt32
     namespace fs = std::filesystem;
 
     MT32::MT32(const std::filesystem::path& control_rom, const std::filesystem::path& pcm_rom,
-        const std::shared_ptr<audio::IMixer>& mixer) : m_mixer(mixer)
+        const std::shared_ptr<audio::IMixer>& mixer) : IHardware(mixer)
     {
         // TODO: do i need a report handler? i guess so for logging purposes
         m_service.createContext();
@@ -72,5 +72,46 @@ namespace HyperSonicDrivers::hardware::mt32
         m_service.setSamplerateConversionQuality(MT32Emu::SamplerateConversionQuality_BEST);
 
         m_output_rate = m_service.getActualStereoOutputSamplerate();
+    }
+
+    void MT32::start(
+        const std::shared_ptr<TimerCallBack>& callback,
+        const audio::mixer::eChannelGroup group,
+        const uint8_t volume,
+        const uint8_t pan,
+        const int timerFrequency)
+    {
+        IHardware::start(callback, group, volume, pan, timerFrequency);
+    }
+
+    void MT32::startCallbacks(
+        const audio::mixer::eChannelGroup group,
+        const uint8_t volume,
+        const uint8_t pan,
+        const int timerFrequency)
+    {
+        //TODO
+        /*setAudioStream(std::make_shared<audio::streams::OplStream>(
+            this,
+            isStereo(),
+            m_mixer->getOutputRate(),
+            setCallbackFrequency(timerFrequency)
+        ));*/
+
+        m_channelId = m_mixer->play(
+            group,
+            getAudioStream(),
+            volume,
+            pan
+        );
+
+        if (!m_channelId.has_value()) {
+            utils::logC("can't start opl playback");
+        }
+    }
+
+    void MT32::generateSamples(int16_t* buffer, const size_t length) noexcept
+    {
+        m_service.renderBit16s(buffer, length);
     }
 }

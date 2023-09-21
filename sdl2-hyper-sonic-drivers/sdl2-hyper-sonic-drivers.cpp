@@ -582,7 +582,7 @@ void rendererADL()
     using hardware::opl::OplType;
     using audio::mixer::eChannelGroup;
     using utils::ILogger;
-    using hardware::opl::EmulatedOPL;
+    using hardware::opl::OPL;
 
     audio::sdl2::Renderer r(44100, 1024);
 
@@ -595,7 +595,7 @@ void rendererADL()
     auto af = std::make_shared<files::westwood::ADLFile>("test/fixtures/DUNE0.ADL");
     drv1.setADLFile(af);
 
-    auto eo = std::dynamic_pointer_cast<EmulatedOPL>(adlib.getOpl());
+    auto eo = adlib.getOpl();
     drv1.play(4);
     while(drv1.isPlaying())
         r.renderBuffer(eo);
@@ -631,7 +631,7 @@ void rendererMIDI()
     using hardware::opl::OplType;
     using audio::mixer::eChannelGroup;
     using utils::ILogger;
-    using hardware::opl::EmulatedOPL;
+    using hardware::opl::OPL;
 
     audio::sdl2::Renderer r(44100, 1024);
 
@@ -643,7 +643,7 @@ void rendererMIDI()
     auto mid_drv = drivers::MIDDriver(midi_adlib);
     auto mus = files::dmx::MUSFile("test/fixtures/D_E1M1.mus");
     mid_drv.play(mus.getMIDI());
-    auto eo = std::dynamic_pointer_cast<EmulatedOPL>(midi_adlib->getOpl());
+    auto eo = midi_adlib->getOpl();
 
     // TODO: doesn't work, due to the driver internal timing
     while (mid_drv.isPlaying())

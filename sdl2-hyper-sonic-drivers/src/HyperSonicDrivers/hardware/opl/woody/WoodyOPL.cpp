@@ -10,7 +10,7 @@ namespace HyperSonicDrivers::hardware
         namespace woody
         {
             WoodyOPL::WoodyOPL(const std::shared_ptr<audio::IMixer>& mixer, const bool surround)
-                : EmulatedOPL(surround ? OplType::DUAL_OPL2 : OplType::OPL2, mixer)
+                : OPL(mixer, surround ? OplType::DUAL_OPL2 : OplType::OPL2)
             {}
 
             bool WoodyOPL::init()
@@ -54,8 +54,7 @@ namespace HyperSonicDrivers::hardware
 
             void WoodyOPL::generateSamples(int16_t* buffer, const size_t length) noexcept
             {
-                const int d = isStereo() ? 2 : 1;
-                _opl->update(buffer, length / d);
+                _opl->update(buffer, length);
             }
         }
     }

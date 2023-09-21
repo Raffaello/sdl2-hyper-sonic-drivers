@@ -54,10 +54,29 @@ namespace HyperSonicDrivers::hardware
         void stopCallbacks();
         void callCallback();
 
+        /**
+         * get the emulated generated audio stream
+        **/
+        inline std::shared_ptr<audio::IAudioStream> getAudioStream() const noexcept { return m_stream; };
+        inline void setAudioStream(const std::shared_ptr<audio::IAudioStream>& stream) noexcept { m_stream = stream; }
+        /**
+         * Read up to 'length' samples.
+         *
+         * Data will be in native endianess, 16 bit per sample, signed.
+         * For stereo OPL, buffer will be filled with interleaved
+         * left and right channel samples, starting with a left sample.
+         * Furthermore, the samples in the left and right are summed up.
+         * So if you request 4 samples from a stereo OPL, you will get
+         * a total of two left channel and two right channel samples.
+         */
+        virtual void generateSamples(int16_t* buffer, const size_t length) noexcept = 0;
+
         bool m_init = false;
         std::shared_ptr<audio::IMixer> m_mixer;
         std::optional<uint8_t> m_channelId;
+
     private:
         std::shared_ptr<TimerCallBack> m_callback;
+        std::shared_ptr<audio::IAudioStream> m_stream;
     };
 }
