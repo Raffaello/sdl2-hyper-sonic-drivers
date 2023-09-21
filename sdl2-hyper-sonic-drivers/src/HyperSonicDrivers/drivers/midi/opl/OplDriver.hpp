@@ -29,8 +29,8 @@ namespace HyperSonicDrivers::drivers::midi::opl
     {
     public:
         [[deprecated("replace opl argument with device")]]
+        // TODO use open instead of the constructor
         OplDriver(const std::shared_ptr<hardware::opl::OPL>& opl,
-            const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank,
             const audio::mixer::eChannelGroup group,
             const uint8_t volume,
             const uint8_t pan);
