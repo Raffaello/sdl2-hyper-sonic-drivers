@@ -14,6 +14,8 @@ namespace HyperSonicDrivers::devices::midi
             utils::throwLogC<std::runtime_error>(std::format("Can't init device MidiMT32"));
         }
 
+        m_mt32->start(nullptr);
+
     }
 
     void MidiMT32::sendEvent(const audio::midi::MIDIEvent& e) const noexcept

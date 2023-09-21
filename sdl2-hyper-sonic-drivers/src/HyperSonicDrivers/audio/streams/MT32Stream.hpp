@@ -21,8 +21,7 @@ namespace HyperSonicDrivers::audio::streams
 
         MT32Stream(
             hardware::mt32::MT32* mt32,
-            const bool stereo, const uint32_t rate, cosnt uint32_t samplePerTick);
-        );
+            const bool stereo, const uint32_t rate, const uint32_t samplesPerTick);
         ~MT32Stream() override = default;
 
         size_t readBuffer(int16_t* buffer, const size_t numSamples) override;

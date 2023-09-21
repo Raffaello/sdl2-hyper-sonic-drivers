@@ -1,7 +1,8 @@
+#include <format>
+#include <HyperSonicDrivers/audio/streams/MT32Stream.hpp>
+#include <HyperSonicDrivers/files/File.hpp>
 #include <HyperSonicDrivers/hardware/mt32/MT32.hpp>
 #include <HyperSonicDrivers/utils/ILogger.hpp>
-#include <HyperSonicDrivers/files/File.hpp>
-#include <format>
 #include <std/MT32EmuReturnCode.hpp>
 
 namespace HyperSonicDrivers::hardware::mt32
@@ -91,12 +92,12 @@ namespace HyperSonicDrivers::hardware::mt32
         const int timerFrequency)
     {
         //TODO
-        /*setAudioStream(std::make_shared<audio::streams::OplStream>(
+        setAudioStream(std::make_shared<audio::streams::MT32Stream>(
             this,
             isStereo(),
             m_mixer->getOutputRate(),
             setCallbackFrequency(timerFrequency)
-        ));*/
+        ));
 
         m_channelId = m_mixer->play(
             group,

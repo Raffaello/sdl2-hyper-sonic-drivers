@@ -2,10 +2,12 @@
 
 namespace HyperSonicDrivers::audio::streams
 {
+    using hardware::FIXP_SHIFT;
+
     MT32Stream::MT32Stream(
         hardware::mt32::MT32* mt32,
-        const bool stereo, const uint32_t rate, cosnt uint32_t samplePerTick
-    ) : m_mt32(mt32), stereo(stereo), rate(rate), samplePerTick(samplePerTick)
+        const bool stereo, const uint32_t rate, const uint32_t samplesPerTick
+    ) : m_mt32(mt32), stereo(stereo), rate(rate), samplesPerTick(samplesPerTick)
     {
     }
 
@@ -16,44 +18,27 @@ namespace HyperSonicDrivers::audio::streams
 
         do {
             size_t step = len;
-            if (step > (_nextTick >> FIXP_SHIFT))
+            if (step > (m_nextTick >> FIXP_SHIFT))
             {
-                step = (_nextTick >> FIXP_SHIFT);
+                step = (m_nextTick >> FIXP_SHIFT);
             }
 
-            generateSamples(data, step);
+            m_mt32->generateSamples(buffer, step);
 
-            _nextTick -= step << FIXP_SHIFT;
-            if (!(_nextTick >> FIXP_SHIFT))
+            m_nextTick -= step << FIXP_SHIFT;
+            if (!(m_nextTick >> FIXP_SHIFT))
             {
-
-                if (_timerProc)
-                    (*_timerProc)(_timerParam);
+                m_mt32->callCallback();
 
                 //onTimer();
 
-                _nextTick += _samplesPerTick;
+                m_nextTick += samplesPerTick;
             }
 
-            data += step * stereoFactor;
+            buffer += step * stereoFactor;
             len -= step;
         } while (len);
 
         return numSamples;
     }
-
-    bool MT32Stream::isStereo() const
-    {
-        return false;
-    }
-    uint32_t MT32Stream::getRate() const
-    {
-        return 0;
-    }
-    bool MT32Stream::endOfData() const
-    {
-        return false;
-    }
-
-    
 }
