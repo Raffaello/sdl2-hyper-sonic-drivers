@@ -24,7 +24,5 @@ namespace HyperSonicDrivers::hardware::opl
             const uint8_t pan,
             const int timerFrequency
         ) override {};
-
-        std::shared_ptr<audio::IAudioStream> getAudioStream() const noexcept override { return nullptr; };
     };
 }
