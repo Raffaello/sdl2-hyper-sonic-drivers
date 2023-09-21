@@ -334,7 +334,7 @@ int midi_adlib()
     using hardware::opl::OplType;
 
     auto mixer = audio::make_mixer<audio::sdl2::Mixer>(8, 44100, 1024);
-
+    mixer->init();
     auto emu = OplEmulator::NUKED;
     auto type = OplType::OPL3;
     
@@ -343,15 +343,20 @@ int midi_adlib()
         return -1;
 
     //spdlog::set_level(spdlog::level::debug);
-    //std::shared_ptr<files::MIDFile> midFile = std::make_shared<files::MIDFile>("test/fixtures/MI_intro.mid");
-    auto midFile = std::make_shared<files::MIDFile>("test/fixtures/midifile_sample.mid");
+    std::shared_ptr<files::MIDFile> midFile = std::make_shared<files::MIDFile>("test/fixtures/MI_intro.mid");
+    //auto midFile = std::make_shared<files::MIDFile>("test/fixtures/midifile_sample.mid");
     auto midi = midFile->getMIDI();
     auto scumm_midi = std::make_shared<devices::midi::MidiScummVM>(opl, true, audio::mixer::eChannelGroup::Music);
+
+    //files::dmx::OP2File op2f("test/fixtures/GENMIDI.OP2");
+    //auto scumm_midi = std::make_shared<devices::midi::MidiSbPro2>(mixer, op2f.getBank(), audio::mixer::eChannelGroup::Music);
     drivers::MIDDriver midDrv(scumm_midi);
 
 
     //spdlog::info("playing midi...");
     midDrv.play(midi);
+    while (midDrv.isPlaying())
+        utils::delayMillis(1000);
     //spdlog::info("end.");
 
     return 0;
@@ -682,7 +687,8 @@ int main(int argc, char* argv[])
     //testMOplMultiDrv();
     //rendererADL();
     //rendererMIDI();
-    testMT32();
+    //testMT32();
+    midi_adlib();
     return 0;
     //sdlMixer();
     //SDL_Delay(100);

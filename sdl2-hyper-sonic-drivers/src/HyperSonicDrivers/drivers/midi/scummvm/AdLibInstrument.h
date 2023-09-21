@@ -20,18 +20,18 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
     struct AdLibInstrument
     {
-        uint8_t modCharacteristic;
-        uint8_t modScalingOutputLevel;
-        uint8_t modAttackDecay;
-        uint8_t modSustainRelease;
-        uint8_t modWaveformSelect;
-        uint8_t carCharacteristic;
-        uint8_t carScalingOutputLevel;
-        uint8_t carAttackDecay;
-        uint8_t carSustainRelease;
-        uint8_t carWaveformSelect;
-        uint8_t feedback;
-        uint8_t flagsA;
+        uint8_t modCharacteristic;      // trem_vibr_1
+        uint8_t modScalingOutputLevel;  // scale_1
+        uint8_t modAttackDecay;         // att_dec_1
+        uint8_t modSustainRelease;      // sust_rel_1
+        uint8_t modWaveformSelect;      // wave_1
+        uint8_t carCharacteristic;      // trem_vibr_2
+        uint8_t carScalingOutputLevel;  // scale_2
+        uint8_t carAttackDecay;         // att_dec_2
+        uint8_t carSustainRelease;      // sust_rel_2
+        uint8_t carWaveformSelect;      // wave_2
+        uint8_t feedback;               // feedback
+        uint8_t flagsA;                 // unused?
         InstrumentExtra extraA;
         uint8_t flagsB;
         InstrumentExtra extraB;

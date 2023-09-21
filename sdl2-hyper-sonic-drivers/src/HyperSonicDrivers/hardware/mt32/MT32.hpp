@@ -49,7 +49,7 @@ namespace HyperSonicDrivers::hardware::mt32
             const audio::mixer::eChannelGroup group = audio::mixer::eChannelGroup::Music,
             const uint8_t volume = 255,
             const uint8_t pan = 0,
-            const int timerFrequency = mt32_frequency) override;
+            const int timerFrequency = 1000) override;
 
     protected:
         void startCallbacks(
