@@ -663,6 +663,8 @@ void testMT32()
     const std::string pr = "mt32_roms/MT32_PCM.ROM";
 
     auto mixer = audio::make_mixer<audio::sdl2::Mixer>(8, 44100, 1024);
+    if (!mixer->init())
+        std::cerr << "can't init mixer" << std::endl;
     auto midi_mt32 = devices::make_midi_device<devices::midi::MidiMT32>(mixer, cr, pr);
 
     std::shared_ptr<files::MIDFile> midFile = std::make_shared<files::MIDFile>("test/fixtures/MI_intro.mid");
