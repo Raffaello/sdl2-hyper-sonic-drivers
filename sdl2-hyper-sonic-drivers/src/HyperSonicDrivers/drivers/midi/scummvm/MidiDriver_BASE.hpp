@@ -1,13 +1,14 @@
 #pragma once
 
 #include <cstdint>
+#include <HyperSonicDrivers/drivers/midi/IMidiDriver.hpp>
 
 namespace HyperSonicDrivers::drivers::midi::scummvm
 {
     /**
      * TODO: Document this, give it a better name.
      */
-    class MidiDriver_BASE
+    class MidiDriver_BASE : public IMidiDriver
     {
     public:
         static const uint8_t MIDI_CHANNEL_COUNT = 16;
@@ -65,20 +66,22 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         MidiDriver_BASE() = default;
         virtual ~MidiDriver_BASE() = default;
 
+        using IMidiDriver::send;
+
         /**
          * Output a packed midi command to the midi stream.
          * The 'lowest' uint8_t (i.e. b & 0xFF) is the status
          * code, then come (if used) the first and second
          * opcode.
          */
-        virtual void send(uint32_t b) = 0;
+        //virtual void send(uint32_t b) = 0;
 
         /**
          * Send a MIDI command from a specific source. If the MIDI driver
          * does not support multiple sources, the source parameter is
          * ignored.
          */
-        virtual void send(int8_t source, uint32_t b) { send(b); }
+        //virtual void send(int8_t channel, uint32_t b) { send(b); }
 
         /**
          * Output a midi command to the midi stream. Convenience wrapper

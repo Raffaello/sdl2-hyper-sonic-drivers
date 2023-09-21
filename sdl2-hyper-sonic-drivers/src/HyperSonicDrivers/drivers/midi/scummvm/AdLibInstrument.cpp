@@ -599,4 +599,26 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         for (i = 0; i < 64; i++)
             g_volumeLookupTable[i][0] = 0;
     }
+
+//#include<HyperSonicDrivers/hardware/opl/OPL2instrument.h>
+//#include <string>
+//    void testDisplayInstrument()
+//    {
+//        using HyperSonicDrivers::hardware::opl::OPL2instrument_t;
+//
+//        for (int i = 0; i < 128; i++)
+//        {
+//            AdLibInstrument a_instr;
+//            std:memcpy(&a_instr, &g_gmInstruments[i], sizeof(AdLibInstrument));
+//            OPL2instrument_t opl2inst = {
+//                .trem_vibr_1 = a_instr.modCharacteristic,
+//                .att_dec_1 = a_instr.modAttackDecay,
+//                .sust_rel_1 = a_instr.modSustainRelease,
+//                .wave_1 = a_instr.modWaveformSelect,
+//                .scale_1 = a_instr.modScalingOutputLevel,
+//                .level_1 = 0, // it is computed dynamically based on events or other flags,
+//            }
+//        }
+//
+//    }
 }

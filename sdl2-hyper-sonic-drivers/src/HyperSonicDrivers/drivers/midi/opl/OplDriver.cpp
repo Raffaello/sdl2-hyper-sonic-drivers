@@ -34,8 +34,9 @@ namespace HyperSonicDrivers::drivers::midi::opl
             m_channels[i] = std::make_unique<OplChannel>(i);
         }
 
+        m_voices.resize(m_oplNumChannels);
         for (uint8_t i = 0; i < m_oplNumChannels; ++i) {
-            _voices[i] = std::make_unique<OplVoice>(i, m_oplWriter.get());
+            m_voices[i] = std::make_unique<OplVoice>(i, m_oplWriter.get());
             m_voicesFreeIndex.push_back(i);
         }
 
@@ -100,8 +101,8 @@ namespace HyperSonicDrivers::drivers::midi::opl
         for (auto it = m_voicesInUseIndex.begin(); it != m_voicesInUseIndex.end(); ++it) {
             const uint8_t i = *it;
             if (m_opl3_mode)
-                m_oplWriter->writeValue(0xC0, i, _voices[i]->getInstrument()->feedback);
-            _voices[i]->pause();
+                m_oplWriter->writeValue(0xC0, i, m_voices[i]->getInstrument()->feedback);
+            m_voices[i]->pause();
         }
     }
 
@@ -109,7 +110,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
     {
         for (auto it = m_voicesInUseIndex.begin(); it != m_voicesInUseIndex.end(); ++it) {
             const uint8_t i = *it;
-            _voices[i]->resume();
+            m_voices[i]->resume();
         }
     }
 
@@ -119,7 +120,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
 
         for (auto it = m_voicesInUseIndex.begin(); it != m_voicesInUseIndex.end();) {
             // TODO: this noteOff is masking the voice Release, not nice.
-            if (_voices[*it]->noteOff(chan, note, sustain)) {
+            if (m_voices[*it]->noteOff(chan, note, sustain)) {
                 m_voicesFreeIndex.push_back(*it);
                 it = m_voicesInUseIndex.erase(it);
             }
@@ -238,7 +239,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
         m_channels[chan]->pitch = static_cast<int8_t>(bend);
 
         for (auto it = m_voicesInUseIndex.begin(); it != m_voicesInUseIndex.end(); ++it)
-            _voices[*it]->pitchBend(chan, bend);
+            m_voices[*it]->pitchBend(chan, bend);
     }
 
 
@@ -247,7 +248,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
         m_channels[chan]->modulation = value;
 
         for (auto it = m_voicesInUseIndex.begin(); it != m_voicesInUseIndex.end(); ++it)
-            _voices[*it]->ctrl_modulationWheel(chan, value);
+            m_voices[*it]->ctrl_modulationWheel(chan, value);
     }
 
     void OplDriver::ctrl_volume(const uint8_t chan, const uint8_t value) const noexcept
@@ -256,7 +257,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
 
         m_channels[chan]->volume = value;
         for (auto it = m_voicesInUseIndex.begin(); it != m_voicesInUseIndex.end(); ++it)
-            _voices[*it]->ctrl_volume(chan, value/*, abs_time*/);
+            m_voices[*it]->ctrl_volume(chan, value/*, abs_time*/);
     }
 
     void OplDriver::ctrl_panPosition(const uint8_t chan, uint8_t value) const noexcept
@@ -265,7 +266,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
 
         m_channels[chan]->pan = value -= 64;
         for (auto it = m_voicesInUseIndex.begin(); it != m_voicesInUseIndex.end(); ++it)
-            _voices[*it]->ctrl_panPosition(chan, value);
+            m_voices[*it]->ctrl_panPosition(chan, value);
     }
 
     void OplDriver::ctrl_sustain(const uint8_t chan, uint8_t value) const noexcept
@@ -279,14 +280,14 @@ namespace HyperSonicDrivers::drivers::midi::opl
     void OplDriver::releaseSustain(const uint8_t channel) const noexcept
     {
         for (auto it = m_voicesInUseIndex.begin(); it != m_voicesInUseIndex.end(); ++it)
-            _voices[*it]->releaseSustain(channel);
+            m_voices[*it]->releaseSustain(channel);
     }
 
     uint8_t OplDriver::releaseVoice(const uint8_t slot, const bool forced)
     {
         assert(slot >= 0 && slot < m_oplNumChannels);
 
-        return _voices[slot]->release(forced);
+        return m_voices[slot]->release(forced);
     }
 
     int OplDriver::allocateVoice(const uint8_t slot, const uint8_t channel,
@@ -296,7 +297,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
     {
         const OplChannel* ch = m_channels[channel].get();
 
-        return _voices[slot]->allocate(
+        return m_voices[slot]->allocate(
             channel, note, volume, instrument, secondary,
             ch->modulation, ch->volume, ch->pitch, ch->pan
         );
@@ -324,7 +325,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
 
         for (auto it = m_voicesInUseIndex.begin(); it != m_voicesInUseIndex.end(); ++it)
         {
-            if (_voices[*it]->isSecondary()) {
+            if (m_voices[*it]->isSecondary()) {
                 uint8_t i = releaseVoice(*it, true);
                 m_voicesInUseIndex.erase(it);
                 m_voicesInUseIndex.push_back(i);

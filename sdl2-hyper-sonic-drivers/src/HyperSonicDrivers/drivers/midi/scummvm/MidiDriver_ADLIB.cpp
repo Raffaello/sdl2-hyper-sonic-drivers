@@ -102,19 +102,19 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
     MidiDriver_ADLIB::~MidiDriver_ADLIB()
     {
-        if (_isOpen)
+        if (m_isOpen)
             close();
     }
 
-    int MidiDriver_ADLIB::open(
+    bool MidiDriver_ADLIB::open(
         const audio::mixer::eChannelGroup group,
         const uint8_t volume,
         const uint8_t pan)
     {
-        if (_isOpen)
-            return 4; //MERR_ALREADY_OPEN;
+        if (m_isOpen)
+            return true; //MERR_ALREADY_OPEN;
 
-        _isOpen = true;
+        m_isOpen = true;
 
         for (size_t i = 0; i != _voices.size(); i++)
         {
@@ -143,14 +143,14 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         auto p = std::make_shared<hardware::TimerCallBack>(cb);
         _opl->start(p, group, volume, pan);
 
-        return 0;
+        return true;
     }
 
     void MidiDriver_ADLIB::close()
     {
-        if (!_isOpen)
+        if (!m_isOpen)
             return;
-        _isOpen = false;
+        m_isOpen = false;
 
         // Stop the OPL timer
         _opl->stop();
@@ -764,7 +764,6 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
             }
         }
 
-        //spdlog::debug("channel {} vol1 {} vol2 {} note {}", voice->_channel, vol1, vol2, note);
         adlibSetupChannel(voice->_channel, instr, vol1, vol2);
         if (!_opl3Mode)
         {

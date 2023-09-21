@@ -30,14 +30,20 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         MidiDriver_ADLIB(const std::shared_ptr<hardware::opl::OPL>& opl, const bool opl3mode);
         ~MidiDriver_ADLIB() override;
 
-        int open(const audio::mixer::eChannelGroup group,
+        bool open(const audio::mixer::eChannelGroup group,
             const uint8_t volume,
             const uint8_t pan) override;
         void close() override;
+
+        void send(const audio::midi::MIDIEvent& e) /*const*/ noexcept override { /*TOOD*/ }
         void send(uint32_t b) override;
         void send(int8_t channel, uint32_t b) override; // Supports higher than channel 15
+
+        void pause() const noexcept override { /*TODO*/ };
+        void resume() const noexcept override {/*TODO*/ };
+
         uint32_t property(int prop, uint32_t param) override;
-        bool isOpen() const override { return _isOpen; }
+        //bool isOpen() const override { return _isOpen; }
         uint32_t getBaseTempo() override { return 1000000 / hardware::opl::default_opl_callback_freq; }
 
         void setPitchBendRange(uint8_t channel, unsigned int range) override;
@@ -70,7 +76,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         int _timerIncrease = 0xD69;
         int _timerThreshold = 0x411B;
 
-        bool _isOpen = false;
+        //bool _isOpen = false;
 
         void onTimer();
         void partKeyOn(AdLibPart* part, const AdLibInstrument* instr, uint8_t note, uint8_t velocity, const AdLibInstrument* second, uint8_t pan);

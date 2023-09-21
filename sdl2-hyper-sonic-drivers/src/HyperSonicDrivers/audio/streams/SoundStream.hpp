@@ -7,6 +7,7 @@
 
 namespace HyperSonicDrivers::audio::streams
 {
+    // TODO: rename PCMStream
     class SoundStream final : public IAudioStream
     {
     public:

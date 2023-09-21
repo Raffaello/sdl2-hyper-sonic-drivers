@@ -20,6 +20,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
     struct AdLibInstrument
     {
+        // NOTE: the level_1 and level_2 are computed instead of stored in the instrument.
         uint8_t modCharacteristic;      // trem_vibr_1
         uint8_t modScalingOutputLevel;  // scale_1
         uint8_t modAttackDecay;         // att_dec_1
@@ -49,4 +50,6 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
     extern int lookupVolume(int a, int b);
     extern void createLookupTable();
+
+    //extern void testDisplayInstrument();
 }
