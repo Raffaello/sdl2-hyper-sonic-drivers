@@ -20,10 +20,7 @@ namespace HyperSonicDrivers::devices::midi
 
     void MidiScummVM::sendEvent(const audio::midi::MIDIEvent& e) const noexcept
     {
-        uint32_t b = e.type.val + (e.data[0] << 8);
-        if (e.data.size() == 2)
-            b += (e.data[1] << 16);
-        _adlib->send(b);
+        _adlib->send(e.toUint32());
     }
 
     /// <summary>

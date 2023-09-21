@@ -20,14 +20,10 @@ namespace HyperSonicDrivers::audio::midi
 
         inline uint32_t toUint32() const noexcept
         {
-            if (data.empty())
-                return 0;
-
-            uint32_t res = data[0];
+            uint32_t b = type.val + (data[0] << 8);
             if (data.size() == 2)
-                res = (res << 8) | (data[1]);
-
-            return (res << 8) | type.val;
+                b += (data[1] << 16);
+            return b;
         }
         // removed abs_time as it is not a MIDIEvent.
         //uint32_t abs_time = 0; /// absolute ticks time derived from delta_time used for conversion.
