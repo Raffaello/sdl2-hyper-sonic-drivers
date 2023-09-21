@@ -20,12 +20,6 @@ namespace HyperSonicDrivers::hardware::opl
         const uint8_t pan,
         const int timerFrequency)
     {
-        start_(callback, group, volume, pan, timerFrequency);
+        IHardware::start(callback, group, volume, pan, timerFrequency);
     }
-
-    /*void OPL::stop()
-    {
-        stopCallbacks();
-        m_callback.reset();
-    }*/
 }

@@ -17,8 +17,6 @@ namespace HyperSonicDrivers::hardware::opl
         uint8_t read(const uint32_t port) noexcept override { return 0; };
         void writeReg(const uint16_t r, const uint16_t v) noexcept override {};
         uint32_t setCallbackFrequency(int timerFrequency) override { return 1; };
-        //std::shared_ptr<audio::IMixer> getMixer() const noexcept override { return nullptr; };
-        std::optional<uint8_t> getChannelId() const noexcept override { return 0; };
 
         void startCallbacks(
             const audio::mixer::eChannelGroup group,
@@ -26,7 +24,6 @@ namespace HyperSonicDrivers::hardware::opl
             const uint8_t pan,
             const int timerFrequency
         ) override {};
-        void stopCallbacks() override {};
 
         std::shared_ptr<audio::IAudioStream> getAudioStream() const noexcept override { return nullptr; };
     };

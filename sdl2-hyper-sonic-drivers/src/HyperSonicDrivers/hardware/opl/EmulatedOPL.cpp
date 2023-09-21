@@ -10,37 +10,6 @@ namespace HyperSonicDrivers::hardware::opl
     {
     }
 
-    EmulatedOPL::~EmulatedOPL()
-    {
-        // Stop callbacks, just in case. If it's still playing at this
-        // point, there's probably a bigger issue, though. The subclass
-        // needs to call stop() or the pointer can still in use by
-        // the mixer thread at the same time.
-        stop();
-    }
-
-    uint32_t EmulatedOPL::setCallbackFrequency(const int timerFrequency)
-    {
-        assert(timerFrequency != 0);
-
-        const int d = m_mixer->getOutputRate() / timerFrequency;
-        const int r = m_mixer->getOutputRate() % timerFrequency;
-
-        // This is equivalent to (getRate() << FIXP_SHIFT) / BASE_FREQ
-        // but less prone to arithmetic overflow.
-        return (d << FIXP_SHIFT) + (r << FIXP_SHIFT) / timerFrequency;
-    }
-
-    /*std::shared_ptr<audio::IMixer> EmulatedOPL::getMixer() const noexcept
-    {
-        return m_mixer;
-    }*/
-
-    std::optional<uint8_t> EmulatedOPL::getChannelId() const noexcept
-    {
-        return m_channel_id;
-    }
-
     void EmulatedOPL::startCallbacks(
         const audio::mixer::eChannelGroup group,
         const uint8_t volume,
@@ -54,24 +23,15 @@ namespace HyperSonicDrivers::hardware::opl
             setCallbackFrequency(timerFrequency)
         );
 
-        m_channel_id = m_mixer->play(
+        m_channelId = m_mixer->play(
             group,
             m_stream,
             volume,
             pan
         );
 
-        if (!m_channel_id.has_value()) {
+        if (!m_channelId.has_value()) {
             utils::logC("can't start opl playback");
-        }
-    }
-
-    void EmulatedOPL::stopCallbacks()
-    {
-        if (m_channel_id.has_value())
-        {
-            m_mixer->reset(m_channel_id.value());
-            m_channel_id = std::nullopt;
         }
     }
 
