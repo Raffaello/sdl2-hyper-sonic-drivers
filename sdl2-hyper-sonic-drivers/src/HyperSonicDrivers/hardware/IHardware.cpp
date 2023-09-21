@@ -6,7 +6,7 @@
 namespace HyperSonicDrivers::hardware
 {
     IHardware::IHardware(const std::shared_ptr<audio::IMixer>& mixer) :
-        m_mixer(mixer)
+        m_mixer(mixer), m_output_rate(m_mixer->getOutputRate())
     {
         if (m_mixer == nullptr)
         {
@@ -39,8 +39,8 @@ namespace HyperSonicDrivers::hardware
     {
         assert(timerFrequency != 0);
 
-        const int d = m_mixer->getOutputRate() / timerFrequency;
-        const int r = m_mixer->getOutputRate() % timerFrequency;
+        const int d = getOutputRate() / timerFrequency;
+        const int r = getOutputRate() % timerFrequency;
 
         // This is equivalent to (getRate() << FIXP_SHIFT) / BASE_FREQ
         // but less prone to arithmetic overflow.

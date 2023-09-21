@@ -27,7 +27,8 @@ namespace HyperSonicDrivers::audio
 
 namespace HyperSonicDrivers::hardware::mt32
 {
-    constexpr int mt32_frequency = 32000;
+    constexpr int mt32_frequency_internal = 32000; // 32 KHz
+    constexpr int mt32_frequency = 250;
 
     class MT32 : public IHardware
     {
@@ -49,7 +50,7 @@ namespace HyperSonicDrivers::hardware::mt32
             const audio::mixer::eChannelGroup group = audio::mixer::eChannelGroup::Music,
             const uint8_t volume = 255,
             const uint8_t pan = 0,
-            const int timerFrequency = 1000) override;
+            const int timerFrequency = mt32_frequency) override;
 
     protected:
         void startCallbacks(
@@ -59,11 +60,9 @@ namespace HyperSonicDrivers::hardware::mt32
             const int timerFrequency
         ) override;
 
-
         void generateSamples(int16_t* buffer, const size_t length) noexcept override;
 
     private:
-        uint32_t m_output_rate = 0;
         MT32Emu::Service m_service;
     };
 }

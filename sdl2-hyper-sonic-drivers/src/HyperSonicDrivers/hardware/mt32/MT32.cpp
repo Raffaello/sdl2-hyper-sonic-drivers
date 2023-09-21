@@ -73,6 +73,7 @@ namespace HyperSonicDrivers::hardware::mt32
         m_service.setSamplerateConversionQuality(MT32Emu::SamplerateConversionQuality_BEST);
 
         m_output_rate = m_service.getActualStereoOutputSamplerate();
+        utils::logI(std::format("MT32 output_rate = {}", m_output_rate));
     }
 
     void MT32::start(
@@ -82,6 +83,7 @@ namespace HyperSonicDrivers::hardware::mt32
         const uint8_t pan,
         const int timerFrequency)
     {
+
         IHardware::start(callback, group, volume, pan, timerFrequency);
     }
 
@@ -91,7 +93,6 @@ namespace HyperSonicDrivers::hardware::mt32
         const uint8_t pan,
         const int timerFrequency)
     {
-        //TODO
         setAudioStream(std::make_shared<audio::streams::MT32Stream>(
             this,
             isStereo(),

@@ -687,8 +687,8 @@ int main(int argc, char* argv[])
     //testMOplMultiDrv();
     //rendererADL();
     //rendererMIDI();
-    //testMT32();
-    midi_adlib();
+    //midi_adlib();
+    testMT32();
     return 0;
     //sdlMixer();
     //SDL_Delay(100);

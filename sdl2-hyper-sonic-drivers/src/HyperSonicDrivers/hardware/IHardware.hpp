@@ -42,6 +42,7 @@ namespace HyperSonicDrivers::hardware
         virtual uint32_t setCallbackFrequency(const int timerFrequency);
         inline std::shared_ptr<audio::IMixer> getMixer() const noexcept { return m_mixer; };
         inline std::optional<uint8_t> getChannelId() const noexcept { return m_channelId; };
+        inline uint32_t getOutputRate() const noexcept { return m_output_rate; };
 
     protected:
         virtual void startCallbacks(
@@ -74,7 +75,7 @@ namespace HyperSonicDrivers::hardware
         bool m_init = false;
         std::shared_ptr<audio::IMixer> m_mixer;
         std::optional<uint8_t> m_channelId;
-
+        uint32_t m_output_rate;
     private:
         std::shared_ptr<TimerCallBack> m_callback;
         std::shared_ptr<audio::IAudioStream> m_stream;
