@@ -7,7 +7,7 @@
 namespace HyperSonicDrivers::audio::streams
 {
     // TODO: this is the same of OplStream but instead of having an opl has MT32
-    // TODO: create a "emulated stream" or something storing the parent class
+    // TODO: create a "emulated stream" or something storing the parent class IHardware
     class MT32Stream : public IAudioStream
     {
     private:
