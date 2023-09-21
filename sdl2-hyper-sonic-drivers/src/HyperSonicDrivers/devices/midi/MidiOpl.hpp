@@ -22,10 +22,6 @@ namespace HyperSonicDrivers::devices::midi
         inline std::shared_ptr<hardware::opl::OPL> getOpl() const noexcept { return _oplDriver->getOpl(); };
         //void loadBankOP2();
     protected:
-        // NOTE/TODO: it shouldn't use a shared_ptr for OPL emulator, but it should have ownership of the OPL.
-        //            So it would be better that the Opl Device is creating its own hardware::opl emulator to use.
-        // At the moment i don't see any reason why the OPL should be shared outside the "device" ...
-
         // TODO review the constructors and use a load bank instead..
         /** @deprecated */
         [[deprecated("use the other constructor that creates the OPL chip internally (still used on device::scummvm)")]]
@@ -47,6 +43,9 @@ namespace HyperSonicDrivers::devices::midi
         ~MidiOpl() override = default;
 
     private:
+        // TODO: i think this can be unique
+        // TODO instead of OplDriver use IMidiDriver here
+        // TODO: merge with MidiScummVM
         std::shared_ptr<drivers::midi::opl::OplDriver> _oplDriver;
     };
 }
