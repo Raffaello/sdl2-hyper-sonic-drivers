@@ -9,11 +9,6 @@
 namespace HyperSonicDrivers::audio
 {
     class IRenderer;
-
-    namespace streams
-    {
-        class OplStream;
-    }
 }
 
 namespace HyperSonicDrivers::hardware::opl
@@ -26,7 +21,6 @@ namespace HyperSonicDrivers::hardware::opl
     class OPL : public IHardware
     {
         friend audio::IRenderer;
-        friend audio::streams::OplStream;
 
     public:
         OPL(const OPL&) = delete;

@@ -1,7 +1,7 @@
 #include <format>
 #include <HyperSonicDrivers/hardware/opl/OPL.hpp>
 #include <HyperSonicDrivers/utils/ILogger.hpp>
-#include <HyperSonicDrivers/audio/streams/OplStream.hpp>
+#include <HyperSonicDrivers/audio/streams/EmulatedStream.hpp>
 
 
 namespace HyperSonicDrivers::hardware::opl
@@ -30,7 +30,7 @@ namespace HyperSonicDrivers::hardware::opl
         const uint8_t pan,
         const int timerFrequency
     ) {
-        setAudioStream(std::make_shared<audio::streams::OplStream>(
+        setAudioStream(std::make_shared<audio::streams::EmulatedStream>(
             this,
             isStereo(),
             m_mixer->getOutputRate(),

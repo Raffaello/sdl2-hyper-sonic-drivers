@@ -1,17 +1,17 @@
-#include <HyperSonicDrivers/audio/streams/OplStream.hpp>
+#include <HyperSonicDrivers/audio/streams/EmulatedStream.hpp>
 
 namespace HyperSonicDrivers::audio::streams
 {
     using hardware::FIXP_SHIFT;
 
-    OplStream::OplStream(
-        hardware::opl::OPL* opl,
+    EmulatedStream::EmulatedStream(
+        hardware::IHardware* hw,
         const bool stereo, const uint32_t rate, const uint32_t samplesPerTick) :
-        m_opl(opl), stereo(stereo), rate(rate), samplesPerTick(samplesPerTick)
+        m_hw(hw), stereo(stereo), rate(rate), samplesPerTick(samplesPerTick)
     {
     }
 
-    size_t OplStream::readBuffer(int16_t* buffer, const size_t numSamples)
+    size_t EmulatedStream::readBuffer(int16_t* buffer, const size_t numSamples)
     {
         const int stereoFactor = stereo ? 2 : 1;
         size_t len = numSamples / stereoFactor;
@@ -23,12 +23,12 @@ namespace HyperSonicDrivers::audio::streams
                 step = (m_nextTick >> FIXP_SHIFT);
             }
 
-            m_opl->generateSamples(buffer, step);
+            m_hw->generateSamples(buffer, step);
 
             m_nextTick -= step << FIXP_SHIFT;
             if (!(m_nextTick >> FIXP_SHIFT))
             {
-                m_opl->callCallback();
+                m_hw->callCallback();
                 m_nextTick += samplesPerTick;
             }
 

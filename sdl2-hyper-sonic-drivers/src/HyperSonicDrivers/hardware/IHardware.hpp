@@ -8,6 +8,16 @@
 #include <HyperSonicDrivers/audio/mixer/ChannelGroup.hpp>
 #include <HyperSonicDrivers/audio/IAudioStream.hpp>
 
+namespace HyperSonicDrivers::audio
+{
+    //class IRenderer;
+
+    namespace streams
+    {
+        class EmulatedStream;
+    }
+}
+
 namespace HyperSonicDrivers::hardware
 {
     typedef std::function<void()> TimerCallBack;
@@ -16,6 +26,8 @@ namespace HyperSonicDrivers::hardware
 
     class IHardware
     {
+        friend audio::streams::EmulatedStream;
+
     public:
         IHardware(IHardware&) = delete;
         IHardware(IHardware&&) = delete;

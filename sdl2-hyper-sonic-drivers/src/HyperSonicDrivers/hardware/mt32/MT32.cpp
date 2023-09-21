@@ -1,5 +1,5 @@
 #include <format>
-#include <HyperSonicDrivers/audio/streams/MT32Stream.hpp>
+#include <HyperSonicDrivers/audio/streams/EmulatedStream.hpp>
 #include <HyperSonicDrivers/files/File.hpp>
 #include <HyperSonicDrivers/hardware/mt32/MT32.hpp>
 #include <HyperSonicDrivers/utils/ILogger.hpp>
@@ -93,7 +93,7 @@ namespace HyperSonicDrivers::hardware::mt32
         const uint8_t pan,
         const int timerFrequency)
     {
-        setAudioStream(std::make_shared<audio::streams::MT32Stream>(
+        setAudioStream(std::make_shared<audio::streams::EmulatedStream>(
             this,
             isStereo(),
             m_mixer->getOutputRate(),

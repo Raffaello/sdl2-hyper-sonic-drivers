@@ -17,11 +17,6 @@ namespace HyperSonicDrivers::devices::midi
 namespace HyperSonicDrivers::audio
 {
     class IRenderer;
-
-    namespace streams
-    {
-        class MT32Stream;
-    }
 }
 
 namespace HyperSonicDrivers::hardware::mt32
@@ -32,7 +27,6 @@ namespace HyperSonicDrivers::hardware::mt32
     class MT32 : public IHardware
     {
         friend devices::midi::MidiMT32;
-        friend audio::streams::MT32Stream;
 
     public:
         MT32(const std::filesystem::path& control_rom, const std::filesystem::path& pcm_rom,
