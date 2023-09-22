@@ -5,7 +5,7 @@
 #include <vector>
 #include <optional>
 #include <HyperSonicDrivers/audio/IMixer.hpp>
-#include <HyperSonicDrivers/audio/streams/SoundStream.hpp>
+#include <HyperSonicDrivers/audio/streams/PCMStream.hpp>
 #include <HyperSonicDrivers/audio/Sound.hpp>
 #include <HyperSonicDrivers/audio/mixer/config.hpp>
 
@@ -33,8 +33,8 @@ namespace HyperSonicDrivers::drivers
         const uint8_t max_streams;
     private:
         std::shared_ptr<audio::IMixer> m_mixer;
-        std::vector<std::shared_ptr<audio::streams::SoundStream>> m_soundStreams;
+        std::vector<std::shared_ptr<audio::streams::PCMStream>> m_soundStreams;
 
-        static bool isSoundStreamPlaying_(const std::shared_ptr<audio::streams::SoundStream>& ss) noexcept;
+        static bool isSoundStreamPlaying_(const std::shared_ptr<audio::streams::PCMStream>& ss) noexcept;
     };
 }

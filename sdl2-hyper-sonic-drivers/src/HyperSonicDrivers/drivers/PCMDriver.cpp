@@ -3,7 +3,7 @@
 
 namespace HyperSonicDrivers::drivers
 {
-    using audio::streams::SoundStream;
+    using audio::streams::PCMStream;
 
     PCMDriver::PCMDriver(const std::shared_ptr<audio::IMixer>& mixer, const uint8_t max_channels) :
         max_streams(std::min(mixer->max_channels, max_channels)), m_mixer(mixer)
@@ -51,7 +51,7 @@ namespace HyperSonicDrivers::drivers
         if (it == m_soundStreams.end())
             return std::nullopt;
 
-        *it = std::make_shared<SoundStream>(sound);
+        *it = std::make_shared<PCMStream>(sound);
 
         auto channelId =  m_mixer->play(
             sound->group,
@@ -66,7 +66,7 @@ namespace HyperSonicDrivers::drivers
         return channelId;
     }
 
-    inline bool PCMDriver::isSoundStreamPlaying_(const std::shared_ptr<audio::streams::SoundStream>& ss) noexcept
+    inline bool PCMDriver::isSoundStreamPlaying_(const std::shared_ptr<audio::streams::PCMStream>& ss) noexcept
     {
         return ss != nullptr && !ss->isEnded();
     }

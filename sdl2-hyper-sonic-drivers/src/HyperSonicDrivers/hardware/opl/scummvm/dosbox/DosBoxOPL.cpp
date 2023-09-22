@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <cstring>
 #include <cmath>
+#include <bit>
 
 namespace HyperSonicDrivers::hardware::opl::scummvm::dosbox
 {
@@ -97,8 +98,8 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::dosbox
                 }
                 else
                 {
-                    m_reg.dual[0] = val & 0xff;
-                    m_reg.dual[1] = val & 0xff;
+                    m_reg.dual[0] = static_cast<uint8_t>(val & 0xff);
+                    m_reg.dual[1] = static_cast<uint8_t>(val & 0xff);
                 }
                 break;
             case OplType::OPL3:
