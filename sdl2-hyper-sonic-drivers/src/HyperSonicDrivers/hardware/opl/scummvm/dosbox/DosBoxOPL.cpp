@@ -97,8 +97,9 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::dosbox
                 }
                 else
                 {
-                    m_reg.dual[0] = static_cast<uint8_t>(val & 0xff);
-                    m_reg.dual[1] = static_cast<uint8_t>(val & 0xff);
+                    // it looks very verbose to me....
+                    m_reg.dual[0] = std::bit_cast<uint8_t>(static_cast<uint8_t>(val & 0xff));
+                    m_reg.dual[1] = std::bit_cast<uint8_t>(static_cast<uint8_t>(val & 0xff));
                 }
                 break;
             case OplType::OPL3:
