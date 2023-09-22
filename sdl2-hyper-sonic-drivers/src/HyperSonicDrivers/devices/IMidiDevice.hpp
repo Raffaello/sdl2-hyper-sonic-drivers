@@ -18,7 +18,6 @@ namespace HyperSonicDrivers
     {
         // TODO this can be merged into Device
         //      or added as aggregate.. better merging it i think..
-        // TODO: MT-32 still missing though
         class IMidiDevice
         {
         public:
