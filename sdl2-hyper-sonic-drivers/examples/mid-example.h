@@ -45,15 +45,34 @@ void mid_test_run(drivers::MIDDriver& midDrv, const std::shared_ptr<audio::MIDI>
 void scummvm_mid_test(const OplEmulator emu, const OplType type, const std::shared_ptr<audio::IMixer>& mixer,
     const std::shared_ptr<audio::MIDI> midi)
 {
-    auto opl = OPLFactory::create(emu, type, mixer);
-    if (opl == nullptr)
-        return;
+    //auto opl = OPLFactory::create(emu, type, mixer);
+    //if (opl == nullptr)
+    //    return;
 
-    const bool isOpl3 = type == OplType::OPL3;
-    auto midi_device = std::make_shared<devices::midi::MidiScummVM>(opl, isOpl3, audio::mixer::eChannelGroup::Music);
+    //const bool isOpl3 = type == OplType::OPL3;
+    //auto midi_device = std::make_shared<devices::midi::MidiScummVM>(opl, isOpl3, audio::mixer::eChannelGroup::Music);
+    //auto midi_device = std::make_shared<devices::midi::MidiScummVM>(opl, isOpl3, audio::mixer::eChannelGroup::Music);
+    std::shared_ptr<devices::IMidiDevice> midi_device;
+    switch (type)
+    {
+        using enum OplType;
+        using namespace devices;
+
+    case OPL2:
+        midi_device = make_midi_device<midi::MidiAdlib>(mixer, audio::mixer::eChannelGroup::Music, emu);
+        break;
+    case DUAL_OPL2:
+        midi_device = make_midi_device<midi::MidiSbPro>(mixer, audio::mixer::eChannelGroup::Music, emu);
+        break;
+    case OPL3:
+        midi_device = make_midi_device<midi::MidiSbPro2>(mixer, audio::mixer::eChannelGroup::Music, emu);
+        break;
+    default:
+        throw std::runtime_error("?");
+    }
     drivers::MIDDriver midDrv(/*mixer,*/ midi_device);
 
-    spdlog::info("playing midi OPL3={}...", isOpl3);
+    //spdlog::info("playing midi OPL3={}...", isOpl3);
     mid_test_run(midDrv, midi);
 }
 

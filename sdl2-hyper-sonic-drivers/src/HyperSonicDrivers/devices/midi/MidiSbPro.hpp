@@ -18,6 +18,13 @@ namespace HyperSonicDrivers::devices::midi
             const uint8_t volume = 255,
             const uint8_t pan = 0);
 
+        explicit MidiSbPro(
+            const std::shared_ptr<audio::IMixer>& mixer,
+            const audio::mixer::eChannelGroup group,
+            const hardware::opl::OplEmulator emulator = hardware::opl::OplEmulator::AUTO,
+            const uint8_t volume = 255,
+            const uint8_t pan = 0);
+
         ~MidiSbPro() override = default;
 
         //void loadBankOP2();

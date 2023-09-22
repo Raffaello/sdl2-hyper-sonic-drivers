@@ -35,7 +35,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
             const uint8_t pan) override;
         void close() override;
 
-        void send(const audio::midi::MIDIEvent& e) /*const*/ noexcept override { /*TOOD*/ }
+        void send(const audio::midi::MIDIEvent& e) /*const*/ noexcept override;
         void send(uint32_t b) override;
         void send(int8_t channel, uint32_t b) override; // Supports higher than channel 15
 

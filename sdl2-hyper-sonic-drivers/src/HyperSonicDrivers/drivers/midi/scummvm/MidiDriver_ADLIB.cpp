@@ -165,6 +165,11 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         free(_regCacheSecondary);
     }
 
+    void MidiDriver_ADLIB::send(const audio::midi::MIDIEvent& e) /*const*/ noexcept
+    {
+        send(e.toUint32());
+    }
+
     void MidiDriver_ADLIB::send(uint32_t b) {
         send(b & 0xF, b & 0xFFFFFFF0);
     }

@@ -17,17 +17,12 @@ namespace HyperSonicDrivers::drivers::midi::opl
 
     // TODO: allocateVoice and getFreeSlot should be merged into 1 function
 
-    OplDriver::OplDriver(const std::shared_ptr<hardware::opl::OPL>& opl,
-        const audio::mixer::eChannelGroup group,
-        const uint8_t volume,
-        const uint8_t pan) :
+    // TOOD m_opl3_mode rename to m_opl2_mode and invert is logic
+    OplDriver::OplDriver(const std::shared_ptr<hardware::opl::OPL>& opl) :
         m_opl(opl), m_opl3_mode(opl->type == OplType::OPL3),
         m_oplNumChannels(m_opl3_mode ? drivers::opl::opl3_num_channels : drivers::opl::opl2_num_channels)
     {
         m_oplWriter = std::make_unique<drivers::opl::OplWriter>(m_opl, m_opl3_mode);
-
-        if (!m_oplWriter->init())
-            logE("Can't initialize OPL Emulator chip.");
 
         for (uint8_t i = 0; i < audio::midi::MIDI_MAX_CHANNELS; ++i) {
             m_channels[i] = std::make_unique<OplChannel>(i);
@@ -38,15 +33,40 @@ namespace HyperSonicDrivers::drivers::midi::opl
             m_voices[i] = std::make_unique<OplVoice>(i, m_oplWriter.get());
             m_voicesFreeIndex.push_back(i);
         }
-
-        hardware::TimerCallBack cb = std::bind(&OplDriver::onTimer, this);
-        auto p = std::make_shared<hardware::TimerCallBack>(cb);
-        m_opl->start(p, group, volume, pan);
     }
 
     OplDriver::~OplDriver()
     {
-        m_opl->stop();
+        close();
+    }
+
+    bool OplDriver::open(const audio::mixer::eChannelGroup group,
+        const uint8_t volume, const uint8_t pan)
+    {
+        if (isOpen())
+            return true;
+
+        if (!m_oplWriter->init())
+        {
+            logE("Can't initialize OPL Emulator chip.");
+            return false;
+        }
+
+        hardware::TimerCallBack cb = std::bind(&OplDriver::onTimer, this);
+        auto p = std::make_shared<hardware::TimerCallBack>(cb);
+        m_opl->start(p, group, volume, pan);
+
+        m_isOpen = true;
+        return true;
+    }
+
+    void OplDriver::close()
+    {
+        if (isOpen())
+        {
+            m_opl->stop();
+            m_isOpen = false;
+        }
     }
 
     void OplDriver::onTimer()
