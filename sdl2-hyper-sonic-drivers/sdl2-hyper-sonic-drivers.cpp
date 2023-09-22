@@ -570,6 +570,7 @@ void testMOplMultiDrv()
 
 void rendererADL()
 {
+    // TODO: need to be re-tested
     using hardware::opl::OplEmulator;
     using hardware::opl::OplType;
     using audio::mixer::eChannelGroup;
