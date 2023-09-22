@@ -5,9 +5,12 @@
 
 namespace HyperSonicDrivers::drivers::opl
 {
+    using hardware::opl::opl2_num_channels;
+    using hardware::opl::opl3_num_channels;
+
     OplWriter::OplWriter(const std::shared_ptr<hardware::opl::OPL>& opl, const bool opl3_mode) :
-        _opl(opl), _opl3_mode(opl3_mode),
-        _oplNumChannels(opl3_mode ? opl3_num_channels : opl2_num_channels)
+        m_opl(opl), m_opl3_mode(opl3_mode),
+        m_oplNumChannels(opl3_mode ? opl3_num_channels : opl2_num_channels)
     {
     }
 
@@ -15,32 +18,32 @@ namespace HyperSonicDrivers::drivers::opl
     {
         // deinit
         stopAll();
-        if (_opl3_mode)
+        if (m_opl3_mode)
         {
-            _opl->writeReg(0x105, 0x00);    // disable YMF262/OPL3 mode
-            _opl->writeReg(0x104, 0x00);    // disable 4-operator mode
+            m_opl->writeReg(0x105, 0x00);    // disable YMF262/OPL3 mode
+            m_opl->writeReg(0x104, 0x00);    // disable 4-operator mode
         }
 
-        _opl->writeReg(0x01, 0x20); // enable Waveform Select
-        _opl->writeReg(0x08, 0x00); // turn off CSW mode
-        _opl->writeReg(0xBD, 0x00); // set vibrato/tremolo depth to low, set melodic mode
+        m_opl->writeReg(0x01, 0x20); // enable Waveform Select
+        m_opl->writeReg(0x08, 0x00); // turn off CSW mode
+        m_opl->writeReg(0xBD, 0x00); // set vibrato/tremolo depth to low, set melodic mode
     }
 
     bool OplWriter::init() const noexcept
     {
-        if (!_opl->init()) {
+        if (!m_opl->init()) {
             return false;
         }
 
-        if (_opl3_mode)
+        if (m_opl3_mode)
         {
-            _opl->writeReg(0x105, 0x01);    // enable YMF262/OPL3 mode
-            _opl->writeReg(0x104, 0x00);    // disable 4-operator mode
+            m_opl->writeReg(0x105, 0x01);    // enable YMF262/OPL3 mode
+            m_opl->writeReg(0x104, 0x00);    // disable 4-operator mode
         }
 
-        _opl->writeReg(0x01, 0x20); // enable Waveform Select
-        _opl->writeReg(0x08, 0x40); // turn off CSW mode
-        _opl->writeReg(0xBD, 0x00); // set vibrato/tremolo depth to low, set melodic mode
+        m_opl->writeReg(0x01, 0x20); // enable Waveform Select
+        m_opl->writeReg(0x08, 0x40); // turn off CSW mode
+        m_opl->writeReg(0xBD, 0x00); // set vibrato/tremolo depth to low, set melodic mode
 
         stopAll();
         return true;
@@ -48,7 +51,7 @@ namespace HyperSonicDrivers::drivers::opl
 
     void OplWriter::stopAll() const noexcept
     {
-        for (uint8_t i = 0; i < _oplNumChannels; i++)
+        for (uint8_t i = 0; i < m_oplNumChannels; i++)
         {
             writeChannel(0x40, i, 0x3F, 0x3F);  // turn off volume
             writeChannel(0x60, i, 0xFF, 0xFF);  // the fastest attack, decay
@@ -65,7 +68,7 @@ namespace HyperSonicDrivers::drivers::opl
         0x000, 0x001, 0x002, 0x003, 0x004, 0x005, 0x006, 0x007, 0x008,
         0x100, 0x101, 0x102, 0x103, 0x104, 0x105, 0x106, 0x107, 0x108 };
 
-        _opl->writeReg(regbase + reg_num[channel], value);
+        m_opl->writeReg(regbase + reg_num[channel], value);
     }
 
     void OplWriter::writeChannel(const uint16_t regbase, const uint8_t channel, const uint8_t data1, const uint8_t data2) const noexcept
@@ -76,8 +79,8 @@ namespace HyperSonicDrivers::drivers::opl
         0x100, 0x101, 0x102, 0x108, 0x109, 0x10A, 0x110, 0x111, 0x112 };
 
         const uint16_t reg = regbase + op_num[channel];
-        _opl->writeReg(reg, data1);
-        _opl->writeReg(reg + 3, data2);
+        m_opl->writeReg(reg, data1);
+        m_opl->writeReg(reg + 3, data2);
     }
 
     void OplWriter::writeInstrument(const uint8_t channel, const hardware::opl::OPL2instrument_t* instr) const noexcept
@@ -102,7 +105,7 @@ namespace HyperSonicDrivers::drivers::opl
     {
         // OPL2 is mono
         // TODO: what about DUAL_OPL2 ? (use an OPL3 emulator :)
-        if (!_opl3_mode)
+        if (!m_opl3_mode)
             return;
 
         uint8_t bits;

@@ -13,6 +13,8 @@ namespace HyperSonicDrivers::audio
 
 namespace HyperSonicDrivers::hardware::opl
 {
+    constexpr uint8_t opl2_num_channels = 9;
+    constexpr uint8_t opl3_num_channels = 18;
     constexpr int default_opl_callback_freq = 250;
 
     /**

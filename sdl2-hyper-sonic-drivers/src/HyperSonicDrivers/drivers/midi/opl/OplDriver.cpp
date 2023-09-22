@@ -7,6 +7,9 @@
 
 namespace HyperSonicDrivers::drivers::midi::opl
 {
+    using hardware::opl::opl2_num_channels;
+    using hardware::opl::opl3_num_channels;
+
     using audio::midi::MIDI_PERCUSSION_CHANNEL;
     using audio::midi::MIDI_EVENT_TYPES_HIGH;
     using hardware::opl::OPL2instrument_t;
@@ -17,10 +20,9 @@ namespace HyperSonicDrivers::drivers::midi::opl
 
     // TODO: allocateVoice and getFreeSlot should be merged into 1 function
 
-    // TOOD m_opl3_mode rename to m_opl2_mode and invert is logic
     OplDriver::OplDriver(const std::shared_ptr<hardware::opl::OPL>& opl) :
         m_opl(opl), m_opl3_mode(opl->type == OplType::OPL3),
-        m_oplNumChannels(m_opl3_mode ? drivers::opl::opl3_num_channels : drivers::opl::opl2_num_channels)
+        m_oplNumChannels(m_opl3_mode ? opl3_num_channels : opl2_num_channels)
     {
         m_oplWriter = std::make_unique<drivers::opl::OplWriter>(m_opl, m_opl3_mode);
 

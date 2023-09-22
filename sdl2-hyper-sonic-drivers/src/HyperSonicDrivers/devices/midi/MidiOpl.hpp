@@ -24,7 +24,6 @@ namespace HyperSonicDrivers::devices::midi
         //void loadBankOP2();
     protected:
         // TODO review the constructors and use a load bank instead..
-        /** @deprecated */
         explicit MidiOpl(
             const hardware::opl::OplType type,
             const hardware::opl::OplEmulator emuType,

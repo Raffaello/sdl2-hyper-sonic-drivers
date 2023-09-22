@@ -8,9 +8,7 @@
 
 namespace HyperSonicDrivers::drivers::opl
 {
-    constexpr uint8_t opl2_num_channels = 9;
-    constexpr uint8_t opl3_num_channels = 18;
-
+    // TODO: DUAL_OPL2, doesn't support it in stereo, but as a normal OPL2 at the moment
     class OplWriter
     {
     public:
@@ -86,8 +84,8 @@ namespace HyperSonicDrivers::drivers::opl
          */
         void _writeFreq(const uint8_t slot, const uint16_t freq, const uint8_t octave, const bool keyon) const noexcept;
 
-        const bool _opl3_mode;
-        const uint8_t _oplNumChannels;
-        const std::shared_ptr<hardware::opl::OPL> _opl;
+        const bool m_opl3_mode;
+        const uint8_t m_oplNumChannels;
+        const std::shared_ptr<hardware::opl::OPL> m_opl;
     };
 }
