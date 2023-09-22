@@ -63,6 +63,12 @@ At the moment the only implemented emulators are OPL chips.
 - [x] Nuked OPL3
 - [x] "woody" OPL2/Surround OPL2 (adding a sort of chorus effect)
 
+### Roland MT-32
+
+Roland MT-32 is emulated through [MUNT](https://github.com/munt/munt).
+
+ROMs are required to use MT-32.
+
 ## Render Audio to Disk
 
 It is possible to render the audio buffer to disk into a 16 bits PCM WAVE file of:

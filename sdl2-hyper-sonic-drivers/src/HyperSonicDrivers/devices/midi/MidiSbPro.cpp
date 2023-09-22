@@ -12,4 +12,14 @@ namespace HyperSonicDrivers::devices::midi
         : MidiOpl(hardware::opl::OplType::DUAL_OPL2, emulator, mixer, op2Bank, group, volume, pan)
     {
     }
+
+    MidiSbPro::MidiSbPro(
+        const std::shared_ptr<audio::IMixer>& mixer,
+        const audio::mixer::eChannelGroup group,
+        const hardware::opl::OplEmulator emulator,
+        const uint8_t volume,
+        const uint8_t pan)
+        : MidiOpl(hardware::opl::OplType::DUAL_OPL2, emulator, mixer, group, volume, pan)
+    {
+    }
 }

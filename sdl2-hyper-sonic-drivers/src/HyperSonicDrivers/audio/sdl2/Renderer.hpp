@@ -3,7 +3,6 @@
 #include <HyperSonicDrivers/audio/IRenderer.hpp>
 #include <HyperSonicDrivers/audio/IMixer.hpp>
 #include <HyperSonicDrivers/audio/IAudioStream.hpp>
-#include <HyperSonicDrivers/hardware/opl/EmulatedOPL.hpp>
 #include <HyperSonicDrivers/files/WAVFile.hpp>
 #include <vector>
 #include <memory>

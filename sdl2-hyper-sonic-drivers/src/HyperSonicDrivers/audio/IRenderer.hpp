@@ -4,7 +4,7 @@
 #include <memory>
 #include <HyperSonicDrivers/audio/IMixer.hpp>
 #include <HyperSonicDrivers/audio/IAudioStream.hpp>
-#include <HyperSonicDrivers/hardware/opl/EmulatedOPL.hpp>
+#include <HyperSonicDrivers/hardware/opl/OPL.hpp>
 
 namespace HyperSonicDrivers::audio
 {
@@ -20,7 +20,7 @@ namespace HyperSonicDrivers::audio
         inline std::shared_ptr<IMixer> getMixer() const noexcept { return m_mixer; };
 
         virtual void renderBuffer(IAudioStream* stream) = 0;
-        inline void renderBuffer(const std::shared_ptr<hardware::opl::EmulatedOPL>& opl) { renderBuffer(opl->getAudioStream().get()); };
+        inline void renderBuffer(const std::shared_ptr<hardware::opl::OPL>& opl) { renderBuffer(opl->getAudioStream().get()); };
 
     protected:
         std::shared_ptr<IMixer> m_mixer;

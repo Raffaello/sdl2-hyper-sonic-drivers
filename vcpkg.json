@@ -6,6 +6,7 @@
     "sdl2",
     "gtest",
     "rtmidi",
+    "libmt32emu",
     "spdlog"
   ]
 }

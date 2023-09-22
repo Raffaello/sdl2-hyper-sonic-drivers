@@ -12,10 +12,6 @@ namespace HyperSonicDrivers::devices::midi
     class MidiOplDeviceMock : public MidiOpl
     {
     public:
-        explicit MidiOplDeviceMock(
-            const std::shared_ptr<hardware::opl::OPL>& opl,
-            const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank)
-            : MidiOpl(opl, op2Bank, audio::mixer::eChannelGroup::Plain, 255, 0) {}
         explicit MidiOplDeviceMock(const hardware::opl::OplType type,
             const hardware::opl::OplEmulator emuType,
             const std::shared_ptr<audio::IMixer>& mixer,

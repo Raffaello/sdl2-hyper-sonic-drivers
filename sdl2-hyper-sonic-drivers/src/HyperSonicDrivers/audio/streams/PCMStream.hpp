@@ -7,11 +7,11 @@
 
 namespace HyperSonicDrivers::audio::streams
 {
-    class SoundStream final : public IAudioStream
+    class PCMStream final : public IAudioStream
     {
     public:
-        explicit SoundStream(const std::shared_ptr<Sound>& sound);
-        ~SoundStream() override = default;
+        explicit PCMStream(const std::shared_ptr<Sound>& sound);
+        ~PCMStream() override = default;
 
         size_t readBuffer(int16_t* buffer, const size_t numSamples) override;
         bool isStereo() const override;

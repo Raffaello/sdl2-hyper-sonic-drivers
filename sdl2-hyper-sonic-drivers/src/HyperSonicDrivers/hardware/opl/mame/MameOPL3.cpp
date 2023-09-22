@@ -8,7 +8,8 @@ namespace HyperSonicDrivers::hardware::opl::mame
     constexpr int OPL3_INTERNAL_FREQ = 14400000;  // The OPL3 operates at 14.4MHz;
 
 
-    MameOPL3::MameOPL3(const OplType type, const std::shared_ptr<audio::IMixer>& mixer) : EmulatedOPL(type, mixer),
+    MameOPL3::MameOPL3(const OplType type, const std::shared_ptr<audio::IMixer>& mixer) :
+        OPL(mixer, type),
         _chip(nullptr), _opl(nullptr)
     {}
 

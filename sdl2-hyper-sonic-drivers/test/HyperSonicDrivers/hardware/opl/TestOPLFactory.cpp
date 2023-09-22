@@ -6,7 +6,7 @@
 #include <HyperSonicDrivers/hardware/opl/scummvm/dosbox/DosBoxOPL.hpp>
 #include <HyperSonicDrivers/hardware/opl/scummvm/mame/MameOPL2.hpp>
 #include <HyperSonicDrivers/hardware/opl/scummvm/nuked/NukedOPL3.hpp>
-#include <HyperSonicDrivers/hardware/opl/EmulatedOPL.hpp>
+#include <HyperSonicDrivers/hardware/opl/OPL.hpp>
 
 namespace HyperSonicDrivers::hardware::opl
 {
@@ -25,7 +25,7 @@ namespace HyperSonicDrivers::hardware::opl
         EXPECT_TRUE(opl->init());
         EXPECT_NE(opl, nullptr);
         EXPECT_EQ(opl.use_count(), 1);
-        EmulatedOPL* w = nullptr;
+        OPL* w = nullptr;
         switch (emu)
         {
         case OplEmulator::MAME:

@@ -4,11 +4,11 @@
 
 #include <HyperSonicDrivers/drivers/MIDDriver.hpp>
 #include <HyperSonicDrivers/devices/midi/MidiNative.hpp>
-#include <HyperSonicDrivers/devices/midi/MidiScummVM.hpp>
 #include <HyperSonicDrivers/devices/midi/MidiAdlib.hpp>
 #include <HyperSonicDrivers/devices/midi/MidiSbPro.hpp>
 #include <HyperSonicDrivers/devices/midi/MidiSbPro2.hpp>
 #include <HyperSonicDrivers/devices/IMidiDevice.hpp>
+#include <HyperSonicDrivers/devices/makers.hpp>
 
 #include <HyperSonicDrivers/files/dmx/OP2File.hpp>
 
@@ -44,15 +44,27 @@ void mid_test_run(drivers::MIDDriver& midDrv, const std::shared_ptr<audio::MIDI>
 void scummvm_mid_test(const OplEmulator emu, const OplType type, const std::shared_ptr<audio::IMixer>& mixer,
     const std::shared_ptr<audio::MIDI> midi)
 {
-    auto opl = OPLFactory::create(emu, type, mixer);
-    if (opl == nullptr)
-        return;
+    std::shared_ptr<devices::IMidiDevice> midi_device;
+    switch (type)
+    {
+        using enum OplType;
+        using namespace devices;
 
-    const bool isOpl3 = type == OplType::OPL3;
-    auto midi_device = std::make_shared<devices::midi::MidiScummVM>(opl, isOpl3, audio::mixer::eChannelGroup::Music);
+    case OPL2:
+        midi_device = make_midi_device<midi::MidiAdlib>(mixer, audio::mixer::eChannelGroup::Music, emu);
+        break;
+    case DUAL_OPL2:
+        midi_device = make_midi_device<midi::MidiSbPro>(mixer, audio::mixer::eChannelGroup::Music, emu);
+        break;
+    case OPL3:
+        midi_device = make_midi_device<midi::MidiSbPro2>(mixer, audio::mixer::eChannelGroup::Music, emu);
+        break;
+    default:
+        throw std::runtime_error("?");
+    }
+
     drivers::MIDDriver midDrv(/*mixer,*/ midi_device);
-
-    spdlog::info("playing midi OPL3={}...", isOpl3);
+    spdlog::info(std::format("playing midi (OPL type={})...", type));
     mid_test_run(midDrv, midi);
 }
 
@@ -80,7 +92,6 @@ void mid_test(const OplEmulator emu, const OplType type, const std::shared_ptr<a
     }
 
     drivers::MIDDriver midDrv(/*mixer,*/ midi_device);
-
     spdlog::info(std::format("playing midi (OPL type={})...", type));
     mid_test_run(midDrv, midi);
 }

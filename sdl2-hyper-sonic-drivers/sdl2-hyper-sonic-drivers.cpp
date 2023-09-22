@@ -19,7 +19,6 @@
 #include <HyperSonicDrivers/utils/algorithms.hpp>
 
 
-#include <HyperSonicDrivers/devices/midi/MidiScummVM.hpp>
 #include <HyperSonicDrivers/drivers/MIDDriver.hpp>
 
 #include <HyperSonicDrivers/files/dmx/MUSFile.hpp>
@@ -33,7 +32,9 @@
 #include <HyperSonicDrivers/utils/sdl2/Logger.hpp>
 #include <HyperSonicDrivers/devices/Adlib.hpp>
 #include <HyperSonicDrivers/audio/sdl2/Renderer.hpp>
-
+#include <mt32emu/c_interface/cpp_interface.h>
+#include <HyperSonicDrivers/hardware/mt32/MT32.hpp>
+#include <HyperSonicDrivers/devices/makers.hpp>
 
 using namespace std;
 using namespace HyperSonicDrivers;
@@ -332,24 +333,25 @@ int midi_adlib()
     using hardware::opl::OplType;
 
     auto mixer = audio::make_mixer<audio::sdl2::Mixer>(8, 44100, 1024);
-
+    mixer->init();
     auto emu = OplEmulator::NUKED;
     auto type = OplType::OPL3;
     
-    auto opl = OPLFactory::create(emu, type, mixer);
-    if (opl.get() == nullptr)
-        return -1;
-
     //spdlog::set_level(spdlog::level::debug);
-    //std::shared_ptr<files::MIDFile> midFile = std::make_shared<files::MIDFile>("test/fixtures/MI_intro.mid");
-    auto midFile = std::make_shared<files::MIDFile>("test/fixtures/midifile_sample.mid");
+    std::shared_ptr<files::MIDFile> midFile = std::make_shared<files::MIDFile>("test/fixtures/MI_intro.mid");
+    //auto midFile = std::make_shared<files::MIDFile>("test/fixtures/midifile_sample.mid");
     auto midi = midFile->getMIDI();
-    auto scumm_midi = std::make_shared<devices::midi::MidiScummVM>(opl, true, audio::mixer::eChannelGroup::Music);
+    auto scumm_midi = std::make_shared<devices::midi::MidiSbPro2>(mixer, audio::mixer::eChannelGroup::Music);
+
+    //files::dmx::OP2File op2f("test/fixtures/GENMIDI.OP2");
+    //auto scumm_midi = std::make_shared<devices::midi::MidiSbPro2>(mixer, op2f.getBank(), audio::mixer::eChannelGroup::Music);
     drivers::MIDDriver midDrv(scumm_midi);
 
 
     //spdlog::info("playing midi...");
     midDrv.play(midi);
+    while (midDrv.isPlaying())
+        utils::delayMillis(1000);
     //spdlog::info("end.");
 
     return 0;
@@ -366,15 +368,11 @@ int midi_adlib_mus_file_CONCURRENCY_ERROR_ON_SAME_DEVICE()
     auto emu = OplEmulator::MAME;
     auto type = OplType::OPL2;
 
-    auto opl = OPLFactory::create(emu, type, mixer);
-    if (opl.get() == nullptr)
-        return -1;
-
     //spdlog::set_level(spdlog::level::debug);
     auto midFile = std::make_shared<files::MIDFile>("test/fixtures/MI_intro.mid");
     auto musFile = std::make_shared<files::dmx::MUSFile>("test/fixtures/D_E1M1.MUS");
     auto midi = musFile->getMIDI();
-    auto scumm_midi = std::make_shared<devices::midi::MidiScummVM>(opl, false, audio::mixer::eChannelGroup::Music, 255, 0);
+    auto scumm_midi = std::make_shared<devices::midi::MidiAdlib>(mixer, audio::mixer::eChannelGroup::Music);
     //spdlog::info("isAquired: {}", scumm_midi->isAcquired());
     drivers::MIDDriver midDrv(scumm_midi);
     // TODO: declare a same driver with the device shouldn't be possible.
@@ -478,17 +476,13 @@ int midi_adlib_xmi()
     auto emu = OplEmulator::MAME;
     auto type = OplType::OPL2;
 
-    auto opl = OPLFactory::create(emu, type, mixer);
-    if (opl.get() == nullptr)
-        return -1;
-
     //spdlog::set_level(spdlog::level::debug);
     auto xmiFile = std::make_shared<files::miles::XMIFile>("test/fixtures/AIL2_14_DEMO.XMI");
     auto m = xmiFile->getMIDI();
     auto midi = std::make_shared<audio::MIDI>(audio::midi::MIDI_FORMAT::SINGLE_TRACK, 1, m->division);
     midi->addTrack(m->getTrack(0));
     
-    auto scumm_midi = std::make_shared<devices::midi::MidiScummVM>(opl, false, audio::mixer::eChannelGroup::Music);
+    auto scumm_midi = std::make_shared<devices::midi::MidiAdlib>(mixer, audio::mixer::eChannelGroup::Music, emu);
     files::dmx::OP2File op2File("test/fixtures/GENMIDI.OP2");
     auto opl_midi = std::make_shared<devices::midi::MidiAdlib>(mixer, op2File.getBank(), audio::mixer::eChannelGroup::Music, emu);
     //drivers::MIDDriver midDrv(mixer, scumm_midi);
@@ -580,7 +574,7 @@ void rendererADL()
     using hardware::opl::OplType;
     using audio::mixer::eChannelGroup;
     using utils::ILogger;
-    using hardware::opl::EmulatedOPL;
+    using hardware::opl::OPL;
 
     audio::sdl2::Renderer r(44100, 1024);
 
@@ -593,7 +587,7 @@ void rendererADL()
     auto af = std::make_shared<files::westwood::ADLFile>("test/fixtures/DUNE0.ADL");
     drv1.setADLFile(af);
 
-    auto eo = std::dynamic_pointer_cast<EmulatedOPL>(adlib.getOpl());
+    auto eo = adlib.getOpl();
     drv1.play(4);
     while(drv1.isPlaying())
         r.renderBuffer(eo);
@@ -629,7 +623,7 @@ void rendererMIDI()
     using hardware::opl::OplType;
     using audio::mixer::eChannelGroup;
     using utils::ILogger;
-    using hardware::opl::EmulatedOPL;
+    using hardware::opl::OPL;
 
     audio::sdl2::Renderer r(44100, 1024);
 
@@ -641,7 +635,7 @@ void rendererMIDI()
     auto mid_drv = drivers::MIDDriver(midi_adlib);
     auto mus = files::dmx::MUSFile("test/fixtures/D_E1M1.mus");
     mid_drv.play(mus.getMIDI());
-    auto eo = std::dynamic_pointer_cast<EmulatedOPL>(midi_adlib->getOpl());
+    auto eo = midi_adlib->getOpl();
 
     // TODO: doesn't work, due to the driver internal timing
     while (mid_drv.isPlaying())
@@ -653,6 +647,25 @@ void rendererMIDI()
     auto sound = w.getSound();
 }
 
+void testMT32()
+{
+    utils::ILogger::instance->setLevelAll(utils::ILogger::eLevel::Info);
+
+    const std::string cr = "mt32_roms/MT32_CONTROL.1987-10-07.v1.07.ROM";
+    const std::string pr = "mt32_roms/MT32_PCM.ROM";
+
+    auto mixer = audio::make_mixer<audio::sdl2::Mixer>(8, 44100, 1024);
+    if (!mixer->init())
+        std::cerr << "can't init mixer" << std::endl;
+    auto midi_mt32 = devices::make_midi_device<devices::midi::MidiMT32>(mixer, cr, pr);
+
+    std::shared_ptr<files::MIDFile> midFile = std::make_shared<files::MIDFile>("test/fixtures/MI_intro.mid");
+    drivers::MIDDriver midDrv(midi_mt32);
+
+    midDrv.play(midFile->getMIDI());
+    while (midDrv.isPlaying())
+        utils::delayMillis(1000);
+}
 
 int main(int argc, char* argv[])
 {
@@ -660,7 +673,9 @@ int main(int argc, char* argv[])
     //testMultiOpl();
     //testMOplMultiDrv();
     //rendererADL();
-    rendererMIDI();
+    //rendererMIDI();
+    //midi_adlib();
+    testMT32();
     return 0;
     //sdlMixer();
     //SDL_Delay(100);

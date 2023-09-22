@@ -1,4 +1,4 @@
-#include <HyperSonicDrivers/audio/streams/SoundStream.hpp>
+#include <HyperSonicDrivers/audio/streams/PCMStream.hpp>
 #include <HyperSonicDrivers/utils/endianness.hpp>
 #include <cassert>
 
@@ -6,15 +6,15 @@ namespace HyperSonicDrivers::audio::streams
 {
     using utils::readLE_uint16;
 
-    SoundStream::SoundStream(const std::shared_ptr<Sound>& sound)
+    PCMStream::PCMStream(const std::shared_ptr<Sound>& sound)
         : m_sound(sound)
     {
     }
 
-    size_t SoundStream::readBuffer(int16_t* buffer, const size_t numSamples)
+    size_t PCMStream::readBuffer(int16_t* buffer, const size_t numSamples)
     {
         const size_t rest = (m_sound->dataSize - m_curPos);
-        const size_t remaining = std::min<uint32_t>(numSamples, rest);
+        const size_t remaining = std::min<>(numSamples, rest);
  
         for (size_t i = 0; i < remaining; i++)
             buffer[i] = m_sound->data[m_curPos++];
@@ -23,22 +23,22 @@ namespace HyperSonicDrivers::audio::streams
         return remaining;
     }
 
-    bool SoundStream::isStereo() const
+    bool PCMStream::isStereo() const
     {
         return m_sound->stereo;
     }
 
-    uint32_t SoundStream::getRate() const
+    uint32_t PCMStream::getRate() const
     {
         return m_sound->freq;
     }
 
-    bool SoundStream::endOfData() const
+    bool PCMStream::endOfData() const
     {
         return m_curPos == m_sound->dataSize;
     }
 
-    std::weak_ptr<Sound> SoundStream::getSound() const noexcept
+    std::weak_ptr<Sound> PCMStream::getSound() const noexcept
     {
         return m_sound;
     }

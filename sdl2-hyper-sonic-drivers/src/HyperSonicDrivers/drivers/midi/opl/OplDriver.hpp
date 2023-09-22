@@ -12,6 +12,7 @@
 #include <HyperSonicDrivers/drivers/opl/OplWriter.hpp>
 #include <HyperSonicDrivers/hardware/opl/OPL.hpp>
 #include <HyperSonicDrivers/hardware/opl/OPL2instrument.h>
+#include <HyperSonicDrivers/drivers/midi/IMidiDriver.hpp>
 
 
 namespace HyperSonicDrivers::drivers::midi::opl
@@ -24,36 +25,38 @@ namespace HyperSonicDrivers::drivers::midi::opl
     /// TODO: support XMI extension.
     /// TODO: XMI Bank sounds
     /// </summary>
-    class OplDriver
+    class OplDriver : public IMidiDriver
     {
     public:
         [[deprecated("replace opl argument with device")]]
-        OplDriver(const std::shared_ptr<hardware::opl::OPL>& opl,
-            const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank,
-            const audio::mixer::eChannelGroup group,
+        explicit OplDriver(const std::shared_ptr<hardware::opl::OPL>& opl);
+        ~OplDriver() override;
+
+        bool open(const audio::mixer::eChannelGroup group,
             const uint8_t volume,
-            const uint8_t pan);
-        ~OplDriver();
+            const uint8_t pan) override;
+        void close() override;
 
-        inline void setOP2Bank(const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank) { m_op2Bank = op2Bank; };
+        inline void setOP2Bank(const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank) noexcept { m_op2Bank = op2Bank; };
 
-        void send(const audio::midi::MIDIEvent& e) /*const*/ noexcept;
-        void pause() const noexcept;
-        void resume() const noexcept;
+        void send(const audio::midi::MIDIEvent& e) /*const*/ noexcept override;
+        void send(uint32_t msg) override { /*TODO*/ };
+        void send(int8_t channel, uint32_t msg) override { /*TODO*/ }
+
+        void pause() const noexcept override;
+        void resume() const noexcept override;
 
         inline std::shared_ptr<hardware::opl::OPL> getOpl() const noexcept { return m_opl; };
 
     private:
         std::shared_ptr<hardware::opl::OPL> m_opl;
         std::shared_ptr<audio::opl::banks::OP2Bank> m_op2Bank;
-        // TODO: better write it the other way m_opl2_mode, otherwise is stereo/ opl3/dualopl 
+
         const bool m_opl3_mode;
         const uint8_t m_oplNumChannels;
-        std::array<std::unique_ptr<OplChannel>, audio::midi::MIDI_MAX_CHANNELS>  m_channels;
 
-        // TODO: this if is OPL2 should have less
-        // replace with a vector and resize to right size in the constructor
-        std::array<std::unique_ptr<OplVoice>, drivers::opl::opl3_num_channels> _voices;
+        std::array<std::unique_ptr<OplChannel>, audio::midi::MIDI_MAX_CHANNELS>  m_channels;
+        std::vector<std::unique_ptr<OplVoice>> m_voices;
         std::unique_ptr<drivers::opl::OplWriter> m_oplWriter;
 
         // TODO review to make this index more efficient (and its complementary)

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <memory>
-#include <HyperSonicDrivers/hardware/opl/EmulatedOPL.hpp>
+#include <HyperSonicDrivers/hardware/opl/OPL.hpp>
 #include <HyperSonicDrivers/hardware/opl/woody/OPL.hpp>
 
 namespace HyperSonicDrivers::hardware
@@ -10,7 +10,7 @@ namespace HyperSonicDrivers::hardware
     {
         namespace woody
         {
-            class WoodyOPL : public EmulatedOPL
+            class WoodyOPL : public hardware::opl::OPL
             {
             public:
                 WoodyOPL(const std::shared_ptr<audio::IMixer>& mixer, const bool surround);

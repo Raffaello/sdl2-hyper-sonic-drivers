@@ -4,11 +4,12 @@
 #include <algorithm>
 #include <cstring>
 #include <cmath>
+#include <bit>
 
 namespace HyperSonicDrivers::hardware::opl::scummvm::dosbox
 {
     DosBoxOPL::DosBoxOPL(OplType type, const std::shared_ptr<audio::IMixer>& mixer)
-        : EmulatedOPL(type, mixer)
+        : OPL(mixer, type)
     {
     }
 
@@ -20,8 +21,7 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::dosbox
 
     void DosBoxOPL::free() noexcept
     {
-        delete _emulator;
-        _emulator = nullptr;
+        m_emulator.reset();
     }
 
     bool DosBoxOPL::init()
@@ -29,19 +29,18 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::dosbox
         m_init = false;
         free();
 
-        memset(&_reg, 0, sizeof(_reg));
+        memset(&m_reg, 0, sizeof(m_reg));
 
-        _emulator = new dbopl::Chip();
-        if (!_emulator)
+        m_emulator = std::make_unique<dbopl::Chip>();
+        if (!m_emulator)
             return false;
 
         dbopl::InitTables();
-        _rate = m_mixer->getOutputRate();
-        _emulator->Setup(_rate);
+        m_rate = m_mixer->getOutputRate();
+        m_emulator->Setup(m_rate);
 
         if (type == OplType::DUAL_OPL2) {
-            // Setup opl3 mode in the hander
-            _emulator->WriteReg(0x105, 1);
+            m_emulator->WriteReg(0x105, 1);
         }
 
         m_init = true;
@@ -62,19 +61,19 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::dosbox
             {
             case OplType::OPL2:
             case OplType::OPL3:
-                if (!_chip[0].write(_reg.normal, v))
-                    _emulator->WriteReg(_reg.normal, v);
+                if (!m_chip[0].write(m_reg.normal, v))
+                    m_emulator->WriteReg(m_reg.normal, v);
                 break;
             case OplType::DUAL_OPL2:
                 // Not a 0x??8 port, then write to a specific port
                 if (!(port & 0x8)) {
                     const uint8_t index = (port & 2) >> 1;
-                    dualWrite(index, _reg.dual[index], v);
+                    dualWrite(index, m_reg.dual[index], v);
                 }
                 else {
                     //Write to both ports
-                    dualWrite(0, _reg.dual[0], v);
-                    dualWrite(1, _reg.dual[1], v);
+                    dualWrite(0, m_reg.dual[0], v);
+                    dualWrite(1, m_reg.dual[1], v);
                 }
                 break;
             default:
@@ -87,23 +86,24 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::dosbox
             switch (type)
             {
             case OplType::OPL2:
-                _reg.normal = _emulator->WriteAddr(port, v) & 0xff;
+                m_reg.normal = m_emulator->WriteAddr(port, v) & 0xff;
                 break;
             case OplType::DUAL_OPL2:
                 // Not a 0x?88 port, when write to a specific side
                 if (!(port & 0x8))
                 {
                     uint8_t index = (port & 2) >> 1;
-                    _reg.dual[index] = val & 0xff;
+                    m_reg.dual[index] = val & 0xff;
                 }
                 else
                 {
-                    _reg.dual[0] = val & 0xff;
-                    _reg.dual[1] = val & 0xff;
+                    // it looks very verbose to me....
+                    m_reg.dual[0] = std::bit_cast<uint8_t>(static_cast<uint8_t>(val & 0xff));
+                    m_reg.dual[1] = std::bit_cast<uint8_t>(static_cast<uint8_t>(val & 0xff));
                 }
                 break;
             case OplType::OPL3:
-                _reg.normal = _emulator->WriteAddr(port, v) & 0x1ff;
+                m_reg.normal = m_emulator->WriteAddr(port, v) & 0x1ff;
                 break;
             default:
                 break;
@@ -118,18 +118,18 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::dosbox
         case OplType::OPL2:
             if (!(port & 1))
                 //Make sure the low bits are 6 on opl2
-                return _chip[0].read() | 0x6;
+                return m_chip[0].read() | 0x6;
             break;
         case OplType::OPL3:
             if (!(port & 1))
-                return _chip[0].read();
+                return m_chip[0].read();
             break;
         case OplType::DUAL_OPL2:
             // Only return for the lower ports
             if (port & 1)
                 return 0xff;
             // Make sure the low bits are 6 on opl2
-            return _chip[(port >> 1) & 1].read() | 0x6;
+            return m_chip[(port >> 1) & 1].read() | 0x6;
         default:
             break;
         }
@@ -147,7 +147,7 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::dosbox
             // We can't use _handler->writeReg here directly, since it would miss timer changes.
 
             // Backup old setup register
-            tempReg = _reg.normal;
+            tempReg = m_reg.normal;
 
             // We directly allow writing to secondary OPL3 registers by using
             // register values >= 0x100.
@@ -190,7 +190,7 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::dosbox
             val &= 3;
 
         // Write to the timer?
-        if (_chip[index].write(reg, val))
+        if (m_chip[index].write(reg, val))
             return;
 
         // Enabling panning
@@ -200,7 +200,7 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::dosbox
         }
 
         uint32_t fullReg = reg + (index ? 0x100 : 0);
-        _emulator->WriteReg(fullReg, val);
+        m_emulator->WriteReg(fullReg, val);
     }
 
     void DosBoxOPL::generateSamples(int16_t* buffer, const size_t length) noexcept
@@ -212,17 +212,26 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::dosbox
         constexpr unsigned int bufferLength = 512;
         std::array<int32_t, bufferLength * 2> tempBuffer;
 
-        if (_emulator->opl3Active)
+        if(isStereo())
         {
-            length_ >>= 1;
             while (length_ > 0)
             {
                 const unsigned int readSamples = std::min<unsigned int>(length_, bufferLength);
                 const unsigned int readSamples2 = (readSamples << 1);
-
-                _emulator->GenerateBlock3(readSamples, tempBuffer.data());
-                for (unsigned int i = 0; i < readSamples2; ++i)
-                    buffer[i] = static_cast<int16_t>(tempBuffer[i]);
+                if (m_emulator->opl3Active)
+                {
+                    m_emulator->GenerateBlock3(readSamples, tempBuffer.data());
+                    for (unsigned int i = 0; i < readSamples2; ++i)
+                        buffer[i] = static_cast<int16_t>(tempBuffer[i]);
+                }
+                else
+                {
+                    m_emulator->GenerateBlock2(readSamples, tempBuffer.data());
+                    for (unsigned int i = 0, j =0; i < readSamples; ++i, j+=2)
+                    {
+                        buffer[j] = buffer[j+1] = static_cast<int16_t>(tempBuffer[i]);
+                    }
+                }
 
                 buffer += static_cast<int16_t>(readSamples2);
                 length_ -= readSamples;
@@ -234,7 +243,7 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::dosbox
             {
                 const unsigned int readSamples = std::min<unsigned int>(length_, bufferLength << 1);
 
-                _emulator->GenerateBlock2(readSamples, tempBuffer.data());
+                m_emulator->GenerateBlock2(readSamples, tempBuffer.data());
 
                 for (unsigned int i = 0; i < readSamples; ++i)
                     buffer[i] = static_cast<int16_t>(tempBuffer[i]);

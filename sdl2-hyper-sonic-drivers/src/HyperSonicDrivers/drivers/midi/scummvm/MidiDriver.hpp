@@ -106,18 +106,18 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
          * Open the midi driver.
          * @return 0 if successful, otherwise an error code.
          */
-        virtual int open(
-            const audio::mixer::eChannelGroup group,
-            const uint8_t volume,
-            const uint8_t pan) = 0;
+        //virtual bool open(
+        //    const audio::mixer::eChannelGroup group,
+        //    const uint8_t volume,
+        //    const uint8_t pan) = 0;
 
         /**
          * Check whether the midi driver has already been opened.
          */
-        virtual bool isOpen() const = 0;
+        //virtual bool isOpen() const = 0;
 
         /** Close the midi driver. */
-        virtual void close() = 0;
+        //virtual void close() = 0;
 
         /** Get or set a property. */
         virtual uint32_t property(int prop, uint32_t param) = 0;

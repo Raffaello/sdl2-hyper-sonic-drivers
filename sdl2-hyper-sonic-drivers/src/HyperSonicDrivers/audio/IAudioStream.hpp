@@ -11,6 +11,10 @@ namespace HyperSonicDrivers::audio
     class IAudioStream
     {
     public:
+        IAudioStream(IAudioStream&) = delete;
+        IAudioStream(IAudioStream&&) = delete;
+        IAudioStream& operator=(IAudioStream&) = delete;
+
         IAudioStream() = default;
         virtual ~IAudioStream() = default;
 

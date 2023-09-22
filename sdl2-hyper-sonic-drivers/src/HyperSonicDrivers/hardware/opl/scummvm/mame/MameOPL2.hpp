@@ -1,6 +1,6 @@
 #pragma once
 
-#include <HyperSonicDrivers/hardware/opl/EmulatedOPL.hpp>
+#include <HyperSonicDrivers/hardware/opl/OPL.hpp>
 #include <HyperSonicDrivers/hardware/opl/scummvm/mame/mame.hpp>
 #include <HyperSonicDrivers/hardware/opl/Chip.hpp>
 #include <cstdint>
@@ -8,7 +8,7 @@
 
 namespace HyperSonicDrivers::hardware::opl::scummvm::mame
 {
-    class MameOPL2 : public EmulatedOPL
+    class MameOPL2 : public OPL
     {
     private:
         FM_OPL* _opl = nullptr;
