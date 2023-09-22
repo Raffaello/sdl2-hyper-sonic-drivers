@@ -29,9 +29,9 @@ namespace HyperSonicDrivers::devices::midi
             utils::throwLogE<std::invalid_argument>("OP2Bank is nullptr");
         }
 
-        auto opl_drv = std::make_shared<drivers::midi::opl::OplDriver>(m_opl);
+        auto opl_drv = std::make_unique<drivers::midi::opl::OplDriver>(m_opl);
         opl_drv->setOP2Bank(op2Bank);
-        m_midiDriver = opl_drv;
+        m_midiDriver = std::move(opl_drv);
         if (!m_midiDriver->open(group, volume, pan))
         {
             throwLogC<std::runtime_error>("can't open OplDriver");
@@ -54,7 +54,7 @@ namespace HyperSonicDrivers::devices::midi
             throwLogC<std::runtime_error>(std::format("device Opl not supporting emu_type={}, type={}", emuType, type));
         }
 
-        m_midiDriver = std::make_shared<drivers::midi::scummvm::MidiDriver_ADLIB>(m_opl, m_opl->type != OplType::OPL2);
+        m_midiDriver = std::make_unique<drivers::midi::scummvm::MidiDriver_ADLIB>(m_opl, m_opl->type != OplType::OPL2);
         m_midiDriver->open(group, volume, pan);
 
     }

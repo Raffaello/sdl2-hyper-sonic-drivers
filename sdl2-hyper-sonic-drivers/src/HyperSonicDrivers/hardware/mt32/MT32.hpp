@@ -32,7 +32,7 @@ namespace HyperSonicDrivers::hardware::mt32
         MT32(const std::filesystem::path& control_rom, const std::filesystem::path& pcm_rom,
             const std::shared_ptr<audio::IMixer>& mixer
         );
-        virtual ~MT32();
+        ~MT32() override;
 
         inline bool isStereo() const noexcept override { return true; };
         bool init() override;

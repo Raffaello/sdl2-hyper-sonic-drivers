@@ -54,6 +54,9 @@ namespace std
                 case MT32EMU_RC_MACHINE_NOT_IDENTIFIED:
                     str = "MACHINE_NOT_IDENTIFIED";
                     break;
+                case MT32EMU_RC_FAILED:
+                    str = "FAILED";
+                    break;
             }
 
             return formatter<string_view>::format(str, fc);

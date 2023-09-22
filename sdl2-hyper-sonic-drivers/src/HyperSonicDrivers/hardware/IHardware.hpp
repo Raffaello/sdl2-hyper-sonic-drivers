@@ -33,7 +33,7 @@ namespace HyperSonicDrivers::hardware
         IHardware(IHardware&&) = delete;
         IHardware& operator=(IHardware&) = delete;
 
-        IHardware(const std::shared_ptr<audio::IMixer>& mixer);
+        explicit IHardware(const std::shared_ptr<audio::IMixer>& mixer);
         virtual ~IHardware();
 
         inline bool isInit() const noexcept { return m_init; }

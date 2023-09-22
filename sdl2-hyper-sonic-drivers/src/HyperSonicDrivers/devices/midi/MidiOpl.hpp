@@ -44,10 +44,7 @@ namespace HyperSonicDrivers::devices::midi
         ~MidiOpl() override = default;
 
     private:
-        // TODO: i think this can be unique
-        // TODO instead of OplDriver use IMidiDriver here
-        // TODO: merge with MidiScummVM
-        std::shared_ptr<drivers::midi::IMidiDriver> m_midiDriver;
+        std::unique_ptr<drivers::midi::IMidiDriver> m_midiDriver;
         std::shared_ptr<hardware::opl::OPL> m_opl;
     };
 }

@@ -29,7 +29,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
     {
     public:
         [[deprecated("replace opl argument with device")]]
-        OplDriver(const std::shared_ptr<hardware::opl::OPL>& opl);
+        explicit OplDriver(const std::shared_ptr<hardware::opl::OPL>& opl);
         ~OplDriver() override;
 
         bool open(const audio::mixer::eChannelGroup group,
@@ -37,7 +37,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
             const uint8_t pan) override;
         void close() override;
 
-        inline void setOP2Bank(const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank) { m_op2Bank = op2Bank; };
+        inline void setOP2Bank(const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank) noexcept { m_op2Bank = op2Bank; };
 
         void send(const audio::midi::MIDIEvent& e) /*const*/ noexcept override;
         void send(uint32_t msg) override { /*TODO*/ };
@@ -51,11 +51,11 @@ namespace HyperSonicDrivers::drivers::midi::opl
     private:
         std::shared_ptr<hardware::opl::OPL> m_opl;
         std::shared_ptr<audio::opl::banks::OP2Bank> m_op2Bank;
-        // TODO: better write it the other way m_opl2_mode, otherwise is stereo/ opl3/dualopl 
+
         const bool m_opl3_mode;
         const uint8_t m_oplNumChannels;
-        std::array<std::unique_ptr<OplChannel>, audio::midi::MIDI_MAX_CHANNELS>  m_channels;
 
+        std::array<std::unique_ptr<OplChannel>, audio::midi::MIDI_MAX_CHANNELS>  m_channels;
         std::vector<std::unique_ptr<OplVoice>> m_voices;
         std::unique_ptr<drivers::opl::OplWriter> m_oplWriter;
 

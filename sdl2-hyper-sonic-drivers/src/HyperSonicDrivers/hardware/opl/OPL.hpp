@@ -30,7 +30,7 @@ namespace HyperSonicDrivers::hardware::opl
         OPL& operator=(const  OPL&) = delete;
 
         explicit OPL(const std::shared_ptr<audio::IMixer>& mixer, const OplType type);
-        virtual ~OPL() = default;
+        ~OPL() override = default;
 
         const OplType type;
 

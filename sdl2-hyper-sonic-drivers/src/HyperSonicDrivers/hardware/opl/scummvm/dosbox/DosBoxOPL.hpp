@@ -21,7 +21,6 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::dosbox
         DosBoxOPL(const OplType type, const std::shared_ptr<audio::IMixer>& mixer);
         ~DosBoxOPL() override;
 
-        //bool isStereo() const noexcept override;
         bool init() override;
         void reset() override;
 

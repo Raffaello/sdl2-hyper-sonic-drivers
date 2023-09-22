@@ -39,7 +39,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
 
     OplDriver::~OplDriver()
     {
-        close();
+        OplDriver::close();
     }
 
     bool OplDriver::open(const audio::mixer::eChannelGroup group,
@@ -54,7 +54,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
             return false;
         }
 
-        hardware::TimerCallBack cb = std::bind(&OplDriver::onTimer, this);
+        hardware::TimerCallBack cb = std::bind_front(&OplDriver::onTimer, this);
         auto p = std::make_shared<hardware::TimerCallBack>(cb);
         m_opl->start(p, group, volume, pan);
 
