@@ -84,8 +84,8 @@ namespace HyperSonicDrivers::drivers::opl
          */
         void _writeFreq(const uint8_t slot, const uint16_t freq, const uint8_t octave, const bool keyon) const noexcept;
 
+        const std::shared_ptr<hardware::opl::OPL> m_opl;
         const bool m_opl3_mode;
         const uint8_t m_oplNumChannels;
-        const std::shared_ptr<hardware::opl::OPL> m_opl;
     };
 }

@@ -14,7 +14,7 @@ namespace HyperSonicDrivers::audio::streams
     size_t PCMStream::readBuffer(int16_t* buffer, const size_t numSamples)
     {
         const size_t rest = (m_sound->dataSize - m_curPos);
-        const size_t remaining = std::min<uint32_t>(numSamples, rest);
+        const size_t remaining = std::min<>(numSamples, rest);
  
         for (size_t i = 0; i < remaining; i++)
             buffer[i] = m_sound->data[m_curPos++];

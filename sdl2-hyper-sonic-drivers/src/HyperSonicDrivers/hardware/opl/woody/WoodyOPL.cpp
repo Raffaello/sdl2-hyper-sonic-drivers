@@ -54,7 +54,7 @@ namespace HyperSonicDrivers::hardware
 
             void WoodyOPL::generateSamples(int16_t* buffer, const size_t length) noexcept
             {
-                _opl->update(buffer, length);
+                _opl->update(buffer, static_cast<uint32_t>(length));
             }
         }
     }

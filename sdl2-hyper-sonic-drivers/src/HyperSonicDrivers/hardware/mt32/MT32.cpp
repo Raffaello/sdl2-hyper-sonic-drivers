@@ -114,6 +114,6 @@ namespace HyperSonicDrivers::hardware::mt32
 
     void MT32::generateSamples(int16_t* buffer, const size_t length) noexcept
     {
-        m_service.renderBit16s(buffer, length);
+        m_service.renderBit16s(buffer, static_cast<uint32_t>(length));
     }
 }

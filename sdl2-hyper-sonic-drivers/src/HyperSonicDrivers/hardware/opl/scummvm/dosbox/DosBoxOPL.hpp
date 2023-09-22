@@ -34,7 +34,7 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::dosbox
 
     private:
         unsigned int m_rate = 0;
-        dbopl::Chip* m_emulator = nullptr;
+        std::unique_ptr<dbopl::Chip> m_emulator;
         std::array<hardware::opl::Chip, 2> m_chip;
         hardware::opl::Chip::register_u m_reg = { 0 };
     };

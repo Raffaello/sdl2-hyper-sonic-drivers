@@ -21,8 +21,7 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::dosbox
 
     void DosBoxOPL::free() noexcept
     {
-        delete m_emulator;
-        m_emulator = nullptr;
+        m_emulator.reset();
     }
 
     bool DosBoxOPL::init()
@@ -32,7 +31,7 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::dosbox
 
         memset(&m_reg, 0, sizeof(m_reg));
 
-        m_emulator = new dbopl::Chip();
+        m_emulator = std::make_unique<dbopl::Chip>();
         if (!m_emulator)
             return false;
 

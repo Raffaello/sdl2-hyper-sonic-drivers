@@ -144,6 +144,6 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::nuked
 
     void NukedOPL::generateSamples(int16_t* buffer, const size_t length) noexcept
     {
-        OPL3_GenerateStream(chip.get(), buffer, length);
+        OPL3_GenerateStream(chip.get(), buffer, static_cast<uint32_t>(length));
     }
 }
