@@ -24,18 +24,8 @@ namespace HyperSonicDrivers::devices::midi
         {
             throwLogC<std::runtime_error>(std::format("device Opl not supporting emu_type={}, type={}", emuType, type));
         }
-        if (op2Bank == nullptr)
-        {
-            utils::throwLogE<std::invalid_argument>("OP2Bank is nullptr");
-        }
 
-        auto opl_drv = std::make_unique<drivers::midi::opl::OplDriver>(m_opl);
-        opl_drv->setOP2Bank(op2Bank);
-        m_midiDriver = std::move(opl_drv);
-        if (!m_midiDriver->open(group, volume, pan))
-        {
-            throwLogC<std::runtime_error>("can't open OplDriver");
-        }
+        loadBankOP2(op2Bank, group, volume, pan);
     }
 
     MidiOpl::MidiOpl(
@@ -55,13 +45,14 @@ namespace HyperSonicDrivers::devices::midi
         }
 
         m_midiDriver = std::make_unique<drivers::midi::scummvm::MidiDriver_ADLIB>(m_opl, m_opl->type != OplType::OPL2);
-        m_midiDriver->open(group, volume, pan);
-
+        if (!m_midiDriver->open(group, volume, pan))
+        {
+            throwLogC<std::runtime_error>("can't open MidiDriver_ADLIB");
+        }
     }
 
     void MidiOpl::sendEvent(const audio::midi::MIDIEvent& e) const noexcept
     {
-        //this->send(e);
         m_midiDriver->send(e);
     }
 
@@ -93,5 +84,26 @@ namespace HyperSonicDrivers::devices::midi
     void MidiOpl::resume() const noexcept
     {
         m_midiDriver->resume();
+    }
+
+    void MidiOpl::loadBankOP2(
+        const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank,
+        const audio::mixer::eChannelGroup group,
+        const uint8_t volume,
+        const uint8_t pan)
+    {
+        if (op2Bank == nullptr)
+        {
+            utils::throwLogE<std::invalid_argument>("OP2Bank is nullptr");
+        }
+
+        auto opl_drv = std::make_unique<drivers::midi::opl::OplDriver>(m_opl);
+        opl_drv->setOP2Bank(op2Bank);
+        m_midiDriver = std::move(opl_drv);
+
+        if (!m_midiDriver->open(group, volume, pan))
+        {
+            throwLogC<std::runtime_error>("can't open OplDriver");
+        }
     }
 }

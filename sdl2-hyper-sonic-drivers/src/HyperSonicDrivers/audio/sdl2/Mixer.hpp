@@ -54,6 +54,8 @@ namespace HyperSonicDrivers::audio::sdl2
 
         void setChannelVolumePan(const uint8_t id, const uint8_t volume, const int8_t pan) noexcept override;
 
+        virtual mixer::eChannelGroup getChannelGroup(const uint8_t id) const noexcept override;
+
         void setMasterVolume(const uint8_t master_volume) noexcept override;
 
     private:

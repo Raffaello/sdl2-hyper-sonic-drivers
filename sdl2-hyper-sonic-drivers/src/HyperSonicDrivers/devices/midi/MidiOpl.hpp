@@ -21,7 +21,12 @@ namespace HyperSonicDrivers::devices::midi
         void resume() const noexcept override;
 
         inline std::shared_ptr<hardware::opl::OPL> getOpl() const noexcept { return m_opl; };
-        //void loadBankOP2();
+
+        void loadBankOP2(
+            const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank,
+            const audio::mixer::eChannelGroup group,
+            const uint8_t volume,
+            const uint8_t pan);
     protected:
         // TODO review the constructors and use a load bank instead..
         explicit MidiOpl(

@@ -179,6 +179,11 @@ namespace HyperSonicDrivers::audio::sdl2
         m_channels[id]->setVolumePan(volume, pan);
     }
 
+    mixer::eChannelGroup Mixer::getChannelGroup(const uint8_t id) const noexcept
+    {
+        return m_channels[id]->getChannelGroup();
+    }
+
     void Mixer::setMasterVolume(const uint8_t master_volume) noexcept
     {
         std::scoped_lock lck(m_mutex);

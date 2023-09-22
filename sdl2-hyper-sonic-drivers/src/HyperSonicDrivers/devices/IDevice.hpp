@@ -4,6 +4,7 @@
 #include <memory>
 #include <optional>
 #include <HyperSonicDrivers/audio/IMixer.hpp>
+#include <HyperSonicDrivers/devices/IMidiDevice.hpp>
 
 namespace HyperSonicDrivers::devices
 {
