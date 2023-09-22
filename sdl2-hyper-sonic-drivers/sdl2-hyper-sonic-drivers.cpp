@@ -19,7 +19,6 @@
 #include <HyperSonicDrivers/utils/algorithms.hpp>
 
 
-#include <HyperSonicDrivers/devices/midi/MidiScummVM.hpp>
 #include <HyperSonicDrivers/drivers/MIDDriver.hpp>
 
 #include <HyperSonicDrivers/files/dmx/MUSFile.hpp>
@@ -338,15 +337,11 @@ int midi_adlib()
     auto emu = OplEmulator::NUKED;
     auto type = OplType::OPL3;
     
-    auto opl = OPLFactory::create(emu, type, mixer);
-    if (opl.get() == nullptr)
-        return -1;
-
     //spdlog::set_level(spdlog::level::debug);
     std::shared_ptr<files::MIDFile> midFile = std::make_shared<files::MIDFile>("test/fixtures/MI_intro.mid");
     //auto midFile = std::make_shared<files::MIDFile>("test/fixtures/midifile_sample.mid");
     auto midi = midFile->getMIDI();
-    auto scumm_midi = std::make_shared<devices::midi::MidiScummVM>(opl, true, audio::mixer::eChannelGroup::Music);
+    auto scumm_midi = std::make_shared<devices::midi::MidiSbPro2>(mixer, audio::mixer::eChannelGroup::Music);
 
     //files::dmx::OP2File op2f("test/fixtures/GENMIDI.OP2");
     //auto scumm_midi = std::make_shared<devices::midi::MidiSbPro2>(mixer, op2f.getBank(), audio::mixer::eChannelGroup::Music);
@@ -373,15 +368,11 @@ int midi_adlib_mus_file_CONCURRENCY_ERROR_ON_SAME_DEVICE()
     auto emu = OplEmulator::MAME;
     auto type = OplType::OPL2;
 
-    auto opl = OPLFactory::create(emu, type, mixer);
-    if (opl.get() == nullptr)
-        return -1;
-
     //spdlog::set_level(spdlog::level::debug);
     auto midFile = std::make_shared<files::MIDFile>("test/fixtures/MI_intro.mid");
     auto musFile = std::make_shared<files::dmx::MUSFile>("test/fixtures/D_E1M1.MUS");
     auto midi = musFile->getMIDI();
-    auto scumm_midi = std::make_shared<devices::midi::MidiScummVM>(opl, false, audio::mixer::eChannelGroup::Music, 255, 0);
+    auto scumm_midi = std::make_shared<devices::midi::MidiAdlib>(mixer, audio::mixer::eChannelGroup::Music);
     //spdlog::info("isAquired: {}", scumm_midi->isAcquired());
     drivers::MIDDriver midDrv(scumm_midi);
     // TODO: declare a same driver with the device shouldn't be possible.
@@ -485,17 +476,13 @@ int midi_adlib_xmi()
     auto emu = OplEmulator::MAME;
     auto type = OplType::OPL2;
 
-    auto opl = OPLFactory::create(emu, type, mixer);
-    if (opl.get() == nullptr)
-        return -1;
-
     //spdlog::set_level(spdlog::level::debug);
     auto xmiFile = std::make_shared<files::miles::XMIFile>("test/fixtures/AIL2_14_DEMO.XMI");
     auto m = xmiFile->getMIDI();
     auto midi = std::make_shared<audio::MIDI>(audio::midi::MIDI_FORMAT::SINGLE_TRACK, 1, m->division);
     midi->addTrack(m->getTrack(0));
     
-    auto scumm_midi = std::make_shared<devices::midi::MidiScummVM>(opl, false, audio::mixer::eChannelGroup::Music);
+    auto scumm_midi = std::make_shared<devices::midi::MidiAdlib>(mixer, audio::mixer::eChannelGroup::Music, emu);
     files::dmx::OP2File op2File("test/fixtures/GENMIDI.OP2");
     auto opl_midi = std::make_shared<devices::midi::MidiAdlib>(mixer, op2File.getBank(), audio::mixer::eChannelGroup::Music, emu);
     //drivers::MIDDriver midDrv(mixer, scumm_midi);

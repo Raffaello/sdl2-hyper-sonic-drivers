@@ -4,7 +4,6 @@
 
 #include <HyperSonicDrivers/drivers/MIDDriver.hpp>
 #include <HyperSonicDrivers/devices/midi/MidiNative.hpp>
-#include <HyperSonicDrivers/devices/midi/MidiScummVM.hpp>
 #include <HyperSonicDrivers/devices/midi/MidiAdlib.hpp>
 #include <HyperSonicDrivers/devices/midi/MidiSbPro.hpp>
 #include <HyperSonicDrivers/devices/midi/MidiSbPro2.hpp>
@@ -45,13 +44,6 @@ void mid_test_run(drivers::MIDDriver& midDrv, const std::shared_ptr<audio::MIDI>
 void scummvm_mid_test(const OplEmulator emu, const OplType type, const std::shared_ptr<audio::IMixer>& mixer,
     const std::shared_ptr<audio::MIDI> midi)
 {
-    //auto opl = OPLFactory::create(emu, type, mixer);
-    //if (opl == nullptr)
-    //    return;
-
-    //const bool isOpl3 = type == OplType::OPL3;
-    //auto midi_device = std::make_shared<devices::midi::MidiScummVM>(opl, isOpl3, audio::mixer::eChannelGroup::Music);
-    //auto midi_device = std::make_shared<devices::midi::MidiScummVM>(opl, isOpl3, audio::mixer::eChannelGroup::Music);
     std::shared_ptr<devices::IMidiDevice> midi_device;
     switch (type)
     {
@@ -70,9 +62,9 @@ void scummvm_mid_test(const OplEmulator emu, const OplType type, const std::shar
     default:
         throw std::runtime_error("?");
     }
-    drivers::MIDDriver midDrv(/*mixer,*/ midi_device);
 
-    //spdlog::info("playing midi OPL3={}...", isOpl3);
+    drivers::MIDDriver midDrv(/*mixer,*/ midi_device);
+    spdlog::info(std::format("playing midi (OPL type={})...", type));
     mid_test_run(midDrv, midi);
 }
 
@@ -100,7 +92,6 @@ void mid_test(const OplEmulator emu, const OplType type, const std::shared_ptr<a
     }
 
     drivers::MIDDriver midDrv(/*mixer,*/ midi_device);
-
     spdlog::info(std::format("playing midi (OPL type={})...", type));
     mid_test_run(midDrv, midi);
 }
