@@ -10,6 +10,7 @@
 #include <HyperSonicDrivers/hardware/opl/OPL.hpp>
 #include <HyperSonicDrivers/audio/opl/banks/OP2Bank.hpp>
 #include <HyperSonicDrivers/devices/midi/MidiOplDeviceMock.hpp>
+#include <HyperSonicDrivers/devices/makers.hpp>
 
 namespace HyperSonicDrivers::devices::midi
 {
@@ -29,10 +30,8 @@ namespace HyperSonicDrivers::devices::midi
     {
         auto op2File = OP2File(GENMIDI_OP2);
         auto mixer = std::make_shared<StubMixer>();
-        auto opl = OPLFactory::create(OplEmulator::AUTO, OplType::OPL2, mixer);
-        EXPECT_NO_THROW(MidiOplDeviceMock(opl, op2File.getBank()));
-        opl = nullptr;
-        EXPECT_THROW(MidiOplDeviceMock(opl, op2File.getBank()), std::runtime_error);
+        EXPECT_NO_THROW(MidiOplDeviceMock(OplType::OPL2, OplEmulator::AUTO, mixer, op2File.getBank()));
+        EXPECT_THROW(MidiOplDeviceMock(OplType::OPL2, OplEmulator::AUTO, mixer, nullptr), std::invalid_argument);
     }
 
     class OplEmulator_ : public ::testing::TestWithParam<std::tuple<OplType, OplEmulator, bool>>

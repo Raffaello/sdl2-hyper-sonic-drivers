@@ -25,14 +25,6 @@ namespace HyperSonicDrivers::devices::midi
     protected:
         // TODO review the constructors and use a load bank instead..
         /** @deprecated */
-        [[deprecated("use the other constructor that creates the OPL chip internally (still used on device::scummvm)")]]
-        explicit MidiOpl(
-            const std::shared_ptr<hardware::opl::OPL>& opl,
-            const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank,
-            const audio::mixer::eChannelGroup group,
-            const uint8_t volume,
-            const uint8_t pan);
-
         explicit MidiOpl(
             const hardware::opl::OplType type,
             const hardware::opl::OplEmulator emuType,

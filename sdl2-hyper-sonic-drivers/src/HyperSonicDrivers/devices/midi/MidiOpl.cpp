@@ -11,29 +11,6 @@ namespace HyperSonicDrivers::devices::midi
 {
     using utils::throwLogC;
 
-    MidiOpl::MidiOpl(
-        const std::shared_ptr<hardware::opl::OPL>& opl,
-        const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank,
-        const audio::mixer::eChannelGroup group,
-        const uint8_t volume,
-        const uint8_t pan)
-        : IMidiDevice(),
-        m_opl(opl)
-    {
-        if (opl == nullptr)
-        {
-            throwLogC<std::runtime_error>("opl is nullptr");
-        }
-
-        auto opl_drv = std::make_shared<drivers::midi::opl::OplDriver>(opl);
-        opl_drv->setOP2Bank(op2Bank);
-        m_midiDriver = opl_drv;
-        if (!m_midiDriver->open(group, volume, pan))
-        {
-            throwLogC<std::runtime_error>("can't open OplDriver");
-        }
-    }
-
     MidiOpl::MidiOpl(const hardware::opl::OplType type,
         const hardware::opl::OplEmulator emuType,
         const std::shared_ptr<audio::IMixer>& mixer,
@@ -46,6 +23,10 @@ namespace HyperSonicDrivers::devices::midi
         if (m_opl == nullptr || m_opl->type != type)
         {
             throwLogC<std::runtime_error>(std::format("device Opl not supporting emu_type={}, type={}", emuType, type));
+        }
+        if (op2Bank == nullptr)
+        {
+            utils::throwLogE<std::invalid_argument>("OP2Bank is nullptr");
         }
 
         auto opl_drv = std::make_shared<drivers::midi::opl::OplDriver>(m_opl);
