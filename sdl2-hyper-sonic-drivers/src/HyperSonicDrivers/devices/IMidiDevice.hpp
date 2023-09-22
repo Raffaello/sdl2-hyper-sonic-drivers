@@ -24,7 +24,8 @@ namespace HyperSonicDrivers
             IMidiDevice() = default;
             virtual ~IMidiDevice() = default;
 
-            // TODO: integrate MT-32 first as a device
+            // TODO: integrate MT-32 first as a device,
+            //       init for what?
             //virtual bool init() noexcept = 0;
 
             virtual void sendEvent(const audio::midi::MIDIEvent& e) const noexcept = 0;
