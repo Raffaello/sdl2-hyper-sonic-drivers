@@ -4,6 +4,7 @@
 
 namespace HyperSonicDrivers::devices::midi
 {
+    // test
     static audio::midi::MIDIEvent MT32SysEx(uint32_t addr, const uint8_t* data, uint32_t dataSize)
     {
         //typedef uint8_t byte;

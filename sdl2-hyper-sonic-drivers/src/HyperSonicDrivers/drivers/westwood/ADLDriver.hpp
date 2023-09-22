@@ -8,6 +8,7 @@
 #include <HyperSonicDrivers/files/westwood/ADLFile.hpp>
 #include <HyperSonicDrivers/hardware/opl/OPL2instrument.h>
 #include <HyperSonicDrivers/devices/Opl.hpp>
+#include <HyperSonicDrivers/drivers/IMusicDriver.hpp>
 
 namespace HyperSonicDrivers::drivers::westwood
 {
@@ -28,7 +29,7 @@ namespace HyperSonicDrivers::drivers::westwood
     /// the same file format(but need different offset adjustments);
     /// Kyrandia 2 and LoL format(version 4) is different again.
     /// </summary>
-    class ADLDriver
+    class ADLDriver : public IMusicDriver
     {
     public:
         [[deprecated("use an opl device instead of opl")]]
@@ -46,22 +47,26 @@ namespace HyperSonicDrivers::drivers::westwood
             const uint8_t pan = 0
         );
 
-        virtual ~ADLDriver() = default;
+        ~ADLDriver() override = default;
+
         void setADLFile(const std::shared_ptr<files::westwood::ADLFile>& adl_file) noexcept;
 
-        bool isChannelPlaying(const int channel);
+        bool isChannelPlaying(const int channel) const noexcept;
         void stopAllChannels();
         int getSoundTrigger() const;
         void resetSoundTrigger();
-
         void callback();
         void setSyncJumpMask(const uint16_t mask);
 
         void setOplMusicVolume(const uint8_t volume);
         void setOplSfxVolume(const uint8_t volume);
 
-        void play(const uint8_t track, const uint8_t volume = 0xFF);
-        bool isPlaying();
+        [[deprecated("use the other method")]]
+        void play(const uint8_t track, const uint8_t volume);
+        void play(const uint8_t track) noexcept override;
+        void stop() noexcept override;
+
+        bool isPlaying() const noexcept override;
     private:
         void initDriver_();
         void startSound_(const uint8_t track, const uint8_t volume);

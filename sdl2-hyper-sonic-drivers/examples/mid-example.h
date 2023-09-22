@@ -31,7 +31,8 @@ using hardware::opl::OplType;
 void mid_test_run(drivers::MIDDriver& midDrv, const std::shared_ptr<audio::MIDI>& midi)
 {
     auto start_time = std::chrono::system_clock::now();
-    midDrv.play(midi);
+    midDrv.setMidi(midi);
+    midDrv.play(0);
     while (midDrv.isPlaying()) {
         utils::delayMillis(1000);
     }

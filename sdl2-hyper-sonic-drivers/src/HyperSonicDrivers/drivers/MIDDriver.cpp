@@ -38,10 +38,25 @@ namespace HyperSonicDrivers::drivers
     {
         stop();
     }
+
+    void MIDDriver::setMidi(const std::shared_ptr<audio::MIDI>& midi) noexcept
+    {
+        using audio::midi::MIDI_FORMAT;
+        
+        if (midi->format == MIDI_FORMAT::SIMULTANEOUS_TRACK)
+        {
+            utils::throwLogE<std::runtime_error>("Can't support MIDI format 1 (SIMULTANEOUS_TRACK), must be converted to format 0 (SINGLE_TRACK)");
+            return;
+        }
+
+        m_midi = midi;
+    }
     
     void MIDDriver::play(const std::shared_ptr<audio::MIDI>& midi) noexcept
     {
         using audio::midi::MIDI_FORMAT;
+
+        setMidi(midi);
 
         if (midi->format != MIDI_FORMAT::SINGLE_TRACK && midi->numTracks != 1)
         {
@@ -49,6 +64,7 @@ namespace HyperSonicDrivers::drivers
             return;
         }
 
+        // TODO: this is to set the callback frequency
         if (midi->division & 0x8000)
         {
             // ticks per frame
@@ -82,6 +98,24 @@ namespace HyperSonicDrivers::drivers
 
         //TODO: it would be better reusing the thread...
         m_player = std::jthread(&MIDDriver::processTrack, this, midi->getTrack(), midi->division & 0x7FFF);
+        m_isPlaying = true;
+    }
+
+    void MIDDriver::play(const uint8_t track) noexcept
+    {
+        if (track >= m_midi->numTracks)
+        {
+            logW(std::format("track not available: {}", track));
+            return;
+        }
+
+        stop();
+        if (!m_device->acquire(this)) {
+            return;
+        }
+
+        // TODO: set up a callback instead of the thread
+        m_player = std::jthread(&MIDDriver::processTrack, this, m_midi->getTrack(track), m_midi->division & 0x7FFF);
         m_isPlaying = true;
     }
 

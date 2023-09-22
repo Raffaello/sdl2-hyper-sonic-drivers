@@ -104,7 +104,7 @@ namespace HyperSonicDrivers::drivers::westwood
         ++m_programQueueEnd &= 15;
     }
 
-    bool ADLDriver::isChannelPlaying(const int channel)
+    bool ADLDriver::isChannelPlaying(const int channel) const noexcept
     {
         const std::scoped_lock lock(m_mutex);
 
@@ -221,7 +221,7 @@ namespace HyperSonicDrivers::drivers::westwood
 
         m_oplSfxVolume = volume;
 
-        for (uint8_t i = 6; i < 9; ++i) {
+        for (uint8_t i = 6; i < NUM_CHANNELS; ++i) {
             Channel& chan = m_channels[i];
             chan.volumeModifier = volume;
 
@@ -248,7 +248,17 @@ namespace HyperSonicDrivers::drivers::westwood
         startSound_(soundId, volume);
     }
 
-    bool ADLDriver::isPlaying()
+    void ADLDriver::play(const uint8_t track) noexcept
+    {
+        play(track, 0xFF);
+    }
+
+    void ADLDriver::stop() noexcept
+    {
+        stopAllChannels();
+    }
+
+    bool ADLDriver::isPlaying() const noexcept
     {
         return isChannelPlaying(0) || m_programQueueStart != m_programQueueEnd;
     }
