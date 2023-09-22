@@ -14,10 +14,10 @@ namespace HyperSonicDrivers::devices::midi
     class MidiMT32;
 }
 
-namespace HyperSonicDrivers::audio
-{
-    class IRenderer;
-}
+//namespace HyperSonicDrivers::audio
+//{
+//    class IRenderer;
+//}
 
 namespace HyperSonicDrivers::hardware::mt32
 {
