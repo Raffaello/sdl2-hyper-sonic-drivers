@@ -40,7 +40,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
 
     OplDriver::~OplDriver()
     {
-        close();
+        OplDriver::close();
     }
 
     bool OplDriver::open(const audio::mixer::eChannelGroup group,

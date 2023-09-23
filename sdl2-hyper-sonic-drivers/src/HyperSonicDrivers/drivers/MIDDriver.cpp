@@ -54,7 +54,7 @@ namespace HyperSonicDrivers::drivers
 
     MIDDriver::~MIDDriver()
     {
-        stop();
+        MIDDriver::stop();
         m_device->release(this);
     }
 

@@ -32,8 +32,6 @@ namespace HyperSonicDrivers::drivers::westwood
     class ADLDriver : public IMusicDriver
     {
     public:
-        // TODO: do the acquire and release mechanism on the device
-        //       but i think
         explicit ADLDriver(
             const std::shared_ptr<devices::Opl>& opl,
             const audio::mixer::eChannelGroup group,
@@ -55,8 +53,6 @@ namespace HyperSonicDrivers::drivers::westwood
         void setOplMusicVolume(const uint8_t volume);
         void setOplSfxVolume(const uint8_t volume);
 
-        [[deprecated("use the other method")]]
-        void play(const uint8_t track, const uint8_t volume);
         void play(const uint8_t track) noexcept override;
         void stop() noexcept override;
 

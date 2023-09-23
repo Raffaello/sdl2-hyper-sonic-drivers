@@ -25,10 +25,6 @@ namespace HyperSonicDrivers::hardware::opl
         friend audio::IRenderer;
 
     public:
-        //OPL(const OPL&) = delete;
-        //OPL(const OPL&&) = delete;
-        //OPL& operator=(const  OPL&) = delete;
-
         explicit OPL(const std::shared_ptr<audio::IMixer>& mixer, const OplType type);
         ~OPL() override = default;
 

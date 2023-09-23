@@ -15,10 +15,6 @@ namespace HyperSonicDrivers::devices
     class Adlib : public Opl
     {
     public:
-        //Adlib(Adlib&) = delete;
-        //Adlib(Adlib&&) = delete;
-        //Adlib& operator=(Adlib&) = delete;
-
         explicit Adlib(
             const std::shared_ptr<audio::IMixer>& mixer,
             const hardware::opl::OplEmulator emulator = hardware::opl::OplEmulator::AUTO,

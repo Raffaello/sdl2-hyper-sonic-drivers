@@ -13,9 +13,9 @@ namespace HyperSonicDrivers::drivers::opl
     {
     public:
         OplWriter() = delete;
-        //OplWriter(OplWriter&) = delete;
-        //OplWriter(OplWriter&&) = delete;
-        //OplWriter& operator=(const OplWriter&) = delete;
+        OplWriter(OplWriter&) = delete;
+        OplWriter(OplWriter&&) = delete;
+        OplWriter& operator=(const OplWriter&) = delete;
 
         explicit OplWriter(const std::shared_ptr<hardware::opl::OPL>& opl, const bool opl3_mode);
         ~OplWriter();

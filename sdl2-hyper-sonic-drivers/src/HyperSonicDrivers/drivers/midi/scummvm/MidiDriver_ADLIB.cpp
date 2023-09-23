@@ -173,7 +173,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         switch (TO_HIGH(e.type.high))
         {
         case MIDI_EVENT_TYPES_HIGH::META_SYSEX:
-            sysEx(e.data.data(), e.data.size());
+            sysEx(e.data.data(), static_cast<uint16_t>(e.data.size()));
             break;
         default:
             send(e.toUint32());

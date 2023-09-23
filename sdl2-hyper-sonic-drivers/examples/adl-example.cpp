@@ -27,7 +27,7 @@ using files::westwood::ADLFile;
 using drivers::westwood::ADLDriver;
 
 
-void adl_test(const OplEmulator emu, const OplType type, std::shared_ptr<audio::IMixer> mixer, const std::string& filename, const int track)
+void adl_test(const OplEmulator emu, const OplType type, std::shared_ptr<audio::IMixer> mixer, const std::string& filename, const uint8_t track)
 {
     using devices::make_device;
 

@@ -230,10 +230,11 @@ namespace HyperSonicDrivers::drivers::westwood
         }
     }
 
-    void ADLDriver::play(const uint8_t track, const uint8_t volume)
+    void ADLDriver::play(const uint8_t track) noexcept
     {
         std::scoped_lock lock(m_mutex);
 
+        constexpr uint8_t volume = std::numeric_limits<uint8_t>::max();
         uint16_t soundId = 0;
 
         soundId = m_adl_file->getTrack(track);
@@ -243,11 +244,6 @@ namespace HyperSonicDrivers::drivers::westwood
 
         logD(std::format("trackEntries[track = {}] = {}", track, soundId));
         startSound_(soundId, volume);
-    }
-
-    void ADLDriver::play(const uint8_t track) noexcept
-    {
-        play(track, 0xFF);
     }
 
     void ADLDriver::stop() noexcept
