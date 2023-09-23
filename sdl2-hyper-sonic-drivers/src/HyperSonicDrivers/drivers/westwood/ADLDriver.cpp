@@ -520,7 +520,7 @@ namespace HyperSonicDrivers::drivers::westwood
     {
         logD("resetAdLibState()");
 
-        m_rnd = 0x1234;
+        m_rnd = random_seed;
 
         // Authorize the control of the waveforms
         writeOPL_(0x01, 0x20);
