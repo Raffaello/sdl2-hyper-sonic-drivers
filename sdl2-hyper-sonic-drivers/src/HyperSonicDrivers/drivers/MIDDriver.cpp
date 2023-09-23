@@ -7,6 +7,7 @@
 #include <HyperSonicDrivers/drivers/midi/opl/OplDriver.hpp>
 #include <HyperSonicDrivers/devices/Opl.hpp>
 #include <HyperSonicDrivers/drivers/midi/scummvm/MidiDriver_ADLIB.hpp>
+#include <HyperSonicDrivers/drivers/midi/mt32/MT32Driver.hpp>
 
 namespace HyperSonicDrivers::drivers
 {
@@ -39,13 +40,6 @@ namespace HyperSonicDrivers::drivers
         const uint8_t pan
     ) : m_device(device), m_group(group), m_volume(volume), m_pan(pan)
     {
-        // TODO: how to start the opl here as it could be a MT32 in this case?
-        // need a device getHardware() virtual that is returning the IHardware
-        // and can call start from there.... etc.. in Opl will override the return type
-        // etc....
-
-        //TODO: here the acquire should be only during the playback,
-        //      but due to start the callback, is acquired fully
         if (!m_device->acquire(this))
         {
             utils::throwLogE<std::runtime_error>("Device is already in used by another driver or can't be init");
@@ -109,7 +103,8 @@ namespace HyperSonicDrivers::drivers
         }
         else
         {
-            // must be mt32
+            // must be mt32 (TODO)
+            m_midiDriver = std::make_unique<drivers::midi::mt32::MT32Driver>();
         }
 
         return open_();

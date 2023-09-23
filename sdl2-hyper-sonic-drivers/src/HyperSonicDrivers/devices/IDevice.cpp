@@ -28,6 +28,7 @@ namespace HyperSonicDrivers::devices
         {
             shutdown();
             m_acquired = false;
+            m_owner = nullptr;
             return true;
         }
 
