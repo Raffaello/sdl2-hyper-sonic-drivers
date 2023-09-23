@@ -16,7 +16,7 @@
 namespace HyperSonicDrivers::drivers
 {
     // TODO/NOTE: this is more the OnTimer logic and setup of OplDriver, but generalized
-    //            for whatever midi::driver ... need to be reivewed
+    //            for whatever midi::driver ... need to be reviewed
     // TODO: maybe rename it to midi_player
     // TODO: deprecated class
     class MIDDriver : public IMusicDriver
