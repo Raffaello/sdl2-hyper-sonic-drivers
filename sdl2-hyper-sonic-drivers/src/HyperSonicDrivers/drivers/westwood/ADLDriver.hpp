@@ -32,22 +32,16 @@ namespace HyperSonicDrivers::drivers::westwood
     class ADLDriver : public IMusicDriver
     {
     public:
-        [[deprecated("use an opl device instead of opl")]]
+        // TODO: do the acquire and release mechanism on the device
+        //       but i think
         explicit ADLDriver(
-            const std::shared_ptr<hardware::opl::OPL>& opl,
+            const std::shared_ptr<devices::Opl>& opl,
             const audio::mixer::eChannelGroup group,
             const uint8_t volume = 255,
             const uint8_t pan = 0
         );
 
-        explicit ADLDriver(
-            const devices::Opl& opl,
-            const audio::mixer::eChannelGroup group,
-            const uint8_t volume = 255,
-            const uint8_t pan = 0
-        );
-
-        ~ADLDriver() override = default;
+        ~ADLDriver() override;
 
         void setADLFile(const std::shared_ptr<files::westwood::ADLFile>& adl_file) noexcept;
 
@@ -265,6 +259,7 @@ namespace HyperSonicDrivers::drivers::westwood
         uint8_t m_opExtraLevel1BD = 0;
         uint8_t m_opExtraLevel2BD = 0;
 
+        std::shared_ptr<devices::Opl> m_device;
         std::shared_ptr<hardware::opl::OPL> m_opl;
 
         struct QueueEntry

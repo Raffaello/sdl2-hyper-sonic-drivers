@@ -4,6 +4,9 @@
 #include <HyperSonicDrivers/drivers/MIDDriver.hpp>
 #include <HyperSonicDrivers/utils/algorithms.hpp>
 #include <HyperSonicDrivers/utils/ILogger.hpp>
+#include <HyperSonicDrivers/drivers/midi/opl/OplDriver.hpp>
+#include <HyperSonicDrivers/devices/Opl.hpp>
+#include <HyperSonicDrivers/drivers/midi/scummvm/MidiDriver_ADLIB.hpp>
 
 namespace HyperSonicDrivers::drivers
 {
@@ -29,14 +32,36 @@ namespace HyperSonicDrivers::drivers
         return utils::getMicro<uint32_t>();
     }
 
-    MIDDriver::MIDDriver(const std::shared_ptr<devices::IMidiDevice>& device)
-        : m_device(device)
+    MIDDriver::MIDDriver(
+        const std::shared_ptr<devices::IDevice>& device,
+        const audio::mixer::eChannelGroup group,
+        const uint8_t volume,
+        const uint8_t pan
+    ) : m_device(device), m_group(group), m_volume(volume), m_pan(pan)
     {
+        // TODO: how to start the opl here as it could be a MT32 in this case?
+        // need a device getHardware() virtual that is returning the IHardware
+        // and can call start from there.... etc.. in Opl will override the return type
+        // etc....
+
+        //TODO: here the acquire should be only during the playback,
+        //      but due to start the callback, is acquired fully
+        if (!m_device->acquire(this))
+        {
+            utils::throwLogE<std::runtime_error>("Device is already in used by another driver or can't be init");
+        }
+
+        // The internal Midi driver will start the device and set up the callback
+        if (!resetBankOP2())
+        {
+            utils::throwLogE<std::runtime_error>("can't reset Midi driver");
+        }
     }
 
     MIDDriver::~MIDDriver()
     {
         stop();
+        m_device->release(this);
     }
 
     void MIDDriver::setMidi(const std::shared_ptr<audio::MIDI>& midi) noexcept
@@ -50,6 +75,44 @@ namespace HyperSonicDrivers::drivers
         }
 
         m_midi = midi;
+    }
+
+    bool MIDDriver::loadBankOP2(const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank) noexcept
+    {
+        if (!m_device->isOpl())
+            return false;
+
+        if (op2Bank == nullptr)
+        {
+            utils::logE("OP2Bank is nullptr");
+            return false;
+        }
+
+        m_midiDriver.reset();
+
+        auto opl = std::dynamic_pointer_cast<devices::Opl>(m_device)->getOpl();
+        auto opl_drv = std::make_unique<drivers::midi::opl::OplDriver>(opl);
+        opl_drv->setOP2Bank(op2Bank);
+        m_midiDriver = std::move(opl_drv);
+        return open_();
+    }
+
+    bool MIDDriver::resetBankOP2() noexcept
+    {
+        if (m_device->isOpl())
+        {
+            using hardware::opl::OplType;
+
+            auto opl = std::dynamic_pointer_cast<devices::Opl>(m_device)->getOpl();
+            m_midiDriver = std::make_unique<drivers::midi::scummvm::MidiDriver_ADLIB>(
+                opl, opl->type != OplType::OPL2);
+        }
+        else
+        {
+            // must be mt32
+        }
+
+        return open_();
     }
     
     void MIDDriver::play(const std::shared_ptr<audio::MIDI>& midi) noexcept
@@ -127,7 +190,7 @@ namespace HyperSonicDrivers::drivers
             m_player.join();
         m_force_stop = false;
         m_isPlaying = false;
-        m_device->release(this);
+        //m_device->release(this);
     }
 
     void MIDDriver::pause() noexcept
@@ -152,6 +215,17 @@ namespace HyperSonicDrivers::drivers
         return m_paused;
     }
 
+    bool MIDDriver::open_() noexcept
+    {
+        if (!m_midiDriver->open(m_group, m_volume, m_pan))
+        {
+            utils::logE("can't open midi driver");
+            return false;
+        }
+
+        return true;
+    }
+
     void MIDDriver::processTrack(const audio::midi::MIDITrack& track, const uint16_t division)
     {
         using audio::midi::MIDI_EVENT_TYPES_HIGH;
@@ -174,12 +248,14 @@ namespace HyperSonicDrivers::drivers
         {
             if(m_paused)
             {
-                m_device->pause();
+                //m_device->pause();
+                m_midiDriver->pause();
                 do
                 {
                     utils::delayMillis(PAUSE_MILLIS);
                 } while (m_paused);
-                m_device->resume();
+                //m_device->resume();
+                m_midiDriver->resume();
                 start = get_start_time();
             }
 
@@ -273,12 +349,14 @@ namespace HyperSonicDrivers::drivers
                 case MIDI_META_EVENT_TYPES_LOW::SYS_EX0:
                     logD("SYS_EX0 META event");
                     // TODO: it should be sent as normal event?
-                    m_device->sendSysEx(e);
+                    //m_device->sendSysEx(e);
+                    m_midiDriver->send(e);
                     continue;
                 case MIDI_META_EVENT_TYPES_LOW::SYS_EX7:
                     logD("SYS_EX7 META event");
                     // TODO: it should be sent as normal event?
-                    m_device->sendSysEx(e);
+                    //m_device->sendSysEx(e);
+                    m_midiDriver->send(e);
                     continue;
                 default:
                     logW(std::format("MIDI_META_EVENT_TYPES_LOW not implemented/recognized: {:#02x}", e.type.low));
@@ -325,10 +403,11 @@ namespace HyperSonicDrivers::drivers
                 start = get_start_time();
             }
 
-            m_device->sendEvent(e);
+            //m_device->sendEvent(e);
+            m_midiDriver->send(e);
         }
 
-        m_device->release(this);
+        //m_device->release(this);
         m_isPlaying = false;
     }
 }

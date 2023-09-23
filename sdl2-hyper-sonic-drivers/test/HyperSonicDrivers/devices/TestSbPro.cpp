@@ -1,28 +1,27 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include <HyperSonicDrivers/devices/midi/MidiSbPro.hpp>
+#include <HyperSonicDrivers/devices/SbPro.hpp>
 #include <HyperSonicDrivers/hardware/opl/OplType.hpp>
 #include <HyperSonicDrivers/hardware/opl/OPLFactory.hpp>
-#include <HyperSonicDrivers/devices/midi/EmulatorTestCase.hpp>
+#include <HyperSonicDrivers/devices/EmulatorTestCase.hpp>
 
 
-namespace HyperSonicDrivers::devices::midi
+namespace HyperSonicDrivers::devices
 {
 
-    TEST(MidiSbPro, cstor_)
+    TEST(SbPro, cstor_)
     {
-        auto op2File = OP2File(GENMIDI_OP2);
         auto mixer = std::make_shared<StubMixer>();
-        EXPECT_NO_THROW(auto s = MidiSbPro(mixer, op2File.getBank(), eChannelGroup::Plain));
+        EXPECT_NO_THROW(auto s = SbPro(mixer, OplEmulator::DOS_BOX));
     }
 
-    class SbProEmulator_ : public EmulatorTestCase<MidiSbPro> {};
+    class SbProEmulator_ : public EmulatorTestCase<SbPro> {};
     TEST_P(SbProEmulator_, cstr_TYPE)
     {
         test_case();
     }
     INSTANTIATE_TEST_SUITE_P(
-        MidiSbPro,
+        SbPro,
         SbProEmulator_,
         ::testing::Values(
             std::make_tuple<>(OplEmulator::AUTO, false),
@@ -33,11 +32,10 @@ namespace HyperSonicDrivers::devices::midi
         )
     );
 
-    TEST(MidiSbPro, cstr_AUTO)
+    TEST(SbPro, cstr_AUTO)
     {
-        auto op2File = OP2File(GENMIDI_OP2);
         auto mixer = std::make_shared<StubMixer>();
-        EXPECT_NO_THROW(MidiSbPro(mixer, op2File.getBank(), eChannelGroup::Plain));
+        EXPECT_NO_THROW(SbPro(mixer, OplEmulator::AUTO));
     }
 }
 

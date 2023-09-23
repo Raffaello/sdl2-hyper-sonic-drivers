@@ -1,7 +1,6 @@
 ﻿cmake_minimum_required (VERSION 3.21)
 
 find_package(SDL2 CONFIG REQUIRED)
-find_package(rtmidi CONFIG REQUIRED)
 find_package(MT32emu CONFIG REQUIRED)
 
 set(CMAKE_CXX_STANDARD 20)
@@ -96,14 +95,10 @@ target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/devices/IDevice.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/devices/Opl.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/devices/Adlib.cpp
-
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/devices/midi/MidiNative.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/devices/midi/MidiOpl.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/devices/midi/MidiAdlib.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/devices/midi/MidiSbPro.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/devices/midi/MidiSbPro2.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/devices/midi/MidiMT32.cpp
-    # --- # 
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/devices/SbPro.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/devices/SbPro2.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/devices/MT32.cpp
+    # --- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/PCMDriver.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/MIDDriver.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/westwood/ADLDriver.cpp
@@ -177,7 +172,6 @@ target_sources(${LIB_NAME} PRIVATE
 target_link_libraries(${LIB_NAME}
     PUBLIC 
         ${LIB_SDL2}
-        RtMidi::rtmidi
         MT32Emu::mt32emu
 )
 if(NOT (WITH_SDL2_STATIC))

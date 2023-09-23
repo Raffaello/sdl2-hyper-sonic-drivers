@@ -29,9 +29,9 @@ namespace HyperSonicDrivers::hardware
         friend audio::streams::EmulatedStream;
 
     public:
-        IHardware(IHardware&) = delete;
-        IHardware(IHardware&&) = delete;
-        IHardware& operator=(IHardware&) = delete;
+        //IHardware(IHardware&) = delete;
+        //IHardware(IHardware&&) = delete;
+        //IHardware& operator=(IHardware&) = delete;
 
         explicit IHardware(const std::shared_ptr<audio::IMixer>& mixer);
         virtual ~IHardware();

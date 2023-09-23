@@ -1,24 +1,23 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include <HyperSonicDrivers/devices/midi/MidiAdlib.hpp>
+#include <HyperSonicDrivers/devices/Adlib.hpp>
 #include <HyperSonicDrivers/drivers/MIDDriverMock.hpp>
 #include <HyperSonicDrivers/audio/stubs/StubMixer.hpp>
 #include <HyperSonicDrivers/hardware/opl/OplEmulator.hpp>
 #include <HyperSonicDrivers/hardware/opl/OplType.hpp>
 #include <HyperSonicDrivers/files/dmx/OP2File.hpp>
 #include <HyperSonicDrivers/hardware/opl/OPLFactory.hpp>
-#include <HyperSonicDrivers/devices/midi/EmulatorTestCase.hpp>
+#include <HyperSonicDrivers/devices/EmulatorTestCase.hpp>
 
-namespace HyperSonicDrivers::devices::midi
+namespace HyperSonicDrivers::devices
 {
-    TEST(MidiAdlib, cstor_)
+    TEST(Adlib, cstor_AUTO)
     {
-        auto op2File = OP2File(GENMIDI_OP2);
         auto mixer = std::make_shared<StubMixer>();
-        EXPECT_NO_THROW(auto a = std::make_shared<MidiAdlib>(mixer, op2File.getBank(), eChannelGroup::Plain));
+        EXPECT_NO_THROW(auto a = std::make_shared<Adlib>(mixer));
     }
 
-    class AdliblEmulator_ : public EmulatorTestCase<MidiAdlib> {};
+    class AdliblEmulator_ : public EmulatorTestCase<Adlib> {};
     TEST_P(AdliblEmulator_, cstr_TYPE)
     {
         test_case();
@@ -35,13 +34,6 @@ namespace HyperSonicDrivers::devices::midi
             std::make_tuple<>(OplEmulator::NUKED, true) // TODO: this is OPL2 compatible so, it should work, at the moment forced only to be OPL3 type
         )
     );
-
-    TEST(MidiAdlib, cstr_AUTO)
-    {
-        auto op2File = OP2File(GENMIDI_OP2);
-        auto mixer = std::make_shared<StubMixer>();
-        EXPECT_NO_THROW(MidiAdlib(mixer, op2File.getBank(), eChannelGroup::Plain));
-    }
 }
 
 int main(int argc, char** argv)

@@ -3,13 +3,10 @@
 #include <HyperSonicDrivers/audio/sdl2/Mixer.hpp>
 
 #include <HyperSonicDrivers/drivers/MIDDriver.hpp>
-#include <HyperSonicDrivers/devices/midi/MidiNative.hpp>
-#include <HyperSonicDrivers/devices/midi/MidiAdlib.hpp>
-#include <HyperSonicDrivers/devices/midi/MidiSbPro.hpp>
-#include <HyperSonicDrivers/devices/midi/MidiSbPro2.hpp>
-#include <HyperSonicDrivers/devices/IMidiDevice.hpp>
-#include <HyperSonicDrivers/devices/makers.hpp>
-
+#include <HyperSonicDrivers/devices/Adlib.hpp>
+#include <HyperSonicDrivers/devices/SbPro.hpp>
+#include <HyperSonicDrivers/devices/SbPro2.hpp>
+#include <HyperSonicDrivers/devices/IDevice.hpp>
 #include <HyperSonicDrivers/files/dmx/OP2File.hpp>
 
 #include <HyperSonicDrivers/hardware/opl/OPLFactory.hpp>
@@ -24,9 +21,11 @@
 
 using namespace HyperSonicDrivers;
 
+using audio::mixer::eChannelGroup;
 using hardware::opl::OPLFactory;
 using hardware::opl::OplEmulator;
 using hardware::opl::OplType;
+
 
 void mid_test_run(drivers::MIDDriver& midDrv, const std::shared_ptr<audio::MIDI>& midi)
 {
@@ -45,26 +44,27 @@ void mid_test_run(drivers::MIDDriver& midDrv, const std::shared_ptr<audio::MIDI>
 void scummvm_mid_test(const OplEmulator emu, const OplType type, const std::shared_ptr<audio::IMixer>& mixer,
     const std::shared_ptr<audio::MIDI> midi)
 {
-    std::shared_ptr<devices::IMidiDevice> midi_device;
+
+    std::shared_ptr<devices::IDevice> device;
     switch (type)
     {
         using enum OplType;
         using namespace devices;
 
     case OPL2:
-        midi_device = make_midi_device<midi::MidiAdlib>(mixer, audio::mixer::eChannelGroup::Music, emu);
+        device = make_device<devices::Adlib>(mixer, emu);
         break;
     case DUAL_OPL2:
-        midi_device = make_midi_device<midi::MidiSbPro>(mixer, audio::mixer::eChannelGroup::Music, emu);
+        device = make_device<devices::SbPro>(mixer, emu);
         break;
     case OPL3:
-        midi_device = make_midi_device<midi::MidiSbPro2>(mixer, audio::mixer::eChannelGroup::Music, emu);
+        device = make_device<devices::SbPro2>(mixer, emu);
         break;
     default:
         throw std::runtime_error("?");
     }
 
-    drivers::MIDDriver midDrv(/*mixer,*/ midi_device);
+    drivers::MIDDriver midDrv(/*mixer,*/ device, eChannelGroup::Music);
     spdlog::info(std::format("playing midi (OPL type={})...", type));
     mid_test_run(midDrv, midi);
 }
@@ -73,39 +73,36 @@ void mid_test(const OplEmulator emu, const OplType type, const std::shared_ptr<a
     const std::shared_ptr<audio::MIDI> midi)
 {
     auto op2file = files::dmx::OP2File("GENMIDI.OP2");
-    std::shared_ptr<devices::IMidiDevice> midi_device;
+    std::shared_ptr<devices::IDevice> device;
     switch (type)
     {
         using enum OplType;
         using namespace devices;
 
     case OPL2:
-        midi_device = make_midi_device<midi::MidiAdlib>(mixer, op2file.getBank(), audio::mixer::eChannelGroup::Music, emu);
+        device = make_device<Adlib>(mixer, emu);
         break;
     case DUAL_OPL2:
-        midi_device = make_midi_device<midi::MidiSbPro>(mixer, op2file.getBank(), audio::mixer::eChannelGroup::Music, emu);
+        device = make_device<SbPro>(mixer, emu);
         break;
     case OPL3:
-        midi_device = make_midi_device<midi::MidiSbPro2>(mixer, op2file.getBank(), audio::mixer::eChannelGroup::Music, emu);
+        device = make_device<SbPro2>(mixer, emu);
         break;
     default:
         throw std::runtime_error("?");
     }
+    
+    
 
-    drivers::MIDDriver midDrv(/*mixer,*/ midi_device);
+    drivers::MIDDriver midDrv(/*mixer,*/ device, eChannelGroup::Music);
+    if (!midDrv.loadBankOP2(op2file.getBank()))
+    {
+        spdlog::error("can't load BankOP2");
+        return;
+    }
+
     spdlog::info(std::format("playing midi (OPL type={})...", type));
     mid_test_run(midDrv, midi);
-}
-
-void mid_test_native(/*const std::shared_ptr<audio::IMixer>& mixer,*/
-    const std::shared_ptr<audio::MIDI>& midi)
-{
-    auto nativeMidi = std::make_shared<devices::midi::MidiNative>();
-
-    drivers::MIDDriver mid_drv(/*mixer,*/ nativeMidi);
-
-    spdlog::info("playing midi...");
-    mid_test_run(mid_drv, midi);
 }
 
 int run(const std::shared_ptr<audio::MIDI>& midi, const bool use_opldrv)
@@ -113,7 +110,7 @@ int run(const std::shared_ptr<audio::MIDI>& midi, const bool use_opldrv)
     auto mixer = audio::make_mixer<audio::sdl2::Mixer>(8, 44100, 1024);
     if (!mixer->init())
     {
-        std::cerr << "can't init the mixer" << std::endl;
+        spdlog::error("can't init the mixer");
         return 1;
     }
 
@@ -160,12 +157,6 @@ int run(const std::shared_ptr<audio::MIDI>& midi, const bool use_opldrv)
             }
         }
     }
-
-    // Native Midi
-    for (const auto& c : colors) {
-        spdlog::info(fmt::format(fg(c), m, "Native", "MIDI"));
-    }
-    mid_test_native(/*mixer,*/ midi);
 
     return 0;
 }

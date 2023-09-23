@@ -25,6 +25,9 @@ namespace HyperSonicDrivers::hardware
         const uint8_t volume, const uint8_t pan,
         const int timerFrequency)
     {
+        if (m_channelId.has_value())
+            stop();
+
         m_callback = callback;
         startCallbacks(group, volume, pan, timerFrequency);
     }

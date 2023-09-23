@@ -12,6 +12,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
 
     using audio::midi::MIDI_PERCUSSION_CHANNEL;
     using audio::midi::MIDI_EVENT_TYPES_HIGH;
+    using audio::midi::TO_HIGH;
     using hardware::opl::OPL2instrument_t;
     using hardware::opl::OplType;
     using utils::logW;
@@ -39,7 +40,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
 
     OplDriver::~OplDriver()
     {
-        OplDriver::close();
+        close();
     }
 
     bool OplDriver::open(const audio::mixer::eChannelGroup group,
@@ -85,7 +86,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
 
     void OplDriver::send(const audio::midi::MIDIEvent& e) noexcept
     {
-        switch (static_cast<MIDI_EVENT_TYPES_HIGH>(e.type.high))
+        switch (TO_HIGH(e.type.high))
         {
         case MIDI_EVENT_TYPES_HIGH::NOTE_OFF:
             noteOff(e.type.low, e.data[0]);

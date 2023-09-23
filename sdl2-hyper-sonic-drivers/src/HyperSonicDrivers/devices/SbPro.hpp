@@ -12,26 +12,20 @@
 
 namespace HyperSonicDrivers::devices
 {
-    // TODO: the Adlib sound card for SFX should use PCSpeaker.
-    //       as it was not able to play digi-sound (sfx, speech)
-    //       but..... anyway.
-    //       just create a Sound Blaster that was adlib (OPL2) with digi sound
-    //       beside not sure to do this kind of sound card reproduction
-    //       better keep PCM separated and for MIDI/ADL/emulated sound use the card
-    class Adlib : public Opl
+    class SbPro : public Opl
     {
     public:
-        //Adlib(Adlib&) = delete;
-        //Adlib(Adlib&&) = delete;
-        //Adlib& operator=(Adlib&) = delete;
+        SbPro(SbPro&) = delete;
+        SbPro(SbPro&&) = delete;
+        SbPro& operator=(SbPro&) = delete;
 
-        explicit Adlib(
+        explicit SbPro(
             const std::shared_ptr<audio::IMixer>& mixer,
             const hardware::opl::OplEmulator emulator = hardware::opl::OplEmulator::AUTO,
             const uint8_t volume = 255,
             const uint8_t pan = 0
         );
 
-        ~Adlib() override = default;
+        ~SbPro() override = default;
     };
 }

@@ -24,21 +24,22 @@ namespace HyperSonicDrivers::drivers::westwood
     using utils::throwLogE;
 
     ADLDriver::ADLDriver(
-        const std::shared_ptr<hardware::opl::OPL>& opl,
+        const std::shared_ptr<devices::Opl>& opl,
         const audio::mixer::eChannelGroup group,
         const uint8_t volume,
-        const uint8_t pan
-    ) : m_rnd(random_seed), m_opl(opl)
+        const uint8_t pan) :
+        m_device(opl), m_opl(opl->getOpl())
     {
-        if (!m_opl || !m_opl->init())
-        {
-            throwLogE<std::runtime_error>("Failed to initialize OPL or OPL is null");
-        }
-
         memset(m_channels.data(), 0, sizeof(m_channels));
-
         hardware::TimerCallBack cb = std::bind(&ADLDriver::callback, this);
         auto p = std::make_shared<hardware::TimerCallBack>(cb);
+        
+        // NOTE: it acquires it due to opl->start
+        if (!m_device->acquire(this))
+        {
+            throwLogE<std::runtime_error>("Device is already in used by another driver or can't be init");
+        }
+
         m_opl->start(
             p,
             group,
@@ -53,13 +54,9 @@ namespace HyperSonicDrivers::drivers::westwood
         setOplSfxVolume(255);
     }
 
-    ADLDriver::ADLDriver(
-        const devices::Opl& opl,
-        const audio::mixer::eChannelGroup group,
-        const uint8_t volume,
-        const uint8_t pan
-    ) : ADLDriver(opl.getOpl(), group, volume, pan)
+    ADLDriver::~ADLDriver()
     {
+        m_device->release(this);
     }
 
     void ADLDriver::setADLFile(const std::shared_ptr<files::westwood::ADLFile>& adl_file) noexcept

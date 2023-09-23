@@ -9,8 +9,7 @@
 #include <HyperSonicDrivers/audio/midi/MIDITrack.hpp>
 #include <HyperSonicDrivers/audio/midi/types.hpp>
 #include <HyperSonicDrivers/drivers/MIDDriver.hpp>
-#include <HyperSonicDrivers/devices/IMidiDevice.hpp>
-#include <HyperSonicDrivers/devices/midi/SpyMidiDevice.hpp>
+#include <HyperSonicDrivers/devices/SpyDevice.hpp>
 #include <HyperSonicDrivers/drivers/MIDDriverMock.hpp>
 #include <HyperSonicDrivers/files/MIDFile.hpp>
 #include <HyperSonicDrivers/utils/algorithms.hpp>
@@ -27,7 +26,7 @@ namespace HyperSonicDrivers::drivers
 
     TEST(MIDDriver, SEQUENCE_NAME_META_EVENT)
     {
-        auto device = std::make_shared<devices::midi::SpyMidiDevice>();
+        auto device = std::make_shared<devices::SpyDevice>();
 
         ILogger::instance->setLevel(ILogger::eLevel::Trace, ILogger::eCategory::Audio);
 
@@ -55,7 +54,7 @@ namespace HyperSonicDrivers::drivers
 
     TEST(MIDDriver, force_stop_on_long_delta_time_delay)
     {
-        auto device = std::make_shared<devices::midi::SpyMidiDevice>();
+        auto device = std::make_shared<devices::SpyDevice>();
 
         MIDIEvent e;
         e.delta_time = 0;
@@ -126,7 +125,7 @@ namespace HyperSonicDrivers::drivers
 
         auto midi = std::make_shared<audio::MIDI>(MIDI_FORMAT::SINGLE_TRACK, 1, 96);
         midi->addTrack(midi_track);
-        auto device = std::make_shared<devices::midi::SpyMidiDevice>();
+        auto device = std::make_shared<devices::SpyDevice>();
 
         MIDDriverMock middrv1(device);
         EXPECT_EQ(device.use_count(), 2);
@@ -145,8 +144,8 @@ namespace HyperSonicDrivers::drivers
     TEST(MIDDriver, getTempo)
     {
         auto mf = files::MIDFile("../fixtures/midifile_sample.mid");
-        auto device = std::make_shared<devices::midi::SpyMidiDevice>();
-        MIDDriver md(device);
+        auto device = std::make_shared<devices::SpyDevice>();
+        MIDDriverMock md(device);
         EXPECT_EQ(md.getTempo(), 0);
         EXPECT_FALSE(md.isTempoChanged());
         md.play(mf.getMIDI());

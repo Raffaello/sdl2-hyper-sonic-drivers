@@ -9,9 +9,9 @@
 #include <HyperSonicDrivers/audio/mixer/ChannelGroup.hpp>
 #include <HyperSonicDrivers/hardware/IHardware.hpp>
 
-namespace HyperSonicDrivers::devices::midi
+namespace HyperSonicDrivers::devices
 {
-    class MidiMT32;
+    class MT32;
 }
 
 //namespace HyperSonicDrivers::audio
@@ -26,7 +26,7 @@ namespace HyperSonicDrivers::hardware::mt32
 
     class MT32 : public IHardware
     {
-        friend devices::midi::MidiMT32;
+        friend devices::MT32;
 
     public:
         MT32(const std::filesystem::path& control_rom, const std::filesystem::path& pcm_rom,
