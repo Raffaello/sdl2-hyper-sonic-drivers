@@ -34,8 +34,8 @@ namespace HyperSonicDrivers::drivers
         const uint8_t max_streams;
     private:
         std::shared_ptr<audio::IMixer> m_mixer;
-        std::vector<std::shared_ptr<audio::streams::PCMStream>> m_soundStreams;
+        std::vector<std::shared_ptr<audio::streams::PCMStream>> m_PCMStreams;
 
-        static bool isSoundStreamPlaying_(const std::shared_ptr<audio::streams::PCMStream>& ss) noexcept;
+        static bool isPCMStreamPlaying_(const std::shared_ptr<audio::streams::PCMStream>& ss) noexcept;
     };
 }

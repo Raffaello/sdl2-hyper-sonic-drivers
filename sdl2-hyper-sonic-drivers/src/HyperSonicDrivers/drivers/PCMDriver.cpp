@@ -8,14 +8,14 @@ namespace HyperSonicDrivers::drivers
     PCMDriver::PCMDriver(const std::shared_ptr<audio::IMixer>& mixer, const uint8_t max_channels) :
         max_streams(std::min(mixer->max_channels, max_channels)), m_mixer(mixer)
     {
-        m_soundStreams.resize(max_streams);
+        m_PCMStreams.resize(max_streams);
     }
 
     bool PCMDriver::isPlaying() const noexcept
     {
-        for(const auto& ss: m_soundStreams)
+        for(const auto& ss: m_PCMStreams)
         {
-            if (isSoundStreamPlaying_(ss))
+            if (isPCMStreamPlaying_(ss))
                 return true;
         }
 
@@ -35,10 +35,10 @@ namespace HyperSonicDrivers::drivers
         // anyway... it could be achieved having the mixer a "lock or reserved channel"
         // feature or something that that one won't be used unless
         // it is for the resources that has been reserved for.....
-        for(const auto& ss : m_soundStreams)
+        for(const auto& ss : m_PCMStreams)
         {
             if (ss->getSound().lock() == sound)
-                return isSoundStreamPlaying_(ss);
+                return isPCMStreamPlaying_(ss);
         }
 
         return false;
@@ -47,8 +47,8 @@ namespace HyperSonicDrivers::drivers
     std::optional<uint8_t> PCMDriver::play(const std::shared_ptr<audio::Sound>& sound, const uint8_t volume, const int8_t pan)
     {
         // find first free slot
-        auto it = std::ranges::find_if_not(m_soundStreams, isSoundStreamPlaying_);
-        if (it == m_soundStreams.end())
+        auto it = std::ranges::find_if_not(m_PCMStreams, isPCMStreamPlaying_);
+        if (it == m_PCMStreams.end())
             return std::nullopt;
 
         *it = std::make_shared<PCMStream>(sound);
@@ -66,7 +66,7 @@ namespace HyperSonicDrivers::drivers
         return channelId;
     }
 
-    inline bool PCMDriver::isSoundStreamPlaying_(const std::shared_ptr<audio::streams::PCMStream>& ss) noexcept
+    inline bool PCMDriver::isPCMStreamPlaying_(const std::shared_ptr<audio::streams::PCMStream>& ss) noexcept
     {
         return ss != nullptr && !ss->isEnded();
     }

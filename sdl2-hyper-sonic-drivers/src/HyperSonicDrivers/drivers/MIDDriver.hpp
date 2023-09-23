@@ -18,7 +18,7 @@ namespace HyperSonicDrivers::drivers
     /**
     * Not sure what is this class, a wrapper around different midi driver
     * TODO: remove the thread and perform through callbacks
-    * @deprecated class
+    * @deprecated class start over with a new class MidiPlayer
     **/
     class MIDDriver : public IMusicDriver
     {
