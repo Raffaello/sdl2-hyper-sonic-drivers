@@ -12,12 +12,6 @@
 
 namespace HyperSonicDrivers::devices
 {
-    // TODO: the Adlib sound card for SFX should use PCSpeaker.
-    //       as it was not able to play digi-sound (sfx, speech)
-    //       but..... anyway.
-    //       just create a Sound Blaster that was adlib (OPL2) with digi sound
-    //       beside not sure to do this kind of sound card reproduction
-    //       better keep PCM separated and for MIDI/ADL/emulated sound use the card
     class Adlib : public Opl
     {
     public:
