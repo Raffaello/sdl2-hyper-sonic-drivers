@@ -2,9 +2,37 @@
 
 namespace HyperSonicDrivers::devices
 {
-    IDevice::IDevice(const std::shared_ptr<audio::IMixer>& mixer) :
-        m_mixer(mixer)
+    IDevice::IDevice(const std::shared_ptr<audio::IMixer>& mixer, const bool isOpl) :
+        m_mixer(mixer), m_isOpl(isOpl)
     {
+    }
+
+    bool IDevice::acquire(drivers::IMusicDriver* owner)
+    {
+        if (!m_acquired)
+        {
+            if (!init())
+                return false;
+
+            m_acquired = true;
+            m_owner = owner;
+            return true;
+        }
+
+        return isOwned(owner);
+    }
+
+    bool IDevice::release(const drivers::IMusicDriver* owner)
+    {
+        if (isOwned(owner))
+        {
+            shutdown();
+            m_acquired = false;
+            m_owner = nullptr;
+            return true;
+        }
+
+        return !isAcquired();
     }
 
     void IDevice::setVolume(const uint8_t volume)

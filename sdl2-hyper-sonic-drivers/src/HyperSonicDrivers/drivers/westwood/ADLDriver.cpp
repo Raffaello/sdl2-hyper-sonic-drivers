@@ -24,21 +24,22 @@ namespace HyperSonicDrivers::drivers::westwood
     using utils::throwLogE;
 
     ADLDriver::ADLDriver(
-        const std::shared_ptr<hardware::opl::OPL>& opl,
+        const std::shared_ptr<devices::Opl>& opl,
         const audio::mixer::eChannelGroup group,
         const uint8_t volume,
-        const uint8_t pan
-    ) : m_rnd(random_seed), m_opl(opl)
+        const uint8_t pan) :
+        m_device(opl), m_opl(opl->getOpl())
     {
-        if (!m_opl || !m_opl->init())
-        {
-            throwLogE<std::runtime_error>("Failed to initialize OPL or OPL is null");
-        }
-
         memset(m_channels.data(), 0, sizeof(m_channels));
-
         hardware::TimerCallBack cb = std::bind(&ADLDriver::callback, this);
         auto p = std::make_shared<hardware::TimerCallBack>(cb);
+        
+        // NOTE: it acquires it due to opl->start
+        if (!m_device->acquire(this))
+        {
+            throwLogE<std::runtime_error>("Device is already in used by another driver or can't be init");
+        }
+
         m_opl->start(
             p,
             group,
@@ -53,13 +54,9 @@ namespace HyperSonicDrivers::drivers::westwood
         setOplSfxVolume(255);
     }
 
-    ADLDriver::ADLDriver(
-        const devices::Opl& opl,
-        const audio::mixer::eChannelGroup group,
-        const uint8_t volume,
-        const uint8_t pan
-    ) : ADLDriver(opl.getOpl(), group, volume, pan)
+    ADLDriver::~ADLDriver()
     {
+        m_device->release(this);
     }
 
     void ADLDriver::setADLFile(const std::shared_ptr<files::westwood::ADLFile>& adl_file) noexcept
@@ -104,7 +101,7 @@ namespace HyperSonicDrivers::drivers::westwood
         ++m_programQueueEnd &= 15;
     }
 
-    bool ADLDriver::isChannelPlaying(const int channel)
+    bool ADLDriver::isChannelPlaying(const int channel) const noexcept
     {
         const std::scoped_lock lock(m_mutex);
 
@@ -221,7 +218,7 @@ namespace HyperSonicDrivers::drivers::westwood
 
         m_oplSfxVolume = volume;
 
-        for (uint8_t i = 6; i < 9; ++i) {
+        for (uint8_t i = 6; i < NUM_CHANNELS; ++i) {
             Channel& chan = m_channels[i];
             chan.volumeModifier = volume;
 
@@ -233,10 +230,11 @@ namespace HyperSonicDrivers::drivers::westwood
         }
     }
 
-    void ADLDriver::play(const uint8_t track, const uint8_t volume)
+    void ADLDriver::play(const uint8_t track) noexcept
     {
         std::scoped_lock lock(m_mutex);
 
+        constexpr uint8_t volume = std::numeric_limits<uint8_t>::max();
         uint16_t soundId = 0;
 
         soundId = m_adl_file->getTrack(track);
@@ -248,7 +246,12 @@ namespace HyperSonicDrivers::drivers::westwood
         startSound_(soundId, volume);
     }
 
-    bool ADLDriver::isPlaying()
+    void ADLDriver::stop() noexcept
+    {
+        stopAllChannels();
+    }
+
+    bool ADLDriver::isPlaying() const noexcept
     {
         return isChannelPlaying(0) || m_programQueueStart != m_programQueueEnd;
     }
@@ -517,7 +520,7 @@ namespace HyperSonicDrivers::drivers::westwood
     {
         logD("resetAdLibState()");
 
-        m_rnd = 0x1234;
+        m_rnd = random_seed;
 
         // Authorize the control of the waveforms
         writeOPL_(0x01, 0x20);

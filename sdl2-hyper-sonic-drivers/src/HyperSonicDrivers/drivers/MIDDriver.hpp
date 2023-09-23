@@ -5,25 +5,48 @@
 #include <thread>
 #include <atomic>
 #include <HyperSonicDrivers/audio/IMixer.hpp>
-#include <HyperSonicDrivers/audio/midi/types.hpp>
+#include <HyperSonicDrivers/audio/mixer/ChannelGroup.hpp>
 #include <HyperSonicDrivers/audio/MIDI.hpp>
-#include <HyperSonicDrivers/devices/IMidiDevice.hpp>
+#include <HyperSonicDrivers/audio/midi/types.hpp>
+#include <HyperSonicDrivers/devices/IDevice.hpp>
+#include <HyperSonicDrivers/drivers/IMusicDriver.hpp>
+#include <HyperSonicDrivers/audio/opl/banks/OP2Bank.hpp>
+
 
 namespace HyperSonicDrivers::drivers
 {
     // TODO/NOTE: this is more the OnTimer logic and setup of OplDriver, but generalized
     //            for whatever midi::driver ... need to be reivewed
     // TODO: maybe rename it to midi_player
-    class MIDDriver
+    // TODO: deprecated class
+    class MIDDriver : public IMusicDriver
     {
     public:
-        explicit MIDDriver(const std::shared_ptr<devices::IMidiDevice>& device);
-        ~MIDDriver();
-        void play(const std::shared_ptr<audio::MIDI>& midi) noexcept;
-        void stop() noexcept;
+        explicit MIDDriver(
+            const std::shared_ptr<devices::IDevice>& device,
+            const audio::mixer::eChannelGroup group,
+            const uint8_t volume = 255,
+            const uint8_t pan = 0
+        );
+        ~MIDDriver() override;
+
+        void setMidi(const std::shared_ptr<audio::MIDI>& midi) noexcept;
+        // It works only for Opl devices
+        bool loadBankOP2(const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank) noexcept;
+        // this restore the default MidiDriver (scummvm::MidiAdlib, MT32)
+        bool resetBankOP2() noexcept;
+
+        //[[deprecated("use the other play method")]]
+        //void play(const std::shared_ptr<audio::MIDI>& midi) noexcept;
+
+        void play(const uint8_t track = 0) noexcept override;
+        void stop() noexcept override;
+
         void pause() noexcept;
         void resume() noexcept;
-        bool isPlaying() const noexcept;
+
+        bool isPlaying() const noexcept override;
+
         bool isPaused() const noexcept;
         inline bool isTempoChanged() const noexcept { return m_midiTempoChanged; }
         inline uint32_t getTempo() noexcept { m_midiTempoChanged = false; return m_tempo; }
@@ -33,10 +56,14 @@ namespace HyperSonicDrivers::drivers
         //       would be better using SDL2 custom event 
         //       or a event queue sub-sytem instead of doing this with a simple boolean
         inline void setTempo(const uint32_t tempo) noexcept { m_midiTempoChanged = true; m_tempo = tempo; }
-
+        bool open_() noexcept;
     private:
-        std::shared_ptr<devices::IMidiDevice> m_device;
-
+        std::shared_ptr<devices::IDevice> m_device;
+        std::unique_ptr<drivers::midi::IMidiDriver> m_midiDriver;
+        std::shared_ptr<audio::MIDI> m_midi;
+        const audio::mixer::eChannelGroup m_group;
+        const uint8_t m_volume;
+        const uint8_t m_pan;
         // TODO: consider to create a utils/Thread class
         //       to handle for each OS specific realtime and initialization step.
         std::jthread m_player;

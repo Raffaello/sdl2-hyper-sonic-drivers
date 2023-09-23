@@ -44,6 +44,8 @@ namespace HyperSonicDrivers::audio::stubs
         void muteChannelGroup(const mixer::eChannelGroup group) noexcept override {};
         void unmuteChannelGroup(const mixer::eChannelGroup group) noexcept override {};
 
+        mixer::eChannelGroup getChannelGroup(const uint8_t id) const noexcept override { return mixer::eChannelGroup::Unknown; }
+
         uint8_t getChannelVolume(const uint8_t id) const noexcept override { return audio::mixer::Channel_max_volume; };
         void setChannelVolume(const uint8_t id, const uint8_t volume) noexcept override {};
         uint8_t getChannelPan(const uint8_t id) const noexcept override { return 0; };

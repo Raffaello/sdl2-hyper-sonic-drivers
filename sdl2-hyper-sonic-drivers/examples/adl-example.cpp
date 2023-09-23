@@ -5,6 +5,9 @@
 #include <HyperSonicDrivers/files/westwood/ADLFile.hpp>
 #include <HyperSonicDrivers/drivers/westwood/ADLDriver.hpp>
 #include <HyperSonicDrivers/utils/ILogger.hpp>
+#include <HyperSonicDrivers/devices/Adlib.hpp>
+#include <HyperSonicDrivers/devices/SbPro.hpp>
+#include <HyperSonicDrivers/devices/SbPro2.hpp>
 
 #include <spdlog/spdlog.h>
 #include <fmt/color.h>
@@ -24,16 +27,31 @@ using files::westwood::ADLFile;
 using drivers::westwood::ADLDriver;
 
 
-void adl_test(const OplEmulator emu, const OplType type, std::shared_ptr<audio::IMixer> mixer, const std::string& filename, const int track)
+void adl_test(const OplEmulator emu, const OplType type, std::shared_ptr<audio::IMixer> mixer, const std::string& filename, const uint8_t track)
 {
-    auto opl = OPLFactory::create(emu, type, mixer);
-    if (opl == nullptr)
-        return;
+    using devices::make_device;
 
     auto adlFile = std::make_shared<ADLFile>(filename);
-    ADLDriver adlDrv(opl, audio::mixer::eChannelGroup::Music);
+    std::shared_ptr<devices::Opl> device;
+    switch (type)
+    {
+        using enum OplType;
+
+    case OPL2:
+        device = make_device<devices::Adlib, devices::Opl>(mixer, emu);
+        break;
+    case DUAL_OPL2:
+        device = make_device<devices::SbPro, devices::Opl>(mixer, emu);
+        break;
+    case OPL3:
+        device = make_device<devices::SbPro2, devices::Opl>(mixer, emu);
+        break;
+
+    }
+
+    ADLDriver adlDrv(device, audio::mixer::eChannelGroup::Music);
     adlDrv.setADLFile(adlFile);
-    adlDrv.play(track, 0xFF);
+    adlDrv.play(track);
 
     if(!mixer->isReady()) {
         spdlog::error("mixer not ready yet..");

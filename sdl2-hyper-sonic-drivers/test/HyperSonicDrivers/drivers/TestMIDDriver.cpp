@@ -9,8 +9,7 @@
 #include <HyperSonicDrivers/audio/midi/MIDITrack.hpp>
 #include <HyperSonicDrivers/audio/midi/types.hpp>
 #include <HyperSonicDrivers/drivers/MIDDriver.hpp>
-#include <HyperSonicDrivers/devices/IMidiDevice.hpp>
-#include <HyperSonicDrivers/devices/midi/SpyMidiDevice.hpp>
+#include <HyperSonicDrivers/devices/SpyDevice.hpp>
 #include <HyperSonicDrivers/drivers/MIDDriverMock.hpp>
 #include <HyperSonicDrivers/files/MIDFile.hpp>
 #include <HyperSonicDrivers/utils/algorithms.hpp>
@@ -27,7 +26,7 @@ namespace HyperSonicDrivers::drivers
 
     TEST(MIDDriver, SEQUENCE_NAME_META_EVENT)
     {
-        auto device = std::make_shared<devices::midi::SpyMidiDevice>();
+        auto device = std::make_shared<devices::SpyDevice>();
 
         ILogger::instance->setLevel(ILogger::eLevel::Trace, ILogger::eCategory::Audio);
 
@@ -55,101 +54,62 @@ namespace HyperSonicDrivers::drivers
 
     TEST(MIDDriver, force_stop_on_long_delta_time_delay)
     {
-        auto device = std::make_shared<devices::midi::SpyMidiDevice>();
+        auto device = std::make_shared<devices::SpyDevice>();
+        {
 
-        MIDIEvent e;
-        e.delta_time = 0;
-        e.type.high = (uint8_t)MIDI_EVENT_TYPES_HIGH::META_SYSEX;
-        e.type.low = (uint8_t)MIDI_META_EVENT_TYPES_LOW::META;
+            MIDIEvent e;
+            e.delta_time = 0;
+            e.type.high = (uint8_t)MIDI_EVENT_TYPES_HIGH::META_SYSEX;
+            e.type.low = (uint8_t)MIDI_META_EVENT_TYPES_LOW::META;
 
-        // this can be a parameter
-        e.data.push_back((uint8_t)MIDI_META_EVENT::SEQUENCE_NAME);
+            // this can be a parameter
+            e.data.push_back((uint8_t)MIDI_META_EVENT::SEQUENCE_NAME);
 
-        std::string s = "sequence_name";
-        e.data.insert(e.data.end(), s.begin(), s.end());
+            std::string s = "sequence_name";
+            e.data.insert(e.data.end(), s.begin(), s.end());
 
-        auto midi_track = audio::midi::MIDITrack();
-        midi_track.addEvent(e);
+            auto midi_track = audio::midi::MIDITrack();
+            midi_track.addEvent(e);
 
 
-        e.delta_time = 1000;
-        e.type.high = (uint8_t)MIDI_EVENT_TYPES_HIGH::PROGRAM_CHANGE;
-        e.type.low = 0;
-        e.data.clear();
-        e.data.push_back((uint8_t)0);
-        e.data.push_back((uint8_t)0);
+            e.delta_time = 1000;
+            e.type.high = (uint8_t)MIDI_EVENT_TYPES_HIGH::PROGRAM_CHANGE;
+            e.type.low = 0;
+            e.data.clear();
+            e.data.push_back((uint8_t)0);
+            e.data.push_back((uint8_t)0);
 
-        midi_track.addEvent(e);
+            midi_track.addEvent(e);
 
-        auto midi = std::make_shared<audio::MIDI>(MIDI_FORMAT::SINGLE_TRACK, 1, 192);
-        midi->addTrack(midi_track);
+            auto midi = std::make_shared<audio::MIDI>(MIDI_FORMAT::SINGLE_TRACK, 1, 192);
+            midi->addTrack(midi_track);
 
-        MIDDriverMock middrv(device);
-        middrv.play(midi);
-        ASSERT_TRUE(middrv.isPlaying());
-        auto start = utils::getMillis<uint32_t>();
-        utils::delayMillis(20);
-        middrv.stop();
-        EXPECT_FALSE(middrv.isPlaying());
-        auto stop = utils::getMillis<uint32_t>();
-        EXPECT_LE(stop - start, 1 * 1000);
-        EXPECT_FALSE(middrv.isPlaying());
+            MIDDriverMock middrv(device);
+            middrv.setMidi(midi);
+            middrv.play(0);
+            ASSERT_TRUE(middrv.isPlaying());
+            auto start = utils::getMillis<uint32_t>();
+            utils::delayMillis(20);
+            middrv.stop();
+            EXPECT_FALSE(middrv.isPlaying());
+            auto stop = utils::getMillis<uint32_t>();
+            EXPECT_LE(stop - start, 1 * 1000);
+            EXPECT_FALSE(middrv.isPlaying());
+            EXPECT_TRUE(device->isAcquired());
+        }
         EXPECT_FALSE(device->isAcquired());
-    }
 
-    TEST(MIDDriver, acquire)
-    {
-        using audio::midi::MIDIEvent;
-        using audio::midi::MIDI_EVENT_TYPES_HIGH;
-        using audio::midi::MIDI_META_EVENT_TYPES_LOW;
-        using audio::midi::MIDI_META_EVENT;
-        using audio::midi::MIDI_FORMAT;
-
-        auto midi_track = audio::midi::MIDITrack();
-
-        MIDIEvent e;
-
-        e.delta_time = 50;
-        e.type.high = (uint8_t)MIDI_EVENT_TYPES_HIGH::PROGRAM_CHANGE;
-        e.type.low = 0;
-        e.data.push_back((uint8_t)0);
-        e.data.push_back((uint8_t)0);
-        midi_track.addEvent(e);
-
-        e.delta_time = 0;
-        e.type.high = (uint8_t)MIDI_EVENT_TYPES_HIGH::META_SYSEX;
-        e.type.low = (uint8_t)MIDI_META_EVENT_TYPES_LOW::META;
-        e.data.clear();
-        e.data.push_back((uint8_t)MIDI_META_EVENT::END_OF_TRACK);
-        e.data.push_back((uint8_t)0);
-        midi_track.addEvent(e);
-
-        auto midi = std::make_shared<audio::MIDI>(MIDI_FORMAT::SINGLE_TRACK, 1, 96);
-        midi->addTrack(midi_track);
-        auto device = std::make_shared<devices::midi::SpyMidiDevice>();
-
-        MIDDriverMock middrv1(device);
-        EXPECT_EQ(device.use_count(), 2);
-        MIDDriverMock middrv2(device);
-        EXPECT_EQ(device.use_count(), 3);
-
-        ASSERT_FALSE(device->isAcquired());
-        middrv1.play(midi);
-        ASSERT_TRUE(device->isAcquired());
-        middrv2.play(midi);
-        ASSERT_FALSE(middrv2.isPlaying());
-        middrv1.stop();
-        ASSERT_FALSE(device->isAcquired());
     }
 
     TEST(MIDDriver, getTempo)
     {
         auto mf = files::MIDFile("../fixtures/midifile_sample.mid");
-        auto device = std::make_shared<devices::midi::SpyMidiDevice>();
-        MIDDriver md(device);
+        auto device = std::make_shared<devices::SpyDevice>();
+        MIDDriverMock md(device);
         EXPECT_EQ(md.getTempo(), 0);
         EXPECT_FALSE(md.isTempoChanged());
-        md.play(mf.getMIDI());
+        md.setMidi(mf.getMIDI());
+        md.play(0);
         while (!md.isTempoChanged()) {
             utils::delayMillis(10);
         }

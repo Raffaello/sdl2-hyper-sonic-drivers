@@ -13,10 +13,6 @@ namespace HyperSonicDrivers::drivers::midi
     class IMidiDriver
     {
     public:
-        IMidiDriver(IMidiDriver&) = delete;
-        IMidiDriver(IMidiDriver&&) = delete;
-        IMidiDriver& operator=(IMidiDriver&) = delete;
-
         IMidiDriver() = default;
         virtual ~IMidiDriver() = default;
 

@@ -8,6 +8,7 @@
 #include <HyperSonicDrivers/files/westwood/ADLFile.hpp>
 #include <HyperSonicDrivers/hardware/opl/OPL2instrument.h>
 #include <HyperSonicDrivers/devices/Opl.hpp>
+#include <HyperSonicDrivers/drivers/IMusicDriver.hpp>
 
 namespace HyperSonicDrivers::drivers::westwood
 {
@@ -28,40 +29,34 @@ namespace HyperSonicDrivers::drivers::westwood
     /// the same file format(but need different offset adjustments);
     /// Kyrandia 2 and LoL format(version 4) is different again.
     /// </summary>
-    class ADLDriver
+    class ADLDriver : public IMusicDriver
     {
     public:
-        [[deprecated("use an opl device instead of opl")]]
         explicit ADLDriver(
-            const std::shared_ptr<hardware::opl::OPL>& opl,
+            const std::shared_ptr<devices::Opl>& opl,
             const audio::mixer::eChannelGroup group,
             const uint8_t volume = 255,
             const uint8_t pan = 0
         );
 
-        explicit ADLDriver(
-            const devices::Opl& opl,
-            const audio::mixer::eChannelGroup group,
-            const uint8_t volume = 255,
-            const uint8_t pan = 0
-        );
+        ~ADLDriver() override;
 
-        virtual ~ADLDriver() = default;
         void setADLFile(const std::shared_ptr<files::westwood::ADLFile>& adl_file) noexcept;
 
-        bool isChannelPlaying(const int channel);
+        bool isChannelPlaying(const int channel) const noexcept;
         void stopAllChannels();
         int getSoundTrigger() const;
         void resetSoundTrigger();
-
         void callback();
         void setSyncJumpMask(const uint16_t mask);
 
         void setOplMusicVolume(const uint8_t volume);
         void setOplSfxVolume(const uint8_t volume);
 
-        void play(const uint8_t track, const uint8_t volume = 0xFF);
-        bool isPlaying();
+        void play(const uint8_t track) noexcept override;
+        void stop() noexcept override;
+
+        bool isPlaying() const noexcept override;
     private:
         void initDriver_();
         void startSound_(const uint8_t track, const uint8_t volume);
@@ -260,6 +255,7 @@ namespace HyperSonicDrivers::drivers::westwood
         uint8_t m_opExtraLevel1BD = 0;
         uint8_t m_opExtraLevel2BD = 0;
 
+        std::shared_ptr<devices::Opl> m_device;
         std::shared_ptr<hardware::opl::OPL> m_opl;
 
         struct QueueEntry

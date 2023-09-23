@@ -132,42 +132,34 @@ macro_test(
 )
 
 macro_test(
-    EXE TestIMidiDevice
-    FILES "devices/TestIMidiDevice.cpp"
+    EXE TestIDevice
+    FILES "devices/TestIDevice.cpp"
     LINKS_PRIVATE hyper-sonic-drivers-static
     FIXTURES
 )
 
 macro_test(
-    EXE TestMidiOplDevice
-    FILES "devices/midi/TestMidiOpl.cpp"
+    EXE TestOplDevice
+    FILES "devices/TestOpl.cpp"
     LINKS_PRIVATE hyper-sonic-drivers-static
-    FIXTURES
-        "../fixtures/GENMIDI.OP2"
 )
 
 macro_test(
-    EXE TestMidiAdlib
-    FILES "devices/midi/TestMidiAdlib.cpp"
+    EXE TestAdlib
+    FILES "devices/TestAdlib.cpp"
     LINKS_PRIVATE hyper-sonic-drivers-static
-    FIXTURES
-        "../fixtures/GENMIDI.OP2"
 )
 
 macro_test(
-    EXE TestMidiSbPro
-    FILES "devices/midi/TestMidiSbPro.cpp"
+    EXE TestSbPro
+    FILES "devices/TestSbPro.cpp"
     LINKS_PRIVATE hyper-sonic-drivers-static
-    FIXTURES
-        "../fixtures/GENMIDI.OP2"
 )
 
 macro_test(
-    EXE TestMidiSbPro2
-    FILES "devices/midi/TestMidiSbPro2.cpp"
+    EXE TestSbPro2
+    FILES "devices/TestSbPro2.cpp"
     LINKS_PRIVATE hyper-sonic-drivers-static
-    FIXTURES
-        "../fixtures/GENMIDI.OP2"
 )
 
 macro_test(

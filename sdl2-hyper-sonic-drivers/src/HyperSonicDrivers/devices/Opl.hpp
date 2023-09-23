@@ -2,9 +2,7 @@
 
 #include <cstdint>
 #include <memory>
-#include <optional>
 #include <HyperSonicDrivers/audio/IMixer.hpp>
-#include <HyperSonicDrivers/audio/mixer/ChannelGroup.hpp>
 #include <HyperSonicDrivers/devices/IDevice.hpp>
 #include <HyperSonicDrivers/hardware/opl/OPL.hpp>
 #include <HyperSonicDrivers/hardware/opl/OplEmulator.hpp>
@@ -25,13 +23,11 @@ namespace HyperSonicDrivers::devices
         );
 
     public:
-        inline std::optional<uint8_t> getChannelId() const noexcept override { return m_opl->getChannelId(); };
-
-        //void playAdl();
-        //void playMidi();
+        bool init() noexcept override;
+        bool shutdown() noexcept override;
 
         inline std::shared_ptr<hardware::opl::OPL> getOpl() const noexcept { return m_opl; };
-
+        hardware::opl::OPL* getHardware() const noexcept override { return dynamic_cast<hardware::opl::OPL*>(IDevice::getHardware()); };
     private:
         std::shared_ptr<hardware::opl::OPL> m_opl;
     };

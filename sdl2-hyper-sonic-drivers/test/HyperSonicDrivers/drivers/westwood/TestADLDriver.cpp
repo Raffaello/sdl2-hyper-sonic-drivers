@@ -4,7 +4,7 @@
 #include <HyperSonicDrivers/drivers/westwood/ADLDriver.hpp>
 #include <HyperSonicDrivers/audio/stubs/StubMixer.hpp>
 #include <HyperSonicDrivers/files/westwood/ADLFile.hpp>
-#include <HyperSonicDrivers/hardware/opl/scummvm/mame/MameOPL2.hpp>
+#include <HyperSonicDrivers/devices/Adlib.hpp>
 
 namespace HyperSonicDrivers::drivers::westwood
 {
@@ -16,13 +16,9 @@ namespace HyperSonicDrivers::drivers::westwood
     {
         auto mixer = std::make_shared<StubMixer>();
         auto adlFile = std::make_shared<files::westwood::ADLFile>("../fixtures/DUNE19.ADL");
-        auto opl = std::make_shared<hardware::opl::scummvm::mame::MameOPL2>(OplType::OPL2, mixer);
-        EXPECT_EQ(opl.use_count(), 1);
-        EXPECT_EQ(mixer.use_count(), 2);
-
-        ADLDriver adlDrv(opl, audio::mixer::eChannelGroup::Plain);
+        auto adlib = devices::make_device<devices::Adlib, devices::Opl>(mixer);
+        ADLDriver adlDrv(adlib, audio::mixer::eChannelGroup::Plain);
         adlDrv.setADLFile(adlFile);
-        EXPECT_EQ(opl.use_count(), 2);
         EXPECT_EQ(adlFile.use_count(), 2);
     }
 
@@ -34,14 +30,11 @@ namespace HyperSonicDrivers::drivers::westwood
         auto adlFile = std::make_shared<files::westwood::ADLFile>("../fixtures/DUNE19.ADL");
         EXPECT_EQ(adlFile.use_count(), 1);
 
-        auto opl = std::make_shared<hardware::opl::scummvm::mame::MameOPL2>(OplType::OPL2, mixer);
-        EXPECT_EQ(opl.use_count(), 1);
-        EXPECT_EQ(mixer.use_count(), 2);
+        auto adlib = devices::make_device<devices::Adlib, devices::Opl>(mixer);
 
-        auto adlDrv = std::make_shared<ADLDriver>(opl, audio::mixer::eChannelGroup::Plain);
+        auto adlDrv = std::make_shared<ADLDriver>(adlib, audio::mixer::eChannelGroup::Plain);
         adlDrv->setADLFile(adlFile);
         EXPECT_EQ(adlDrv.use_count(), 1);
-        EXPECT_EQ(opl.use_count(), 2);
         EXPECT_EQ(adlFile.use_count(), 2);
     }
 }

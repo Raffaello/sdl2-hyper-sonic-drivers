@@ -61,9 +61,10 @@ namespace HyperSonicDrivers::audio
 
         virtual void setChannelVolumePan(const uint8_t id, const uint8_t volume, const int8_t pan) noexcept = 0;
 
+        virtual mixer::eChannelGroup getChannelGroup(const uint8_t id) const noexcept = 0;
+
         uint8_t getChannelGroupVolume(const mixer::eChannelGroup group) const noexcept;
         void setChannelGroupVolume(const mixer::eChannelGroup group, const uint8_t volume) noexcept;
-
 
         // TODO: these 3 methods are useless if those 3 vars are consts...
         inline uint32_t getOutputRate() const noexcept { return m_sampleRate; };
@@ -72,7 +73,7 @@ namespace HyperSonicDrivers::audio
         inline uint8_t getMasterVolume() const noexcept { return m_master_volume; };
 
         virtual void setMasterVolume(const uint8_t master_volume) noexcept = 0;
-        
+
         inline void toggleReverseStereo() noexcept { m_reverseStereo = !m_reverseStereo; };
 
         const uint8_t max_channels;
