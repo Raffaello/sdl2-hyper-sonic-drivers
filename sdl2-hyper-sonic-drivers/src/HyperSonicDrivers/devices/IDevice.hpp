@@ -20,8 +20,8 @@ namespace HyperSonicDrivers::devices
         virtual ~IDevice() = default;
 
         virtual bool init() noexcept = 0;
-        inline bool isInit() const noexcept { return m_init; };
         virtual bool shutdown() noexcept = 0;
+        inline bool isInit() const noexcept { return m_init; };
 
         std::optional<uint8_t> getChannelId() const noexcept { return m_hardware->getChannelId(); };
 

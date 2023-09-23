@@ -25,6 +25,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
     };
 
     static const AdLibSetParams g_setParamTable[] = {
+    //   reg,  offs, val1, val2 ?
         {0x40, 0, 63, 63},  // level
         {0xE0, 2, 0, 0},    // unused
         {0x40, 6, 192, 0},  // level key scaling
@@ -103,7 +104,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
     MidiDriver_ADLIB::~MidiDriver_ADLIB()
     {
         if (m_isOpen)
-            close();
+            MidiDriver_ADLIB::close();
     }
 
     bool MidiDriver_ADLIB::open(
@@ -112,7 +113,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         const uint8_t pan)
     {
         if (m_isOpen)
-            return true; //MERR_ALREADY_OPEN;
+            return true;
 
         m_isOpen = true;
 
@@ -234,7 +235,8 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
     }
 
     uint32_t MidiDriver_ADLIB::property(int prop, uint32_t param) {
-        switch (prop) {
+        switch (prop)
+        {
         case PROP_OLD_ADLIB: // Older games used a different operator volume algorithm
             _scummSmallHeader = (param > 0);
             if (_scummSmallHeader) {
@@ -319,6 +321,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
     void MidiDriver_ADLIB::onTimer()
     {
+        // TODO: here has to call the midi parser/player to send the next event(s)
         //if (_adlibTimerProc)
         //    (*_adlibTimerProc)(_adlibTimerParam);
 

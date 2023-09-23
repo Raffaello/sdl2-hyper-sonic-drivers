@@ -74,6 +74,10 @@ namespace HyperSonicDrivers::drivers::midi::opl
 
     void OplDriver::onTimer()
     {
+        // TODO: here has to call the midi player/parser to send the next events.
+        // and update the internal ticks/timer to keep tracks of the deltas
+        
+
         // TODO: here could process midi events,
         //       enqueued in send method
         //  if queue empty do nothing

@@ -15,6 +15,7 @@ namespace HyperSonicDrivers::drivers
      * @brief Managing PCM sound and their playback
      * @details It is a sort of bridge between Mixer and Sound objects
      *          so just simplify playing digital sounds.
+     * TODO: should be PCMPlayer instead?
      */
     class PCMDriver final
     {
