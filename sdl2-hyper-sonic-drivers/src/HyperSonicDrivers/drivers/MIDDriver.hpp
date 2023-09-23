@@ -15,10 +15,10 @@
 
 namespace HyperSonicDrivers::drivers
 {
-    // TODO/NOTE: this is more the OnTimer logic and setup of OplDriver, but generalized
-    //            for whatever midi::driver ... need to be reviewed
-    // TODO: maybe rename it to midi_player
-    // TODO: deprecated class
+    /**
+    * Not sure what is this class, a wrapper around different midi driver
+    * TODO: remove the thread and perform through callbacks
+    **/
     class MIDDriver : public IMusicDriver
     {
     public:
@@ -35,9 +35,6 @@ namespace HyperSonicDrivers::drivers
         bool loadBankOP2(const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank) noexcept;
         // this restore the default MidiDriver (scummvm::MidiAdlib, MT32)
         bool resetBankOP2() noexcept;
-
-        //[[deprecated("use the other play method")]]
-        //void play(const std::shared_ptr<audio::MIDI>& midi) noexcept;
 
         void play(const uint8_t track = 0) noexcept override;
         void stop() noexcept override;

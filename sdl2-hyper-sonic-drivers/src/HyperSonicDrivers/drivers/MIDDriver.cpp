@@ -167,6 +167,34 @@ namespace HyperSonicDrivers::drivers
             return;
         }
 
+        // TODO: this could be to set the callback frequency?
+        //       this block is doing nothing now.....
+        if (m_midi->division & 0x8000)
+        {
+            // ticks per frame
+            int smpte = (m_midi->division & 0x7FFF) >> 8;
+            int ticksPerFrame = m_midi->division & 0xFF;
+            switch (smpte)
+            {
+            case -24:
+            case -25:
+            case -29:
+            case -30:
+                logW("SMPTE not implemented yet");
+                break;
+            default:
+                logW(std::format("Division SMPTE not known = {}", smpte));
+            }
+
+            logD(std::format("Division: Ticks per frame = {}, {}", ticksPerFrame, smpte));
+            logW("division ticks per frame not implemented yet");
+        }
+        else
+        {
+            // ticks per quarter note
+            logD(std::format("Division: Ticks per quarter note = {}", m_midi->division & 0x7FFF));
+        }
+
         stop();
         if (!m_device->acquire(this)) {
             return;
