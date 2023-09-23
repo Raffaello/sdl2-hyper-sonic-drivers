@@ -85,7 +85,8 @@ namespace HyperSonicDrivers::drivers
             midi->addTrack(midi_track);
 
             MIDDriverMock middrv(device);
-            middrv.play(midi);
+            middrv.setMidi(midi);
+            middrv.play(0);
             ASSERT_TRUE(middrv.isPlaying());
             auto start = utils::getMillis<uint32_t>();
             utils::delayMillis(20);
@@ -107,7 +108,8 @@ namespace HyperSonicDrivers::drivers
         MIDDriverMock md(device);
         EXPECT_EQ(md.getTempo(), 0);
         EXPECT_FALSE(md.isTempoChanged());
-        md.play(mf.getMIDI());
+        md.setMidi(mf.getMIDI());
+        md.play(0);
         while (!md.isTempoChanged()) {
             utils::delayMillis(10);
         }

@@ -36,8 +36,8 @@ namespace HyperSonicDrivers::drivers
         // this restore the default MidiDriver (scummvm::MidiAdlib, MT32)
         bool resetBankOP2() noexcept;
 
-        [[deprecated("use the other play method")]]
-        void play(const std::shared_ptr<audio::MIDI>& midi) noexcept;
+        //[[deprecated("use the other play method")]]
+        //void play(const std::shared_ptr<audio::MIDI>& midi) noexcept;
 
         void play(const uint8_t track = 0) noexcept override;
         void stop() noexcept override;

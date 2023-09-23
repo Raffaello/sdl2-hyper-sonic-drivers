@@ -110,54 +110,54 @@ namespace HyperSonicDrivers::drivers
         return open_();
     }
     
-    void MIDDriver::play(const std::shared_ptr<audio::MIDI>& midi) noexcept
-    {
-        using audio::midi::MIDI_FORMAT;
+    //void MIDDriver::play(const std::shared_ptr<audio::MIDI>& midi) noexcept
+    //{
+    //    using audio::midi::MIDI_FORMAT;
 
-        setMidi(midi);
+    //    setMidi(midi);
 
-        if (midi->format != MIDI_FORMAT::SINGLE_TRACK && midi->numTracks != 1)
-        {
-            logC("MIDI format single track supported only");
-            return;
-        }
+    //    if (midi->format != MIDI_FORMAT::SINGLE_TRACK && midi->numTracks != 1)
+    //    {
+    //        logC("MIDI format single track supported only");
+    //        return;
+    //    }
 
-        // TODO: this is to set the callback frequency
-        if (midi->division & 0x8000)
-        {
-            // ticks per frame
-            int smpte = (midi->division & 0x7FFF) >> 8;
-            int ticksPerFrame = midi->division & 0xFF;
-            switch (smpte)
-            {
-            case -24:
-            case -25:
-            case -29:
-            case -30:
-                logW("SMPTE not implemented yet");
-                break;
-            default:
-                logW(std::format("Division SMPTE not known = {}", smpte));
-            }
+    //    // TODO: this is to set the callback frequency
+    //    if (midi->division & 0x8000)
+    //    {
+    //        // ticks per frame
+    //        int smpte = (midi->division & 0x7FFF) >> 8;
+    //        int ticksPerFrame = midi->division & 0xFF;
+    //        switch (smpte)
+    //        {
+    //        case -24:
+    //        case -25:
+    //        case -29:
+    //        case -30:
+    //            logW("SMPTE not implemented yet");
+    //            break;
+    //        default:
+    //            logW(std::format("Division SMPTE not known = {}", smpte));
+    //        }
 
-            logD(std::format("Division: Ticks per frame = {}, {}", ticksPerFrame, smpte));
-            logW("division ticks per frame not implemented yet");
-        }
-        else
-        {
-            // ticks per quarter note
-            logD(std::format("Division: Ticks per quarter note = {}", midi->division & 0x7FFF));
-        }
+    //        logD(std::format("Division: Ticks per frame = {}, {}", ticksPerFrame, smpte));
+    //        logW("division ticks per frame not implemented yet");
+    //    }
+    //    else
+    //    {
+    //        // ticks per quarter note
+    //        logD(std::format("Division: Ticks per quarter note = {}", midi->division & 0x7FFF));
+    //    }
 
-        stop();
-        if (!m_device->acquire(this)) {
-            return;
-        }
+    //    stop();
+    //    if (!m_device->acquire(this)) {
+    //        return;
+    //    }
 
-        //TODO: it would be better reusing the thread...
-        m_player = std::jthread(&MIDDriver::processTrack, this, midi->getTrack(), midi->division & 0x7FFF);
-        m_isPlaying = true;
-    }
+    //    //TODO: it would be better reusing the thread...
+    //    m_player = std::jthread(&MIDDriver::processTrack, this, midi->getTrack(), midi->division & 0x7FFF);
+    //    m_isPlaying = true;
+    //}
 
     void MIDDriver::play(const uint8_t track) noexcept
     {
@@ -185,7 +185,6 @@ namespace HyperSonicDrivers::drivers
             m_player.join();
         m_force_stop = false;
         m_isPlaying = false;
-        //m_device->release(this);
     }
 
     void MIDDriver::pause() noexcept
@@ -243,13 +242,11 @@ namespace HyperSonicDrivers::drivers
         {
             if(m_paused)
             {
-                //m_device->pause();
                 m_midiDriver->pause();
                 do
                 {
                     utils::delayMillis(PAUSE_MILLIS);
                 } while (m_paused);
-                //m_device->resume();
                 m_midiDriver->resume();
                 start = get_start_time();
             }
@@ -344,13 +341,11 @@ namespace HyperSonicDrivers::drivers
                 case MIDI_META_EVENT_TYPES_LOW::SYS_EX0:
                     logD("SYS_EX0 META event");
                     // TODO: it should be sent as normal event?
-                    //m_device->sendSysEx(e);
                     m_midiDriver->send(e);
                     continue;
                 case MIDI_META_EVENT_TYPES_LOW::SYS_EX7:
                     logD("SYS_EX7 META event");
                     // TODO: it should be sent as normal event?
-                    //m_device->sendSysEx(e);
                     m_midiDriver->send(e);
                     continue;
                 default:
@@ -398,11 +393,9 @@ namespace HyperSonicDrivers::drivers
                 start = get_start_time();
             }
 
-            //m_device->sendEvent(e);
             m_midiDriver->send(e);
         }
 
-        //m_device->release(this);
         m_isPlaying = false;
     }
 }

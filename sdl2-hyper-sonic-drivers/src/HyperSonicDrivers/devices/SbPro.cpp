@@ -1,8 +1,5 @@
 #include <HyperSonicDrivers/devices/SbPro.hpp>
-#include <HyperSonicDrivers/hardware/opl/OPLFactory.hpp>
 #include <HyperSonicDrivers/hardware/opl/OplType.hpp>
-#include <HyperSonicDrivers/utils/ILogger.hpp>
-#include <std/OplEmulatorFormatter.hpp>
 
 namespace HyperSonicDrivers::devices
 {

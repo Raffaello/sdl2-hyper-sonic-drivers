@@ -1,14 +1,10 @@
 #pragma once
 
-#include <HyperSonicDrivers/devices/Opl.hpp>
-#include <HyperSonicDrivers/drivers/westwood/ADLDriver.hpp>
-#include <HyperSonicDrivers/drivers/MIDDriver.hpp>
-#include <HyperSonicDrivers/hardware/opl/OPL.hpp>
-#include <HyperSonicDrivers/audio/IMixer.hpp>
-#include <HyperSonicDrivers/audio/mixer/ChannelGroup.hpp>
-#include <HyperSonicDrivers/hardware/opl/OplEmulator.hpp>
 #include <cstdint>
 #include <memory>
+#include <HyperSonicDrivers/devices/Opl.hpp>
+#include <HyperSonicDrivers/audio/IMixer.hpp>
+#include <HyperSonicDrivers/hardware/opl/OplEmulator.hpp>
 
 namespace HyperSonicDrivers::devices
 {
