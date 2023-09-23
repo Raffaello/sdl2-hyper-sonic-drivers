@@ -61,8 +61,7 @@ namespace HyperSonicDrivers::drivers
         const audio::mixer::eChannelGroup m_group;
         const uint8_t m_volume;
         const uint8_t m_pan;
-        // TODO: consider to create a utils/Thread class
-        //       to handle for each OS specific realtime and initialization step.
+        
         std::jthread m_player;
 
         std::atomic<bool> m_isPlaying = false;

@@ -205,7 +205,7 @@ namespace HyperSonicDrivers::drivers
         m_isPlaying = true;
     }
 
-    void MIDDriver::stop(/*const bool wait*/) noexcept
+    void MIDDriver::stop() noexcept
     {
         m_force_stop = true;
         m_paused = false;
