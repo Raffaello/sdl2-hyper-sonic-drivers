@@ -90,18 +90,6 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         242, 243, 245, 247, 249, 251, 252, 254
     };
 
-    /*MidiDriver_ADLIB::MidiDriver_ADLIB(const std::shared_ptr<hardware::opl::OPL>& opl, const bool opl3mode)
-        : m_opl(opl), m_opl3Mode(opl3mode)
-    {
-        std::ranges::fill(_curNotTable, 0);
-        for (size_t i = 0; i < _parts.size(); ++i) {
-            _parts[i].init(this, static_cast<uint8_t>(i + ((i >= 9) ? 1 : 0)));
-        }
-
-        std::ranges::fill(_channelTable2, 0);
-        _percussion.init(this, 9);
-    }*/
-
     MidiDriver_ADLIB::MidiDriver_ADLIB(const std::shared_ptr<devices::Opl>& opl) :
         m_opl([&opl]{
             if (opl == nullptr)
