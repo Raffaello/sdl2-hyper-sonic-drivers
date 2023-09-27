@@ -4,6 +4,9 @@ namespace HyperSonicDrivers::drivers
 {
     /**
     * Common Interface for music drivers: MIDI, ADL, XMI, MUS...
+    * TODO/Rename: if not merged with IMidiDriver, this can be renamed as IMusicPlayer
+    *              related to playing those files rather then using a driver,
+    *              ADLDriver at the moment is both
     * 
     **/
     class IMusicDriver

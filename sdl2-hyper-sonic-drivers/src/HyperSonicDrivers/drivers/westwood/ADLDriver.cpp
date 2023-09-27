@@ -31,7 +31,7 @@ namespace HyperSonicDrivers::drivers::westwood
         m_device(opl), m_opl(opl->getOpl())
     {
         memset(m_channels.data(), 0, sizeof(m_channels));
-        hardware::TimerCallBack cb = std::bind(&ADLDriver::callback, this);
+        hardware::TimerCallBack cb = std::bind(&ADLDriver::onCallback, this);
         auto p = std::make_shared<hardware::TimerCallBack>(cb);
         
         // NOTE: it acquires it due to opl->start
@@ -145,7 +145,7 @@ namespace HyperSonicDrivers::drivers::westwood
     //
     // Starts and executes programs and maintains a global beat that channels
     // can synchronize on.
-    void ADLDriver::callback()
+    void ADLDriver::onCallback()
     {
         const std::scoped_lock lock(m_mutex);
 

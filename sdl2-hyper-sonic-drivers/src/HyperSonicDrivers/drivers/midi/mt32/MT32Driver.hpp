@@ -12,13 +12,16 @@ namespace HyperSonicDrivers::drivers::midi::mt32
         bool open(const audio::mixer::eChannelGroup group,
             const uint8_t volume,
             const uint8_t pan) override { return true; };
-        void close() override {};
+        void close() override { /*TODO*/ };
 
-        void send(const audio::midi::MIDIEvent& e) noexcept override {};
-        void send(uint32_t msg) override {};
-        void send(int8_t channel, uint32_t msg) override {};
+        void send(const audio::midi::MIDIEvent& e) noexcept override { /*TODO*/ };
+        void send(uint32_t msg) override { /*TODO*/ };
+        void send(int8_t channel, uint32_t msg) override { /*TODO*/ };
 
-        void pause() const noexcept override {};
-        void resume() const noexcept override {};
+        void pause() const noexcept override { /*TODO*/ };
+        void resume() const noexcept override { /*TODO*/ };
+
+        void onCallback() noexcept override { /*TODO*/ };
+
     };
 }

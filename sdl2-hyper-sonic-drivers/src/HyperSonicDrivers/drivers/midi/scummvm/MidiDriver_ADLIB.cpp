@@ -140,7 +140,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
             adlibWriteSecondary(5, 1);
         }
 
-        hardware::TimerCallBack cb = std::bind(&MidiDriver_ADLIB::onTimer, this);
+        hardware::TimerCallBack cb = std::bind(&MidiDriver_ADLIB::onCallback, this);
         auto p = std::make_shared<hardware::TimerCallBack>(cb);
         _opl->start(p, group, volume, pan);
 
@@ -319,7 +319,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         _opl->writeReg(reg | 0x100, value);
     }
 
-    void MidiDriver_ADLIB::onTimer()
+    void MidiDriver_ADLIB::onCallback() noexcept
     {
         // TODO: here has to call the midi parser/player to send the next event(s)
         //if (_adlibTimerProc)

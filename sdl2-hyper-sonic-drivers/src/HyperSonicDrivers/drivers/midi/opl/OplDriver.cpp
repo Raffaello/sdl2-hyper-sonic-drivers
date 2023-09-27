@@ -55,7 +55,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
             return false;
         }
 
-        hardware::TimerCallBack cb = std::bind_front(&OplDriver::onTimer, this);
+        hardware::TimerCallBack cb = std::bind_front(&OplDriver::onCallback, this);
         auto p = std::make_shared<hardware::TimerCallBack>(cb);
         m_opl->start(p, group, volume, pan);
 
@@ -72,7 +72,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
         }
     }
 
-    void OplDriver::onTimer()
+    void OplDriver::onCallback() noexcept
     {
         // TODO: here has to call the midi player/parser to send the next events.
         // and update the internal ticks/timer to keep tracks of the deltas

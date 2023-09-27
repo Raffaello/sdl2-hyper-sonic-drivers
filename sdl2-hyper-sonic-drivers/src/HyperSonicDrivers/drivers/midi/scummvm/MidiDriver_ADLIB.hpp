@@ -78,7 +78,8 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
         //bool _isOpen = false;
 
-        void onTimer();
+        //void onTimer();
+        void onCallback() noexcept override;
         void partKeyOn(AdLibPart* part, const AdLibInstrument* instr, uint8_t note, uint8_t velocity, const AdLibInstrument* second, uint8_t pan);
         void partKeyOff(AdLibPart* part, uint8_t note);
 

@@ -48,6 +48,9 @@ namespace HyperSonicDrivers::drivers::midi::opl
 
         inline std::shared_ptr<hardware::opl::OPL> getOpl() const noexcept { return m_opl; };
 
+    protected:
+        void onCallback() noexcept override;
+
     private:
         std::shared_ptr<hardware::opl::OPL> m_opl;
         std::shared_ptr<audio::opl::banks::OP2Bank> m_op2Bank;
@@ -76,7 +79,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
         void ctrl_panPosition(const uint8_t chan, uint8_t value) const noexcept;
         void ctrl_sustain(const uint8_t chan, uint8_t value) const noexcept;
 
-        void onTimer();
+        //void onTimer();
 
         void releaseSustain(const uint8_t channel) const noexcept;
         uint8_t releaseVoice(const uint8_t slot, const bool forced);

@@ -47,7 +47,7 @@ namespace HyperSonicDrivers::drivers::westwood
         void stopAllChannels();
         int getSoundTrigger() const;
         void resetSoundTrigger();
-        void callback();
+        void onCallback();
         void setSyncJumpMask(const uint16_t mask);
 
         void setOplMusicVolume(const uint8_t volume);

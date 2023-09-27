@@ -9,6 +9,7 @@ namespace HyperSonicDrivers::drivers::midi
     /**
     * Interface for all the different Midi drivers
     * so it can be easily used from MIDDrv (maybe rename it to MIDI_player or something)
+    * TODO/NOTE: it might be "merged" with IMusicDriver ...
     **/
     class IMidiDriver
     {
@@ -32,5 +33,8 @@ namespace HyperSonicDrivers::drivers::midi
 
     protected:
         bool m_isOpen = false;
+
+        virtual void onCallback() noexcept = 0;
+
     };
 }
