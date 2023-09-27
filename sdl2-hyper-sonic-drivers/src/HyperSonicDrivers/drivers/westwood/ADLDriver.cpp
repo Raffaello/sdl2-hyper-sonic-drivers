@@ -33,8 +33,8 @@ namespace HyperSonicDrivers::drivers::westwood
         memset(m_channels.data(), 0, sizeof(m_channels));
         hardware::TimerCallBack cb = std::bind(&ADLDriver::onCallback, this);
         auto p = std::make_shared<hardware::TimerCallBack>(cb);
-        
-        // NOTE: it acquires it due to opl->start
+
+        // NOTE: it must acquire it due to opl->start setting the callback
         if (!m_device->acquire(this))
         {
             throwLogE<std::runtime_error>("Device is already in used by another driver or can't be init");
@@ -235,9 +235,7 @@ namespace HyperSonicDrivers::drivers::westwood
         std::scoped_lock lock(m_mutex);
 
         constexpr uint8_t volume = std::numeric_limits<uint8_t>::max();
-        uint16_t soundId = 0;
-
-        soundId = m_adl_file->getTrack(track);
+        const uint16_t soundId = m_adl_file->getTrack(track);
 
         if ((soundId == 0xFFFF && m_version == 3) || (soundId == 0xFF && m_version < 3) || m_soundData == nullptr)
             return;

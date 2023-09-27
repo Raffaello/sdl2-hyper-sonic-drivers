@@ -40,6 +40,8 @@ namespace HyperSonicDrivers::drivers
         const uint8_t pan
     ) : m_device(device), m_group(group), m_volume(volume), m_pan(pan)
     {
+        // TODO: move the aquire logic where the callback are set
+        // NOTE/TODO: this brings up the acquire shoudl set up the callback too?
         if (!m_device->acquire(this))
         {
             utils::throwLogE<std::runtime_error>("Device is already in used by another driver or can't be init");
@@ -84,8 +86,8 @@ namespace HyperSonicDrivers::drivers
 
         m_midiDriver.reset();
 
-        auto opl = std::dynamic_pointer_cast<devices::Opl>(m_device)->getOpl();
-        auto opl_drv = std::make_unique<drivers::midi::opl::OplDriver>(opl);
+        //auto opl = std::dynamic_pointer_cast<devices::Opl>(m_device)->getOpl();
+        auto opl_drv = std::make_unique<drivers::midi::opl::OplDriver>(std::dynamic_pointer_cast<devices::Opl>(m_device));
         opl_drv->setOP2Bank(op2Bank);
         m_midiDriver = std::move(opl_drv);
         return open_();
@@ -109,7 +111,7 @@ namespace HyperSonicDrivers::drivers
 
         return open_();
     }
-    
+
     //void MIDDriver::play(const std::shared_ptr<audio::MIDI>& midi) noexcept
     //{
     //    using audio::midi::MIDI_FORMAT;

@@ -27,6 +27,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         friend class AdLibPercussionChannel;
 
     public:
+        [[deprecated("pass a device instead and acquire it in the open method, release on close")]]
         MidiDriver_ADLIB(const std::shared_ptr<hardware::opl::OPL>& opl, const bool opl3mode);
         ~MidiDriver_ADLIB() override;
 

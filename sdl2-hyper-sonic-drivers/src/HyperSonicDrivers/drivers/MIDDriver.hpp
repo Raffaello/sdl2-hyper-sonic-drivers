@@ -23,6 +23,7 @@ namespace HyperSonicDrivers::drivers
     class MIDDriver : public IMusicDriver
     {
     public:
+        [[deprecated("it will be replaced by another class without thread")]]
         explicit MIDDriver(
             const std::shared_ptr<devices::IDevice>& device,
             const audio::mixer::eChannelGroup group,

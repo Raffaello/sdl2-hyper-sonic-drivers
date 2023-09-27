@@ -7,6 +7,7 @@
 #include <HyperSonicDrivers/audio/midi/MIDIEvent.hpp>
 #include <HyperSonicDrivers/audio/midi/types.hpp>
 #include <HyperSonicDrivers/audio/opl/banks/OP2Bank.hpp>
+#include <HyperSonicDrivers/devices/Opl.hpp>
 #include <HyperSonicDrivers/drivers/midi/opl/OplChannel.hpp>
 #include <HyperSonicDrivers/drivers/midi/opl/OplVoice.hpp>
 #include <HyperSonicDrivers/drivers/opl/OplWriter.hpp>
@@ -28,8 +29,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
     class OplDriver : public IMidiDriver
     {
     public:
-        [[deprecated("replace opl argument with device")]]
-        explicit OplDriver(const std::shared_ptr<hardware::opl::OPL>& opl);
+        explicit OplDriver(const std::shared_ptr<devices::Opl>& opl);
         ~OplDriver() override;
 
         bool open(const audio::mixer::eChannelGroup group,
