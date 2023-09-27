@@ -12,6 +12,7 @@ namespace HyperSonicDrivers::devices
 {
     /**
     * general interface for sound cards used by the drivers
+    * that is bound to a specific hardware
     **/
     class IDevice
     {

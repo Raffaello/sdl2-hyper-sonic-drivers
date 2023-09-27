@@ -40,8 +40,8 @@ namespace HyperSonicDrivers::drivers
         const uint8_t pan
     ) : m_device(device), m_group(group), m_volume(volume), m_pan(pan)
     {
-        // TODO: move the aquire logic where the callback are set
-        // NOTE/TODO: this brings up the acquire shoudl set up the callback too?
+        // TODO: move the acquire logic where the callback is set
+        // NOTE/TODO: this brings up the acquire should set up the callback too?
         if (!m_device->acquire(this))
         {
             utils::throwLogE<std::runtime_error>("Device is already in used by another driver or can't be init");
@@ -97,11 +97,7 @@ namespace HyperSonicDrivers::drivers
     {
         if (m_device->isOpl())
         {
-            using hardware::opl::OplType;
-
-            auto opl = std::dynamic_pointer_cast<devices::Opl>(m_device)->getOpl();
-            m_midiDriver = std::make_unique<drivers::midi::scummvm::MidiDriver_ADLIB>(
-                opl, opl->type != OplType::OPL2);
+            m_midiDriver = std::make_unique<drivers::midi::scummvm::MidiDriver_ADLIB>(std::dynamic_pointer_cast<devices::Opl>(m_device));
         }
         else
         {

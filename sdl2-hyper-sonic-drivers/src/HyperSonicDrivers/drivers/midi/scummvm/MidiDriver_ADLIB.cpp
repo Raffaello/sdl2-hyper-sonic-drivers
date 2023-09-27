@@ -9,6 +9,7 @@
 
 namespace HyperSonicDrivers::drivers::midi::scummvm
 {
+    using hardware::opl::OplType;
     using utils::logD;
     using utils::logW;
 
@@ -89,8 +90,26 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         242, 243, 245, 247, 249, 251, 252, 254
     };
 
-    MidiDriver_ADLIB::MidiDriver_ADLIB(const std::shared_ptr<hardware::opl::OPL>& opl, const bool opl3mode)
-        : _opl3Mode(opl3mode), _opl(opl)
+    /*MidiDriver_ADLIB::MidiDriver_ADLIB(const std::shared_ptr<hardware::opl::OPL>& opl, const bool opl3mode)
+        : m_opl(opl), m_opl3Mode(opl3mode)
+    {
+        std::ranges::fill(_curNotTable, 0);
+        for (size_t i = 0; i < _parts.size(); ++i) {
+            _parts[i].init(this, static_cast<uint8_t>(i + ((i >= 9) ? 1 : 0)));
+        }
+
+        std::ranges::fill(_channelTable2, 0);
+        _percussion.init(this, 9);
+    }*/
+
+    MidiDriver_ADLIB::MidiDriver_ADLIB(const std::shared_ptr<devices::Opl>& opl) :
+        m_opl([&opl]{
+            if (opl == nullptr)
+                utils::throwLogC<std::runtime_error>("Device is null ptr");
+
+            return opl->getOpl();
+        }()),
+        m_opl3Mode(m_opl->type != OplType::OPL2)
     {
         std::ranges::fill(_curNotTable, 0);
         for (size_t i = 0; i < _parts.size(); ++i) {
@@ -125,13 +144,13 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
             voice->_s11b.s10 = &voice->_s10a;
         }
 
-        _opl->init();
+        m_opl->init();
 
         _regCache = (uint8_t*)calloc(256, 1);
 
         adlibWrite(8, 0x40);
         adlibWrite(0xBD, 0x00);
-        if (!_opl3Mode) {
+        if (!m_opl3Mode) {
             adlibWrite(1, 0x20);
             createLookupTable();
         }
@@ -142,7 +161,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
         hardware::TimerCallBack cb = std::bind(&MidiDriver_ADLIB::onCallback, this);
         auto p = std::make_shared<hardware::TimerCallBack>(cb);
-        _opl->start(p, group, volume, pan);
+        m_opl->start(p, group, volume, pan);
 
         return true;
     }
@@ -154,7 +173,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         m_isOpen = false;
 
         // Stop the OPL timer
-        _opl->stop();
+        m_opl->stop();
 
         for (auto& v : _voices)
         {
@@ -250,7 +269,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
             return 1;
 
         case PROP_SCUMM_OPL3: // Sam&Max OPL3 support.
-            _opl3Mode = (param > 0);
+            m_opl3Mode = (param > 0);
             return 1;
 
         default:
@@ -262,7 +281,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
     void MidiDriver_ADLIB::setPitchBendRange(uint8_t channel, unsigned int range) {
         // Not supported in OPL3 mode.
-        if (_opl3Mode) {
+        if (m_opl3Mode) {
             return;
         }
 
@@ -302,11 +321,11 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
             return;
 
         _regCache[reg] = value;
-        _opl->writeReg(reg, value);
+        m_opl->writeReg(reg, value);
     }
 
     void MidiDriver_ADLIB::adlibWriteSecondary(uint8_t reg, uint8_t value) {
-        assert(_opl3Mode);
+        assert(m_opl3Mode);
 
         if (_regCacheSecondary[reg] == value) {
             return;
@@ -316,7 +335,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 #endif
         _regCacheSecondary[reg] = value;
 
-        _opl->writeReg(reg | 0x100, value);
+        m_opl->writeReg(reg | 0x100, value);
     }
 
     void MidiDriver_ADLIB::onCallback() noexcept
@@ -332,7 +351,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
             g_tick++;
 #endif
             // Sam&Max's OPL3 driver does not have any timer handling like this.
-            if (_opl3Mode)
+            if (m_opl3Mode)
                 continue;
 
             for(auto& voice : _voices)
@@ -432,7 +451,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
     void MidiDriver_ADLIB::adlibKeyOff(int chan) {
         uint8_t reg = chan + 0xB0;
         adlibWrite(reg, adlibGetRegValue(reg) & ~0x20);
-        if (_opl3Mode) {
+        if (m_opl3Mode) {
             adlibWriteSecondary(reg, adlibGetRegValueSecondary(reg) & ~0x20);
         }
     }
@@ -487,7 +506,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         uint8_t reg;
 
         assert(channel >= 0 && channel < 9);
-        assert(!_opl3Mode || (param == 0 || param == 13));
+        assert(!m_opl3Mode || (param == 0 || param == 13));
 
         if (param <= 12) {
             reg = g_operator2Offsets[channel];
@@ -527,7 +546,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
     }
 
     void MidiDriver_ADLIB::adlibKeyOnOff(int channel) {
-        assert(!_opl3Mode);
+        assert(!m_opl3Mode);
 
         uint8_t val;
         uint8_t reg = channel + 0xB0;
@@ -719,7 +738,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
         if (!_scummSmallHeader)
         {
-            if (_opl3Mode)
+            if (m_opl3Mode)
                 vol1 = (instr->modScalingOutputLevel & 0x3F) + (velocity * ((instr->modWaveformSelect >> 3) + 1)) / 64;
             else
                 vol1 = (instr->modScalingOutputLevel & 0x3F) + g_volumeLookupTable[velocity >> 1][instr->modWaveformSelect >> 2];
@@ -736,7 +755,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
         if (!_scummSmallHeader)
         {
-            if (_opl3Mode)
+            if (m_opl3Mode)
                 vol2 = (instr->carScalingOutputLevel & 0x3F) + (velocity * ((instr->carWaveformSelect >> 3) + 1)) / 64;
             else
                 vol2 = (instr->carScalingOutputLevel & 0x3F) + g_volumeLookupTable[velocity >> 1][instr->carWaveformSelect >> 2];
@@ -749,7 +768,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
             vol2 = 0x3F;
         voice->_vol2 = vol2;
 
-        if (_opl3Mode)
+        if (m_opl3Mode)
         {
             voice->_secTwoChan = second->feedback & 1;
             secVol1 = (second->modScalingOutputLevel & 0x3F) + (velocity * ((second->modWaveformSelect >> 3) + 1)) / 64;
@@ -766,7 +785,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
         if (!_scummSmallHeader)
         {
-            if (!_opl3Mode) {
+            if (!m_opl3Mode) {
                 int c = part->_volEff >> 2;
                 vol2 = g_volumeTable[g_volumeLookupTable[vol2][c]];
                 if (voice->_twoChan)
@@ -783,7 +802,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         }
 
         adlibSetupChannel(voice->_channel, instr, vol1, vol2);
-        if (!_opl3Mode)
+        if (!m_opl3Mode)
         {
             adlibNoteOnEx(voice->_channel, /*part->_transposeEff + */note, part->_detuneEff + (part->_pitchBend * part->_pitchBendFactor >> 6));
 
@@ -825,13 +844,13 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         adlibWrite(channel + 0xE0, instr->carWaveformSelect);
 
         adlibWrite((uint8_t)chan + 0xC0, instr->feedback
-            | (_opl3Mode ? 0x30 : 0)
+            | (m_opl3Mode ? 0x30 : 0)
         );
     }
 
     void MidiDriver_ADLIB::adlibSetupChannelSecondary(int chan, const AdLibInstrument* instr, uint8_t vol1, uint8_t vol2, uint8_t pan) {
         assert(chan >= 0 && chan < 9);
-        assert(_opl3Mode);
+        assert(m_opl3Mode);
 
         uint8_t channel = g_operator1Offsets[chan];
         adlibWriteSecondary(channel + 0x20, instr->modCharacteristic);
@@ -974,7 +993,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
     }
 
     void MidiDriver_ADLIB::adlibNoteOn(int chan, uint8_t note, int mod) {
-        if (_opl3Mode) {
+        if (m_opl3Mode) {
             adlibNoteOnEx(chan, note, mod);
             return;
         }
@@ -988,7 +1007,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
     void MidiDriver_ADLIB::adlibNoteOnEx(int chan, uint8_t note, int mod) {
         assert(chan >= 0 && chan < 9);
 
-        if (_opl3Mode) {
+        if (m_opl3Mode) {
             const int noteAdjusted = note + (mod >> 8) - 7;
             const int pitchAdjust = (mod >> 5) & 7;
 
