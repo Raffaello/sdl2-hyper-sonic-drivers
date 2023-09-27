@@ -42,6 +42,9 @@ namespace HyperSonicDrivers::drivers
     {
         // TODO: move the acquire logic where the callback is set
         // NOTE/TODO: this brings up the acquire should set up the callback too?
+        // it will brings to store m_device into IMidiDriver and pass it in that constructor...
+        // so not sure at the moment, but i think the driver should be responsible to acquire the hardware/device
+        // when they are open, and release it when they are closed
         if (!m_device->acquire(this))
         {
             utils::throwLogE<std::runtime_error>("Device is already in used by another driver or can't be init");

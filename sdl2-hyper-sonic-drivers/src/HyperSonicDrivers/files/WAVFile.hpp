@@ -1,6 +1,6 @@
 #pragma once
 
-#include <HyperSonicDrivers/audio/Sound.hpp>
+#include <HyperSonicDrivers/audio/PCMSound.hpp>
 #include <HyperSonicDrivers/audio/mixer/ChannelGroup.hpp>
 #include <HyperSonicDrivers/files/RIFFFile.hpp>
 #include <HyperSonicDrivers/files/IPCMFile.hpp>
@@ -59,7 +59,7 @@ namespace HyperSonicDrivers::files
         void save_streaming(const int16_t* buffer, const size_t length);
         void save_end();
         void save(const uint32_t freq, const bool stereo, const int16_t* sound, const size_t length);
-        void save(const audio::Sound& sound);
+        void save(const audio::PCMSound& sound);
 
 
         ///static bool save(const int rate, const int bits, const int channels, const uint8_t* buffer, const int length);

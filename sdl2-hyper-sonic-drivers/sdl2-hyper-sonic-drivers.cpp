@@ -322,18 +322,6 @@ int song()
 //    return 0;
 //}
 
-
-
-
-
-
-
-
-
-
-
-
-
 void rendererADL()
 {
     // TODO: need to be re-tested

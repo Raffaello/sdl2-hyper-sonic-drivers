@@ -9,7 +9,7 @@
 namespace HyperSonicDrivers::files
 {
     template<class T, typename... Args>
-    std::shared_ptr<audio::Sound> loadSoundFromFile(const std::string& filename, Args... args)
+    std::shared_ptr<audio::PCMSound> loadSoundFromFile(const std::string& filename, Args... args)
     {
         return T(filename, args...).getSound();
     }

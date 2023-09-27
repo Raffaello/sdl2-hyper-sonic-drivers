@@ -3,7 +3,7 @@
 #include <HyperSonicDrivers/drivers/PCMDriver.hpp>
 #include <HyperSonicDrivers/files/WAVFile.hpp>
 #include <HyperSonicDrivers/files/VOCFile.hpp>
-#include <HyperSonicDrivers/audio/Sound.hpp>
+#include <HyperSonicDrivers/audio/PCMSound.hpp>
 #include <HyperSonicDrivers/utils/algorithms.hpp>
 #include <HyperSonicDrivers/utils/ILogger.hpp>
 #include <HyperSonicDrivers/files/loaders.hpp>

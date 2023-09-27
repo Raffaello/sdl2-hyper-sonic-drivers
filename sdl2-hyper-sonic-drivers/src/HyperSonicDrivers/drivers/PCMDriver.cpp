@@ -22,7 +22,7 @@ namespace HyperSonicDrivers::drivers
         return false;
     }
 
-    bool PCMDriver::isPlaying(const std::shared_ptr<audio::Sound>& sound) const noexcept
+    bool PCMDriver::isPlaying(const std::shared_ptr<audio::PCMSound>& sound) const noexcept
     {
         // TODO:
         // should map channelId to check directly in the mixer?
@@ -44,7 +44,7 @@ namespace HyperSonicDrivers::drivers
         return false;
     }
 
-    std::optional<uint8_t> PCMDriver::play(const std::shared_ptr<audio::Sound>& sound, const uint8_t volume, const int8_t pan)
+    std::optional<uint8_t> PCMDriver::play(const std::shared_ptr<audio::PCMSound>& sound, const uint8_t volume, const int8_t pan)
     {
         // find first free slot
         auto it = std::ranges::find_if_not(m_PCMStreams, isPCMStreamPlaying_);
@@ -66,8 +66,8 @@ namespace HyperSonicDrivers::drivers
         return channelId;
     }
 
-    inline bool PCMDriver::isPCMStreamPlaying_(const std::shared_ptr<audio::streams::PCMStream>& ss) noexcept
+    inline bool PCMDriver::isPCMStreamPlaying_(const std::shared_ptr<audio::streams::PCMStream>& stream) noexcept
     {
-        return ss != nullptr && !ss->isEnded();
+        return stream != nullptr && !stream->isEnded();
     }
 }

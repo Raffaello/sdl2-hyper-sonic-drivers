@@ -1,7 +1,7 @@
 #pragma once
 
 #include <HyperSonicDrivers/audio/mixer/ChannelGroup.hpp>
-#include <HyperSonicDrivers/audio/Sound.hpp>
+#include <HyperSonicDrivers/audio/PCMSound.hpp>
 #include <HyperSonicDrivers/files/File.hpp>
 #include <HyperSonicDrivers/files/IPCMFile.hpp>
 #include <string>

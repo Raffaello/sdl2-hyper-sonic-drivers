@@ -2,7 +2,7 @@
 
 #include <cstdint>
 #include <memory>
-#include <HyperSonicDrivers/audio/Sound.hpp>
+#include <HyperSonicDrivers/audio/PCMSound.hpp>
 #include <HyperSonicDrivers/audio/mixer/ChannelGroup.hpp>
 
 namespace HyperSonicDrivers::files
@@ -22,7 +22,7 @@ namespace HyperSonicDrivers::files
         inline uint8_t getBitsDepth() const noexcept { return m_bitsDepth; };
         inline uint32_t getDataSize() const noexcept { return m_dataSize; };
         inline std::shared_ptr<uint8_t[]> getData() const noexcept { return m_data; };
-        inline std::shared_ptr<audio::Sound> getSound() const noexcept { return m_sound; };
+        inline std::shared_ptr<audio::PCMSound> getSound() const noexcept { return m_sound; };
 
     protected:
         int       m_channels = 0;
@@ -30,8 +30,8 @@ namespace HyperSonicDrivers::files
         uint8_t   m_bitsDepth = 0;
         uint32_t  m_dataSize = 0;
         std::shared_ptr<uint8_t[]> m_data;
-        std::shared_ptr<audio::Sound> m_sound;
+        std::shared_ptr<audio::PCMSound> m_sound;
 
-        void make_sound_(const audio::mixer::eChannelGroup group);
+        void make_pcm_sound_(const audio::mixer::eChannelGroup group);
     };
 }

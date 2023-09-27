@@ -1,14 +1,14 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <HyperSonicDrivers/files/VOCFile.hpp>
-#include <HyperSonicDrivers/audio/Sound.hpp>
+#include <HyperSonicDrivers/audio/PCMSound.hpp>
 #include <HyperSonicDrivers/audio/mixer/ChannelGroup.hpp>
 #include <cstdint>
 #include <memory>
 
 namespace HyperSonicDrivers::files
 {
-    using audio::Sound;
+    using audio::PCMSound;
 
     TEST(VOCFile, cstorDefault)
     {
@@ -36,7 +36,7 @@ namespace HyperSonicDrivers::files
         EXPECT_EQ(f.getDataSize(), dataSize);
         EXPECT_EQ(f.getData()[0], data0);
 
-        std::shared_ptr<Sound> s = f.getSound();
+        std::shared_ptr<PCMSound> s = f.getSound();
         EXPECT_EQ(8, f.getBitsDepth());
         EXPECT_FALSE(s->stereo);
         EXPECT_EQ(s->freq, f.getSampleRate());

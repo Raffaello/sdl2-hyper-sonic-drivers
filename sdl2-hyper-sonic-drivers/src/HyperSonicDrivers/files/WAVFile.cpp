@@ -49,7 +49,7 @@ namespace HyperSonicDrivers::files
         readSubChunkHeader(eRIFF_ID::ID_DATA, data);
         read_data_sub_chunk(data);
 
-        make_sound_(group);
+        make_pcm_sound_(group);
     }
 
     WAVFile::~WAVFile()
@@ -140,7 +140,7 @@ namespace HyperSonicDrivers::files
         save_end();
     }
 
-    void WAVFile::save(const audio::Sound& sound)
+    void WAVFile::save(const audio::PCMSound& sound)
     {
         save(sound.freq, sound.stereo, sound.data.get(), sound.dataSize);
     }
