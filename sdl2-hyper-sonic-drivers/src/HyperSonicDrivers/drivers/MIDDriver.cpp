@@ -40,6 +40,11 @@ namespace HyperSonicDrivers::drivers
         const uint8_t pan
     ) : m_device(device), m_group(group), m_volume(volume), m_pan(pan)
     {
+        // TODO: move the acquire logic where the callback is set
+        // NOTE/TODO: this brings up the acquire should set up the callback too?
+        // it will brings to store m_device into IMidiDriver and pass it in that constructor...
+        // so not sure at the moment, but i think the driver should be responsible to acquire the hardware/device
+        // when they are open, and release it when they are closed
         if (!m_device->acquire(this))
         {
             utils::throwLogE<std::runtime_error>("Device is already in used by another driver or can't be init");
@@ -84,8 +89,8 @@ namespace HyperSonicDrivers::drivers
 
         m_midiDriver.reset();
 
-        auto opl = std::dynamic_pointer_cast<devices::Opl>(m_device)->getOpl();
-        auto opl_drv = std::make_unique<drivers::midi::opl::OplDriver>(opl);
+        //auto opl = std::dynamic_pointer_cast<devices::Opl>(m_device)->getOpl();
+        auto opl_drv = std::make_unique<drivers::midi::opl::OplDriver>(std::dynamic_pointer_cast<devices::Opl>(m_device));
         opl_drv->setOP2Bank(op2Bank);
         m_midiDriver = std::move(opl_drv);
         return open_();
@@ -95,11 +100,7 @@ namespace HyperSonicDrivers::drivers
     {
         if (m_device->isOpl())
         {
-            using hardware::opl::OplType;
-
-            auto opl = std::dynamic_pointer_cast<devices::Opl>(m_device)->getOpl();
-            m_midiDriver = std::make_unique<drivers::midi::scummvm::MidiDriver_ADLIB>(
-                opl, opl->type != OplType::OPL2);
+            m_midiDriver = std::make_unique<drivers::midi::scummvm::MidiDriver_ADLIB>(std::dynamic_pointer_cast<devices::Opl>(m_device));
         }
         else
         {
@@ -109,7 +110,7 @@ namespace HyperSonicDrivers::drivers
 
         return open_();
     }
-    
+
     //void MIDDriver::play(const std::shared_ptr<audio::MIDI>& midi) noexcept
     //{
     //    using audio::midi::MIDI_FORMAT;
@@ -167,6 +168,34 @@ namespace HyperSonicDrivers::drivers
             return;
         }
 
+        // TODO: this could be to set the callback frequency?
+        //       this block is doing nothing now.....
+        if (m_midi->division & 0x8000)
+        {
+            // ticks per frame
+            int smpte = (m_midi->division & 0x7FFF) >> 8;
+            int ticksPerFrame = m_midi->division & 0xFF;
+            switch (smpte)
+            {
+            case -24:
+            case -25:
+            case -29:
+            case -30:
+                logW("SMPTE not implemented yet");
+                break;
+            default:
+                logW(std::format("Division SMPTE not known = {}", smpte));
+            }
+
+            logD(std::format("Division: Ticks per frame = {}, {}", ticksPerFrame, smpte));
+            logW("division ticks per frame not implemented yet");
+        }
+        else
+        {
+            // ticks per quarter note
+            logD(std::format("Division: Ticks per quarter note = {}", m_midi->division & 0x7FFF));
+        }
+
         stop();
         if (!m_device->acquire(this)) {
             return;
@@ -177,7 +206,7 @@ namespace HyperSonicDrivers::drivers
         m_isPlaying = true;
     }
 
-    void MIDDriver::stop(/*const bool wait*/) noexcept
+    void MIDDriver::stop() noexcept
     {
         m_force_stop = true;
         m_paused = false;

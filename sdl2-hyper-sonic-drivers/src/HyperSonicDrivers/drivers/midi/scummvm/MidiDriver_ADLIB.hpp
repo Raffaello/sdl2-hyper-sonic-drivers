@@ -3,13 +3,13 @@
 #include <cstdint>
 #include <array>
 #include <memory>
+#include <HyperSonicDrivers/devices/Opl.hpp>
 #include <HyperSonicDrivers/drivers/midi/scummvm/MidiDriver.hpp>
 #include <HyperSonicDrivers/drivers/midi/scummvm/MidiChannel.hpp>
 #include <HyperSonicDrivers/drivers/midi/scummvm/AdLibInstrument.h>
 #include <HyperSonicDrivers/drivers/midi/scummvm/AdlibVoice.h>
 #include <HyperSonicDrivers/drivers/midi/scummvm/AdLibPart.hpp>
 #include <HyperSonicDrivers/drivers/midi/scummvm/AdLibPercussionChannel.hpp>
-#include <HyperSonicDrivers/hardware/opl/OPL.hpp>
 
 
 namespace HyperSonicDrivers::drivers::midi::scummvm
@@ -27,7 +27,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         friend class AdLibPercussionChannel;
 
     public:
-        MidiDriver_ADLIB(const std::shared_ptr<hardware::opl::OPL>& opl, const bool opl3mode);
+        explicit MidiDriver_ADLIB(const std::shared_ptr<devices::Opl>& opl);
         ~MidiDriver_ADLIB() override;
 
         bool open(const audio::mixer::eChannelGroup group,
@@ -55,10 +55,10 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         //virtual void setTimerCallback(void* timerParam, /*Common::TimerManager::TimerProc*/ void* timerProc);
 
     private:
+        std::shared_ptr<hardware::opl::OPL> m_opl;
         bool _scummSmallHeader = false; // FIXME: This flag controls a special mode for SCUMM V3 games
-        bool _opl3Mode;
+        bool m_opl3Mode;
 
-        std::shared_ptr<hardware::opl::OPL> _opl;
         uint8_t* _regCache = nullptr;
         uint8_t* _regCacheSecondary = nullptr;
 
@@ -78,7 +78,8 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
         //bool _isOpen = false;
 
-        void onTimer();
+        //void onTimer();
+        void onCallback() noexcept override;
         void partKeyOn(AdLibPart* part, const AdLibInstrument* instr, uint8_t note, uint8_t velocity, const AdLibInstrument* second, uint8_t pan);
         void partKeyOff(AdLibPart* part, uint8_t note);
 

@@ -1,9 +1,9 @@
-#include <HyperSonicDrivers/audio/Sound.hpp>
+#include <HyperSonicDrivers/audio/PCMSound.hpp>
 #include <HyperSonicDrivers/utils/ILogger.hpp>
 
 namespace HyperSonicDrivers::audio
 {
-    Sound::Sound(
+    PCMSound::PCMSound(
         const mixer::eChannelGroup group,
         const bool isStereo,
         const uint32_t freq,

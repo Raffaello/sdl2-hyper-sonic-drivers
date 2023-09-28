@@ -12,6 +12,7 @@ namespace HyperSonicDrivers::devices
 {
     /**
     * general interface for sound cards used by the drivers
+    * that is bound to a specific hardware
     **/
     class IDevice
     {
@@ -20,8 +21,8 @@ namespace HyperSonicDrivers::devices
         virtual ~IDevice() = default;
 
         virtual bool init() noexcept = 0;
-        inline bool isInit() const noexcept { return m_init; };
         virtual bool shutdown() noexcept = 0;
+        inline bool isInit() const noexcept { return m_init; };
 
         std::optional<uint8_t> getChannelId() const noexcept { return m_hardware->getChannelId(); };
 

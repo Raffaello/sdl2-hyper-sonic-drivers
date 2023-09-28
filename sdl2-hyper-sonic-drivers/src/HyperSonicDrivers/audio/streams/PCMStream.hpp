@@ -2,7 +2,7 @@
 
 #include <cstdint>
 #include <memory>
-#include <HyperSonicDrivers/audio/Sound.hpp>
+#include <HyperSonicDrivers/audio/PCMSound.hpp>
 #include <HyperSonicDrivers/audio/IAudioStream.hpp>
 
 namespace HyperSonicDrivers::audio::streams
@@ -10,7 +10,7 @@ namespace HyperSonicDrivers::audio::streams
     class PCMStream final : public IAudioStream
     {
     public:
-        explicit PCMStream(const std::shared_ptr<Sound>& sound);
+        explicit PCMStream(const std::shared_ptr<PCMSound>& sound);
         ~PCMStream() override = default;
 
         size_t readBuffer(int16_t* buffer, const size_t numSamples) override;
@@ -18,9 +18,9 @@ namespace HyperSonicDrivers::audio::streams
         uint32_t getRate() const override;
         bool endOfData() const override;
 
-        std::weak_ptr<Sound>  getSound() const noexcept;
+        std::weak_ptr<PCMSound>  getSound() const noexcept;
     private:
-        std::shared_ptr<Sound> m_sound;
+        std::shared_ptr<PCMSound> m_sound;
         uint32_t m_curPos = 0;
     };
 }

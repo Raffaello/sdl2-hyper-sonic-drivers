@@ -20,7 +20,7 @@ namespace HyperSonicDrivers::files
         assertValid_(readHeader());
         assertValid_(readDataBlockHeader());
 
-        make_sound_(group);
+        make_pcm_sound_(group);
     }
 
     const std::string VOCFile::getVersion() const noexcept

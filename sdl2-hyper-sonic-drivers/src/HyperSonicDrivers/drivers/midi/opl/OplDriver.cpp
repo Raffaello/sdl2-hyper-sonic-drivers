@@ -21,8 +21,13 @@ namespace HyperSonicDrivers::drivers::midi::opl
 
     // TODO: allocateVoice and getFreeSlot should be merged into 1 function
 
-    OplDriver::OplDriver(const std::shared_ptr<hardware::opl::OPL>& opl) :
-        m_opl(opl), m_opl3_mode(opl->type == OplType::OPL3),
+    OplDriver::OplDriver(const std::shared_ptr<devices::Opl>& opl) :
+        m_opl([&opl] {
+            if (opl == nullptr)
+                utils::throwLogC<std::runtime_error>("OPL device is null");
+            return opl->getOpl();
+        }()),
+        m_opl3_mode(m_opl->type == OplType::OPL3),
         m_oplNumChannels(m_opl3_mode ? opl3_num_channels : opl2_num_channels)
     {
         m_oplWriter = std::make_unique<drivers::opl::OplWriter>(m_opl, m_opl3_mode);
@@ -55,7 +60,9 @@ namespace HyperSonicDrivers::drivers::midi::opl
             return false;
         }
 
-        hardware::TimerCallBack cb = std::bind_front(&OplDriver::onTimer, this);
+        // TODO: here the acquire should be done.
+
+        hardware::TimerCallBack cb = std::bind_front(&OplDriver::onCallback, this);
         auto p = std::make_shared<hardware::TimerCallBack>(cb);
         m_opl->start(p, group, volume, pan);
 
@@ -70,10 +77,16 @@ namespace HyperSonicDrivers::drivers::midi::opl
             m_opl->stop();
             m_isOpen = false;
         }
+
+        // TODO: here the release should be done.
     }
 
-    void OplDriver::onTimer()
+    void OplDriver::onCallback() noexcept
     {
+        // TODO: here has to call the midi player/parser to send the next events.
+        // and update the internal ticks/timer to keep tracks of the deltas
+        
+
         // TODO: here could process midi events,
         //       enqueued in send method
         //  if queue empty do nothing

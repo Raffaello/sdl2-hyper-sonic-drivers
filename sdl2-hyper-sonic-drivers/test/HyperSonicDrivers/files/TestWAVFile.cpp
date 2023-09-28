@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <HyperSonicDrivers/files/WAVFile.hpp>
-#include <HyperSonicDrivers/audio/Sound.hpp>
+#include <HyperSonicDrivers/audio/PCMSound.hpp>
 #include <cstdint>
 #include <memory>
 

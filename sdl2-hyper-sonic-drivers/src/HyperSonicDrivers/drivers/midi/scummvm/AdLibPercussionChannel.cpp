@@ -42,7 +42,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
         // The custom instruments have priority over the default mapping
         // We do not support custom instruments in OPL3 mode though.
-        if (!_owner->_opl3Mode)
+        if (!_owner->m_opl3Mode)
         {
             inst = _customInstruments[note].get();
             if (inst)
@@ -54,7 +54,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
             // Use the default GM to FM mapping as a fallback
             uint8_t key = g_gmPercussionInstrumentMap[note];
             if (key != 0xFF) {
-                if (!_owner->_opl3Mode)
+                if (!_owner->m_opl3Mode)
                 {
                     inst = &g_gmPercussionInstruments[key];
                 }
@@ -77,7 +77,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
     void AdLibPercussionChannel::sysEx_customInstrument(uint32_t type, const uint8_t* instr) {
         // We do not allow custom instruments in OPL3 mode right now.
-        if (_owner->_opl3Mode)
+        if (_owner->m_opl3Mode)
         {
             logW("Used in OPL3 mode");
             return;

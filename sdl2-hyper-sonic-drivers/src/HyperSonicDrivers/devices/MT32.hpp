@@ -20,11 +20,8 @@ namespace HyperSonicDrivers::devices
         );
         ~MT32() override = default;
 
-        //void sendEvent(const audio::midi::MIDIEvent& e) const noexcept override;
-        //void sendMessage(const uint8_t msg[], const uint8_t size) const noexcept override;
-        //void sendSysEx(const audio::midi::MIDIEvent& e) const noexcept override;
-        //void pause() const noexcept override;
-        //void resume() const noexcept override;
+        virtual bool init() noexcept = 0;
+        virtual bool shutdown() noexcept = 0;
 
     private:
         std::shared_ptr<hardware::mt32::MT32> m_mt32;

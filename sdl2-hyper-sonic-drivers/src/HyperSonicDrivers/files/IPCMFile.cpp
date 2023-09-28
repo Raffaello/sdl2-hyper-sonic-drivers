@@ -5,7 +5,7 @@
 
 namespace HyperSonicDrivers::files
 {
-    void IPCMFile::make_sound_(const audio::mixer::eChannelGroup group)
+    void IPCMFile::make_pcm_sound_(const audio::mixer::eChannelGroup group)
     {
         std::shared_ptr<int16_t[]> data;
         uint32_t size = getDataSize();
@@ -27,7 +27,7 @@ namespace HyperSonicDrivers::files
         if (getChannels() > 2)
             utils::throwLogC<std::runtime_error>(std::format("only mono or stereo PCM files are supported (num_channels = {})", getChannels()));
 
-        m_sound = std::make_shared<audio::Sound>(
+        m_sound = std::make_shared<audio::PCMSound>(
             group,
             getChannels() == 2,
             getSampleRate(),

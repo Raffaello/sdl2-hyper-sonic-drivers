@@ -7,10 +7,10 @@
 #include <HyperSonicDrivers/audio/midi/MIDIEvent.hpp>
 #include <HyperSonicDrivers/audio/midi/types.hpp>
 #include <HyperSonicDrivers/audio/opl/banks/OP2Bank.hpp>
+#include <HyperSonicDrivers/devices/Opl.hpp>
 #include <HyperSonicDrivers/drivers/midi/opl/OplChannel.hpp>
 #include <HyperSonicDrivers/drivers/midi/opl/OplVoice.hpp>
 #include <HyperSonicDrivers/drivers/opl/OplWriter.hpp>
-#include <HyperSonicDrivers/hardware/opl/OPL.hpp>
 #include <HyperSonicDrivers/hardware/opl/OPL2instrument.h>
 #include <HyperSonicDrivers/drivers/midi/IMidiDriver.hpp>
 
@@ -28,8 +28,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
     class OplDriver : public IMidiDriver
     {
     public:
-        [[deprecated("replace opl argument with device")]]
-        explicit OplDriver(const std::shared_ptr<hardware::opl::OPL>& opl);
+        explicit OplDriver(const std::shared_ptr<devices::Opl>& opl);
         ~OplDriver() override;
 
         bool open(const audio::mixer::eChannelGroup group,
@@ -47,6 +46,9 @@ namespace HyperSonicDrivers::drivers::midi::opl
         void resume() const noexcept override;
 
         inline std::shared_ptr<hardware::opl::OPL> getOpl() const noexcept { return m_opl; };
+
+    protected:
+        void onCallback() noexcept override;
 
     private:
         std::shared_ptr<hardware::opl::OPL> m_opl;
@@ -76,7 +78,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
         void ctrl_panPosition(const uint8_t chan, uint8_t value) const noexcept;
         void ctrl_sustain(const uint8_t chan, uint8_t value) const noexcept;
 
-        void onTimer();
+        //void onTimer();
 
         void releaseSustain(const uint8_t channel) const noexcept;
         uint8_t releaseVoice(const uint8_t slot, const bool forced);

@@ -66,7 +66,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
             return;
 
         _program = program;
-        if (!_owner->_opl3Mode) {
+        if (!_owner->m_opl3Mode) {
             memcpy(&_partInstr, &g_gmInstruments[program], sizeof(AdLibInstrument));
         }
         else {
@@ -82,7 +82,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         _pitchBend = bend;
         for (AdLibVoice* voice = _voice; voice; voice = voice->_next)
         {
-            if (!_owner->_opl3Mode)
+            if (!_owner->m_opl3Mode)
             {
                 _owner->adlibNoteOn(voice->_channel, voice->_note/* + _transposeEff*/,
                     (_pitchBend * _pitchBendFactor >> 6) + _detuneEff);
@@ -166,7 +166,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         _volEff = value;
         for (AdLibVoice* voice = _voice; voice; voice = voice->_next)
         {
-            if (!_owner->_opl3Mode)
+            if (!_owner->m_opl3Mode)
             {
                 _owner->adlibSetParam(voice->_channel, 0, g_volumeTable[g_volumeLookupTable[voice->_vol2][_volEff >> 2]]);
                 if (voice->_twoChan) {
@@ -194,7 +194,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
     void AdLibPart::pitchBendFactor(uint8_t value)
     {
         // Not supported in OPL3 mode.
-        if (_owner->_opl3Mode) {
+        if (_owner->m_opl3Mode) {
             return;
         }
 
@@ -213,7 +213,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         // TODO: We probably need to look how the interpreter side of Sam&Max's
         // iMuse version handles all this too. Implementing the driver side here
         // would be not that hard.
-        if (_owner->_opl3Mode) {
+        if (_owner->m_opl3Mode) {
             //_maxNotes = value;
             return;
         }
@@ -252,7 +252,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
     {
         // Sam&Max allows for instrument overwrites, but we will not support it
         // until we can find any track actually using it.
-        if (_owner->_opl3Mode)
+        if (_owner->m_opl3Mode)
         {
             logW("Used in OPL3 mode, not supported");
             return;

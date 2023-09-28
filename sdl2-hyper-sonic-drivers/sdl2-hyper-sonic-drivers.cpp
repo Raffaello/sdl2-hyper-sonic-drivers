@@ -322,57 +322,6 @@ int song()
 //    return 0;
 //}
 
-
-
-
-
-
-
-
-
-
-
-
-
-void rendererADL()
-{
-    // TODO: need to be re-tested
-    using hardware::opl::OplEmulator;
-    using hardware::opl::OplType;
-    using audio::mixer::eChannelGroup;
-    using utils::ILogger;
-    using hardware::opl::OPL;
-
-    audio::sdl2::Renderer r(44100, 1024);
-
-    r.setOutputFile("renderer.wav");
-
-    auto mixer = r.getMixer();
-
-    auto adlib = devices::make_device<devices::Adlib, devices::Opl>(mixer, OplEmulator::AUTO);
-    auto drv1 = drivers::westwood::ADLDriver(adlib, eChannelGroup::Music);
-    auto af = std::make_shared<files::westwood::ADLFile>("test/fixtures/DUNE0.ADL");
-    drv1.setADLFile(af);
-
-    auto eo = adlib->getOpl();
-    drv1.play(4);
-    while(drv1.isPlaying())
-        r.renderBuffer(eo);
-
-    r.releaseOutputFile();
-
-    files::WAVFile w("renderer.wav");
-    auto sound = w.getSound();
-
-    //r.setOutputFile("render2.dat");
-    //drv1.play(2);
-    //while(drv1.isPlaying())
-    //    r.renderBuffer(eo);
-    //while (drv1.isPlaying())
-    //    utils::delayMillis(1);
-    //utils::delayMillis(1000);
-}
-
 void rendererMIDI()
 {
     // TODO: need to review the MIDDrv as it is time dependant
@@ -439,10 +388,9 @@ int main(int argc, char* argv[])
     //newMixerTest();
     //testMultiOpl();
     //testMOplMultiDrv();
-    //rendererADL();
     //rendererMIDI();
     //midi_adlib();
-    testMT32();
+    //testMT32();
     return 0;
     //sdlMixer();
     //SDL_Delay(100);

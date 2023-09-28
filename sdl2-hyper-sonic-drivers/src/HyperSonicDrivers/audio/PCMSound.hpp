@@ -12,13 +12,13 @@ namespace HyperSonicDrivers::audio
     * 16 bits signed PCM sound
     * if the original data is not in this format must be converted first
     **/
-    class Sound final
+    class PCMSound final
     {
     public:
-        Sound(Sound&) = delete;
-        Sound(Sound&&) = delete;
-        Sound& operator=(Sound&) = delete;
-        Sound(
+        PCMSound(PCMSound&) = delete;
+        PCMSound(PCMSound&&) = delete;
+        PCMSound& operator=(PCMSound&) = delete;
+        PCMSound(
             const mixer::eChannelGroup group,
             const bool isStereo,
             const uint32_t freq,

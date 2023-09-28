@@ -15,13 +15,14 @@
 
 namespace HyperSonicDrivers::drivers
 {
-    // TODO/NOTE: this is more the OnTimer logic and setup of OplDriver, but generalized
-    //            for whatever midi::driver ... need to be reivewed
-    // TODO: maybe rename it to midi_player
-    // TODO: deprecated class
+    /**
+    * This class is a wrapper around different midi drivers and has a embeeded timer processing track
+    * to send events to the device
+    **/
     class MIDDriver : public IMusicDriver
     {
     public:
+        [[deprecated("it will be replaced by another class without thread")]]
         explicit MIDDriver(
             const std::shared_ptr<devices::IDevice>& device,
             const audio::mixer::eChannelGroup group,
@@ -35,9 +36,6 @@ namespace HyperSonicDrivers::drivers
         bool loadBankOP2(const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank) noexcept;
         // this restore the default MidiDriver (scummvm::MidiAdlib, MT32)
         bool resetBankOP2() noexcept;
-
-        //[[deprecated("use the other play method")]]
-        //void play(const std::shared_ptr<audio::MIDI>& midi) noexcept;
 
         void play(const uint8_t track = 0) noexcept override;
         void stop() noexcept override;
@@ -58,14 +56,15 @@ namespace HyperSonicDrivers::drivers
         inline void setTempo(const uint32_t tempo) noexcept { m_midiTempoChanged = true; m_tempo = tempo; }
         bool open_() noexcept;
     private:
+        // this is used to "lock" the device to a specific driver output and passed to IMidiDriver
         std::shared_ptr<devices::IDevice> m_device;
+        // this is to abstract the specific midi driver implementation
         std::unique_ptr<drivers::midi::IMidiDriver> m_midiDriver;
         std::shared_ptr<audio::MIDI> m_midi;
         const audio::mixer::eChannelGroup m_group;
         const uint8_t m_volume;
         const uint8_t m_pan;
-        // TODO: consider to create a utils/Thread class
-        //       to handle for each OS specific realtime and initialization step.
+        
         std::jthread m_player;
 
         std::atomic<bool> m_isPlaying = false;

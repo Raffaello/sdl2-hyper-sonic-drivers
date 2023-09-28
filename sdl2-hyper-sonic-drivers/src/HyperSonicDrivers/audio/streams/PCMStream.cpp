@@ -6,7 +6,7 @@ namespace HyperSonicDrivers::audio::streams
 {
     using utils::readLE_uint16;
 
-    PCMStream::PCMStream(const std::shared_ptr<Sound>& sound)
+    PCMStream::PCMStream(const std::shared_ptr<PCMSound>& sound)
         : m_sound(sound)
     {
     }
@@ -38,7 +38,7 @@ namespace HyperSonicDrivers::audio::streams
         return m_curPos == m_sound->dataSize;
     }
 
-    std::weak_ptr<Sound> PCMStream::getSound() const noexcept
+    std::weak_ptr<PCMSound> PCMStream::getSound() const noexcept
     {
         return m_sound;
     }
