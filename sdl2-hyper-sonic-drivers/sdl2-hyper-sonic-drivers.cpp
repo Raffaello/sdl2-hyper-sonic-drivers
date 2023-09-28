@@ -333,11 +333,11 @@ void rendererADL()
 
     audio::sdl2::Renderer r(44100, 1024);
 
-    r.setOutputFile("renderer.wav");
+    r.setOutputFile("test_renderer_adlib_mame2.wav");
 
     auto mixer = r.getMixer();
 
-    auto adlib = devices::make_device<devices::Adlib, devices::Opl>(mixer, OplEmulator::AUTO);
+    auto adlib = devices::make_device<devices::Adlib, devices::Opl>(mixer, OplEmulator::MAME);
     auto drv1 = drivers::westwood::ADLDriver(adlib, eChannelGroup::Music);
     auto af = std::make_shared<files::westwood::ADLFile>("test/fixtures/DUNE0.ADL");
     drv1.setADLFile(af);
@@ -427,10 +427,10 @@ int main(int argc, char* argv[])
     //newMixerTest();
     //testMultiOpl();
     //testMOplMultiDrv();
-    //rendererADL();
+    rendererADL();
     //rendererMIDI();
     //midi_adlib();
-    testMT32();
+    //testMT32();
     return 0;
     //sdlMixer();
     //SDL_Delay(100);

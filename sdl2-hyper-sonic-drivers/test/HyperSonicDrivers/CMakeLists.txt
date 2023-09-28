@@ -253,6 +253,15 @@ macro_test(
         "../fixtures/GENMIDI.OP2"
 )
 
+macro_test(
+    EXE TestRenderer
+    FILES "audio/sdl2/TestRenderer.cpp"
+    LINKS_PRIVATE hyper-sonic-drivers-static
+    FIXTURES
+        "../fixtures/test_renderer_adlib_mame2.wav"
+        "../fixtures/DUNE0.ADL"
+)
+
 ##### future tests ###
 macro_test(
     EXE TestIFFFile
