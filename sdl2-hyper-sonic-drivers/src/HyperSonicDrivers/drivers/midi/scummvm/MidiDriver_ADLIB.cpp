@@ -689,7 +689,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
     AdLibPart* MidiDriver_ADLIB::getChannel(const uint8_t channel) noexcept
     {
-        if (channel == 9)
+        if (channel == audio::midi::MIDI_PERCUSSION_CHANNEL)
             return &_percussion;
         else
             return &_parts[channel];
