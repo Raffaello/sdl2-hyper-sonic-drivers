@@ -194,7 +194,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
         }
     }
 
-    void OplDriver::controller(const uint8_t chan, const uint8_t control, uint8_t value) const noexcept
+    void OplDriver::controller(const uint8_t chan, const uint8_t control, uint8_t value) noexcept
     {
         // MIDI_EVENT_CONTROLLER_TYPES
         switch (control)
@@ -262,12 +262,12 @@ namespace HyperSonicDrivers::drivers::midi::opl
         }
     }
 
-    void OplDriver::programChange(const uint8_t chan, const uint8_t program) const noexcept
+    void OplDriver::programChange(const uint8_t chan, const uint8_t program) noexcept
     {
         m_channels[chan]->programChange(program);
     }
 
-    void OplDriver::pitchBend(const uint8_t chan, const uint16_t bend) const noexcept
+    void OplDriver::pitchBend(const uint8_t chan, const uint16_t bend) noexcept
     {
         //spdlog::debug("PITCH_BEND {}", bend);
         // OPLPitchWheel

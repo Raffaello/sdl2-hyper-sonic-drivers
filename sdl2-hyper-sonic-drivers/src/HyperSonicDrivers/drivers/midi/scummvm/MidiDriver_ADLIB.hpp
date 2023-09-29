@@ -54,6 +54,22 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
         //virtual void setTimerCallback(void* timerParam, /*Common::TimerManager::TimerProc*/ void* timerProc);
 
+    protected:
+        void onCallback() noexcept override;
+
+        // MIDI Events
+        void noteOff(const uint8_t chan, const uint8_t note) noexcept;
+        void noteOn(const uint8_t chan, const uint8_t note, const uint8_t vol) noexcept;
+        void controller(const uint8_t chan, const uint8_t ctrl, uint8_t value) noexcept;
+        void programChange(const uint8_t chan, const uint8_t program) noexcept;
+        void pitchBend(const uint8_t chan, const uint16_t bend) noexcept;
+
+        // MIDI Controller Events
+        //void ctrl_modulationWheel(const uint8_t chan, const uint8_t value) const noexcept {/*in MIDIChannel*/ };
+        //void ctrl_volume(const uint8_t chan, const uint8_t value) const noexcept {/*in MIDIChannel*/ };
+        //void ctrl_panPosition(const uint8_t chan, uint8_t value) const noexcept {/*in MIDIChannel*/ };
+        //void ctrl_sustain(const uint8_t chan, uint8_t value) const noexcept {/*in MIDIChannel*/ };
+
     private:
         std::shared_ptr<hardware::opl::OPL> m_opl;
         bool _scummSmallHeader = false; // FIXME: This flag controls a special mode for SCUMM V3 games
@@ -76,10 +92,8 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         int _timerIncrease = 0xD69;
         int _timerThreshold = 0x411B;
 
-        //bool _isOpen = false;
+        AdLibPart* getChannel(const uint8_t channel) noexcept;
 
-        //void onTimer();
-        void onCallback() noexcept override;
         void partKeyOn(AdLibPart* part, const AdLibInstrument* instr, uint8_t note, uint8_t velocity, const AdLibInstrument* second, uint8_t pan);
         void partKeyOff(AdLibPart* part, uint8_t note);
 

@@ -50,6 +50,21 @@ namespace HyperSonicDrivers::drivers::midi::opl
     protected:
         void onCallback() noexcept override;
 
+        // TODO: every MIDI function that has channel put into IMidiChannel interface
+        // ------
+        // MIDI Events
+        void noteOff(const uint8_t chan, const uint8_t note) noexcept;
+        void noteOn(const uint8_t chan, const uint8_t note, const uint8_t vol) noexcept;
+        void controller(const uint8_t chan, const uint8_t ctrl, uint8_t value) noexcept;
+        void programChange(const uint8_t chan, const uint8_t program) noexcept;
+        void pitchBend(const uint8_t chan, const uint16_t bend) noexcept;
+
+        // MIDI Controller Events
+        void ctrl_modulationWheel(const uint8_t chan, const uint8_t value) const noexcept;
+        void ctrl_volume(const uint8_t chan, const uint8_t value) const noexcept;
+        void ctrl_panPosition(const uint8_t chan, uint8_t value) const noexcept;
+        void ctrl_sustain(const uint8_t chan, uint8_t value) const noexcept;
+
     private:
         std::shared_ptr<hardware::opl::OPL> m_opl;
         std::shared_ptr<audio::opl::banks::OP2Bank> m_op2Bank;
@@ -64,21 +79,6 @@ namespace HyperSonicDrivers::drivers::midi::opl
         // TODO review to make this index more efficient (and its complementary)
         std::list<uint8_t> m_voicesInUseIndex;
         std::list<uint8_t> m_voicesFreeIndex;
-
-        // MIDI Events
-        void noteOff(const uint8_t chan, const uint8_t note) noexcept;
-        void noteOn(const uint8_t chan, const uint8_t note, const uint8_t vol) noexcept;
-        void controller(const uint8_t chan, const uint8_t ctrl, uint8_t value) const noexcept;
-        void programChange(const uint8_t chan, const uint8_t program) const noexcept;
-        void pitchBend(const uint8_t chan, const uint16_t bend) const noexcept;
-
-        // MIDI Controller Events
-        void ctrl_modulationWheel(const uint8_t chan, const uint8_t value) const noexcept;
-        void ctrl_volume(const uint8_t chan, const uint8_t value) const noexcept;
-        void ctrl_panPosition(const uint8_t chan, uint8_t value) const noexcept;
-        void ctrl_sustain(const uint8_t chan, uint8_t value) const noexcept;
-
-        //void onTimer();
 
         void releaseSustain(const uint8_t channel) const noexcept;
         uint8_t releaseVoice(const uint8_t slot, const bool forced);

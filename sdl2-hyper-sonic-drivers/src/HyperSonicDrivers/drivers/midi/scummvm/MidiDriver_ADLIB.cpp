@@ -173,7 +173,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         free(_regCacheSecondary);
     }
 
-    void MidiDriver_ADLIB::send(const audio::midi::MIDIEvent& e) /*const*/ noexcept
+    void MidiDriver_ADLIB::send(const audio::midi::MIDIEvent& e) noexcept
     {
         using audio::midi::TO_HIGH;
         using audio::midi::MIDI_EVENT_TYPES_HIGH;
@@ -188,11 +188,13 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         }
     }
 
-    void MidiDriver_ADLIB::send(uint32_t b) {
+    void MidiDriver_ADLIB::send(uint32_t b)
+    {
         send(b & 0xF, b & 0xFFFFFFF0);
     }
 
-    void MidiDriver_ADLIB::send(int8_t chan, uint32_t b) {
+    void MidiDriver_ADLIB::send(int8_t chan, uint32_t b)
+    {
         using audio::midi::MIDI_EVENT_type_u;
         using audio::midi::MIDI_EVENT_TYPES_HIGH;
 
@@ -202,33 +204,25 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         MIDI_EVENT_type_u cmd;
         cmd.val = static_cast<uint8_t>(b & 0xFF);
 
-        AdLibPart* part;
-        if (chan == 9)
-            part = &_percussion;
-        else
-            part = &_parts[chan];
-
         switch (static_cast<MIDI_EVENT_TYPES_HIGH>(cmd.high)) {
         case MIDI_EVENT_TYPES_HIGH::NOTE_OFF:// Note Off
-            part->noteOff(param1);
-            logD(std::format("noteOff {} {}", chan, param1));
+            noteOff(chan, param1);
             break;
         case MIDI_EVENT_TYPES_HIGH::NOTE_ON: // Note On
-            part->noteOn(param1, param2);
-            logD(std::format("noteOn {} {}", param1, param2));
+            noteOn(chan, param1, param2);
             break;
         case MIDI_EVENT_TYPES_HIGH::AFTERTOUCH: // Aftertouch
             break; // Not supported.
         case MIDI_EVENT_TYPES_HIGH::CONTROLLER: // Control Change
-            part->controlChange(param1, param2);
+            controller(chan, param1, param2);
             break;
         case MIDI_EVENT_TYPES_HIGH::PROGRAM_CHANGE: // Program Change
-            part->programChange(param1);
+            programChange(chan, param1);
             break;
         case MIDI_EVENT_TYPES_HIGH::CHANNEL_AFTERTOUCH: // Channel Pressure
             break; // Not supported.
         case MIDI_EVENT_TYPES_HIGH::PITCH_BEND: // Pitch Bend
-            part->pitchBend(static_cast<int16_t>((param1 | (param2 << 7)) - 0x2000));
+            pitchBend(chan, static_cast<uint16_t>((param1 | (param2 << 7)) - 0x2000));
             break;
         case MIDI_EVENT_TYPES_HIGH::META_SYSEX: // SysEx
             // We should never get here! SysEx information has to be
@@ -363,6 +357,38 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
                 }
             }
         }
+    }
+
+    void MidiDriver_ADLIB::noteOff(const uint8_t chan, const uint8_t note) noexcept
+    {
+        auto part = getChannel(chan);
+        part->noteOff(note);
+        logD(std::format("noteOff {} {}", chan, note));
+    }
+
+    void MidiDriver_ADLIB::noteOn(const uint8_t chan, const uint8_t note, const uint8_t vol) noexcept
+    {
+        auto part = getChannel(chan);
+        part->noteOn(note, vol);
+        logD(std::format("noteOn {} {}", note, vol));
+    }
+
+    void MidiDriver_ADLIB::controller(const uint8_t chan, const uint8_t ctrl, uint8_t value) noexcept
+    {
+        auto part = getChannel(chan);
+        part->controlChange(ctrl, value);
+    }
+
+    void MidiDriver_ADLIB::programChange(const uint8_t chan, const uint8_t program) noexcept
+    {
+        auto part = getChannel(chan);
+        part->programChange(program);
+    }
+
+    void MidiDriver_ADLIB::pitchBend(const uint8_t chan, const uint16_t bend) noexcept
+    {
+        auto part = getChannel(chan);
+        part->pitchBend(static_cast<int16_t>(bend));
     }
 
     //void MidiDriver_ADLIB::setTimerCallback(void* timerParam, /*Common::TimerManager::TimerProc*/ void* timerProc) {
@@ -659,6 +685,14 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
                     mcOff(voice);
             }
         }
+    }
+
+    AdLibPart* MidiDriver_ADLIB::getChannel(const uint8_t channel) noexcept
+    {
+        if (channel == 9)
+            return &_percussion;
+        else
+            return &_parts[channel];
     }
 
     void MidiDriver_ADLIB::partKeyOn(AdLibPart* part, const AdLibInstrument* instr, uint8_t note, uint8_t velocity, const AdLibInstrument* second, uint8_t pan) {
