@@ -2,16 +2,15 @@
 #include <HyperSonicDrivers/drivers/midi/opl/OplVoice.hpp>
 #include <HyperSonicDrivers/hardware/opl/OPL2instrument.h>
 #include <HyperSonicDrivers/utils/ILogger.hpp>
+#include <HyperSonicDrivers/drivers/midi/IMidiChannel.hpp>
 
 namespace HyperSonicDrivers::drivers::midi::opl
 {
     using audio::midi::MIDI_PERCUSSION_CHANNEL;
     using hardware::opl::OPL2instrument_t;
 
-
     constexpr int VIBRATO_THRESHOLD = 40;
     constexpr int8_t HIGHEST_NOTE = 127;
-
 
     OplVoice::OplVoice(const uint8_t slot, const drivers::opl::OplWriter* oplWriter) :
         m_slot(slot), m_oplWriter(oplWriter)
@@ -193,11 +192,5 @@ namespace HyperSonicDrivers::drivers::midi::opl
             utils::throwLogC<std::runtime_error>("OPL2instrument_t is null");
 
         m_instr = instr;
-    }
-
-    void OplVoice::setVolumes(const uint8_t volume) noexcept
-    {
-        m_volume = volume;
-        m_real_volume = calcVolume_();
     }
 }

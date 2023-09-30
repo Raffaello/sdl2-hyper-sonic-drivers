@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <list>
+#include <HyperSonicDrivers/drivers/midi/IMidiChannelVoice.hpp>
 
 namespace HyperSonicDrivers::drivers::midi
 {
@@ -24,7 +25,7 @@ namespace HyperSonicDrivers::drivers::midi
         const bool isPercussion;
 
     protected:
-
+        std::list<IMidiChannelVoice> m_voices;
         // MIDI Events
         //virtual void noteOff(const uint8_t note) noexcept = 0;
         //virtual void noteOn(const uint8_t note, const uint8_t vol) noexcept = 0;

@@ -7,6 +7,7 @@
 #include <HyperSonicDrivers/hardware/opl/OPL2instrument.h>
 #include <HyperSonicDrivers/files/dmx/OP2File.hpp>
 #include <HyperSonicDrivers/hardware/opl/OPLMock.hpp>
+#include <HyperSonicDrivers/drivers/midi/IMidiChannel.hpp>
 
 namespace HyperSonicDrivers::drivers::midi::opl
 {
