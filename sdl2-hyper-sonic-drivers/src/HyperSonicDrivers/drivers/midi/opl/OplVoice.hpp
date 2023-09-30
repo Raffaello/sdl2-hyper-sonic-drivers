@@ -7,10 +7,10 @@
 
 namespace HyperSonicDrivers::drivers::midi::opl
 {
-    constexpr int SUSTAIN_THRESHOLD = 64;
+    constexpr int opl_sustain_threshold = 64;
 
     /// <summary>
-    /// This is only the execution for a OplChannel: a Voice (OplVoice)
+    /// This is only the execution for a MidiChannel
     /// used in a MIDI Channel -> Opl Channel
     /// </summary>
     class OplVoice
@@ -53,56 +53,56 @@ namespace HyperSonicDrivers::drivers::midi::opl
         void resume() const noexcept;
 
         inline void setVolumes(const uint8_t channelVolume, const uint8_t volume) noexcept {
-            _volume = volume;
+            m_volume = volume;
             setRealVolume(channelVolume);
         }
-        inline void setRealVolume(const uint8_t channelVolume) noexcept { _realvolume = _calcVolume(channelVolume); }
-        inline uint8_t getRealVolume() const noexcept { return _realvolume; }
-        inline uint8_t getChannel() const noexcept { return _channel; }
-        inline const hardware::opl::OPL2instrument_t* getInstrument() const noexcept { return _instr; }
+        inline void setRealVolume(const uint8_t channelVolume) noexcept { m_real_volume = calcVolume_(channelVolume); }
+        inline uint8_t getRealVolume() const noexcept { return m_real_volume; }
+        inline uint8_t getChannel() const noexcept { return m_channel; }
+        inline const hardware::opl::OPL2instrument_t* getInstrument() const noexcept { return m_instr; }
 
         // Methods to get private variables, not really used
-        inline uint8_t getSlot() const noexcept { return _slot; }
-        inline bool isFree() const noexcept { return _free; }
-        inline bool isSecondary() const noexcept { return _secondary; }
-        inline bool isChannel(const uint8_t channel) const noexcept { return _channel == channel; }
-        inline bool isChannelBusy(const uint8_t channel) const noexcept { return isChannel(channel) && !_free; }
-        inline bool isChannelFree(uint8_t channel) const noexcept { return isChannel(channel) && _free; }
-        inline bool isVibrato() const noexcept { return _vibrato; }
-        inline uint8_t getPan() const noexcept { return _pan; }
-        inline uint8_t getNote() const noexcept { return _note; }
-        inline uint8_t getVolume() const noexcept { return _volume; }
-        inline uint8_t getPitch() const noexcept { return _pitch; }
+        inline uint8_t getSlot() const noexcept { return m_slot; }
+        inline bool isFree() const noexcept { return m_free; }
+        inline bool isSecondary() const noexcept { return m_secondary; }
+        inline bool isChannel(const uint8_t channel) const noexcept { return m_channel == channel; }
+        inline bool isChannelBusy(const uint8_t channel) const noexcept { return isChannel(channel) && !m_free; }
+        inline bool isChannelFree(uint8_t channel) const noexcept { return isChannel(channel) && m_free; }
+        inline bool isVibrato() const noexcept { return m_vibrato; }
+        inline uint8_t getPan() const noexcept { return m_pan; }
+        inline uint8_t getNote() const noexcept { return m_note; }
+        inline uint8_t getVolume() const noexcept { return m_volume; }
+        inline uint8_t getPitch() const noexcept { return m_pitch; }
 
     protected:
         // Methods to Mock the class, not really used except for mocking
-        inline void setChannel(const uint8_t channel) noexcept { _channel = channel; }
-        inline void setFree(const bool free) noexcept { _free = free; };
-        inline void setInstrument(const hardware::opl::OPL2instrument_t* instr) noexcept { _instr = instr; }
-        inline void setVibrato(const bool vibrato) noexcept { _vibrato = vibrato; };
+        inline void setChannel(const uint8_t channel) noexcept { m_channel = channel; }
+        inline void setFree(const bool free) noexcept { m_free = free; };
+        inline void setInstrument(const hardware::opl::OPL2instrument_t* instr) noexcept { m_instr = instr; }
+        inline void setVibrato(const bool vibrato) noexcept { m_vibrato = vibrato; };
 
     private:
-        const uint8_t _slot;                        /* OPL channel number */
+        const uint8_t m_slot;                        /* OPL channel number */
 
-        uint8_t _volume = 0;                        /* note volume */
-        uint8_t _realvolume = 0;                    /* adjusted note volume */
-        uint8_t _channel = 0;                       // MIDI channel number
-        uint8_t _note = 0;                          /* note number */
-        uint8_t _realnote = 0;                      /* adjusted note number */
-        int8_t  _finetune = 0;                      /* frequency fine-tune */
-        int16_t _pitch = 0;                         /* pitch-wheel value */
-        uint8_t _pan = 64;                          /* pan value */
+        uint8_t m_volume = 0;                        /* note volume */
+        uint8_t m_real_volume = 0;                    /* adjusted note volume */
+        uint8_t m_channel = 0;                       // MIDI channel number
+        uint8_t m_note = 0;                          /* note number */
+        uint8_t m_real_note  = 0;                      /* adjusted note number */
+        int8_t  m_finetune = 0;                      /* frequency fine-tune */
+        int16_t m_pitch = 0;                         /* pitch-wheel value */
+        uint8_t m_pan = 64;                          /* pan value */
 
-        const hardware::opl::OPL2instrument_t* _instr = nullptr; /* current instrument */
+        const hardware::opl::OPL2instrument_t* m_instr = nullptr; /* current instrument */
 
         //uint32_t _time = 0;                       /* note start time */
         // Channel flags
-        bool _free = true;
-        bool _secondary = false;
-        bool _sustain = false;
-        bool _vibrato = false;
+        bool m_free = true;
+        bool m_secondary = false;
+        bool m_sustain = false;
+        bool m_vibrato = false;
 
-        const drivers::opl::OplWriter* _oplWriter;
+        const drivers::opl::OplWriter* m_oplWriter;
 
         /// <summary>
         /// The volume is between 0-127 as a per MIDI specification.
@@ -110,8 +110,8 @@ namespace HyperSonicDrivers::drivers::midi::opl
         /// OPL chips has a volume attenuation (inverted values)
         /// range from 0-64 inverted (0 is max, 64 is muted).
         /// </summary>
-        inline uint8_t _calcVolume(const uint8_t channelVolume) const noexcept {
-            return  std::min<uint8_t>((static_cast<uint32_t>(channelVolume) * _volume / 127), 127);
+        inline uint8_t calcVolume_(const uint8_t channelVolume) const noexcept {
+            return  std::min<uint8_t>((static_cast<uint32_t>(channelVolume) * m_volume / 127), 127);
         }
     };
 }

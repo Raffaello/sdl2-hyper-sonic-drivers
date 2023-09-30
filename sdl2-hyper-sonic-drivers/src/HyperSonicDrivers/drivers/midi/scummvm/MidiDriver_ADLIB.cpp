@@ -188,12 +188,12 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         }
     }
 
-    void MidiDriver_ADLIB::send(uint32_t b)
+    /*void MidiDriver_ADLIB::send(uint32_t b)
     {
         send(b & 0xF, b & 0xFFFFFFF0);
-    }
+    }*/
 
-    void MidiDriver_ADLIB::send(int8_t chan, uint32_t b)
+    void MidiDriver_ADLIB::send(int8_t chan, uint32_t b) noexcept
     {
         using audio::midi::MIDI_EVENT_type_u;
         using audio::midi::MIDI_EVENT_TYPES_HIGH;

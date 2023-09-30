@@ -8,7 +8,6 @@
 #include <HyperSonicDrivers/audio/midi/types.hpp>
 #include <HyperSonicDrivers/audio/opl/banks/OP2Bank.hpp>
 #include <HyperSonicDrivers/devices/Opl.hpp>
-#include <HyperSonicDrivers/drivers/midi/opl/OplChannel.hpp>
 #include <HyperSonicDrivers/drivers/midi/opl/OplVoice.hpp>
 #include <HyperSonicDrivers/drivers/opl/OplWriter.hpp>
 #include <HyperSonicDrivers/hardware/opl/OPL2instrument.h>
@@ -38,9 +37,9 @@ namespace HyperSonicDrivers::drivers::midi::opl
 
         inline void setOP2Bank(const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank) noexcept { m_op2Bank = op2Bank; };
 
-        void send(const audio::midi::MIDIEvent& e) /*const*/ noexcept override;
-        void send(uint32_t msg) override { /*TODO*/ };
-        void send(int8_t channel, uint32_t msg) override { /*TODO*/ }
+        void send(const audio::midi::MIDIEvent& e) noexcept override;
+        void send(uint32_t msg) noexcept override;
+        void send(int8_t channel, uint32_t msg) noexcept override;
 
         void pause() const noexcept override;
         void resume() const noexcept override;
@@ -72,7 +71,6 @@ namespace HyperSonicDrivers::drivers::midi::opl
         const bool m_opl3_mode;
         const uint8_t m_oplNumChannels;
 
-        std::array<std::unique_ptr<OplChannel>, audio::midi::MIDI_MAX_CHANNELS>  m_channels;
         std::vector<std::unique_ptr<OplVoice>> m_voices;
         std::unique_ptr<drivers::opl::OplWriter> m_oplWriter;
 

@@ -35,9 +35,10 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
             const uint8_t pan) override;
         void close() override;
 
+        using IMidiDriver::send;
         void send(const audio::midi::MIDIEvent& e) /*const*/ noexcept override;
-        void send(uint32_t b) override;
-        void send(int8_t channel, uint32_t b) override; // Supports higher than channel 15
+        void send(int8_t channel, uint32_t b) noexcept override; // Supports higher than channel 15
+        //void send(uint32_t b) noexcept override;
 
         void pause() const noexcept override { /*TODO*/ };
         void resume() const noexcept override {/*TODO*/ };
@@ -65,10 +66,10 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         void pitchBend(const uint8_t chan, const uint16_t bend) noexcept;
 
         // MIDI Controller Events
-        //void ctrl_modulationWheel(const uint8_t chan, const uint8_t value) const noexcept {/*in MIDIChannel*/ };
-        //void ctrl_volume(const uint8_t chan, const uint8_t value) const noexcept {/*in MIDIChannel*/ };
-        //void ctrl_panPosition(const uint8_t chan, uint8_t value) const noexcept {/*in MIDIChannel*/ };
-        //void ctrl_sustain(const uint8_t chan, uint8_t value) const noexcept {/*in MIDIChannel*/ };
+        void ctrl_modulationWheel(const uint8_t chan, const uint8_t value) const noexcept {/*in MIDIChannel*/ };
+        void ctrl_volume(const uint8_t chan, const uint8_t value) const noexcept {/*in MIDIChannel*/ };
+        void ctrl_panPosition(const uint8_t chan, uint8_t value) const noexcept {/*in MIDIChannel*/ };
+        void ctrl_sustain(const uint8_t chan, uint8_t value) const noexcept {/*in MIDIChannel*/ };
 
     private:
         std::shared_ptr<hardware::opl::OPL> m_opl;

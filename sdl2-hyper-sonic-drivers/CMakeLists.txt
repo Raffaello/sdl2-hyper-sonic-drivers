@@ -101,6 +101,8 @@ target_sources(${LIB_NAME} PRIVATE
     # --- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/PCMDriver.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/MIDDriver.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/midi/IMidiDriver.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/midi/IMidiChannel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/westwood/ADLDriver.cpp
 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/midi/scummvm/MidiDriver_BASE.cpp
@@ -111,7 +113,6 @@ target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/midi/scummvm/MidiDriver_ADLIB.cpp
 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/midi/opl/OplDriver.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/midi/opl/OplChannel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/midi/opl/OplVoice.cpp
 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/opl/OplWriter.cpp

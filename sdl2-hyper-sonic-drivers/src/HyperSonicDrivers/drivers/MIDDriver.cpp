@@ -105,6 +105,7 @@ namespace HyperSonicDrivers::drivers
         else
         {
             // must be mt32 (TODO)
+            drivers::midi::mt32::MT32Driver m;
             m_midiDriver = std::make_unique<drivers::midi::mt32::MT32Driver>();
         }
 

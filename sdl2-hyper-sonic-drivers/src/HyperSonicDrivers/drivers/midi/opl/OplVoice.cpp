@@ -12,20 +12,20 @@ namespace HyperSonicDrivers::drivers::midi::opl
 
 
     OplVoice::OplVoice(const uint8_t slot, const drivers::opl::OplWriter* oplWriter) :
-        _slot(slot), _oplWriter(oplWriter)
+        m_slot(slot), m_oplWriter(oplWriter)
     {
     }
 
     bool OplVoice::noteOff(const uint8_t channel, const uint8_t note, const uint8_t sustain) noexcept
     {
-        if (isChannelBusy(channel) && _note == note)
+        if (isChannelBusy(channel) && m_note == note)
         {
-            if (sustain < SUSTAIN_THRESHOLD) {
+            if (sustain < opl_sustain_threshold) {
                 release(false);
                 return true;
             }
             else
-                _sustain = true;
+                m_sustain = true;
         }
 
         return false;
@@ -36,7 +36,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
         const bool b = isChannelBusy(channel);
         if (b)
         {
-            _pitch = static_cast<uint16_t>(_finetune + bend);
+            m_pitch = static_cast<uint16_t>(m_finetune + bend);
             playNote(true);
         }
 
@@ -50,15 +50,15 @@ namespace HyperSonicDrivers::drivers::midi::opl
         {
             if (value >= VIBRATO_THRESHOLD)
             {
-                if (!_vibrato)
-                    _oplWriter->writeModulation(_slot, _instr, true);
-                _vibrato = true;
+                if (!m_vibrato)
+                    m_oplWriter->writeModulation(m_slot, m_instr, true);
+                m_vibrato = true;
 
             }
             else {
-                if (_vibrato)
-                    _oplWriter->writeModulation(_slot, _instr, false);
-                _vibrato = false;
+                if (m_vibrato)
+                    m_oplWriter->writeModulation(m_slot, m_instr, false);
+                m_vibrato = false;
             }
         }
 
@@ -71,7 +71,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
         if (b)
         {
             setRealVolume(value);
-            _oplWriter->writeVolume(_slot, _instr, getRealVolume());
+            m_oplWriter->writeVolume(m_slot, m_instr, getRealVolume());
         }
 
         return b;
@@ -82,8 +82,8 @@ namespace HyperSonicDrivers::drivers::midi::opl
         const bool b = isChannelBusy(channel);
         if (b)
         {
-            _pan = value;
-            _oplWriter->writePan(_slot, _instr, value);
+            m_pan = value;
+            m_oplWriter->writePan(m_slot, m_instr, value);
         }
 
         return b;
@@ -91,7 +91,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
 
     bool OplVoice::releaseSustain(const uint8_t channel) noexcept
     {
-        const bool b = isChannelBusy(channel) && _sustain;
+        const bool b = isChannelBusy(channel) && m_sustain;
         if (b)
             release(false);
 
@@ -100,7 +100,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
 
     void OplVoice::playNote(const bool keyOn) const noexcept
     {
-        _oplWriter->writeNote(_slot, _realnote, _pitch, keyOn);
+        m_oplWriter->writeNote(m_slot, m_real_note, m_pitch, keyOn);
     }
 
     int OplVoice::allocate(
@@ -118,14 +118,14 @@ namespace HyperSonicDrivers::drivers::midi::opl
 
         int16_t note_ = note;
 
-        _channel = channel;
-        _note = note;
-        _free = false;
-        _secondary = secondary;
-        _pan = chan_pan;
+        m_channel = channel;
+        m_note = note;
+        m_free = false;
+        m_secondary = secondary;
+        m_pan = chan_pan;
 
         if (chan_modulation >= VIBRATO_THRESHOLD)
-            _vibrato = true;
+            m_vibrato = true;
 
         setVolumes(chan_vol, volume);
 
@@ -135,57 +135,57 @@ namespace HyperSonicDrivers::drivers::midi::opl
             note_ = 60;  // C-5
 
         if (secondary && OP2Bank::supportOpl3(instrument))
-            _finetune = instrument->fineTune - 0x80;
+            m_finetune = instrument->fineTune - 0x80;
         else
-            _finetune = 0;
+            m_finetune = 0;
 
-        _pitch = _finetune + chan_pitch;
+        m_pitch = m_finetune + chan_pitch;
 
-        _instr = &instrument->voices[secondary ? 1 : 0];
+        m_instr = &instrument->voices[secondary ? 1 : 0];
 
-        if ((note_ += _instr->basenote) < 0)
+        if ((note_ += m_instr->basenote) < 0)
             while ((note_ += 12) < 0) {}
         else if (note_ > HIGHEST_NOTE)
             while ((note_ -= 12) > HIGHEST_NOTE);
 
-        _realnote = static_cast<uint8_t>(note_);
+        m_real_note = static_cast<uint8_t>(note_);
 
-        _oplWriter->writeInstrument(_slot, _instr);
-        if (_vibrato)
-            _oplWriter->writeModulation(_slot, _instr, true);
-        _oplWriter->writePan(_slot, _instr, chan_pan);
-        _oplWriter->writeVolume(_slot, _instr, getRealVolume());
+        m_oplWriter->writeInstrument(m_slot, m_instr);
+        if (m_vibrato)
+            m_oplWriter->writeModulation(m_slot, m_instr, true);
+        m_oplWriter->writePan(m_slot, m_instr, chan_pan);
+        m_oplWriter->writeVolume(m_slot, m_instr, getRealVolume());
         playNote(true);
 
-        return _slot;
+        return m_slot;
     }
 
     uint8_t OplVoice::release(const bool forced) noexcept
     {
         playNote(false);
-        _free = true;
+        m_free = true;
         if (forced)
         {
-            _oplWriter->writeChannel(0x80, _slot, 0x0F, 0x0F);  // release rate - fastest
-            _oplWriter->writeChannel(0x40, _slot, 0x3F, 0x3F);  // no volume
+            m_oplWriter->writeChannel(0x80, m_slot, 0x0F, 0x0F);  // release rate - fastest
+            m_oplWriter->writeChannel(0x40, m_slot, 0x3F, 0x3F);  // no volume
         }
-        return _slot;
+        return m_slot;
     }
 
     void OplVoice::pause() const noexcept
     {
-        _oplWriter->writeVolume(_slot, _instr, 0);
-        _oplWriter->writeChannel(0x60, _slot, 0, 0); // attack, decay
-        _oplWriter->writeChannel(0x80, _slot,
-            _instr->sust_rel_1 & 0xF0,
-            _instr->sust_rel_2 & 0xF0); // sustain, release
+        m_oplWriter->writeVolume(m_slot, m_instr, 0);
+        m_oplWriter->writeChannel(0x60, m_slot, 0, 0); // attack, decay
+        m_oplWriter->writeChannel(0x80, m_slot,
+            m_instr->sust_rel_1 & 0xF0,
+            m_instr->sust_rel_2 & 0xF0); // sustain, release
     }
 
     void OplVoice::resume() const noexcept
     {
-        _oplWriter->writeChannel(0x60, _slot, _instr->att_dec_1, _instr->att_dec_2);
-        _oplWriter->writeChannel(0x80, _slot, _instr->sust_rel_1, _instr->sust_rel_2);
-        _oplWriter->writeVolume(_slot, _instr, getRealVolume());
-        _oplWriter->writePan(_slot, getInstrument(), _pan);
+        m_oplWriter->writeChannel(0x60, m_slot, m_instr->att_dec_1, m_instr->att_dec_2);
+        m_oplWriter->writeChannel(0x80, m_slot, m_instr->sust_rel_1, m_instr->sust_rel_2);
+        m_oplWriter->writeVolume(m_slot, m_instr, getRealVolume());
+        m_oplWriter->writePan(m_slot, getInstrument(), m_pan);
     }
 }

@@ -33,7 +33,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
         m_oplWriter = std::make_unique<drivers::opl::OplWriter>(m_opl, m_opl3_mode);
 
         for (uint8_t i = 0; i < audio::midi::MIDI_MAX_CHANNELS; ++i) {
-            m_channels[i] = std::make_unique<OplChannel>(i);
+            m_channels[i] = std::make_unique<IMidiChannel>(i);
         }
 
         m_voices.resize(m_oplNumChannels);
@@ -131,6 +131,16 @@ namespace HyperSonicDrivers::drivers::midi::opl
         }
     }
 
+    void OplDriver::send(uint32_t msg) noexcept
+    {
+        audio::midi::MIDIEvent e;
+        e.type.val = msg;
+    }
+
+    void OplDriver::send(int8_t channel, uint32_t msg) noexcept
+    {
+    }
+
     void OplDriver::pause() const noexcept
     {
         for (auto it = m_voicesInUseIndex.begin(); it != m_voicesInUseIndex.end(); ++it) {
@@ -168,14 +178,14 @@ namespace HyperSonicDrivers::drivers::midi::opl
     {
         using audio::opl::banks::OP2Bank;
 
-        const bool isPercussion = chan == MIDI_PERCUSSION_CHANNEL;
+        const bool isPercussion = m_channels[chan]->isPercussion;
         int8_t freeSlot = getFreeOplVoiceIndex(!isPercussion);
 
         if (freeSlot != -1)
         {
             const uint8_t instr_index = isPercussion ?
                 OP2Bank::getPercussionIndex(note) :
-                m_channels[chan]->getProgram();
+                m_channels[chan]->program;
 
             const auto instr = m_op2Bank->getInstrumentPtr(instr_index);
 
@@ -264,7 +274,12 @@ namespace HyperSonicDrivers::drivers::midi::opl
 
     void OplDriver::programChange(const uint8_t chan, const uint8_t program) noexcept
     {
-        m_channels[chan]->programChange(program);
+        if (program > 127)
+        {
+            logW(std::format("Progam change value >= 127 -> {}", program));
+        }
+
+        m_channels[chan]->program = program;
     }
 
     void OplDriver::pitchBend(const uint8_t chan, const uint16_t bend) noexcept
@@ -308,7 +323,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
     {
         //spdlog::debug("sustain value {}", value);
         m_channels[chan]->sustain = value;
-        if (value < SUSTAIN_THRESHOLD)
+        if (value < opl_sustain_threshold)
             releaseSustain(chan);
     }
 
@@ -330,7 +345,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
         const audio::opl::banks::Op2BankInstrument_t* instrument,
         const bool secondary)
     {
-        const OplChannel* ch = m_channels[channel].get();
+        const auto* ch = m_channels[channel].get();
 
         return m_voices[slot]->allocate(
             channel, note, volume, instrument, secondary,
