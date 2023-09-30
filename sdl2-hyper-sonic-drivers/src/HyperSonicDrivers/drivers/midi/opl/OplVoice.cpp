@@ -18,9 +18,8 @@ namespace HyperSonicDrivers::drivers::midi::opl
     {
     }
 
-    bool OplVoice::noteOff(/*const uint8_t channel,*/ const uint8_t note, const uint8_t sustain) noexcept
+    bool OplVoice::noteOff(const uint8_t note, const uint8_t sustain) noexcept
     {
-        //if (isChannelBusy(channel) && m_note == note)
         if(!isFree() && m_note == note)
         {
             if (sustain < opl_sustain_threshold)
@@ -35,9 +34,8 @@ namespace HyperSonicDrivers::drivers::midi::opl
         return false;
     }
 
-    bool OplVoice::pitchBend(/*const uint8_t channel,*/ const uint16_t bend) noexcept
+    bool OplVoice::pitchBend(const uint16_t bend) noexcept
     {
-        //const bool b = isChannelBusy(channel);
         const bool b = !isFree();
         if (b)
         {
@@ -48,9 +46,8 @@ namespace HyperSonicDrivers::drivers::midi::opl
         return b;
     }
 
-    bool OplVoice::ctrl_modulationWheel(/*const uint8_t channel,*/ const uint8_t value) noexcept
+    bool OplVoice::ctrl_modulationWheel(const uint8_t value) noexcept
     {
-        //const bool b = isChannelBusy(channel);
         const bool b = !isFree();
         if (b)
         {
@@ -71,9 +68,8 @@ namespace HyperSonicDrivers::drivers::midi::opl
         return b;
     }
 
-    bool OplVoice::ctrl_volume(/*const uint8_t channel,*/ const uint8_t value) noexcept
+    bool OplVoice::ctrl_volume(const uint8_t value) noexcept
     {
-        //const bool b = isChannelBusy(channel);
         const bool b = !isFree();
         if (b)
         {
@@ -84,9 +80,8 @@ namespace HyperSonicDrivers::drivers::midi::opl
         return b;
     }
 
-    bool OplVoice::ctrl_panPosition(/*const uint8_t channel,*/ const uint8_t value) noexcept
+    bool OplVoice::ctrl_panPosition(const uint8_t value) noexcept
     {
-        //const bool b = isChannelBusy(channel);
         const bool b = !isFree();
         if (b)
         {
@@ -97,9 +92,8 @@ namespace HyperSonicDrivers::drivers::midi::opl
         return b;
     }
 
-    bool OplVoice::releaseSustain(/*const uint8_t channel*/) noexcept
+    bool OplVoice::releaseSustain() noexcept
     {
-        //const bool b = isChannelBusy(channel) && m_sustain;
         const bool b = !isFree() && m_sustain;
         if (b)
             release(false);
@@ -116,11 +110,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
         IMidiChannel* channel,
         const uint8_t note, const uint8_t volume,
         const audio::opl::banks::Op2BankInstrument_t* instrument,
-        const bool secondary//,
-        //const uint8_t chan_modulation,
-        //const uint8_t chan_vol,
-        //const uint8_t chan_pitch,
-        //const uint8_t chan_pan
+        const bool secondary
     ) noexcept
     {
         using audio::opl::banks::OP2Bank;
@@ -132,7 +122,6 @@ namespace HyperSonicDrivers::drivers::midi::opl
         m_free = false;
         m_secondary = secondary;
 
-        //if (chan_modulation >= VIBRATO_THRESHOLD)
         if (m_channel->modulation >= VIBRATO_THRESHOLD)
             m_vibrato = true;
 

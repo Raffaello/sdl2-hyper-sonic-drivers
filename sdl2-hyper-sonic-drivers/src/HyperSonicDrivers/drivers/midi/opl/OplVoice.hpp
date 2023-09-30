@@ -28,12 +28,12 @@ namespace HyperSonicDrivers::drivers::midi::opl
         /// <param name="note"></param>
         /// <param name="sustain"></param>
         /// <returns>true = voice released. false=voice sutained</returns>
-        bool noteOff(/*const uint8_t channel, */const uint8_t note, const uint8_t sustain) noexcept;
-        bool pitchBend(/*const uint8_t channel,*/ const uint16_t bend) noexcept;
-        bool ctrl_modulationWheel(/*const uint8_t channel,*/ const uint8_t value) noexcept;
-        bool ctrl_volume(/*const uint8_t channel,*/ const uint8_t value) noexcept;
-        bool ctrl_panPosition(/*const uint8_t channel,*/ const uint8_t value) noexcept;
-        bool releaseSustain(/*const uint8_t channel*/) noexcept;
+        bool noteOff(const uint8_t note, const uint8_t sustain) noexcept;
+        bool pitchBend(const uint16_t bend) noexcept;
+        bool ctrl_modulationWheel(const uint8_t value) noexcept;
+        bool ctrl_volume(const uint8_t value) noexcept;
+        bool ctrl_panPosition(const uint8_t value) noexcept;
+        bool releaseSustain() noexcept;
 
         void playNote(const bool keyOn) const noexcept;
         /// <summary>
@@ -43,11 +43,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
         int allocate(IMidiChannel* channel,
             const uint8_t note, const uint8_t volume,
             const audio::opl::banks::Op2BankInstrument_t* instrument,
-            const bool secondary//,
-            //const uint8_t chan_modulation,
-            //const uint8_t chan_vol,
-            //const uint8_t chan_pitch,
-            //const uint8_t chan_pan
+            const bool secondary
         ) noexcept;
 
         uint8_t release(const bool forced) noexcept;
