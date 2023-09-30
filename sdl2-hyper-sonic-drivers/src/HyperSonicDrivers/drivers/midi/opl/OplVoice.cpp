@@ -38,7 +38,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
         const bool b = !isFree();
         if (b)
         {
-            m_pitch_factor = static_cast<uint16_t>(m_finetune + bend);
+            m_pitch_factor = static_cast<uint16_t>(m_finetune + (bend >> 6));
             playNote(true);
         }
 

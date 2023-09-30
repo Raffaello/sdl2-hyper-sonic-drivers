@@ -52,7 +52,6 @@ namespace HyperSonicDrivers::drivers::midi
         virtual void ctrl_volume(const uint8_t chan, const uint8_t value) const noexcept = 0;
         virtual void ctrl_panPosition(const uint8_t chan, uint8_t value) const noexcept = 0;
         virtual void ctrl_sustain(const uint8_t chan, uint8_t value) const noexcept = 0;
-
         virtual void ctrl_allNotesOff() const noexcept = 0;
 
         //virtual void pitchBendFactor(uint8_t value) noexcept = 0;

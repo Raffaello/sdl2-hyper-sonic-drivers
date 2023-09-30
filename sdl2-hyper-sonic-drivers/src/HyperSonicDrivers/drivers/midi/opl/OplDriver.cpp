@@ -11,16 +11,13 @@ namespace HyperSonicDrivers::drivers::midi::opl
     using hardware::opl::opl2_num_channels;
     using hardware::opl::opl3_num_channels;
 
-    using audio::midi::MIDI_PERCUSSION_CHANNEL;
-    using audio::midi::MIDI_EVENT_TYPES_HIGH;
-    using audio::midi::TO_HIGH;
-    using hardware::opl::OPL2instrument_t;
+    //using audio::midi::MIDI_EVENT_TYPES_HIGH;
+    //using audio::midi::TO_HIGH;
+    //using hardware::opl::OPL2instrument_t;
     using hardware::opl::OplType;
     using utils::logW;
     using utils::logE;
     using utils::logC;
-
-    // TODO: allocateVoice and getFreeSlot should be merged into 1 function
 
     OplDriver::OplDriver(const std::shared_ptr<devices::Opl>& opl) :
         m_opl([&opl] {

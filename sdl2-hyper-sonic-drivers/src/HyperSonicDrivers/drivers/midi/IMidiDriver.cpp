@@ -41,7 +41,10 @@ namespace HyperSonicDrivers::drivers::midi
         case MIDI_EVENT_TYPES_HIGH::CHANNEL_AFTERTOUCH: // Channel Pressure
             break; // Not supported.
         case MIDI_EVENT_TYPES_HIGH::PITCH_BEND: // Pitch Bend
-            pitchBend(channel, static_cast<uint16_t>((param1 | (param2 << 7)) - 0x2000) >> 6);
+        {
+            const auto bend = static_cast<uint16_t>((param1 | (param2 << 7)) - 0x2000);
+            pitchBend(channel, bend);
+        }
             break;
         case MIDI_EVENT_TYPES_HIGH::META_SYSEX: // SysEx
             // We should never get here! SysEx information has to be
