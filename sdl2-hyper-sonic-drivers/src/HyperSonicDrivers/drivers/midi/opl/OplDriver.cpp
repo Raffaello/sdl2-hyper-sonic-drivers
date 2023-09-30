@@ -348,7 +348,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
         const auto* ch = m_channels[channel].get();
 
         return m_voices[slot]->allocate(
-            channel, note, volume, instrument, secondary,
+            m_channels[channel].get(), note, volume, instrument, secondary,
             ch->modulation, ch->volume, ch->pitch, ch->pan
         );
     }

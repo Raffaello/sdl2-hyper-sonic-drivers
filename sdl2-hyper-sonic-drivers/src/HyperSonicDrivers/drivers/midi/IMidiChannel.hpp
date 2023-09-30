@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <list>
 
 namespace HyperSonicDrivers::drivers::midi
 {
@@ -22,6 +23,7 @@ namespace HyperSonicDrivers::drivers::midi
         uint8_t program = 0;           // instrument number
         const bool isPercussion;
 
+    protected:
 
         // MIDI Events
         //virtual void noteOff(const uint8_t note) noexcept = 0;

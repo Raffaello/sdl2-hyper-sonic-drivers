@@ -1,12 +1,14 @@
 #include <HyperSonicDrivers/audio/midi/types.hpp>
 #include <HyperSonicDrivers/drivers/midi/opl/OplVoice.hpp>
 #include <HyperSonicDrivers/hardware/opl/OPL2instrument.h>
+#include <HyperSonicDrivers/utils/ILogger.hpp>
 
 namespace HyperSonicDrivers::drivers::midi::opl
 {
+    using audio::midi::MIDI_PERCUSSION_CHANNEL;
     using hardware::opl::OPL2instrument_t;
 
-    using audio::midi::MIDI_PERCUSSION_CHANNEL;
+
     constexpr int VIBRATO_THRESHOLD = 40;
     constexpr int8_t HIGHEST_NOTE = 127;
 
@@ -36,7 +38,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
         const bool b = isChannelBusy(channel);
         if (b)
         {
-            m_pitch = static_cast<uint16_t>(m_finetune + bend);
+            m_pitch_factor = static_cast<uint16_t>(m_finetune + bend);
             playNote(true);
         }
 
@@ -82,7 +84,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
         const bool b = isChannelBusy(channel);
         if (b)
         {
-            m_pan = value;
+            m_channel->pan = value;
             m_oplWriter->writePan(m_slot, m_instr, value);
         }
 
@@ -100,11 +102,11 @@ namespace HyperSonicDrivers::drivers::midi::opl
 
     void OplVoice::playNote(const bool keyOn) const noexcept
     {
-        m_oplWriter->writeNote(m_slot, m_real_note, m_pitch, keyOn);
+        m_oplWriter->writeNote(m_slot, m_real_note, m_pitch_factor, keyOn);
     }
 
     int OplVoice::allocate(
-        const uint8_t channel,
+        IMidiChannel* channel,
         const uint8_t note, const uint8_t volume,
         const audio::opl::banks::Op2BankInstrument_t* instrument,
         const bool secondary,
@@ -122,7 +124,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
         m_note = note;
         m_free = false;
         m_secondary = secondary;
-        m_pan = chan_pan;
+        m_channel->pan = chan_pan;
 
         if (chan_modulation >= VIBRATO_THRESHOLD)
             m_vibrato = true;
@@ -131,7 +133,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
 
         if (OP2Bank::isPercussion(instrument))
             note_ = instrument->noteNum;
-        else if (channel == MIDI_PERCUSSION_CHANNEL)
+        else if (channel->isPercussion)
             note_ = 60;  // C-5
 
         if (secondary && OP2Bank::supportOpl3(instrument))
@@ -139,9 +141,9 @@ namespace HyperSonicDrivers::drivers::midi::opl
         else
             m_finetune = 0;
 
-        m_pitch = m_finetune + chan_pitch;
+        m_pitch_factor = m_finetune + chan_pitch;
 
-        m_instr = &instrument->voices[secondary ? 1 : 0];
+        setInstrument(&instrument->voices[secondary ? 1 : 0]);
 
         if ((note_ += m_instr->basenote) < 0)
             while ((note_ += 12) < 0) {}
@@ -186,6 +188,20 @@ namespace HyperSonicDrivers::drivers::midi::opl
         m_oplWriter->writeChannel(0x60, m_slot, m_instr->att_dec_1, m_instr->att_dec_2);
         m_oplWriter->writeChannel(0x80, m_slot, m_instr->sust_rel_1, m_instr->sust_rel_2);
         m_oplWriter->writeVolume(m_slot, m_instr, getRealVolume());
-        m_oplWriter->writePan(m_slot, getInstrument(), m_pan);
+        m_oplWriter->writePan(m_slot, getInstrument(), m_channel->pan);
+    }
+
+    void OplVoice::setInstrument(const hardware::opl::OPL2instrument_t* instr) noexcept
+    {
+        if (instr == nullptr)
+            utils::throwLogC<std::runtime_error>("OPL2instrument_t is null");
+
+        m_instr = instr;
+    }
+
+    void OplVoice::setVolumes(const uint8_t channelVolume, const uint8_t volume) noexcept
+    {
+        m_channel->volume = volume;
+        setRealVolume(channelVolume);
     }
 }

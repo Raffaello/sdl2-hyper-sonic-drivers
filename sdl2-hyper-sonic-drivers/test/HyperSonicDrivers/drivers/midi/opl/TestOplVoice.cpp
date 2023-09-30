@@ -28,13 +28,17 @@ namespace HyperSonicDrivers::drivers::midi::opl
             delete instr;
         }
 
-        void setChannel(const uint8_t ch) {
-            OplVoice::setChannel(ch);
-        }
+        inline void setChannel(IMidiChannel* channel) noexcept { m_channel = channel; }
+        inline IMidiChannel* getChannel() const noexcept { return m_channel; };
 
         void setFree(const bool f) {
-            OplVoice::setFree(f);
+            m_free = f;
         }
+
+        inline uint8_t getVolume() const { return m_channel->volume; };
+        inline uint8_t getPan() const { return m_channel->pan; };
+        inline uint8_t getPitch() const { return m_channel->pitch; };
+        inline uint8_t getPitchFactor() const { return m_pitch_factor; };
     };
 
     TEST(OplVoice, ctrl_modulation_wheel)
@@ -42,9 +46,10 @@ namespace HyperSonicDrivers::drivers::midi::opl
         auto opl = std::make_shared<hardware::opl::OPLMock>();
         const bool opl3_mode = false;
         auto ow = std::make_unique < drivers::opl::OplWriter>(opl, opl3_mode);
+        IMidiChannel midi_channel(0);
 
         OplVoiceMock v((uint8_t)0, ow.get());
-        v.setChannel(0);
+        v.setChannel(&midi_channel);
 
         EXPECT_FALSE(v.isVibrato());
         EXPECT_FALSE(v.ctrl_modulationWheel(0, 40 + 1));
@@ -59,6 +64,8 @@ namespace HyperSonicDrivers::drivers::midi::opl
     TEST(OplVoice, allocate)
     {
         files::dmx::OP2File f("../fixtures/GENMIDI.OP2");
+        IMidiChannel midi_channel0(0);
+        IMidiChannel midi_channel1(1);
         auto b = f.getBank();
 
         auto opl = std::make_shared<hardware::opl::OPLMock>();
@@ -67,13 +74,13 @@ namespace HyperSonicDrivers::drivers::midi::opl
 
         OplVoiceMock v1((uint8_t)0, ow.get());
         OplVoiceMock v2((uint8_t)1, ow.get());
-        v1.setChannel(0);
-        v2.setChannel(0);
+        v1.setChannel(&midi_channel0);
+        v2.setChannel(&midi_channel0);
 
-        EXPECT_EQ(v1.getChannel(), 0);
-        EXPECT_EQ(v2.getChannel(), 0);
+        EXPECT_EQ(v1.getChannel(), &midi_channel0);
+        EXPECT_EQ(v2.getChannel(), &midi_channel0);
 
-        const uint8_t ch = 1;
+        IMidiChannel* ch = &midi_channel1;
         const uint8_t note = 100;
         const uint8_t vol = 80;
         //const bool secondary = false;
@@ -100,7 +107,8 @@ namespace HyperSonicDrivers::drivers::midi::opl
         EXPECT_EQ(cmpInstr1, 0);
         EXPECT_TRUE(v1.isVibrato());
         EXPECT_EQ(v1.getRealVolume(), ch_vol * vol / 127);
-        EXPECT_EQ(v1.getPitch(), ch_pitch);
+        EXPECT_EQ(v1.getPitch(), 0);
+        EXPECT_EQ(v1.getPitchFactor(), ch_pitch);
         EXPECT_EQ(v1.getPan(), ch_pan);
 
         // 2nd voice
@@ -117,7 +125,8 @@ namespace HyperSonicDrivers::drivers::midi::opl
         EXPECT_EQ(cmpInstr2, 0);
         EXPECT_TRUE(v2.isVibrato());
         EXPECT_EQ(v2.getRealVolume(), ch_vol * vol / 127);
-        EXPECT_EQ(v2.getPitch(), ch_pitch);
+        EXPECT_EQ(v2.getPitch(), 0);
+        EXPECT_EQ(v2.getPitchFactor(), ch_pitch);
         EXPECT_EQ(v2.getPan(), ch_pan);
     }
 }
