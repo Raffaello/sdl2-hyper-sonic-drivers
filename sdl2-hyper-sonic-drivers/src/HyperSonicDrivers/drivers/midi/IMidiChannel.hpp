@@ -15,7 +15,7 @@ namespace HyperSonicDrivers::drivers::midi
         virtual ~IMidiChannel() = default;
 
         const uint8_t channel;         // MIDI channel, not used
-        uint8_t volume = 0;            // volume
+        uint8_t volume = 0;            // channel volume
         uint8_t pan = 0;               // pan, 0=normal
         uint8_t pitch = 0;             // pitch wheel, 0=normal
         uint8_t sustain = 0;           // sustain pedal value

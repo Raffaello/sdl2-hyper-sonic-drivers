@@ -35,7 +35,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
             m_free = f;
         }
 
-        inline uint8_t getVolume() const { return m_channel->volume; };
+        inline uint8_t getVolume() const { return m_volume; };
         inline uint8_t getPan() const { return m_channel->pan; };
         inline uint8_t getPitch() const { return m_channel->pitch; };
         inline uint8_t getPitchFactor() const { return m_pitch_factor; };
@@ -52,12 +52,12 @@ namespace HyperSonicDrivers::drivers::midi::opl
         v.setChannel(&midi_channel);
 
         EXPECT_FALSE(v.isVibrato());
-        EXPECT_FALSE(v.ctrl_modulationWheel(0, 40 + 1));
+        EXPECT_FALSE(v.ctrl_modulationWheel(40 + 1));
 
         v.setFree(false);
-        EXPECT_TRUE(v.ctrl_modulationWheel(0, 40 + 1));
+        EXPECT_TRUE(v.ctrl_modulationWheel(40 + 1));
         EXPECT_TRUE(v.isVibrato());
-        EXPECT_TRUE(v.ctrl_modulationWheel(0, 40 - 1));
+        EXPECT_TRUE(v.ctrl_modulationWheel(40 - 1));
         EXPECT_FALSE(v.isVibrato());
     }
 
@@ -83,15 +83,20 @@ namespace HyperSonicDrivers::drivers::midi::opl
         IMidiChannel* ch = &midi_channel1;
         const uint8_t note = 100;
         const uint8_t vol = 80;
+        const uint8_t vol2 = 79;
         //const bool secondary = false;
         const uint8_t ch_mod = 64;
         const uint8_t ch_vol = 100;
         const uint8_t ch_pitch = 16;
         const uint8_t ch_pan = 32;
+        ch->modulation = ch_mod;
+        ch->volume = ch_vol;
+        ch->pitch = ch_pitch;
+        ch->pan = ch_pan;
 
         // A Channel with 2 Voices...
-        const uint8_t slot1 = v1.allocate(ch, note, vol, b->getInstrumentPtr(0), false, ch_mod, ch_vol, ch_pitch, ch_pan);
-        const uint8_t slot2 = v2.allocate(ch, note, vol, b->getInstrumentPtr(0), true, ch_mod, ch_vol, ch_pitch, ch_pan);
+        const uint8_t slot1 = v1.allocate(ch, note, vol, b->getInstrumentPtr(0), false);
+        const uint8_t slot2 = v2.allocate(ch, note, vol2, b->getInstrumentPtr(0), true);
 
         // 1st voice
         EXPECT_FALSE(v1.isFree());
@@ -103,11 +108,12 @@ namespace HyperSonicDrivers::drivers::midi::opl
         EXPECT_EQ(v1.getSlot(), slot1);
         EXPECT_EQ(v1.getNote(), note);
         EXPECT_EQ(v1.getVolume(), vol);
+        EXPECT_EQ(v1.getChannel()->volume, ch_vol);
         const int cmpInstr1 = memcmp(&b->getInstrumentPtr(0)->voices[0], v1.getInstrument(), sizeof(hardware::opl::OPL2instrument_t));
         EXPECT_EQ(cmpInstr1, 0);
         EXPECT_TRUE(v1.isVibrato());
         EXPECT_EQ(v1.getRealVolume(), ch_vol * vol / 127);
-        EXPECT_EQ(v1.getPitch(), 0);
+        EXPECT_EQ(v1.getPitch(), ch_pitch);
         EXPECT_EQ(v1.getPitchFactor(), ch_pitch);
         EXPECT_EQ(v1.getPan(), ch_pan);
 
@@ -120,12 +126,13 @@ namespace HyperSonicDrivers::drivers::midi::opl
         EXPECT_EQ(v2.getSlot(), 1);
         EXPECT_EQ(v2.getSlot(), slot2);
         EXPECT_EQ(v2.getNote(), note);
-        EXPECT_EQ(v2.getVolume(), vol);
+        EXPECT_EQ(v2.getVolume(), vol2);
+        EXPECT_EQ(v2.getChannel()->volume, ch_vol);
         const int cmpInstr2 = memcmp(&b->getInstrumentPtr(0)->voices[1], v2.getInstrument(), sizeof(hardware::opl::OPL2instrument_t));
         EXPECT_EQ(cmpInstr2, 0);
         EXPECT_TRUE(v2.isVibrato());
         EXPECT_EQ(v2.getRealVolume(), ch_vol * vol / 127);
-        EXPECT_EQ(v2.getPitch(), 0);
+        EXPECT_EQ(v2.getPitch(), ch_pitch);
         EXPECT_EQ(v2.getPitchFactor(), ch_pitch);
         EXPECT_EQ(v2.getPan(), ch_pan);
     }

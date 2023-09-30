@@ -18,11 +18,13 @@ namespace HyperSonicDrivers::drivers::midi::opl
     {
     }
 
-    bool OplVoice::noteOff(const uint8_t channel, const uint8_t note, const uint8_t sustain) noexcept
+    bool OplVoice::noteOff(/*const uint8_t channel,*/ const uint8_t note, const uint8_t sustain) noexcept
     {
-        if (isChannelBusy(channel) && m_note == note)
+        //if (isChannelBusy(channel) && m_note == note)
+        if(!isFree() && m_note == note)
         {
-            if (sustain < opl_sustain_threshold) {
+            if (sustain < opl_sustain_threshold)
+            {
                 release(false);
                 return true;
             }
@@ -33,9 +35,10 @@ namespace HyperSonicDrivers::drivers::midi::opl
         return false;
     }
 
-    bool OplVoice::pitchBend(const uint8_t channel, const uint16_t bend) noexcept
+    bool OplVoice::pitchBend(/*const uint8_t channel,*/ const uint16_t bend) noexcept
     {
-        const bool b = isChannelBusy(channel);
+        //const bool b = isChannelBusy(channel);
+        const bool b = !isFree();
         if (b)
         {
             m_pitch_factor = static_cast<uint16_t>(m_finetune + bend);
@@ -45,9 +48,10 @@ namespace HyperSonicDrivers::drivers::midi::opl
         return b;
     }
 
-    bool OplVoice::ctrl_modulationWheel(const uint8_t channel, const uint8_t value) noexcept
+    bool OplVoice::ctrl_modulationWheel(/*const uint8_t channel,*/ const uint8_t value) noexcept
     {
-        const bool b = isChannelBusy(channel);
+        //const bool b = isChannelBusy(channel);
+        const bool b = !isFree();
         if (b)
         {
             if (value >= VIBRATO_THRESHOLD)
@@ -67,33 +71,36 @@ namespace HyperSonicDrivers::drivers::midi::opl
         return b;
     }
 
-    bool OplVoice::ctrl_volume(const uint8_t channel, const uint8_t value) noexcept
+    bool OplVoice::ctrl_volume(/*const uint8_t channel,*/ const uint8_t value) noexcept
     {
-        const bool b = isChannelBusy(channel);
+        //const bool b = isChannelBusy(channel);
+        const bool b = !isFree();
         if (b)
         {
-            setRealVolume(value);
+            setVolumes(value);
             m_oplWriter->writeVolume(m_slot, m_instr, getRealVolume());
         }
 
         return b;
     }
 
-    bool OplVoice::ctrl_panPosition(const uint8_t channel, const uint8_t value) noexcept
+    bool OplVoice::ctrl_panPosition(/*const uint8_t channel,*/ const uint8_t value) noexcept
     {
-        const bool b = isChannelBusy(channel);
+        //const bool b = isChannelBusy(channel);
+        const bool b = !isFree();
         if (b)
         {
-            m_ch_pan = value;
+            m_channel->pan = value;
             m_oplWriter->writePan(m_slot, m_instr, value);
         }
 
         return b;
     }
 
-    bool OplVoice::releaseSustain(const uint8_t channel) noexcept
+    bool OplVoice::releaseSustain(/*const uint8_t channel*/) noexcept
     {
-        const bool b = isChannelBusy(channel) && m_sustain;
+        //const bool b = isChannelBusy(channel) && m_sustain;
+        const bool b = !isFree() && m_sustain;
         if (b)
             release(false);
 
@@ -106,36 +113,34 @@ namespace HyperSonicDrivers::drivers::midi::opl
     }
 
     int OplVoice::allocate(
-        const uint8_t channel,
+        IMidiChannel* channel,
         const uint8_t note, const uint8_t volume,
         const audio::opl::banks::Op2BankInstrument_t* instrument,
-        const bool secondary,
-        const uint8_t chan_modulation,
-        const uint8_t chan_vol,
-        const uint8_t chan_pitch,
-        const uint8_t chan_pan
+        const bool secondary//,
+        //const uint8_t chan_modulation,
+        //const uint8_t chan_vol,
+        //const uint8_t chan_pitch,
+        //const uint8_t chan_pan
     ) noexcept
     {
         using audio::opl::banks::OP2Bank;
 
         int16_t note_ = note;
 
-        //m_channel = channel;
-        m_ch = channel;
+        m_channel = channel;
         m_note = note;
         m_free = false;
         m_secondary = secondary;
-        m_ch_pan = chan_pan;
 
-        if (chan_modulation >= VIBRATO_THRESHOLD)
+        //if (chan_modulation >= VIBRATO_THRESHOLD)
+        if (m_channel->modulation >= VIBRATO_THRESHOLD)
             m_vibrato = true;
 
-        setVolumes(chan_vol, volume);
+        setVolumes(volume);
 
         if (OP2Bank::isPercussion(instrument))
             note_ = instrument->noteNum;
-        //else if (channel->isPercussion)
-        else if (m_ch == MIDI_PERCUSSION_CHANNEL)
+        else if (channel->isPercussion)
             note_ = 60;  // C-5
 
         if (secondary && OP2Bank::supportOpl3(instrument))
@@ -143,7 +148,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
         else
             m_finetune = 0;
 
-        m_pitch_factor = m_finetune + chan_pitch;
+        m_pitch_factor = m_finetune + m_channel->pitch;
 
         setInstrument(&instrument->voices[secondary ? 1 : 0]);
 
@@ -157,7 +162,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
         m_oplWriter->writeInstrument(m_slot, m_instr);
         if (m_vibrato)
             m_oplWriter->writeModulation(m_slot, m_instr, true);
-        m_oplWriter->writePan(m_slot, m_instr, chan_pan);
+        m_oplWriter->writePan(m_slot, m_instr, m_channel->pan);
         m_oplWriter->writeVolume(m_slot, m_instr, getRealVolume());
         playNote(true);
 
@@ -190,7 +195,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
         m_oplWriter->writeChannel(0x60, m_slot, m_instr->att_dec_1, m_instr->att_dec_2);
         m_oplWriter->writeChannel(0x80, m_slot, m_instr->sust_rel_1, m_instr->sust_rel_2);
         m_oplWriter->writeVolume(m_slot, m_instr, getRealVolume());
-        m_oplWriter->writePan(m_slot, getInstrument(), m_ch_pan);
+        m_oplWriter->writePan(m_slot, getInstrument(), m_channel->pan);
     }
 
     void OplVoice::setInstrument(const hardware::opl::OPL2instrument_t* instr) noexcept
@@ -201,9 +206,9 @@ namespace HyperSonicDrivers::drivers::midi::opl
         m_instr = instr;
     }
 
-    void OplVoice::setVolumes(const uint8_t channelVolume, const uint8_t volume) noexcept
+    void OplVoice::setVolumes(const uint8_t volume) noexcept
     {
-        m_ch_vol = volume;
-        setRealVolume(channelVolume);
+        m_volume = volume;
+        setRealVolume(m_volume);
     }
 }

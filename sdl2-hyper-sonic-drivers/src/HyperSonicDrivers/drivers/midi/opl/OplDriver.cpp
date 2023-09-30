@@ -163,9 +163,10 @@ namespace HyperSonicDrivers::drivers::midi::opl
     {
         const uint8_t sustain = m_channels[chan]->sustain;
 
-        for (auto it = m_voicesInUseIndex.begin(); it != m_voicesInUseIndex.end();) {
-            // TODO: this noteOff is masking the voice Release, not nice.
-            if (m_voices[*it]->noteOff(chan, note, sustain)) {
+        for (auto it = m_voicesInUseIndex.begin(); it != m_voicesInUseIndex.end();)
+        {
+            if (m_voices[*it]->getChannelNum() == chan && m_voices[*it]->noteOff(/*chan,*/ note, sustain))
+            {
                 m_voicesFreeIndex.push_back(*it);
                 it = m_voicesInUseIndex.erase(it);
             }
@@ -290,7 +291,10 @@ namespace HyperSonicDrivers::drivers::midi::opl
         m_channels[chan]->pitch = static_cast<int8_t>(bend);
 
         for (auto it = m_voicesInUseIndex.begin(); it != m_voicesInUseIndex.end(); ++it)
-            m_voices[*it]->pitchBend(chan, bend);
+        {
+            if (m_voices[*it]->getChannelNum() == chan)
+                m_voices[*it]->pitchBend(/*chan,*/ bend);
+        }
     }
 
 
@@ -299,7 +303,10 @@ namespace HyperSonicDrivers::drivers::midi::opl
         m_channels[chan]->modulation = value;
 
         for (auto it = m_voicesInUseIndex.begin(); it != m_voicesInUseIndex.end(); ++it)
-            m_voices[*it]->ctrl_modulationWheel(chan, value);
+        {
+            if (m_voices[*it]->getChannelNum() == chan)
+                m_voices[*it]->ctrl_modulationWheel(/*chan,*/ value);
+        }
     }
 
     void OplDriver::ctrl_volume(const uint8_t chan, const uint8_t value) const noexcept
@@ -308,7 +315,10 @@ namespace HyperSonicDrivers::drivers::midi::opl
 
         m_channels[chan]->volume = value;
         for (auto it = m_voicesInUseIndex.begin(); it != m_voicesInUseIndex.end(); ++it)
-            m_voices[*it]->ctrl_volume(chan, value/*, abs_time*/);
+        {
+            if (m_voices[*it]->getChannelNum() == chan)
+                m_voices[*it]->ctrl_volume(/*chan,*/ value/*, abs_time*/);
+        }
     }
 
     void OplDriver::ctrl_panPosition(const uint8_t chan, uint8_t value) const noexcept
@@ -317,7 +327,10 @@ namespace HyperSonicDrivers::drivers::midi::opl
 
         m_channels[chan]->pan = value -= 64;
         for (auto it = m_voicesInUseIndex.begin(); it != m_voicesInUseIndex.end(); ++it)
-            m_voices[*it]->ctrl_panPosition(chan, value);
+        {
+            if (m_voices[*it]->getChannelNum() == chan)
+                m_voices[*it]->ctrl_panPosition(/*chan,*/ value);
+        }
     }
 
     void OplDriver::ctrl_sustain(const uint8_t chan, uint8_t value) const noexcept
@@ -331,7 +344,10 @@ namespace HyperSonicDrivers::drivers::midi::opl
     void OplDriver::releaseSustain(const uint8_t channel) const noexcept
     {
         for (auto it = m_voicesInUseIndex.begin(); it != m_voicesInUseIndex.end(); ++it)
-            m_voices[*it]->releaseSustain(channel);
+        {
+            if (m_voices[*it]->getChannelNum() == channel)
+                m_voices[*it]->releaseSustain(/*channel*/);
+        }
     }
 
     uint8_t OplDriver::releaseVoice(const uint8_t slot, const bool forced)
@@ -349,8 +365,8 @@ namespace HyperSonicDrivers::drivers::midi::opl
         auto* ch = m_channels[channel].get();
         assert(ch->channel == channel);
         return m_voices[slot]->allocate(
-            channel, note, volume, instrument, secondary,
-            ch->modulation, ch->volume, ch->pitch, ch->pan
+            ch, note, volume, instrument, secondary/*,
+            ch->modulation, ch->volume, ch->pitch, ch->pan */
         );
     }
 

@@ -75,6 +75,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
         std::unique_ptr<drivers::opl::OplWriter> m_oplWriter;
 
         // TODO review to make this index more efficient (and its complementary)
+        // TODO store this in a list in IMidiChannel instead, so the voices to a channel are already all there, no need of an index
         std::list<uint8_t> m_voicesInUseIndex;
         std::list<uint8_t> m_voicesFreeIndex;
 
