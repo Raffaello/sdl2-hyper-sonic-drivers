@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstdint>
-#include <list>
+//#include <list>
 #include <HyperSonicDrivers/drivers/midi/IMidiChannelVoice.hpp>
 
 namespace HyperSonicDrivers::drivers::midi
@@ -18,14 +18,14 @@ namespace HyperSonicDrivers::drivers::midi
         const uint8_t channel;         // MIDI channel, not used
         uint8_t volume = 0;            // channel volume
         uint8_t pan = 0;               // pan, 0=normal
-        uint8_t pitch = 0;             // pitch wheel, 0=normal
+        uint16_t pitch = 0;             // pitch wheel, 0=normal
         uint8_t sustain = 0;           // sustain pedal value
         uint8_t modulation = 0;        // modulation pot value
         uint8_t program = 0;           // instrument number
         const bool isPercussion;
 
     protected:
-        std::list<IMidiChannelVoice> m_voices;
+        //std::list<IMidiChannelVoice> m_voices;
         // MIDI Events
         //virtual void noteOff(const uint8_t note) noexcept = 0;
         //virtual void noteOn(const uint8_t note, const uint8_t vol) noexcept = 0;

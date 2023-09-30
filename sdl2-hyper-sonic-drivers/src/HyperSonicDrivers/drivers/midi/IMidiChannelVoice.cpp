@@ -1,5 +1,6 @@
 #include <HyperSonicDrivers/drivers/midi/IMidiChannelVoice.hpp>
 #include <HyperSonicDrivers/drivers/midi/IMidiChannel.hpp>
+#include <cmath>
 
 namespace HyperSonicDrivers::drivers::midi
 {

@@ -59,17 +59,18 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         void onCallback() noexcept override;
 
         // MIDI Events
-        void noteOff(const uint8_t chan, const uint8_t note) noexcept;
-        void noteOn(const uint8_t chan, const uint8_t note, const uint8_t vol) noexcept;
-        void controller(const uint8_t chan, const uint8_t ctrl, uint8_t value) noexcept;
-        void programChange(const uint8_t chan, const uint8_t program) noexcept;
-        void pitchBend(const uint8_t chan, const uint16_t bend) noexcept;
+        void noteOff(const uint8_t chan, const uint8_t note) noexcept override;
+        void noteOn(const uint8_t chan, const uint8_t note, const uint8_t vol) noexcept override;
+        void controller(const uint8_t chan, const uint8_t ctrl, uint8_t value) noexcept override;
+        void programChange(const uint8_t chan, const uint8_t program) noexcept override;
+        void pitchBend(const uint8_t chan, const uint16_t bend) noexcept override;
 
         // MIDI Controller Events
-        void ctrl_modulationWheel(const uint8_t chan, const uint8_t value) const noexcept {/*in MIDIChannel*/ };
-        void ctrl_volume(const uint8_t chan, const uint8_t value) const noexcept {/*in MIDIChannel*/ };
-        void ctrl_panPosition(const uint8_t chan, uint8_t value) const noexcept {/*in MIDIChannel*/ };
-        void ctrl_sustain(const uint8_t chan, uint8_t value) const noexcept {/*in MIDIChannel*/ };
+        void ctrl_modulationWheel(const uint8_t chan, const uint8_t value) const noexcept override {/*in MIDIChannel*/ };
+        void ctrl_volume(const uint8_t chan, const uint8_t value) const noexcept override {/*in MIDIChannel*/ };
+        void ctrl_panPosition(const uint8_t chan, uint8_t value) const noexcept override {/*in MIDIChannel*/ };
+        void ctrl_sustain(const uint8_t chan, uint8_t value) const noexcept override {/*in MIDIChannel*/ };
+        void ctrl_allNotesOff() const noexcept override {/*in MIDIChannel*/ };
 
     private:
         std::shared_ptr<hardware::opl::OPL> m_opl;

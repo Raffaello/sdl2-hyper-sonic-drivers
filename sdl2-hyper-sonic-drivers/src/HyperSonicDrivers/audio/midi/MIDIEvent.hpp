@@ -7,6 +7,7 @@
 
 namespace HyperSonicDrivers::audio::midi
 {
+    // TODO: store it as uint32_t
     class MIDIEvent
     {
     public:

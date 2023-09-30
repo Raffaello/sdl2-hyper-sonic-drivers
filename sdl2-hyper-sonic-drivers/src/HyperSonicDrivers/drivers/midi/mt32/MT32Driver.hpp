@@ -36,6 +36,6 @@ namespace HyperSonicDrivers::drivers::midi::mt32
         void ctrl_volume(const uint8_t chan, const uint8_t value) const noexcept override {/*TODO*/};
         void ctrl_panPosition(const uint8_t chan, uint8_t value) const noexcept override {/*TODO*/};
         void ctrl_sustain(const uint8_t chan, uint8_t value) const noexcept override {/*TODO*/ };
-
+        void ctrl_allNotesOff() const noexcept override {/*TODO*/ };
     };
 }

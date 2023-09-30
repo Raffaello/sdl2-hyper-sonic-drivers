@@ -33,14 +33,14 @@ namespace HyperSonicDrivers::drivers::midi::opl
     {
         m_oplWriter = std::make_unique<drivers::opl::OplWriter>(m_opl, m_opl3_mode);
 
-        for (uint8_t i = 0; i < audio::midi::MIDI_MAX_CHANNELS; ++i) {
-            m_channels[i] = std::make_unique<OplChannel>(i);
-        }
-
         m_voices.resize(m_oplNumChannels);
         for (uint8_t i = 0; i < m_oplNumChannels; ++i) {
             m_voices[i] = std::make_unique<OplVoice>(i, m_oplWriter.get());
             m_voicesFreeIndex.push_back(i);
+        }
+
+        for (uint8_t i = 0; i < audio::midi::MIDI_MAX_CHANNELS; ++i) {
+            m_channels[i] = std::make_unique<OplChannel>(i/*, m_voices*/);
         }
     }
 
@@ -98,7 +98,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
         //      but the same logic of the thread will be performed here.
     }
 
-    void OplDriver::send(const audio::midi::MIDIEvent& e) noexcept
+    /*void OplDriver::send(const audio::midi::MIDIEvent& e) noexcept
     {
         switch (TO_HIGH(e.type.high))
         {
@@ -130,17 +130,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
             logW(std::format("OplDriver: Unknown send() command {:#0x}", e.type.val));
             break;
         }
-    }
-
-    void OplDriver::send(uint32_t msg) noexcept
-    {
-        audio::midi::MIDIEvent e;
-        e.type.val = msg;
-    }
-
-    void OplDriver::send(int8_t channel, uint32_t msg) noexcept
-    {
-    }
+    }*/
 
     void OplDriver::pause() const noexcept
     {
@@ -207,75 +197,75 @@ namespace HyperSonicDrivers::drivers::midi::opl
         }
     }
 
-    void OplDriver::controller(const uint8_t chan, const uint8_t control, uint8_t value) noexcept
-    {
-        // MIDI_EVENT_CONTROLLER_TYPES
-        switch (control)
-        {
-        case 0:
-        case 32:
-            // Bank select. Not supported
-            logW(std::format("bank select value {}", value));
-            break;
-        case 1:
-            ctrl_modulationWheel(chan, value);
-            //spdlog::debug("modwheel value {}", value);
-            break;
-        case 7:
-            ctrl_volume(chan, value);
-            break;
-        case 10:
-            // Not Available on OPL2/AdLib.
-            if (m_opl3_mode)
-                ctrl_panPosition(chan, value);
-            break;
-        case 16:
-            //pitchBendFactor(value);
-            logW(std::format("pitchBendFactor value {}", value));
-            break;
-        case 17:
-            //detune(value);
-            logW(std::format("detune value {}", value));
-            break;
-        case 18:
-            //priority(value);
-            logW(std::format("priority value {}", value));
-            break;
-        case 64:
-            ctrl_sustain(chan, value);
-            break;
-        case 91:
-            // Effects level. Not supported.
-            //effectLevel(value);
-            logW(std::format("effect level value {}", value));
-            break;
-        case 93:
-            // Chorus level. Not supported.
-            //chorusLevel(value);
-            logW(std::format("chorus level value {}", value));
-            break;
-        case 119:
-            // Unknown, used in Simon the Sorcerer 2
-            logW(std::format("unknown value {}", value));
-            break;
-        case 121:
-            // reset all controllers
-            logW("reset all controllers value");
-            //modulationWheel(0);
-            //pitchBendFactor(0);
-            //detune(0);
-            //sustain(false);
-            break;
-        case 123:
-            //spdlog::debug("all notes off");
-            m_oplWriter->stopAll();
-            break;
-        default:
-            logW(std::format("OplDriver: Unknown control change message {:d} {:d}", control, value));
-        }
-    }
+    //void OplDriver::controller(const uint8_t chan, const uint8_t control, uint8_t value) noexcept
+    //{
+    //    // MIDI_EVENT_CONTROLLER_TYPES
+    //    switch (control)
+    //    {
+    //    case 0:
+    //    case 32:
+    //        // Bank select. Not supported
+    //        logW(std::format("bank select value {}", value));
+    //        break;
+    //    case 1:
+    //        ctrl_modulationWheel(chan, value);
+    //        //spdlog::debug("modwheel value {}", value);
+    //        break;
+    //    case 7:
+    //        ctrl_volume(chan, value);
+    //        break;
+    //    case 10:
+    //        // Not Available on OPL2/AdLib.
+    //        
+    //            ctrl_panPosition(chan, value);
+    //        break;
+    //    case 16:
+    //        //pitchBendFactor(value);
+    //        logW(std::format("pitchBendFactor value {}", value));
+    //        break;
+    //    case 17:
+    //        //detune(value);
+    //        logW(std::format("detune value {}", value));
+    //        break;
+    //    case 18:
+    //        //priority(value);
+    //        logW(std::format("priority value {}", value));
+    //        break;
+    //    case 64:
+    //        ctrl_sustain(chan, value);
+    //        break;
+    //    case 91:
+    //        // Effects level. Not supported.
+    //        //effectLevel(value);
+    //        logW(std::format("effect level value {}", value));
+    //        break;
+    //    case 93:
+    //        // Chorus level. Not supported.
+    //        //chorusLevel(value);
+    //        logW(std::format("chorus level value {}", value));
+    //        break;
+    //    case 119:
+    //        // Unknown, used in Simon the Sorcerer 2
+    //        logW(std::format("unknown value {}", value));
+    //        break;
+    //    case 121:
+    //        // reset all controllers
+    //        logW("reset all controllers value");
+    //        //modulationWheel(0);
+    //        //pitchBendFactor(0);
+    //        //detune(0);
+    //        //sustain(false);
+    //        break;
+    //    case 123:
+    //        //spdlog::debug("all notes off");
+    //        m_oplWriter->stopAll();
+    //        break;
+    //    default:
+    //        logW(std::format("OplDriver: Unknown control change message {:d} {:d}", control, value));
+    //    }
+    //}
 
-    void OplDriver::programChange(const uint8_t chan, const uint8_t program) noexcept
+    /*void OplDriver::programChange(const uint8_t chan, const uint8_t program) noexcept
     {
         if (program > 127)
         {
@@ -283,21 +273,17 @@ namespace HyperSonicDrivers::drivers::midi::opl
         }
 
         m_channels[chan]->program = program;
-    }
+    }*/
 
     void OplDriver::pitchBend(const uint8_t chan, const uint16_t bend) noexcept
     {
-        //spdlog::debug("PITCH_BEND {}", bend);
-        // OPLPitchWheel
-        m_channels[chan]->pitch = static_cast<int8_t>(bend);
-
+        m_channels[chan]->pitch = bend;
         for (auto it = m_voicesInUseIndex.begin(); it != m_voicesInUseIndex.end(); ++it)
         {
             if (m_voices[*it]->getChannelNum() == chan)
-                m_voices[*it]->pitchBend(/*chan,*/ bend);
+                m_voices[*it]->pitchBend(bend);
         }
     }
-
 
     void OplDriver::ctrl_modulationWheel(const uint8_t chan, const uint8_t value) const noexcept
     {
@@ -306,40 +292,43 @@ namespace HyperSonicDrivers::drivers::midi::opl
         for (auto it = m_voicesInUseIndex.begin(); it != m_voicesInUseIndex.end(); ++it)
         {
             if (m_voices[*it]->getChannelNum() == chan)
-                m_voices[*it]->ctrl_modulationWheel(/*chan,*/ value);
+                m_voices[*it]->ctrl_modulationWheel(value);
         }
     }
 
     void OplDriver::ctrl_volume(const uint8_t chan, const uint8_t value) const noexcept
     {
-        //spdlog::debug("volume value {} -ch={}", value, chan);
-
         m_channels[chan]->volume = value;
         for (auto it = m_voicesInUseIndex.begin(); it != m_voicesInUseIndex.end(); ++it)
         {
             if (m_voices[*it]->getChannelNum() == chan)
-                m_voices[*it]->ctrl_volume(/*chan,*/ value/*, abs_time*/);
+                m_voices[*it]->ctrl_volume(value);
         }
     }
 
     void OplDriver::ctrl_panPosition(const uint8_t chan, uint8_t value) const noexcept
     {
-        //spdlog::debug("panPosition value {}", value);
+        if (!m_opl3_mode)
+            return;
 
         m_channels[chan]->pan = value -= 64;
         for (auto it = m_voicesInUseIndex.begin(); it != m_voicesInUseIndex.end(); ++it)
         {
             if (m_voices[*it]->getChannelNum() == chan)
-                m_voices[*it]->ctrl_panPosition(/*chan,*/ value);
+                m_voices[*it]->ctrl_panPosition(value);
         }
     }
 
     void OplDriver::ctrl_sustain(const uint8_t chan, uint8_t value) const noexcept
     {
-        //spdlog::debug("sustain value {}", value);
         m_channels[chan]->sustain = value;
         if (value < opl_sustain_threshold)
             releaseSustain(chan);
+    }
+
+    void OplDriver::ctrl_allNotesOff() const noexcept
+    {
+        m_oplWriter->stopAll();
     }
 
     void OplDriver::releaseSustain(const uint8_t channel) const noexcept
@@ -347,7 +336,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
         for (auto it = m_voicesInUseIndex.begin(); it != m_voicesInUseIndex.end(); ++it)
         {
             if (m_voices[*it]->getChannelNum() == channel)
-                m_voices[*it]->releaseSustain(/*channel*/);
+                m_voices[*it]->releaseSustain();
         }
     }
 
@@ -363,11 +352,8 @@ namespace HyperSonicDrivers::drivers::midi::opl
         const audio::opl::banks::Op2BankInstrument_t* instrument,
         const bool secondary)
     {
-        auto* ch = m_channels[channel].get();
-        assert(ch->channel == channel);
         return m_voices[slot]->allocate(
-            ch, note, volume, instrument, secondary/*,
-            ch->modulation, ch->volume, ch->pitch, ch->pan */
+            m_channels[channel].get(), note, volume, instrument, secondary
         );
     }
 

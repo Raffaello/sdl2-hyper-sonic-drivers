@@ -37,9 +37,9 @@ namespace HyperSonicDrivers::drivers::midi::opl
 
         inline void setOP2Bank(const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank) noexcept { m_op2Bank = op2Bank; };
 
-        void send(const audio::midi::MIDIEvent& e) noexcept override;
-        void send(uint32_t msg) noexcept override;
-        void send(int8_t channel, uint32_t msg) noexcept override;
+        //void send(const audio::midi::MIDIEvent& e) noexcept override;
+        //void send(uint32_t msg) noexcept override;
+        //void send(int8_t channel, uint32_t msg) noexcept override;
 
         void pause() const noexcept override;
         void resume() const noexcept override;
@@ -52,17 +52,18 @@ namespace HyperSonicDrivers::drivers::midi::opl
         // TODO: every MIDI function that has channel put into IMidiChannel interface
         // ------
         // MIDI Events
-        void noteOff(const uint8_t chan, const uint8_t note) noexcept;
-        void noteOn(const uint8_t chan, const uint8_t note, const uint8_t vol) noexcept;
-        void controller(const uint8_t chan, const uint8_t ctrl, uint8_t value) noexcept;
-        void programChange(const uint8_t chan, const uint8_t program) noexcept;
-        void pitchBend(const uint8_t chan, const uint16_t bend) noexcept;
+        void noteOff(const uint8_t chan, const uint8_t note) noexcept override;
+        void noteOn(const uint8_t chan, const uint8_t note, const uint8_t vol) noexcept override;
+        //void controller(const uint8_t chan, const uint8_t ctrl, uint8_t value) noexcept override;
+        //void programChange(const uint8_t chan, const uint8_t program) noexcept override;
+        void pitchBend(const uint8_t chan, const uint16_t bend) noexcept override;
 
         // MIDI Controller Events
-        void ctrl_modulationWheel(const uint8_t chan, const uint8_t value) const noexcept;
-        void ctrl_volume(const uint8_t chan, const uint8_t value) const noexcept;
-        void ctrl_panPosition(const uint8_t chan, uint8_t value) const noexcept;
-        void ctrl_sustain(const uint8_t chan, uint8_t value) const noexcept;
+        void ctrl_modulationWheel(const uint8_t chan, const uint8_t value) const noexcept override;
+        void ctrl_volume(const uint8_t chan, const uint8_t value) const noexcept override;
+        void ctrl_panPosition(const uint8_t chan, uint8_t value) const noexcept override;
+        void ctrl_sustain(const uint8_t chan, uint8_t value) const noexcept override;
+        void ctrl_allNotesOff() const noexcept override;
 
     private:
         std::shared_ptr<hardware::opl::OPL> m_opl;

@@ -175,6 +175,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
     void MidiDriver_ADLIB::send(const audio::midi::MIDIEvent& e) noexcept
     {
+        // TODO: remove, change that sysEx is a normal send event
         using audio::midi::TO_HIGH;
         using audio::midi::MIDI_EVENT_TYPES_HIGH;
 
