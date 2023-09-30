@@ -84,7 +84,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
         const bool b = isChannelBusy(channel);
         if (b)
         {
-            m_channel->pan = value;
+            m_ch_pan = value;
             m_oplWriter->writePan(m_slot, m_instr, value);
         }
 
@@ -106,7 +106,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
     }
 
     int OplVoice::allocate(
-        IMidiChannel* channel,
+        const uint8_t channel,
         const uint8_t note, const uint8_t volume,
         const audio::opl::banks::Op2BankInstrument_t* instrument,
         const bool secondary,
@@ -120,11 +120,12 @@ namespace HyperSonicDrivers::drivers::midi::opl
 
         int16_t note_ = note;
 
-        m_channel = channel;
+        //m_channel = channel;
+        m_ch = channel;
         m_note = note;
         m_free = false;
         m_secondary = secondary;
-        m_channel->pan = chan_pan;
+        m_ch_pan = chan_pan;
 
         if (chan_modulation >= VIBRATO_THRESHOLD)
             m_vibrato = true;
@@ -133,7 +134,8 @@ namespace HyperSonicDrivers::drivers::midi::opl
 
         if (OP2Bank::isPercussion(instrument))
             note_ = instrument->noteNum;
-        else if (channel->isPercussion)
+        //else if (channel->isPercussion)
+        else if (m_ch == MIDI_PERCUSSION_CHANNEL)
             note_ = 60;  // C-5
 
         if (secondary && OP2Bank::supportOpl3(instrument))
@@ -188,7 +190,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
         m_oplWriter->writeChannel(0x60, m_slot, m_instr->att_dec_1, m_instr->att_dec_2);
         m_oplWriter->writeChannel(0x80, m_slot, m_instr->sust_rel_1, m_instr->sust_rel_2);
         m_oplWriter->writeVolume(m_slot, m_instr, getRealVolume());
-        m_oplWriter->writePan(m_slot, getInstrument(), m_channel->pan);
+        m_oplWriter->writePan(m_slot, getInstrument(), m_ch_pan);
     }
 
     void OplVoice::setInstrument(const hardware::opl::OPL2instrument_t* instr) noexcept
@@ -201,7 +203,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
 
     void OplVoice::setVolumes(const uint8_t channelVolume, const uint8_t volume) noexcept
     {
-        m_channel->volume = volume;
+        m_ch_vol = volume;
         setRealVolume(channelVolume);
     }
 }

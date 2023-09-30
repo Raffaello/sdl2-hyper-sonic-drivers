@@ -189,6 +189,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
 
             const auto instr = m_op2Bank->getInstrumentPtr(instr_index);
 
+            utils::logD(std::format("channel#={} - midi_ch={}", chan, m_channels[chan]->channel));
             allocateVoice(freeSlot, chan, note, vol, instr, false);
 
             if (m_opl3_mode && OP2Bank::supportOpl3(instr))
@@ -348,7 +349,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
         auto* ch = m_channels[channel].get();
         assert(ch->channel == channel);
         return m_voices[slot]->allocate(
-            ch, note, volume, instrument, secondary,
+            channel, note, volume, instrument, secondary,
             ch->modulation, ch->volume, ch->pitch, ch->pan
         );
     }

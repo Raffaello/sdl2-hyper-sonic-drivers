@@ -40,7 +40,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
         /// This works only with OP2Bank.
         /// TODO: need to generalize OplBank instruments ...
         /// </summary>
-        int allocate(IMidiChannel* channel,
+        int allocate(const uint8_t channel,
             const uint8_t note, const uint8_t volume,
             const audio::opl::banks::Op2BankInstrument_t* instrument,
             const bool secondary,
@@ -57,14 +57,15 @@ namespace HyperSonicDrivers::drivers::midi::opl
         void setVolumes(const uint8_t channelVolume, const uint8_t volume) noexcept;
         inline void setRealVolume(const uint8_t channelVolume) noexcept { m_real_volume = calcVolume_(channelVolume); }
         inline uint8_t getRealVolume() const noexcept { return m_real_volume; }
-        inline IMidiChannel* getChannel() const noexcept { return m_channel; }
+        //inline IMidiChannel* getChannel() const noexcept { return m_channel; }
         inline const hardware::opl::OPL2instrument_t* getInstrument() const noexcept { return m_instr; }
 
         // Methods to get private variables, not really used
         inline uint8_t getSlot() const noexcept { return m_slot; }
         inline bool isFree() const noexcept { return m_free; }
         inline bool isSecondary() const noexcept { return m_secondary; }
-        inline bool isChannel(const uint8_t channel) const noexcept { return m_channel->channel == channel; }
+        //inline bool isChannel(const uint8_t channel) const noexcept { return m_channel->channel == channel; }
+        inline bool isChannel(const uint8_t channel) const noexcept { return m_ch == channel; }
         inline bool isChannelBusy(const uint8_t channel) const noexcept { return isChannel(channel) && !m_free; }
         inline bool isChannelBusy(const IMidiChannel* channel) const noexcept { return isChannelBusy(channel->channel); }
         inline bool isChannelFree(uint8_t channel) const noexcept { return isChannel(channel) && m_free; }
@@ -80,24 +81,15 @@ namespace HyperSonicDrivers::drivers::midi::opl
 
     private:
         const uint8_t m_slot;                        /* OPL channel number */
-
-        //uint8_t m_volume = 0;                       /* note volume */
         uint8_t m_real_volume = 0;                  /* adjusted note volume */
-        //IMidiChannel* m_channel = 0;                // MIDI channel
-        //uint8_t m_note = 0;                         /* note number */
         uint8_t m_real_note  = 0;                   /* adjusted note number */
         int8_t  m_finetune = 0;                     /* frequency fine-tune */
-        //int16_t m_pitch = 0;                        /* pitch-wheel value */
-        //uint8_t m_pan = 64;                         /* pan value */
-
+        uint8_t m_ch = 0;
+        uint8_t m_ch_pan = 0;
+        uint8_t m_ch_vol = 0;
         const hardware::opl::OPL2instrument_t* m_instr = nullptr; /* current instrument */
 
-        //uint32_t _time = 0;                       /* note start time */
-        // Channel flags
-        //bool m_free = true;
         bool m_secondary = false;
-        //bool m_sustain = false;
-        //bool m_vibrato = false;
 
         const drivers::opl::OplWriter* m_oplWriter;
 
@@ -108,7 +100,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
         /// range from 0-64 inverted (0 is max, 64 is muted).
         /// </summary>
         inline uint8_t calcVolume_(const uint8_t channelVolume) const noexcept {
-            return  std::min<uint8_t>((static_cast<uint32_t>(channelVolume) * m_channel->volume / 127), 127);
+            return  std::min<uint8_t>((static_cast<uint32_t>(channelVolume) * m_ch_vol / 127), 127);
         }
     };
 }
