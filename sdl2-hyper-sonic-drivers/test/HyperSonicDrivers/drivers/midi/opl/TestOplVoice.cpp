@@ -100,8 +100,6 @@ namespace HyperSonicDrivers::drivers::midi::opl
 
         // 1st voice
         EXPECT_FALSE(v1.isFree());
-        EXPECT_TRUE(v1.isChannelBusy(ch));
-        EXPECT_FALSE(v1.isChannelFree(ch));
         EXPECT_EQ(v1.getChannel(), ch);
 
         EXPECT_EQ(v1.getSlot(), 0);
@@ -112,15 +110,12 @@ namespace HyperSonicDrivers::drivers::midi::opl
         const int cmpInstr1 = memcmp(&b->getInstrumentPtr(0)->voices[0], v1.getInstrument(), sizeof(hardware::opl::OPL2instrument_t));
         EXPECT_EQ(cmpInstr1, 0);
         EXPECT_TRUE(v1.isVibrato());
-        EXPECT_EQ(v1.getRealVolume(), ch_vol * vol / 127);
         EXPECT_EQ(v1.getPitch(), ch_pitch);
         EXPECT_EQ(v1.getPitchFactor(), ch_pitch);
         EXPECT_EQ(v1.getPan(), ch_pan);
 
         // 2nd voice
         EXPECT_FALSE(v2.isFree());
-        EXPECT_TRUE(v2.isChannelBusy(ch));
-        EXPECT_FALSE(v2.isChannelFree(ch));
         EXPECT_EQ(v2.getChannel(), ch);
 
         EXPECT_EQ(v2.getSlot(), 1);
@@ -131,7 +126,6 @@ namespace HyperSonicDrivers::drivers::midi::opl
         const int cmpInstr2 = memcmp(&b->getInstrumentPtr(0)->voices[1], v2.getInstrument(), sizeof(hardware::opl::OPL2instrument_t));
         EXPECT_EQ(cmpInstr2, 0);
         EXPECT_TRUE(v2.isVibrato());
-        EXPECT_EQ(v2.getRealVolume(), ch_vol * vol / 127);
         EXPECT_EQ(v2.getPitch(), ch_pitch);
         EXPECT_EQ(v2.getPitchFactor(), ch_pitch);
         EXPECT_EQ(v2.getPan(), ch_pan);

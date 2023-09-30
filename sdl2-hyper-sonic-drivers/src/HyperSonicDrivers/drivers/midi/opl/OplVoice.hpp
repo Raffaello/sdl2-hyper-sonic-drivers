@@ -51,8 +51,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
         void resume() const noexcept;
 
         void setVolumes(const uint8_t volume) noexcept;
-        inline void setRealVolume(const uint8_t volume) noexcept { m_real_volume = calcVolume_(); }
-        inline uint8_t getRealVolume() const noexcept { return m_real_volume; }
+        //
         //inline IMidiChannel* getChannel() const noexcept { return m_channel; }
         inline uint8_t getChannelNum() const noexcept { return m_channel->channel; }
         inline const hardware::opl::OPL2instrument_t* getInstrument() const noexcept { return m_instr; }
@@ -61,16 +60,13 @@ namespace HyperSonicDrivers::drivers::midi::opl
         inline uint8_t getSlot() const noexcept { return m_slot; }
         inline bool isFree() const noexcept { return m_free; }
         inline bool isSecondary() const noexcept { return m_secondary; }
-        inline bool isChannel(const uint8_t channel) const noexcept { return m_channel->channel == channel; }
-        inline bool isChannelBusy(const uint8_t channel) const noexcept { return isChannel(channel) && !m_free; }
-        inline bool isChannelBusy(const IMidiChannel* channel) const noexcept { return isChannelBusy(channel->channel); }
-        inline bool isChannelFree(uint8_t channel) const noexcept { return isChannel(channel) && m_free; }
-        inline bool isChannelFree(const IMidiChannel* channel) const noexcept { return isChannelFree(channel->channel); }
         inline bool isVibrato() const noexcept { return m_vibrato; }
         inline uint8_t getNote() const noexcept { return m_note; }
 
     protected:
         void setInstrument(const hardware::opl::OPL2instrument_t* instr) noexcept;
+        //inline uint8_t getRealVolume() const noexcept { return m_real_volume; }
+        //inline void setRealVolume(const uint8_t volume) noexcept { m_real_volume = calcVolume_(); }
 
     private:
         const uint8_t m_slot;                        /* OPL channel number */

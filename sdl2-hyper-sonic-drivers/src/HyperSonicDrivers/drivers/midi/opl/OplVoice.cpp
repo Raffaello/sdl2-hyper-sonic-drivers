@@ -74,7 +74,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
         if (b)
         {
             setVolumes(value);
-            m_oplWriter->writeVolume(m_slot, m_instr, getRealVolume());
+            m_oplWriter->writeVolume(m_slot, m_instr, m_real_volume);
         }
 
         return b;
@@ -152,7 +152,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
         if (m_vibrato)
             m_oplWriter->writeModulation(m_slot, m_instr, true);
         m_oplWriter->writePan(m_slot, m_instr, m_channel->pan);
-        m_oplWriter->writeVolume(m_slot, m_instr, getRealVolume());
+        m_oplWriter->writeVolume(m_slot, m_instr, m_real_volume);
         playNote(true);
 
         return m_slot;
@@ -183,7 +183,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
     {
         m_oplWriter->writeChannel(0x60, m_slot, m_instr->att_dec_1, m_instr->att_dec_2);
         m_oplWriter->writeChannel(0x80, m_slot, m_instr->sust_rel_1, m_instr->sust_rel_2);
-        m_oplWriter->writeVolume(m_slot, m_instr, getRealVolume());
+        m_oplWriter->writeVolume(m_slot, m_instr, m_real_volume);
         m_oplWriter->writePan(m_slot, getInstrument(), m_channel->pan);
     }
 
@@ -198,6 +198,6 @@ namespace HyperSonicDrivers::drivers::midi::opl
     void OplVoice::setVolumes(const uint8_t volume) noexcept
     {
         m_volume = volume;
-        setRealVolume(m_volume);
+        m_real_volume = calcVolume_();
     }
 }
