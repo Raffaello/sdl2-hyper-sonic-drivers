@@ -6,7 +6,8 @@
 namespace HyperSonicDrivers::drivers::midi
 {
     /**
-    * Interface for Midi Channel Voice message
+    * Interface for Midi Channel Voice message to have a polyphonic MidiChannel.
+    * this is mono-phonic channel, multiple combination of this gives a polyphonic MidiChannel
     **/
     class IMidiChannelVoice
     {

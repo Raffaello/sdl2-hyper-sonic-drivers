@@ -345,10 +345,10 @@ namespace HyperSonicDrivers::drivers::midi::opl
         const audio::opl::banks::Op2BankInstrument_t* instrument,
         const bool secondary)
     {
-        const auto* ch = m_channels[channel].get();
-
+        auto* ch = m_channels[channel].get();
+        assert(ch->channel == channel);
         return m_voices[slot]->allocate(
-            m_channels[channel].get(), note, volume, instrument, secondary,
+            ch, note, volume, instrument, secondary,
             ch->modulation, ch->volume, ch->pitch, ch->pan
         );
     }
