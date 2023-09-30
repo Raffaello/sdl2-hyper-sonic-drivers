@@ -7,6 +7,6 @@ namespace HyperSonicDrivers::drivers::midi::opl
     class OplChannel : public IMidiChannel
     {
     public:
-        OplChannel() = default;
+        OplChannel(const uint8_t channel);
     };
 }

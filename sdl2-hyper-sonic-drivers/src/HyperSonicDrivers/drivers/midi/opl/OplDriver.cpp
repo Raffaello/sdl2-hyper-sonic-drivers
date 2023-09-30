@@ -2,6 +2,7 @@
 #include <format>
 #include <cassert>
 #include <HyperSonicDrivers/drivers/midi/opl/OplDriver.hpp>
+#include <HyperSonicDrivers/drivers/midi/opl/OplChannel.hpp>
 #include <HyperSonicDrivers/hardware/opl/OplType.hpp>
 #include <HyperSonicDrivers/utils/ILogger.hpp>
 
@@ -33,7 +34,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
         m_oplWriter = std::make_unique<drivers::opl::OplWriter>(m_opl, m_opl3_mode);
 
         for (uint8_t i = 0; i < audio::midi::MIDI_MAX_CHANNELS; ++i) {
-            m_channels[i] = std::make_unique<IMidiChannel>(i);
+            m_channels[i] = std::make_unique<OplChannel>(i);
         }
 
         m_voices.resize(m_oplNumChannels);
