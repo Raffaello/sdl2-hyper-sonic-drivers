@@ -87,7 +87,8 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
         std::array<uint16_t, 9> _channelTable2;
         std::array<uint16_t, 9> _curNotTable;
-        std::array<std::unique_ptr<AdLibPart>, 32> m_parts; // why 32 instead of 16? it is because of the OPL3 (instead of doubling voices, it's doubling the parts?)?
+        //std::array<std::unique_ptr<AdLibPart>, 32> m_parts; // (probably 32 parts as for MT-32) why 32 instead of 16? it is because of the OPL3 (instead of doubling voices, it's doubling the parts?)?
+        //std::array<std::unique_ptr<AdLibPart>, 16> m_channels;
         std::array<AdLibVoice, 9> m_voices;
         AdLibPercussionChannel m_percussion;
         int _voiceIndex = -1;

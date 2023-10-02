@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cstdint>
-
 #include <HyperSonicDrivers/drivers/midi/scummvm/MidiChannel.hpp>
 #include <HyperSonicDrivers/drivers/midi/scummvm/MidiDriver.hpp>
 #include <HyperSonicDrivers/drivers/midi/scummvm/AdLibInstrument.h>

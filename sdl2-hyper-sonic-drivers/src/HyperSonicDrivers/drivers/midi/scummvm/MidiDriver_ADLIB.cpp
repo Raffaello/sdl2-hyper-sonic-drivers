@@ -13,19 +13,19 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
     using utils::logD;
     using utils::logW;
 
-    static const uint8_t g_operator1Offsets[9] = {
+    constexpr const uint8_t g_operator1Offsets[9] = {
         0, 1, 2, 8,
         9, 10, 16, 17,
         18
     };
 
-    static const uint8_t g_operator2Offsets[9] = {
+    constexpr const uint8_t g_operator2Offsets[9] = {
         3, 4, 5, 11,
         12, 13, 19, 20,
         21
     };
 
-    static const AdLibSetParams g_setParamTable[] = {
+    constexpr const AdLibSetParams g_setParamTable[] = {
     //   reg,  offs, val1, val2 ?
         {0x40, 0, 63, 63},  // level
         {0xE0, 2, 0, 0},    // unused
@@ -44,21 +44,21 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         {0xC0, 1, 14, 0}    // feedback
     };
 
-    static const uint8_t g_paramTable1[16] = {
+    constexpr const uint8_t g_paramTable1[16] = {
         29, 28, 27, 0,
         3, 4, 7, 8,
         13, 16, 17, 20,
         21, 30, 31, 0
     };
 
-    static const uint16_t g_maxValTable[16] = {
+    constexpr const uint16_t g_maxValTable[16] = {
         0x2FF, 0x1F, 0x7, 0x3F,
         0x0F, 0x0F, 0x0F, 0x3,
         0x3F, 0x0F, 0x0F, 0x0F,
         0x3, 0x3E, 0x1F, 0
     };
 
-    static const uint16_t g_numStepsTable[] = {
+    constexpr const uint16_t g_numStepsTable[] = {
         1, 2, 4, 5,
         6, 7, 8, 9,
         10, 12, 14, 16,
@@ -69,7 +69,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         600, 860, 1200, 1600
     };
 
-    static const uint8_t g_noteFrequencies[] = {
+    constexpr const uint8_t g_noteFrequencies[] = {
         90, 91, 92, 92, 93, 94, 94, 95,
         96, 96, 97, 98, 98, 99, 100, 101,
         101, 102, 103, 104, 104, 105, 106, 107,
@@ -90,6 +90,11 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         242, 243, 245, 247, 249, 251, 252, 254
     };
 
+    static AdLibPart* toAdlibPart(const std::unique_ptr<IMidiChannel>& ap)
+    {
+        return dynamic_cast<AdLibPart*>(ap.get());
+    }
+
     MidiDriver_ADLIB::MidiDriver_ADLIB(const std::shared_ptr<devices::Opl>& opl) :
         m_opl([&opl]{
             if (opl == nullptr)
@@ -100,10 +105,10 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         m_opl3Mode(m_opl->type != OplType::OPL2)
     {
         std::ranges::fill(_curNotTable, 0);
-        for (size_t i = 0; i < m_parts.size(); ++i)
+        for (size_t i = 0; i < m_channels.size(); ++i)
         {
-            m_parts[i] = std::make_unique<AdLibPart>(static_cast<uint8_t>(i + ((i >= 9) ? 1 : 0)));
-            m_parts[i]->init(this/*, static_cast<uint8_t>(i + ((i >= 9) ? 1 : 0))*/);
+            m_channels[i] = std::make_unique<AdLibPart>(static_cast<uint8_t>(i + ((i >= 9) ? 1 : 0)));
+            toAdlibPart(m_channels[i])->init(this/*, static_cast<uint8_t>(i + ((i >= 9) ? 1 : 0))*/);
         }
 
         std::ranges::fill(_channelTable2, 0);
@@ -270,7 +275,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
             return;
         }
 
-        AdLibPart* part = m_parts[channel].get();
+        AdLibPart* part = toAdlibPart(m_channels[channel]);
         part->_pitchBendFactor = range;
         for (AdLibVoice* voice = part->_voice; voice; voice = voice->_next)
         {
@@ -281,17 +286,18 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
     void MidiDriver_ADLIB::sysEx_customInstrument(uint8_t channel, uint32_t type, const uint8_t* instr)
     {
-        m_parts[channel]->sysEx_customInstrument(type, instr);
+        toAdlibPart(m_channels[channel])->sysEx_customInstrument(type, instr);
     }
 
     MidiChannel* MidiDriver_ADLIB::allocateChannel()
     {
-        for(auto& part : m_parts)
+        for(auto& part_ : m_channels)
         {
+            auto part = toAdlibPart(part_);
             if (!part->_allocated)
             {
                 part->allocate();
-                return part.get();
+                return part;
             }
         }
 
@@ -760,7 +766,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         if (channel == audio::midi::MIDI_PERCUSSION_CHANNEL)
             return &m_percussion;
         else
-            return m_parts[channel].get();
+            return toAdlibPart(m_channels[channel]);
     }
 
     void MidiDriver_ADLIB::partKeyOn(AdLibPart* part, const AdLibInstrument* instr, uint8_t note, uint8_t velocity, const AdLibInstrument* second, uint8_t pan) {
