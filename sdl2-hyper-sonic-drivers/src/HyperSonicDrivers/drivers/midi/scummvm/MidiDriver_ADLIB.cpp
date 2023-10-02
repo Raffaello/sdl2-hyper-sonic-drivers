@@ -365,14 +365,72 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
     void MidiDriver_ADLIB::noteOff(const uint8_t chan, const uint8_t note) noexcept
     {
         auto part = getChannel(chan);
-        part->noteOff(note);
-        logD(std::format("noteOff {} {}", chan, note));
+        uint8_t note_ = note;
+        if (part->isPercussion)
+        {
+            note_ = dynamic_cast<AdLibPercussionChannel*>(part)->getNote(note_);
+        }
+        else
+        {
+        }
+        partKeyOff(part, note_);
+        //part->noteOff(note);
+        logD(std::format("noteOff {} {}", chan, note_));
     }
 
     void MidiDriver_ADLIB::noteOn(const uint8_t chan, const uint8_t note, const uint8_t vol) noexcept
     {
         auto part = getChannel(chan);
-        part->noteOn(note, vol);
+        uint8_t note_ = note;
+        if (part->isPercussion)
+        {
+            const AdLibInstrument* inst = nullptr;
+            const AdLibInstrument* sec = nullptr;
+
+            // The custom instruments have priority over the default mapping
+            // We do not support custom instruments in OPL3 mode though.
+            if (!m_opl3Mode)
+            {
+                inst = dynamic_cast<AdLibPercussionChannel*>(part)->getInstrument(note);
+                note_ = dynamic_cast<AdLibPercussionChannel*>(part)->getNote(note_);
+                /*inst = _customInstruments[note].get();
+                if (inst)
+                    note = _notes[note];*/
+            }
+
+            if (!inst)
+            {
+                // Use the default GM to FM mapping as a fallback
+                uint8_t key = g_gmPercussionInstrumentMap[note];
+                if (key != 0xFF) {
+                    if (!m_opl3Mode)
+                    {
+                        inst = &g_gmPercussionInstruments[key];
+                    }
+                    else
+                    {
+                        inst = &g_gmPercussionInstrumentsOPL3[key][0];
+                        sec = &g_gmPercussionInstrumentsOPL3[key][1];
+                    }
+                }
+            }
+
+            if (!inst)
+            {
+                logD(std::format("No instrument FM definition for GM percussion key {:d}", note));
+                return;
+            }
+
+            partKeyOn(part, inst, note, vol, sec, part->pan);
+        }
+        else
+        {
+            partKeyOn(part, part->getInstr(), note, vol,
+                part->getInstrSecondary(),
+                part->pan);
+        }
+        //part->noteOn(note, vol);
+
         logD(std::format("noteOn {} {}", note, vol));
     }
 
@@ -385,7 +443,14 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
     void MidiDriver_ADLIB::programChange(const uint8_t chan, const uint8_t program) noexcept
     {
         auto part = getChannel(chan);
-        part->programChange(program);
+
+        if (program > 127)
+            return;
+
+        part->program = program;
+        part->setInstr(m_opl3Mode);
+
+        //part->programChange(program);
     }
 
     void MidiDriver_ADLIB::pitchBend(const uint8_t chan, const uint16_t bend) noexcept
@@ -682,7 +747,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         {
             if (voice->_note == note)
             {
-                if (part->_pedal)
+                if (part->sustain)
                     voice->_waitForPedal = true;
                 else
                     mcOff(voice);

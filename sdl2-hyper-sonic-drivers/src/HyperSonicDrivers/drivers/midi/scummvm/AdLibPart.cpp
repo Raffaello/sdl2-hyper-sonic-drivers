@@ -11,8 +11,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
     void AdLibPart::init(MidiDriver_ADLIB* owner)
     {
         _owner = owner;
-        _priEff = 127;
-        programChange(0);
+        //programChange(0);
     }
 
     void AdLibPart::allocate()
@@ -27,13 +26,21 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         memset(&_partInstrSecondary, 0, sizeof(_partInstrSecondary));
     }
 
-    MidiDriver* AdLibPart::device() {
-        return _owner;
+    void AdLibPart::setInstr(const bool isOpl3) noexcept
+    {
+        if (isOpl3)
+        {
+            memcpy(&_partInstr, &g_gmInstrumentsOPL3[program][0], sizeof(AdLibInstrument));
+            memcpy(&_partInstrSecondary, &g_gmInstrumentsOPL3[program][1], sizeof(AdLibInstrument));
+        }
+        else
+        {
+            memcpy(&_partInstr, &g_gmInstruments[program], sizeof(AdLibInstrument));
+        }
     }
 
-    uint8_t AdLibPart::getNumber()
-    {
-        return channel;
+    MidiDriver* AdLibPart::device() {
+        return _owner;
     }
 
     void AdLibPart::release()
@@ -45,37 +52,37 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         _owner->send(channel, b);
     }
 
-    void AdLibPart::noteOff(uint8_t note) {
+    /*void AdLibPart::noteOff(uint8_t note) {
 #ifdef DEBUG_ADLIB
         debug(6, "%10d: noteOff(%d)", g_tick, note);
 #endif
         _owner->partKeyOff(this, note);
-    }
+    }*/
 
-    void AdLibPart::noteOn(uint8_t note, uint8_t velocity) {
+    /*void AdLibPart::noteOn(uint8_t note, uint8_t velocity) {
 #ifdef DEBUG_ADLIB
         debug(6, "%10d: noteOn(%d,%d)", g_tick, note, velocity);
 #endif
         _owner->partKeyOn(this, &_partInstr, note, velocity,
             &_partInstrSecondary,
             pan);
-    }
+    }*/
 
-    void AdLibPart::programChange(uint8_t program) {
-        if (program > 127)
-            return;
+    //void AdLibPart::programChange(uint8_t program) {
+    //    if (program > 127)
+    //        return;
 
-        program = program;
-        if (!_owner->m_opl3Mode) {
-            memcpy(&_partInstr, &g_gmInstruments[program], sizeof(AdLibInstrument));
-        }
-        else {
-            memcpy(&_partInstr, &g_gmInstrumentsOPL3[program][0], sizeof(AdLibInstrument));
-            memcpy(&_partInstrSecondary, &g_gmInstrumentsOPL3[program][1], sizeof(AdLibInstrument));
-        }
+    //    program = program;
+    //    if (!_owner->m_opl3Mode) {
+    //        memcpy(&_partInstr, &g_gmInstruments[program], sizeof(AdLibInstrument));
+    //    }
+    //    else {
+    //        memcpy(&_partInstr, &g_gmInstrumentsOPL3[program][0], sizeof(AdLibInstrument));
+    //        memcpy(&_partInstrSecondary, &g_gmInstrumentsOPL3[program][1], sizeof(AdLibInstrument));
+    //    }
 
-        //spdlog::debug("Program {} {}", _channel, program);
-    }
+    //    //spdlog::debug("Program {} {}", _channel, program);
+    //}
 
     void AdLibPart::pitchBend(int16_t bend)
     {
@@ -94,8 +101,10 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         }
     }
 
-    void AdLibPart::controlChange(uint8_t control, uint8_t value) {
-        switch (control) {
+    void AdLibPart::controlChange(uint8_t control, uint8_t value)
+    {
+        switch (control)
+        {
         case 0:
         case 32:
             // Bank select. Not supported
@@ -121,7 +130,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
             priority(value);
             break;
         case 64:
-            sustain(value > 0);
+            setSustain(value);
             break;
         case 91:
             // Effects level. Not supported.
@@ -139,7 +148,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
             modulationWheel(0);
             pitchBendFactor(0);
             detune(0);
-            sustain(false);
+            setSustain(false);
             break;
         case 123:
             allNotesOff();
@@ -230,10 +239,10 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         _priEff = value;
     }
 
-    void AdLibPart::sustain(bool value)
+    void AdLibPart::setSustain(const uint8_t value)
     {
-        _pedal = value;
-        if (!value) {
+        sustain = value;
+        if (value != 0) {
             for (AdLibVoice* voice = _voice; voice; voice = voice->_next)
             {
                 if (voice->_waitForPedal)

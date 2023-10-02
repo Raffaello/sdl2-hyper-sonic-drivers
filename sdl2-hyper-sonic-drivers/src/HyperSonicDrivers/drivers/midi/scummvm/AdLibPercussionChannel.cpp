@@ -21,59 +21,59 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         std::ranges::fill(_customInstruments, nullptr);
     }
 
-    void AdLibPercussionChannel::noteOff(uint8_t note)
-    {
-        if (_customInstruments[note])
-        {
-            note = _notes[note];
-        }
+    //void AdLibPercussionChannel::noteOff(uint8_t note)
+    //{
+    //    if (_customInstruments[note])
+    //    {
+    //        note = _notes[note];
+    //    }
 
-        // This used to ignore note off events, since the builtin percussion
-        // instrument data has a duration value, which causes the percussion notes
-        // to stop automatically. This is not the case for (Groovie's) custom
-        // percussion instruments though. Also the OPL3 driver of Sam&Max actually
-        // does not handle the duration value, so we need it there too.
-        _owner->partKeyOff(this, note);
-    }
+    //    // This used to ignore note off events, since the builtin percussion
+    //    // instrument data has a duration value, which causes the percussion notes
+    //    // to stop automatically. This is not the case for (Groovie's) custom
+    //    // percussion instruments though. Also the OPL3 driver of Sam&Max actually
+    //    // does not handle the duration value, so we need it there too.
+    //    _owner->partKeyOff(this, note);
+    //}
 
-    void AdLibPercussionChannel::noteOn(uint8_t note, uint8_t velocity) {
-        const AdLibInstrument* inst = nullptr;
-        const AdLibInstrument* sec = nullptr;
+    //void AdLibPercussionChannel::noteOn(uint8_t note, uint8_t velocity) {
+    //    const AdLibInstrument* inst = nullptr;
+    //    const AdLibInstrument* sec = nullptr;
 
-        // The custom instruments have priority over the default mapping
-        // We do not support custom instruments in OPL3 mode though.
-        if (!_owner->m_opl3Mode)
-        {
-            inst = _customInstruments[note].get();
-            if (inst)
-                note = _notes[note];
-        }
+    //    // The custom instruments have priority over the default mapping
+    //    // We do not support custom instruments in OPL3 mode though.
+    //    if (!_owner->m_opl3Mode)
+    //    {
+    //        inst = _customInstruments[note].get();
+    //        if (inst)
+    //            note = _notes[note];
+    //    }
 
-        if (!inst)
-        {
-            // Use the default GM to FM mapping as a fallback
-            uint8_t key = g_gmPercussionInstrumentMap[note];
-            if (key != 0xFF) {
-                if (!_owner->m_opl3Mode)
-                {
-                    inst = &g_gmPercussionInstruments[key];
-                }
-                else
-                {
-                    inst = &g_gmPercussionInstrumentsOPL3[key][0];
-                    sec = &g_gmPercussionInstrumentsOPL3[key][1];
-                }
-            }
-        }
+    //    if (!inst)
+    //    {
+    //        // Use the default GM to FM mapping as a fallback
+    //        uint8_t key = g_gmPercussionInstrumentMap[note];
+    //        if (key != 0xFF) {
+    //            if (!_owner->m_opl3Mode)
+    //            {
+    //                inst = &g_gmPercussionInstruments[key];
+    //            }
+    //            else
+    //            {
+    //                inst = &g_gmPercussionInstrumentsOPL3[key][0];
+    //                sec = &g_gmPercussionInstrumentsOPL3[key][1];
+    //            }
+    //        }
+    //    }
 
-        if (!inst)
-        {
-            logD(std::format("No instrument FM definition for GM percussion key {:d}", note));
-            return;
-        }
+    //    if (!inst)
+    //    {
+    //        logD(std::format("No instrument FM definition for GM percussion key {:d}", note));
+    //        return;
+    //    }
 
-        _owner->partKeyOn(this, inst, note, velocity, sec, pan);
-    }
+    //    _owner->partKeyOn(this, inst, note, velocity, sec, pan);
+    //}
 
     void AdLibPercussionChannel::sysEx_customInstrument(uint32_t type, const uint8_t* instr) {
         // We do not allow custom instruments in OPL3 mode right now.
@@ -108,5 +108,17 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
             _customInstruments[note]->carWaveformSelect = instr[11];
             _customInstruments[note]->feedback = instr[12];
         }
+    }
+
+    uint8_t AdLibPercussionChannel::getNote(const uint8_t note) const noexcept
+    {
+        if (_customInstruments[note])
+            return _notes[note];
+        return note;
+    }
+
+    AdLibInstrument* AdLibPercussionChannel::getInstrument(const uint8_t note) const noexcept
+    {
+        return _customInstruments[note].get();
     }
 }

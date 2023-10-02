@@ -15,15 +15,14 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         virtual ~MidiChannel() = default;
 
         virtual MidiDriver* device() = 0;
-        virtual uint8_t getNumber() = 0;
         virtual void release() = 0;
 
         virtual void send(uint32_t b) = 0; // 4-bit channel portion is ignored
 
         // Regular messages
-        virtual void noteOff(uint8_t note) = 0;
-        virtual void noteOn(uint8_t note, uint8_t velocity) = 0;
-        virtual void programChange(uint8_t program) = 0;
+        //virtual void noteOff(uint8_t note) = 0;
+        //virtual void noteOn(uint8_t note, uint8_t velocity) = 0;
+        //virtual void programChange(uint8_t program) = 0;
         virtual void pitchBend(int16_t bend) = 0; // -0x2000 to +0x1FFF
 
         // Control Change messages
@@ -36,7 +35,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         virtual void transpose(int8_t value) {}
         virtual void detune(uint8_t value) { controlChange(static_cast<uint8_t>(audio::midi::MIDI_EVENT_CONTROLLER_TYPES::GENERAL_PURPOSE_CONTROLLER_2), value); }
         virtual void priority(uint8_t value) { }
-        virtual void sustain(bool value) { controlChange(static_cast<uint8_t>(audio::midi::MIDI_EVENT_CONTROLLER_TYPES::SUSTAIN), value ? 1 : 0); }
+        virtual void setSustain(const uint8_t value) { controlChange(static_cast<uint8_t>(audio::midi::MIDI_EVENT_CONTROLLER_TYPES::SUSTAIN), value); }
         virtual void effectLevel(uint8_t value) { controlChange(static_cast<uint8_t>(audio::midi::MIDI_EVENT_CONTROLLER_TYPES::REVERB), value); }
         virtual void chorusLevel(uint8_t value) { controlChange(static_cast<uint8_t>(audio::midi::MIDI_EVENT_CONTROLLER_TYPES::CHORUS), value); }
         virtual void allNotesOff() { controlChange(static_cast<uint8_t>(audio::midi::MIDI_EVENT_CONTROLLER_TYPES::ALL_NOTES_OFF), 0); }
