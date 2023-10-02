@@ -42,7 +42,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         AdLibPart* _part;
         AdLibVoice* _next, * _prev;
         uint8_t _waitForPedal;
-        uint8_t _note;
+        //uint8_t m_note;
         uint8_t _channel;
         uint8_t _twoChan;
         uint8_t _vol1, _vol2;
@@ -57,6 +57,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         uint8_t _secVol1, _secVol2;
 
         AdLibVoice() { memset(this, 0, sizeof(AdLibVoice)); }
+        inline void setNote(const uint8_t note) { m_note = note; }
     };
 }
 

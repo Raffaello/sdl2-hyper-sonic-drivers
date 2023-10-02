@@ -91,12 +91,12 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         {
             if (!_owner->m_opl3Mode)
             {
-                _owner->adlibNoteOn(voice->_channel, voice->_note/* + _transposeEff*/,
+                _owner->adlibNoteOn(voice->_channel, voice->getNote()/* + _transposeEff*/,
                     (pitch * _pitchBendFactor >> 6) + _detuneEff);
             }
             else
             {
-                _owner->adlibNoteOn(voice->_channel, voice->_note, pitch >> 1);
+                _owner->adlibNoteOn(voice->_channel, voice->getNote(), pitch >> 1);
             }
         }
     }
@@ -210,7 +210,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         _pitchBendFactor = value;
         for (AdLibVoice* voice = _voice; voice; voice = voice->_next)
         {
-            _owner->adlibNoteOn(voice->_channel, voice->_note/* + _transposeEff*/,
+            _owner->adlibNoteOn(voice->_channel, voice->getNote()/* + _transposeEff*/,
                 (pitch * _pitchBendFactor >> 6) + _detuneEff);
         }
     }
@@ -230,7 +230,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         _detuneEff = value;
         for (AdLibVoice* voice = _voice; voice; voice = voice->_next)
         {
-            _owner->adlibNoteOn(voice->_channel, voice->_note/* + _transposeEff*/,
+            _owner->adlibNoteOn(voice->_channel, voice->getNote()/* + _transposeEff*/,
                 (pitch * _pitchBendFactor >> 6) + _detuneEff);
         }
     }

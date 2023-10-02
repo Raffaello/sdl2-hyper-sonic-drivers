@@ -279,7 +279,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         part->_pitchBendFactor = range;
         for (AdLibVoice* voice = part->_voice; voice; voice = voice->_next)
         {
-            adlibNoteOn(voice->_channel, voice->_note/* + part->_transposeEff*/,
+            adlibNoteOn(voice->_channel, voice->getNote()/* + part->_transposeEff*/,
                 (part->pitch * part->_pitchBendFactor >> 6) + part->_detuneEff);
         }
     }
@@ -751,7 +751,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
     {
         for (AdLibVoice* voice = part->_voice; voice; voice = voice->_next)
         {
-            if (voice->_note == note)
+            if (voice->getNote() == note)
             {
                 if (part->sustain)
                     voice->_waitForPedal = true;
@@ -826,7 +826,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         uint8_t secVol1 = 0, secVol2 = 0;
 
         voice->_twoChan = instr->feedback & 1;
-        voice->_note = note;
+        voice->setNote(note);
         voice->_waitForPedal = false;
         voice->_duration = instr->duration;
         if (voice->_duration != 0)
