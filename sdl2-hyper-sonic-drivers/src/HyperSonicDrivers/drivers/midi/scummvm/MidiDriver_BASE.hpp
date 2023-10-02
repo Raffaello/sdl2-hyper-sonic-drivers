@@ -11,57 +11,57 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
     class MidiDriver_BASE : public IMidiDriver
     {
     public:
-        static const uint8_t MIDI_CHANNEL_COUNT = 16;
-        static const uint8_t MIDI_RHYTHM_CHANNEL = 9;
+        //static const uint8_t MIDI_CHANNEL_COUNT = 16;
+        //static const uint8_t MIDI_RHYTHM_CHANNEL = 9;
 
-        static const uint8_t MIDI_COMMAND_NOTE_OFF = 0x80;
-        static const uint8_t MIDI_COMMAND_NOTE_ON = 0x90;
-        static const uint8_t MIDI_COMMAND_POLYPHONIC_AFTERTOUCH = 0xA0;
-        static const uint8_t MIDI_COMMAND_CONTROL_CHANGE = 0xB0;
-        static const uint8_t MIDI_COMMAND_PROGRAM_CHANGE = 0xC0;
-        static const uint8_t MIDI_COMMAND_CHANNEL_AFTERTOUCH = 0xD0;
-        static const uint8_t MIDI_COMMAND_PITCH_BEND = 0xE0;
-        static const uint8_t MIDI_COMMAND_SYSTEM = 0xF0;
+        //static const uint8_t MIDI_COMMAND_NOTE_OFF = 0x80;
+        //static const uint8_t MIDI_COMMAND_NOTE_ON = 0x90;
+        //static const uint8_t MIDI_COMMAND_POLYPHONIC_AFTERTOUCH = 0xA0;
+        //static const uint8_t MIDI_COMMAND_CONTROL_CHANGE = 0xB0;
+        //static const uint8_t MIDI_COMMAND_PROGRAM_CHANGE = 0xC0;
+        //static const uint8_t MIDI_COMMAND_CHANNEL_AFTERTOUCH = 0xD0;
+        //static const uint8_t MIDI_COMMAND_PITCH_BEND = 0xE0;
+        //static const uint8_t MIDI_COMMAND_SYSTEM = 0xF0;
 
-        static const uint8_t MIDI_CONTROLLER_BANK_SELECT_MSB = 0x00;
-        static const uint8_t MIDI_CONTROLLER_MODULATION = 0x01;
-        static const uint8_t MIDI_CONTROLLER_DATA_ENTRY_MSB = 0x06;
-        static const uint8_t MIDI_CONTROLLER_VOLUME = 0x07;
-        static const uint8_t MIDI_CONTROLLER_PANNING = 0x0A;
-        static const uint8_t MIDI_CONTROLLER_EXPRESSION = 0x0B;
-        static const uint8_t MIDI_CONTROLLER_BANK_SELECT_LSB = 0x20;
-        static const uint8_t MIDI_CONTROLLER_DATA_ENTRY_LSB = 0x26;
-        static const uint8_t MIDI_CONTROLLER_SUSTAIN = 0x40;
-        static const uint8_t MIDI_CONTROLLER_REVERB = 0x5B;
-        static const uint8_t MIDI_CONTROLLER_CHORUS = 0x5D;
-        static const uint8_t MIDI_CONTROLLER_RPN_LSB = 0x64;
-        static const uint8_t MIDI_CONTROLLER_RPN_MSB = 0x65;
-        static const uint8_t MIDI_CONTROLLER_ALL_SOUND_OFF = 0x78;
-        static const uint8_t MIDI_CONTROLLER_RESET_ALL_CONTROLLERS = 0x79;
-        static const uint8_t MIDI_CONTROLLER_ALL_NOTES_OFF = 0x7B;
-        static const uint8_t MIDI_CONTROLLER_OMNI_ON = 0x7C;
-        static const uint8_t MIDI_CONTROLLER_OMNI_OFF = 0x7D;
-        static const uint8_t MIDI_CONTROLLER_MONO_ON = 0x7E;
-        static const uint8_t MIDI_CONTROLLER_POLY_ON = 0x7F;
+        //static const uint8_t MIDI_CONTROLLER_BANK_SELECT_MSB = 0x00;
+        //static const uint8_t MIDI_CONTROLLER_MODULATION = 0x01;
+        //static const uint8_t MIDI_CONTROLLER_DATA_ENTRY_MSB = 0x06;
+        //static const uint8_t MIDI_CONTROLLER_VOLUME = 0x07;
+        //static const uint8_t MIDI_CONTROLLER_PANNING = 0x0A;
+        //static const uint8_t MIDI_CONTROLLER_EXPRESSION = 0x0B;
+        //static const uint8_t MIDI_CONTROLLER_BANK_SELECT_LSB = 0x20;
+        //static const uint8_t MIDI_CONTROLLER_DATA_ENTRY_LSB = 0x26;
+        //static const uint8_t MIDI_CONTROLLER_SUSTAIN = 0x40;
+        //static const uint8_t MIDI_CONTROLLER_REVERB = 0x5B;
+        //static const uint8_t MIDI_CONTROLLER_CHORUS = 0x5D;
+        //static const uint8_t MIDI_CONTROLLER_RPN_LSB = 0x64;
+        //static const uint8_t MIDI_CONTROLLER_RPN_MSB = 0x65;
+        //static const uint8_t MIDI_CONTROLLER_ALL_SOUND_OFF = 0x78;
+        //static const uint8_t MIDI_CONTROLLER_RESET_ALL_CONTROLLERS = 0x79;
+        //static const uint8_t MIDI_CONTROLLER_ALL_NOTES_OFF = 0x7B;
+        //static const uint8_t MIDI_CONTROLLER_OMNI_ON = 0x7C;
+        //static const uint8_t MIDI_CONTROLLER_OMNI_OFF = 0x7D;
+        //static const uint8_t MIDI_CONTROLLER_MONO_ON = 0x7E;
+        //static const uint8_t MIDI_CONTROLLER_POLY_ON = 0x7F;
 
-        static const uint16_t MIDI_RPN_PITCH_BEND_SENSITIVITY = 0x0000;
-        static const uint16_t MIDI_RPN_MASTER_TUNING_FINE = 0x0001;
-        static const uint16_t MIDI_RPN_MASTER_TUNING_COARSE = 0x0002;
-        static const uint16_t MIDI_RPN_NULL = 0x7F7F;
+        //static const uint16_t MIDI_RPN_PITCH_BEND_SENSITIVITY = 0x0000;
+        //static const uint16_t MIDI_RPN_MASTER_TUNING_FINE = 0x0001;
+        //static const uint16_t MIDI_RPN_MASTER_TUNING_COARSE = 0x0002;
+        //static const uint16_t MIDI_RPN_NULL = 0x7F7F;
 
-        static const uint8_t MIDI_META_END_OF_TRACK = 0x2F;
-        static const uint8_t MIDI_META_SEQUENCER = 0x7F;
+        //static const uint8_t MIDI_META_END_OF_TRACK = 0x2F;
+        //static const uint8_t MIDI_META_SEQUENCER = 0x7F;
 
-        static const uint16_t MIDI_PITCH_BEND_DEFAULT = 0x2000;
-        static const uint8_t MIDI_PANNING_DEFAULT = 0x40;
-        static const uint8_t MIDI_EXPRESSION_DEFAULT = 0x7F;
-        static const uint16_t MIDI_MASTER_TUNING_FINE_DEFAULT = 0x2000;
-        static const uint8_t MIDI_MASTER_TUNING_COARSE_DEFAULT = 0x40;
+        //static const uint16_t MIDI_PITCH_BEND_DEFAULT = 0x2000;
+        //static const uint8_t MIDI_PANNING_DEFAULT = 0x40;
+        //static const uint8_t MIDI_EXPRESSION_DEFAULT = 0x7F;
+        //static const uint16_t MIDI_MASTER_TUNING_FINE_DEFAULT = 0x2000;
+        //static const uint8_t MIDI_MASTER_TUNING_COARSE_DEFAULT = 0x40;
 
-        static const uint8_t GM_PITCH_BEND_SENSITIVITY_DEFAULT = 0x02;
+        //static const uint8_t GM_PITCH_BEND_SENSITIVITY_DEFAULT = 0x02;
 
-        static const uint8_t GS_RHYTHM_FIRST_NOTE = 0x1B;
-        static const uint8_t GS_RHYTHM_LAST_NOTE = 0x58;
+        //static const uint8_t GS_RHYTHM_FIRST_NOTE = 0x1B;
+        //static const uint8_t GS_RHYTHM_LAST_NOTE = 0x58;
 
         MidiDriver_BASE() = default;
         virtual ~MidiDriver_BASE() = default;

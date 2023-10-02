@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <HyperSonicDrivers/drivers/midi/scummvm/MidiDriver_BASE.hpp>
 #include <HyperSonicDrivers/audio/mixer/ChannelGroup.hpp>
+#include <HyperSonicDrivers/audio/midi/types.hpp>
 
 namespace HyperSonicDrivers::drivers::midi::scummvm
 {
@@ -126,13 +127,15 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         //static const char* getErrorName(int error_code);
 
         // HIGH-LEVEL SEMANTIC METHODS
-        virtual void setPitchBendRange(uint8_t channel, unsigned int range) {
-            send(MIDI_COMMAND_CONTROL_CHANGE | channel, MIDI_CONTROLLER_RPN_MSB, MIDI_RPN_PITCH_BEND_SENSITIVITY >> 8);
-            send(MIDI_COMMAND_CONTROL_CHANGE | channel, MIDI_CONTROLLER_RPN_LSB, MIDI_RPN_PITCH_BEND_SENSITIVITY & 0xFF);
-            send(MIDI_COMMAND_CONTROL_CHANGE | channel, MIDI_CONTROLLER_DATA_ENTRY_MSB, range); // Semi-tones
-            send(MIDI_COMMAND_CONTROL_CHANGE | channel, MIDI_CONTROLLER_DATA_ENTRY_LSB, 0); // Cents
-            send(MIDI_COMMAND_CONTROL_CHANGE | channel, MIDI_CONTROLLER_RPN_MSB, MIDI_RPN_NULL >> 8);
-            send(MIDI_COMMAND_CONTROL_CHANGE | channel, MIDI_CONTROLLER_RPN_LSB, MIDI_RPN_NULL & 0xFF);
+        virtual void setPitchBendRange(uint8_t channel, unsigned int range)
+        {
+            // TODO: remove the static_casts and use the original types
+            send((static_cast<uint8_t>(audio::midi::MIDI_EVENT_TYPES_HIGH::CONTROLLER) << 8) | channel, static_cast<uint32_t>(audio::midi::MIDI_EVENT_CONTROLLER_TYPES::RPN_MSB), static_cast<uint8_t>(audio::midi::MIDI_RPN_TYPES_MSB::PITCH_BEND_SENSITIVITY));
+            send((static_cast<uint8_t>(audio::midi::MIDI_EVENT_TYPES_HIGH::CONTROLLER) << 8) | channel, static_cast<uint32_t>(audio::midi::MIDI_EVENT_CONTROLLER_TYPES::RPN_LSB), static_cast<uint8_t>(audio::midi::MIDI_RPN_TYPES_LSB::PITCH_BEND_SENSITIVITY));
+            send((static_cast<uint8_t>(audio::midi::MIDI_EVENT_TYPES_HIGH::CONTROLLER) << 8) | channel, static_cast<uint32_t>(audio::midi::MIDI_EVENT_CONTROLLER_TYPES::DATA_ENTRY_MSB), range); // Semi-tones
+            send((static_cast<uint8_t>(audio::midi::MIDI_EVENT_TYPES_HIGH::CONTROLLER) << 8) | channel, static_cast<uint32_t>(audio::midi::MIDI_EVENT_CONTROLLER_TYPES::DATA_ENTRY_LSB), 0); // Cents
+            send((static_cast<uint8_t>(audio::midi::MIDI_EVENT_TYPES_HIGH::CONTROLLER) << 8) | channel, static_cast<uint32_t>(audio::midi::MIDI_EVENT_CONTROLLER_TYPES::RPN_MSB), static_cast<uint8_t>(audio::midi::MIDI_RPN_TYPES_MSB::RPN_NULL));
+            send((static_cast<uint8_t>(audio::midi::MIDI_EVENT_TYPES_HIGH::CONTROLLER) << 8) | channel, static_cast<uint32_t>(audio::midi::MIDI_EVENT_CONTROLLER_TYPES::RPN_LSB), static_cast<uint8_t>(audio::midi::MIDI_RPN_TYPES_LSB::PITCH_BEND_SENSITIVITY));
         }
 
         /**

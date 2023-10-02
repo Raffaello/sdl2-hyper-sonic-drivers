@@ -31,7 +31,8 @@ namespace HyperSonicDrivers::drivers::midi
         virtual void send(const audio::midi::MIDIEvent& e) noexcept;
         virtual void send(const int8_t channel, const uint32_t msg) noexcept;
         virtual void send(const uint32_t msg) noexcept;
-
+        virtual void send(const audio::midi::MIDI_EVENT_TYPES_HIGH type, const uint8_t channel, const uint8_t data1, const uint8_t data2);
+        virtual void send_ctrl(const uint8_t channel, const audio::midi::MIDI_EVENT_CONTROLLER_TYPES ctrl_type, const uint8_t data);
         virtual void pause() const noexcept = 0;
         virtual void resume() const noexcept = 0;
 

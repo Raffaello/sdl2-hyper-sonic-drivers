@@ -22,30 +22,75 @@ namespace HyperSonicDrivers::drivers::midi
         MIDI_EVENT_type_u cmd;
         cmd.high = static_cast<uint8_t>((msg >> 4) & 0xF);
 
-        switch (TO_HIGH(cmd.high))
+        send(TO_HIGH(cmd.high), channel, param1, param2);
+        //switch (TO_HIGH(cmd.high))
+        //{
+        //case MIDI_EVENT_TYPES_HIGH::NOTE_OFF:// Note Off
+        //    noteOff(channel, param1);
+        //    break;
+        //case MIDI_EVENT_TYPES_HIGH::NOTE_ON: // Note On
+        //    noteOn(channel, param1, param2);
+        //    break;
+        //case MIDI_EVENT_TYPES_HIGH::AFTERTOUCH: // Aftertouch
+        //    break; // Not supported.
+        //case MIDI_EVENT_TYPES_HIGH::CONTROLLER: // Control Change
+        //    controller(channel, param1, param2);
+        //    break;
+        //case MIDI_EVENT_TYPES_HIGH::PROGRAM_CHANGE: // Program Change
+        //    programChange(channel, param1);
+        //    break;
+        //case MIDI_EVENT_TYPES_HIGH::CHANNEL_AFTERTOUCH: // Channel Pressure
+        //    break; // Not supported.
+        //case MIDI_EVENT_TYPES_HIGH::PITCH_BEND: // Pitch Bend
+        //{
+        //    const auto bend = static_cast<uint16_t>((param1 | (param2 << 7)) - 0x2000);
+        //    pitchBend(channel, bend);
+        //}
+        //    break;
+        //case MIDI_EVENT_TYPES_HIGH::META_SYSEX: // SysEx
+        //    // We should never get here! SysEx information has to be
+        //    // sent via high-level semantic methods.
+        //    logW("Receiving SysEx command on a send() call");
+        //    break;
+
+        //default:
+        //    logW(std::format("Unknown send() command {:#0x}", cmd.val));
+        //}
+    }
+
+    void IMidiDriver::send(uint32_t msg) noexcept
+    {
+        send(msg & 0xF, msg & 0xFFFFFFF0);
+    }
+
+    void IMidiDriver::send(const audio::midi::MIDI_EVENT_TYPES_HIGH type, const uint8_t channel, const uint8_t data1, const uint8_t data2)
+    {
+        using audio::midi::MIDI_EVENT_TYPES_HIGH;
+
+        switch (type)
         {
         case MIDI_EVENT_TYPES_HIGH::NOTE_OFF:// Note Off
-            noteOff(channel, param1);
+            noteOff(channel, data1);
             break;
         case MIDI_EVENT_TYPES_HIGH::NOTE_ON: // Note On
-            noteOn(channel, param1, param2);
+            noteOn(channel, data1, data2);
             break;
         case MIDI_EVENT_TYPES_HIGH::AFTERTOUCH: // Aftertouch
             break; // Not supported.
         case MIDI_EVENT_TYPES_HIGH::CONTROLLER: // Control Change
-            controller(channel, param1, param2);
+            controller(channel, data1, data2);
             break;
         case MIDI_EVENT_TYPES_HIGH::PROGRAM_CHANGE: // Program Change
-            programChange(channel, param1);
+            programChange(channel, data1);
             break;
         case MIDI_EVENT_TYPES_HIGH::CHANNEL_AFTERTOUCH: // Channel Pressure
             break; // Not supported.
         case MIDI_EVENT_TYPES_HIGH::PITCH_BEND: // Pitch Bend
         {
-            const auto bend = static_cast<uint16_t>((param1 | (param2 << 7)) - 0x2000);
+            const auto bend = static_cast<uint16_t>((data1 | (data2 << 7)) - audio::midi::MIDI_PITCH_BEND_DEFAULT);
             pitchBend(channel, bend);
         }
-            break;
+        break;
         case MIDI_EVENT_TYPES_HIGH::META_SYSEX: // SysEx
             // We should never get here! SysEx information has to be
             // sent via high-level semantic methods.
@@ -53,13 +98,13 @@ namespace HyperSonicDrivers::drivers::midi
             break;
 
         default:
-            logW(std::format("Unknown send() command {:#0x}", cmd.val));
+            logW(std::format("Unknown send() command {:#0x}", static_cast<uint8_t>(type)));
         }
     }
 
-    void IMidiDriver::send(uint32_t msg) noexcept
+    void IMidiDriver::send_ctrl(const uint8_t channel, const audio::midi::MIDI_EVENT_CONTROLLER_TYPES ctrl_type, const uint8_t data)
     {
-        send(msg & 0xF, msg & 0xFFFFFFF0);
+        controller(channel, static_cast<uint8_t>(ctrl_type), data);
     }
 
     void IMidiDriver::controller(const uint8_t chan, const uint8_t ctrl, uint8_t value) noexcept

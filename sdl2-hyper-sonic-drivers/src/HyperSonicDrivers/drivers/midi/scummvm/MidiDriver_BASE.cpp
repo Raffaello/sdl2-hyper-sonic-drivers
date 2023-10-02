@@ -10,11 +10,16 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         send(source, status | ((uint32_t)firstOp << 8) | ((uint32_t)secondOp << 16));
     }
 
-    void MidiDriver_BASE::stopAllNotes(bool stopSustainedNotes) {
-        for (int i = 0; i < 16; ++i) {
-            send(0xB0 | i, MIDI_CONTROLLER_ALL_NOTES_OFF, 0);
+    void MidiDriver_BASE::stopAllNotes(bool stopSustainedNotes)
+    {
+        using enum audio::midi::MIDI_EVENT_TYPES_HIGH;
+        using enum audio::midi::MIDI_EVENT_CONTROLLER_TYPES;
+
+        for (uint8_t i = 0; i < audio::midi::MIDI_MAX_CHANNELS; ++i)
+        {
+            send_ctrl(i, ALL_NOTES_OFF, 0);
             if (stopSustainedNotes)
-                send(0xB0 | i, MIDI_CONTROLLER_SUSTAIN, 0); // Also send a sustain off event (bug #5524)
+                send_ctrl(i, SUSTAIN, 0);
         }
     }
 }

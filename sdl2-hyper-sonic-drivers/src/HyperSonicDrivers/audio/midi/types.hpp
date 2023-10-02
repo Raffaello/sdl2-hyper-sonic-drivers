@@ -8,6 +8,7 @@ namespace HyperSonicDrivers::audio::midi
 {
     constexpr uint8_t MIDI_MAX_CHANNELS = 16;
     constexpr uint8_t MIDI_PERCUSSION_CHANNEL = 9; // standard MIDI percussion channel
+    constexpr uint16_t MIDI_PITCH_BEND_DEFAULT = 0x2000; // pitch bend default value (zero)
 
     typedef std::vector<uint8_t> midi_vector_t;
 
@@ -123,6 +124,36 @@ namespace HyperSonicDrivers::audio::midi
         CLEAR_BEAT_BAR_COUNT = 118,
         CALLBACK_TRIGGER = 119,
         SEQUENCE_BRANCH_INDEX = 120,
+    };
+
+    enum class MIDI_RPN_TYPES : uint16_t
+    {
+        PITCH_BEND_SENSITIVITY = 0x0000,
+        FINE_TUNING = 0x0001,
+        COARSE_TUNING = 0x0002,
+        TUNING_PROGRAM_SELECT = 0x0003,
+        TUNING_BANK_SELECT = 0x0004,
+        RPN_NULL = 0x7F7F
+    };
+
+    enum class MIDI_RPN_TYPES_LSB : uint8_t
+    {
+        PITCH_BEND_SENSITIVITY = 0x00,
+        FINE_TUNING = 0x01,
+        COARSE_TUNING = 0x02,
+        TUNING_PROGRAM_SELECT = 0x03,
+        TUNING_BANK_SELECT = 0x04,
+        RPN_NULL = 0x7F
+    };
+
+    enum class MIDI_RPN_TYPES_MSB : uint8_t
+    {
+        PITCH_BEND_SENSITIVITY = 0x00,
+        FINE_TUNING = 0x00,
+        COARSE_TUNING = 0x00,
+        TUNING_PROGRAM_SELECT = 0x00,
+        TUNING_BANK_SELECT = 0x00,
+        RPN_NULL = 0x7F
     };
 
     constexpr MIDI_EVENT_TYPES_HIGH TO_HIGH(const uint8_t x) { return static_cast<MIDI_EVENT_TYPES_HIGH>(x); }

@@ -2,10 +2,12 @@
 
 #include <cstdint>
 #include <HyperSonicDrivers/drivers/midi/scummvm/MidiDriver.hpp>
+#include <HyperSonicDrivers/drivers/midi/IMidiChannel.hpp>
+#include <HyperSonicDrivers/audio/midi/types.hpp>
 
 namespace HyperSonicDrivers::drivers::midi::scummvm
 {
-    class MidiChannel
+    class MidiChannel //: public IMidiChannel
     {
     public:
         virtual ~MidiChannel() = default;
@@ -24,17 +26,18 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
         // Control Change messages
         virtual void controlChange(uint8_t control, uint8_t value) = 0;
-        virtual void modulationWheel(uint8_t value) { controlChange(MidiDriver::MIDI_CONTROLLER_MODULATION, value); }
-        virtual void volume(uint8_t value) { controlChange(MidiDriver::MIDI_CONTROLLER_VOLUME, value); }
-        virtual void panPosition(uint8_t value) { controlChange(MidiDriver::MIDI_CONTROLLER_PANNING, value); }
+        // TODO: remove the static_cast and pass the original type instead
+        virtual void modulationWheel(uint8_t value) { controlChange(static_cast<uint8_t>(audio::midi::MIDI_EVENT_CONTROLLER_TYPES::MODULATION_WHEEL), value); }
+        virtual void volume(uint8_t value) { controlChange(static_cast<uint8_t>(audio::midi::MIDI_EVENT_CONTROLLER_TYPES::CHANNEL_VOLUME), value); }
+        virtual void panPosition(uint8_t value) { controlChange(static_cast<uint8_t>(audio::midi::MIDI_EVENT_CONTROLLER_TYPES::PAN), value); }
         virtual void pitchBendFactor(uint8_t value) = 0;
         virtual void transpose(int8_t value) {}
-        virtual void detune(uint8_t value) { controlChange(17, value); }
+        virtual void detune(uint8_t value) { controlChange(static_cast<uint8_t>(audio::midi::MIDI_EVENT_CONTROLLER_TYPES::GENERAL_PURPOSE_CONTROLLER_2), value); }
         virtual void priority(uint8_t value) { }
-        virtual void sustain(bool value) { controlChange(MidiDriver::MIDI_CONTROLLER_SUSTAIN, value ? 1 : 0); }
-        virtual void effectLevel(uint8_t value) { controlChange(MidiDriver::MIDI_CONTROLLER_REVERB, value); }
-        virtual void chorusLevel(uint8_t value) { controlChange(MidiDriver::MIDI_CONTROLLER_CHORUS, value); }
-        virtual void allNotesOff() { controlChange(MidiDriver::MIDI_CONTROLLER_ALL_NOTES_OFF, 0); }
+        virtual void sustain(bool value) { controlChange(static_cast<uint8_t>(audio::midi::MIDI_EVENT_CONTROLLER_TYPES::SUSTAIN), value ? 1 : 0); }
+        virtual void effectLevel(uint8_t value) { controlChange(static_cast<uint8_t>(audio::midi::MIDI_EVENT_CONTROLLER_TYPES::REVERB), value); }
+        virtual void chorusLevel(uint8_t value) { controlChange(static_cast<uint8_t>(audio::midi::MIDI_EVENT_CONTROLLER_TYPES::CHORUS), value); }
+        virtual void allNotesOff() { controlChange(static_cast<uint8_t>(audio::midi::MIDI_EVENT_CONTROLLER_TYPES::ALL_NOTES_OFF), 0); }
 
         // SysEx messages
         virtual void sysEx_customInstrument(uint32_t type, const uint8_t* instr) = 0;
