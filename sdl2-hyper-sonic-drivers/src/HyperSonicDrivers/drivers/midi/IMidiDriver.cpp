@@ -69,7 +69,7 @@ namespace HyperSonicDrivers::drivers::midi
         switch (TO_CTRL(ctrl))
         {
             using enum audio::midi::MIDI_EVENT_CONTROLLER_TYPES;
-        case BANK_SELECT:
+        case BANK_SELECT_MSB:
         //case BANK_SELECT_2:
             // Bank select. Not supported
             logW(std::format("bank select value {}", value));

@@ -11,7 +11,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
     class OplChannel : public IMidiChannel
     {
     public:
-        OplChannel(const uint8_t channel/*, std::vector<std::unique_ptr<OplVoice>>& voices*/);
+        explicit OplChannel(const uint8_t channel/*, std::vector<std::unique_ptr<OplVoice>>& voices*/);
 
     protected:
         //void noteOff(const uint8_t note) noexcept override;
