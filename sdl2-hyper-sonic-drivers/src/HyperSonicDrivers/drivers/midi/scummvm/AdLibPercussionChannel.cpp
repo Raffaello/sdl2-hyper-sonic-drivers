@@ -10,11 +10,11 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
     using utils::logD;
     using utils::logW;
 
-    void AdLibPercussionChannel::init(MidiDriver_ADLIB* owner, uint8_t channel)
+    void AdLibPercussionChannel::init(MidiDriver_ADLIB* owner)
     {
-        AdLibPart::init(owner, channel);
+        AdLibPart::init(owner);
         _priEff = 0;
-        _volEff = 127;
+        volume = 127;
 
         // Initialize the custom instruments data
         std::ranges::fill(_notes, 0);
@@ -72,7 +72,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
             return;
         }
 
-        _owner->partKeyOn(this, inst, note, velocity, sec, _pan);
+        _owner->partKeyOn(this, inst, note, velocity, sec, pan);
     }
 
     void AdLibPercussionChannel::sysEx_customInstrument(uint32_t type, const uint8_t* instr) {

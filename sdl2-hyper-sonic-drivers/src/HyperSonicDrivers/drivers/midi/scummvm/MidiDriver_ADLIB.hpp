@@ -51,7 +51,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         void sysEx_customInstrument(uint8_t channel, uint32_t type, const uint8_t* instr) override;
 
         MidiChannel* allocateChannel() override;
-        MidiChannel* getPercussionChannel() override { return &_percussion; } // Percussion partially supported
+        MidiChannel* getPercussionChannel() override { return &m_percussion; } // Percussion partially supported
 
         //virtual void setTimerCallback(void* timerParam, /*Common::TimerManager::TimerProc*/ void* timerProc);
 
@@ -87,9 +87,9 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
         std::array<uint16_t, 9> _channelTable2;
         std::array<uint16_t, 9> _curNotTable;
-        std::array<AdLibPart, 32> _parts;
-        std::array<AdLibVoice, 9> _voices;
-        AdLibPercussionChannel _percussion;
+        std::array<std::unique_ptr<AdLibPart>, 32> m_parts; // why 32 instead of 16? it is because of the OPL3 (instead of doubling voices, it's doubling the parts?)?
+        std::array<AdLibVoice, 9> m_voices;
+        AdLibPercussionChannel m_percussion;
         int _voiceIndex = -1;
         int _timerIncrease = 0xD69;
         int _timerThreshold = 0x411B;

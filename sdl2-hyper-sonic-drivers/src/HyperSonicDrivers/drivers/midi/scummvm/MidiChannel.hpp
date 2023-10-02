@@ -7,9 +7,11 @@
 
 namespace HyperSonicDrivers::drivers::midi::scummvm
 {
-    class MidiChannel //: public IMidiChannel
+    // TODO: remove this class
+    class MidiChannel : public IMidiChannel
     {
     public:
+        MidiChannel(const uint8_t channel) : IMidiChannel(channel) {};
         virtual ~MidiChannel() = default;
 
         virtual MidiDriver* device() = 0;
@@ -28,7 +30,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         virtual void controlChange(uint8_t control, uint8_t value) = 0;
         // TODO: remove the static_cast and pass the original type instead
         virtual void modulationWheel(uint8_t value) { controlChange(static_cast<uint8_t>(audio::midi::MIDI_EVENT_CONTROLLER_TYPES::MODULATION_WHEEL), value); }
-        virtual void volume(uint8_t value) { controlChange(static_cast<uint8_t>(audio::midi::MIDI_EVENT_CONTROLLER_TYPES::CHANNEL_VOLUME), value); }
+        virtual void setVolume(uint8_t value) { controlChange(static_cast<uint8_t>(audio::midi::MIDI_EVENT_CONTROLLER_TYPES::CHANNEL_VOLUME), value); }
         virtual void panPosition(uint8_t value) { controlChange(static_cast<uint8_t>(audio::midi::MIDI_EVENT_CONTROLLER_TYPES::PAN), value); }
         virtual void pitchBendFactor(uint8_t value) = 0;
         virtual void transpose(int8_t value) {}

@@ -8,10 +8,9 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 {
     using utils::logW;
 
-    void AdLibPart::init(MidiDriver_ADLIB* owner, uint8_t channel)
+    void AdLibPart::init(MidiDriver_ADLIB* owner)
     {
         _owner = owner;
-        _channel = channel;
         _priEff = 127;
         programChange(0);
     }
@@ -21,7 +20,8 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         _allocated = true;
     }
 
-    AdLibPart::AdLibPart()
+    AdLibPart::AdLibPart(const uint8_t channel) :
+        MidiChannel(channel)
     {
         memset(&_partInstr, 0, sizeof(_partInstr));
         memset(&_partInstrSecondary, 0, sizeof(_partInstrSecondary));
@@ -33,7 +33,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
     uint8_t AdLibPart::getNumber()
     {
-        return _channel;
+        return channel;
     }
 
     void AdLibPart::release()
@@ -42,7 +42,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
     }
 
     void AdLibPart::send(uint32_t b) {
-        _owner->send(_channel, b);
+        _owner->send(channel, b);
     }
 
     void AdLibPart::noteOff(uint8_t note) {
@@ -58,14 +58,14 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 #endif
         _owner->partKeyOn(this, &_partInstr, note, velocity,
             &_partInstrSecondary,
-            _pan);
+            pan);
     }
 
     void AdLibPart::programChange(uint8_t program) {
         if (program > 127)
             return;
 
-        _program = program;
+        program = program;
         if (!_owner->m_opl3Mode) {
             memcpy(&_partInstr, &g_gmInstruments[program], sizeof(AdLibInstrument));
         }
@@ -79,17 +79,17 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
     void AdLibPart::pitchBend(int16_t bend)
     {
-        _pitchBend = bend;
+        pitch = bend;
         for (AdLibVoice* voice = _voice; voice; voice = voice->_next)
         {
             if (!_owner->m_opl3Mode)
             {
                 _owner->adlibNoteOn(voice->_channel, voice->_note/* + _transposeEff*/,
-                    (_pitchBend * _pitchBendFactor >> 6) + _detuneEff);
+                    (pitch * _pitchBendFactor >> 6) + _detuneEff);
             }
             else
             {
-                _owner->adlibNoteOn(voice->_channel, voice->_note, _pitchBend >> 1);
+                _owner->adlibNoteOn(voice->_channel, voice->_note, pitch >> 1);
             }
         }
     }
@@ -105,7 +105,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
             //spdlog::debug("modwheel value {}", value);
             break;
         case 7:
-            volume(value);
+            setVolume(value);
             //spdlog::debug("volume value {}", value);
             break;
         case 10:
@@ -151,44 +151,44 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
     void AdLibPart::modulationWheel(uint8_t value)
     {
-        _modWheel = value;
+        modulation = value;
         for (AdLibVoice* voice = _voice; voice; voice = voice->_next)
         {
             if (voice->_s10a.active && voice->_s11a.flag0x40)
-                voice->_s10a.modWheel = _modWheel >> 2;
+                voice->_s10a.modWheel = modulation >> 2;
             if (voice->_s10b.active && voice->_s11b.flag0x40)
-                voice->_s10b.modWheel = _modWheel >> 2;
+                voice->_s10b.modWheel = modulation >> 2;
         }
     }
 
-    void AdLibPart::volume(uint8_t value)
+    void AdLibPart::setVolume(uint8_t value)
     {
-        _volEff = value;
+        volume = value;
         for (AdLibVoice* voice = _voice; voice; voice = voice->_next)
         {
             if (!_owner->m_opl3Mode)
             {
-                _owner->adlibSetParam(voice->_channel, 0, g_volumeTable[g_volumeLookupTable[voice->_vol2][_volEff >> 2]]);
+                _owner->adlibSetParam(voice->_channel, 0, g_volumeTable[g_volumeLookupTable[voice->_vol2][volume >> 2]]);
                 if (voice->_twoChan) {
-                    _owner->adlibSetParam(voice->_channel, 13, g_volumeTable[g_volumeLookupTable[voice->_vol1][_volEff >> 2]]);
+                    _owner->adlibSetParam(voice->_channel, 13, g_volumeTable[g_volumeLookupTable[voice->_vol1][volume >> 2]]);
                 }
             }
             else
             {
-                _owner->adlibSetParam(voice->_channel, 0, g_volumeTable[((voice->_vol2 + 1) * _volEff) >> 7], true);
-                _owner->adlibSetParam(voice->_channel, 0, g_volumeTable[((voice->_secVol2 + 1) * _volEff) >> 7], false);
+                _owner->adlibSetParam(voice->_channel, 0, g_volumeTable[((voice->_vol2 + 1) * volume) >> 7], true);
+                _owner->adlibSetParam(voice->_channel, 0, g_volumeTable[((voice->_secVol2 + 1) * volume) >> 7], false);
                 if (voice->_twoChan) {
-                    _owner->adlibSetParam(voice->_channel, 13, g_volumeTable[((voice->_vol1 + 1) * _volEff) >> 7], true);
+                    _owner->adlibSetParam(voice->_channel, 13, g_volumeTable[((voice->_vol1 + 1) * volume) >> 7], true);
                 }
                 if (voice->_secTwoChan) {
-                    _owner->adlibSetParam(voice->_channel, 13, g_volumeTable[((voice->_secVol1 + 1) * _volEff) >> 7], false);
+                    _owner->adlibSetParam(voice->_channel, 13, g_volumeTable[((voice->_secVol1 + 1) * volume) >> 7], false);
                 }
             }
         }
     }
 
     void AdLibPart::panPosition(uint8_t value) {
-        _pan = value;
+        pan = value;
     }
 
     void AdLibPart::pitchBendFactor(uint8_t value)
@@ -202,7 +202,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         for (AdLibVoice* voice = _voice; voice; voice = voice->_next)
         {
             _owner->adlibNoteOn(voice->_channel, voice->_note/* + _transposeEff*/,
-                (_pitchBend * _pitchBendFactor >> 6) + _detuneEff);
+                (pitch * _pitchBendFactor >> 6) + _detuneEff);
         }
     }
 
@@ -222,7 +222,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         for (AdLibVoice* voice = _voice; voice; voice = voice->_next)
         {
             _owner->adlibNoteOn(voice->_channel, voice->_note/* + _transposeEff*/,
-                (_pitchBend * _pitchBendFactor >> 6) + _detuneEff);
+                (pitch * _pitchBendFactor >> 6) + _detuneEff);
         }
     }
 

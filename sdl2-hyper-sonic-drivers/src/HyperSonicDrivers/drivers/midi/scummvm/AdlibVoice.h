@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <cstring>
 #include <HyperSonicDrivers/drivers/midi/scummvm/AdLibPart.hpp>
+#include <HyperSonicDrivers/drivers/midi/IMidiChannelVoice.hpp>
 
 namespace HyperSonicDrivers::drivers::midi::scummvm
 {
@@ -36,7 +37,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         Struct10* s10;
     };
 
-    struct AdLibVoice
+    struct AdLibVoice : public IMidiChannelVoice
     {
         AdLibPart* _part;
         AdLibVoice* _next, * _prev;

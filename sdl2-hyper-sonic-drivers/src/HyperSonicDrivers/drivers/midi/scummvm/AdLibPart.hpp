@@ -18,28 +18,23 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
     protected:
         //	AdLibPart *_prev, *_next;
         AdLibVoice* _voice = nullptr;
-        int16_t _pitchBend = 0;
         uint8_t _pitchBendFactor = 2;
         //int8_t _transposeEff;
-        uint8_t _volEff = 0;
         int8_t _detuneEff = 0;
-        uint8_t _modWheel = 0;
         bool _pedal = false;
-        uint8_t _program = 0;
         uint8_t _priEff = 0;
-        uint8_t _pan = 64;
+        //uint8_t pan = 64;
         AdLibInstrument _partInstr;
         AdLibInstrument _partInstrSecondary;
 
         MidiDriver_ADLIB* _owner = nullptr;
         bool _allocated = false;
-        uint8_t _channel = 0;
 
-        void init(MidiDriver_ADLIB* owner, uint8_t channel);
+        void init(MidiDriver_ADLIB* owner);
         void allocate();
 
     public:
-        AdLibPart();
+        AdLibPart(const uint8_t channel);
 
         MidiDriver* device() override;
         uint8_t getNumber() override;
@@ -56,7 +51,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         // Control Change messages
         void controlChange(uint8_t control, uint8_t value) override;
         void modulationWheel(uint8_t value) override;
-        void volume(uint8_t value) override;
+        void setVolume(uint8_t value) override;
         void panPosition(uint8_t value) override;
         void pitchBendFactor(uint8_t value) override;
         void detune(uint8_t value) override;

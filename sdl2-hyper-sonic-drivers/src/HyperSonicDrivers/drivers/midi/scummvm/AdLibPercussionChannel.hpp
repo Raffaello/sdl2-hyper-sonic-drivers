@@ -19,10 +19,10 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         friend class MidiDriver_ADLIB;
 
     protected:
-        void init(MidiDriver_ADLIB* owner, uint8_t channel);
+        void init(MidiDriver_ADLIB* owner);
 
     public:
-        AdLibPercussionChannel() = default;
+        AdLibPercussionChannel() : AdLibPart(audio::midi::MIDI_PERCUSSION_CHANNEL) {};
         ~AdLibPercussionChannel() override = default;
 
         void noteOff(uint8_t note) override;
