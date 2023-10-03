@@ -65,4 +65,4 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         inline void setFree(const bool free) { m_free = free; };
         inline void setChannel(AdLibPart* chan) { m_channel = chan; };
     };
-}
+}   
