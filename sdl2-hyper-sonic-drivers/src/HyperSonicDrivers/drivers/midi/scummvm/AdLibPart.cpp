@@ -8,19 +8,13 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 {
     using utils::logW;
 
-    void AdLibPart::init(MidiDriver_ADLIB* owner)
-    {
-        _owner = owner;
-        //programChange(0);
-    }
-
-    void AdLibPart::allocate()
+    /*void AdLibPart::allocate()
     {
         _allocated = true;
-    }
+    }*/
 
     AdLibPart::AdLibPart(const uint8_t channel) :
-        MidiChannel(channel)
+        IMidiChannel(channel)
     {
         memset(&_partInstr, 0, sizeof(_partInstr));
         memset(&_partInstrSecondary, 0, sizeof(_partInstrSecondary));
@@ -44,18 +38,18 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         memcpy(&_partInstr, instr, sizeof(AdLibInstrument));
     }
 
-    MidiDriver* AdLibPart::device() {
+    /*MidiDriver* AdLibPart::device() {
         return _owner;
-    }
+    }*/
 
-    void AdLibPart::release()
-    {
-        _allocated = false;
-    }
+    //void AdLibPart::release()
+    //{
+    //    //_allocated = false;
+    //}
 
-    void AdLibPart::send(uint32_t b) {
+    /*void AdLibPart::send(uint32_t b) {
         _owner->send(channel, b);
-    }
+    }*/
 
     /*void AdLibPart::noteOff(uint8_t note) {
 #ifdef DEBUG_ADLIB

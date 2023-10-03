@@ -104,15 +104,19 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         }()),
         m_opl3Mode(m_opl->type != OplType::OPL2)
     {
+        using audio::midi::MIDI_PERCUSSION_CHANNEL;
+        using audio::midi::MIDI_MAX_CHANNELS;
+
         std::ranges::fill(_curNotTable, 0);
-        for (size_t i = 0; i < m_channels.size(); ++i)
-        {
-            m_channels[i] = std::make_unique<AdLibPart>(static_cast<uint8_t>(i + ((i >= 9) ? 1 : 0)));
-            toAdlibPart(m_channels[i])->init(this/*, static_cast<uint8_t>(i + ((i >= 9) ? 1 : 0))*/);
-        }
+        for (int i = 0; i < MIDI_PERCUSSION_CHANNEL; ++i)
+            m_channels[i] = std::make_unique<AdLibPart>(static_cast<uint8_t>(i));
+
+        m_channels[MIDI_PERCUSSION_CHANNEL] = std::make_unique<AdLibPercussionChannel>();
+        for (int i = MIDI_PERCUSSION_CHANNEL + 1; i < MIDI_MAX_CHANNELS; i++)
+            m_channels[i] = std::make_unique<AdLibPart>(static_cast<uint8_t>(i));
 
         std::ranges::fill(_channelTable2, 0);
-        m_percussion.init(this/*, 9*/);
+        m_percussion = dynamic_cast<AdLibPercussionChannel*>(m_channels[MIDI_PERCUSSION_CHANNEL].get());
     }
 
     MidiDriver_ADLIB::~MidiDriver_ADLIB()
@@ -297,31 +301,30 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
         if (part->isPercussion)
         {
-            auto part_ = dynamic_cast<AdLibPercussionChannel*>(part);
             if (type == static_cast<uint32_t>('ADLP'))
             {
                 uint8_t note = instr[0];
-                part_->_notes[note] = instr[1];
+                m_percussion->m_notes[note] = instr[1];
 
                 // Allocate memory for the new instruments
-                if (!part_->_customInstruments[note])
+                if (!m_percussion->m_customInstruments[note])
                 {
-                    part_->_customInstruments[note] = std::make_unique<AdLibInstrument>();
-                    memset(part_->_customInstruments[note].get(), 0, sizeof(AdLibInstrument));
+                    m_percussion->m_customInstruments[note] = std::make_unique<AdLibInstrument>();
+                    memset(m_percussion->m_customInstruments[note].get(), 0, sizeof(AdLibInstrument));
                 }
 
                 // Save the new instrument data
-                part_->_customInstruments[note]->modCharacteristic = instr[2];
-                part_->_customInstruments[note]->modScalingOutputLevel = instr[3];
-                part_->_customInstruments[note]->modAttackDecay = instr[4];
-                part_->_customInstruments[note]->modSustainRelease = instr[5];
-                part_->_customInstruments[note]->modWaveformSelect = instr[6];
-                part_->_customInstruments[note]->carCharacteristic = instr[7];
-                part_->_customInstruments[note]->carScalingOutputLevel = instr[8];
-                part_->_customInstruments[note]->carAttackDecay = instr[9];
-                part_->_customInstruments[note]->carSustainRelease = instr[10];
-                part_->_customInstruments[note]->carWaveformSelect = instr[11];
-                part_->_customInstruments[note]->feedback = instr[12];
+                m_percussion->m_customInstruments[note]->modCharacteristic = instr[2];
+                m_percussion->m_customInstruments[note]->modScalingOutputLevel = instr[3];
+                m_percussion->m_customInstruments[note]->modAttackDecay = instr[4];
+                m_percussion->m_customInstruments[note]->modSustainRelease = instr[5];
+                m_percussion->m_customInstruments[note]->modWaveformSelect = instr[6];
+                m_percussion->m_customInstruments[note]->carCharacteristic = instr[7];
+                m_percussion->m_customInstruments[note]->carScalingOutputLevel = instr[8];
+                m_percussion->m_customInstruments[note]->carAttackDecay = instr[9];
+                m_percussion->m_customInstruments[note]->carSustainRelease = instr[10];
+                m_percussion->m_customInstruments[note]->carWaveformSelect = instr[11];
+                m_percussion->m_customInstruments[note]->feedback = instr[12];
             }
         }
         else
@@ -334,7 +337,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         //part->sysEx_customInstrument(type, instr);
     }
 
-    MidiChannel* MidiDriver_ADLIB::allocateChannel()
+    /*IMidiChannel* MidiDriver_ADLIB::allocateChannel()
     {
         for(auto& part_ : m_channels)
         {
@@ -347,7 +350,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         }
 
         return nullptr;
-    }
+    }*/
 
     // All the code brought over from IMuseAdLib
 
@@ -421,9 +424,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         {
             note_ = dynamic_cast<AdLibPercussionChannel*>(part)->getNote(note_);
         }
-        else
-        {
-        }
+
         partKeyOff(part, note_);
         //part->noteOff(note);
         logD(std::format("noteOff {} {}", chan, note_));
@@ -1026,7 +1027,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
     AdLibPart* MidiDriver_ADLIB::getChannel(const uint8_t channel) const noexcept
     {
         if (channel == audio::midi::MIDI_PERCUSSION_CHANNEL)
-            return &m_percussion;
+            return m_percussion;
         else
             return toAdlibPart(m_channels[channel]);
     }

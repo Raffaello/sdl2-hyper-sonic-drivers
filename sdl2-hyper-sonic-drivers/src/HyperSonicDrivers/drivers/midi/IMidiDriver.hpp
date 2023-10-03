@@ -38,7 +38,7 @@ namespace HyperSonicDrivers::drivers::midi
 
     protected:
         bool m_isOpen = false;
-        mutable std::array<std::unique_ptr<IMidiChannel>, audio::midi::MIDI_MAX_CHANNELS> m_channels;
+        std::array<std::unique_ptr<IMidiChannel>, audio::midi::MIDI_MAX_CHANNELS> m_channels;
         virtual void onCallback() noexcept = 0;
 
         // MIDI events

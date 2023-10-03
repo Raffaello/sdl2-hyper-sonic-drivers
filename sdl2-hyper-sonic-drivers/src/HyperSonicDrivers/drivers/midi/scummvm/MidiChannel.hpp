@@ -14,10 +14,10 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         MidiChannel(const uint8_t channel) : IMidiChannel(channel) {};
         virtual ~MidiChannel() = default;
 
-        virtual MidiDriver* device() = 0;
-        virtual void release() = 0;
+        //virtual MidiDriver* device() = 0;
+        //virtual void release() = 0;
 
-        virtual void send(uint32_t b) = 0; // 4-bit channel portion is ignored
+        //virtual void send(uint32_t b) = 0; // 4-bit channel portion is ignored
 
         // Regular messages
         //virtual void noteOff(uint8_t note) = 0;

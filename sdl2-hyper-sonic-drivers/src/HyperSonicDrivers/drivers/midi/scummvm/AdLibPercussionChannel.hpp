@@ -18,11 +18,11 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
     {
         friend class MidiDriver_ADLIB;
 
-    protected:
-        void init(MidiDriver_ADLIB* owner);
+    //protected:
+        //void init(/*MidiDriver_ADLIB* owner*/);
 
     public:
-        AdLibPercussionChannel() : AdLibPart(audio::midi::MIDI_PERCUSSION_CHANNEL) {};
+        AdLibPercussionChannel();
         ~AdLibPercussionChannel() override = default;
 
         //void noteOff(uint8_t note) override;
@@ -42,7 +42,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         uint8_t getNote(const uint8_t note) const noexcept;
         AdLibInstrument* getInstrument(const uint8_t note) const noexcept;
     private:
-        std::array<uint8_t, 256> _notes = { 0 };
-        std::array<std::unique_ptr<AdLibInstrument>, 256> _customInstruments;
+        std::array<uint8_t, 256> m_notes = { 0 };
+        std::array<std::unique_ptr<AdLibInstrument>, 256> m_customInstruments;
     };
 }

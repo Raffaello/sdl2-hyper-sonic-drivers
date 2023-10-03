@@ -157,8 +157,8 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         virtual uint32_t getBaseTempo() = 0;
 
         // Channel allocation functions
-        virtual MidiChannel* allocateChannel() = 0;
-        virtual MidiChannel* getPercussionChannel() = 0;
+        //virtual IMidiChannel* allocateChannel() = 0;
+        //virtual IMidiChannel* getPercussionChannel() = 0;
 
         // Allow an engine to supply its own soundFont data. This stream will be destroyed after use.
         //virtual void setEngineSoundFont(Common::SeekableReadStream* soundFontData) { }

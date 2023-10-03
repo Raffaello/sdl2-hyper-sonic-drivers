@@ -50,8 +50,8 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         void setPitchBendRange(uint8_t channel, unsigned int range) override;
         void sysEx_customInstrument(uint8_t channel, uint32_t type, const uint8_t* instr) override;
 
-        MidiChannel* allocateChannel() override;
-        MidiChannel* getPercussionChannel() override { return &m_percussion; } // Percussion partially supported
+        //IMidiChannel* allocateChannel() override;
+        //IMidiChannel* getPercussionChannel() override { return m_percussion; } // Percussion partially supported
 
         //virtual void setTimerCallback(void* timerParam, /*Common::TimerManager::TimerProc*/ void* timerProc);
 
@@ -97,7 +97,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         //std::array<std::unique_ptr<AdLibPart>, 32> m_parts; // (probably 32 parts as for MT-32) why 32 instead of 16? it is because of the OPL3 (instead of doubling voices, it's doubling the parts?)?
         //std::array<std::unique_ptr<AdLibPart>, 16> m_channels;
         std::array<AdLibVoice, 9> m_voices;
-        mutable AdLibPercussionChannel m_percussion;
+        AdLibPercussionChannel* m_percussion;
         int _voiceIndex = -1;
         int _timerIncrease = 0xD69;
         int _timerThreshold = 0x411B;

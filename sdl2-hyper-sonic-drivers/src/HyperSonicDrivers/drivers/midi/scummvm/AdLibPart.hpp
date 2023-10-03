@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstdint>
-#include <HyperSonicDrivers/drivers/midi/scummvm/MidiChannel.hpp>
+#include <HyperSonicDrivers/drivers/midi/IMidiChannel.hpp>
 #include <HyperSonicDrivers/drivers/midi/scummvm/MidiDriver.hpp>
 #include <HyperSonicDrivers/drivers/midi/scummvm/AdLibInstrument.h>
 
@@ -10,7 +10,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
     struct AdLibVoice;
     class MidiDriver_ADLIB;
 
-    class AdLibPart : public MidiChannel
+    class AdLibPart : public IMidiChannel
     {
         friend class MidiDriver_ADLIB;
 
@@ -25,11 +25,11 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         AdLibInstrument _partInstr;
         AdLibInstrument _partInstrSecondary;
 
-        MidiDriver_ADLIB* _owner = nullptr;
-        bool _allocated = false;
+        //MidiDriver_ADLIB* _owner = nullptr;
+        //bool _allocated = false;
 
-        void init(MidiDriver_ADLIB* owner);
-        void allocate(); // TODO: this is more relative to AdLibVoice instead, Midi channel are 16, eventually are in use
+        //void init(/*MidiDriver_ADLIB* owner*/);
+        //void allocate(); // TODO: this is more relative to AdLibVoice instead, Midi channel are 16, eventually are in use
 
     public:
         AdLibPart(const uint8_t channel);
@@ -40,10 +40,10 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         void setCustomInstr(const AdLibInstrument* instr) noexcept;
 
 
-        MidiDriver* device() override;
-        void release() override;
+        //MidiDriver* device() override;
+        //void release() override;
 
-        void send(uint32_t b) override;
+        //void send(uint32_t b) override;
 
         // Regular messages
         //void noteOff(uint8_t note) override;
