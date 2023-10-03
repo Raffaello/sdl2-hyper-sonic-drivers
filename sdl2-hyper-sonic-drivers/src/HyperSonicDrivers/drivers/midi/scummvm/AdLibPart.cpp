@@ -84,22 +84,22 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
     //    //spdlog::debug("Program {} {}", _channel, program);
     //}
 
-    void AdLibPart::pitchBend(int16_t bend)
-    {
-        pitch = bend;
-        for (AdLibVoice* voice = _voice; voice; voice = voice->_next)
-        {
-            if (!_owner->m_opl3Mode)
-            {
-                _owner->adlibNoteOn(voice->_channel, voice->getNote()/* + _transposeEff*/,
-                    (pitch * _pitchBendFactor >> 6) + _detuneEff);
-            }
-            else
-            {
-                _owner->adlibNoteOn(voice->_channel, voice->getNote(), pitch >> 1);
-            }
-        }
-    }
+    //void AdLibPart::pitchBend(int16_t bend)
+    //{
+    //    pitch = bend;
+    //    for (AdLibVoice* voice = _voice; voice; voice = voice->_next)
+    //    {
+    //        if (!_owner->m_opl3Mode)
+    //        {
+    //            _owner->adlibNoteOn(voice->_channel, voice->getNote()/* + _transposeEff*/,
+    //                (pitch * _pitchBendFactor >> 6) + _detuneEff);
+    //        }
+    //        else
+    //        {
+    //            _owner->adlibNoteOn(voice->_channel, voice->getNote(), pitch >> 1);
+    //        }
+    //    }
+    //}
 
     void AdLibPart::controlChange(uint8_t control, uint8_t value)
     {

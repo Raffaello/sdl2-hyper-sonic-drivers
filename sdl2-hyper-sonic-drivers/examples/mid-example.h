@@ -93,11 +93,11 @@ void mid_test(const OplEmulator emu, const OplType type, const std::shared_ptr<a
     }
 
     drivers::MIDDriver midDrv(/*mixer,*/ device, eChannelGroup::Music);
-    if (!midDrv.loadBankOP2(op2file.getBank()))
+    /*if (!midDrv.loadBankOP2(op2file.getBank()))
     {
         spdlog::error("can't load BankOP2");
         return;
-    }
+    }*/
 
     spdlog::info(std::format("playing midi (OPL type={})...", type));
     mid_test_run(midDrv, midi);

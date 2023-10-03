@@ -462,7 +462,22 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
     void MidiDriver_ADLIB::pitchBend(const uint8_t chan, const uint16_t bend) noexcept
     {
         auto part = getChannel(chan);
-        part->pitchBend(static_cast<int16_t>(bend));
+
+        part->pitch = bend;
+        for (AdLibVoice* voice = part->_voice; voice; voice = voice->_next)
+        {
+            if (!m_opl3Mode)
+            {
+                adlibNoteOn(voice->_channel, voice->getNote()/* + _transposeEff*/,
+                    (part->pitch * part->_pitchBendFactor >> 6) + part->_detuneEff);
+            }
+            else
+            {
+                adlibNoteOn(voice->_channel, voice->getNote(), part->pitch >> 1);
+            }
+        }
+
+        //part->pitchBend(static_cast<int16_t>(bend));
     }
 
     //void MidiDriver_ADLIB::setTimerCallback(void* timerParam, /*Common::TimerManager::TimerProc*/ void* timerProc) {

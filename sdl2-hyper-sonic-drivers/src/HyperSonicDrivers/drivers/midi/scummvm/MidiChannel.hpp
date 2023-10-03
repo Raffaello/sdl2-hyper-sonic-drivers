@@ -23,7 +23,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         //virtual void noteOff(uint8_t note) = 0;
         //virtual void noteOn(uint8_t note, uint8_t velocity) = 0;
         //virtual void programChange(uint8_t program) = 0;
-        virtual void pitchBend(int16_t bend) = 0; // -0x2000 to +0x1FFF
+        //virtual void pitchBend(int16_t bend) = 0; // -0x2000 to +0x1FFF
 
         // Control Change messages
         virtual void controlChange(uint8_t control, uint8_t value) = 0;

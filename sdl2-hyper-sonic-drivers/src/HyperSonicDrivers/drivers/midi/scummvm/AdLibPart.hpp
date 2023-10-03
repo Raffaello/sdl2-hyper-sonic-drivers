@@ -48,7 +48,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         //void noteOff(uint8_t note) override;
         //void noteOn(uint8_t note, uint8_t velocity) override;
         //void programChange(uint8_t program) override;
-        void pitchBend(int16_t bend) override;
+        //void pitchBend(int16_t bend) override;
 
         // Control Change messages
         void controlChange(uint8_t control, uint8_t value) override;
