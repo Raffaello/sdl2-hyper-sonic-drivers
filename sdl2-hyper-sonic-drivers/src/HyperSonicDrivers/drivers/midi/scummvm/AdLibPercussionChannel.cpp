@@ -11,7 +11,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
     using utils::logW;
 
     AdLibPercussionChannel::AdLibPercussionChannel() :
-        AdLibPart(audio::midi::MIDI_PERCUSSION_CHANNEL)
+        AdLibChannel(audio::midi::MIDI_PERCUSSION_CHANNEL)
     {
         priEff = 0;
         volume = 127;

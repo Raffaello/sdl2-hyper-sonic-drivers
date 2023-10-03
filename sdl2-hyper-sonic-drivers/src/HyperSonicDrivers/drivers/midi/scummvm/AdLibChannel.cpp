@@ -1,6 +1,6 @@
 #include <cstring>
 #include <format>
-#include <HyperSonicDrivers/drivers/midi/scummvm/AdLibPart.hpp>
+#include <HyperSonicDrivers/drivers/midi/scummvm/AdLibChannel.hpp>
 #include <HyperSonicDrivers/drivers/midi/scummvm/MidiDriver_ADLIB.hpp>
 #include <HyperSonicDrivers/utils/ILogger.hpp>
 
@@ -8,14 +8,14 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 {
     using utils::logW;
 
-    AdLibPart::AdLibPart(const uint8_t channel) :
+    AdLibChannel::AdLibChannel(const uint8_t channel) :
         IMidiChannel(channel)
     {
         memset(&_partInstr, 0, sizeof(_partInstr));
         memset(&_partInstrSecondary, 0, sizeof(_partInstrSecondary));
     }
 
-    void AdLibPart::setInstr(const bool isOpl3) noexcept
+    void AdLibChannel::setInstr(const bool isOpl3) noexcept
     {
         if (isOpl3)
         {
@@ -28,7 +28,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         }
     }
 
-    void AdLibPart::setCustomInstr(const uint8_t* instr) noexcept
+    void AdLibChannel::setCustomInstr(const uint8_t* instr) noexcept
     {
         memcpy(&_partInstr, instr, sizeof(AdLibInstrument));
     }

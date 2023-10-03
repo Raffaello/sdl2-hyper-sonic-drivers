@@ -9,10 +9,10 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 {
     struct AdLibVoice;
 
-    class AdLibPart : public IMidiChannel
+    class AdLibChannel : public IMidiChannel
     {
     public:
-        explicit AdLibPart(const uint8_t channel);
+        explicit AdLibChannel(const uint8_t channel);
 
         inline const AdLibInstrument* getInstr() const noexcept { return &_partInstr; };
         inline const AdLibInstrument* getInstrSecondary() const noexcept { return &_partInstrSecondary; };

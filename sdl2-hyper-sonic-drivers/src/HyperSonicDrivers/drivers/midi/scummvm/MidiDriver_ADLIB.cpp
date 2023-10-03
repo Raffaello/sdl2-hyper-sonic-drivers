@@ -3,7 +3,7 @@
 #include <cassert>
 #include <HyperSonicDrivers/audio/midi/types.hpp>
 #include <HyperSonicDrivers/drivers/midi/scummvm/MidiDriver_ADLIB.hpp>
-#include <HyperSonicDrivers/drivers/midi/scummvm/AdLibPart.hpp>
+#include <HyperSonicDrivers/drivers/midi/scummvm/AdLibChannel.hpp>
 #include <HyperSonicDrivers/utils/algorithms.hpp>
 #include <HyperSonicDrivers/utils/ILogger.hpp>
 
@@ -90,12 +90,12 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         242, 243, 245, 247, 249, 251, 252, 254
     };
 
-    constexpr AdLibPart* toAdlibPart(IMidiChannel* mc)
+    constexpr AdLibChannel* toAdlibPart(IMidiChannel* mc)
     {
-        return dynamic_cast<AdLibPart*>(mc);
+        return dynamic_cast<AdLibChannel*>(mc);
     }
 
-    static AdLibPart* toAdlibPart(const std::unique_ptr<IMidiChannel>& ap)
+    static AdLibChannel* toAdlibPart(const std::unique_ptr<IMidiChannel>& ap)
     {
         return toAdlibPart(ap.get());
     }
@@ -114,11 +114,11 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
         std::ranges::fill(_curNotTable, 0);
         for (int i = 0; i < MIDI_PERCUSSION_CHANNEL; ++i)
-            m_channels[i] = std::make_unique<AdLibPart>(static_cast<uint8_t>(i));
+            m_channels[i] = std::make_unique<AdLibChannel>(static_cast<uint8_t>(i));
 
         m_channels[MIDI_PERCUSSION_CHANNEL] = std::make_unique<AdLibPercussionChannel>();
         for (int i = MIDI_PERCUSSION_CHANNEL + 1; i < MIDI_MAX_CHANNELS; i++)
-            m_channels[i] = std::make_unique<AdLibPart>(static_cast<uint8_t>(i));
+            m_channels[i] = std::make_unique<AdLibChannel>(static_cast<uint8_t>(i));
 
         std::ranges::fill(_channelTable2, 0);
         m_percussion = dynamic_cast<AdLibPercussionChannel*>(m_channels[MIDI_PERCUSSION_CHANNEL].get());
@@ -221,7 +221,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         if (m_opl3Mode)
             return;
 
-        AdLibPart* part = toAdlibPart(m_channels[channel]);
+        AdLibChannel* part = toAdlibPart(m_channels[channel]);
         part->pitchBendFactor = range;
         for (AdLibVoice* voice = part->voice; voice; voice = voice->next)
         {
@@ -624,7 +624,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
     void MidiDriver_ADLIB::mcIncStuff(AdLibVoice* voice, Struct10* s10, Struct11* s11)
     {
-        const AdLibPart* part = toAdlibPart(voice->getChannel());
+        const AdLibChannel* part = toAdlibPart(voice->getChannel());
         const uint8_t code = struct10OnTimer(s10, s11);
 
         if (code & 1) {
@@ -882,7 +882,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         return _randSeed * a >> 8;
     }
 
-    void MidiDriver_ADLIB::partKeyOff(AdLibPart* part, uint8_t note)
+    void MidiDriver_ADLIB::partKeyOff(AdLibChannel* part, uint8_t note)
     {
         for (AdLibVoice* voice = part->voice; voice; voice = voice->next)
         {
@@ -896,12 +896,12 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         }
     }
 
-    AdLibPart* MidiDriver_ADLIB::getChannel(const uint8_t channel) const noexcept
+    AdLibChannel* MidiDriver_ADLIB::getChannel(const uint8_t channel) const noexcept
     {
         return toAdlibPart(m_channels[channel]);
     }
 
-    void MidiDriver_ADLIB::partKeyOn(AdLibPart* part, const AdLibInstrument* instr, uint8_t note, uint8_t velocity, const AdLibInstrument* second, uint8_t pan) {
+    void MidiDriver_ADLIB::partKeyOn(AdLibChannel* part, const AdLibInstrument* instr, uint8_t note, uint8_t velocity, const AdLibInstrument* second, uint8_t pan) {
         AdLibVoice* voice;
 
         voice = allocateVoice(part->priEff);
@@ -946,7 +946,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         return best;
     }
 
-    void MidiDriver_ADLIB::linkMc(AdLibPart* part, AdLibVoice* voice)
+    void MidiDriver_ADLIB::linkMc(AdLibChannel* part, AdLibVoice* voice)
     {
         voice->setFree(false);
         voice->setChannel(part);
@@ -960,7 +960,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
     void MidiDriver_ADLIB::mcKeyOn(AdLibVoice* voice, const AdLibInstrument* instr, uint8_t note, uint8_t velocity, const AdLibInstrument* second, uint8_t pan)
     {
-        const AdLibPart* part = toAdlibPart(voice->getChannel());
+        const AdLibChannel* part = toAdlibPart(voice->getChannel());
         uint8_t vol1, vol2;
         uint8_t secVol1 = 0, secVol2 = 0;
 
@@ -1127,7 +1127,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
     void MidiDriver_ADLIB::mcInitStuff(AdLibVoice* voice, Struct10* s10,
         Struct11* s11, uint8_t flags, const InstrumentExtra* ie)
     {
-        const AdLibPart* part = toAdlibPart(voice->getChannel());
+        const AdLibChannel* part = toAdlibPart(voice->getChannel());
         s11->modifyVal = 0;
         s11->flag0x40 = flags & 0x40;
         s10->loop = flags & 0x20;

@@ -2,7 +2,7 @@
 
 #include <cstdint>
 #include <cstring>
-#include <HyperSonicDrivers/drivers/midi/scummvm/AdLibPart.hpp>
+#include <HyperSonicDrivers/drivers/midi/scummvm/AdLibChannel.hpp>
 #include <HyperSonicDrivers/drivers/midi/IMidiChannelVoice.hpp>
 
 namespace HyperSonicDrivers::drivers::midi::scummvm
@@ -62,7 +62,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         AdLibVoice() = default;
         inline void setNote(const uint8_t note) { m_note = note; }
         inline void setFree(const bool free) { m_free = free; };
-        inline void setChannel(AdLibPart* chan) { m_channel = chan; };
+        inline void setChannel(AdLibChannel* chan) { m_channel = chan; };
         inline void setWaitForPedal(const bool waitForPedal) { m_sustain = waitForPedal; };
     };
 }   

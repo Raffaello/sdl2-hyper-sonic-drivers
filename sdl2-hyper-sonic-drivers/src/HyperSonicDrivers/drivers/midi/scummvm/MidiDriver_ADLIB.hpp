@@ -7,7 +7,7 @@
 #include <HyperSonicDrivers/drivers/midi/scummvm/MidiDriver.hpp>
 #include <HyperSonicDrivers/drivers/midi/scummvm/AdLibInstrument.h>
 #include <HyperSonicDrivers/drivers/midi/scummvm/AdlibVoice.h>
-#include <HyperSonicDrivers/drivers/midi/scummvm/AdLibPart.hpp>
+#include <HyperSonicDrivers/drivers/midi/scummvm/AdLibChannel.hpp>
 #include <HyperSonicDrivers/drivers/midi/scummvm/AdLibPercussionChannel.hpp>
 
 
@@ -88,10 +88,10 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         int _timerIncrease = 0xD69;
         int _timerThreshold = 0x411B;
 
-        AdLibPart* getChannel(const uint8_t channel) const noexcept;
+        AdLibChannel* getChannel(const uint8_t channel) const noexcept;
 
-        void partKeyOn(AdLibPart* part, const AdLibInstrument* instr, uint8_t note, uint8_t velocity, const AdLibInstrument* second, uint8_t pan);
-        void partKeyOff(AdLibPart* part, uint8_t note);
+        void partKeyOn(AdLibChannel* part, const AdLibInstrument* instr, uint8_t note, uint8_t velocity, const AdLibInstrument* second, uint8_t pan);
+        void partKeyOff(AdLibChannel* part, uint8_t note);
 
         void adlibKeyOff(int chan);
         void adlibNoteOn(int chan, uint8_t note, int mod);
@@ -111,7 +111,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
         void mcOff(AdLibVoice* voice);
 
-        static void linkMc(AdLibPart* part, AdLibVoice* voice);
+        static void linkMc(AdLibChannel* part, AdLibVoice* voice);
         void mcIncStuff(AdLibVoice* voice, Struct10* s10, Struct11* s11);
         void mcInitStuff(AdLibVoice* voice, Struct10* s10, Struct11* s11, uint8_t flags,
             const InstrumentExtra* ie);

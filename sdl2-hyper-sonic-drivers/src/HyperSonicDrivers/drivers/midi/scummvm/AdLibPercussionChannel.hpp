@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <array>
 #include <memory>
-#include <HyperSonicDrivers/drivers/midi/scummvm/AdLibPart.hpp>
+#include <HyperSonicDrivers/drivers/midi/scummvm/AdLibChannel.hpp>
 #include <HyperSonicDrivers/drivers/midi/scummvm/AdLibInstrument.h>
 
 
@@ -14,7 +14,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
     // will be done through the MidiChannel base class as opposed to the
     // AdLibPart base class. If this were NOT the case, all the functions
     // listed below would need to be virtual in AdLibPart as well as MidiChannel.
-    class AdLibPercussionChannel : public AdLibPart
+    class AdLibPercussionChannel : public AdLibChannel
     {
     public:
         AdLibPercussionChannel();
