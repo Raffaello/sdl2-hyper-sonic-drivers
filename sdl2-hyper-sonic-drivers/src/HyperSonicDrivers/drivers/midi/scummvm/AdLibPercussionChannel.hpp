@@ -23,7 +23,6 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         uint8_t getNote(const uint8_t note) const noexcept;
         AdLibInstrument* getInstrument(const uint8_t note) const noexcept;
 
-        void setNote(const uint8_t note, const uint8_t value) noexcept;
         void setCustomInstr(const uint8_t* instr) noexcept;
 
     private:

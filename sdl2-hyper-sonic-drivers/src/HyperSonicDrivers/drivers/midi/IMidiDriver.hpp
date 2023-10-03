@@ -32,7 +32,6 @@ namespace HyperSonicDrivers::drivers::midi
         virtual void send(const int8_t channel, const uint32_t msg) noexcept;
         virtual void send(const uint32_t msg) noexcept;
         virtual void send(const audio::midi::MIDI_EVENT_TYPES_HIGH type, const uint8_t channel, const uint8_t data1, const uint8_t data2);
-        //virtual void send_ctrl(const uint8_t channel, const audio::midi::MIDI_EVENT_CONTROLLER_TYPES ctrl_type, const uint8_t data);
         virtual void pause() const noexcept = 0;
         virtual void resume() const noexcept = 0;
 
@@ -45,7 +44,6 @@ namespace HyperSonicDrivers::drivers::midi
         virtual void noteOff(const uint8_t chan, const uint8_t note) noexcept = 0;
         virtual void noteOn(const uint8_t chan, const uint8_t note, const uint8_t vol) noexcept = 0;
         virtual void controller(const uint8_t chan, const audio::midi::MIDI_EVENT_CONTROLLER_TYPES ctrl_type, uint8_t value) noexcept;
-        //void controller(const uint8_t chan, const uint8_t ctrl, uint8_t value) noexcept;
         virtual void programChange(const uint8_t chan, const uint8_t program) noexcept;
         virtual void pitchBend(const uint8_t chan, const uint16_t bend) noexcept = 0;
         /**
@@ -74,8 +72,5 @@ namespace HyperSonicDrivers::drivers::midi
         //virtual void transpose(int8_t value) noexcept = 0;
         //virtual void detune(uint8_t value) noexcept = 0; //{ controlChange(17, value); }
         //virtual void priority(uint8_t value) noexcept = 0; //{ }
-        //virtual void effectLevel(uint8_t value) noexcept = 0; //{ controlChange(MidiDriver::MIDI_CONTROLLER_REVERB, value); }
-        //virtual void chorusLevel(uint8_t value) noexcept = 0; //{ controlChange(MidiDriver::MIDI_CONTROLLER_CHORUS, value); }
-        //virtual void allNotesOff() noexcept = 0;
     };
 }
