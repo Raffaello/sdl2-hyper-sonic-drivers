@@ -20,6 +20,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
     struct AdLibInstrument
     {
+        // TODO: divide this struct in OPLInstrument and the extra used in the driver
         // NOTE: the level_1 and level_2 are computed instead of stored in the instrument.
         uint8_t modCharacteristic;      // trem_vibr_1
         uint8_t modScalingOutputLevel;  // scale_1
