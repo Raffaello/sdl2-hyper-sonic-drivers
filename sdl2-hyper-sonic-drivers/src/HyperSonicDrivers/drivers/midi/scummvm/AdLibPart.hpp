@@ -17,7 +17,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         inline const AdLibInstrument* getInstr() const noexcept { return &_partInstr; };
         inline const AdLibInstrument* getInstrSecondary() const noexcept { return &_partInstrSecondary; };
         void setInstr(const bool isOpl3) noexcept;
-        void setCustomInstr(const AdLibInstrument* instr) noexcept;
+        virtual void setCustomInstr(const uint8_t* instr) noexcept;
 
         AdLibVoice* voice = nullptr;
         uint8_t pitchBendFactor = 2;

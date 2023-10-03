@@ -248,7 +248,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         else
         {
             if (type == static_cast<uint32_t>('ADL ')) {
-                part->setCustomInstr(reinterpret_cast<const AdLibInstrument*>(instr));
+                part->setCustomInstr(instr);
             }
         }
     }
@@ -326,7 +326,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
     void MidiDriver_ADLIB::noteOn(const uint8_t chan, const uint8_t note, const uint8_t vol) noexcept
     {
         auto part = getChannel(chan);
-        uint8_t note_ = note;
+
         if (part->isPercussion)
         {
             const AdLibInstrument* inst = nullptr;
@@ -343,7 +343,8 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
             {
                 // Use the default GM to FM mapping as a fallback
                 uint8_t key = g_gmPercussionInstrumentMap[note];
-                if (key != 0xFF) {
+                if (key != 0xFF)
+                {
                     if (!m_opl3Mode)
                     {
                         inst = &g_gmPercussionInstruments[key];
@@ -376,8 +377,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
     void MidiDriver_ADLIB::controller(const uint8_t chan, const audio::midi::MIDI_EVENT_CONTROLLER_TYPES ctrl_type, uint8_t value) noexcept
     {
-        auto part = getChannel(chan);
-
+        // TODO: mostly duplicate code, it should bring into the parent class i guess...
         switch (ctrl_type)
         {
             using enum audio::midi::MIDI_EVENT_CONTROLLER_TYPES;
@@ -456,6 +456,10 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
                 adlibNoteOn(voice->slot, voice->getNote(), part->pitch >> 1);
             }
         }
+    }
+
+    void MidiDriver_ADLIB::sysEx(const uint8_t* msg, uint16_t length) noexcept
+    {
     }
 
     void MidiDriver_ADLIB::ctrl_modulationWheel(const uint8_t chan, const uint8_t value) noexcept
@@ -620,10 +624,8 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
     void MidiDriver_ADLIB::mcIncStuff(AdLibVoice* voice, Struct10* s10, Struct11* s11)
     {
-        uint8_t code;
-        AdLibPart* part = toAdlibPart(voice->getChannel());
-
-        code = struct10OnTimer(s10, s11);
+        const AdLibPart* part = toAdlibPart(voice->getChannel());
+        const uint8_t code = struct10OnTimer(s10, s11);
 
         if (code & 1) {
             switch (s11->param) {
@@ -958,7 +960,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
     void MidiDriver_ADLIB::mcKeyOn(AdLibVoice* voice, const AdLibInstrument* instr, uint8_t note, uint8_t velocity, const AdLibInstrument* second, uint8_t pan)
     {
-        AdLibPart* part = toAdlibPart(voice->getChannel());
+        const AdLibPart* part = toAdlibPart(voice->getChannel());
         uint8_t vol1, vol2;
         uint8_t secVol1 = 0, secVol2 = 0;
 
@@ -1125,7 +1127,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
     void MidiDriver_ADLIB::mcInitStuff(AdLibVoice* voice, Struct10* s10,
         Struct11* s11, uint8_t flags, const InstrumentExtra* ie)
     {
-        AdLibPart* part = toAdlibPart(voice->getChannel());
+        const AdLibPart* part = toAdlibPart(voice->getChannel());
         s11->modifyVal = 0;
         s11->flag0x40 = flags & 0x40;
         s10->loop = flags & 0x20;

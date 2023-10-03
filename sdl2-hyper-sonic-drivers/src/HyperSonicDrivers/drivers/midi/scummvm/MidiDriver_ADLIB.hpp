@@ -51,6 +51,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         void controller(const uint8_t chan, const audio::midi::MIDI_EVENT_CONTROLLER_TYPES ctrl_type, uint8_t value) noexcept override;
         void programChange(const uint8_t chan, const uint8_t program) noexcept override;
         void pitchBend(const uint8_t chan, const uint16_t bend) noexcept override;
+        void sysEx(const uint8_t* msg, uint16_t length) noexcept override;
 
         // MIDI Controller Events
         void ctrl_modulationWheel(const uint8_t chan, const uint8_t value) noexcept override;

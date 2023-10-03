@@ -88,8 +88,6 @@ namespace HyperSonicDrivers::drivers
         }
 
         m_midiDriver.reset();
-
-        //auto opl = std::dynamic_pointer_cast<devices::Opl>(m_device)->getOpl();
         auto opl_drv = std::make_unique<drivers::midi::opl::OplDriver>(std::dynamic_pointer_cast<devices::Opl>(m_device));
         opl_drv->setOP2Bank(op2Bank);
         m_midiDriver = std::move(opl_drv);

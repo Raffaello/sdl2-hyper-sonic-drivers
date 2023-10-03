@@ -19,7 +19,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
     {
     public:
         explicit OplVoice(const uint8_t slot, const drivers::opl::OplWriter* oplWriter);
-        ~OplVoice() = default;
+        ~OplVoice() override = default;
 
         /// <summary>
         /// It might release the note depending on sustains value

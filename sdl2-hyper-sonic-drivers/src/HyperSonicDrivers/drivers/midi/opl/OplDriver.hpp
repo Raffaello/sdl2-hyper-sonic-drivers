@@ -49,6 +49,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
         void noteOff(const uint8_t chan, const uint8_t note) noexcept override;
         void noteOn(const uint8_t chan, const uint8_t note, const uint8_t vol) noexcept override;
         void pitchBend(const uint8_t chan, const uint16_t bend) noexcept override;
+        void sysEx(const uint8_t* msg, uint16_t length) noexcept override;
 
         // MIDI Controller Events
         void ctrl_modulationWheel(const uint8_t chan, const uint8_t value) noexcept override;

@@ -14,9 +14,9 @@ namespace HyperSonicDrivers::drivers::midi::mt32
             const uint8_t pan) override { return true; };
         void close() override { /*TODO*/ };
 
-        void send(const audio::midi::MIDIEvent& e) noexcept override { /*TODO*/ };
-        void send(const uint32_t msg) noexcept override { /*TODO*/ };
-        void send(const int8_t channel, const uint32_t msg) noexcept override { /*TODO*/ };
+        //void send(const audio::midi::MIDIEvent& e) noexcept override { /*TODO*/ };
+        //void send(const uint32_t msg) noexcept override { /*TODO*/ };
+        //void send(const int8_t channel, const uint32_t msg) noexcept override { /*TODO*/ };
 
         void pause() const noexcept override { /*TODO*/ };
         void resume() const noexcept override { /*TODO*/ };
@@ -30,7 +30,7 @@ namespace HyperSonicDrivers::drivers::midi::mt32
         void controller(const uint8_t chan, const audio::midi::MIDI_EVENT_CONTROLLER_TYPES ctrl_type, uint8_t value) noexcept override {/*TODO*/};
         void programChange(const uint8_t chan, const uint8_t program) noexcept override {/*TODO*/};
         void pitchBend(const uint8_t chan, const uint16_t bend) noexcept override {/*TODO*/ };
-
+        void sysEx(const uint8_t* msg, uint16_t length) noexcept override {/*TODO*/ };
         // MIDI Controller Events
         void ctrl_modulationWheel(const uint8_t chan, const uint8_t value) noexcept override {/*TODO*/};
         void ctrl_volume(const uint8_t chan, const uint8_t value) noexcept override {/*TODO*/};

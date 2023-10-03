@@ -59,7 +59,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         uint8_t secVol1 = 0;
         uint8_t secVol2 = 0;
 
-        AdLibVoice() {}
+        AdLibVoice() = default;
         inline void setNote(const uint8_t note) { m_note = note; }
         inline void setFree(const bool free) { m_free = free; };
         inline void setChannel(AdLibPart* chan) { m_channel = chan; };

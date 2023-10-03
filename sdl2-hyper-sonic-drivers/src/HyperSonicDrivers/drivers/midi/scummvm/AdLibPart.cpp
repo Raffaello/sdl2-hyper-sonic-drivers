@@ -28,7 +28,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         }
     }
 
-    void AdLibPart::setCustomInstr(const AdLibInstrument* instr) noexcept
+    void AdLibPart::setCustomInstr(const uint8_t* instr) noexcept
     {
         memcpy(&_partInstr, instr, sizeof(AdLibInstrument));
     }

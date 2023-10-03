@@ -13,7 +13,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
     constexpr int8_t HIGHEST_NOTE = 127;
 
     OplVoice::OplVoice(const uint8_t slot, const drivers::opl::OplWriter* oplWriter) :
-        m_slot(slot), m_oplWriter(oplWriter)
+        m_oplWriter(oplWriter), m_slot(slot)
     {
     }
 
@@ -136,7 +136,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
         else
             m_finetune = 0;
 
-        m_pitch_factor = m_finetune + m_channel->pitch;
+        m_pitch_factor = static_cast<uint16_t>(m_finetune + m_channel->pitch);
 
         setInstrument(&instrument->voices[secondary ? 1 : 0]);
 

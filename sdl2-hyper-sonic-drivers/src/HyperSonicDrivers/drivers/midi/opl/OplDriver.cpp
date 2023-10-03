@@ -167,6 +167,11 @@ namespace HyperSonicDrivers::drivers::midi::opl
         }
     }
 
+    void OplDriver::sysEx(const uint8_t* msg, uint16_t length) noexcept
+    {
+        // TODO ...
+    }
+
     void OplDriver::ctrl_modulationWheel(const uint8_t chan, const uint8_t value) noexcept
     {
         m_channels[chan]->modulation = value;

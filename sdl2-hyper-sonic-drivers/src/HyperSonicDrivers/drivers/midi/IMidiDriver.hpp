@@ -57,7 +57,7 @@ namespace HyperSonicDrivers::drivers::midi
          * undefined behavior (most likely, a crash).
          * TODO: review this method
          */
-         virtual void sysEx(const uint8_t* msg, uint16_t length) { }
+        virtual void sysEx(const uint8_t* msg, uint16_t length) noexcept = 0;
 
         // MIDI Controller Events
         virtual void ctrl_modulationWheel(const uint8_t chan, const uint8_t value) noexcept = 0;
