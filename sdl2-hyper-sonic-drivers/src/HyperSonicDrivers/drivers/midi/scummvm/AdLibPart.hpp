@@ -12,7 +12,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
     class AdLibPart : public IMidiChannel
     {
     public:
-        AdLibPart(const uint8_t channel);
+        explicit AdLibPart(const uint8_t channel);
 
         inline const AdLibInstrument* getInstr() const noexcept { return &_partInstr; };
         inline const AdLibInstrument* getInstrSecondary() const noexcept { return &_partInstrSecondary; };

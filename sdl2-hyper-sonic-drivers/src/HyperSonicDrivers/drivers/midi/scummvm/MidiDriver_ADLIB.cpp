@@ -107,7 +107,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
             return opl->getOpl();
         }()),
-        m_opl3Mode(m_opl->type == OplType::OPL3)
+        m_opl3Mode(m_opl->type != OplType::OPL2)
     {
         using audio::midi::MIDI_PERCUSSION_CHANNEL;
         using audio::midi::MIDI_MAX_CHANNELS;
@@ -337,7 +337,6 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
             if (!m_opl3Mode)
             {
                 inst = m_percussion->getInstrument(note);
-                note_ = m_percussion->getNote(note_);
             }
 
             if (!inst)
@@ -432,11 +431,10 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
     void MidiDriver_ADLIB::programChange(const uint8_t chan, const uint8_t program) noexcept
     {
-        auto part = getChannel(chan);
-
         if (program > 127)
             return;
 
+        auto part = getChannel(chan);
         part->program = program;
         part->setInstr(m_opl3Mode);
     }

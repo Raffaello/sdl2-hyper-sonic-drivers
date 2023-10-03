@@ -34,7 +34,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
         }
 
         for (uint8_t i = 0; i < audio::midi::MIDI_MAX_CHANNELS; ++i) {
-            m_channels[i] = std::make_unique<OplChannel>(i/*, m_voices*/);
+            m_channels[i] = std::make_unique<OplChannel>(i);
         }
     }
 
@@ -116,7 +116,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
 
         for (auto it = m_voicesInUseIndex.begin(); it != m_voicesInUseIndex.end();)
         {
-            if (m_voices[*it]->getChannelNum() == chan && m_voices[*it]->noteOff(/*chan,*/ note, sustain))
+            if (m_voices[*it]->getChannelNum() == chan && m_voices[*it]->noteOff(note, sustain))
             {
                 m_voicesFreeIndex.push_back(*it);
                 it = m_voicesInUseIndex.erase(it);

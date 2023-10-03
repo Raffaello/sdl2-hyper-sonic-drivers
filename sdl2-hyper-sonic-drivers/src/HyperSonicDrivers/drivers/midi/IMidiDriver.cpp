@@ -9,9 +9,8 @@ namespace HyperSonicDrivers::drivers::midi
 
     void IMidiDriver::send(const audio::midi::MIDIEvent& e) noexcept
     {
-        // TODO review, this might be the master send.
-        //      so it can address also SysEx commands
-        // TODO: change that sysEx is a normal send event
+        // TODO: sysEx must be reviewed if ok, probably shoudl check
+        //       also if last byte is meta sysEx end ...
         using audio::midi::TO_HIGH;
         using audio::midi::MIDI_EVENT_TYPES_HIGH;
 
@@ -117,14 +116,10 @@ namespace HyperSonicDrivers::drivers::midi
             ctrl_sustain(chan, value);
             break;
         case REVERB:
-            // Effects level. Not supported.
-            //effectLevel(value);
-            logW(std::format("effect level value {}", value));
+            ctrl_reverb(chan, value);
             break;
         case CHORUS:
-            // Chorus level. Not supported.
-            //chorusLevel(value);
-            logW(std::format("chorus level value {}", value));
+            ctrl_chorus(chan, value);
             break;
         case RESET_ALL_CONTROLLERS:
             // reset all controllers

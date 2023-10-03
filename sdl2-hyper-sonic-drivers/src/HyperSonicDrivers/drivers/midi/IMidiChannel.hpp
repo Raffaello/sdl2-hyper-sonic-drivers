@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cstdint>
-//#include <list>
 #include <HyperSonicDrivers/drivers/midi/IMidiChannelVoice.hpp>
 
 namespace HyperSonicDrivers::drivers::midi
