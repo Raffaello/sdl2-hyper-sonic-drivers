@@ -90,9 +90,14 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         242, 243, 245, 247, 249, 251, 252, 254
     };
 
+    constexpr AdLibPart* toAdlibPart(IMidiChannel* mc)
+    {
+        return dynamic_cast<AdLibPart*>(mc);
+    }
+
     static AdLibPart* toAdlibPart(const std::unique_ptr<IMidiChannel>& ap)
     {
-        return dynamic_cast<AdLibPart*>(ap.get());
+        return toAdlibPart(ap.get());
     }
 
     MidiDriver_ADLIB::MidiDriver_ADLIB(const std::shared_ptr<devices::Opl>& opl) :
@@ -138,7 +143,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         for (size_t i = 0; i != m_voices.size(); i++)
         {
             AdLibVoice* voice = &m_voices[i];
-            voice->_channel = static_cast<uint8_t>(i);
+            voice->slot = static_cast<uint8_t>(i);
             voice->_s11a.s10 = &voice->_s10b;
             voice->_s11b.s10 = &voice->_s10a;
         }
@@ -176,7 +181,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
         for (auto& v : m_voices)
         {
-            if (v._part != nullptr)
+            if (!v.isFree())
                 mcOff(&v);
         }
 
@@ -278,9 +283,9 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
         AdLibPart* part = toAdlibPart(m_channels[channel]);
         part->pitchBendFactor = range;
-        for (AdLibVoice* voice = part->voice; voice; voice = voice->_next)
+        for (AdLibVoice* voice = part->voice; voice; voice = voice->next)
         {
-            adlibNoteOn(voice->_channel, voice->getNote()/* + part->_transposeEff*/,
+            adlibNoteOn(voice->slot, voice->getNote()/* + part->_transposeEff*/,
                 (part->pitch * part->pitchBendFactor >> 6) + part->detuneEff);
         }
     }
@@ -344,10 +349,10 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
             for(auto& voice : m_voices)
             {
-                if (voice._part == nullptr)
+                if (voice.isFree())
                     continue;
 
-                if (voice._duration && (voice._duration -= 0x11) <= 0)
+                if (voice.duration && (voice.duration -= 0x11) <= 0)
                 {
                     mcOff(&voice);
                     return;
@@ -501,16 +506,16 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         auto part = getChannel(chan);
 
         part->pitch = bend;
-        for (AdLibVoice* voice = part->voice; voice; voice = voice->_next)
+        for (AdLibVoice* voice = part->voice; voice; voice = voice->next)
         {
             if (!m_opl3Mode)
             {
-                adlibNoteOn(voice->_channel, voice->getNote()/* + _transposeEff*/,
+                adlibNoteOn(voice->slot, voice->getNote()/* + _transposeEff*/,
                     (part->pitch * part->pitchBendFactor >> 6) + part->detuneEff);
             }
             else
             {
-                adlibNoteOn(voice->_channel, voice->getNote(), part->pitch >> 1);
+                adlibNoteOn(voice->slot, voice->getNote(), part->pitch >> 1);
             }
         }
     }
@@ -523,7 +528,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
             return;
 
         part->modulation = value;
-        for (AdLibVoice* voice = part->voice; voice; voice = voice->_next)
+        for (AdLibVoice* voice = part->voice; voice; voice = voice->next)
         {
             if (voice->_s10a.active && voice->_s11a.flag0x40)
                 voice->_s10a.modWheel = part->modulation >> 2;
@@ -537,24 +542,24 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         auto part = getChannel(chan);
 
         part->volume = value;
-        for (AdLibVoice* voice = part->voice; voice; voice = voice->_next)
+        for (AdLibVoice* voice = part->voice; voice; voice = voice->next)
         {
             if (!m_opl3Mode)
             {
-                adlibSetParam(voice->_channel, 0, g_volumeTable[g_volumeLookupTable[voice->_vol2][part->volume >> 2]]);
-                if (voice->_twoChan) {
-                    adlibSetParam(voice->_channel, 13, g_volumeTable[g_volumeLookupTable[voice->_vol1][part->volume >> 2]]);
+                adlibSetParam(voice->slot, 0, g_volumeTable[g_volumeLookupTable[voice->vol2][part->volume >> 2]]);
+                if (voice->twoChan) {
+                    adlibSetParam(voice->slot, 13, g_volumeTable[g_volumeLookupTable[voice->vol1][part->volume >> 2]]);
                 }
             }
             else
             {
-                adlibSetParam(voice->_channel, 0, g_volumeTable[((voice->_vol2 + 1) * part->volume) >> 7], true);
-                adlibSetParam(voice->_channel, 0, g_volumeTable[((voice->_secVol2 + 1) * part->volume) >> 7], false);
-                if (voice->_twoChan) {
-                    adlibSetParam(voice->_channel, 13, g_volumeTable[((voice->_vol1 + 1) * part->volume) >> 7], true);
+                adlibSetParam(voice->slot, 0, g_volumeTable[((voice->vol2 + 1) * part->volume) >> 7], true);
+                adlibSetParam(voice->slot, 0, g_volumeTable[((voice->secVol2 + 1) * part->volume) >> 7], false);
+                if (voice->twoChan) {
+                    adlibSetParam(voice->slot, 13, g_volumeTable[((voice->vol1 + 1) * part->volume) >> 7], true);
                 }
-                if (voice->_secTwoChan) {
-                    adlibSetParam(voice->_channel, 13, g_volumeTable[((voice->_secVol1 + 1) * part->volume) >> 7], false);
+                if (voice->secTwoChan) {
+                    adlibSetParam(voice->slot, 13, g_volumeTable[((voice->secVol1 + 1) * part->volume) >> 7], false);
                 }
             }
         }
@@ -577,9 +582,9 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
             return;
 
         part->pitchBendFactor = value;
-        for (AdLibVoice* voice = part->voice; voice; voice = voice->_next)
+        for (AdLibVoice* voice = part->voice; voice; voice = voice->next)
         {
-            adlibNoteOn(voice->_channel, voice->getNote()/* + _transposeEff*/,
+            adlibNoteOn(voice->slot, voice->getNote()/* + _transposeEff*/,
                 (part->pitch * part->pitchBendFactor >> 6) + part->detuneEff);
         }
     }
@@ -602,9 +607,9 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         }
 
         part->detuneEff = value;
-        for (AdLibVoice* voice = part->voice; voice; voice = voice->_next)
+        for (AdLibVoice* voice = part->voice; voice; voice = voice->next)
         {
-            adlibNoteOn(voice->_channel, voice->getNote()/* + _transposeEff*/,
+            adlibNoteOn(voice->slot, voice->getNote()/* + _transposeEff*/,
                 (part->pitch * part->pitchBendFactor >> 6) + part->detuneEff);
         }
     }
@@ -627,9 +632,9 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
         part->sustain = value;
         if (value != 0) {
-            for (AdLibVoice* voice = part->voice; voice; voice = voice->_next)
+            for (AdLibVoice* voice = part->voice; voice; voice = voice->next)
             {
-                if (voice->_waitForPedal)
+                if (voice->waitForPedal)
                     mcOff(voice);
             }
         }
@@ -661,49 +666,50 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         AdLibVoice* tmp;
 
         // TODO: channel is in AdLibPart...
-        adlibKeyOff(voice->_channel);
+        adlibKeyOff(voice->slot);
 
-        tmp = voice->_prev;
+        tmp = voice->prev;
 
-        if (voice->_next)
-            voice->_next->_prev = tmp;
+        if (voice->next)
+            voice->next->prev = tmp;
         if (tmp)
-            tmp->_next = voice->_next;
+            tmp->next = voice->next;
         else
-            voice->_part->voice = voice->_next;
+            toAdlibPart(voice->getChannel())->voice = voice->next;
 
-        voice->_part = nullptr;
+        voice->setChannel(nullptr);
+        voice->setFree(true);
     }
 
     void MidiDriver_ADLIB::mcIncStuff(AdLibVoice* voice, Struct10* s10, Struct11* s11)
     {
         uint8_t code;
-        AdLibPart* part = voice->_part;
+        AdLibPart* part = toAdlibPart(voice->getChannel());
 
         code = struct10OnTimer(s10, s11);
 
         if (code & 1) {
             switch (s11->param) {
             case 0:
-                voice->_vol2 = s10->startValue + s11->modifyVal;
+                voice->vol2 = s10->startValue + s11->modifyVal;
                 if (!_scummSmallHeader) {
-                    adlibSetParam(voice->_channel, 0,
-                        g_volumeTable[g_volumeLookupTable[voice->_vol2]
+                    adlibSetParam(voice->slot, 0,
+                        g_volumeTable[g_volumeLookupTable[voice->vol2]
                         [part->volume >> 2]]);
                 }
                 else {
-                    adlibSetParam(voice->_channel, 0, voice->_vol2);
+                    adlibSetParam(voice->slot, 0, voice->vol2);
                 }
                 break;
             case 13:
-                voice->_vol1 = s10->startValue + s11->modifyVal;
-                if (voice->_twoChan && !_scummSmallHeader) {
-                    adlibSetParam(voice->_channel, 13,
-                        g_volumeTable[g_volumeLookupTable[voice->_vol1]
+                voice->vol1 = s10->startValue + s11->modifyVal;
+                if (voice->twoChan && !_scummSmallHeader) {
+                    adlibSetParam(voice->slot, 13,
+                        g_volumeTable[g_volumeLookupTable[voice->vol1]
                         [part->volume >> 2]]);
                 }
                 else {
-                    adlibSetParam(voice->_channel, 13, voice->_vol1);
+                    adlibSetParam(voice->slot, 13, voice->vol1);
                 }
                 break;
             case 30:
@@ -713,14 +719,14 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
                 s11->s10->unk3 = (char)s11->modifyVal;
                 break;
             default:
-                adlibSetParam(voice->_channel, s11->param,
+                adlibSetParam(voice->slot, s11->param,
                     s10->startValue + s11->modifyVal);
                 break;
             }
         }
 
         if (code & 2 && s11->flag0x10)
-            adlibKeyOnOff(voice->_channel);
+            adlibKeyOnOff(voice->slot);
     }
 
     void MidiDriver_ADLIB::adlibKeyOff(int chan) {
@@ -937,12 +943,12 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
     void MidiDriver_ADLIB::partKeyOff(AdLibPart* part, uint8_t note)
     {
-        for (AdLibVoice* voice = part->voice; voice; voice = voice->_next)
+        for (AdLibVoice* voice = part->voice; voice; voice = voice->next)
         {
             if (voice->getNote() == note)
             {
                 if (part->sustain)
-                    voice->_waitForPedal = true;
+                    voice->waitForPedal = true;
                 else
                     mcOff(voice);
             }
@@ -977,12 +983,17 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         {
             if (++_voiceIndex >= 9)
                 _voiceIndex = 0;
+
             ac = &m_voices[_voiceIndex];
-            if (!ac->_part)
+            if (ac->getChannel() == nullptr)
                 return ac;
-            if (!ac->_next) {
-                if (ac->_part->priEff <= pri) {
-                    pri = ac->_part->priEff;
+
+            if (ac->next == nullptr)
+            {
+                const auto priEff_ = toAdlibPart(ac->getChannel())->priEff;
+                if (priEff_ <= pri)
+                {
+                    pri = priEff_;
                     best = ac;
                 }
             }
@@ -999,26 +1010,29 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
     void MidiDriver_ADLIB::linkMc(AdLibPart* part, AdLibVoice* voice)
     {
-        voice->_part = part;
-        voice->_next = part->voice;
+        voice->setFree(false);
+        voice->setChannel(part);
+        //voice->m_channel = part;
+        voice->next = part->voice;
         part->voice = voice;
-        voice->_prev = nullptr;
+        voice->prev = nullptr;
 
-        if (voice->_next)
-            voice->_next->_prev = voice;
+        if (voice->next)
+            voice->next->prev = voice;
     }
 
-    void MidiDriver_ADLIB::mcKeyOn(AdLibVoice* voice, const AdLibInstrument* instr, uint8_t note, uint8_t velocity, const AdLibInstrument* second, uint8_t pan) {
-        AdLibPart* part = voice->_part;
+    void MidiDriver_ADLIB::mcKeyOn(AdLibVoice* voice, const AdLibInstrument* instr, uint8_t note, uint8_t velocity, const AdLibInstrument* second, uint8_t pan)
+    {
+        AdLibPart* part = toAdlibPart(voice->getChannel());
         uint8_t vol1, vol2;
         uint8_t secVol1 = 0, secVol2 = 0;
 
-        voice->_twoChan = instr->feedback & 1;
+        voice->twoChan = instr->feedback & 1;
         voice->setNote(note);
-        voice->_waitForPedal = false;
-        voice->_duration = instr->duration;
-        if (voice->_duration != 0)
-            voice->_duration *= 63;
+        voice->waitForPedal = false;
+        voice->duration = instr->duration;
+        if (voice->duration != 0)
+            voice->duration *= 63;
 
         if (!_scummSmallHeader)
         {
@@ -1035,7 +1049,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         if (vol1 > 0x3F)
             vol1 = 0x3F;
 
-        voice->_vol1 = vol1;
+        voice->vol1 = vol1;
 
         if (!_scummSmallHeader)
         {
@@ -1050,21 +1064,21 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
         if (vol2 > 0x3F)
             vol2 = 0x3F;
-        voice->_vol2 = vol2;
+        voice->vol2 = vol2;
 
         if (m_opl3Mode)
         {
-            voice->_secTwoChan = second->feedback & 1;
+            voice->secTwoChan = second->feedback & 1;
             secVol1 = (second->modScalingOutputLevel & 0x3F) + (velocity * ((second->modWaveformSelect >> 3) + 1)) / 64;
             if (secVol1 > 0x3F) {
                 secVol1 = 0x3F;
             }
-            voice->_secVol1 = secVol1;
+            voice->secVol1 = secVol1;
             secVol2 = (second->carScalingOutputLevel & 0x3F) + (velocity * ((second->carWaveformSelect >> 3) + 1)) / 64;
             if (secVol2 > 0x3F) {
                 secVol2 = 0x3F;
             }
-            voice->_secVol2 = secVol2;
+            voice->secVol2 = secVol2;
         }
 
         if (!_scummSmallHeader)
@@ -1072,23 +1086,23 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
             if (!m_opl3Mode) {
                 int c = part->volume >> 2;
                 vol2 = g_volumeTable[g_volumeLookupTable[vol2][c]];
-                if (voice->_twoChan)
+                if (voice->twoChan)
                     vol1 = g_volumeTable[g_volumeLookupTable[vol1][c]];
             }
             else {
                 vol2 = g_volumeTable[((vol2 + 1) * part->volume) >> 7];
                 secVol2 = g_volumeTable[((secVol2 + 1) * part->volume) >> 7];
-                if (voice->_twoChan)
+                if (voice->twoChan)
                     vol1 = g_volumeTable[((vol1 + 1) * part->volume) >> 7];
-                if (voice->_secTwoChan)
+                if (voice->secTwoChan)
                     secVol1 = g_volumeTable[((secVol1 + 1) * part->volume) >> 7];
             }
         }
 
-        adlibSetupChannel(voice->_channel, instr, vol1, vol2);
+        adlibSetupChannel(voice->slot, instr, vol1, vol2);
         if (!m_opl3Mode)
         {
-            adlibNoteOnEx(voice->_channel, /*part->_transposeEff + */note, part->detuneEff + (part->pitch * part->pitchBendFactor >> 6));
+            adlibNoteOnEx(voice->slot, /*part->_transposeEff + */note, part->detuneEff + (part->pitch * part->pitchBendFactor >> 6));
 
             if (instr->flagsA & 0x80) {
                 mcInitStuff(voice, &voice->_s10a, &voice->_s11a, instr->flagsA, &instr->extraA);
@@ -1105,8 +1119,8 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
             }
         }
         else {
-            adlibSetupChannelSecondary(voice->_channel, second, secVol1, secVol2, pan);
-            adlibNoteOnEx(voice->_channel, note, part->pitch >> 1);
+            adlibSetupChannelSecondary(voice->slot, second, secVol1, secVol2, pan);
+            adlibNoteOnEx(voice->slot, note, part->pitch >> 1);
         }
     }
 
@@ -1174,8 +1188,9 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
     }
 
     void MidiDriver_ADLIB::mcInitStuff(AdLibVoice* voice, Struct10* s10,
-        Struct11* s11, uint8_t flags, const InstrumentExtra* ie) {
-        AdLibPart* part = voice->_part;
+        Struct11* s11, uint8_t flags, const InstrumentExtra* ie)
+    {
+        AdLibPart* part = toAdlibPart(voice->getChannel());
         s11->modifyVal = 0;
         s11->flag0x40 = flags & 0x40;
         s10->loop = flags & 0x20;
@@ -1192,10 +1207,10 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
         switch (s11->param) {
         case 0:
-            s10->startValue = voice->_vol2;
+            s10->startValue = voice->vol2;
             break;
         case 13:
-            s10->startValue = voice->_vol1;
+            s10->startValue = voice->vol1;
             break;
         case 30:
             s10->startValue = 31;
@@ -1206,7 +1221,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
             s11->s10->unk3 = 0;
             break;
         default:
-            s10->startValue = adlibGetRegValueParam(voice->_channel, s11->param);
+            s10->startValue = adlibGetRegValueParam(voice->slot, s11->param);
         }
 
         struct10Init(s10, ie);

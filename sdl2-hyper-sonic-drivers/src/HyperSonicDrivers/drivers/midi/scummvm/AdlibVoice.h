@@ -39,26 +39,30 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
     struct AdLibVoice : public IMidiChannelVoice
     {
-        // TODO: rename m_channel and the remove it
-        AdLibPart* _part;
-        AdLibVoice* _next, * _prev;
-        uint8_t _waitForPedal;
-        //uint8_t m_note;
-        uint8_t _channel;
-        uint8_t _twoChan;
-        uint8_t _vol1, _vol2;
-        int16_t _duration;
+        AdLibVoice* next;
+        AdLibVoice* prev;
+
+        uint8_t waitForPedal;
+        uint8_t slot; // NOTE: this is between 0 and 9, this is the "slot" (OPL channel number, not the MIDI Channel)
+        uint8_t twoChan;
+        uint8_t vol1;
+        uint8_t vol2;
+        int16_t duration;
 
         Struct10 _s10a;
         Struct11 _s11a;
         Struct10 _s10b;
         Struct11 _s11b;
 
-        uint8_t _secTwoChan;
-        uint8_t _secVol1, _secVol2;
+        // related to OPL3
+        uint8_t secTwoChan;
+        uint8_t secVol1;
+        uint8_t secVol2;
 
         AdLibVoice() { memset(this, 0, sizeof(AdLibVoice)); }
         inline void setNote(const uint8_t note) { m_note = note; }
+        inline void setFree(const bool free) { m_free = free; };
+        inline void setChannel(AdLibPart* chan) { m_channel = chan; };
     };
 }
 

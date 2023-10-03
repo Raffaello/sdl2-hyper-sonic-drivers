@@ -24,7 +24,7 @@ namespace HyperSonicDrivers::drivers::midi
         void setVolumes(const uint8_t volume) noexcept;
         inline bool isFree() const noexcept { return m_free; }
         inline bool isVibrato() const noexcept { return m_vibrato; }
-
+        
     protected:
         IMidiChannel* m_channel = nullptr;  // MIDI channel
         uint8_t m_note = 0;                 /* note number */
