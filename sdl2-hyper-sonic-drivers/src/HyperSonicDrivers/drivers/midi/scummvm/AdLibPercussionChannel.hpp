@@ -16,31 +16,16 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
     // listed below would need to be virtual in AdLibPart as well as MidiChannel.
     class AdLibPercussionChannel : public AdLibPart
     {
-        friend class MidiDriver_ADLIB;
-
-    //protected:
-        //void init(/*MidiDriver_ADLIB* owner*/);
-
     public:
         AdLibPercussionChannel();
         ~AdLibPercussionChannel() override = default;
 
-        //void noteOff(uint8_t note) override;
-        //void noteOn(uint8_t note, uint8_t velocity) override;
-        //void programChange(uint8_t program) override { }
-
-        // Control Change messages
-        //void modulationWheel(uint8_t value) override { }
-        //void pitchBendFactor(uint8_t value) override { }
-        //void detune(uint8_t value) override { }
-        //void priority(uint8_t value) override { }
-        //void setSustain(const uint8_t value) override { }
-
-        // SysEx messages
-        //void sysEx_customInstrument(uint32_t type, const uint8_t* instr) override;
-
         uint8_t getNote(const uint8_t note) const noexcept;
         AdLibInstrument* getInstrument(const uint8_t note) const noexcept;
+
+        void setNote(const uint8_t note, const uint8_t value) noexcept;
+        void setCustomInstr(const uint8_t* instr) noexcept;
+
     private:
         std::array<uint8_t, 256> m_notes = { 0 };
         std::array<std::unique_ptr<AdLibInstrument>, 256> m_customInstruments;

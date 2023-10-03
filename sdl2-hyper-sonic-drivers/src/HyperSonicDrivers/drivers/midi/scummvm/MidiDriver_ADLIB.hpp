@@ -35,22 +35,17 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         void close() override;
 
         using IMidiDriver::send;
-        void send(const audio::midi::MIDIEvent& e) /*const*/ noexcept override;
-        void send(int8_t channel, uint32_t b) noexcept override; // Supports higher than channel 15
-        //void send(uint32_t b) noexcept override;
+        void send(const audio::midi::MIDIEvent& e) noexcept override;
+        void send(int8_t channel, uint32_t b) noexcept override;
 
         void pause() const noexcept override { /*TODO*/ };
         void resume() const noexcept override {/*TODO*/ };
 
         uint32_t property(int prop, uint32_t param) override;
-        //bool isOpen() const override { return _isOpen; }
         uint32_t getBaseTempo() override { return 1000000 / hardware::opl::default_opl_callback_freq; }
 
         void setPitchBendRange(uint8_t channel, unsigned int range) override;
         void sysEx_customInstrument(uint8_t channel, uint32_t type, const uint8_t* instr) override;
-
-        //IMidiChannel* allocateChannel() override;
-        //IMidiChannel* getPercussionChannel() override { return m_percussion; } // Percussion partially supported
 
         //virtual void setTimerCallback(void* timerParam, /*Common::TimerManager::TimerProc*/ void* timerProc);
 
@@ -93,8 +88,6 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
         std::array<uint16_t, 9> _channelTable2;
         std::array<uint16_t, 9> _curNotTable;
-        //std::array<std::unique_ptr<AdLibPart>, 32> m_parts; // (probably 32 parts as for MT-32) why 32 instead of 16? it is because of the OPL3 (instead of doubling voices, it's doubling the parts?)?
-        //std::array<std::unique_ptr<AdLibPart>, 16> m_channels;
         std::array<AdLibVoice, 9> m_voices;
         AdLibPercussionChannel* m_percussion;
         int _voiceIndex = -1;

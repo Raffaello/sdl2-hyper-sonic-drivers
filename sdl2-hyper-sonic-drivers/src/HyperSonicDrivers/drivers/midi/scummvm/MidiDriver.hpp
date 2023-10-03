@@ -101,23 +101,6 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
             PROP_MILES_VERSION = 9
         };
 
-        /**
-         * Open the midi driver.
-         * @return 0 if successful, otherwise an error code.
-         */
-        //virtual bool open(
-        //    const audio::mixer::eChannelGroup group,
-        //    const uint8_t volume,
-        //    const uint8_t pan) = 0;
-
-        /**
-         * Check whether the midi driver has already been opened.
-         */
-        //virtual bool isOpen() const = 0;
-
-        /** Close the midi driver. */
-        //virtual void close() = 0;
-
         /** Get or set a property. */
         virtual uint32_t property(int prop, uint32_t param) = 0;
 
@@ -152,10 +135,6 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
         /** The time in microseconds between invocations of the timer callback. */
         virtual uint32_t getBaseTempo() = 0;
-
-        // Channel allocation functions
-        //virtual IMidiChannel* allocateChannel() = 0;
-        //virtual IMidiChannel* getPercussionChannel() = 0;
 
         // Allow an engine to supply its own soundFont data. This stream will be destroyed after use.
         //virtual void setEngineSoundFont(Common::SeekableReadStream* soundFontData) { }
