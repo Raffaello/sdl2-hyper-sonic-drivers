@@ -101,64 +101,64 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
     //    }
     //}
 
-    void AdLibPart::controlChange(uint8_t control, uint8_t value)
-    {
-        switch (control)
-        {
-        case 0:
-        case 32:
-            // Bank select. Not supported
-            break;
-        case 1:
-            modulationWheel(value);
-            //spdlog::debug("modwheel value {}", value);
-            break;
-        case 7:
-            setVolume(value);
-            //spdlog::debug("volume value {}", value);
-            break;
-        case 10:
-            panPosition(value);
-            break;
-        case 16:
-            pitchBendFactor(value);
-            break;
-        case 17:
-            detune(value);
-            break;
-        case 18:
-            priority(value);
-            break;
-        case 64:
-            setSustain(value);
-            break;
-        case 91:
-            // Effects level. Not supported.
-            effectLevel(value);
-            break;
-        case 93:
-            // Chorus level. Not supported.
-            chorusLevel(value);
-            break;
-        case 119:
-            // Unknown, used in Simon the Sorcerer 2
-            break;
-        case 121:
-            // reset all controllers
-            modulationWheel(0);
-            pitchBendFactor(0);
-            detune(0);
-            setSustain(false);
-            break;
-        case 123:
-            allNotesOff();
-            break;
-        default:
-            logW(std::format("Unknown control change message {:d} {:d}", control, value));
-        }
-    }
+    //void AdLibPart::controlChange(uint8_t control, uint8_t value)
+    //{
+    //    switch (control)
+    //    {
+    //    case 0:
+    //    case 32:
+    //        // Bank select. Not supported
+    //        break;
+    //    case 1:
+    //        modulationWheel(value);
+    //        //spdlog::debug("modwheel value {}", value);
+    //        break;
+    //    case 7:
+    //        setVolume(value);
+    //        //spdlog::debug("volume value {}", value);
+    //        break;
+    //    case 10:
+    //        panPosition(value);
+    //        break;
+    //    case 16:
+    //        pitchBendFactor(value);
+    //        break;
+    //    case 17:
+    //        detune(value);
+    //        break;
+    //    case 18:
+    //        priority(value);
+    //        break;
+    //    case 64:
+    //        setSustain(value);
+    //        break;
+    //    case 91:
+    //        // Effects level. Not supported.
+    //        effectLevel(value);
+    //        break;
+    //    case 93:
+    //        // Chorus level. Not supported.
+    //        chorusLevel(value);
+    //        break;
+    //    case 119:
+    //        // Unknown, used in Simon the Sorcerer 2
+    //        break;
+    //    case 121:
+    //        // reset all controllers
+    //        modulationWheel(0);
+    //        pitchBendFactor(0);
+    //        detune(0);
+    //        setSustain(false);
+    //        break;
+    //    case 123:
+    //        allNotesOff();
+    //        break;
+    //    default:
+    //        logW(std::format("Unknown control change message {:d} {:d}", control, value));
+    //    }
+    //}
 
-    void AdLibPart::modulationWheel(uint8_t value)
+    /*void AdLibPart::modulationWheel(uint8_t value)
     {
         modulation = value;
         for (AdLibVoice* voice = _voice; voice; voice = voice->_next)
@@ -168,9 +168,9 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
             if (voice->_s10b.active && voice->_s11b.flag0x40)
                 voice->_s10b.modWheel = modulation >> 2;
         }
-    }
+    }*/
 
-    void AdLibPart::setVolume(uint8_t value)
+    /*void AdLibPart::setVolume(uint8_t value)
     {
         volume = value;
         for (AdLibVoice* voice = _voice; voice; voice = voice->_next)
@@ -194,52 +194,52 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
                 }
             }
         }
-    }
+    }*/
 
-    void AdLibPart::panPosition(uint8_t value) {
+    /*void AdLibPart::panPosition(uint8_t value) {
         pan = value;
-    }
+    }*/
 
-    void AdLibPart::pitchBendFactor(uint8_t value)
-    {
-        // Not supported in OPL3 mode.
-        if (_owner->m_opl3Mode) {
-            return;
-        }
+    //void AdLibPart::pitchBendFactor(uint8_t value)
+    //{
+    //    // Not supported in OPL3 mode.
+    //    if (_owner->m_opl3Mode) {
+    //        return;
+    //    }
 
-        _pitchBendFactor = value;
-        for (AdLibVoice* voice = _voice; voice; voice = voice->_next)
-        {
-            _owner->adlibNoteOn(voice->_channel, voice->getNote()/* + _transposeEff*/,
-                (pitch * _pitchBendFactor >> 6) + _detuneEff);
-        }
-    }
+    //    _pitchBendFactor = value;
+    //    for (AdLibVoice* voice = _voice; voice; voice = voice->_next)
+    //    {
+    //        _owner->adlibNoteOn(voice->_channel, voice->getNote()/* + _transposeEff*/,
+    //            (pitch * _pitchBendFactor >> 6) + _detuneEff);
+    //    }
+    //}
 
-    void AdLibPart::detune(uint8_t value)
-    {
-        // Sam&Max's OPL3 driver uses this for a completly different purpose. It
-        // is related to voice allocation. We ignore this for now.
-        // TODO: We probably need to look how the interpreter side of Sam&Max's
-        // iMuse version handles all this too. Implementing the driver side here
-        // would be not that hard.
-        if (_owner->m_opl3Mode) {
-            //_maxNotes = value;
-            return;
-        }
+    //void AdLibPart::detune(uint8_t value)
+    //{
+    //    // Sam&Max's OPL3 driver uses this for a completly different purpose. It
+    //    // is related to voice allocation. We ignore this for now.
+    //    // TODO: We probably need to look how the interpreter side of Sam&Max's
+    //    // iMuse version handles all this too. Implementing the driver side here
+    //    // would be not that hard.
+    //    if (_owner->m_opl3Mode) {
+    //        //_maxNotes = value;
+    //        return;
+    //    }
 
-        _detuneEff = value;
-        for (AdLibVoice* voice = _voice; voice; voice = voice->_next)
-        {
-            _owner->adlibNoteOn(voice->_channel, voice->getNote()/* + _transposeEff*/,
-                (pitch * _pitchBendFactor >> 6) + _detuneEff);
-        }
-    }
+    //    _detuneEff = value;
+    //    for (AdLibVoice* voice = _voice; voice; voice = voice->_next)
+    //    {
+    //        _owner->adlibNoteOn(voice->_channel, voice->getNote()/* + _transposeEff*/,
+    //            (pitch * _pitchBendFactor >> 6) + _detuneEff);
+    //    }
+    //}
 
-    void AdLibPart::priority(uint8_t value) {
+    /*void AdLibPart::priority(uint8_t value) {
         _priEff = value;
-    }
+    }*/
 
-    void AdLibPart::setSustain(const uint8_t value)
+    /*void AdLibPart::setSustain(const uint8_t value)
     {
         sustain = value;
         if (value != 0) {
@@ -249,13 +249,13 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
                     _owner->mcOff(voice);
             }
         }
-    }
+    }*/
 
-    void AdLibPart::allNotesOff()
+    /*void AdLibPart::allNotesOff()
     {
         while (_voice)
             _owner->mcOff(_voice);
-    }
+    }*/
 
     void AdLibPart::sysEx_customInstrument(uint32_t type, const uint8_t* instr)
     {

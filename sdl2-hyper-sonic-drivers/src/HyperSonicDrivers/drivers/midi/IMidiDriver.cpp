@@ -66,6 +66,7 @@ namespace HyperSonicDrivers::drivers::midi
     void IMidiDriver::send(const audio::midi::MIDI_EVENT_TYPES_HIGH type, const uint8_t channel, const uint8_t data1, const uint8_t data2)
     {
         using audio::midi::MIDI_EVENT_TYPES_HIGH;
+        using audio::midi::TO_CTRL;
 
         switch (type)
         {
@@ -78,7 +79,7 @@ namespace HyperSonicDrivers::drivers::midi
         case MIDI_EVENT_TYPES_HIGH::AFTERTOUCH: // Aftertouch
             break; // Not supported.
         case MIDI_EVENT_TYPES_HIGH::CONTROLLER: // Control Change
-            controller(channel, data1, data2);
+            controller(channel, TO_CTRL(data1), data2);
             break;
         case MIDI_EVENT_TYPES_HIGH::PROGRAM_CHANGE: // Program Change
             programChange(channel, data1);
@@ -102,21 +103,20 @@ namespace HyperSonicDrivers::drivers::midi
         }
     }
 
-    void IMidiDriver::send_ctrl(const uint8_t channel, const audio::midi::MIDI_EVENT_CONTROLLER_TYPES ctrl_type, const uint8_t data)
+    /*void IMidiDriver::send_ctrl(const uint8_t channel, const audio::midi::MIDI_EVENT_CONTROLLER_TYPES ctrl_type, const uint8_t data)
     {
         controller(channel, static_cast<uint8_t>(ctrl_type), data);
-    }
+    }*/
 
-    void IMidiDriver::controller(const uint8_t chan, const uint8_t ctrl, uint8_t value) noexcept
+    void IMidiDriver::controller(const uint8_t chan, const audio::midi::MIDI_EVENT_CONTROLLER_TYPES ctrl_type, uint8_t value) noexcept
     {
-        using audio::midi::TO_CTRL;
         // MIDI_EVENT_CONTROLLER_TYPES
-        switch (TO_CTRL(ctrl))
+        switch (ctrl_type)
         {
             using enum audio::midi::MIDI_EVENT_CONTROLLER_TYPES;
         case BANK_SELECT_MSB:
-        //case BANK_SELECT_2:
-            // Bank select. Not supported
+            //case BANK_SELECT_2:
+                // Bank select. Not supported
             logW(std::format("bank select value {}", value));
             break;
         case MODULATION_WHEEL:
@@ -153,10 +153,10 @@ namespace HyperSonicDrivers::drivers::midi
             //chorusLevel(value);
             logW(std::format("chorus level value {}", value));
             break;
-        //case 119:
-        //    // Unknown, used in Simon the Sorcerer 2
-        //    logW(std::format("unknown value {}", value));
-        //    break;
+            //case 119:
+            //    // Unknown, used in Simon the Sorcerer 2
+            //    logW(std::format("unknown value {}", value));
+            //    break;
         case RESET_ALL_CONTROLLERS:
             // reset all controllers
             logW("reset all controllers value");
@@ -169,9 +169,16 @@ namespace HyperSonicDrivers::drivers::midi
             ctrl_allNotesOff();
             break;
         default:
-            logW(std::format("OplDriver: Unknown control change message {:d} {:d}", ctrl, value));
+            logW(std::format("OplDriver: Unknown control change message {:d} {:d}", static_cast<uint8_t>(ctrl_type), value));
         }
     }
+
+    /*void IMidiDriver::controller(const uint8_t chan, const uint8_t ctrl, uint8_t value) noexcept
+    {
+        using audio::midi::TO_CTRL;
+
+        controller(chan, TO_CTRL(ctrl), value);
+    }*/
 
     void IMidiDriver::programChange(const uint8_t chan, const uint8_t program) noexcept
     {

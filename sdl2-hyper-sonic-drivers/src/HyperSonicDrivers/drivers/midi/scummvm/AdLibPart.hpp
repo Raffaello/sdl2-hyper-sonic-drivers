@@ -51,17 +51,17 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         //void pitchBend(int16_t bend) override;
 
         // Control Change messages
-        void controlChange(uint8_t control, uint8_t value) override;
-        void modulationWheel(uint8_t value) override;
-        void setVolume(uint8_t value) override;
-        void panPosition(uint8_t value) override;
-        void pitchBendFactor(uint8_t value) override;
-        void detune(uint8_t value) override;
-        void priority(uint8_t value) override;
-        void setSustain(const uint8_t value) override;
-        void effectLevel(uint8_t value) override { return; } // Not supported
-        void chorusLevel(uint8_t value) override { return; } // Not supported
-        void allNotesOff() override;
+        //void controlChange(uint8_t control, uint8_t value) override;
+        //void modulationWheel(uint8_t value) override;
+        //void setVolume(uint8_t value) override;
+        //void panPosition(uint8_t value) override;
+        //void pitchBendFactor(uint8_t value) override;
+        //void detune(uint8_t value) override;
+        //void priority(uint8_t value) override;
+        //void setSustain(const uint8_t value) override;
+        //void effectLevel(uint8_t value) override { return; } // Not supported
+        //void chorusLevel(uint8_t value) override { return; } // Not supported
+        //void allNotesOff() override;
 
         // SysEx messages
         void sysEx_customInstrument(uint32_t type, const uint8_t* instr) override;

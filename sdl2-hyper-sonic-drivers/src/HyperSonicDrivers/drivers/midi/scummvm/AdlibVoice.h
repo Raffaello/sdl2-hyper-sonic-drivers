@@ -39,6 +39,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
     struct AdLibVoice : public IMidiChannelVoice
     {
+        // TODO: rename m_channel and the remove it
         AdLibPart* _part;
         AdLibVoice* _next, * _prev;
         uint8_t _waitForPedal;

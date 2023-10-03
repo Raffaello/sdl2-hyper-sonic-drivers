@@ -17,9 +17,9 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
         for (uint8_t i = 0; i < audio::midi::MIDI_MAX_CHANNELS; ++i)
         {
-            send_ctrl(i, ALL_NOTES_OFF, 0);
+            controller(i, ALL_NOTES_OFF, 0);
             if (stopSustainedNotes)
-                send_ctrl(i, SUSTAIN, 0);
+                controller(i, SUSTAIN, 0);
         }
     }
 }

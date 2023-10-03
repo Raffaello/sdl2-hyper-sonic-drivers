@@ -205,6 +205,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
     {
         using audio::midi::MIDI_EVENT_type_u;
         using audio::midi::MIDI_EVENT_TYPES_HIGH;
+        using audio::midi::TO_CTRL;
 
         uint8_t param2 = (uint8_t)((b >> 16) & 0xFF);
         uint8_t param1 = (uint8_t)((b >> 8) & 0xFF);
@@ -222,7 +223,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         case MIDI_EVENT_TYPES_HIGH::AFTERTOUCH: // Aftertouch
             break; // Not supported.
         case MIDI_EVENT_TYPES_HIGH::CONTROLLER: // Control Change
-            controller(chan, param1, param2);
+            controller(chan, TO_CTRL(param1), param2);
             break;
         case MIDI_EVENT_TYPES_HIGH::PROGRAM_CHANGE: // Program Change
             programChange(chan, param1);
@@ -440,10 +441,64 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         logD(std::format("noteOn {} {}", note, vol));
     }
 
-    void MidiDriver_ADLIB::controller(const uint8_t chan, const uint8_t ctrl, uint8_t value) noexcept
+    void MidiDriver_ADLIB::controller(const uint8_t chan, const audio::midi::MIDI_EVENT_CONTROLLER_TYPES ctrl_type, uint8_t value) noexcept
     {
         auto part = getChannel(chan);
-        part->controlChange(ctrl, value);
+
+        switch (ctrl_type)
+        {
+            using enum audio::midi::MIDI_EVENT_CONTROLLER_TYPES;
+        case BANK_SELECT_MSB:
+        case BANK_SELECT_LSB:
+            // Bank select. Not supported
+            break;
+        case MODULATION_WHEEL:
+            ctrl_modulationWheel(chan, value);
+            break;
+        case CHANNEL_VOLUME:
+            ctrl_volume(chan, value);
+            break;
+        case PAN:
+            ctrl_panPosition(chan, value);
+            break;
+        case GENERAL_PURPOSE_CONTROLLER_1:
+            ctrl_pitchBendFactor(chan, value);
+            break;
+        case GENERAL_PURPOSE_CONTROLLER_2:
+            ctrl_detune(chan, value);
+            break;
+        case GENERAL_PURPOSE_CONTROLLER_3:
+            ctrl_priority(chan, value);
+            break;
+        case SUSTAIN:
+            ctrl_sustain(chan, value);
+            break;
+        case REVERB:
+            // Effects level. Not supported.
+            ctrl_reverb(chan, value);
+            break;
+        case CHORUS:
+            // Chorus level. Not supported.
+            ctrl_chorus(chan, value);
+            break;
+        //case 119:
+            // Unknown, used in Simon the Sorcerer 2
+        //    break;
+        case RESET_ALL_CONTROLLERS:
+            // reset all controllers
+            ctrl_modulationWheel(chan, 0);
+            ctrl_pitchBendFactor(chan, 0);
+            ctrl_detune(chan, 0);
+            ctrl_sustain(chan, 0);
+            break;
+        case ALL_NOTES_OFF:
+            ctrl_allNotesOff();
+            break;
+        default:
+            logW(std::format("Unknown control change message {:d} {:d}", static_cast<int>(ctrl_type), value));
+        }
+
+        //part->controlChange(ctrl, value);
     }
 
     void MidiDriver_ADLIB::programChange(const uint8_t chan, const uint8_t program) noexcept
@@ -480,6 +535,152 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         //part->pitchBend(static_cast<int16_t>(bend));
     }
 
+    void MidiDriver_ADLIB::ctrl_modulationWheel(const uint8_t chan, const uint8_t value) noexcept
+    {
+        auto part = getChannel(chan);
+
+        if (part->isPercussion)
+            return;
+
+        part->modulation = value;
+        for (AdLibVoice* voice = part->_voice; voice; voice = voice->_next)
+        {
+            if (voice->_s10a.active && voice->_s11a.flag0x40)
+                voice->_s10a.modWheel = part->modulation >> 2;
+            if (voice->_s10b.active && voice->_s11b.flag0x40)
+                voice->_s10b.modWheel = part->modulation >> 2;
+        }
+
+        //part->modulationWheel(value);
+    }
+
+    void MidiDriver_ADLIB::ctrl_volume(const uint8_t chan, const uint8_t value) noexcept
+    {
+        auto part = getChannel(chan);
+
+        part->volume = value;
+        for (AdLibVoice* voice = part->_voice; voice; voice = voice->_next)
+        {
+            if (!m_opl3Mode)
+            {
+                adlibSetParam(voice->_channel, 0, g_volumeTable[g_volumeLookupTable[voice->_vol2][part->volume >> 2]]);
+                if (voice->_twoChan) {
+                    adlibSetParam(voice->_channel, 13, g_volumeTable[g_volumeLookupTable[voice->_vol1][part->volume >> 2]]);
+                }
+            }
+            else
+            {
+                adlibSetParam(voice->_channel, 0, g_volumeTable[((voice->_vol2 + 1) * part->volume) >> 7], true);
+                adlibSetParam(voice->_channel, 0, g_volumeTable[((voice->_secVol2 + 1) * part->volume) >> 7], false);
+                if (voice->_twoChan) {
+                    adlibSetParam(voice->_channel, 13, g_volumeTable[((voice->_vol1 + 1) * part->volume) >> 7], true);
+                }
+                if (voice->_secTwoChan) {
+                    adlibSetParam(voice->_channel, 13, g_volumeTable[((voice->_secVol1 + 1) * part->volume) >> 7], false);
+                }
+            }
+        }
+
+        //part->setVolume(value);
+    }
+
+    void MidiDriver_ADLIB::ctrl_panPosition(const uint8_t chan, uint8_t value) noexcept
+    {
+        auto part = getChannel(chan);
+        part->pan = value;
+    }
+
+    void MidiDriver_ADLIB::ctrl_pitchBendFactor(const uint8_t chan, const uint8_t value) noexcept
+    {
+        auto part = getChannel(chan);
+
+        if (part->isPercussion)
+            return;
+
+        if (m_opl3Mode)
+            return;
+
+        part->_pitchBendFactor = value;
+        for (AdLibVoice* voice = part->_voice; voice; voice = voice->_next)
+        {
+            adlibNoteOn(voice->_channel, voice->getNote()/* + _transposeEff*/,
+                (part->pitch * part->_pitchBendFactor >> 6) + part->_detuneEff);
+        }
+
+        //part->pitchBendFactor(value);
+    }
+
+    void MidiDriver_ADLIB::ctrl_detune(const uint8_t chan, const uint8_t value) noexcept
+    {
+        auto part = getChannel(chan);
+
+        if (part->isPercussion)
+            return;
+
+        // Sam&Max's OPL3 driver uses this for a completly different purpose. It
+        // is related to voice allocation. We ignore this for now.
+        // TODO: We probably need to look how the interpreter side of Sam&Max's
+        // iMuse version handles all this too. Implementing the driver side here
+        // would be not that hard.
+        if (m_opl3Mode) {
+            //_maxNotes = value;
+            return;
+        }
+
+        part->_detuneEff = value;
+        for (AdLibVoice* voice = part->_voice; voice; voice = voice->_next)
+        {
+            adlibNoteOn(voice->_channel, voice->getNote()/* + _transposeEff*/,
+                (part->pitch * part->_pitchBendFactor >> 6) + part->_detuneEff);
+        }
+
+        //part->detune(value);
+    }
+
+    void MidiDriver_ADLIB::ctrl_priority(const uint8_t chan, const uint8_t value) noexcept
+    {
+        auto part = getChannel(chan);
+        if (part->isPercussion)
+            return;
+
+        part->_priEff = value;
+    }
+
+    void MidiDriver_ADLIB::ctrl_sustain(const uint8_t chan, uint8_t value) noexcept
+    {
+        auto part = getChannel(chan);
+
+        if (part->isPercussion)
+            return;
+
+        part->sustain = value;
+        if (value != 0) {
+            for (AdLibVoice* voice = part->_voice; voice; voice = voice->_next)
+            {
+                if (voice->_waitForPedal)
+                    mcOff(voice);
+            }
+        }
+
+        //part->setSustain(value);
+    }
+
+    void MidiDriver_ADLIB::ctrl_reverb(const uint8_t chan, uint8_t value) noexcept
+    {
+        // Not Supported
+    }
+
+    void MidiDriver_ADLIB::ctrl_chorus(const uint8_t chan, uint8_t value) noexcept
+    {
+        // Not Supported
+    }
+
+    void MidiDriver_ADLIB::ctrl_allNotesOff() noexcept
+    {
+        for (AdLibVoice v : m_voices)
+            mcOff(&v);
+    }
+
     //void MidiDriver_ADLIB::setTimerCallback(void* timerParam, /*Common::TimerManager::TimerProc*/ void* timerProc) {
     //    _adlibTimerProc = timerProc;
     //    _adlibTimerParam = timerParam;
@@ -489,6 +690,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
     {
         AdLibVoice* tmp;
 
+        // TODO: channel is in AdLibPart...
         adlibKeyOff(voice->_channel);
 
         tmp = voice->_prev;
@@ -604,7 +806,8 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         return result;
     }
 
-    void MidiDriver_ADLIB::adlibSetParam(int channel, uint8_t param, int value, bool primary) {
+    void MidiDriver_ADLIB::adlibSetParam(int channel, uint8_t param, int value, bool primary)
+    {
         const AdLibSetParams* as;
         uint8_t reg;
 
@@ -776,7 +979,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         }
     }
 
-    AdLibPart* MidiDriver_ADLIB::getChannel(const uint8_t channel) noexcept
+    AdLibPart* MidiDriver_ADLIB::getChannel(const uint8_t channel) const noexcept
     {
         if (channel == audio::midi::MIDI_PERCUSSION_CHANNEL)
             return &m_percussion;
@@ -1103,7 +1306,8 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         return val;
     }
 
-    void MidiDriver_ADLIB::adlibNoteOn(int chan, uint8_t note, int mod) {
+    void MidiDriver_ADLIB::adlibNoteOn(int chan, uint8_t note, int mod)
+    {
         if (m_opl3Mode) {
             adlibNoteOnEx(chan, note, mod);
             return;

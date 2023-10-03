@@ -27,15 +27,17 @@ namespace HyperSonicDrivers::drivers::midi::mt32
         // MIDI events
         void noteOff(const uint8_t chan, const uint8_t note) noexcept override {/*TODO*/};
         void noteOn(const uint8_t chan, const uint8_t note, const uint8_t vol) noexcept override {/*TODO*/};
-        void controller(const uint8_t chan, const uint8_t ctrl, uint8_t value) noexcept override {/*TODO*/};
+        void controller(const uint8_t chan, const audio::midi::MIDI_EVENT_CONTROLLER_TYPES ctrl_type, uint8_t value) noexcept override {/*TODO*/};
         void programChange(const uint8_t chan, const uint8_t program) noexcept override {/*TODO*/};
         void pitchBend(const uint8_t chan, const uint16_t bend) noexcept override {/*TODO*/ };
 
         // MIDI Controller Events
-        void ctrl_modulationWheel(const uint8_t chan, const uint8_t value) const noexcept override {/*TODO*/};
-        void ctrl_volume(const uint8_t chan, const uint8_t value) const noexcept override {/*TODO*/};
-        void ctrl_panPosition(const uint8_t chan, uint8_t value) const noexcept override {/*TODO*/};
-        void ctrl_sustain(const uint8_t chan, uint8_t value) const noexcept override {/*TODO*/ };
-        void ctrl_allNotesOff() const noexcept override {/*TODO*/ };
+        void ctrl_modulationWheel(const uint8_t chan, const uint8_t value) noexcept override {/*TODO*/};
+        void ctrl_volume(const uint8_t chan, const uint8_t value) noexcept override {/*TODO*/};
+        void ctrl_panPosition(const uint8_t chan, uint8_t value) noexcept override {/*TODO*/};
+        void ctrl_sustain(const uint8_t chan, uint8_t value) noexcept override {/*TODO*/ };
+        void ctrl_reverb(const uint8_t chan, uint8_t value) noexcept override { /*TODO*/ };
+        void ctrl_chorus(const uint8_t chan, uint8_t value) noexcept override { /*TODO*/ };
+        void ctrl_allNotesOff() noexcept override {/*TODO*/ };
     };
 }

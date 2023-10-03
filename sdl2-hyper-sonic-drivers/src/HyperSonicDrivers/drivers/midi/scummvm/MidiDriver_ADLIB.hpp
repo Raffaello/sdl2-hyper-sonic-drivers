@@ -61,16 +61,23 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         // MIDI Events
         void noteOff(const uint8_t chan, const uint8_t note) noexcept override;
         void noteOn(const uint8_t chan, const uint8_t note, const uint8_t vol) noexcept override;
-        void controller(const uint8_t chan, const uint8_t ctrl, uint8_t value) noexcept override;
+        void controller(const uint8_t chan, const audio::midi::MIDI_EVENT_CONTROLLER_TYPES ctrl_type, uint8_t value) noexcept override;
         void programChange(const uint8_t chan, const uint8_t program) noexcept override;
         void pitchBend(const uint8_t chan, const uint16_t bend) noexcept override;
 
         // MIDI Controller Events
-        void ctrl_modulationWheel(const uint8_t chan, const uint8_t value) const noexcept override {/*in MIDIChannel*/ };
-        void ctrl_volume(const uint8_t chan, const uint8_t value) const noexcept override {/*in MIDIChannel*/ };
-        void ctrl_panPosition(const uint8_t chan, uint8_t value) const noexcept override {/*in MIDIChannel*/ };
-        void ctrl_sustain(const uint8_t chan, uint8_t value) const noexcept override {/*in MIDIChannel*/ };
-        void ctrl_allNotesOff() const noexcept override {/*in MIDIChannel*/ };
+        void ctrl_modulationWheel(const uint8_t chan, const uint8_t value) noexcept override;
+        void ctrl_volume(const uint8_t chan, const uint8_t value) noexcept override;
+        void ctrl_panPosition(const uint8_t chan, uint8_t value) noexcept override;
+        // SCUMM GM Midi driver ctrl exclusive?
+        void ctrl_pitchBendFactor(const uint8_t chan, const uint8_t value) noexcept;
+        void ctrl_detune(const uint8_t chan, const uint8_t value) noexcept;
+        void ctrl_priority(const uint8_t chan, const uint8_t value) noexcept;
+        // ---
+        void ctrl_sustain(const uint8_t chan, uint8_t value) noexcept override;
+        void ctrl_reverb(const uint8_t chan, uint8_t value) noexcept override;
+        void ctrl_chorus(const uint8_t chan, uint8_t value) noexcept override;
+        void ctrl_allNotesOff() noexcept override;
 
     private:
         std::shared_ptr<hardware::opl::OPL> m_opl;
@@ -90,12 +97,12 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         //std::array<std::unique_ptr<AdLibPart>, 32> m_parts; // (probably 32 parts as for MT-32) why 32 instead of 16? it is because of the OPL3 (instead of doubling voices, it's doubling the parts?)?
         //std::array<std::unique_ptr<AdLibPart>, 16> m_channels;
         std::array<AdLibVoice, 9> m_voices;
-        AdLibPercussionChannel m_percussion;
+        mutable AdLibPercussionChannel m_percussion;
         int _voiceIndex = -1;
         int _timerIncrease = 0xD69;
         int _timerThreshold = 0x411B;
 
-        AdLibPart* getChannel(const uint8_t channel) noexcept;
+        AdLibPart* getChannel(const uint8_t channel) const noexcept;
 
         void partKeyOn(AdLibPart* part, const AdLibInstrument* instr, uint8_t note, uint8_t velocity, const AdLibInstrument* second, uint8_t pan);
         void partKeyOff(AdLibPart* part, uint8_t note);

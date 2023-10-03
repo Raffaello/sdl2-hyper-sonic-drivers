@@ -59,11 +59,13 @@ namespace HyperSonicDrivers::drivers::midi::opl
         void pitchBend(const uint8_t chan, const uint16_t bend) noexcept override;
 
         // MIDI Controller Events
-        void ctrl_modulationWheel(const uint8_t chan, const uint8_t value) const noexcept override;
-        void ctrl_volume(const uint8_t chan, const uint8_t value) const noexcept override;
-        void ctrl_panPosition(const uint8_t chan, uint8_t value) const noexcept override;
-        void ctrl_sustain(const uint8_t chan, uint8_t value) const noexcept override;
-        void ctrl_allNotesOff() const noexcept override;
+        void ctrl_modulationWheel(const uint8_t chan, const uint8_t value) noexcept override;
+        void ctrl_volume(const uint8_t chan, const uint8_t value) noexcept override;
+        void ctrl_panPosition(const uint8_t chan, uint8_t value) noexcept override;
+        void ctrl_sustain(const uint8_t chan, uint8_t value) noexcept override;
+        void ctrl_reverb(const uint8_t chan, uint8_t value) noexcept override {/*NOT SUPPORTED*/};
+        void ctrl_chorus(const uint8_t chan, uint8_t value) noexcept override {/*NOT SUPPORTED*/};
+        void ctrl_allNotesOff() noexcept override;
 
     private:
         std::shared_ptr<hardware::opl::OPL> m_opl;

@@ -282,7 +282,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
         }
     }
 
-    void OplDriver::ctrl_modulationWheel(const uint8_t chan, const uint8_t value) const noexcept
+    void OplDriver::ctrl_modulationWheel(const uint8_t chan, const uint8_t value) noexcept
     {
         m_channels[chan]->modulation = value;
 
@@ -293,7 +293,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
         }
     }
 
-    void OplDriver::ctrl_volume(const uint8_t chan, const uint8_t value) const noexcept
+    void OplDriver::ctrl_volume(const uint8_t chan, const uint8_t value) noexcept
     {
         m_channels[chan]->volume = value;
         for (auto it = m_voicesInUseIndex.begin(); it != m_voicesInUseIndex.end(); ++it)
@@ -303,7 +303,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
         }
     }
 
-    void OplDriver::ctrl_panPosition(const uint8_t chan, uint8_t value) const noexcept
+    void OplDriver::ctrl_panPosition(const uint8_t chan, uint8_t value) noexcept
     {
         if (!m_opl3_mode)
             return;
@@ -316,14 +316,14 @@ namespace HyperSonicDrivers::drivers::midi::opl
         }
     }
 
-    void OplDriver::ctrl_sustain(const uint8_t chan, uint8_t value) const noexcept
+    void OplDriver::ctrl_sustain(const uint8_t chan, uint8_t value) noexcept
     {
         m_channels[chan]->sustain = value;
         if (value < opl_sustain_threshold)
             releaseSustain(chan);
     }
 
-    void OplDriver::ctrl_allNotesOff() const noexcept
+    void OplDriver::ctrl_allNotesOff() noexcept
     {
         m_oplWriter->stopAll();
     }

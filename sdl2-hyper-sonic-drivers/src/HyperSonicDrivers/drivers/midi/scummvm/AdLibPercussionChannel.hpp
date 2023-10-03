@@ -30,11 +30,11 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         //void programChange(uint8_t program) override { }
 
         // Control Change messages
-        void modulationWheel(uint8_t value) override { }
-        void pitchBendFactor(uint8_t value) override { }
-        void detune(uint8_t value) override { }
-        void priority(uint8_t value) override { }
-        void setSustain(const uint8_t value) override { }
+        //void modulationWheel(uint8_t value) override { }
+        //void pitchBendFactor(uint8_t value) override { }
+        //void detune(uint8_t value) override { }
+        //void priority(uint8_t value) override { }
+        //void setSustain(const uint8_t value) override { }
 
         // SysEx messages
         void sysEx_customInstrument(uint32_t type, const uint8_t* instr) override;
