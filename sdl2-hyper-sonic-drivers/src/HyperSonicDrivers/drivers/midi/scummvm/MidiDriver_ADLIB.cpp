@@ -189,65 +189,6 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         free(_regCacheSecondary);
     }
 
-    void MidiDriver_ADLIB::send(const audio::midi::MIDIEvent& e) noexcept
-    {
-        // TODO: change that sysEx is a normal send event
-        using audio::midi::TO_HIGH;
-        using audio::midi::MIDI_EVENT_TYPES_HIGH;
-
-        switch (TO_HIGH(e.type.high))
-        {
-        case MIDI_EVENT_TYPES_HIGH::META_SYSEX:
-            sysEx(e.data.data(), static_cast<uint16_t>(e.data.size()));
-            break;
-        default:
-            send(e.toUint32());
-        }
-    }
-
-    void MidiDriver_ADLIB::send(int8_t chan, uint32_t b) noexcept
-    {
-        using audio::midi::MIDI_EVENT_type_u;
-        using audio::midi::MIDI_EVENT_TYPES_HIGH;
-        using audio::midi::TO_CTRL;
-
-        uint8_t param2 = (uint8_t)((b >> 16) & 0xFF);
-        uint8_t param1 = (uint8_t)((b >> 8) & 0xFF);
-        //uint8_t cmd = (uint8_t)(b & 0xF0);
-        MIDI_EVENT_type_u cmd;
-        cmd.val = static_cast<uint8_t>(b & 0xFF);
-
-        switch (static_cast<MIDI_EVENT_TYPES_HIGH>(cmd.high)) {
-        case MIDI_EVENT_TYPES_HIGH::NOTE_OFF:// Note Off
-            noteOff(chan, param1);
-            break;
-        case MIDI_EVENT_TYPES_HIGH::NOTE_ON: // Note On
-            noteOn(chan, param1, param2);
-            break;
-        case MIDI_EVENT_TYPES_HIGH::AFTERTOUCH: // Aftertouch
-            break; // Not supported.
-        case MIDI_EVENT_TYPES_HIGH::CONTROLLER: // Control Change
-            controller(chan, TO_CTRL(param1), param2);
-            break;
-        case MIDI_EVENT_TYPES_HIGH::PROGRAM_CHANGE: // Program Change
-            programChange(chan, param1);
-            break;
-        case MIDI_EVENT_TYPES_HIGH::CHANNEL_AFTERTOUCH: // Channel Pressure
-            break; // Not supported.
-        case MIDI_EVENT_TYPES_HIGH::PITCH_BEND: // Pitch Bend
-            pitchBend(chan, static_cast<uint16_t>((param1 | (param2 << 7)) - 0x2000));
-            break;
-        case MIDI_EVENT_TYPES_HIGH::META_SYSEX: // SysEx
-            // We should never get here! SysEx information has to be
-            // sent via high-level semantic methods.
-            logW("Receiving SysEx command on a send() call");
-            break;
-
-        default:
-            logW(std::format("Unknown send() command {:#0x}", cmd.val));
-        }
-    }
-
     uint32_t MidiDriver_ADLIB::property(int prop, uint32_t param) {
         switch (prop)
         {
@@ -277,9 +218,8 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
     void MidiDriver_ADLIB::setPitchBendRange(uint8_t channel, unsigned int range)
     {
         // Not supported in OPL3 mode.
-        if (m_opl3Mode) {
+        if (m_opl3Mode)
             return;
-        }
 
         AdLibPart* part = toAdlibPart(m_channels[channel]);
         part->pitchBendFactor = range;
@@ -376,7 +316,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         uint8_t note_ = note;
         if (part->isPercussion)
         {
-            note_ = dynamic_cast<AdLibPercussionChannel*>(part)->getNote(note_);
+            note_ = m_percussion->getNote(note_);
         }
 
         partKeyOff(part, note_);
@@ -396,8 +336,8 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
             // We do not support custom instruments in OPL3 mode though.
             if (!m_opl3Mode)
             {
-                inst = dynamic_cast<AdLibPercussionChannel*>(part)->getInstrument(note);
-                note_ = dynamic_cast<AdLibPercussionChannel*>(part)->getNote(note_);
+                inst = m_percussion->getInstrument(note);
+                note_ = m_percussion->getNote(note_);
             }
 
             if (!inst)
@@ -665,7 +605,6 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
     {
         AdLibVoice* tmp;
 
-        // TODO: channel is in AdLibPart...
         adlibKeyOff(voice->slot);
 
         tmp = voice->prev;
@@ -729,7 +668,8 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
             adlibKeyOnOff(voice->slot);
     }
 
-    void MidiDriver_ADLIB::adlibKeyOff(int chan) {
+    void MidiDriver_ADLIB::adlibKeyOff(int chan)
+    {
         uint8_t reg = chan + 0xB0;
         adlibWrite(reg, adlibGetRegValue(reg) & ~0x20);
         if (m_opl3Mode) {
@@ -737,7 +677,8 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         }
     }
 
-    uint8_t MidiDriver_ADLIB::struct10OnTimer(Struct10* s10, Struct11* s11) {
+    uint8_t MidiDriver_ADLIB::struct10OnTimer(Struct10* s10, Struct11* s11)
+    {
         uint8_t result = 0;
         int i;
 
@@ -957,10 +898,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
     AdLibPart* MidiDriver_ADLIB::getChannel(const uint8_t channel) const noexcept
     {
-        if (channel == audio::midi::MIDI_PERCUSSION_CHANNEL)
-            return m_percussion;
-        else
-            return toAdlibPart(m_channels[channel]);
+        return toAdlibPart(m_channels[channel]);
     }
 
     void MidiDriver_ADLIB::partKeyOn(AdLibPart* part, const AdLibInstrument* instr, uint8_t note, uint8_t velocity, const AdLibInstrument* second, uint8_t pan) {
@@ -1012,12 +950,11 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
     {
         voice->setFree(false);
         voice->setChannel(part);
-        //voice->m_channel = part;
         voice->next = part->voice;
         part->voice = voice;
         voice->prev = nullptr;
 
-        if (voice->next)
+        if (voice->next != nullptr)
             voice->next->prev = voice;
     }
 

@@ -9,7 +9,20 @@ namespace HyperSonicDrivers::drivers::midi
 
     void IMidiDriver::send(const audio::midi::MIDIEvent& e) noexcept
     {
-        send(e.toUint32());
+        // TODO review, this might be the master send.
+        //      so it can address also SysEx commands
+        // TODO: change that sysEx is a normal send event
+        using audio::midi::TO_HIGH;
+        using audio::midi::MIDI_EVENT_TYPES_HIGH;
+
+        switch (TO_HIGH(e.type.high))
+        {
+        case MIDI_EVENT_TYPES_HIGH::META_SYSEX:
+            sysEx(e.data.data(), static_cast<uint16_t>(e.data.size()));
+            break;
+        default:
+            send(e.toUint32());
+        }
     }
 
     void IMidiDriver::send(int8_t channel, uint32_t msg) noexcept

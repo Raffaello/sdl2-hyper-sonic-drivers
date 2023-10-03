@@ -22,9 +22,6 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
     class MidiDriver_ADLIB : public MidiDriver
     {
-        friend class AdLibPart;
-        friend class AdLibPercussionChannel;
-
     public:
         explicit MidiDriver_ADLIB(const std::shared_ptr<devices::Opl>& opl);
         ~MidiDriver_ADLIB() override;
@@ -33,10 +30,6 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
             const uint8_t volume,
             const uint8_t pan) override;
         void close() override;
-
-        using IMidiDriver::send;
-        void send(const audio::midi::MIDIEvent& e) noexcept override;
-        void send(int8_t channel, uint32_t b) noexcept override;
 
         void pause() const noexcept override { /*TODO*/ };
         void resume() const noexcept override {/*TODO*/ };
