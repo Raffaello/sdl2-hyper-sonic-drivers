@@ -129,13 +129,12 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         // HIGH-LEVEL SEMANTIC METHODS
         virtual void setPitchBendRange(uint8_t channel, unsigned int range)
         {
-            // TODO: remove the static_casts and use the original types
-            send((static_cast<uint8_t>(audio::midi::MIDI_EVENT_TYPES_HIGH::CONTROLLER) << 8) | channel, static_cast<uint32_t>(audio::midi::MIDI_EVENT_CONTROLLER_TYPES::RPN_MSB), static_cast<uint8_t>(audio::midi::MIDI_RPN_TYPES_MSB::PITCH_BEND_SENSITIVITY));
-            send((static_cast<uint8_t>(audio::midi::MIDI_EVENT_TYPES_HIGH::CONTROLLER) << 8) | channel, static_cast<uint32_t>(audio::midi::MIDI_EVENT_CONTROLLER_TYPES::RPN_LSB), static_cast<uint8_t>(audio::midi::MIDI_RPN_TYPES_LSB::PITCH_BEND_SENSITIVITY));
-            send((static_cast<uint8_t>(audio::midi::MIDI_EVENT_TYPES_HIGH::CONTROLLER) << 8) | channel, static_cast<uint32_t>(audio::midi::MIDI_EVENT_CONTROLLER_TYPES::DATA_ENTRY_MSB), range); // Semi-tones
-            send((static_cast<uint8_t>(audio::midi::MIDI_EVENT_TYPES_HIGH::CONTROLLER) << 8) | channel, static_cast<uint32_t>(audio::midi::MIDI_EVENT_CONTROLLER_TYPES::DATA_ENTRY_LSB), 0); // Cents
-            send((static_cast<uint8_t>(audio::midi::MIDI_EVENT_TYPES_HIGH::CONTROLLER) << 8) | channel, static_cast<uint32_t>(audio::midi::MIDI_EVENT_CONTROLLER_TYPES::RPN_MSB), static_cast<uint8_t>(audio::midi::MIDI_RPN_TYPES_MSB::RPN_NULL));
-            send((static_cast<uint8_t>(audio::midi::MIDI_EVENT_TYPES_HIGH::CONTROLLER) << 8) | channel, static_cast<uint32_t>(audio::midi::MIDI_EVENT_CONTROLLER_TYPES::RPN_LSB), static_cast<uint8_t>(audio::midi::MIDI_RPN_TYPES_LSB::PITCH_BEND_SENSITIVITY));
+            controller(channel, audio::midi::MIDI_EVENT_CONTROLLER_TYPES::RPN_MSB, static_cast<uint8_t>(audio::midi::MIDI_RPN_TYPES_MSB::PITCH_BEND_SENSITIVITY));
+            controller(channel, audio::midi::MIDI_EVENT_CONTROLLER_TYPES::RPN_LSB, static_cast<uint8_t>(audio::midi::MIDI_RPN_TYPES_LSB::PITCH_BEND_SENSITIVITY));
+            controller(channel, audio::midi::MIDI_EVENT_CONTROLLER_TYPES::DATA_ENTRY_MSB, range); // Semi-tones
+            controller(channel, audio::midi::MIDI_EVENT_CONTROLLER_TYPES::DATA_ENTRY_LSB, 0); // Cents
+            controller(channel, audio::midi::MIDI_EVENT_CONTROLLER_TYPES::RPN_MSB, static_cast<uint8_t>(audio::midi::MIDI_RPN_TYPES_MSB::RPN_NULL));
+            controller(channel, audio::midi::MIDI_EVENT_CONTROLLER_TYPES::RPN_LSB, static_cast<uint8_t>(audio::midi::MIDI_RPN_TYPES_LSB::PITCH_BEND_SENSITIVITY));
         }
 
         /**

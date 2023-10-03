@@ -75,14 +75,14 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
          * Do NOT use this for sysEx transmission; instead, use the sysEx()
          * method below.
          */
-        void send(uint8_t status, uint8_t firstOp, uint8_t secondOp);
+        //void send(uint8_t status, uint8_t firstOp, uint8_t secondOp);
 
         /**
          * Send a MIDI command from a specific source. If the MIDI driver
          * does not support multiple sources, the source parameter is
          * ignored.
          */
-        void send(int8_t source, uint8_t status, uint8_t firstOp, uint8_t secondOp);
+        //void send(int8_t source, uint8_t status, uint8_t firstOp, uint8_t secondOp);
 
         /**
          * Transmit a SysEx to the MIDI device.
@@ -94,7 +94,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
          * is 264 bytes. Passing longer buffers can lead to
          * undefined behavior (most likely, a crash).
          */
-        virtual void sysEx(const uint8_t* msg, uint16_t length) { }
+        //virtual void sysEx(const uint8_t* msg, uint16_t length) { }
 
         /**
          * Transmit a SysEx to the MIDI device and return the necessary
@@ -108,17 +108,17 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
          *
          * For information on the SysEx data requirements, see the sysEx method.
          */
-        virtual uint16_t sysExNoDelay(const uint8_t* msg, uint16_t length) { sysEx(msg, length); return 0; }
+        //virtual uint16_t sysExNoDelay(const uint8_t* msg, uint16_t length) { sysEx(msg, length); return 0; }
 
         // TODO: Document this.
-        virtual void metaEvent(uint8_t type, uint8_t* data, uint16_t length) { }
+        //virtual void metaEvent(uint8_t type, uint8_t* data, uint16_t length) { }
 
         /**
          * Send a meta event from a specific source. If the MIDI driver
          * does not support multiple sources, the source parameter is
          * ignored.
          */
-        virtual void metaEvent(int8_t source, uint8_t type, uint8_t* data, uint16_t length) { metaEvent(type, data, length); }
+        //virtual void metaEvent(int8_t source, uint8_t type, uint8_t* data, uint16_t length) { metaEvent(type, data, length); }
 
         /**
          * Stops all currently active notes. Specify stopSustainedNotes if
@@ -136,13 +136,13 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
          * channels. Driver implementations can override this if they want
          * to implement this functionality in a different way.
          */
-        virtual void stopAllNotes(bool stopSustainedNotes = false);
+        //virtual void stopAllNotes(bool stopSustainedNotes = false);
 
         /**
          * A driver implementation might need time to prepare playback of
          * a track. Use this function to check if the driver is ready to
          * receive MIDI events.
          */
-        virtual bool isReady() { return true; }
+        //virtual bool isReady() { return true; }
     };
 }

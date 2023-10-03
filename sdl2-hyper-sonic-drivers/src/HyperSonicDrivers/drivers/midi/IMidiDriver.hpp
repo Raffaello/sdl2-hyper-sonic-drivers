@@ -48,6 +48,18 @@ namespace HyperSonicDrivers::drivers::midi
         //void controller(const uint8_t chan, const uint8_t ctrl, uint8_t value) noexcept;
         virtual void programChange(const uint8_t chan, const uint8_t program) noexcept;
         virtual void pitchBend(const uint8_t chan, const uint16_t bend) noexcept = 0;
+        /**
+         * Transmit a SysEx to the MIDI device.
+         *
+         * The given msg MUST NOT contain the usual SysEx frame, i.e.
+         * do NOT include the leading 0xF0 and the trailing 0xF7.
+         *
+         * Furthermore, the maximal supported length of a SysEx
+         * is 264 bytes. Passing longer buffers can lead to
+         * undefined behavior (most likely, a crash).
+         * TODO: review this method
+         */
+         virtual void sysEx(const uint8_t* msg, uint16_t length) { }
 
         // MIDI Controller Events
         virtual void ctrl_modulationWheel(const uint8_t chan, const uint8_t value) noexcept = 0;

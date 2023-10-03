@@ -2,15 +2,15 @@
 
 namespace HyperSonicDrivers::drivers::midi::scummvm
 {
-    void MidiDriver_BASE::send(uint8_t status, uint8_t firstOp, uint8_t secondOp) {
+    /*void MidiDriver_BASE::send(uint8_t status, uint8_t firstOp, uint8_t secondOp) {
         send(status | ((uint32_t)firstOp << 8) | ((uint32_t)secondOp << 16));
     }
 
     void MidiDriver_BASE::send(int8_t source, uint8_t status, uint8_t firstOp, uint8_t secondOp) {
         send(source, status | ((uint32_t)firstOp << 8) | ((uint32_t)secondOp << 16));
-    }
+    }*/
 
-    void MidiDriver_BASE::stopAllNotes(bool stopSustainedNotes)
+    /*void MidiDriver_BASE::stopAllNotes(bool stopSustainedNotes)
     {
         using enum audio::midi::MIDI_EVENT_TYPES_HIGH;
         using enum audio::midi::MIDI_EVENT_CONTROLLER_TYPES;
@@ -21,5 +21,5 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
             if (stopSustainedNotes)
                 controller(i, SUSTAIN, 0);
         }
-    }
+    }*/
 }
