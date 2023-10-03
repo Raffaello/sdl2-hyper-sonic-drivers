@@ -14,14 +14,10 @@ namespace HyperSonicDrivers::drivers::midi
         using audio::midi::TO_HIGH;
         using audio::midi::MIDI_EVENT_TYPES_HIGH;
 
-        switch (TO_HIGH(e.type.high))
-        {
-        case MIDI_EVENT_TYPES_HIGH::META_SYSEX:
+        if (TO_HIGH(e.type.high) == MIDI_EVENT_TYPES_HIGH::META_SYSEX)
             sysEx(e.data.data(), static_cast<uint16_t>(e.data.size()));
-            break;
-        default:
+        else
             send(e.toUint32());
-        }
     }
 
     void IMidiDriver::send(int8_t channel, uint32_t msg) noexcept
@@ -29,8 +25,8 @@ namespace HyperSonicDrivers::drivers::midi
         using audio::midi::MIDI_EVENT_type_u;
         using audio::midi::MIDI_EVENT_TYPES_HIGH;
 
-        const uint8_t param2 = (uint8_t)((msg >> 16) & 0xFF);
-        const uint8_t param1 = (uint8_t)((msg >> 8) & 0xFF);
+        const uint8_t param2 = static_cast<uint8_t>((msg >> 16) & 0xFF);
+        const uint8_t param1 = static_cast<uint8_t>((msg >> 8) & 0xFF);
         MIDI_EVENT_type_u cmd;
         cmd.high = static_cast<uint8_t>((msg >> 4) & 0xF);
 
@@ -44,34 +40,35 @@ namespace HyperSonicDrivers::drivers::midi
 
     void IMidiDriver::send(const audio::midi::MIDI_EVENT_TYPES_HIGH type, const uint8_t channel, const uint8_t data1, const uint8_t data2)
     {
-        using audio::midi::MIDI_EVENT_TYPES_HIGH;
         using audio::midi::TO_CTRL;
 
         switch (type)
         {
-        case MIDI_EVENT_TYPES_HIGH::NOTE_OFF:// Note Off
+            using enum audio::midi::MIDI_EVENT_TYPES_HIGH;
+
+        case NOTE_OFF:// Note Off
             noteOff(channel, data1);
             break;
-        case MIDI_EVENT_TYPES_HIGH::NOTE_ON: // Note On
+        case NOTE_ON: // Note On
             noteOn(channel, data1, data2);
             break;
-        case MIDI_EVENT_TYPES_HIGH::AFTERTOUCH: // Aftertouch
+        case AFTERTOUCH: // Aftertouch
             break; // Not supported.
-        case MIDI_EVENT_TYPES_HIGH::CONTROLLER: // Control Change
+        case CONTROLLER: // Control Change
             controller(channel, TO_CTRL(data1), data2);
             break;
-        case MIDI_EVENT_TYPES_HIGH::PROGRAM_CHANGE: // Program Change
+        case PROGRAM_CHANGE: // Program Change
             programChange(channel, data1);
             break;
-        case MIDI_EVENT_TYPES_HIGH::CHANNEL_AFTERTOUCH: // Channel Pressure
+        case CHANNEL_AFTERTOUCH: // Channel Pressure
             break; // Not supported.
-        case MIDI_EVENT_TYPES_HIGH::PITCH_BEND: // Pitch Bend
+        case PITCH_BEND: // Pitch Bend
         {
             const auto bend = static_cast<uint16_t>((data1 | (data2 << 7)) - audio::midi::MIDI_PITCH_BEND_DEFAULT);
             pitchBend(channel, bend);
         }
         break;
-        case MIDI_EVENT_TYPES_HIGH::META_SYSEX: // SysEx
+        case META_SYSEX: // SysEx
             // We should never get here! SysEx information has to be
             // sent via high-level semantic methods.
             logW("Receiving SysEx command on a send() call");

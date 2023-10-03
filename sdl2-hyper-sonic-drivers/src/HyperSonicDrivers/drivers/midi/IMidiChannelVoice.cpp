@@ -17,6 +17,6 @@ namespace HyperSonicDrivers::drivers::midi
 
     uint8_t IMidiChannelVoice::calcVolume_() const noexcept
     {
-        return  std::min<uint8_t>((static_cast<uint32_t>(m_volume) * m_channel->volume / 127), 127);
+        return  std::min<uint8_t>(static_cast<uint8_t>(m_volume * m_channel->volume / 127), 127);
     }
 }
