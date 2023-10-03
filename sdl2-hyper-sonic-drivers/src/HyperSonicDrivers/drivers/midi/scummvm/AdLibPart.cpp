@@ -39,6 +39,11 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         }
     }
 
+    void AdLibPart::setCustomInstr(const AdLibInstrument* instr) noexcept
+    {
+        memcpy(&_partInstr, instr, sizeof(AdLibInstrument));
+    }
+
     MidiDriver* AdLibPart::device() {
         return _owner;
     }
@@ -257,18 +262,18 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
             _owner->mcOff(_voice);
     }*/
 
-    void AdLibPart::sysEx_customInstrument(uint32_t type, const uint8_t* instr)
-    {
-        // Sam&Max allows for instrument overwrites, but we will not support it
-        // until we can find any track actually using it.
-        if (_owner->m_opl3Mode)
-        {
-            logW("Used in OPL3 mode, not supported");
-            return;
-        }
+    //void AdLibPart::sysEx_customInstrument(uint32_t type, const uint8_t* instr)
+    //{
+    //    // Sam&Max allows for instrument overwrites, but we will not support it
+    //    // until we can find any track actually using it.
+    //    if (_owner->m_opl3Mode)
+    //    {
+    //        logW("Used in OPL3 mode, not supported");
+    //        return;
+    //    }
 
-        if (type == static_cast<uint32_t>('ADL ')) {
-            memcpy(&_partInstr, instr, sizeof(AdLibInstrument));
-        }
-    }
+    //    if (type == static_cast<uint32_t>('ADL ')) {
+    //        memcpy(&_partInstr, instr, sizeof(AdLibInstrument));
+    //    }
+    //}
 }

@@ -287,7 +287,51 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
     void MidiDriver_ADLIB::sysEx_customInstrument(uint8_t channel, uint32_t type, const uint8_t* instr)
     {
-        toAdlibPart(m_channels[channel])->sysEx_customInstrument(type, instr);
+        if (m_opl3Mode)
+        {
+            logW("Used in OPL3 mode, not supported");
+            return;
+        }
+
+        auto part = getChannel(channel);
+
+        if (part->isPercussion)
+        {
+            auto part_ = dynamic_cast<AdLibPercussionChannel*>(part);
+            if (type == static_cast<uint32_t>('ADLP'))
+            {
+                uint8_t note = instr[0];
+                part_->_notes[note] = instr[1];
+
+                // Allocate memory for the new instruments
+                if (!part_->_customInstruments[note])
+                {
+                    part_->_customInstruments[note] = std::make_unique<AdLibInstrument>();
+                    memset(part_->_customInstruments[note].get(), 0, sizeof(AdLibInstrument));
+                }
+
+                // Save the new instrument data
+                part_->_customInstruments[note]->modCharacteristic = instr[2];
+                part_->_customInstruments[note]->modScalingOutputLevel = instr[3];
+                part_->_customInstruments[note]->modAttackDecay = instr[4];
+                part_->_customInstruments[note]->modSustainRelease = instr[5];
+                part_->_customInstruments[note]->modWaveformSelect = instr[6];
+                part_->_customInstruments[note]->carCharacteristic = instr[7];
+                part_->_customInstruments[note]->carScalingOutputLevel = instr[8];
+                part_->_customInstruments[note]->carAttackDecay = instr[9];
+                part_->_customInstruments[note]->carSustainRelease = instr[10];
+                part_->_customInstruments[note]->carWaveformSelect = instr[11];
+                part_->_customInstruments[note]->feedback = instr[12];
+            }
+        }
+        else
+        {
+            if (type == static_cast<uint32_t>('ADL ')) {
+                part->setCustomInstr(reinterpret_cast<const AdLibInstrument*>(instr));
+            }
+        }
+
+        //part->sysEx_customInstrument(type, instr);
     }
 
     MidiChannel* MidiDriver_ADLIB::allocateChannel()

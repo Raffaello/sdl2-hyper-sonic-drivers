@@ -37,6 +37,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         inline const AdLibInstrument* getInstr() const noexcept { return &_partInstr; };
         inline const AdLibInstrument* getInstrSecondary() const noexcept { return &_partInstrSecondary; };
         void setInstr(const bool isOpl3) noexcept;
+        void setCustomInstr(const AdLibInstrument* instr) noexcept;
 
 
         MidiDriver* device() override;
@@ -64,6 +65,6 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         //void allNotesOff() override;
 
         // SysEx messages
-        void sysEx_customInstrument(uint32_t type, const uint8_t* instr) override;
+        //void sysEx_customInstrument(uint32_t type, const uint8_t* instr) override;
     };
 }

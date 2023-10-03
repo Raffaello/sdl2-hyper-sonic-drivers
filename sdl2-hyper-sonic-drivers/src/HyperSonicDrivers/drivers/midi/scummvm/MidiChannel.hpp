@@ -41,6 +41,6 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         //virtual void allNotesOff() { controlChange(static_cast<uint8_t>(audio::midi::MIDI_EVENT_CONTROLLER_TYPES::ALL_NOTES_OFF), 0); }
 
         // SysEx messages
-        virtual void sysEx_customInstrument(uint32_t type, const uint8_t* instr) = 0;
+        //virtual void sysEx_customInstrument(uint32_t type, const uint8_t* instr) = 0;
     };
 }

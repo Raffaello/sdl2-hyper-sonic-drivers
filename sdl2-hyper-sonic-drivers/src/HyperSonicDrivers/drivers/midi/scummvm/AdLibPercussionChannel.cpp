@@ -75,40 +75,40 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
     //    _owner->partKeyOn(this, inst, note, velocity, sec, pan);
     //}
 
-    void AdLibPercussionChannel::sysEx_customInstrument(uint32_t type, const uint8_t* instr) {
-        // We do not allow custom instruments in OPL3 mode right now.
-        if (_owner->m_opl3Mode)
-        {
-            logW("Used in OPL3 mode");
-            return;
-        }
+    //void AdLibPercussionChannel::sysEx_customInstrument(uint32_t type, const uint8_t* instr) {
+    //    // We do not allow custom instruments in OPL3 mode right now.
+    //    if (_owner->m_opl3Mode)
+    //    {
+    //        logW("Used in OPL3 mode");
+    //        return;
+    //    }
 
-        if (type == static_cast<uint32_t>('ADLP'))
-        {
-            uint8_t note = instr[0];
-            _notes[note] = instr[1];
+    //    if (type == static_cast<uint32_t>('ADLP'))
+    //    {
+    //        uint8_t note = instr[0];
+    //        _notes[note] = instr[1];
 
-            // Allocate memory for the new instruments
-            if (!_customInstruments[note])
-            {
-                _customInstruments[note] = std::make_unique<AdLibInstrument>();
-                memset(_customInstruments[note].get(), 0, sizeof(AdLibInstrument));
-            }
+    //        // Allocate memory for the new instruments
+    //        if (!_customInstruments[note])
+    //        {
+    //            _customInstruments[note] = std::make_unique<AdLibInstrument>();
+    //            memset(_customInstruments[note].get(), 0, sizeof(AdLibInstrument));
+    //        }
 
-            // Save the new instrument data
-            _customInstruments[note]->modCharacteristic = instr[2];
-            _customInstruments[note]->modScalingOutputLevel = instr[3];
-            _customInstruments[note]->modAttackDecay = instr[4];
-            _customInstruments[note]->modSustainRelease = instr[5];
-            _customInstruments[note]->modWaveformSelect = instr[6];
-            _customInstruments[note]->carCharacteristic = instr[7];
-            _customInstruments[note]->carScalingOutputLevel = instr[8];
-            _customInstruments[note]->carAttackDecay = instr[9];
-            _customInstruments[note]->carSustainRelease = instr[10];
-            _customInstruments[note]->carWaveformSelect = instr[11];
-            _customInstruments[note]->feedback = instr[12];
-        }
-    }
+    //        // Save the new instrument data
+    //        _customInstruments[note]->modCharacteristic = instr[2];
+    //        _customInstruments[note]->modScalingOutputLevel = instr[3];
+    //        _customInstruments[note]->modAttackDecay = instr[4];
+    //        _customInstruments[note]->modSustainRelease = instr[5];
+    //        _customInstruments[note]->modWaveformSelect = instr[6];
+    //        _customInstruments[note]->carCharacteristic = instr[7];
+    //        _customInstruments[note]->carScalingOutputLevel = instr[8];
+    //        _customInstruments[note]->carAttackDecay = instr[9];
+    //        _customInstruments[note]->carSustainRelease = instr[10];
+    //        _customInstruments[note]->carWaveformSelect = instr[11];
+    //        _customInstruments[note]->feedback = instr[12];
+    //    }
+    //}
 
     uint8_t AdLibPercussionChannel::getNote(const uint8_t note) const noexcept
     {
