@@ -66,4 +66,3 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         inline void setChannel(AdLibPart* chan) { m_channel = chan; };
     };
 }
-
