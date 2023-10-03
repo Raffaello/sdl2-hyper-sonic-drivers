@@ -19,9 +19,10 @@ namespace HyperSonicDrivers::drivers::midi
         inline IMidiChannel* getChannel() const noexcept { return m_channel; }
         uint8_t getChannelNum() const noexcept;
         inline uint8_t getNote() const noexcept { return m_note; }
-        inline uint8_t getVolume() const noexcept { return m_volume; };
+        //inline uint8_t getVolume() const noexcept { return m_volume; };
         void setVolumes(const uint8_t volume) noexcept;
         inline bool isFree() const noexcept { return m_free; }
+        inline bool isSustain() const noexcept { return m_sustain; };
         inline bool isVibrato() const noexcept { return m_vibrato; }
         
     protected:

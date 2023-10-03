@@ -43,11 +43,10 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         AdLibVoice* next;
         AdLibVoice* prev;
 
-        uint8_t waitForPedal;
         uint8_t slot; // NOTE: this is between 0 and 9, this is the "slot" (OPL channel number, not the MIDI Channel)
         uint8_t twoChan;
-        uint8_t vol1;
-        uint8_t vol2;
+        uint8_t vol1; // mod volume
+        uint8_t vol2; // car volume
         int16_t duration;
 
         Struct10 _s10a;
@@ -64,5 +63,6 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         inline void setNote(const uint8_t note) { m_note = note; }
         inline void setFree(const bool free) { m_free = free; };
         inline void setChannel(AdLibPart* chan) { m_channel = chan; };
+        inline void setWaitForPedal(const bool waitForPedal) { m_sustain = waitForPedal; };
     };
 }   

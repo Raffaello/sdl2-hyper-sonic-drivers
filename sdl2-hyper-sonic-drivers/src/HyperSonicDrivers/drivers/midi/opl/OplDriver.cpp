@@ -11,9 +11,6 @@ namespace HyperSonicDrivers::drivers::midi::opl
     using hardware::opl::opl2_num_channels;
     using hardware::opl::opl3_num_channels;
 
-    //using audio::midi::MIDI_EVENT_TYPES_HIGH;
-    //using audio::midi::TO_HIGH;
-    //using hardware::opl::OPL2instrument_t;
     using hardware::opl::OplType;
     using utils::logW;
     using utils::logE;
@@ -95,40 +92,6 @@ namespace HyperSonicDrivers::drivers::midi::opl
         //      but the same logic of the thread will be performed here.
     }
 
-    /*void OplDriver::send(const audio::midi::MIDIEvent& e) noexcept
-    {
-        switch (TO_HIGH(e.type.high))
-        {
-        case MIDI_EVENT_TYPES_HIGH::NOTE_OFF:
-            noteOff(e.type.low, e.data[0]);
-            break;
-        case MIDI_EVENT_TYPES_HIGH::NOTE_ON:
-            noteOn(e.type.low, e.data[0], e.data[1]);
-            break;
-        case MIDI_EVENT_TYPES_HIGH::AFTERTOUCH:
-            logW("AFTERTOUCH not supported");
-            break;
-        case MIDI_EVENT_TYPES_HIGH::CONTROLLER:
-            controller(e.type.low, e.data[0], e.data[1]);
-            break;
-        case MIDI_EVENT_TYPES_HIGH::PROGRAM_CHANGE:
-            programChange(e.type.low, e.data[0]);
-            break;
-        case MIDI_EVENT_TYPES_HIGH::CHANNEL_AFTERTOUCH:
-            logW("CHANNEL_AFTERTOUCH not supported");
-            break;
-        case MIDI_EVENT_TYPES_HIGH::PITCH_BEND:
-            pitchBend(e.type.low, static_cast<uint16_t>((e.data[0] | (e.data[1] << 7) - 0x2000) >> 6));
-            break;
-        case MIDI_EVENT_TYPES_HIGH::META_SYSEX:
-            logW("META_SYSEX not supported");
-            break;
-        default:
-            logW(std::format("OplDriver: Unknown send() command {:#0x}", e.type.val));
-            break;
-        }
-    }*/
-
     void OplDriver::pause() const noexcept
     {
         for (auto it = m_voicesInUseIndex.begin(); it != m_voicesInUseIndex.end(); ++it) {
@@ -193,84 +156,6 @@ namespace HyperSonicDrivers::drivers::midi::opl
             logC(std::format("NO FREE CHANNEL? midi-ch={} - playingVoices={} -- free={}", chan, m_voicesInUseIndex.size(), m_voicesFreeIndex.size()));
         }
     }
-
-    //void OplDriver::controller(const uint8_t chan, const uint8_t control, uint8_t value) noexcept
-    //{
-    //    // MIDI_EVENT_CONTROLLER_TYPES
-    //    switch (control)
-    //    {
-    //    case 0:
-    //    case 32:
-    //        // Bank select. Not supported
-    //        logW(std::format("bank select value {}", value));
-    //        break;
-    //    case 1:
-    //        ctrl_modulationWheel(chan, value);
-    //        //spdlog::debug("modwheel value {}", value);
-    //        break;
-    //    case 7:
-    //        ctrl_volume(chan, value);
-    //        break;
-    //    case 10:
-    //        // Not Available on OPL2/AdLib.
-    //        
-    //            ctrl_panPosition(chan, value);
-    //        break;
-    //    case 16:
-    //        //pitchBendFactor(value);
-    //        logW(std::format("pitchBendFactor value {}", value));
-    //        break;
-    //    case 17:
-    //        //detune(value);
-    //        logW(std::format("detune value {}", value));
-    //        break;
-    //    case 18:
-    //        //priority(value);
-    //        logW(std::format("priority value {}", value));
-    //        break;
-    //    case 64:
-    //        ctrl_sustain(chan, value);
-    //        break;
-    //    case 91:
-    //        // Effects level. Not supported.
-    //        //effectLevel(value);
-    //        logW(std::format("effect level value {}", value));
-    //        break;
-    //    case 93:
-    //        // Chorus level. Not supported.
-    //        //chorusLevel(value);
-    //        logW(std::format("chorus level value {}", value));
-    //        break;
-    //    case 119:
-    //        // Unknown, used in Simon the Sorcerer 2
-    //        logW(std::format("unknown value {}", value));
-    //        break;
-    //    case 121:
-    //        // reset all controllers
-    //        logW("reset all controllers value");
-    //        //modulationWheel(0);
-    //        //pitchBendFactor(0);
-    //        //detune(0);
-    //        //sustain(false);
-    //        break;
-    //    case 123:
-    //        //spdlog::debug("all notes off");
-    //        m_oplWriter->stopAll();
-    //        break;
-    //    default:
-    //        logW(std::format("OplDriver: Unknown control change message {:d} {:d}", control, value));
-    //    }
-    //}
-
-    /*void OplDriver::programChange(const uint8_t chan, const uint8_t program) noexcept
-    {
-        if (program > 127)
-        {
-            logW(std::format("Progam change value >= 127 -> {}", program));
-        }
-
-        m_channels[chan]->program = program;
-    }*/
 
     void OplDriver::pitchBend(const uint8_t chan, const uint16_t bend) noexcept
     {

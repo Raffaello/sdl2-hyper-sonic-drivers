@@ -574,7 +574,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         if (value != 0) {
             for (AdLibVoice* voice = part->voice; voice; voice = voice->next)
             {
-                if (voice->waitForPedal)
+                if (voice->isSustain())
                     mcOff(voice);
             }
         }
@@ -889,7 +889,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
             if (voice->getNote() == note)
             {
                 if (part->sustain)
-                    voice->waitForPedal = true;
+                    voice->setWaitForPedal(true);
                 else
                     mcOff(voice);
             }
@@ -966,7 +966,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
         voice->twoChan = instr->feedback & 1;
         voice->setNote(note);
-        voice->waitForPedal = false;
+        voice->setWaitForPedal(false);
         voice->duration = instr->duration;
         if (voice->duration != 0)
             voice->duration *= 63;
