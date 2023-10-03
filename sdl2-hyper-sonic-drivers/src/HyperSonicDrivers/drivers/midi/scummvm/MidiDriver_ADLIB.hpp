@@ -5,7 +5,6 @@
 #include <memory>
 #include <HyperSonicDrivers/devices/Opl.hpp>
 #include <HyperSonicDrivers/drivers/midi/scummvm/MidiDriver.hpp>
-#include <HyperSonicDrivers/drivers/midi/scummvm/MidiChannel.hpp>
 #include <HyperSonicDrivers/drivers/midi/scummvm/AdLibInstrument.h>
 #include <HyperSonicDrivers/drivers/midi/scummvm/AdlibVoice.h>
 #include <HyperSonicDrivers/drivers/midi/scummvm/AdLibPart.hpp>
