@@ -37,8 +37,9 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         Struct10* s10;
     };
 
-    struct AdLibVoice : public IMidiChannelVoice
+    class AdLibVoice : public IMidiChannelVoice
     {
+    public:
         AdLibVoice* next;
         AdLibVoice* prev;
 
