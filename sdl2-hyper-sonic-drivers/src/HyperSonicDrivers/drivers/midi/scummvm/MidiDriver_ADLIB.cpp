@@ -181,7 +181,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
         for (auto& v : m_voices)
         {
-            if (!v.isFree())
+            if (v.getChannel() != nullptr)
                 mcOff(&v);
         }
 

@@ -23,39 +23,6 @@ namespace HyperSonicDrivers::drivers::midi
         cmd.high = static_cast<uint8_t>((msg >> 4) & 0xF);
 
         send(TO_HIGH(cmd.high), channel, param1, param2);
-        //switch (TO_HIGH(cmd.high))
-        //{
-        //case MIDI_EVENT_TYPES_HIGH::NOTE_OFF:// Note Off
-        //    noteOff(channel, param1);
-        //    break;
-        //case MIDI_EVENT_TYPES_HIGH::NOTE_ON: // Note On
-        //    noteOn(channel, param1, param2);
-        //    break;
-        //case MIDI_EVENT_TYPES_HIGH::AFTERTOUCH: // Aftertouch
-        //    break; // Not supported.
-        //case MIDI_EVENT_TYPES_HIGH::CONTROLLER: // Control Change
-        //    controller(channel, param1, param2);
-        //    break;
-        //case MIDI_EVENT_TYPES_HIGH::PROGRAM_CHANGE: // Program Change
-        //    programChange(channel, param1);
-        //    break;
-        //case MIDI_EVENT_TYPES_HIGH::CHANNEL_AFTERTOUCH: // Channel Pressure
-        //    break; // Not supported.
-        //case MIDI_EVENT_TYPES_HIGH::PITCH_BEND: // Pitch Bend
-        //{
-        //    const auto bend = static_cast<uint16_t>((param1 | (param2 << 7)) - 0x2000);
-        //    pitchBend(channel, bend);
-        //}
-        //    break;
-        //case MIDI_EVENT_TYPES_HIGH::META_SYSEX: // SysEx
-        //    // We should never get here! SysEx information has to be
-        //    // sent via high-level semantic methods.
-        //    logW("Receiving SysEx command on a send() call");
-        //    break;
-
-        //default:
-        //    logW(std::format("Unknown send() command {:#0x}", cmd.val));
-        //}
     }
 
     void IMidiDriver::send(uint32_t msg) noexcept
@@ -103,11 +70,6 @@ namespace HyperSonicDrivers::drivers::midi
         }
     }
 
-    /*void IMidiDriver::send_ctrl(const uint8_t channel, const audio::midi::MIDI_EVENT_CONTROLLER_TYPES ctrl_type, const uint8_t data)
-    {
-        controller(channel, static_cast<uint8_t>(ctrl_type), data);
-    }*/
-
     void IMidiDriver::controller(const uint8_t chan, const audio::midi::MIDI_EVENT_CONTROLLER_TYPES ctrl_type, uint8_t value) noexcept
     {
         // MIDI_EVENT_CONTROLLER_TYPES
@@ -115,8 +77,6 @@ namespace HyperSonicDrivers::drivers::midi
         {
             using enum audio::midi::MIDI_EVENT_CONTROLLER_TYPES;
         case BANK_SELECT_MSB:
-            //case BANK_SELECT_2:
-                // Bank select. Not supported
             logW(std::format("bank select value {}", value));
             break;
         case MODULATION_WHEEL:
@@ -153,17 +113,9 @@ namespace HyperSonicDrivers::drivers::midi
             //chorusLevel(value);
             logW(std::format("chorus level value {}", value));
             break;
-            //case 119:
-            //    // Unknown, used in Simon the Sorcerer 2
-            //    logW(std::format("unknown value {}", value));
-            //    break;
         case RESET_ALL_CONTROLLERS:
             // reset all controllers
-            logW("reset all controllers value");
-            //modulationWheel(0);
-            //pitchBendFactor(0);
-            //detune(0);
-            //sustain(false);
+            logW("reset all controllers value not implemented");
             break;
         case ALL_NOTES_OFF:
             ctrl_allNotesOff();
@@ -172,13 +124,6 @@ namespace HyperSonicDrivers::drivers::midi
             logW(std::format("OplDriver: Unknown control change message {:d} {:d}", static_cast<uint8_t>(ctrl_type), value));
         }
     }
-
-    /*void IMidiDriver::controller(const uint8_t chan, const uint8_t ctrl, uint8_t value) noexcept
-    {
-        using audio::midi::TO_CTRL;
-
-        controller(chan, TO_CTRL(ctrl), value);
-    }*/
 
     void IMidiDriver::programChange(const uint8_t chan, const uint8_t program) noexcept
     {
