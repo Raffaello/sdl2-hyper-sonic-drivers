@@ -2,20 +2,18 @@
 
 #include <string>
 #include <cstdint>
-#include <HyperSonicDrivers/drivers/midi/scummvm/MidiDriver_BASE.hpp>
+#include <HyperSonicDrivers/drivers/midi/IMidiDriver.hpp>
 #include <HyperSonicDrivers/audio/mixer/ChannelGroup.hpp>
 #include <HyperSonicDrivers/audio/midi/types.hpp>
 
 namespace HyperSonicDrivers::drivers::midi::scummvm
 {
-    class MidiChannel;
-
     /**
      * Abstract MIDI Driver Class
      *
      * @todo Rename MidiDriver to MusicDriver
      */
-    class MidiDriver : public MidiDriver_BASE
+    class MidiDriver : public IMidiDriver
     {
     public:
         ~MidiDriver() override = default;
