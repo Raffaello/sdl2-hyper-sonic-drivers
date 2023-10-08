@@ -22,7 +22,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         AdLibVoice* voice = nullptr;
         uint8_t pitchBendFactor = 2;
         int8_t detuneEff = 0;
-        uint8_t priEff = 127;
+        uint8_t priority = 127;
         //int8_t _transposeEff;
 
     protected:

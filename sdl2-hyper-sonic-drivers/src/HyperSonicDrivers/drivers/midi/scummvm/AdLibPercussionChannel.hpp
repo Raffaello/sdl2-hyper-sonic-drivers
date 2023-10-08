@@ -9,11 +9,9 @@
 
 namespace HyperSonicDrivers::drivers::midi::scummvm
 {
-    // FYI (Jamieson630)
-    // It is assumed that any invocation to AdLibPercussionChannel
-    // will be done through the MidiChannel base class as opposed to the
-    // AdLibPart base class. If this were NOT the case, all the functions
-    // listed below would need to be virtual in AdLibPart as well as MidiChannel.
+    /**
+    * TODO: It should be derived from IMidiChannel as it has very little in common from AdLibChannel class
+    **/
     class AdLibPercussionChannel : public AdLibChannel
     {
     public:
@@ -21,7 +19,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         ~AdLibPercussionChannel() override = default;
 
         uint8_t getNote(const uint8_t note) const noexcept;
-        AdLibInstrument* getInstrument(const uint8_t note) const noexcept;
+        AdLibInstrument* getCustomInstrument(const uint8_t note) const noexcept;
 
         void setCustomInstr(const uint8_t* instr) noexcept override;
 

@@ -336,13 +336,13 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
             // We do not support custom instruments in OPL3 mode though.
             if (!m_opl3Mode)
             {
-                inst = m_percussion->getInstrument(note);
+                inst = m_percussion->getCustomInstrument(note);
             }
 
-            if (!inst)
+            if (inst == nullptr)
             {
                 // Use the default GM to FM mapping as a fallback
-                uint8_t key = g_gmPercussionInstrumentMap[note];
+                const uint8_t key = g_gmPercussionInstrumentMap[note];
                 if (key != 0xFF)
                 {
                     if (!m_opl3Mode)
@@ -436,7 +436,10 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
         auto part = getChannel(chan);
         part->program = program;
-        part->setInstr(m_opl3Mode);
+        if (!part->isPercussion)
+            part->setInstr(m_opl3Mode);
+        else
+            int i = 0;
     }
 
     void MidiDriver_ADLIB::pitchBend(const uint8_t chan, const uint16_t bend) noexcept
@@ -562,7 +565,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         if (part->isPercussion)
             return;
 
-        part->priEff = value;
+        part->priority = value;
     }
 
     void MidiDriver_ADLIB::ctrl_sustain(const uint8_t chan, uint8_t value) noexcept
@@ -904,7 +907,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
     void MidiDriver_ADLIB::partKeyOn(AdLibChannel* part, const AdLibInstrument* instr, uint8_t note, uint8_t velocity, const AdLibInstrument* second, uint8_t pan) {
         AdLibVoice* voice;
 
-        voice = allocateVoice(part->priEff);
+        voice = allocateVoice(part->priority);
         if (!voice)
             return;
 
@@ -928,7 +931,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
             if (ac->next == nullptr)
             {
-                const auto priEff_ = toAdlibPart(ac->getChannel())->priEff;
+                const auto priEff_ = toAdlibPart(ac->getChannel())->priority;
                 if (priEff_ <= pri)
                 {
                     pri = priEff_;

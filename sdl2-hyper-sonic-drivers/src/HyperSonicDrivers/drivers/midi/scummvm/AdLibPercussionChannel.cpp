@@ -13,7 +13,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
     AdLibPercussionChannel::AdLibPercussionChannel() :
         AdLibChannel(audio::midi::MIDI_PERCUSSION_CHANNEL)
     {
-        priEff = 0;
+        priority = 0;
         volume = 127;
 
         // Initialize the custom instruments data
@@ -28,10 +28,28 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         return note;
     }
 
-    AdLibInstrument* AdLibPercussionChannel::getInstrument(const uint8_t note) const noexcept
+    AdLibInstrument* AdLibPercussionChannel::getCustomInstrument(const uint8_t note) const noexcept
     {
         return m_customInstruments[note].get();
     }
+
+    //void AdLibPercussionChannel::setInstr(const bool isOpl3) noexcept
+    //{
+    //    // Use the default GM to FM mapping as a fallback
+    //    const uint8_t key = g_gmPercussionInstrumentMap[program];
+    //    if (key != 0xFF)
+    //    {
+    //        if (isOpl3)
+    //        {
+    //            memcpy(&_partInstr, &g_gmPercussionInstrumentsOPL3[program][0], sizeof(AdLibInstrument));
+    //            memcpy(&_partInstrSecondary, &g_gmPercussionInstrumentsOPL3[program][1], sizeof(AdLibInstrument));
+    //        }
+    //        else
+    //        {
+    //            memcpy(&_partInstr, &g_gmPercussionInstruments[program], sizeof(AdLibInstrument));
+    //        }
+    //    }
+    //}
 
     void AdLibPercussionChannel::setCustomInstr(const uint8_t* instr) noexcept
     {
