@@ -101,7 +101,7 @@ namespace HyperSonicDrivers::drivers::opl
             instr->trem_vibr_2 | state);
     }
 
-    void OplWriter::writePan(const uint8_t channel, const hardware::opl::OPL2instrument_t* instr, const int8_t pan) const noexcept
+    void OplWriter::writePan(const uint8_t channel, const hardware::opl::OPL2instrument_t* instr, const uint8_t pan) const noexcept
     {
         // OPL2 is mono
         // TODO: what about DUAL_OPL2 ? (use an OPL3 emulator :)
@@ -109,8 +109,8 @@ namespace HyperSonicDrivers::drivers::opl
             return;
 
         uint8_t bits;
-        if (pan < -36) bits = 0x10;     // left
-        else if (pan > 36) bits = 0x20; // right
+        if (pan < 64) bits = 0x10;     // left
+        else if (pan > 64) bits = 0x20; // right
         else bits = 0x30;               // both
 
         writeValue(0xC0, channel, instr->feedback | bits);

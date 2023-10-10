@@ -2,6 +2,7 @@
 #include <format>
 #include <cassert>
 #include <HyperSonicDrivers/drivers/midi/opl/OplDriver.hpp>
+#include <HyperSonicDrivers/drivers/midi/opl/OplChannel.hpp>
 #include <HyperSonicDrivers/hardware/opl/OplType.hpp>
 #include <HyperSonicDrivers/utils/ILogger.hpp>
 
@@ -10,16 +11,10 @@ namespace HyperSonicDrivers::drivers::midi::opl
     using hardware::opl::opl2_num_channels;
     using hardware::opl::opl3_num_channels;
 
-    using audio::midi::MIDI_PERCUSSION_CHANNEL;
-    using audio::midi::MIDI_EVENT_TYPES_HIGH;
-    using audio::midi::TO_HIGH;
-    using hardware::opl::OPL2instrument_t;
     using hardware::opl::OplType;
     using utils::logW;
     using utils::logE;
     using utils::logC;
-
-    // TODO: allocateVoice and getFreeSlot should be merged into 1 function
 
     OplDriver::OplDriver(const std::shared_ptr<devices::Opl>& opl) :
         m_opl([&opl] {
@@ -32,14 +27,14 @@ namespace HyperSonicDrivers::drivers::midi::opl
     {
         m_oplWriter = std::make_unique<drivers::opl::OplWriter>(m_opl, m_opl3_mode);
 
-        for (uint8_t i = 0; i < audio::midi::MIDI_MAX_CHANNELS; ++i) {
-            m_channels[i] = std::make_unique<OplChannel>(i);
-        }
-
         m_voices.resize(m_oplNumChannels);
         for (uint8_t i = 0; i < m_oplNumChannels; ++i) {
             m_voices[i] = std::make_unique<OplVoice>(i, m_oplWriter.get());
             m_voicesFreeIndex.push_back(i);
+        }
+
+        for (uint8_t i = 0; i < audio::midi::MIDI_MAX_CHANNELS; ++i) {
+            m_channels[i] = std::make_unique<OplChannel>(i);
         }
     }
 
@@ -97,40 +92,6 @@ namespace HyperSonicDrivers::drivers::midi::opl
         //      but the same logic of the thread will be performed here.
     }
 
-    void OplDriver::send(const audio::midi::MIDIEvent& e) noexcept
-    {
-        switch (TO_HIGH(e.type.high))
-        {
-        case MIDI_EVENT_TYPES_HIGH::NOTE_OFF:
-            noteOff(e.type.low, e.data[0]);
-            break;
-        case MIDI_EVENT_TYPES_HIGH::NOTE_ON:
-            noteOn(e.type.low, e.data[0], e.data[1]);
-            break;
-        case MIDI_EVENT_TYPES_HIGH::AFTERTOUCH:
-            logW("AFTERTOUCH not supported");
-            break;
-        case MIDI_EVENT_TYPES_HIGH::CONTROLLER:
-            controller(e.type.low, e.data[0], e.data[1]);
-            break;
-        case MIDI_EVENT_TYPES_HIGH::PROGRAM_CHANGE:
-            programChange(e.type.low, e.data[0]);
-            break;
-        case MIDI_EVENT_TYPES_HIGH::CHANNEL_AFTERTOUCH:
-            logW("CHANNEL_AFTERTOUCH not supported");
-            break;
-        case MIDI_EVENT_TYPES_HIGH::PITCH_BEND:
-            pitchBend(e.type.low, static_cast<uint16_t>((e.data[0] | (e.data[1] << 7) - 0x2000) >> 6));
-            break;
-        case MIDI_EVENT_TYPES_HIGH::META_SYSEX:
-            logW("META_SYSEX not supported");
-            break;
-        default:
-            logW(std::format("OplDriver: Unknown send() command {:#0x}", e.type.val));
-            break;
-        }
-    }
-
     void OplDriver::pause() const noexcept
     {
         for (auto it = m_voicesInUseIndex.begin(); it != m_voicesInUseIndex.end(); ++it) {
@@ -153,9 +114,10 @@ namespace HyperSonicDrivers::drivers::midi::opl
     {
         const uint8_t sustain = m_channels[chan]->sustain;
 
-        for (auto it = m_voicesInUseIndex.begin(); it != m_voicesInUseIndex.end();) {
-            // TODO: this noteOff is masking the voice Release, not nice.
-            if (m_voices[*it]->noteOff(chan, note, sustain)) {
+        for (auto it = m_voicesInUseIndex.begin(); it != m_voicesInUseIndex.end();)
+        {
+            if (m_voices[*it]->getChannelNum() == chan && m_voices[*it]->noteOff(note, sustain))
+            {
                 m_voicesFreeIndex.push_back(*it);
                 it = m_voicesInUseIndex.erase(it);
             }
@@ -168,17 +130,17 @@ namespace HyperSonicDrivers::drivers::midi::opl
     {
         using audio::opl::banks::OP2Bank;
 
-        const bool isPercussion = chan == MIDI_PERCUSSION_CHANNEL;
+        const bool isPercussion = m_channels[chan]->isPercussion;
         int8_t freeSlot = getFreeOplVoiceIndex(!isPercussion);
-
         if (freeSlot != -1)
         {
             const uint8_t instr_index = isPercussion ?
                 OP2Bank::getPercussionIndex(note) :
-                m_channels[chan]->getProgram();
+                m_channels[chan]->program;
 
             const auto instr = m_op2Bank->getInstrumentPtr(instr_index);
 
+            utils::logD(std::format("channel#={} - midi_ch={}", chan, m_channels[chan]->channel));
             allocateVoice(freeSlot, chan, note, vol, instr, false);
 
             if (m_opl3_mode && OP2Bank::supportOpl3(instr))
@@ -194,128 +156,74 @@ namespace HyperSonicDrivers::drivers::midi::opl
         }
     }
 
-    void OplDriver::controller(const uint8_t chan, const uint8_t control, uint8_t value) const noexcept
+    void OplDriver::pitchBend(const uint8_t chan, const uint16_t bend) noexcept
     {
-        // MIDI_EVENT_CONTROLLER_TYPES
-        switch (control)
+        m_channels[chan]->pitch = bend;
+        for (auto it = m_voicesInUseIndex.begin(); it != m_voicesInUseIndex.end(); ++it)
         {
-        case 0:
-        case 32:
-            // Bank select. Not supported
-            logW(std::format("bank select value {}", value));
-            break;
-        case 1:
-            ctrl_modulationWheel(chan, value);
-            //spdlog::debug("modwheel value {}", value);
-            break;
-        case 7:
-            ctrl_volume(chan, value);
-            break;
-        case 10:
-            // Not Available on OPL2/AdLib.
-            if (m_opl3_mode)
-                ctrl_panPosition(chan, value);
-            break;
-        case 16:
-            //pitchBendFactor(value);
-            logW(std::format("pitchBendFactor value {}", value));
-            break;
-        case 17:
-            //detune(value);
-            logW(std::format("detune value {}", value));
-            break;
-        case 18:
-            //priority(value);
-            logW(std::format("priority value {}", value));
-            break;
-        case 64:
-            ctrl_sustain(chan, value);
-            break;
-        case 91:
-            // Effects level. Not supported.
-            //effectLevel(value);
-            logW(std::format("effect level value {}", value));
-            break;
-        case 93:
-            // Chorus level. Not supported.
-            //chorusLevel(value);
-            logW(std::format("chorus level value {}", value));
-            break;
-        case 119:
-            // Unknown, used in Simon the Sorcerer 2
-            logW(std::format("unknown value {}", value));
-            break;
-        case 121:
-            // reset all controllers
-            logW("reset all controllers value");
-            //modulationWheel(0);
-            //pitchBendFactor(0);
-            //detune(0);
-            //sustain(false);
-            break;
-        case 123:
-            //spdlog::debug("all notes off");
-            m_oplWriter->stopAll();
-            break;
-        default:
-            logW(std::format("OplDriver: Unknown control change message {:d} {:d}", control, value));
+            if (m_voices[*it]->getChannelNum() == chan)
+                m_voices[*it]->pitchBend(bend);
         }
     }
 
-    void OplDriver::programChange(const uint8_t chan, const uint8_t program) const noexcept
+    void OplDriver::sysEx(const uint8_t* msg, uint16_t length) noexcept
     {
-        m_channels[chan]->programChange(program);
+        // TODO ...
     }
 
-    void OplDriver::pitchBend(const uint8_t chan, const uint16_t bend) const noexcept
-    {
-        //spdlog::debug("PITCH_BEND {}", bend);
-        // OPLPitchWheel
-        m_channels[chan]->pitch = static_cast<int8_t>(bend);
-
-        for (auto it = m_voicesInUseIndex.begin(); it != m_voicesInUseIndex.end(); ++it)
-            m_voices[*it]->pitchBend(chan, bend);
-    }
-
-
-    void OplDriver::ctrl_modulationWheel(const uint8_t chan, const uint8_t value) const noexcept
+    void OplDriver::ctrl_modulationWheel(const uint8_t chan, const uint8_t value) noexcept
     {
         m_channels[chan]->modulation = value;
 
         for (auto it = m_voicesInUseIndex.begin(); it != m_voicesInUseIndex.end(); ++it)
-            m_voices[*it]->ctrl_modulationWheel(chan, value);
+        {
+            if (m_voices[*it]->getChannelNum() == chan)
+                m_voices[*it]->ctrl_modulationWheel(value);
+        }
     }
 
-    void OplDriver::ctrl_volume(const uint8_t chan, const uint8_t value) const noexcept
+    void OplDriver::ctrl_volume(const uint8_t chan, const uint8_t value) noexcept
     {
-        //spdlog::debug("volume value {} -ch={}", value, chan);
-
         m_channels[chan]->volume = value;
         for (auto it = m_voicesInUseIndex.begin(); it != m_voicesInUseIndex.end(); ++it)
-            m_voices[*it]->ctrl_volume(chan, value/*, abs_time*/);
+        {
+            if (m_voices[*it]->getChannelNum() == chan)
+                m_voices[*it]->ctrl_volume(value);
+        }
     }
 
-    void OplDriver::ctrl_panPosition(const uint8_t chan, uint8_t value) const noexcept
+    void OplDriver::ctrl_panPosition(const uint8_t chan, const uint8_t value) noexcept
     {
-        //spdlog::debug("panPosition value {}", value);
+        if (!m_opl3_mode)
+            return;
 
-        m_channels[chan]->pan = value -= 64;
+        m_channels[chan]->pan = value;
         for (auto it = m_voicesInUseIndex.begin(); it != m_voicesInUseIndex.end(); ++it)
-            m_voices[*it]->ctrl_panPosition(chan, value);
+        {
+            if (m_voices[*it]->getChannelNum() == chan)
+                m_voices[*it]->ctrl_panPosition(value);
+        }
     }
 
-    void OplDriver::ctrl_sustain(const uint8_t chan, uint8_t value) const noexcept
+    void OplDriver::ctrl_sustain(const uint8_t chan, const uint8_t value) noexcept
     {
-        //spdlog::debug("sustain value {}", value);
         m_channels[chan]->sustain = value;
-        if (value < SUSTAIN_THRESHOLD)
+        if (value < opl_sustain_threshold)
             releaseSustain(chan);
+    }
+
+    void OplDriver::ctrl_allNotesOff() noexcept
+    {
+        m_oplWriter->stopAll();
     }
 
     void OplDriver::releaseSustain(const uint8_t channel) const noexcept
     {
         for (auto it = m_voicesInUseIndex.begin(); it != m_voicesInUseIndex.end(); ++it)
-            m_voices[*it]->releaseSustain(channel);
+        {
+            if (m_voices[*it]->getChannelNum() == channel)
+                m_voices[*it]->releaseSustain();
+        }
     }
 
     uint8_t OplDriver::releaseVoice(const uint8_t slot, const bool forced)
@@ -330,11 +238,8 @@ namespace HyperSonicDrivers::drivers::midi::opl
         const audio::opl::banks::Op2BankInstrument_t* instrument,
         const bool secondary)
     {
-        const OplChannel* ch = m_channels[channel].get();
-
         return m_voices[slot]->allocate(
-            channel, note, volume, instrument, secondary,
-            ch->modulation, ch->volume, ch->pitch, ch->pan
+            m_channels[channel].get(), note, volume, instrument, secondary
         );
     }
 

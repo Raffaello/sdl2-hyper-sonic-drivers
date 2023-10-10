@@ -8,6 +8,7 @@ namespace HyperSonicDrivers::audio::midi
 {
     constexpr uint8_t MIDI_MAX_CHANNELS = 16;
     constexpr uint8_t MIDI_PERCUSSION_CHANNEL = 9; // standard MIDI percussion channel
+    constexpr uint16_t MIDI_PITCH_BEND_DEFAULT = 0x2000; // pitch bend default value (zero)
 
     typedef std::vector<uint8_t> midi_vector_t;
 
@@ -16,10 +17,8 @@ namespace HyperSonicDrivers::audio::midi
         SINGLE_TRACK = 0,
         SIMULTANEOUS_TRACK = 1,
         MULTI_TRACK = 2
-        //TODO: add XMI_FORMAT?
     };
 
-    // move to MIDIEvent class ?
     typedef union MIDI_EVENT_type_u
     {
         uint8_t val;
@@ -79,18 +78,16 @@ namespace HyperSonicDrivers::audio::midi
         SYS_EX7 = static_cast<uint8_t>((std::byte(MIDI_EVENT_TYPES_HIGH::META_SYSEX) << 4) | std::byte(MIDI_META_EVENT_TYPES_LOW::SYS_EX7)),
     };
 
-    /*
-    // TODO: too many repetitions to be an enum
     enum class MIDI_EVENT_CONTROLLER_TYPES : uint8_t
     {
-        BANK_SELECT = 0,
+        BANK_SELECT_MSB = 0,
         MODULATION_WHEEL = 1,
         BREATH_CONTROL = 2,
         FOOT_CONTROLLER = 4,
         PORTAMENTO_TIME = 5,
-        DATA_ENTRY = 6,
-        CHANNEL_VOLUME = 7, // (MAIN VOLUME)
-        BALANCE = 8,         // (PAN)
+        DATA_ENTRY_MSB = 6,
+        CHANNEL_VOLUME = 7,
+        BALANCE = 8,
         PAN = 10,
         EXPRESSION_CONTROLLER = 11,
         EFFECT_CONTROL_1 = 12,
@@ -99,15 +96,68 @@ namespace HyperSonicDrivers::audio::midi
         GENERAL_PURPOSE_CONTROLLER_2 = 17,
         GENERAL_PURPOSE_CONTROLLER_3 = 18,
         GENERAL_PURPOSE_CONTROLLER_4 = 19,
-        BANK_SELECT_2 = 32,
+        BANK_SELECT_LSB = 32,
         MODULATION_WHEEL_2 = 33,
         BREATH_CONTROL_2 = 34,
+        DATA_ENTRY_LSB = 38,
+        SUSTAIN = 64,
+        REVERB = 91,
+        TREMOLO = 92,
+        CHORUS = 93,
+        DETUNE = 94,
+        PHASER = 95,
+        RPN_LSB = 100,
+        RPN_MSB = 101,
+        ALL_SOUND_OFF = 120,
+        RESET_ALL_CONTROLLERS = 121,
+        ALL_NOTES_OFF = 123,
 
+        // eXtended MIDI
+        CHANNEL_LOCK = 110,
+        CHANNEL_LOCK_PROTECT = 111,
+        VOICE_PROTECT = 112,
+        TIMBRE_PROTECT = 113,
+        PATCH_BANK_SELECT = 114,
+        INDIRECT_CONTROLLER_PREFIX = 115,
+        FOR_LOOP_CONTROLLER = 116,
+        NEXT_BREAK_LOOP_CONTROLLER = 117,
+        CLEAR_BEAT_BAR_COUNT = 118,
+        CALLBACK_TRIGGER = 119,
+        SEQUENCE_BRANCH_INDEX = 120,
     };
-    */
 
+    enum class MIDI_RPN_TYPES : uint16_t
+    {
+        PITCH_BEND_SENSITIVITY = 0x0000,
+        FINE_TUNING = 0x0001,
+        COARSE_TUNING = 0x0002,
+        TUNING_PROGRAM_SELECT = 0x0003,
+        TUNING_BANK_SELECT = 0x0004,
+        RPN_NULL = 0x7F7F
+    };
+
+    enum class MIDI_RPN_TYPES_LSB : uint8_t
+    {
+        PITCH_BEND_SENSITIVITY = 0x00,
+        FINE_TUNING = 0x01,
+        COARSE_TUNING = 0x02,
+        TUNING_PROGRAM_SELECT = 0x03,
+        TUNING_BANK_SELECT = 0x04,
+        RPN_NULL = 0x7F
+    };
+
+    enum class MIDI_RPN_TYPES_MSB : uint8_t
+    {
+        PITCH_BEND_SENSITIVITY = 0x00,
+        FINE_TUNING = 0x00,
+        COARSE_TUNING = 0x00,
+        TUNING_PROGRAM_SELECT = 0x00,
+        TUNING_BANK_SELECT = 0x00,
+        RPN_NULL = 0x7F
+    };
 
     constexpr MIDI_EVENT_TYPES_HIGH TO_HIGH(const uint8_t x) { return static_cast<MIDI_EVENT_TYPES_HIGH>(x); }
     constexpr MIDI_META_EVENT_TYPES_LOW TO_META_LOW(const uint8_t x) { return static_cast<MIDI_META_EVENT_TYPES_LOW>(x); }
     constexpr MIDI_META_EVENT TO_META(const uint8_t x) { return static_cast<MIDI_META_EVENT>(x); }
+    constexpr MIDI_EVENT_CONTROLLER_TYPES TO_CTRL(const uint8_t x) { return static_cast<MIDI_EVENT_CONTROLLER_TYPES>(x); }
 }

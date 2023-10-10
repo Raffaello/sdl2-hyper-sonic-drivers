@@ -2,7 +2,8 @@
 
 #include <cstdint>
 #include <cstring>
-#include <HyperSonicDrivers/drivers/midi/scummvm/AdLibPart.hpp>
+#include <HyperSonicDrivers/drivers/midi/scummvm/AdLibChannel.hpp>
+#include <HyperSonicDrivers/drivers/midi/IMidiChannelVoice.hpp>
 
 namespace HyperSonicDrivers::drivers::midi::scummvm
 {
@@ -36,26 +37,32 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         Struct10* s10;
     };
 
-    struct AdLibVoice
+    class AdLibVoice : public IMidiChannelVoice
     {
-        AdLibPart* _part;
-        AdLibVoice* _next, * _prev;
-        uint8_t _waitForPedal;
-        uint8_t _note;
-        uint8_t _channel;
-        uint8_t _twoChan;
-        uint8_t _vol1, _vol2;
-        int16_t _duration;
+    public:
+        AdLibVoice* next = nullptr;
+        AdLibVoice* prev = nullptr;
 
-        Struct10 _s10a;
-        Struct11 _s11a;
-        Struct10 _s10b;
-        Struct11 _s11b;
+        uint8_t slot = 0; // NOTE: this is between 0 and 9, this is the "slot" (OPL channel number, not the MIDI Channel)
+        uint8_t twoChan = 0;
+        uint8_t vol1 = 0; // mod volume
+        uint8_t vol2 = 0; // car volume
+        int16_t duration = 0;
 
-        uint8_t _secTwoChan;
-        uint8_t _secVol1, _secVol2;
+        Struct10 _s10a = { 0 };
+        Struct11 _s11a = { 0 };
+        Struct10 _s10b = { 0 };
+        Struct11 _s11b = { 0 };
 
-        AdLibVoice() { memset(this, 0, sizeof(AdLibVoice)); }
+        // related to OPL3
+        uint8_t secTwoChan = 0;
+        uint8_t secVol1 = 0;
+        uint8_t secVol2 = 0;
+
+        AdLibVoice() = default;
+        inline void setNote(const uint8_t note) { m_note = note; }
+        inline void setFree(const bool free) { m_free = free; };
+        inline void setChannel(AdLibChannel* chan) { m_channel = chan; };
+        inline void setWaitForPedal(const bool waitForPedal) { m_sustain = waitForPedal; };
     };
-}
-
+}   

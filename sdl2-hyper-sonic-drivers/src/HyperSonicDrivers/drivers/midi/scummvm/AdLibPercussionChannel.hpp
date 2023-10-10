@@ -3,44 +3,28 @@
 #include <cstdint>
 #include <array>
 #include <memory>
-#include <HyperSonicDrivers/drivers/midi/scummvm/AdLibPart.hpp>
+#include <HyperSonicDrivers/drivers/midi/scummvm/AdLibChannel.hpp>
 #include <HyperSonicDrivers/drivers/midi/scummvm/AdLibInstrument.h>
 
 
 namespace HyperSonicDrivers::drivers::midi::scummvm
 {
-    // FYI (Jamieson630)
-    // It is assumed that any invocation to AdLibPercussionChannel
-    // will be done through the MidiChannel base class as opposed to the
-    // AdLibPart base class. If this were NOT the case, all the functions
-    // listed below would need to be virtual in AdLibPart as well as MidiChannel.
-    class AdLibPercussionChannel : public AdLibPart
+    /**
+    * TODO: It should be derived from IMidiChannel as it has very little in common from AdLibChannel class
+    **/
+    class AdLibPercussionChannel : public AdLibChannel
     {
-        friend class MidiDriver_ADLIB;
-
-    protected:
-        void init(MidiDriver_ADLIB* owner, uint8_t channel);
-
     public:
-        AdLibPercussionChannel() = default;
+        AdLibPercussionChannel();
         ~AdLibPercussionChannel() override = default;
 
-        void noteOff(uint8_t note) override;
-        void noteOn(uint8_t note, uint8_t velocity) override;
-        void programChange(uint8_t program) override { }
+        uint8_t getNote(const uint8_t note) const noexcept;
+        AdLibInstrument* getCustomInstrument(const uint8_t note) const noexcept;
 
-        // Control Change messages
-        void modulationWheel(uint8_t value) override { }
-        void pitchBendFactor(uint8_t value) override { }
-        void detune(uint8_t value) override { }
-        void priority(uint8_t value) override { }
-        void sustain(bool value) override { }
-
-        // SysEx messages
-        void sysEx_customInstrument(uint32_t type, const uint8_t* instr) override;
+        void setCustomInstr(const uint8_t* instr) noexcept override;
 
     private:
-        std::array<uint8_t, 256> _notes = { 0 };
-        std::array<std::unique_ptr<AdLibInstrument>, 256> _customInstruments;
+        std::array<uint8_t, 256> m_notes = { 0 };
+        std::array<std::unique_ptr<AdLibInstrument>, 256> m_customInstruments;
     };
 }

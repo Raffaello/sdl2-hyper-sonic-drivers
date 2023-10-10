@@ -2,19 +2,18 @@
 
 #include <string>
 #include <cstdint>
-#include <HyperSonicDrivers/drivers/midi/scummvm/MidiDriver_BASE.hpp>
+#include <HyperSonicDrivers/drivers/midi/IMidiDriver.hpp>
 #include <HyperSonicDrivers/audio/mixer/ChannelGroup.hpp>
+#include <HyperSonicDrivers/audio/midi/types.hpp>
 
 namespace HyperSonicDrivers::drivers::midi::scummvm
 {
-    class MidiChannel;
-
     /**
      * Abstract MIDI Driver Class
      *
      * @todo Rename MidiDriver to MusicDriver
      */
-    class MidiDriver : public MidiDriver_BASE
+    class MidiDriver : public IMidiDriver
     {
     public:
         ~MidiDriver() override = default;
@@ -102,23 +101,6 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
             PROP_MILES_VERSION = 9
         };
 
-        /**
-         * Open the midi driver.
-         * @return 0 if successful, otherwise an error code.
-         */
-        //virtual bool open(
-        //    const audio::mixer::eChannelGroup group,
-        //    const uint8_t volume,
-        //    const uint8_t pan) = 0;
-
-        /**
-         * Check whether the midi driver has already been opened.
-         */
-        //virtual bool isOpen() const = 0;
-
-        /** Close the midi driver. */
-        //virtual void close() = 0;
-
         /** Get or set a property. */
         virtual uint32_t property(int prop, uint32_t param) = 0;
 
@@ -126,13 +108,14 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         //static const char* getErrorName(int error_code);
 
         // HIGH-LEVEL SEMANTIC METHODS
-        virtual void setPitchBendRange(uint8_t channel, unsigned int range) {
-            send(MIDI_COMMAND_CONTROL_CHANGE | channel, MIDI_CONTROLLER_RPN_MSB, MIDI_RPN_PITCH_BEND_SENSITIVITY >> 8);
-            send(MIDI_COMMAND_CONTROL_CHANGE | channel, MIDI_CONTROLLER_RPN_LSB, MIDI_RPN_PITCH_BEND_SENSITIVITY & 0xFF);
-            send(MIDI_COMMAND_CONTROL_CHANGE | channel, MIDI_CONTROLLER_DATA_ENTRY_MSB, range); // Semi-tones
-            send(MIDI_COMMAND_CONTROL_CHANGE | channel, MIDI_CONTROLLER_DATA_ENTRY_LSB, 0); // Cents
-            send(MIDI_COMMAND_CONTROL_CHANGE | channel, MIDI_CONTROLLER_RPN_MSB, MIDI_RPN_NULL >> 8);
-            send(MIDI_COMMAND_CONTROL_CHANGE | channel, MIDI_CONTROLLER_RPN_LSB, MIDI_RPN_NULL & 0xFF);
+        virtual void setPitchBendRange(uint8_t channel, unsigned int range)
+        {
+            controller(channel, audio::midi::MIDI_EVENT_CONTROLLER_TYPES::RPN_MSB, static_cast<uint8_t>(audio::midi::MIDI_RPN_TYPES_MSB::PITCH_BEND_SENSITIVITY));
+            controller(channel, audio::midi::MIDI_EVENT_CONTROLLER_TYPES::RPN_LSB, static_cast<uint8_t>(audio::midi::MIDI_RPN_TYPES_LSB::PITCH_BEND_SENSITIVITY));
+            controller(channel, audio::midi::MIDI_EVENT_CONTROLLER_TYPES::DATA_ENTRY_MSB, range); // Semi-tones
+            controller(channel, audio::midi::MIDI_EVENT_CONTROLLER_TYPES::DATA_ENTRY_LSB, 0); // Cents
+            controller(channel, audio::midi::MIDI_EVENT_CONTROLLER_TYPES::RPN_MSB, static_cast<uint8_t>(audio::midi::MIDI_RPN_TYPES_MSB::RPN_NULL));
+            controller(channel, audio::midi::MIDI_EVENT_CONTROLLER_TYPES::RPN_LSB, static_cast<uint8_t>(audio::midi::MIDI_RPN_TYPES_LSB::PITCH_BEND_SENSITIVITY));
         }
 
         /**
@@ -151,11 +134,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         //virtual void setTimerCallback(void* timer_param, Common::TimerManager::TimerProc timer_proc) = 0;
 
         /** The time in microseconds between invocations of the timer callback. */
-        virtual uint32_t getBaseTempo() = 0;
-
-        // Channel allocation functions
-        virtual MidiChannel* allocateChannel() = 0;
-        virtual MidiChannel* getPercussionChannel() = 0;
+        //virtual uint32_t getBaseTempo() = 0;
 
         // Allow an engine to supply its own soundFont data. This stream will be destroyed after use.
         //virtual void setEngineSoundFont(Common::SeekableReadStream* soundFontData) { }

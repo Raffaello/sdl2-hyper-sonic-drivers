@@ -5,10 +5,9 @@
 #include <memory>
 #include <HyperSonicDrivers/devices/Opl.hpp>
 #include <HyperSonicDrivers/drivers/midi/scummvm/MidiDriver.hpp>
-#include <HyperSonicDrivers/drivers/midi/scummvm/MidiChannel.hpp>
 #include <HyperSonicDrivers/drivers/midi/scummvm/AdLibInstrument.h>
 #include <HyperSonicDrivers/drivers/midi/scummvm/AdlibVoice.h>
-#include <HyperSonicDrivers/drivers/midi/scummvm/AdLibPart.hpp>
+#include <HyperSonicDrivers/drivers/midi/scummvm/AdLibChannel.hpp>
 #include <HyperSonicDrivers/drivers/midi/scummvm/AdLibPercussionChannel.hpp>
 
 
@@ -23,9 +22,6 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
     class MidiDriver_ADLIB : public MidiDriver
     {
-        friend class AdLibPart;
-        friend class AdLibPercussionChannel;
-
     public:
         explicit MidiDriver_ADLIB(const std::shared_ptr<devices::Opl>& opl);
         ~MidiDriver_ADLIB() override;
@@ -35,24 +31,41 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
             const uint8_t pan) override;
         void close() override;
 
-        void send(const audio::midi::MIDIEvent& e) /*const*/ noexcept override;
-        void send(uint32_t b) override;
-        void send(int8_t channel, uint32_t b) override; // Supports higher than channel 15
-
         void pause() const noexcept override { /*TODO*/ };
         void resume() const noexcept override {/*TODO*/ };
 
         uint32_t property(int prop, uint32_t param) override;
-        //bool isOpen() const override { return _isOpen; }
-        uint32_t getBaseTempo() override { return 1000000 / hardware::opl::default_opl_callback_freq; }
+        //uint32_t getBaseTempo() override { return 1000000 / hardware::opl::default_opl_callback_freq; }
 
         void setPitchBendRange(uint8_t channel, unsigned int range) override;
         void sysEx_customInstrument(uint8_t channel, uint32_t type, const uint8_t* instr) override;
 
-        MidiChannel* allocateChannel() override;
-        MidiChannel* getPercussionChannel() override { return &_percussion; } // Percussion partially supported
-
         //virtual void setTimerCallback(void* timerParam, /*Common::TimerManager::TimerProc*/ void* timerProc);
+
+    protected:
+        void onCallback() noexcept override;
+
+        // MIDI Events
+        void noteOff(const uint8_t chan, const uint8_t note) noexcept override;
+        void noteOn(const uint8_t chan, const uint8_t note, const uint8_t vol) noexcept override;
+        void controller(const uint8_t chan, const audio::midi::MIDI_EVENT_CONTROLLER_TYPES ctrl_type, uint8_t value) noexcept override;
+        void programChange(const uint8_t chan, const uint8_t program) noexcept override;
+        void pitchBend(const uint8_t chan, const uint16_t bend) noexcept override;
+        void sysEx(const uint8_t* msg, uint16_t length) noexcept override;
+
+        // MIDI Controller Events
+        void ctrl_modulationWheel(const uint8_t chan, const uint8_t value) noexcept override;
+        void ctrl_volume(const uint8_t chan, const uint8_t value) noexcept override;
+        void ctrl_panPosition(const uint8_t chan, const uint8_t value) noexcept override;
+        // SCUMM GM Midi driver ctrl exclusive?
+        void ctrl_pitchBendFactor(const uint8_t chan, const uint8_t value) noexcept;
+        void ctrl_detune(const uint8_t chan, const uint8_t value) noexcept;
+        void ctrl_priority(const uint8_t chan, const uint8_t value) noexcept;
+        // ---
+        void ctrl_sustain(const uint8_t chan, const uint8_t value) noexcept override;
+        void ctrl_reverb(const uint8_t chan, const uint8_t value) noexcept override;
+        void ctrl_chorus(const uint8_t chan, const uint8_t value) noexcept override;
+        void ctrl_allNotesOff() noexcept override;
 
     private:
         std::shared_ptr<hardware::opl::OPL> m_opl;
@@ -69,19 +82,16 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
         std::array<uint16_t, 9> _channelTable2;
         std::array<uint16_t, 9> _curNotTable;
-        std::array<AdLibPart, 32> _parts;
-        std::array<AdLibVoice, 9> _voices;
-        AdLibPercussionChannel _percussion;
+        std::array<AdLibVoice, 9> m_voices;
+        AdLibPercussionChannel* m_percussion;
         int _voiceIndex = -1;
         int _timerIncrease = 0xD69;
         int _timerThreshold = 0x411B;
 
-        //bool _isOpen = false;
+        AdLibChannel* getChannel(const uint8_t channel) const noexcept;
 
-        //void onTimer();
-        void onCallback() noexcept override;
-        void partKeyOn(AdLibPart* part, const AdLibInstrument* instr, uint8_t note, uint8_t velocity, const AdLibInstrument* second, uint8_t pan);
-        void partKeyOff(AdLibPart* part, uint8_t note);
+        void partKeyOn(AdLibChannel* part, const AdLibInstrument* instr, uint8_t note, uint8_t velocity, const AdLibInstrument* second, uint8_t pan);
+        void partKeyOff(AdLibChannel* part, uint8_t note);
 
         void adlibKeyOff(int chan);
         void adlibNoteOn(int chan, uint8_t note, int mod);
@@ -101,7 +111,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
         void mcOff(AdLibVoice* voice);
 
-        static void linkMc(AdLibPart* part, AdLibVoice* voice);
+        static void linkMc(AdLibChannel* part, AdLibVoice* voice);
         void mcIncStuff(AdLibVoice* voice, Struct10* s10, Struct11* s11);
         void mcInitStuff(AdLibVoice* voice, Struct10* s10, Struct11* s11, uint8_t flags,
             const InstrumentExtra* ie);
