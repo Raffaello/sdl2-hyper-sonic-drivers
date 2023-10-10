@@ -61,7 +61,7 @@ namespace HyperSonicDrivers::drivers::opl
         /*
          * Write pan (balance) data to a channel
          */
-        void writePan(const uint8_t channel, const hardware::opl::OPL2instrument_t* instr, const int8_t pan) const noexcept;
+        void writePan(const uint8_t channel, const hardware::opl::OPL2instrument_t* instr, const uint8_t pan) const noexcept;
 
         /*
          * Write volume data to a channel

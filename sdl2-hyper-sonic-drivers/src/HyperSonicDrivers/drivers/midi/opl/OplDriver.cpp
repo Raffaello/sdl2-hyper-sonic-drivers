@@ -132,7 +132,6 @@ namespace HyperSonicDrivers::drivers::midi::opl
 
         const bool isPercussion = m_channels[chan]->isPercussion;
         int8_t freeSlot = getFreeOplVoiceIndex(!isPercussion);
-
         if (freeSlot != -1)
         {
             const uint8_t instr_index = isPercussion ?
@@ -193,12 +192,12 @@ namespace HyperSonicDrivers::drivers::midi::opl
         }
     }
 
-    void OplDriver::ctrl_panPosition(const uint8_t chan, uint8_t value) noexcept
+    void OplDriver::ctrl_panPosition(const uint8_t chan, const uint8_t value) noexcept
     {
         if (!m_opl3_mode)
             return;
 
-        m_channels[chan]->pan = value -= 64;
+        m_channels[chan]->pan = value;
         for (auto it = m_voicesInUseIndex.begin(); it != m_voicesInUseIndex.end(); ++it)
         {
             if (m_voices[*it]->getChannelNum() == chan)
@@ -206,7 +205,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
         }
     }
 
-    void OplDriver::ctrl_sustain(const uint8_t chan, uint8_t value) noexcept
+    void OplDriver::ctrl_sustain(const uint8_t chan, const uint8_t value) noexcept
     {
         m_channels[chan]->sustain = value;
         if (value < opl_sustain_threshold)

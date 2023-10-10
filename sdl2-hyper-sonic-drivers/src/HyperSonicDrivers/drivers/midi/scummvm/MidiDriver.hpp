@@ -134,7 +134,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         //virtual void setTimerCallback(void* timer_param, Common::TimerManager::TimerProc timer_proc) = 0;
 
         /** The time in microseconds between invocations of the timer callback. */
-        virtual uint32_t getBaseTempo() = 0;
+        //virtual uint32_t getBaseTempo() = 0;
 
         // Allow an engine to supply its own soundFont data. This stream will be destroyed after use.
         //virtual void setEngineSoundFont(Common::SeekableReadStream* soundFontData) { }

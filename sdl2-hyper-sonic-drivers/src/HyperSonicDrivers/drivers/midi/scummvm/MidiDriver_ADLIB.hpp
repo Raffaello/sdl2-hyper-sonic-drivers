@@ -35,7 +35,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         void resume() const noexcept override {/*TODO*/ };
 
         uint32_t property(int prop, uint32_t param) override;
-        uint32_t getBaseTempo() override { return 1000000 / hardware::opl::default_opl_callback_freq; }
+        //uint32_t getBaseTempo() override { return 1000000 / hardware::opl::default_opl_callback_freq; }
 
         void setPitchBendRange(uint8_t channel, unsigned int range) override;
         void sysEx_customInstrument(uint8_t channel, uint32_t type, const uint8_t* instr) override;
@@ -56,15 +56,15 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         // MIDI Controller Events
         void ctrl_modulationWheel(const uint8_t chan, const uint8_t value) noexcept override;
         void ctrl_volume(const uint8_t chan, const uint8_t value) noexcept override;
-        void ctrl_panPosition(const uint8_t chan, uint8_t value) noexcept override;
+        void ctrl_panPosition(const uint8_t chan, const uint8_t value) noexcept override;
         // SCUMM GM Midi driver ctrl exclusive?
         void ctrl_pitchBendFactor(const uint8_t chan, const uint8_t value) noexcept;
         void ctrl_detune(const uint8_t chan, const uint8_t value) noexcept;
         void ctrl_priority(const uint8_t chan, const uint8_t value) noexcept;
         // ---
-        void ctrl_sustain(const uint8_t chan, uint8_t value) noexcept override;
-        void ctrl_reverb(const uint8_t chan, uint8_t value) noexcept override;
-        void ctrl_chorus(const uint8_t chan, uint8_t value) noexcept override;
+        void ctrl_sustain(const uint8_t chan, const uint8_t value) noexcept override;
+        void ctrl_reverb(const uint8_t chan, const uint8_t value) noexcept override;
+        void ctrl_chorus(const uint8_t chan, const uint8_t value) noexcept override;
         void ctrl_allNotesOff() noexcept override;
 
     private:
