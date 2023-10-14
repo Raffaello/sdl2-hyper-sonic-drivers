@@ -247,6 +247,8 @@ namespace HyperSonicDrivers::drivers
         return true;
     }
 
+    // TODO: this must be created as callback. it will be called by the audio thread directly
+    //       it will be more heavy on the audio thread, but at the end quite the same stuff.
     void MIDDriver::processTrack(const audio::midi::MIDITrack& track, const uint16_t division)
     {
         using audio::midi::MIDI_EVENT_TYPES_HIGH;
@@ -368,6 +370,7 @@ namespace HyperSonicDrivers::drivers
                 case MIDI_META_EVENT_TYPES_LOW::SYS_EX0:
                     logD("SYS_EX0 META event");
                     // TODO: it should be sent as normal event?
+                    // (it is processed as a normal event now in IMidiDriver)
                     m_midiDriver->send(e);
                     continue;
                 case MIDI_META_EVENT_TYPES_LOW::SYS_EX7:

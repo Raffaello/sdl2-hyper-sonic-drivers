@@ -1044,6 +1044,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         {
             adlibNoteOnEx(voice->slot, /*part->_transposeEff + */note, part->detuneEff + (part->pitch * part->pitchBendFactor >> 6));
 
+            // TODO/NOTE: it looks dead code to me, didn't find anything that is changing flagsA value in the code.
             if (instr->flagsA & 0x80) {
                 mcInitStuff(voice, &voice->_s10a, &voice->_s11a, instr->flagsA, &instr->extraA);
             }

@@ -33,7 +33,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         uint8_t carSustainRelease;      // sust_rel_2   09
         uint8_t carWaveformSelect;      // wave_2       0A
         uint8_t feedback;               // feedback     06
-        uint8_t flagsA;                 // unused?      
+        uint8_t flagsA;                 // unused?
         InstrumentExtra extraA;
         uint8_t flagsB;
         InstrumentExtra extraB;
