@@ -4,7 +4,7 @@ namespace HyperSonicDrivers::devices
 {
     enum class eDeviceType
     {
-        Opl,
+        Opl = 0,
         Mt32,
     };
 }
