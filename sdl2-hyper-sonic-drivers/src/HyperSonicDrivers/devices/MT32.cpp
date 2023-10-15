@@ -5,43 +5,43 @@
 namespace HyperSonicDrivers::devices
 {
     // test
-    static audio::midi::MIDIEvent MT32SysEx(uint32_t addr, const uint8_t* data, uint32_t dataSize)
-    {
-        //typedef uint8_t byte;
-        //uint32_t dataSize = 0;
-        //uint8_t* data = nullptr;
-        //uint32_t addr = 0x1FC000;
-        static const uint8_t header[] = { 0x41, 0x10, 0x16, 0x12 };
+    //static audio::midi::MIDIEvent MT32SysEx(uint32_t addr, const uint8_t* data, uint32_t dataSize)
+    //{
+    //    //typedef uint8_t byte;
+    //    //uint32_t dataSize = 0;
+    //    //uint8_t* data = nullptr;
+    //    //uint32_t addr = 0x1FC000;
+    //    static const uint8_t header[] = { 0x41, 0x10, 0x16, 0x12 };
 
-        uint8_t* msg = new uint8_t[sizeof(header) + 4 + dataSize];
-        memcpy(msg, header, sizeof(header));
-        uint8_t* dst = msg + sizeof(header);
-        const uint8_t* src = dst;
+    //    uint8_t* msg = new uint8_t[sizeof(header) + 4 + dataSize];
+    //    memcpy(msg, header, sizeof(header));
+    //    uint8_t* dst = msg + sizeof(header);
+    //    const uint8_t* src = dst;
 
-        *dst++ = (addr >> 14) & 0x7F;
-        *dst++ = (addr >> 7) & 0x7F;
-        *dst++ = addr & 0x7F;
+    //    *dst++ = (addr >> 14) & 0x7F;
+    //    *dst++ = (addr >> 7) & 0x7F;
+    //    *dst++ = addr & 0x7F;
 
-        while (dataSize) {
-            *dst++ = *data++;
-            --dataSize;
-        }
+    //    while (dataSize) {
+    //        *dst++ = *data++;
+    //        --dataSize;
+    //    }
 
-        uint8_t checkSum = 0;
-        while (src < dst)
-            checkSum -= *src++;
+    //    uint8_t checkSum = 0;
+    //    while (src < dst)
+    //        checkSum -= *src++;
 
-        *dst++ = checkSum & 0x7F;
+    //    *dst++ = checkSum & 0x7F;
 
-        dataSize = dst - msg;
-        audio::midi::MIDIEvent e;
-        for (int i = 0; i < sizeof(header) + 4 + dataSize; i++)
-            e.data.push_back(msg[i]);
+    //    dataSize = dst - msg;
+    //    audio::midi::MIDIEvent e;
+    //    for (int i = 0; i < sizeof(header) + 4 + dataSize; i++)
+    //        e.data.push_back(msg[i]);
 
-        delete[] msg;
+    //    delete[] msg;
 
-        return e;
-    }
+    //    return e;
+    //}
 
 
     MT32::MT32(
@@ -51,11 +51,6 @@ namespace HyperSonicDrivers::devices
         IDevice(mixer, eDeviceType::Mt32)
     {
         m_mt32 = std::make_shared<hardware::mt32::MT32>(control_rom_file, pcm_rom_file, mixer);
-        if (!m_mt32->init())
-        {
-            utils::throwLogC<std::runtime_error>(std::format("Can't init device MT32"));
-        }
-
         m_hardware = m_mt32.get();
 
         //m_mt32->start(nullptr);
@@ -72,7 +67,7 @@ namespace HyperSonicDrivers::devices
         //utils::delayMillis(40);
         // Map percussion to notes 24 - 34 without reverb. It still happens in the DOTT driver, but not in the SAMNMAX one.
         //static const uint8_t initSysex2[] = "\x40\x64\x07\x00\x4a\x64\x06\x00\x41\x64\x07\x00\x4b\x64\x08\x00\x45\x64\x06\x00\x44\x64"
-            "\x0b\x00\x51\x64\x05\x00\x43\x64\x08\x00\x50\x64\x07\x00\x42\x64\x03\x00\x4c\x64\x07\x00";
+        //    "\x0b\x00\x51\x64\x05\x00\x43\x64\x08\x00\x50\x64\x07\x00\x42\x64\x03\x00\x4c\x64\x07\x00";
         //sendSysEx(MT32SysEx(0xC090, initSysex2, sizeof(initSysex2) - 1));
         //utils::delayMillis(40);
 
@@ -84,25 +79,21 @@ namespace HyperSonicDrivers::devices
         //}
     }
 
-   /* void MidiMT32::sendEvent(const audio::midi::MIDIEvent& e) const noexcept
+    bool MT32::init() noexcept
     {
-        m_mt32->m_service.playMsg(e.toUint32());
+        // TODO: it can be bring up into the parent class using IHardware check if not nullptr
+        if (isInit())
+            return true;
+
+        m_init = m_mt32->init();
+
+        return m_init;
     }
 
-    void MidiMT32::sendMessage(const uint8_t msg[], const uint8_t size) const noexcept
+    bool MT32::shutdown() noexcept
     {
+        // TODO: it can be bring up into the parent class using iHardware checkin if not nullptr
+        m_mt32->stop();
+        return false;
     }
-
-    void MidiMT32::sendSysEx(const audio::midi::MIDIEvent& e) const noexcept
-    {
-        m_mt32->m_service.playSysex(e.data.data(), e.data.size());
-    }*/
-
-    //void MT32::pause() const noexcept
-    //{
-    //}
-
-    //void MT32::resume() const noexcept
-    //{
-    //}
 }

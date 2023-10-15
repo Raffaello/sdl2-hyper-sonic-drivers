@@ -19,9 +19,7 @@ namespace HyperSonicDrivers::drivers::midi::mt32
             const uint8_t pan) override;
         void close() override;
 
-        //void send(const audio::midi::MIDIEvent& e) noexcept override { /*TODO*/ };
-        //void send(const uint32_t msg) noexcept override { /*TODO*/ };
-        //void send(const int8_t channel, const uint32_t msg) noexcept override { /*TODO*/ };
+        void send(const uint32_t msg) noexcept override;
 
         void pause() const noexcept override { /*TODO*/ };
         void resume() const noexcept override { /*TODO*/ };
@@ -29,21 +27,21 @@ namespace HyperSonicDrivers::drivers::midi::mt32
     protected:
         void onCallback() noexcept override;
 
-        // MIDI events
-        void noteOff(const uint8_t chan, const uint8_t note) noexcept override {/*TODO*/};
-        void noteOn(const uint8_t chan, const uint8_t note, const uint8_t vol) noexcept override {/*TODO*/};
-        void controller(const uint8_t chan, const audio::midi::MIDI_EVENT_CONTROLLER_TYPES ctrl_type, uint8_t value) noexcept override {/*TODO*/};
-        void programChange(const uint8_t chan, const uint8_t program) noexcept override {/*TODO*/};
-        void pitchBend(const uint8_t chan, const uint16_t bend) noexcept override {/*TODO*/ };
-        void sysEx(const uint8_t* msg, uint16_t length) noexcept override {/*TODO*/ };
+        // MIDI events (not implemented, directly send MIDI msg to MT32Emu service)
+        void noteOff(const uint8_t chan, const uint8_t note) noexcept override {};
+        void noteOn(const uint8_t chan, const uint8_t note, const uint8_t vol) noexcept override {};
+        void controller(const uint8_t chan, const audio::midi::MIDI_EVENT_CONTROLLER_TYPES ctrl_type, uint8_t value) noexcept override {};
+        void programChange(const uint8_t chan, const uint8_t program) noexcept override {}
+        void pitchBend(const uint8_t chan, const uint16_t bend) noexcept override {};
+        void sysEx(const uint8_t* msg, uint16_t length) noexcept override {};
         // MIDI Controller Events
-        void ctrl_modulationWheel(const uint8_t chan, const uint8_t value) noexcept override {/*TODO*/};
-        void ctrl_volume(const uint8_t chan, const uint8_t value) noexcept override {/*TODO*/};
-        void ctrl_panPosition(const uint8_t chan, uint8_t value) noexcept override {/*TODO*/};
-        void ctrl_sustain(const uint8_t chan, uint8_t value) noexcept override {/*TODO*/ };
-        void ctrl_reverb(const uint8_t chan, uint8_t value) noexcept override { /*TODO*/ };
-        void ctrl_chorus(const uint8_t chan, uint8_t value) noexcept override { /*TODO*/ };
-        void ctrl_allNotesOff() noexcept override {/*TODO*/ };
+        void ctrl_modulationWheel(const uint8_t chan, const uint8_t value) noexcept override {};
+        void ctrl_volume(const uint8_t chan, const uint8_t value) noexcept override {};
+        void ctrl_panPosition(const uint8_t chan, uint8_t value) noexcept override {};
+        void ctrl_sustain(const uint8_t chan, uint8_t value) noexcept override {};
+        void ctrl_reverb(const uint8_t chan, uint8_t value) noexcept override {};
+        void ctrl_chorus(const uint8_t chan, uint8_t value) noexcept override {};
+        void ctrl_allNotesOff() noexcept override {};
 
     private:
         std::shared_ptr<hardware::mt32::MT32> m_mt32;

@@ -96,7 +96,7 @@ namespace HyperSonicDrivers::drivers
 
     bool MIDDriver::resetBankOP2() noexcept
     {
-        if (m_device->type != devices::eDeviceType::Opl)
+        if (m_device->type == devices::eDeviceType::Opl)
         {
             m_midiDriver = std::make_unique<drivers::midi::scummvm::MidiDriver_ADLIB>(std::dynamic_pointer_cast<devices::Opl>(m_device));
         }

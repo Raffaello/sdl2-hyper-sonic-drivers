@@ -61,6 +61,7 @@ namespace HyperSonicDrivers::drivers::midi::opl
         void ctrl_allNotesOff() noexcept override;
 
     private:
+        // TODO: add IDevice too into the parent class as there is a IDevice::init method and shutdown to use
         std::shared_ptr<hardware::opl::OPL> m_opl;
         std::shared_ptr<audio::opl::banks::OP2Bank> m_op2Bank;
 

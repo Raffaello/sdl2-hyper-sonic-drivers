@@ -26,8 +26,6 @@ namespace HyperSonicDrivers::hardware::mt32
 
     class MT32 : public IHardware
     {
-        friend devices::MT32;
-
     public:
         MT32(const std::filesystem::path& control_rom, const std::filesystem::path& pcm_rom,
             const std::shared_ptr<audio::IMixer>& mixer
@@ -45,6 +43,7 @@ namespace HyperSonicDrivers::hardware::mt32
             const uint8_t pan = 0,
             const int timerFrequency = mt32_frequency) override;
 
+        inline MT32Emu::Service& getService() noexcept { return m_service; };
     protected:
         void startCallbacks(
             const audio::mixer::eChannelGroup group,

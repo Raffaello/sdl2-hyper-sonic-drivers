@@ -26,6 +26,7 @@ namespace HyperSonicDrivers::devices
 
     bool Opl::init() noexcept
     {
+        // TODO can be put in the parent class using IHardware*
         if (isInit())
             return true;
 
@@ -41,6 +42,7 @@ namespace HyperSonicDrivers::devices
 
     bool Opl::shutdown() noexcept
     {
+        // TODO: can be put in the parent calss using iHardware*
         if (m_opl != nullptr)
             m_opl->stop();
 
