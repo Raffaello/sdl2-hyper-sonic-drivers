@@ -9,8 +9,8 @@ namespace HyperSonicDrivers::devices
     class SpyDevice : public IDevice
     {
     public:
-        SpyDevice(const std::shared_ptr<audio::IMixer>& mixer, const bool isOpl = false) : IDevice(mixer, isOpl) {};
-        SpyDevice() : IDevice(audio::make_mixer<audio::stubs::StubMixer>(), false) {};
+        SpyDevice(const std::shared_ptr<audio::IMixer>& mixer, const eDeviceType type) : IDevice(mixer, type) {};
+        SpyDevice() : IDevice(audio::make_mixer<audio::stubs::StubMixer>(), eDeviceType::Opl) {};
 
         bool init() noexcept  override { return true; };
         bool shutdown() noexcept override { return true; };

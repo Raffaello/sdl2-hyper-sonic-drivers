@@ -15,7 +15,7 @@ namespace HyperSonicDrivers::devices
         const hardware::opl::OplEmulator emulator,
         const hardware::opl::OplType type,
         const uint8_t volume, const uint8_t pan) :
-        IDevice(mixer, true)
+        IDevice(mixer, eDeviceType::Opl)
     {
         using hardware::opl::OPLFactory;
         using utils::logC;

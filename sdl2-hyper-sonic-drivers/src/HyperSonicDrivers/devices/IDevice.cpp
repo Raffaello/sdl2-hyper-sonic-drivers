@@ -2,8 +2,8 @@
 
 namespace HyperSonicDrivers::devices
 {
-    IDevice::IDevice(const std::shared_ptr<audio::IMixer>& mixer, const bool isOpl) :
-        m_mixer(mixer), m_isOpl(isOpl)
+    IDevice::IDevice(const std::shared_ptr<audio::IMixer>& mixer, const eDeviceType type) :
+        m_mixer(mixer), type(type)
     {
     }
 

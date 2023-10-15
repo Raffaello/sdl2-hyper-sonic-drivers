@@ -48,7 +48,7 @@ namespace HyperSonicDrivers::devices
         const std::shared_ptr<audio::IMixer>& mixer,
         const std::filesystem::path& control_rom_file,
         const std::filesystem::path& pcm_rom_file) :
-        IDevice(mixer, false)
+        IDevice(mixer, eDeviceType::Mt32)
     {
         m_mt32 = std::make_shared<hardware::mt32::MT32>(control_rom_file, pcm_rom_file, mixer);
         if (!m_mt32->init())
@@ -56,30 +56,32 @@ namespace HyperSonicDrivers::devices
             utils::throwLogC<std::runtime_error>(std::format("Can't init device MT32"));
         }
 
-        m_mt32->start(nullptr);
+        m_hardware = m_mt32.get();
+
+        //m_mt32->start(nullptr);
 
         // test
 
         // reset MT32
         //m_mt32->m_service.playSysex(MT32SysEx(0x1FC000, 0, 0));
-        utils::delayMillis(250);
+       // utils::delayMillis(250);
 
         // Setup master tune, reverb mode, reverb time, reverb level, channel mapping, partial reserve and master volume
-        static const uint8_t initSysex1[] = "\x40\x00\x04\x04\x04\x04\x04\x04\x04\x04\x04\x04\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x64";
+        //static const uint8_t initSysex1[] = "\x40\x00\x04\x04\x04\x04\x04\x04\x04\x04\x04\x04\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x64";
         //sendSysEx(MT32SysEx(0x40000, initSysex1, sizeof(initSysex1) - 1));
-        utils::delayMillis(40);
+        //utils::delayMillis(40);
         // Map percussion to notes 24 - 34 without reverb. It still happens in the DOTT driver, but not in the SAMNMAX one.
-        static const uint8_t initSysex2[] = "\x40\x64\x07\x00\x4a\x64\x06\x00\x41\x64\x07\x00\x4b\x64\x08\x00\x45\x64\x06\x00\x44\x64"
+        //static const uint8_t initSysex2[] = "\x40\x64\x07\x00\x4a\x64\x06\x00\x41\x64\x07\x00\x4b\x64\x08\x00\x45\x64\x06\x00\x44\x64"
             "\x0b\x00\x51\x64\x05\x00\x43\x64\x08\x00\x50\x64\x07\x00\x42\x64\x03\x00\x4c\x64\x07\x00";
         //sendSysEx(MT32SysEx(0xC090, initSysex2, sizeof(initSysex2) - 1));
-        utils::delayMillis(40);
+        //utils::delayMillis(40);
 
 
-        const uint8_t pbRange = 0x10;
-        for (int i = 0; i < 128; ++i) {
-            //sendSysEx(MT32SysEx(0x014004 + (i << 3), &pbRange, 1));
-            utils::delayMillis(5);
-        }
+        //const uint8_t pbRange = 0x10;
+        //for (int i = 0; i < 128; ++i) {
+        //    //sendSysEx(MT32SysEx(0x014004 + (i << 3), &pbRange, 1));
+        //    utils::delayMillis(5);
+        //}
     }
 
    /* void MidiMT32::sendEvent(const audio::midi::MIDIEvent& e) const noexcept
