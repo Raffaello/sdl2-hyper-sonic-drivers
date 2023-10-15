@@ -53,14 +53,4 @@ namespace HyperSonicDrivers::drivers::midi::mt32
     void MT32Driver::onCallback() noexcept
     {
     }
-
-    void MT32Driver::noteOff(const uint8_t chan, const uint8_t note) noexcept
-    {
-        utils::throwLogC<std::runtime_error>("not implemented");
-    }
-
-    void MT32Driver::noteOn(const uint8_t chan, const uint8_t note, const uint8_t vol) noexcept
-    {
-        utils::throwLogC<std::runtime_error>("not implemented");
-    }
 }
