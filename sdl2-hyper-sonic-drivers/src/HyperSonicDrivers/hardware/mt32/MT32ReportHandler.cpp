@@ -12,9 +12,11 @@ namespace HyperSonicDrivers::hardware::mt32
     void MT32ReportHandler::printDebug(const char* fmt, va_list list)
     {
         constexpr const int buf_size = 1024;
-        char buf[buf_size];
-        vsnprintf(buf, buf_size, fmt, list);
-        logD(std::format("{}", buf));
+        std::string buf;
+        buf.resize(buf_size);
+
+        vsnprintf(buf.data(), buf_size, fmt, list);
+        logD(buf);
     }
 
     void MT32ReportHandler::onErrorControlROM()

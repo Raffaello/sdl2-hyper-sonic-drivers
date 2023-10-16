@@ -10,6 +10,7 @@ namespace HyperSonicDrivers::hardware::mt32
     {
     public:
         MT32ReportHandler() = default;
+        ~MT32ReportHandler() = default;
 
         void printDebug(const char* fmt, va_list list) override;
         void onErrorControlROM() override;

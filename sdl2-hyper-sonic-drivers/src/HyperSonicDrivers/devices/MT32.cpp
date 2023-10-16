@@ -34,6 +34,11 @@ namespace HyperSonicDrivers::devices
 
     void MT32::lcd_message(const std::string& msg) noexcept
     {
-        m_mt32->sysEx(hardware::mt32::mt32_LCD_addr, reinterpret_cast<const uint8_t*>(msg.c_str()), msg.size());
+        m_mt32->sysEx(
+            hardware::mt32::mt32_LCD_addr,
+            std::bit_cast<const uint8_t*>(msg.c_str()),
+            //reinterpret_cast<const uint8_t*>(msg.c_str()),
+            static_cast<uint32_t>(msg.size())
+        );
     }
 }
