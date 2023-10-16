@@ -1,4 +1,5 @@
 #include <format>
+#include <HyperSonicDrivers/audio/midi/types.hpp>
 #include <HyperSonicDrivers/audio/streams/EmulatedStream.hpp>
 #include <HyperSonicDrivers/files/File.hpp>
 #include <HyperSonicDrivers/hardware/mt32/MT32.hpp>
@@ -83,6 +84,38 @@ namespace HyperSonicDrivers::hardware::mt32
         const int timerFrequency)
     {
         IHardware::start(callback, group, volume, pan, timerFrequency);
+    }
+
+    void MT32::sysEx(const uint32_t addr, const uint8_t* data, uint32_t dataSize)
+    {
+        static const uint8_t header[] = {
+            static_cast<uint8_t>(audio::midi::MIDI_META_EVENT_VAL::SYS_EX0),
+            0x41, 0x10, 0x16, 0x12
+        };
+
+        uint8_t* msg = new uint8_t[sizeof(header) + 4 + dataSize + 1];
+        memcpy(msg, header, sizeof(header));
+        uint8_t* dst = msg + sizeof(header);
+        const uint8_t* src = dst;
+
+        *dst++ = (addr >> 14) & 0x7F;
+        *dst++ = (addr >> 7) & 0x7F;
+        *dst++ = addr & 0x7F;
+
+        while (dataSize) {
+            *dst++ = *data++;
+            --dataSize;
+        }
+
+        uint8_t checkSum = 0;
+        while (src < dst)
+            checkSum -= *src++;
+
+        *dst++ = checkSum & 0x7F;
+        *dst++ = static_cast<uint8_t>(audio::midi::MIDI_META_EVENT_VAL::SYS_EX7);
+
+        dataSize = dst - msg;
+        m_service.playSysex(msg, dataSize);
     }
 
     void MT32::startCallbacks(

@@ -26,6 +26,8 @@ namespace HyperSonicDrivers::hardware::mt32
     constexpr int mt32_frequency_internal = 32000; // 32 KHz
     constexpr int mt32_frequency = 250;
 
+    constexpr uint32_t mt32_LCD_addr = 0x80000;
+
     class MT32 : public IHardware
     {
     public:
@@ -46,6 +48,9 @@ namespace HyperSonicDrivers::hardware::mt32
             const int timerFrequency = mt32_frequency) override;
 
         inline MT32Emu::Service& getService() noexcept { return m_service; };
+
+        void sysEx(const uint32_t addr, const uint8_t* data, const uint32_t dataSize);
+
     protected:
         void startCallbacks(
             const audio::mixer::eChannelGroup group,

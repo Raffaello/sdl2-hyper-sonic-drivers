@@ -10,12 +10,15 @@
 #include <fmt/color.h>
 #include <map>
 
+#include <HyperSonicDrivers/utils/ILogger.hpp>
+
 using namespace HyperSonicDrivers;
 
 int main(int argc, char* argv[])
 {
     using audio::mixer::eChannelGroup;
 
+    utils::ILogger::instance->setLevelAll(utils::ILogger::eLevel::Trace);
     spdlog::warn("MT32 requires 2 ROMs files not included in this example");
     spdlog::warn("the ROM filenames assumed to be fund in the current working directory are:");
     spdlog::warn("MT32_CONTROL.ROM  --- MT32_PCM.ROM");
