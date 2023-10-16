@@ -1,4 +1,5 @@
 #include <format>
+#include <vector>
 #include <HyperSonicDrivers/audio/midi/types.hpp>
 #include <HyperSonicDrivers/audio/streams/EmulatedStream.hpp>
 #include <HyperSonicDrivers/files/File.hpp>
@@ -86,36 +87,38 @@ namespace HyperSonicDrivers::hardware::mt32
         IHardware::start(callback, group, volume, pan, timerFrequency);
     }
 
-    void MT32::sysEx(const uint32_t addr, const uint8_t* data, uint32_t dataSize)
+    void MT32::sysEx(const uint32_t addr, const uint8_t* data, const uint32_t dataSize)
     {
-        static const uint8_t header[] = {
+        std::vector<uint8_t> msg {
             static_cast<uint8_t>(audio::midi::MIDI_META_EVENT_VAL::SYS_EX0),
             0x41, 0x10, 0x16, 0x12
         };
-
-        uint8_t* msg = new uint8_t[sizeof(header) + 4 + dataSize + 1];
-        memcpy(msg, header, sizeof(header));
-        uint8_t* dst = msg + sizeof(header);
-        const uint8_t* src = dst;
-
-        *dst++ = (addr >> 14) & 0x7F;
-        *dst++ = (addr >> 7) & 0x7F;
-        *dst++ = addr & 0x7F;
-
-        while (dataSize) {
-            *dst++ = *data++;
-            --dataSize;
-        }
+        msg.reserve(msg.size() + 4 + dataSize + 1);
 
         uint8_t checkSum = 0;
-        while (src < dst)
-            checkSum -= *src++;
+        
+        uint8_t v = (addr >> 14) & 0x7F;
+        msg.push_back(v);
+        checkSum -= v;
 
-        *dst++ = checkSum & 0x7F;
-        *dst++ = static_cast<uint8_t>(audio::midi::MIDI_META_EVENT_VAL::SYS_EX7);
+        v = (addr >> 7) & 0x7F;
+        checkSum -= v;
+        msg.push_back(v);
 
-        dataSize = dst - msg;
-        m_service.playSysex(msg, dataSize);
+        v = addr & 0x7F;
+        checkSum -= v;
+        msg.push_back(v);
+
+        for (uint32_t i = 0; i < dataSize; i++)
+        {
+            checkSum -= *data;
+            msg.push_back(*data++);
+        }
+
+        msg.push_back(checkSum & 0x7F);
+        msg.push_back(static_cast<uint8_t>(audio::midi::MIDI_META_EVENT_VAL::SYS_EX7));
+
+        m_service.playSysex(msg.data(), msg.size());
     }
 
     void MT32::startCallbacks(

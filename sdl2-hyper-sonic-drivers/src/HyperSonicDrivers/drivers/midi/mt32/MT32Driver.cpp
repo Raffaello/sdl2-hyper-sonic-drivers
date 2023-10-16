@@ -15,6 +15,7 @@ namespace HyperSonicDrivers::drivers::midi::mt32
             utils::throwLogC<std::runtime_error>("MT32 device is null");
 
         m_mt32 = mt32->getMt32();
+        mt32->lcd_message("test lcd");
     }
 
     MT32Driver::~MT32Driver()
