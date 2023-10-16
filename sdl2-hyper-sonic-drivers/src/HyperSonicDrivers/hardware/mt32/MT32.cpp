@@ -91,6 +91,7 @@ namespace HyperSonicDrivers::hardware::mt32
         const uint8_t pan,
         const int timerFrequency)
     {
+        // TODO: this could be put in the parent class....
         setAudioStream(std::make_shared<audio::streams::EmulatedStream>(
             this,
             isStereo(),
