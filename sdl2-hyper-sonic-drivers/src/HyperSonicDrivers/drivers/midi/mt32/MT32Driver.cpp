@@ -47,6 +47,7 @@ namespace HyperSonicDrivers::drivers::midi::mt32
 
     void MT32Driver::send(const uint32_t msg) noexcept
     {
+        // NOTE/TODO: the mt32Emu library could directly play midi
         m_mt32->getService().playMsg(msg);
     }
 

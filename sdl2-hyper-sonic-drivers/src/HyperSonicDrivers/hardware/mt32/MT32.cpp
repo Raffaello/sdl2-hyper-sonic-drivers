@@ -4,7 +4,6 @@
 #include <HyperSonicDrivers/hardware/mt32/MT32.hpp>
 #include <HyperSonicDrivers/utils/ILogger.hpp>
 #include <std/MT32EmuReturnCode.hpp>
-#include "MT32.hpp"
 
 namespace HyperSonicDrivers::hardware::mt32
 {

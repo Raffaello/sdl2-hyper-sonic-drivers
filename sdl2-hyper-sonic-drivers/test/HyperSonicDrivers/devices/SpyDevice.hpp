@@ -11,7 +11,7 @@ namespace HyperSonicDrivers::devices
     class SpyDevice : public T
     {
     public:
-        SpyDevice(const std::shared_ptr<audio::IMixer>& mixer) : T(mixer) {
+        explicit SpyDevice(const std::shared_ptr<audio::IMixer>& mixer) : T(mixer) {
             static_assert(std::is_base_of_v<IDevice, T>);
         };
         SpyDevice() : T(audio::make_mixer<audio::stubs::StubMixer>()) {
