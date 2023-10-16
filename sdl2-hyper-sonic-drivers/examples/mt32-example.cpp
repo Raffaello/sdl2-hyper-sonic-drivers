@@ -17,7 +17,7 @@ int main(int argc, char* argv[])
     using audio::mixer::eChannelGroup;
 
     spdlog::warn("MT32 requires 2 ROMs files not included in this example");
-    spdlog::warn("the ROMs filenames assumed to be fund in the current working directore are:");
+    spdlog::warn("the ROM filenames assumed to be fund in the current working directory are:");
     spdlog::warn("MT32_CONTROL.ROM  --- MT32_PCM.ROM");
 
     auto mixer = audio::make_mixer<audio::sdl2::Mixer>(8, 44100, 1024);
