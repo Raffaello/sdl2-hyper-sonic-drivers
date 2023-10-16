@@ -8,6 +8,8 @@
 #include <HyperSonicDrivers/audio/IMixer.hpp>
 #include <HyperSonicDrivers/audio/mixer/ChannelGroup.hpp>
 #include <HyperSonicDrivers/hardware/IHardware.hpp>
+#include <HyperSonicDrivers/hardware/mt32/MT32ReportHandler.hpp>
+
 
 namespace HyperSonicDrivers::devices
 {
@@ -56,5 +58,6 @@ namespace HyperSonicDrivers::hardware::mt32
 
     private:
         MT32Emu::Service m_service;
+        MT32ReportHandler m_rh;
     };
 }

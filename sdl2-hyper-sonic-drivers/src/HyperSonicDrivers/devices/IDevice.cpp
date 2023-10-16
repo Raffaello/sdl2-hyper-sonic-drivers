@@ -3,7 +3,7 @@
 namespace HyperSonicDrivers::devices
 {
     IDevice::IDevice(const std::shared_ptr<audio::IMixer>& mixer, const eDeviceType type) :
-        m_mixer(mixer), type(type)
+        type(type), m_mixer(mixer)
     {
     }
 

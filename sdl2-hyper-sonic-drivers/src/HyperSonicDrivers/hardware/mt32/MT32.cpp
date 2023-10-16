@@ -13,7 +13,7 @@ namespace HyperSonicDrivers::hardware::mt32
         const std::shared_ptr<audio::IMixer>& mixer) : IHardware(mixer)
     {
         // TODO: do i need a report handler? i guess so for logging purposes
-        m_service.createContext();
+        m_service.createContext(m_rh);
 
         utils::logI(std::format("MUNT version: {}", m_service.getLibraryVersionString()));
 
