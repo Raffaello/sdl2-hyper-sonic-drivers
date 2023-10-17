@@ -8,6 +8,8 @@
 #include <HyperSonicDrivers/audio/IMixer.hpp>
 #include <HyperSonicDrivers/audio/mixer/ChannelGroup.hpp>
 #include <HyperSonicDrivers/hardware/IHardware.hpp>
+#include <HyperSonicDrivers/hardware/mt32/MT32ReportHandler.hpp>
+
 
 namespace HyperSonicDrivers::devices
 {
@@ -24,10 +26,10 @@ namespace HyperSonicDrivers::hardware::mt32
     constexpr int mt32_frequency_internal = 32000; // 32 KHz
     constexpr int mt32_frequency = 250;
 
+    constexpr uint32_t mt32_sysex_addr_LCD = 0x80000;
+
     class MT32 : public IHardware
     {
-        friend devices::MT32;
-
     public:
         MT32(const std::filesystem::path& control_rom, const std::filesystem::path& pcm_rom,
             const std::shared_ptr<audio::IMixer>& mixer
@@ -45,6 +47,10 @@ namespace HyperSonicDrivers::hardware::mt32
             const uint8_t pan = 0,
             const int timerFrequency = mt32_frequency) override;
 
+        inline MT32Emu::Service& getService() noexcept { return m_service; };
+
+        void sysEx(const uint32_t addr, const uint8_t* data, const uint32_t dataSize);
+
     protected:
         void startCallbacks(
             const audio::mixer::eChannelGroup group,
@@ -57,5 +63,6 @@ namespace HyperSonicDrivers::hardware::mt32
 
     private:
         MT32Emu::Service m_service;
+        MT32ReportHandler m_rh;
     };
 }

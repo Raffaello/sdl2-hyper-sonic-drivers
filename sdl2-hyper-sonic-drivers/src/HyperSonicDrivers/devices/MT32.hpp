@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <memory>
 #include <filesystem>
+#include <string>
 #include <HyperSonicDrivers/audio/IMixer.hpp>
 #include <HyperSonicDrivers/audio/midi/MIDIEvent.hpp>
 #include <HyperSonicDrivers/devices/IDevice.hpp>
@@ -20,9 +21,12 @@ namespace HyperSonicDrivers::devices
         );
         ~MT32() override = default;
 
-        virtual bool init() noexcept = 0;
-        virtual bool shutdown() noexcept = 0;
+        bool init() noexcept override;
+        bool shutdown() noexcept override;
 
+        inline std::shared_ptr<hardware::mt32::MT32> getMt32() const noexcept { return m_mt32; };
+
+        void lcd_message(const std::string& msg) noexcept;
     private:
         std::shared_ptr<hardware::mt32::MT32> m_mt32;
     };

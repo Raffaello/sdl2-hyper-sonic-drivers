@@ -15,7 +15,7 @@ namespace HyperSonicDrivers::devices
         const hardware::opl::OplEmulator emulator,
         const hardware::opl::OplType type,
         const uint8_t volume, const uint8_t pan) :
-        IDevice(mixer, true)
+        IDevice(mixer, eDeviceType::Opl)
     {
         using hardware::opl::OPLFactory;
         using utils::logC;
@@ -26,6 +26,7 @@ namespace HyperSonicDrivers::devices
 
     bool Opl::init() noexcept
     {
+        // TODO can be put in the parent class using IHardware*
         if (isInit())
             return true;
 
@@ -41,6 +42,7 @@ namespace HyperSonicDrivers::devices
 
     bool Opl::shutdown() noexcept
     {
+        // TODO: can be put in the parent calss using iHardware*
         if (m_opl != nullptr)
             m_opl->stop();
 

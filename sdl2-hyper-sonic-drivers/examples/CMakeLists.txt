@@ -119,3 +119,13 @@ macro_example(
       "../test/fixtures/GENMIDI.OP2"
     NONE
 )
+
+macro_example(
+    EXE MT32example
+    FILE "mt32-example.cpp"
+    DEPS hyper-sonic-drivers-static
+    LINKS ${LIB_SDL2main} hyper-sonic-drivers-static spdlog::spdlog
+    FIXTURES 
+      "../test/fixtures/MI_intro.mid"
+    NONE
+)

@@ -78,7 +78,7 @@ namespace HyperSonicDrivers::drivers
 
     bool MIDDriver::loadBankOP2(const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank) noexcept
     {
-        if (!m_device->isOpl())
+        if (m_device->type != devices::eDeviceType::Opl)
             return false;
 
         if (op2Bank == nullptr)
@@ -96,14 +96,18 @@ namespace HyperSonicDrivers::drivers
 
     bool MIDDriver::resetBankOP2() noexcept
     {
-        if (m_device->isOpl())
+        switch (m_device->type)
         {
+            using enum devices::eDeviceType;
+        case Opl:
             m_midiDriver = std::make_unique<drivers::midi::scummvm::MidiDriver_ADLIB>(std::dynamic_pointer_cast<devices::Opl>(m_device));
-        }
-        else
-        {
-            // must be mt32 (TODO)
-            m_midiDriver = std::make_unique<drivers::midi::mt32::MT32Driver>();
+            break;
+        case Mt32:
+            m_midiDriver = std::make_unique<drivers::midi::mt32::MT32Driver>(std::dynamic_pointer_cast<devices::MT32>(m_device));
+            break;
+        default:
+            utils::throwLogC<std::invalid_argument>(std::format("unknown device type {:d}", static_cast<int>(m_device->type)));
+            break;
         }
 
         return open_();

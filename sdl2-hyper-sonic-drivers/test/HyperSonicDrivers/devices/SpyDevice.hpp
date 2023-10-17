@@ -4,13 +4,19 @@
 #include <HyperSonicDrivers/devices/IDevice.hpp>
 #include <HyperSonicDrivers/audio/stubs/StubMixer.hpp>
 
+
 namespace HyperSonicDrivers::devices
 {
-    class SpyDevice : public IDevice
+    template<class T>
+    class SpyDevice : public T
     {
     public:
-        SpyDevice(const std::shared_ptr<audio::IMixer>& mixer, const bool isOpl = false) : IDevice(mixer, isOpl) {};
-        SpyDevice() : IDevice(audio::make_mixer<audio::stubs::StubMixer>(), false) {};
+        explicit SpyDevice(const std::shared_ptr<audio::IMixer>& mixer) : T(mixer) {
+            static_assert(std::is_base_of_v<IDevice, T>);
+        };
+        SpyDevice() : T(audio::make_mixer<audio::stubs::StubMixer>()) {
+            static_assert(std::is_base_of_v<IDevice, T>);
+        };
 
         bool init() noexcept  override { return true; };
         bool shutdown() noexcept override { return true; };

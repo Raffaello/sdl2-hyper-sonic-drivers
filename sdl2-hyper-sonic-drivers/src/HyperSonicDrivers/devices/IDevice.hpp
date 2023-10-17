@@ -7,6 +7,7 @@
 #include <HyperSonicDrivers/drivers/IMusicDriver.hpp>
 #include <HyperSonicDrivers/drivers/midi/IMidiDriver.hpp>
 #include <HyperSonicDrivers/hardware/IHardware.hpp>
+#include <HyperSonicDrivers/devices/types.hpp>
 
 namespace HyperSonicDrivers::devices
 {
@@ -17,7 +18,7 @@ namespace HyperSonicDrivers::devices
     class IDevice
     {
     public:
-        IDevice(const std::shared_ptr<audio::IMixer>& mixer, const bool isOpl = false);
+        IDevice(const std::shared_ptr<audio::IMixer>& mixer, const eDeviceType type);
         virtual ~IDevice() = default;
 
         virtual bool init() noexcept = 0;
@@ -38,14 +39,13 @@ namespace HyperSonicDrivers::devices
         void setVolumePan(const uint8_t volume, const uint8_t pan);
 
         inline std::shared_ptr<audio::IMixer> getMixer() const noexcept { return m_mixer; };
-        inline bool isOpl() const noexcept { return m_isOpl; };
         virtual hardware::IHardware* getHardware() const noexcept { return m_hardware; };
+        const eDeviceType type;
     protected:
         bool m_init = false;
         std::shared_ptr<audio::IMixer> m_mixer;
-        hardware::IHardware* m_hardware;
+        hardware::IHardware* m_hardware = nullptr;
     private:
-        bool m_isOpl = false;
         // TODO: remove the atomic when removing the thread in MIDDrv
         std::atomic<bool> m_acquired = false;
         std::atomic<drivers::IMusicDriver*> m_owner = nullptr;
