@@ -3,7 +3,7 @@
 #include <HyperSonicDrivers/audio/midi/MIDIEvent.hpp>
 #include <HyperSonicDrivers/devices/IDevice.hpp>
 #include <HyperSonicDrivers/audio/stubs/StubMixer.hpp>
-#include <type_traits>
+
 
 namespace HyperSonicDrivers::devices
 {

@@ -26,7 +26,7 @@ namespace HyperSonicDrivers::hardware::mt32
     constexpr int mt32_frequency_internal = 32000; // 32 KHz
     constexpr int mt32_frequency = 250;
 
-    constexpr uint32_t mt32_LCD_addr = 0x80000;
+    constexpr uint32_t mt32_sysex_addr_LCD = 0x80000;
 
     class MT32 : public IHardware
     {
