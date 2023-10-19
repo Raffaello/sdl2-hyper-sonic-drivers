@@ -29,6 +29,7 @@ namespace std
                 break;
             case Speech:
                 str = "Speech";
+                break;
             case Unknown:
                 str = "Unknown";
                 break;
