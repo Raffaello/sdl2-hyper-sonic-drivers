@@ -16,7 +16,7 @@ namespace std
 
             switch (ch_group)
             {
-                using enum HyperSonicDrivers::audio::mixers::eChannelGroup;
+                using enum HyperSonicDrivers::audio::mixer::eChannelGroup;
 
             case Plain:
                 str = "Plain";
