@@ -14,7 +14,7 @@ namespace std
         {
             string str;
 
-            switch (emu)
+            switch (ch_group)
             {
                 using enum HyperSonicDrivers::audio::mixers::eChannelGroup;
 
