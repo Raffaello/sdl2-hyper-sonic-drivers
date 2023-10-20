@@ -164,6 +164,9 @@ namespace HyperSonicDrivers::drivers
 
     void MIDDriver::play(const uint8_t track) noexcept
     {
+        if (m_midi == nullptr)
+            return;
+
         if (track >= m_midi->numTracks)
         {
             logW(std::format("track not available: {}", track));
