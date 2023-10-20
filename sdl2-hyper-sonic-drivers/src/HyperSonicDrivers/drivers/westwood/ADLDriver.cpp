@@ -233,6 +233,9 @@ namespace HyperSonicDrivers::drivers::westwood
     void ADLDriver::play(const uint8_t track) noexcept
     {
         std::scoped_lock lock(m_mutex);
+        
+        if (m_adl_file == nullptr)
+            return;
 
         constexpr uint8_t volume = std::numeric_limits<uint8_t>::max();
         const uint16_t soundId = m_adl_file->getTrack(track);
