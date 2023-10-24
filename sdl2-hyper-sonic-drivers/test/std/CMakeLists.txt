@@ -61,3 +61,8 @@ macro_test(
     FILES "eChannelGroupFormatterTest.cpp"
 )
 
+macro_test(
+    EXE TestIloggerFormatter
+    FILES "ILoggerFormatterTest.cpp"
+)
+
