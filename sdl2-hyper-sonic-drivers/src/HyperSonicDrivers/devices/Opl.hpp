@@ -27,8 +27,10 @@ namespace HyperSonicDrivers::devices
         bool shutdown() noexcept override;
 
         inline std::shared_ptr<hardware::opl::OPL> getOpl() const noexcept { return m_opl; };
-        hardware::opl::OPL* getHardware() const noexcept override { return dynamic_cast<hardware::opl::OPL*>(IDevice::getHardware()); };
+        inline hardware::opl::OPL* getHardware() const noexcept override { return dynamic_cast<hardware::opl::OPL*>(IDevice::getHardware()); };
+        inline hardware::opl::OplEmulator getEmulatorType() const noexcept { return m_emulator; };
     private:
         std::shared_ptr<hardware::opl::OPL> m_opl;
+        const hardware::opl::OplEmulator m_emulator;
     };
 }

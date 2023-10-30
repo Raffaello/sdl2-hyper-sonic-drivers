@@ -17,6 +17,13 @@ namespace HyperSonicDrivers::devices
         EXPECT_NO_THROW(auto a = std::make_shared<Adlib>(mixer));
     }
 
+    TEST(Adlib, device_name)
+    {
+        auto mixer = std::make_shared<StubMixer>();
+        auto a = std::make_shared<Adlib>(mixer);
+        EXPECT_EQ(a->getName(), eDeviceName::Adlib);
+    }
+
     class AdliblEmulator_ : public EmulatorTestCase<Adlib> {};
     TEST_P(AdliblEmulator_, cstr_TYPE)
     {

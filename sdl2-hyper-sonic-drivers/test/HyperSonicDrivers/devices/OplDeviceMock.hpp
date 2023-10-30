@@ -17,6 +17,12 @@ namespace HyperSonicDrivers::devices
             : Opl(mixer, emuType, type, 255, 0)
         {
         }
+
         ~OplDeviceMock() override = default;
+
+        eDeviceName getName() const noexcept
+        {
+            return eDeviceName::Adlib;
+        }
     };
 }

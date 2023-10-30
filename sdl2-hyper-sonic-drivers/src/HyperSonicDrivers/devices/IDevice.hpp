@@ -4,7 +4,6 @@
 #include <memory>
 #include <optional>
 #include <HyperSonicDrivers/audio/IMixer.hpp>
-//#include <HyperSonicDrivers/drivers/IMusicDriver.hpp>
 #include <HyperSonicDrivers/drivers/midi/IMidiDriver.hpp>
 #include <HyperSonicDrivers/hardware/IHardware.hpp>
 #include <HyperSonicDrivers/devices/types.hpp>
@@ -47,6 +46,7 @@ namespace HyperSonicDrivers
 
             inline std::shared_ptr<audio::IMixer> getMixer() const noexcept { return m_mixer; };
             virtual hardware::IHardware* getHardware() const noexcept { return m_hardware; };
+            virtual eDeviceName getName() const noexcept = 0;
             const eDeviceType type;
         protected:
             bool m_init = false;

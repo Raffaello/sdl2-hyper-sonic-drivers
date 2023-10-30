@@ -12,4 +12,9 @@ namespace HyperSonicDrivers::devices
         Opl(mixer, emulator, OplType::OPL3, volume, pan)
     {
     }
+
+    eDeviceName SbPro2::getName() const noexcept
+    {
+        return eDeviceName::SbPro2;
+    }
 }
