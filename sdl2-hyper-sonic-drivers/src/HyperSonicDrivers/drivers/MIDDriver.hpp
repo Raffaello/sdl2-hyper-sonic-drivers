@@ -57,7 +57,7 @@ namespace HyperSonicDrivers::drivers
         bool open_() noexcept;
     private:
         // this is used to "lock" the device to a specific driver output and passed to IMidiDriver
-        std::shared_ptr<devices::IDevice> m_device;
+        //std::shared_ptr<devices::IDevice> m_device;
         // this is to abstract the specific midi driver implementation
         std::unique_ptr<drivers::midi::IMidiDriver> m_midiDriver;
         std::shared_ptr<audio::MIDI> m_midi;

@@ -255,7 +255,6 @@ namespace HyperSonicDrivers::drivers::westwood
         uint8_t m_opExtraLevel1BD = 0;
         uint8_t m_opExtraLevel2BD = 0;
 
-        std::shared_ptr<devices::Opl> m_device;
         std::shared_ptr<hardware::opl::OPL> m_opl;
 
         struct QueueEntry

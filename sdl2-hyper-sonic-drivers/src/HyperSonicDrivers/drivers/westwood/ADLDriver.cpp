@@ -28,7 +28,8 @@ namespace HyperSonicDrivers::drivers::westwood
         const audio::mixer::eChannelGroup group,
         const uint8_t volume,
         const uint8_t pan) :
-        m_device(opl), m_opl(opl->getOpl())
+        IMusicDriver(opl),
+        m_opl(opl->getOpl())
     {
         memset(m_channels.data(), 0, sizeof(m_channels));
         hardware::TimerCallBack cb = std::bind(&ADLDriver::onCallback, this);
