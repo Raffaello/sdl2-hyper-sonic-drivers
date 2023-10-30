@@ -171,6 +171,13 @@ macro_test(
 )
 
 macro_test(
+    EXE TestIMusicDriver
+    FILES "drivers/TestIMusicDriver.cpp"
+    LINKS_PRIVATE hyper-sonic-drivers-static
+    FIXTURES 
+)
+
+macro_test(
     EXE TestMameOPL2
     FILES "hardware/opl/scummvm/mame/TestMameOPL2.cpp"
     LINKS_PRIVATE hyper-sonic-drivers-static
