@@ -1,5 +1,8 @@
 #pragma once
 
+#include <memory>
+#include <HyperSonicDrivers/devices/IDevice.hpp>
+
 namespace HyperSonicDrivers::drivers
 {
     /**
@@ -16,7 +19,7 @@ namespace HyperSonicDrivers::drivers
         IMusicDriver(IMusicDriver&&) = delete;
         IMusicDriver& operator=(IMusicDriver&) = delete;
 
-        IMusicDriver() = default;
+        explicit IMusicDriver(const std::shared_ptr<devices::IDevice>& device);
         virtual ~IMusicDriver() = default;
 
         virtual void play(const uint8_t track) noexcept = 0;
@@ -31,5 +34,10 @@ namespace HyperSonicDrivers::drivers
 
         // TODO: it might not be required
         //virtual bool isPaused() const noexcept = 0;
+
+        inline std::shared_ptr<devices::IDevice> getDevice() const noexcept { return m_device; };
+    protected:
+        // this is used to "lock" the device to a specific driver output and passed to IMidiDriver
+        std::shared_ptr<devices::IDevice> m_device;
     };
 }

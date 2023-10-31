@@ -32,6 +32,11 @@ namespace HyperSonicDrivers::devices
         return false;
     }
 
+    eDeviceName MT32::getName() const noexcept
+    {
+        return eDeviceName::MT32;
+    }
+
     void MT32::lcd_message(const std::string& msg) noexcept
     {
         m_mt32->sysEx(

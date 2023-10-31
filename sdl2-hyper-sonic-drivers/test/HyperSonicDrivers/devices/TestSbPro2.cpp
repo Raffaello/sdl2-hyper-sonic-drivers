@@ -13,6 +13,13 @@ namespace HyperSonicDrivers::devices
         EXPECT_NO_THROW(auto s = SbPro2(mixer, OplEmulator::NUKED));
     }
 
+    TEST(Adlib, device_name)
+    {
+        auto mixer = std::make_shared<StubMixer>();
+        auto s = std::make_shared<SbPro2>(mixer);
+        EXPECT_EQ(s->getName(), eDeviceName::SbPro2);
+    }
+
     class SbPro2Emulator_ : public EmulatorTestCase<SbPro2> {};
     
     TEST_P(SbPro2Emulator_, cstr_TYPE)

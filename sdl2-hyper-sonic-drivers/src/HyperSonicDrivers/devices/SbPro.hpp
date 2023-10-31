@@ -23,5 +23,7 @@ namespace HyperSonicDrivers::devices
         );
 
         ~SbPro() override = default;
+
+        eDeviceName getName() const noexcept override;
     };
 }

@@ -24,6 +24,8 @@ namespace HyperSonicDrivers::devices
         bool init() noexcept override;
         bool shutdown() noexcept override;
 
+        eDeviceName getName() const noexcept override;
+
         inline std::shared_ptr<hardware::mt32::MT32> getMt32() const noexcept { return m_mt32; };
 
         void lcd_message(const std::string& msg) noexcept;
