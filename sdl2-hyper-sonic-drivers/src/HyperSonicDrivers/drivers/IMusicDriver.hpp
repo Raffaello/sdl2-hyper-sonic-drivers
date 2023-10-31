@@ -19,7 +19,7 @@ namespace HyperSonicDrivers::drivers
         IMusicDriver(IMusicDriver&&) = delete;
         IMusicDriver& operator=(IMusicDriver&) = delete;
 
-        IMusicDriver(const std::shared_ptr<devices::IDevice>& device);
+        explicit IMusicDriver(const std::shared_ptr<devices::IDevice>& device);
         virtual ~IMusicDriver() = default;
 
         virtual void play(const uint8_t track) noexcept = 0;
