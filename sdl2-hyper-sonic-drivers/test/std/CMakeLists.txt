@@ -66,3 +66,7 @@ macro_test(
     FILES "ILoggerFormatterTest.cpp"
 )
 
+macro_test(
+    EXE TestIDeviceFormatter
+    FILES "IDeviceTypesFormatterTest.cpp"
+)
