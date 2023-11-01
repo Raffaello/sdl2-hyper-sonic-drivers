@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <HyperSonicDrivers/audio/Renderer.hpp>
+#include <HyperSonicDrivers/audio/sdl2/Renderer.hpp>
 #include <HyperSonicDrivers/devices/Adlib.hpp>
 #include <HyperSonicDrivers/devices/SbPro2.hpp>
 #include <HyperSonicDrivers/drivers/westwood/ADLDriver.hpp>
@@ -9,7 +9,7 @@
 #include <filesystem>
 #include <string>
 
-namespace HyperSonicDrivers::audio
+namespace HyperSonicDrivers::audio::sdl2
 {
     using audio::mixer::eChannelGroup;
     using hardware::opl::OplEmulator;
@@ -55,7 +55,7 @@ namespace HyperSonicDrivers::audio
         ASSERT_FALSE(std::filesystem::exists(rfile));
 
         {
-            audio::Renderer r(freq);
+            audio::sdl2::Renderer r(freq, 1024);
             r.openOutputFile(rfile);
 
             auto drv1 = drivers::westwood::ADLDriver(opl, eChannelGroup::Music);
@@ -92,50 +92,6 @@ namespace HyperSonicDrivers::audio
             std::make_tuple<>("sbpro2_dosbox", 44100, eDeviceName::SbPro2, OplEmulator::DOS_BOX)
         )
     );
-
-
-    // This disabled test are generating a shorter wav file. WHY?
-    TEST(DISABLED_Renderer, adlib_mame2)
-    {
-        constexpr const char* exp_renderer = "../fixtures/test_renderer_adlib_mame2.wav";
-        constexpr const char* rfile = "test_renderer_adlib_mame2_out.wav";
-
-        if (std::filesystem::exists(rfile))
-            std::filesystem::remove(rfile);
-
-        ASSERT_FALSE(std::filesystem::exists(rfile));
-
-        audio::Renderer r(1024);
-        r.openOutputFile(rfile);
-
-        auto mixer = std::make_shared<stubs::StubMixer>();
-
-        auto adlib = devices::make_device<devices::Adlib, devices::Opl>(mixer, OplEmulator::MAME);
-        auto drv1 = drivers::westwood::ADLDriver(adlib, eChannelGroup::Music);
-        auto af = std::make_shared<files::westwood::ADLFile>("../fixtures/DUNE0.ADL");
-        drv1.setADLFile(af);
-
-        drv1.play(4);
-        while (drv1.isPlaying())
-            r.renderBuffer(adlib);
-
-        r.closeOutputFile();
-
-        files::WAVFile w(rfile);
-        auto sound = w.getSound();
-        files::WAVFile wexp(exp_renderer);
-        auto exp_sound = wexp.getSound();
-
-        ASSERT_EQ(sound->dataSize, exp_sound->dataSize);
-        ASSERT_EQ(sound->freq, exp_sound->freq);
-        ASSERT_EQ(sound->stereo, exp_sound->stereo);
-        EXPECT_EQ(sound->freq, 44100);
-        EXPECT_FALSE(sound->stereo);
-        for (uint32_t i = 0; i < sound->dataSize; i++)
-        {
-            EXPECT_EQ(sound->data[i], exp_sound->data[i]);
-        }
-    }
 }
 
 int main(int argc, char** argv)

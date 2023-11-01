@@ -262,7 +262,7 @@ macro_test(
 
 macro_test(
     EXE TestRenderer
-    FILES "audio/TestRenderer.cpp"
+    FILES "audio/sdl2/TestRenderer.cpp"
     LINKS_PRIVATE hyper-sonic-drivers-static
     FIXTURES
         "../fixtures/test_renderer_adlib_mame2.wav"
