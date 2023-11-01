@@ -18,12 +18,12 @@ namespace HyperSonicDrivers::audio
         explicit Renderer(const size_t buffer_size);
         virtual ~Renderer() = default;
 
-        void setOutputFile(const std::filesystem::path& path);
-        void releaseOutputFile() noexcept;
+        void openOutputFile(const std::filesystem::path& path);
+        void closeOutputFile() noexcept;
 
         void renderBuffer(IAudioStream* stream);
-        inline void renderBuffer(const std::shared_ptr<hardware::opl::OPL>& opl) { renderBuffer(opl->getAudioStream().get()); };
-        inline void renderBuffer(const std::shared_ptr<devices::Opl>& opl) { renderBuffer(opl->getHardware()->getAudioStream().get()); };
+
+        inline void renderBuffer(const std::shared_ptr<devices::IDevice>& device) { renderBuffer(device->getHardware()->getAudioStream().get()); };
 
     private:
         const size_t m_buf_size;

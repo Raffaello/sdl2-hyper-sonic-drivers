@@ -255,7 +255,11 @@ namespace HyperSonicDrivers::drivers::westwood
 
     bool ADLDriver::isPlaying() const noexcept
     {
-        return isChannelPlaying(0) || m_programQueueStart != m_programQueueEnd;
+        bool res = false;
+        for (int i = 0; i <= NUM_CHANNELS; i++)
+            res |= isChannelPlaying(i);
+
+        return res || (m_programQueueStart != m_programQueueEnd);
     }
 
     uint8_t* ADLDriver::getProgram_(const int progId, const files::westwood::ADLFile::PROG_TYPE progType) const
