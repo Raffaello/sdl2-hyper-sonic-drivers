@@ -6,11 +6,6 @@
 #include <HyperSonicDrivers/hardware/opl/OplType.hpp>
 #include <HyperSonicDrivers/audio/IMixer.hpp>
 
-namespace HyperSonicDrivers::audio
-{
-    class Renderer;
-}
-
 namespace HyperSonicDrivers::hardware::opl
 {
     constexpr uint8_t opl2_num_channels = 9;
@@ -22,8 +17,6 @@ namespace HyperSonicDrivers::hardware::opl
      */
     class OPL : public IHardware
     {
-        friend audio::Renderer;
-
     public:
         explicit OPL(const std::shared_ptr<audio::IMixer>& mixer, const OplType type);
         ~OPL() override = default;

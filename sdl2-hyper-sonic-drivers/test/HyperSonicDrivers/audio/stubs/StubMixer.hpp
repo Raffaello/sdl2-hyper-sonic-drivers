@@ -13,7 +13,8 @@ namespace HyperSonicDrivers::audio::stubs
     public:
         int rate = 44100;
 
-        StubMixer() : IMixer(32, 44100, 1024/*, const uint8_t bitsDepth*/) {};
+        StubMixer() : IMixer(32, 44100, 1024) {};
+        StubMixer(const int freq) : IMixer(32, freq, 1024) {};
 
         bool init() override { return true; };
 

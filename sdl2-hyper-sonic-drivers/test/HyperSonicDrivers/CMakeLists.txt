@@ -266,6 +266,7 @@ macro_test(
     LINKS_PRIVATE hyper-sonic-drivers-static
     FIXTURES
         "../fixtures/test_renderer_adlib_mame2.wav"
+        "../fixtures/test_renderer_sbpro2_dosbox.wav"
         "../fixtures/DUNE0.ADL"
 )
 
