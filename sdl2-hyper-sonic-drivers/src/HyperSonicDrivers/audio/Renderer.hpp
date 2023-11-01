@@ -23,7 +23,6 @@ namespace HyperSonicDrivers::audio
 
         void renderBuffer(IAudioStream* stream);
 
-        //inline void renderBuffer(const std::shared_ptr<hardware::opl::OPL>& opl) { renderBuffer(opl->getAudioStream().get()); };
         inline void renderBuffer(const std::shared_ptr<devices::IDevice>& device) { renderBuffer(device->getHardware()->getAudioStream().get()); };
 
     private:
