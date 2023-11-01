@@ -5,9 +5,9 @@
 
 namespace HyperSonicDrivers::audio::sdl2
 {
-    Renderer::Renderer(const uint32_t freq, const uint16_t buffer_size)
+    Renderer::Renderer(const uint32_t freq, const uint16_t buffer_size, const uint8_t max_channels)
     {
-        m_mixer = make_mixer<Mixer>(1, freq, buffer_size);
+        m_mixer = make_mixer<Mixer>(max_channels, freq, buffer_size);
     }
 
     void Renderer::openOutputFile(const std::filesystem::path& path)

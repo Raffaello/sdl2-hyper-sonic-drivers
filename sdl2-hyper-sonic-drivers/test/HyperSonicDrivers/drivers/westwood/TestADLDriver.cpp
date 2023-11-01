@@ -2,19 +2,19 @@
 #include <gmock/gmock.h>
 #include <memory>
 #include <HyperSonicDrivers/drivers/westwood/ADLDriver.hpp>
-#include <HyperSonicDrivers/audio/stubs/StubMixer.hpp>
+#include <HyperSonicDrivers/audio/IMixerMock.hpp>
 #include <HyperSonicDrivers/files/westwood/ADLFile.hpp>
 #include <HyperSonicDrivers/devices/Adlib.hpp>
 
 namespace HyperSonicDrivers::drivers::westwood
 {
     // TODO: Review the tests
-    using audio::stubs::StubMixer;
+    using audio::IMixerMock;
     using hardware::opl::OplType;
 
     TEST(ADLDriver, cstor)
     {
-        auto mixer = std::make_shared<StubMixer>();
+        auto mixer = std::make_shared<IMixerMock>();
         auto adlFile = std::make_shared<files::westwood::ADLFile>("../fixtures/DUNE19.ADL");
         auto adlib = devices::make_device<devices::Adlib, devices::Opl>(mixer);
         ADLDriver adlDrv(adlib, audio::mixer::eChannelGroup::Plain);
@@ -24,7 +24,7 @@ namespace HyperSonicDrivers::drivers::westwood
 
     TEST(ADLDriver, shared_ptr)
     {
-        auto mixer = std::make_shared<StubMixer>();
+        auto mixer = std::make_shared<IMixerMock>();
         EXPECT_EQ(mixer.use_count(), 1);
 
         auto adlFile = std::make_shared<files::westwood::ADLFile>("../fixtures/DUNE19.ADL");

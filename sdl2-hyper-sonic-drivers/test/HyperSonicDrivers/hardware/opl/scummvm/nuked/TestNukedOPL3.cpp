@@ -3,14 +3,14 @@
 #include <cstdint>
 #include <memory>
 #include <HyperSonicDrivers/hardware/opl/scummvm/nuked/NukedOPL3.hpp>
-#include <HyperSonicDrivers/audio/stubs/StubMixer.hpp>
+#include <HyperSonicDrivers/audio/IMixerMock.hpp>
 #include <HyperSonicDrivers/files/File.hpp>
 
 namespace HyperSonicDrivers::hardware::opl::scummvm::nuked
 {
     // TODO: refactor these tests as they are the same of the one in dosbox.
 
-    using audio::stubs::StubMixer;
+    using audio::IMixerMock;
 
     class OPLType : public  ::testing::TestWithParam<std::tuple<OplType, bool>>
     {
@@ -20,7 +20,7 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::nuked
     };
     TEST_P(OPLType, cstorDefault)
     {
-        std::shared_ptr<StubMixer> mixer = std::make_shared<StubMixer>();
+        std::shared_ptr<IMixerMock> mixer = std::make_shared<IMixerMock>();
         EXPECT_EQ(mixer.use_count(), 1);
         NukedOPL nuked(this->opl_type, mixer);
         EXPECT_EQ(mixer.use_count(), 2);
@@ -31,7 +31,7 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::nuked
 
     TEST_P(OPLType, share_ptrDefault)
     {
-        std::shared_ptr<StubMixer> mixer = std::make_shared<StubMixer>();
+        std::shared_ptr<IMixerMock> mixer = std::make_shared<IMixerMock>();
         EXPECT_EQ(mixer.use_count(), 1);
 
         std::shared_ptr<NukedOPL> nuked = std::make_shared<NukedOPL>(this->opl_type, mixer);
@@ -54,7 +54,7 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::nuked
 
     TEST(DISABLED_OPL, Table440Hz)
     {
-        std::shared_ptr<StubMixer> mixer = std::make_shared<StubMixer>();
+        std::shared_ptr<IMixerMock> mixer = std::make_shared<IMixerMock>();
         mixer->rate = 22050;
         std::shared_ptr<hardware::opl::scummvm::nuked::NukedOPL> opl = std::make_shared<hardware::opl::scummvm::nuked::NukedOPL>(OplType::OPL3, mixer);
         opl->init();

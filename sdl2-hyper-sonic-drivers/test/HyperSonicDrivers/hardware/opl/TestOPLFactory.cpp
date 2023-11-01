@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <HyperSonicDrivers/hardware/opl/OPLFactory.hpp>
-#include <HyperSonicDrivers/audio/stubs/StubMixer.hpp>
+#include <HyperSonicDrivers/audio/IMixerMock.hpp>
 #include <HyperSonicDrivers/hardware/opl/woody/WoodyOPL.hpp>
 #include <HyperSonicDrivers/hardware/opl/scummvm/dosbox/DosBoxOPL.hpp>
 #include <HyperSonicDrivers/hardware/opl/scummvm/mame/MameOPL2.hpp>
@@ -10,10 +10,10 @@
 
 namespace HyperSonicDrivers::hardware::opl
 {
-    using audio::stubs::StubMixer;
+    using audio::IMixerMock;
     using namespace hardware::opl::scummvm;
 
-    const static std::shared_ptr<StubMixer> mixer = std::make_shared<StubMixer>();
+    const static std::shared_ptr<IMixerMock> mixer = std::make_shared<IMixerMock>();
 
     class ConfigTest : public ::testing::TestWithParam<std::tuple<OplEmulator, OplType>> {};
     TEST_P(ConfigTest, create)

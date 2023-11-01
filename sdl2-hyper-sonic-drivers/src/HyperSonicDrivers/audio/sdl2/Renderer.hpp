@@ -4,6 +4,7 @@
 #include <HyperSonicDrivers/audio/IMixer.hpp>
 #include <HyperSonicDrivers/audio/IAudioStream.hpp>
 #include <HyperSonicDrivers/files/WAVFile.hpp>
+#include <cstdint>
 #include <vector>
 #include <memory>
 #include <filesystem>
@@ -13,7 +14,7 @@ namespace HyperSonicDrivers::audio::sdl2
     class Renderer : public IRenderer
     {
     public:
-        Renderer(const uint32_t freq, const uint16_t buffer_size);
+        Renderer(const uint32_t freq, const uint16_t buffer_size, const uint8_t max_channels = 1);
         ~Renderer() override = default;
 
         void openOutputFile(const std::filesystem::path& path) override;

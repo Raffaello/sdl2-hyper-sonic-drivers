@@ -3,16 +3,16 @@
 #include <memory>
 #include <cstdint>
 #include <HyperSonicDrivers/hardware/opl/scummvm/mame/MameOPL2.hpp>
-#include <HyperSonicDrivers/audio/stubs/StubMixer.hpp>
+#include <HyperSonicDrivers/audio/IMixerMock.hpp>
 #include <HyperSonicDrivers/files/File.hpp>
 
 
 namespace HyperSonicDrivers::hardware::opl::scummvm::mame
 {
-    using audio::stubs::StubMixer;
+    using audio::IMixerMock;
     TEST(MameOPL2, cstorDefault)
     {
-        std::shared_ptr<StubMixer> mixer = std::make_shared<StubMixer>();
+        std::shared_ptr<IMixerMock> mixer = std::make_shared<IMixerMock>();
         EXPECT_EQ(mixer.use_count(), 1);
         MameOPL2 mame(OplType::OPL2, mixer);
         EXPECT_EQ(mixer.use_count(), 2);
@@ -21,14 +21,14 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::mame
 
     TEST(MameOPL2, throwIfnotOPL2)
     {
-        std::shared_ptr<StubMixer> mixer = std::make_shared<StubMixer>();
+        std::shared_ptr<IMixerMock> mixer = std::make_shared<IMixerMock>();
         EXPECT_EQ(mixer.use_count(), 1);
         EXPECT_THROW(MameOPL2 mame(OplType::OPL3, mixer), std::invalid_argument);
     }
 
     TEST(MameOPL2, share_ptrDefault)
     {
-        std::shared_ptr<StubMixer> mixer = std::make_shared<StubMixer>();
+        std::shared_ptr<IMixerMock> mixer = std::make_shared<IMixerMock>();
         EXPECT_EQ(mixer.use_count(), 1);
 
         std::shared_ptr<MameOPL2> mame = std::make_shared<MameOPL2>(OplType::OPL2, mixer);
@@ -39,7 +39,7 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::mame
 
     TEST(DISABLED_OPL, Table440Hz)
     {
-        std::shared_ptr<StubMixer> mixer = std::make_shared<StubMixer>();
+        std::shared_ptr<IMixerMock> mixer = std::make_shared<IMixerMock>();
         mixer->rate = 22050;
         std::shared_ptr<hardware::opl::scummvm::mame::MameOPL2> opl = std::make_shared<hardware::opl::scummvm::mame::MameOPL2>(OplType::OPL2, mixer);
         opl->init();
