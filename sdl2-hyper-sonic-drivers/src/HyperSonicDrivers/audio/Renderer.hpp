@@ -15,7 +15,7 @@ namespace HyperSonicDrivers::audio
     class Renderer
     {
     public:
-        Renderer(const size_t buffer_size);
+        explicit Renderer(const size_t buffer_size);
         virtual ~Renderer() = default;
 
         void setOutputFile(const std::filesystem::path& path);
