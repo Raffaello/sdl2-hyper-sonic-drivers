@@ -1,12 +1,13 @@
 #include <gtest/gtest.h>
-#include <HyperSonicDrivers/audio/sdl2/Renderer.hpp>
+#include <HyperSonicDrivers/audio/Renderer.hpp>
 #include <HyperSonicDrivers/devices/Adlib.hpp>
 #include <HyperSonicDrivers/drivers/westwood/ADLDriver.hpp>
 #include <HyperSonicDrivers/audio/mixer/ChannelGroup.hpp>
 #include <HyperSonicDrivers/hardware/opl/OplEmulator.hpp>
+#include <HyperSonicDrivers/audio/stubs/StubMixer.hpp>
 #include <filesystem>
 
-namespace HyperSonicDrivers::audio::sdl2
+namespace HyperSonicDrivers::audio
 {
     using audio::mixer::eChannelGroup;
     using devices::Adlib;
@@ -22,10 +23,10 @@ namespace HyperSonicDrivers::audio::sdl2
 
         ASSERT_FALSE(std::filesystem::exists(rfile));
 
-        audio::sdl2::Renderer r(44100, 1024);
+        audio::Renderer r(1024);
         r.setOutputFile(rfile);
 
-        auto mixer = r.getMixer();
+        auto mixer = std::make_shared<stubs::StubMixer>();
 
         auto adlib = devices::make_device<devices::Adlib, devices::Opl>(mixer, OplEmulator::MAME);
         auto drv1 = drivers::westwood::ADLDriver(adlib, eChannelGroup::Music);
@@ -63,10 +64,10 @@ namespace HyperSonicDrivers::audio::sdl2
 
         ASSERT_FALSE(std::filesystem::exists(rfile));
 
-        audio::sdl2::Renderer r(44100, 1024);
+        audio::Renderer r(1024);
         r.setOutputFile(rfile);
 
-        auto mixer = r.getMixer();
+        auto mixer = std::make_shared<stubs::StubMixer>();
 
         auto adlib = devices::make_device<devices::Adlib, devices::Opl>(mixer, OplEmulator::MAME);
         auto drv1 = drivers::westwood::ADLDriver(adlib, eChannelGroup::Music);

@@ -8,7 +8,7 @@
 
 namespace HyperSonicDrivers::audio
 {
-    class IRenderer;
+    class Renderer;
 }
 
 namespace HyperSonicDrivers::hardware::opl
@@ -22,7 +22,7 @@ namespace HyperSonicDrivers::hardware::opl
      */
     class OPL : public IHardware
     {
-        friend audio::IRenderer;
+        friend audio::Renderer;
 
     public:
         explicit OPL(const std::shared_ptr<audio::IMixer>& mixer, const OplType type);
