@@ -5,7 +5,7 @@
 #include <HyperSonicDrivers/audio/IMixer.hpp>
 #include <HyperSonicDrivers/audio/IAudioStream.hpp>
 #include <HyperSonicDrivers/hardware/opl/OPL.hpp>
-#include <HyperSonicDrivers/devices/iDevice.hpp>
+#include <HyperSonicDrivers/devices/IDevice.hpp>
 
 namespace HyperSonicDrivers::audio
 {
