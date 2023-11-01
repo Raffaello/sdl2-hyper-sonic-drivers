@@ -94,7 +94,7 @@ namespace HyperSonicDrivers::audio
     );
 
 
-    // These 2 disabled test are generating a shorter wav file. WHY?
+    // This disabled test are generating a shorter wav file. WHY?
     TEST(DISABLED_Renderer, adlib_mame2)
     {
         constexpr const char* exp_renderer = "../fixtures/test_renderer_adlib_mame2.wav";
@@ -136,88 +136,6 @@ namespace HyperSonicDrivers::audio
             EXPECT_EQ(sound->data[i], exp_sound->data[i]);
         }
     }
-
-    TEST(DISABLED_Renderer, sbpro2_dosbox)
-    {
-        constexpr const char* exp_renderer = "../fixtures/test_renderer_sbpro2_dosbox.wav";
-        constexpr const char* rfile = "test_renderer_sbpro2_dosbox_out.wav";
-
-        if (std::filesystem::exists(rfile))
-            std::filesystem::remove(rfile);
-
-        ASSERT_FALSE(std::filesystem::exists(rfile));
-
-        audio::Renderer r(1024);
-        r.openOutputFile(rfile);
-
-        auto mixer = std::make_shared<stubs::StubMixer>();
-
-        auto sbpro2 = devices::make_device<devices::SbPro2, devices::Opl>(mixer, OplEmulator::DOS_BOX);
-        auto drv1 = drivers::westwood::ADLDriver(sbpro2, eChannelGroup::Music);
-        auto af = std::make_shared<files::westwood::ADLFile>("../fixtures/DUNE0.ADL");
-        drv1.setADLFile(af);
-
-        drv1.play(4);
-        while (drv1.isPlaying())
-            r.renderBuffer(sbpro2);
-
-        r.closeOutputFile();
-
-        files::WAVFile w(rfile);
-        auto sound = w.getSound();
-        files::WAVFile wexp(exp_renderer);
-        auto exp_sound = wexp.getSound();
-
-        ASSERT_EQ(sound->dataSize, exp_sound->dataSize);
-        ASSERT_EQ(sound->freq, exp_sound->freq);
-        ASSERT_EQ(sound->stereo, exp_sound->stereo);
-        EXPECT_EQ(sound->freq, 44100);
-        EXPECT_TRUE(sound->stereo);
-        for (uint32_t i = 0; i < sound->dataSize; i++)
-        {
-            EXPECT_EQ(sound->data[i], exp_sound->data[i]);
-        }
-    }
-
-    /*TEST(DISABLED_Renderer, adlib_mame2_device)
-    {
-        constexpr const char* exp_renderer = "../fixtures/test_renderer_adlib_mame2.wav";
-        constexpr const char* rfile = "test_renderer_adlib_mame2_out.wav";
-
-        if (std::filesystem::exists(rfile))
-            std::filesystem::remove(rfile);
-
-        ASSERT_FALSE(std::filesystem::exists(rfile));
-
-        audio::Renderer r(1024);
-        r.openOutputFile(rfile);
-
-        auto mixer = std::make_shared<stubs::StubMixer>();
-
-        auto adlib = devices::make_device<devices::Adlib, devices::Opl>(mixer, OplEmulator::MAME);
-        auto drv1 = drivers::westwood::ADLDriver(adlib, eChannelGroup::Music);
-        auto af = std::make_shared<files::westwood::ADLFile>("../fixtures/DUNE0.ADL");
-        drv1.setADLFile(af);
-
-        drv1.play(4);
-        while (drv1.isPlaying())
-            r.renderBuffer(adlib);
-
-        r.closeOutputFile();
-
-        files::WAVFile w(rfile);
-        auto sound = w.getSound();
-        files::WAVFile wexp(exp_renderer);
-        auto exp_sound = wexp.getSound();
-
-        ASSERT_EQ(sound->dataSize, exp_sound->dataSize);
-        ASSERT_EQ(sound->freq, exp_sound->freq);
-        ASSERT_EQ(sound->stereo, exp_sound->stereo);
-        for (uint32_t i = 0; i < sound->dataSize; i++)
-        {
-            EXPECT_EQ(sound->data[i], exp_sound->data[i]);
-        }
-    }*/
 }
 
 int main(int argc, char** argv)
