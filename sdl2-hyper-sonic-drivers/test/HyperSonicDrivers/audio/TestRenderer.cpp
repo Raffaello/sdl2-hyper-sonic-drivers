@@ -23,7 +23,7 @@ namespace HyperSonicDrivers::audio
 
         ASSERT_FALSE(std::filesystem::exists(rfile));
 
-        audio::Renderer r;
+        audio::Renderer r(1024);
         r.setOutputFile(rfile);
 
         auto mixer = std::make_shared<stubs::StubMixer>();
@@ -64,7 +64,7 @@ namespace HyperSonicDrivers::audio
 
         ASSERT_FALSE(std::filesystem::exists(rfile));
 
-        audio::Renderer r;
+        audio::Renderer r(1024);
         r.setOutputFile(rfile);
 
         auto mixer = std::make_shared<stubs::StubMixer>();

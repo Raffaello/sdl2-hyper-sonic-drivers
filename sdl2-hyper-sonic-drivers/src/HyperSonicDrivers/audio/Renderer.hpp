@@ -15,7 +15,7 @@ namespace HyperSonicDrivers::audio
     class Renderer
     {
     public:
-        Renderer() = default;
+        Renderer(const size_t buffer_size);
         virtual ~Renderer() = default;
 
         void setOutputFile(const std::filesystem::path& path);
@@ -26,6 +26,7 @@ namespace HyperSonicDrivers::audio
         inline void renderBuffer(const std::shared_ptr<devices::Opl>& opl) { renderBuffer(opl->getHardware()->getAudioStream().get()); };
 
     private:
+        const size_t m_buf_size;
         std::unique_ptr<files::WAVFile> m_out;
         std::vector<int16_t> m_buf;
     };
