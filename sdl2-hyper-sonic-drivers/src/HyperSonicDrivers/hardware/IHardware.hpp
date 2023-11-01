@@ -10,7 +10,7 @@
 
 namespace HyperSonicDrivers::audio
 {
-    //class IRenderer;
+    class IRenderer;
 
     namespace streams
     {
@@ -27,6 +27,7 @@ namespace HyperSonicDrivers::hardware
     class IHardware
     {
         friend audio::streams::EmulatedStream;
+        friend audio::IRenderer;
 
     public:
         explicit IHardware(const std::shared_ptr<audio::IMixer>& mixer);

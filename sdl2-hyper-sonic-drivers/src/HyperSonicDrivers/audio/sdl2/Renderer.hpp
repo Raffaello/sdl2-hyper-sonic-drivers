@@ -16,8 +16,8 @@ namespace HyperSonicDrivers::audio::sdl2
         Renderer(const uint32_t freq, const uint16_t buffer_size);
         ~Renderer() override = default;
 
-        void setOutputFile(const std::filesystem::path& path) override;
-        void releaseOutputFile() noexcept override;
+        void openOutputFile(const std::filesystem::path& path) override;
+        void closeOutputFile() noexcept override;
 
         void renderBuffer(IAudioStream* stream) override;
         using IRenderer::renderBuffer;

@@ -10,13 +10,13 @@ namespace HyperSonicDrivers::audio::sdl2
         m_mixer = make_mixer<Mixer>(1, freq, buffer_size);
     }
 
-    void Renderer::setOutputFile(const std::filesystem::path& path)
+    void Renderer::openOutputFile(const std::filesystem::path& path)
     {
         m_out = std::make_unique<files::WAVFile>(path.string(), audio::mixer::eChannelGroup::Unknown, false);
         m_buf.resize(0);
     }
 
-    void Renderer::releaseOutputFile() noexcept
+    void Renderer::closeOutputFile() noexcept
     {
         m_out.reset();
     }
