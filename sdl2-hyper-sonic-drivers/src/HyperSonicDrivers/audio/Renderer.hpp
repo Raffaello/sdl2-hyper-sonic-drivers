@@ -1,30 +1,32 @@
 #pragma once
 
+#include <cstdint>
 #include <filesystem>
 #include <memory>
+#include <vector>
 #include <HyperSonicDrivers/audio/IMixer.hpp>
 #include <HyperSonicDrivers/audio/IAudioStream.hpp>
-#include <HyperSonicDrivers/hardware/opl/OPL.hpp>
 #include <HyperSonicDrivers/devices/Opl.hpp>
+#include <HyperSonicDrivers/files/WAVFile.hpp>
+#include <HyperSonicDrivers/hardware/opl/OPL.hpp>
 
 namespace HyperSonicDrivers::audio
 {
-    class IRenderer
+    class Renderer
     {
     public:
-        IRenderer() = default;
-        virtual ~IRenderer() = default;
+        Renderer() = default;
+        virtual ~Renderer() = default;
 
-        virtual void setOutputFile(const std::filesystem::path& path) = 0;
-        virtual void releaseOutputFile() noexcept = 0;
+        void setOutputFile(const std::filesystem::path& path);
+        void releaseOutputFile() noexcept;
 
-        inline std::shared_ptr<IMixer> getMixer() const noexcept { return m_mixer; };
-
-        virtual void renderBuffer(IAudioStream* stream) = 0;
+        void renderBuffer(IAudioStream* stream);
         inline void renderBuffer(const std::shared_ptr<hardware::opl::OPL>& opl) { renderBuffer(opl->getAudioStream().get()); };
         inline void renderBuffer(const std::shared_ptr<devices::Opl>& opl) { renderBuffer(opl->getHardware()->getAudioStream().get()); };
 
-    protected:
-        std::shared_ptr<IMixer> m_mixer;
+    private:
+        std::unique_ptr<files::WAVFile> m_out;
+        std::vector<int16_t> m_buf;
     };
 }

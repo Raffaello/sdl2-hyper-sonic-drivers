@@ -28,7 +28,7 @@
 #include <HyperSonicDrivers/audio/sdl2/Mixer.hpp>
 #include <HyperSonicDrivers/utils/sdl2/Logger.hpp>
 #include <HyperSonicDrivers/devices/Adlib.hpp>
-#include <HyperSonicDrivers/audio/sdl2/Renderer.hpp>
+#include <HyperSonicDrivers/audio/Renderer.hpp>
 #include <mt32emu/c_interface/cpp_interface.h>
 #include <HyperSonicDrivers/hardware/mt32/MT32.hpp>
 

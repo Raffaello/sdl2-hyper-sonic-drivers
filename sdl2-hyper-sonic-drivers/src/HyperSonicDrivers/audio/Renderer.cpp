@@ -1,15 +1,7 @@
-#include <HyperSonicDrivers/audio/sdl2/Renderer.hpp>
-#include <HyperSonicDrivers/audio/sdl2/Mixer.hpp>
-#include <HyperSonicDrivers/utils/ILogger.hpp>
+#include <HyperSonicDrivers/audio/Renderer.hpp>
 
-
-namespace HyperSonicDrivers::audio::sdl2
+namespace HyperSonicDrivers::audio
 {
-    Renderer::Renderer(const uint32_t freq, const uint16_t buffer_size)
-    {
-        m_mixer = make_mixer<Mixer>(1, freq, buffer_size);
-    }
-
     void Renderer::setOutputFile(const std::filesystem::path& path)
     {
         m_out = std::make_unique<files::WAVFile>(path.string(), audio::mixer::eChannelGroup::Unknown, false);
@@ -26,7 +18,7 @@ namespace HyperSonicDrivers::audio::sdl2
         if (m_buf.empty())
         {
             m_out->save_prepare(stream->getRate(), stream->isStereo());
-            m_buf.resize(m_mixer->getBufferSize());
+            m_buf.resize(1024);
         }
 
         const size_t read = stream->readBuffer(m_buf.data(), m_buf.size());
