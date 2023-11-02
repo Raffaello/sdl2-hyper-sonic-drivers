@@ -44,12 +44,12 @@ install(DIRECTORY
         PATTERN "*.h"
 )
 
-#install(DIRECTORY
-#    test/
-#    DESTINATION static/test/include
-#    FILES_MATCHING
-#        PATTERN "*Mock.hpp"
-#)
+install(DIRECTORY
+    test/
+    DESTINATION static/include/test
+    FILES_MATCHING
+        PATTERN "*Mock.hpp"
+)
 
 write_basic_package_version_file(
   ${CMAKE_CURRENT_BINARY_DIR}/${LIB_VER}.cmake
@@ -75,6 +75,7 @@ target_include_directories(${LIB_NAME} PUBLIC
     $<BUILD_INTERFACE:$<TARGET_FILE_DIR:${LIB_NAME}>>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
     $<INSTALL_INTERFACE:static/include>
+    $<INSTALL_INTERFACE:static/include/test>
 #PRIVATE
 #    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
 )
