@@ -46,7 +46,7 @@ install(DIRECTORY
 
 install(DIRECTORY
     test/
-    DESTINATION static/test/include
+    DESTINATION static/include/test
     FILES_MATCHING
         PATTERN "*Mock.hpp"
 )
@@ -75,6 +75,7 @@ target_include_directories(${LIB_NAME} PUBLIC
     $<BUILD_INTERFACE:$<TARGET_FILE_DIR:${LIB_NAME}>>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
     $<INSTALL_INTERFACE:static/include>
+    $<INSTALL_INTERFACE:static/include/test>
 #PRIVATE
 #    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
 )
