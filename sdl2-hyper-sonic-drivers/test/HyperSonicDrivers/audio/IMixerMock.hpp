@@ -6,15 +6,15 @@
 #include <HyperSonicDrivers/audio/IAudioStream.hpp>
 #include <HyperSonicDrivers/audio/scummvm/Timestamp.hpp>
 
-namespace HyperSonicDrivers::audio::stubs
+namespace HyperSonicDrivers::audio
 {
-    class StubMixer : public IMixer
+    class IMixerMock : public IMixer
     {
     public:
         int rate = 44100;
 
-        StubMixer() : IMixer(32, 44100, 1024) {};
-        explicit StubMixer(const int freq) : IMixer(32, freq, 1024) {};
+        IMixerMock() : IMixer(32, 44100, 1024) {};
+        explicit IMixerMock(const int freq) : IMixer(32, freq, 1024) {};
 
         bool init() override { return true; };
 

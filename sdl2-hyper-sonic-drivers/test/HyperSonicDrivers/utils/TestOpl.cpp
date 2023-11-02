@@ -5,7 +5,7 @@
 #include <HyperSonicDrivers/hardware/opl/OPLFactory.hpp>
 #include <HyperSonicDrivers/hardware/opl/OplEmulator.hpp>
 #include <HyperSonicDrivers/hardware/opl/OplType.hpp>
-#include <HyperSonicDrivers/audio/stubs/StubMixer.hpp>
+#include <HyperSonicDrivers/audio/IMixerMock.hpp>
 #include <memory>
 
 namespace HyperSonicDrivers::utils
@@ -16,12 +16,12 @@ namespace HyperSonicDrivers::utils
     using hardware::opl::OPLFactory;
     using hardware::opl::OplEmulator;
     using hardware::opl::OplType;
-    using audio::stubs::StubMixer;
+    using audio::IMixerMock;
 
     class OplType_ : public ::testing::TestWithParam<std::tuple<OplEmulator, OplType, bool, bool>>
     {
     public:
-        std::shared_ptr<StubMixer> mixer = std::make_shared<StubMixer>();
+        std::shared_ptr<IMixerMock> mixer = std::make_shared<IMixerMock>();
         OplEmulator opl_emu = std::get<0>(GetParam());
         OplType opl_type = std::get<1>(GetParam());
         bool isOpl2 = std::get<2>(GetParam());

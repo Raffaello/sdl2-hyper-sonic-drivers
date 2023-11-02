@@ -9,13 +9,13 @@ namespace HyperSonicDrivers::devices
 {
     TEST(SbPro2, cstor_)
     {
-        auto mixer = std::make_shared<StubMixer>();
+        auto mixer = std::make_shared<IMixerMock>();
         EXPECT_NO_THROW(auto s = SbPro2(mixer, OplEmulator::NUKED));
     }
 
     TEST(Adlib, device_name)
     {
-        auto mixer = std::make_shared<StubMixer>();
+        auto mixer = std::make_shared<IMixerMock>();
         auto s = std::make_shared<SbPro2>(mixer);
         EXPECT_EQ(s->getName(), eDeviceName::SbPro2);
     }
@@ -41,7 +41,7 @@ namespace HyperSonicDrivers::devices
 
     TEST(SbPro2, cstor_AUTO)
     {
-        auto mixer = std::make_shared<StubMixer>();
+        auto mixer = std::make_shared<IMixerMock>();
         EXPECT_NO_THROW(auto s = SbPro2(mixer));
     }
 }

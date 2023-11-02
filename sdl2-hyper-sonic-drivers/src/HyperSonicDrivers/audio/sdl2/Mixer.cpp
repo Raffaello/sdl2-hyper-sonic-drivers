@@ -25,9 +25,12 @@ namespace HyperSonicDrivers::audio::sdl2
 
     Mixer::~Mixer()
     {
-        SDL_CloseAudioDevice(m_device_id);
-
-        SDL_QuitSubSystem(SDL_INIT_AUDIO);
+        if (m_ready)
+        {
+            SDL_CloseAudioDevice(m_device_id);
+            SDL_QuitSubSystem(SDL_INIT_AUDIO);
+            m_ready = false;
+        }
     }
 
     bool Mixer::init()

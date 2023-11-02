@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <HyperSonicDrivers/devices/IDevice.hpp>
-#include <HyperSonicDrivers/devices/SpyDevice.hpp>
+#include <HyperSonicDrivers/devices/DeviceMock.hpp>
 #include <HyperSonicDrivers/devices/Adlib.hpp>
 #include <HyperSonicDrivers/drivers/MIDDriverMock.hpp>
 
@@ -11,7 +11,7 @@ namespace HyperSonicDrivers::devices
 
     TEST(IDevice, double_acquire)
     {
-        auto device = std::make_shared<SpyDevice<Adlib>>();
+        auto device = std::make_shared<DeviceMock<Adlib>>();
 
         MIDDriverMock middrv(device);
         EXPECT_THROW(MIDDriverMock middrv2(device), std::runtime_error);
@@ -19,7 +19,7 @@ namespace HyperSonicDrivers::devices
 
     TEST(IDevice, acquire_release)
     {
-        auto device = std::make_shared<SpyDevice<Adlib>>();
+        auto device = std::make_shared<DeviceMock<Adlib>>();
 
         MIDDriverMock middrv(device);
         

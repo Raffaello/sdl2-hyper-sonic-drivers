@@ -2,7 +2,7 @@
 #include <gmock/gmock.h>
 #include <HyperSonicDrivers/devices/Opl.hpp>
 #include <HyperSonicDrivers/drivers/MIDDriverMock.hpp>
-#include <HyperSonicDrivers/audio/stubs/StubMixer.hpp>
+#include <HyperSonicDrivers/audio/IMixerMock.hpp>
 #include <HyperSonicDrivers/hardware/opl/OplEmulator.hpp>
 #include <HyperSonicDrivers/hardware/opl/OplType.hpp>
 #include <HyperSonicDrivers/hardware/opl/OPL.hpp>
@@ -10,7 +10,7 @@
 
 namespace HyperSonicDrivers::devices::midi
 {
-    using audio::stubs::StubMixer;
+    using audio::IMixerMock;
     using hardware::opl::OplType;
     using hardware::opl::OplEmulator;
     using hardware::opl::OPL;
@@ -18,7 +18,7 @@ namespace HyperSonicDrivers::devices::midi
 
     TEST(MidiOpl, cstor_)
     {
-        auto mixer = std::make_shared<StubMixer>();
+        auto mixer = std::make_shared<IMixerMock>();
         EXPECT_NO_THROW(OplDeviceMock(OplType::OPL2, OplEmulator::AUTO, mixer));
     }
 
@@ -28,7 +28,7 @@ namespace HyperSonicDrivers::devices::midi
         const OplType oplType = std::get<0>(GetParam());
         const OplEmulator oplEmu = std::get<1>(GetParam());
         const bool shouldFail = std::get<2>(GetParam());
-        const std::shared_ptr<StubMixer> mixer = std::make_shared<StubMixer>();
+        const std::shared_ptr<IMixerMock> mixer = std::make_shared<IMixerMock>();
     };
     TEST_P(OplEmulator_, cstr_type_emu)
     {

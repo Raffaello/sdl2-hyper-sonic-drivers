@@ -3,14 +3,14 @@
 #include <cstdint>
 #include <memory>
 #include <HyperSonicDrivers/hardware/opl/scummvm/dosbox/DosBoxOPL.hpp>
-#include <HyperSonicDrivers/audio/stubs/StubMixer.hpp>
+#include <HyperSonicDrivers/audio/IMixerMock.hpp>
 #include <HyperSonicDrivers/files/File.hpp>
 
 namespace HyperSonicDrivers::hardware::opl::scummvm::dosbox
 {
     // TODO: refactor these tests as they are the same of the one in mame.
 
-    using audio::stubs::StubMixer;
+    using audio::IMixerMock;
 
     class OPLType : public  ::testing::TestWithParam<std::tuple<OplType, bool>>
     {
@@ -20,7 +20,7 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::dosbox
     };
     TEST_P(OPLType, cstorDefault)
     {
-        std::shared_ptr<StubMixer> mixer = std::make_shared<StubMixer>();
+        std::shared_ptr<IMixerMock> mixer = std::make_shared<IMixerMock>();
         EXPECT_EQ(mixer.use_count(), 1);
         DosBoxOPL dosbox(this->opl_type, mixer);
         EXPECT_EQ(mixer.use_count(), 2);
@@ -33,7 +33,7 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::dosbox
     TEST_P(OPLType, share_ptrDefault)
     {
 
-        std::shared_ptr<StubMixer> mixer = std::make_shared<StubMixer>();
+        std::shared_ptr<IMixerMock> mixer = std::make_shared<IMixerMock>();
         EXPECT_EQ(mixer.use_count(), 1);
 
         std::shared_ptr<DosBoxOPL> dosbox = std::make_shared<DosBoxOPL>(this->opl_type, mixer);
@@ -57,7 +57,7 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::dosbox
 
     TEST(DISABLED_OPL, Table440Hz)
     {
-        std::shared_ptr<StubMixer> mixer = std::make_shared<StubMixer>();
+        std::shared_ptr<IMixerMock> mixer = std::make_shared<IMixerMock>();
         mixer->rate = 22050;
         std::shared_ptr<hardware::opl::scummvm::dosbox::DosBoxOPL> opl = std::make_shared<hardware::opl::scummvm::dosbox::DosBoxOPL>(OplType::OPL2, mixer);
         opl->init();

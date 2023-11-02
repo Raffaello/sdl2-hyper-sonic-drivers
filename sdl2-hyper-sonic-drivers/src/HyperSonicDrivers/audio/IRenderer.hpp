@@ -1,11 +1,14 @@
 #pragma once
 
+#include <cstdint>
 #include <filesystem>
 #include <memory>
+#include <vector>
 #include <HyperSonicDrivers/audio/IMixer.hpp>
 #include <HyperSonicDrivers/audio/IAudioStream.hpp>
 #include <HyperSonicDrivers/hardware/opl/OPL.hpp>
 #include <HyperSonicDrivers/devices/IDevice.hpp>
+#include <HyperSonicDrivers/files/WAVFile.hpp>
 
 namespace HyperSonicDrivers::audio
 {
@@ -25,5 +28,7 @@ namespace HyperSonicDrivers::audio
 
     protected:
         std::shared_ptr<IMixer> m_mixer;
+        std::unique_ptr<files::WAVFile> m_out;
+        std::vector<int16_t> m_buf;
     };
 }

@@ -2,7 +2,7 @@
 #include <gmock/gmock.h>
 #include <HyperSonicDrivers/devices/Adlib.hpp>
 #include <HyperSonicDrivers/drivers/MIDDriverMock.hpp>
-#include <HyperSonicDrivers/audio/stubs/StubMixer.hpp>
+#include <HyperSonicDrivers/audio/IMixerMock.hpp>
 #include <HyperSonicDrivers/hardware/opl/OplEmulator.hpp>
 #include <HyperSonicDrivers/hardware/opl/OplType.hpp>
 #include <HyperSonicDrivers/files/dmx/OP2File.hpp>
@@ -13,13 +13,13 @@ namespace HyperSonicDrivers::devices
 {
     TEST(Adlib, cstor_AUTO)
     {
-        auto mixer = std::make_shared<StubMixer>();
+        auto mixer = std::make_shared<IMixerMock>();
         EXPECT_NO_THROW(auto a = std::make_shared<Adlib>(mixer));
     }
 
     TEST(Adlib, device_name)
     {
-        auto mixer = std::make_shared<StubMixer>();
+        auto mixer = std::make_shared<IMixerMock>();
         auto a = std::make_shared<Adlib>(mixer);
         EXPECT_EQ(a->getName(), eDeviceName::Adlib);
     }

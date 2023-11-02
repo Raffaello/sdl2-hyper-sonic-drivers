@@ -5,7 +5,7 @@
 #include <HyperSonicDrivers/drivers/westwood/ADLDriver.hpp>
 #include <HyperSonicDrivers/audio/mixer/ChannelGroup.hpp>
 #include <HyperSonicDrivers/hardware/opl/OplEmulator.hpp>
-#include <HyperSonicDrivers/audio/stubs/StubMixer.hpp>
+#include <HyperSonicDrivers/audio/IMixerMock.hpp>
 #include <filesystem>
 #include <string>
 
@@ -28,7 +28,7 @@ namespace HyperSonicDrivers::audio::sdl2
 
         RendererTest()
         {
-            mixer = std::make_shared<stubs::StubMixer>();
+            mixer = std::make_shared<IMixerMock>();
             switch (device_name)
             {
                 using enum devices::eDeviceName;

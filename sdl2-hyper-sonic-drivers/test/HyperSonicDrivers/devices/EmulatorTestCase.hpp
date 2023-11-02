@@ -3,12 +3,12 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <HyperSonicDrivers/hardware/opl/OplEmulator.hpp>
-#include <HyperSonicDrivers/audio/stubs/StubMixer.hpp>
+#include <HyperSonicDrivers/audio/IMixerMock.hpp>
 #include <stdexcept>
 
 namespace HyperSonicDrivers::devices
 {
-    using audio::stubs::StubMixer;
+    using audio::IMixerMock;
     using hardware::opl::OplEmulator;
 
     template<class T>
@@ -17,7 +17,7 @@ namespace HyperSonicDrivers::devices
     public:
         const OplEmulator oplEmu = std::get<0>(GetParam());
         const bool shouldFail = std::get<1>(GetParam());
-        const std::shared_ptr<StubMixer> mixer = std::make_shared<StubMixer>();
+        const std::shared_ptr<IMixerMock> mixer = std::make_shared<IMixerMock>();
 
         void test_case()
         {

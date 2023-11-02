@@ -3,16 +3,16 @@
 #include <cstdint>
 #include <memory>
 #include <HyperSonicDrivers/hardware/opl/woody/WoodyOPL.hpp>
-#include <HyperSonicDrivers/audio/stubs/StubMixer.hpp>
+#include <HyperSonicDrivers/audio/IMixerMock.hpp>
 #include <HyperSonicDrivers/files/File.hpp>
 
 namespace HyperSonicDrivers::hardware::opl::woody
 {
-    using audio::stubs::StubMixer;
+    using audio::IMixerMock;
 
     TEST(OPL, cstorDefaultFalse)
     {
-        std::shared_ptr<StubMixer> mixer = std::make_shared<StubMixer>();
+        std::shared_ptr<IMixerMock> mixer = std::make_shared<IMixerMock>();
         EXPECT_EQ(mixer.use_count(), 1);
         WoodyOPL opl(mixer, false);
         EXPECT_EQ(mixer.use_count(), 2);
@@ -23,7 +23,7 @@ namespace HyperSonicDrivers::hardware::opl::woody
 
     TEST(OPL, cstorDefaultTrue)
     {
-        std::shared_ptr<StubMixer> mixer = std::make_shared<StubMixer>();
+        std::shared_ptr<IMixerMock> mixer = std::make_shared<IMixerMock>();
         EXPECT_EQ(mixer.use_count(), 1);
         WoodyOPL opl(mixer, true);
         EXPECT_EQ(mixer.use_count(), 2);
@@ -34,7 +34,7 @@ namespace HyperSonicDrivers::hardware::opl::woody
 
     TEST(OPL, share_ptrDefault)
     {
-        std::shared_ptr<StubMixer> mixer = std::make_shared<StubMixer>();
+        std::shared_ptr<IMixerMock> mixer = std::make_shared<IMixerMock>();
         EXPECT_EQ(mixer.use_count(), 1);
 
         std::shared_ptr<WoodyOPL> opl = std::make_shared<woody::WoodyOPL>(mixer, false);
@@ -47,7 +47,7 @@ namespace HyperSonicDrivers::hardware::opl::woody
 
     TEST(DISABLED_OPL, Table440Hz)
     {
-        std::shared_ptr<StubMixer> mixer = std::make_shared<StubMixer>();
+        std::shared_ptr<IMixerMock> mixer = std::make_shared<IMixerMock>();
         mixer->rate = 22050;
         std::shared_ptr<WoodyOPL> opl = std::make_shared<WoodyOPL>(mixer, false);
         opl->init();
