@@ -19,7 +19,7 @@ namespace HyperSonicDrivers::drivers
     * This class is a wrapper around different midi drivers and has a embeeded timer processing track
     * to send events to the device
     **/
-    class MIDDriver : public IMusicDriver
+    class MIDDriver : public IAudioDriver
     {
     public:
         [[deprecated("it will be replaced by another class without thread")]]

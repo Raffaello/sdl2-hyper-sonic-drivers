@@ -3,7 +3,7 @@
 
 namespace HyperSonicDrivers::drivers
 {
-    IMusicDriver::IMusicDriver(const std::shared_ptr<devices::IDevice>& device) :
+    IAudioDriver::IAudioDriver(const std::shared_ptr<devices::IDevice>& device) :
         m_device(device)
     {
         if (m_device == nullptr)

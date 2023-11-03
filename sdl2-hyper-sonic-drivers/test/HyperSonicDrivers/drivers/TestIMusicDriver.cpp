@@ -4,16 +4,16 @@
 
 namespace HyperSonicDrivers::drivers
 {
-    class IMusicDriverMock : public IMusicDriver
+    class IMusicDriverMock : public IAudioDriver
     {
     public:
-        IMusicDriverMock(const std::shared_ptr<devices::IDevice>& device) : IMusicDriver(device) {}
+        IMusicDriverMock(const std::shared_ptr<devices::IDevice>& device) : IAudioDriver(device) {}
         void play(const uint8_t track) noexcept override {};
         void stop() noexcept override {};
         bool isPlaying() const noexcept override { return false; };
     };
 
-    TEST(IMusicDriver, cstor_nullptr)
+    TEST(IAudioDriver, cstor_nullptr)
     {
         EXPECT_THROW(IMusicDriverMock md(nullptr), std::runtime_error);
     }

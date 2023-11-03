@@ -28,7 +28,7 @@ namespace HyperSonicDrivers::drivers::westwood
         const audio::mixer::eChannelGroup group,
         const uint8_t volume,
         const uint8_t pan) :
-        IMusicDriver(opl),
+        IAudioDriver(opl),
         m_opl(opl->getOpl())
     {
         memset(m_channels.data(), 0, sizeof(m_channels));

@@ -6,21 +6,21 @@
 namespace HyperSonicDrivers::drivers
 {
     /**
-    * Common Interface for music drivers: MIDI, ADL, XMI, MUS...
-    * TODO/Rename: if not merged with IMidiDriver, this can be renamed as IMusicPlayer
+    * Common Interface for music/sfx (audio) drivers: MIDI, ADL, XMI, MUS...
+    * TODO/Rename: if not merged with IMidiDriver, this can be renamed as IAudiolayer
     *              related to playing those files rather then using a driver,
     *              ADLDriver at the moment is both
     * 
     **/
-    class IMusicDriver
+    class IAudioDriver
     {
     public:
-        IMusicDriver(IMusicDriver&) = delete;
-        IMusicDriver(IMusicDriver&&) = delete;
-        IMusicDriver& operator=(IMusicDriver&) = delete;
+        IAudioDriver(IAudioDriver&) = delete;
+        IAudioDriver(IAudioDriver&&) = delete;
+        IAudioDriver& operator=(IAudioDriver&) = delete;
 
-        explicit IMusicDriver(const std::shared_ptr<devices::IDevice>& device);
-        virtual ~IMusicDriver() = default;
+        explicit IAudioDriver(const std::shared_ptr<devices::IDevice>& device);
+        virtual ~IAudioDriver() = default;
 
         virtual void play(const uint8_t track) noexcept = 0;
         virtual void stop() noexcept = 0;
