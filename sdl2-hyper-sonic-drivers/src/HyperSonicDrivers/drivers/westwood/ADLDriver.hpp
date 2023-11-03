@@ -29,7 +29,7 @@ namespace HyperSonicDrivers::drivers::westwood
     /// the same file format(but need different offset adjustments);
     /// Kyrandia 2 and LoL format(version 4) is different again.
     /// </summary>
-    class ADLDriver : public IMusicDriver
+    class ADLDriver : public IAudioDriver
     {
     public:
         explicit ADLDriver(

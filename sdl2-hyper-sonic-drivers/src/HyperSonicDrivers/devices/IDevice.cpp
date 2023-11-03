@@ -7,7 +7,7 @@ namespace HyperSonicDrivers::devices
     {
     }
 
-    bool IDevice::acquire(drivers::IMusicDriver* owner)
+    bool IDevice::acquire(drivers::IAudioDriver* owner)
     {
         if (!m_acquired)
         {
@@ -22,7 +22,7 @@ namespace HyperSonicDrivers::devices
         return isOwned(owner);
     }
 
-    bool IDevice::release(const drivers::IMusicDriver* owner)
+    bool IDevice::release(const drivers::IAudioDriver* owner)
     {
         if (isOwned(owner))
         {

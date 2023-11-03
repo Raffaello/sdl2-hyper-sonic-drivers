@@ -38,7 +38,7 @@ namespace HyperSonicDrivers::drivers
         const audio::mixer::eChannelGroup group,
         const uint8_t volume,
         const uint8_t pan
-    ) : IMusicDriver(device),
+    ) : IAudioDriver(device),
         m_group(group), m_volume(volume), m_pan(pan)
     {
         // TODO: move the acquire logic where the callback is set

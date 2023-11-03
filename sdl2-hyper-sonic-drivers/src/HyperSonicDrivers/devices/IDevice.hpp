@@ -12,7 +12,7 @@ namespace HyperSonicDrivers
 {
     namespace drivers
     {
-        class IMusicDriver;
+        class IAudioDriver;
     }
 
     namespace devices
@@ -34,10 +34,10 @@ namespace HyperSonicDrivers
             std::optional<uint8_t> getChannelId() const noexcept { return m_hardware->getChannelId(); };
 
             inline bool isAcquired() const noexcept { return m_acquired; }
-            inline bool isOwned(const  drivers::IMusicDriver* owner) const noexcept { return m_owner == owner; }
+            inline bool isOwned(const  drivers::IAudioDriver* owner) const noexcept { return m_owner == owner; }
 
-            bool acquire(drivers::IMusicDriver* owner);
-            bool release(const drivers::IMusicDriver* owner);
+            bool acquire(drivers::IAudioDriver* owner);
+            bool release(const drivers::IAudioDriver* owner);
 
             // helpers methods
             void setVolume(const uint8_t volume);
@@ -55,7 +55,7 @@ namespace HyperSonicDrivers
         private:
             // TODO: remove the atomic when removing the thread in MIDDrv
             std::atomic<bool> m_acquired = false;
-            std::atomic<drivers::IMusicDriver*> m_owner = nullptr;
+            std::atomic<drivers::IAudioDriver*> m_owner = nullptr;
         };
 
         template<class T, class To = devices::IDevice, typename... Args>
