@@ -7,7 +7,7 @@ namespace HyperSonicDrivers::drivers
 {
     /**
     * Common Interface for music/sfx (audio) drivers: MIDI, ADL, XMI, MUS...
-    * TODO/Rename: if not merged with IMidiDriver, this can be renamed as IAudiolayer
+    * TODO/Rename: if not merged with IMidiDriver, this can be renamed as IAudioPlayer
     *              related to playing those files rather then using a driver,
     *              ADLDriver at the moment is both
     * 
