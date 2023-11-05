@@ -171,8 +171,15 @@ macro_test(
 )
 
 macro_test(
-    EXE TestIMusicDriver
-    FILES "drivers/TestIMusicDriver.cpp"
+    EXE TestIAudioDriver
+    FILES "drivers/TestIAudioDriver.cpp"
+    LINKS_PRIVATE hyper-sonic-drivers-static
+    FIXTURES 
+)
+
+macro_test(
+    EXE TestPCMDriver
+    FILES "drivers/TestPCMDriver.cpp"
     LINKS_PRIVATE hyper-sonic-drivers-static
     FIXTURES 
 )

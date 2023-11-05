@@ -8,14 +8,13 @@ namespace HyperSonicDrivers::drivers
     PCMDriver::PCMDriver(const std::shared_ptr<audio::IMixer>& mixer, const uint8_t max_channels) :
         max_streams(std::min(mixer->max_channels, max_channels)), m_mixer(mixer)
     {
-        m_PCMStreams.resize(max_streams);
     }
 
     bool PCMDriver::isPlaying() const noexcept
     {
-        for(const auto& ss: m_PCMStreams)
+        for (const auto& [stream, _] : m_PCMStreams_channels)
         {
-            if (isPCMStreamPlaying_(ss))
+            if (isPCMStreamPlaying_(stream))
                 return true;
         }
 
@@ -24,21 +23,10 @@ namespace HyperSonicDrivers::drivers
 
     bool PCMDriver::isPlaying(const std::shared_ptr<audio::PCMSound>& sound) const noexcept
     {
-        // TODO:
-        // should map channelId to check directly in the mixer?
-        // how to find a free slot then? 
-        // does we need to really track it?
-        // probably using a map instead of a vector is ok,
-        // no need to define nether max-channels.
-        // but that is because if wanting to reserve some channels for something
-        // else that is not PCM related...
-        // anyway... it could be achieved having the mixer a "lock or reserved channel"
-        // feature or something that that one won't be used unless
-        // it is for the resources that has been reserved for.....
-        for(const auto& ss : m_PCMStreams)
+        for (const auto& [stream, _] : m_PCMStreams_channels)
         {
-            if (ss->getSound().lock() == sound)
-                return isPCMStreamPlaying_(ss);
+            if (stream->getSound() == sound)
+                return isPCMStreamPlaying_(stream);
         }
 
         return false;
@@ -46,24 +34,84 @@ namespace HyperSonicDrivers::drivers
 
     std::optional<uint8_t> PCMDriver::play(const std::shared_ptr<audio::PCMSound>& sound, const uint8_t volume, const int8_t pan)
     {
-        // find first free slot
-        auto it = std::ranges::find_if_not(m_PCMStreams, isPCMStreamPlaying_);
-        if (it == m_PCMStreams.end())
+        releaseEndedStreams_();
+        if (m_PCMStreams_channels.size() == max_streams)
             return std::nullopt;
 
-        *it = std::make_shared<PCMStream>(sound);
+        auto s = std::make_shared<PCMStream>(sound);
 
         auto channelId =  m_mixer->play(
             sound->group,
-            *it,
+            s,
             volume,
             pan
         );
 
-        if (!channelId.has_value())
-            *it = nullptr;
+        if (channelId.has_value())
+            m_PCMStreams_channels[s] = channelId.value();
 
         return channelId;
+    }
+
+    void PCMDriver::stop(const uint8_t channel_id, const bool releaseEndedStreams) noexcept
+    {
+        auto it = std::ranges::find_if(
+            m_PCMStreams_channels,
+            [channel_id](std::pair<const std::shared_ptr<audio::streams::PCMStream>&, const int> p) {
+                return channel_id == p.second;
+            }
+        );
+
+        if (it == m_PCMStreams_channels.end())
+            return;
+
+        if (!(it->first)->isEnded())
+            m_mixer->reset(channel_id);
+
+        if (releaseEndedStreams)
+        {
+            m_PCMStreams_channels.erase(it);
+            releaseEndedStreams_();
+        }
+    }
+
+    void PCMDriver::stop(const std::shared_ptr<audio::PCMSound>& sound, const bool releaseEndedStreams)
+    {
+        auto it = std::ranges::find_if(
+            m_PCMStreams_channels,
+            [&sound](std::pair<const std::shared_ptr<audio::streams::PCMStream>&, const int> p) {
+                return p.first != nullptr && sound == p.first->getSound();
+            }
+        );
+
+        if (it == m_PCMStreams_channels.end())
+            return;
+
+        stop(it->second, releaseEndedStreams);
+    }
+
+    void PCMDriver::stop() noexcept
+    {
+        for (const auto& [_, ch_id] : m_PCMStreams_channels)
+            stop(ch_id, false);
+
+        releaseStreams_();
+    }
+
+    void PCMDriver::releaseEndedStreams_() noexcept
+    {
+        for (auto it = m_PCMStreams_channels.begin(); it != m_PCMStreams_channels.end();)
+        {
+            if (!isPCMStreamPlaying_(it->first))
+                it = m_PCMStreams_channels.erase(it);
+            else
+                ++it;
+        }
+    }
+
+    void PCMDriver::releaseStreams_() noexcept
+    {
+        m_PCMStreams_channels.clear();
     }
 
     inline bool PCMDriver::isPCMStreamPlaying_(const std::shared_ptr<audio::streams::PCMStream>& stream) noexcept

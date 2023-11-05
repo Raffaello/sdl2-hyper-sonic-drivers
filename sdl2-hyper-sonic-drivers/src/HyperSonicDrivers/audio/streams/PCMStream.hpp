@@ -18,7 +18,7 @@ namespace HyperSonicDrivers::audio::streams
         uint32_t getRate() const override;
         bool endOfData() const override;
 
-        std::weak_ptr<PCMSound>  getSound() const noexcept;
+        std::shared_ptr<PCMSound>  getSound() const noexcept;
     private:
         std::shared_ptr<PCMSound> m_sound;
         uint32_t m_curPos = 0;

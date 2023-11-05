@@ -38,7 +38,7 @@ namespace HyperSonicDrivers::audio::streams
         return m_curPos == m_sound->dataSize;
     }
 
-    std::weak_ptr<PCMSound> PCMStream::getSound() const noexcept
+    std::shared_ptr<PCMSound> PCMStream::getSound() const noexcept
     {
         return m_sound;
     }
