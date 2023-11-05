@@ -8,7 +8,7 @@
 #include <HyperSonicDrivers/files/westwood/ADLFile.hpp>
 #include <HyperSonicDrivers/hardware/opl/OPL2instrument.h>
 #include <HyperSonicDrivers/devices/Opl.hpp>
-#include <HyperSonicDrivers/drivers/IMusicDriver.hpp>
+#include <HyperSonicDrivers/drivers/IAudioDriver.hpp>
 
 namespace HyperSonicDrivers::drivers::westwood
 {
