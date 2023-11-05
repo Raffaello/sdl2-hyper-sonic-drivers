@@ -1,4 +1,4 @@
-#include <HyperSonicDrivers/drivers/IMusicDriver.hpp>
+#include <HyperSonicDrivers/drivers/IAudioDriver.hpp>
 #include <HyperSonicDrivers/utils/ILogger.hpp>
 
 namespace HyperSonicDrivers::drivers

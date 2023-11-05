@@ -9,7 +9,7 @@
 #include <HyperSonicDrivers/audio/MIDI.hpp>
 #include <HyperSonicDrivers/audio/midi/types.hpp>
 #include <HyperSonicDrivers/devices/IDevice.hpp>
-#include <HyperSonicDrivers/drivers/IMusicDriver.hpp>
+#include <HyperSonicDrivers/drivers/IAudioDriver.hpp>
 #include <HyperSonicDrivers/audio/opl/banks/OP2Bank.hpp>
 
 
