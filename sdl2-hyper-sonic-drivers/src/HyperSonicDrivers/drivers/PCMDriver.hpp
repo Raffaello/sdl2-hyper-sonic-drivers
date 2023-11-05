@@ -39,10 +39,15 @@ namespace HyperSonicDrivers::drivers
         const uint8_t max_streams;
     private:
         std::shared_ptr<audio::IMixer> m_mixer;
+        // TODO: probably better having a fixed vector to map all mixer channels, for tracking purposes
+        //       so the vector index is the channel_id of the mixer when needed to stop it.
+        //       otherwise better store in PCMStream the mixer channel_id,
+        //       as the map should be based on PCMSound and not PCMStream
         std::vector<std::shared_ptr<audio::streams::PCMStream>> m_PCMStreams; // TODO: is this still required?
-        std::map<std::shared_ptr<audio::streams::PCMStream>, uint8_t> m_PCMStreams_channels;
+        std::map<std::shared_ptr<audio::streams::PCMStream>, uint8_t> m_PCMStreams_channels; // TODO: does this improve things?
 
         void releaseEndedStreams_() noexcept;
+        void releaseStreams_() noexcept;
 
         static bool isPCMStreamPlaying_(const std::shared_ptr<audio::streams::PCMStream>& stream) noexcept;
     };

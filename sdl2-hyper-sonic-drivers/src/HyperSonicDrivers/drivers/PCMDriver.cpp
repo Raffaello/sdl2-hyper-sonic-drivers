@@ -13,9 +13,15 @@ namespace HyperSonicDrivers::drivers
 
     bool PCMDriver::isPlaying() const noexcept
     {
-        for(const auto& ss: m_PCMStreams)
+        /*for(const auto& ss: m_PCMStreams)
         {
             if (isPCMStreamPlaying_(ss))
+                return true;
+        }*/
+
+        for (const auto& ss : m_PCMStreams_channels)
+        {
+            if (isPCMStreamPlaying_(ss.first))
                 return true;
         }
 
@@ -35,17 +41,20 @@ namespace HyperSonicDrivers::drivers
         // anyway... it could be achieved having the mixer a "lock or reserved channel"
         // feature or something that that one won't be used unless
         // it is for the resources that has been reserved for.....
-        for(const auto& ss : m_PCMStreams)
+        /*for(const auto& ss : m_PCMStreams)
         {
+            if (ss == nullptr)
+                continue;
+
             if (ss->getSound() == sound)
                 return isPCMStreamPlaying_(ss);
-        }
+        }*/
 
-        /*for (const auto& ss : m_PCMStreams_channels)
+        for (const auto& ss : m_PCMStreams_channels)
         {
             if (ss.first->getSound() == sound)
                 return isPCMStreamPlaying_(ss.first);
-        }*/
+        }
 
         return false;
     }
@@ -93,9 +102,19 @@ namespace HyperSonicDrivers::drivers
         if (!(it->first)->isEnded())
             m_mixer->reset(channel_id);
 
-        m_PCMStreams_channels.erase(it);
         if (releaseEndedStreams)
+        {
+            for (int i = 0; i < m_PCMStreams.size(); i++)
+            {
+                if (m_PCMStreams[i] == it->first)
+                {
+                    m_PCMStreams[i] = nullptr;
+                    break;
+                }
+            }
+            m_PCMStreams_channels.erase(it);
             releaseEndedStreams_();
+        }
     }
 
     void PCMDriver::stop(const std::shared_ptr<audio::PCMSound>& sound, const bool releaseEndedStreams)
@@ -115,12 +134,12 @@ namespace HyperSonicDrivers::drivers
 
     void PCMDriver::stop() noexcept
     {
-        for (int i = 0; i < m_PCMStreams.size(); i++)
+        for (const auto& ss : m_PCMStreams_channels)
         {
-            stop(m_PCMStreams[i]->getSound(), false);
+            stop(ss.second, false);
         }
 
-        releaseEndedStreams_();
+        releaseStreams_();
     }
 
     void PCMDriver::releaseEndedStreams_() noexcept
@@ -135,6 +154,13 @@ namespace HyperSonicDrivers::drivers
                 m_PCMStreams[i] = nullptr;
             }
         }
+    }
+
+    void PCMDriver::releaseStreams_() noexcept
+    {
+        for (int i = 0; i < m_PCMStreams.size(); i++)
+            m_PCMStreams[i] = nullptr;
+        m_PCMStreams_channels.clear();
     }
 
     inline bool PCMDriver::isPCMStreamPlaying_(const std::shared_ptr<audio::streams::PCMStream>& stream) noexcept
