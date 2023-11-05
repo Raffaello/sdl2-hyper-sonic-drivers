@@ -257,11 +257,11 @@ namespace HyperSonicDrivers::audio::sdl2
         int16_t* buf = std::bit_cast<int16_t*>(samples);
         // we store stereo, 16-bit samples (div 2 for stereo and 2 from 8 to 16 bits)
         assert(len % 4 == 0);
-        len >>= 1;
         //  zero the buf (size of 2ch stereo: len*2 of 16 bits)
-        memset(buf, 0, len * sizeof(int16_t));
-        len >>= 1; // size of the stereo 16 bits buffer.
-
+        memset(buf, 0, len /** sizeof(int16_t)*/);
+        //len >>= 1;
+        //len >>= 1; // size of the stereo 16 bits buffer.
+        len >>= 2;
         // mix all channels
         size_t res = 0;
         for (const auto& ch : m_channels)
