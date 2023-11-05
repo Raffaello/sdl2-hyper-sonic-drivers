@@ -1,6 +1,5 @@
 #include <algorithm>
 #include <HyperSonicDrivers/drivers/PCMDriver.hpp>
-#include <HyperSonicDrivers/utils/ILogger.hpp>
 
 namespace HyperSonicDrivers::drivers
 {
@@ -119,8 +118,13 @@ namespace HyperSonicDrivers::drivers
     {
         for (int i = 0; i < m_PCMStreams.size(); i++)
         {
-            if(!isPCMStreamPlaying_(m_PCMStreams[i]))
+            if (!isPCMStreamPlaying_(m_PCMStreams[i]))
+            {
+                if (m_PCMStreams_channels.contains(m_PCMStreams[i]))
+                    m_PCMStreams_channels.erase(m_PCMStreams[i]);
+
                 m_PCMStreams[i] = nullptr;
+            }
         }
     }
 
