@@ -1,6 +1,5 @@
 #include <algorithm>
 #include <HyperSonicDrivers/drivers/PCMDriver.hpp>
-#include <cassert>
 
 namespace HyperSonicDrivers::drivers
 {
@@ -136,8 +135,6 @@ namespace HyperSonicDrivers::drivers
                 m_PCMStreams[i] = nullptr;
             }
         }
-
-        assert(m_PCMStreams_channels.size() == 0);
     }
 
     inline bool PCMDriver::isPCMStreamPlaying_(const std::shared_ptr<audio::streams::PCMStream>& stream) noexcept
