@@ -12,6 +12,7 @@ namespace HyperSonicDrivers::audio
     {
     public:
         int rate = 44100;
+        uint8_t cur_ch = 255;
 
         IMixerMock() : IMixer(32, 44100, 1024) {};
         explicit IMixerMock(const int freq) : IMixer(32, freq, 1024) {};
@@ -24,7 +25,7 @@ namespace HyperSonicDrivers::audio
             const uint8_t vol,
             const int8_t pan
         ) override {
-            return std::make_optional(0);
+            return std::make_optional((++cur_ch) % max_channels);
         };
 
         void suspend() noexcept override {};
