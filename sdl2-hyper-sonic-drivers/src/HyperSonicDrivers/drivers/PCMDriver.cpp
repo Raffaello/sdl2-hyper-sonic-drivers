@@ -41,6 +41,12 @@ namespace HyperSonicDrivers::drivers
                 return isPCMStreamPlaying_(ss);
         }
 
+        /*for (const auto& ss : m_PCMStreams_channels)
+        {
+            if (ss.first->getSound() == sound)
+                return isPCMStreamPlaying_(ss.first);
+        }*/
+
         return false;
     }
 
@@ -50,6 +56,10 @@ namespace HyperSonicDrivers::drivers
         auto it = std::ranges::find_if_not(m_PCMStreams, isPCMStreamPlaying_);
         if (it == m_PCMStreams.end())
             return std::nullopt;
+
+        //releaseEndedStreams_();
+        //if (m_PCMStreams_channels.size() == max_streams)
+        //    return std::nullopt;
 
         *it = std::make_shared<PCMStream>(sound);
 
@@ -111,7 +121,6 @@ namespace HyperSonicDrivers::drivers
         }
 
         releaseEndedStreams_();
-        //assert(m_PCMStreams_channels.size() == 0);
     }
 
     void PCMDriver::releaseEndedStreams_() noexcept
@@ -126,6 +135,7 @@ namespace HyperSonicDrivers::drivers
                 m_PCMStreams[i] = nullptr;
             }
         }
+        //assert(m_PCMStreams_channels.size() == 0);
     }
 
     inline bool PCMDriver::isPCMStreamPlaying_(const std::shared_ptr<audio::streams::PCMStream>& stream) noexcept
