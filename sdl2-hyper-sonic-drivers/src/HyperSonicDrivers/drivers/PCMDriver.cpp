@@ -12,9 +12,9 @@ namespace HyperSonicDrivers::drivers
 
     bool PCMDriver::isPlaying() const noexcept
     {
-        for (const auto& ss : m_PCMStreams_channels)
+        for (const auto& [stream, _] : m_PCMStreams_channels)
         {
-            if (isPCMStreamPlaying_(ss.first))
+            if (isPCMStreamPlaying_(stream))
                 return true;
         }
 
@@ -23,10 +23,10 @@ namespace HyperSonicDrivers::drivers
 
     bool PCMDriver::isPlaying(const std::shared_ptr<audio::PCMSound>& sound) const noexcept
     {
-        for (const auto& ss : m_PCMStreams_channels)
+        for (const auto& [stream, _] : m_PCMStreams_channels)
         {
-            if (ss.first->getSound() == sound)
-                return isPCMStreamPlaying_(ss.first);
+            if (stream->getSound() == sound)
+                return isPCMStreamPlaying_(stream);
         }
 
         return false;
@@ -92,10 +92,8 @@ namespace HyperSonicDrivers::drivers
 
     void PCMDriver::stop() noexcept
     {
-        for (const auto& ss : m_PCMStreams_channels)
-        {
-            stop(ss.second, false);
-        }
+        for (const auto& [_, ch_id] : m_PCMStreams_channels)
+            stop(ch_id, false);
 
         releaseStreams_();
     }
