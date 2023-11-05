@@ -40,7 +40,7 @@ namespace HyperSonicDrivers::drivers
     private:
         std::shared_ptr<audio::IMixer> m_mixer;
         std::vector<std::shared_ptr<audio::streams::PCMStream>> m_PCMStreams; // TODO: is this still required?
-        std::map<std::shared_ptr<audio::streams::PCMStream>, int> m_PCMStreams_channels;
+        std::map<std::shared_ptr<audio::streams::PCMStream>, uint8_t> m_PCMStreams_channels;
 
         void releaseEndedStreams_() noexcept;
 
