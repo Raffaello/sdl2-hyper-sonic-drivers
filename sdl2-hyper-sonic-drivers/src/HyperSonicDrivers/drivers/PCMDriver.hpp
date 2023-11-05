@@ -1,7 +1,8 @@
 #pragma once
 
-#include <memory>
 #include <cstdint>
+#include <memory>
+#include <map>
 #include <vector>
 #include <optional>
 #include <HyperSonicDrivers/audio/IMixer.hpp>
@@ -30,11 +31,18 @@ namespace HyperSonicDrivers::drivers
             const uint8_t volume = audio::mixer::Channel_max_volume,
             const int8_t pan = 0
         );
+        void stop(const uint8_t channel_id, const bool releaseEndedStreams = true) noexcept;
+        void stop(const std::shared_ptr<audio::PCMSound>& sound, const bool releaseEndedStreams = true);
+        void stop() noexcept;
+
 
         const uint8_t max_streams;
     private:
         std::shared_ptr<audio::IMixer> m_mixer;
         std::vector<std::shared_ptr<audio::streams::PCMStream>> m_PCMStreams;
+        std::map<std::shared_ptr<audio::streams::PCMStream>, int> m_PCMStreams_channels;
+
+        void releaseEndedStreams_() noexcept;
 
         static bool isPCMStreamPlaying_(const std::shared_ptr<audio::streams::PCMStream>& stream) noexcept;
     };
