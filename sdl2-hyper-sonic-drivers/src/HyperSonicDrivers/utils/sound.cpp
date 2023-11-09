@@ -1,5 +1,6 @@
 #include <cstdint>
 #include <HyperSonicDrivers/utils/sound.hpp>
+#include <HyperSonicDrivers/audio/converters/LinearRateConverter.hpp>
 
 namespace HyperSonicDrivers::utils
 {
@@ -38,13 +39,19 @@ namespace HyperSonicDrivers::utils
         const std::shared_ptr<audio::PCMSound>& sound1,
         const std::shared_ptr<audio::PCMSound>& sound2)
     {
-
         std::shared_ptr<audio::PCMSound> s2;
 
         if (sound1->stereo)
             s2 = makeStereo(sound2);
         else
             s2 = makeMono(sound2);
+
+        if (sound1->freq != sound2->freq)
+        {
+            // TODO:
+            // use covert frequency/ sample rate libraries for this ?
+            utils::throwLogC<std::runtime_error>("different frequency, not implemented yet");
+        }
 
         const uint32_t dataSize = sound1->dataSize + s2->dataSize;
         auto data = std::make_shared<int16_t[]>(dataSize);
@@ -53,6 +60,5 @@ namespace HyperSonicDrivers::utils
         memcpy(&data[sound1->dataSize], s2->data.get(), s2->dataSize * sizeof(int16_t));
 
         return std::make_shared<audio::PCMSound>(sound1->group, sound1->stereo, sound1->freq, dataSize, data);
-
     }
 }
