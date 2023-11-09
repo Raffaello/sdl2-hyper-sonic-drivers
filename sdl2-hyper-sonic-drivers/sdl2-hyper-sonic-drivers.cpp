@@ -2,6 +2,7 @@
 // TODO: delete this file and its target, this is kinda scratch pad
 
 #include <iostream>
+#include <memory>
 
 #include <SDL2/SDL.h>
 
@@ -31,6 +32,11 @@
 #include <HyperSonicDrivers/audio/sdl2/Renderer.hpp>
 #include <mt32emu/c_interface/cpp_interface.h>
 #include <HyperSonicDrivers/hardware/mt32/MT32.hpp>
+
+#include <HyperSonicDrivers/utils/sound.hpp>
+#include <HyperSonicDrivers/drivers/PCMDriver.hpp>
+#include <HyperSonicDrivers/audio/PCMSound.hpp>
+
 
 using namespace std;
 using namespace HyperSonicDrivers;
@@ -383,6 +389,27 @@ void testMT32()
     //    utils::delayMillis(1000);
 }
 
+
+void pcm_sound_append()
+{
+    auto mixer = audio::make_mixer<audio::sdl2::Mixer>(8, 44100, 1024);
+    files::WAVFile w1("test/fixtures/test_renderer_adlib_mame2.wav");
+    
+    mixer->init();
+    auto s1 = w1.getSound();
+    auto s1b = w1.getSound();
+    //auto s2a = utils::makeMono(s1);
+    //auto s2b = utils::makeStereo(s1);
+    auto s2 = utils::append(s1, s1);
+    drivers::PCMDriver drv(mixer);
+
+    drv.play(s2);
+    while (drv.isPlaying())
+    {
+        utils::delayMillis(100);
+    }
+}
+
 int main(int argc, char* argv[])
 {
     //newMixerTest();
@@ -391,6 +418,8 @@ int main(int argc, char* argv[])
     //rendererMIDI();
     //midi_adlib();
     //testMT32();
+
+    pcm_sound_append();
     return 0;
     //sdlMixer();
     //SDL_Delay(100);
