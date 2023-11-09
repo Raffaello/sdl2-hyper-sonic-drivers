@@ -177,6 +177,7 @@ target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/utils/constants.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/utils/endianness.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/utils/opl.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/utils/sound.cpp
     # --- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/utils/ILogger.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/utils/sdl2/Logger.cpp
@@ -211,14 +212,7 @@ unset(LIB_VER)
 
 # Add source to this project's executable.
 add_executable(sdl2-hyper-sonic-drivers "sdl2-hyper-sonic-drivers.cpp")
-#target_sources(sdl2-sonic-drivers PUBLIC
-    # --- #
-    #${CMAKE_CURRENT_SOURCE_DIR}/src/files/IFFFile.cpp
-    #${CMAKE_CURRENT_SOURCE_DIR}/src/files/XMIFile.cpp
-    #${CMAKE_CURRENT_SOURCE_DIR}/src/files/MIDFile.cpp
-#)
-
-target_link_libraries(sdl2-hyper-sonic-drivers PRIVATE  ${LIB_SDL2main} hyper-sonic-drivers-static)
+target_link_libraries(sdl2-hyper-sonic-drivers PRIVATE ${LIB_SDL2main} hyper-sonic-drivers-static)
 
 if(MSVC)
 # @see https://docs.microsoft.com/en-us/cpp/build/reference/compiler-options-listed-by-category?view=vs-2019
