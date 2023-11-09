@@ -17,8 +17,6 @@ namespace HyperSonicDrivers::utils
     **/
     std::shared_ptr<audio::PCMSound> makeStereo(const std::shared_ptr<audio::PCMSound>& sound);
  
-    std::shared_ptr<audio::PCMSound> convertFreq(const std::shared_ptr<audio::PCMSound>& sound, uint32_t freq);
-
     /**
     * @returns sound1 + sound2.
     *          it converts sound2 to the same freq and mono/stereo of sound1
