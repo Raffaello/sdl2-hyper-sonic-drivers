@@ -74,6 +74,14 @@ macro_test(
 )
 
 macro_test(
+    EXE TestSound
+    FILES "utils/TestSound.cpp"
+    LINKS_PRIVATE hyper-sonic-drivers-static
+    FIXTURES
+        "../fixtures/Wav_868kb.wav"
+)
+
+macro_test(
     EXE TestPCSpeaker
     FILES "hardware/TestPCSpeaker.cpp"
     LINKS_PRIVATE hyper-sonic-drivers-static
