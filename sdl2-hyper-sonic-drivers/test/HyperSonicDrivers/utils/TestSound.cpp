@@ -63,6 +63,24 @@ namespace HyperSonicDrivers::utils
 
         ASSERT_EQ(s1, s2);
     }
+
+    TEST(utils, duration_ms)
+    {
+        const uint32_t size = 44100 * 2;
+        auto data = std::make_shared<int16_t[]>(size);
+
+        auto s1 = std::make_shared<PCMSound>(eChannelGroup::Plain, true, 44100, size, data);
+        auto s2 = std::make_shared<PCMSound>(eChannelGroup::Plain, false, 44100, size, data);
+        auto s3 = std::make_shared<PCMSound>(eChannelGroup::Plain, false, 44100, 11025 * 7, data);
+        auto s4 = std::make_shared<PCMSound>(eChannelGroup::Plain, false, 8000, size, data);
+        auto s5 = std::make_shared<PCMSound>(eChannelGroup::Plain, true, 8000, size, data);
+
+        EXPECT_EQ(duration_ms(s1), 1000);
+        EXPECT_EQ(duration_ms(s2), 2000);
+        EXPECT_EQ(duration_ms(s3), 1750);
+        EXPECT_EQ(duration_ms(s4), 11025);
+        EXPECT_EQ(duration_ms(s5), 5512);
+    }
 }
 
 int main(int argc, char** argv)

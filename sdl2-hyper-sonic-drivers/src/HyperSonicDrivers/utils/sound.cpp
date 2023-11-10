@@ -61,4 +61,14 @@ namespace HyperSonicDrivers::utils
 
         return std::make_shared<audio::PCMSound>(sound1->group, sound1->stereo, sound1->freq, dataSize, data);
     }
+
+    uint32_t duration_ms(const std::shared_ptr<audio::PCMSound>& sound)
+    {
+        uint32_t ms = sound->dataSize;
+
+        if (sound->stereo)
+            ms /= 2;
+
+        return  ms * 1000 / sound->freq;
+    }
 }
