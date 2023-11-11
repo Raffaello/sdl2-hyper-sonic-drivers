@@ -15,8 +15,8 @@ on:
       - 'README.md'
       - 'LICENSE'
       - 'wave_generators.r'
-    branches:
-      - master
+    #branches:
+    #  - master
 
   pull_request:
   #  branches: [ master ]
