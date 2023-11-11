@@ -180,10 +180,10 @@ namespace HyperSonicDrivers::files
 
         int divisor = 1;
         if (m_bitsDepth == 16) {
-            divisor << 1;
+            divisor <<= 1;
         }
         if (m_channels == 2) {
-            divisor << 1;
+            divisor <<= 1;
         }
         
         const int d = buf.size() % divisor;
