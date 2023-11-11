@@ -7,7 +7,7 @@
 ### so can't be cached.
 
 name: ci-windows
-on: 
+on:
   #push:
   #  paths-ignore:
   #    - 'doc/**'
