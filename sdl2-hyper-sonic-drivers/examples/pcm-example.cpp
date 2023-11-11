@@ -57,8 +57,8 @@ int main(int argc, char* argv[])
 
     delayMillis(500);
 
-    drv.play(wavSound, 150, -127);
-    drv.play(vocSound, 255, 127);
+    drv.play(wavSound, 150, 127);
+    drv.play(vocSound, 255, -127);
     for (int i = 0, sig = +1; i < 3; i++, sig *= -1)
     {
         cout << i << ". playing same sound again reversed balance" << endl;

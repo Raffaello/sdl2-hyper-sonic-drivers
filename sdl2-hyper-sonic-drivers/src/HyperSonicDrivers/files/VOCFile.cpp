@@ -75,7 +75,7 @@ namespace HyperSonicDrivers::files
                 // timeConstant = 65536 - (256000000 / (channels * sampleRate);
                 // sampleRate = 256000000 / ((65536 - (timeConstant<<8))*channels)
                 m_sampleRate = 256000000L / ((65536 - (timeConstant << 8)) * m_channels);
-                //_sampleRate = 1000000 / (256 - timeConstant);
+                //m_sampleRate = 1000000 / (256 - timeConstant);
                 assertValid_(m_sampleRate == (1000000 / (256 - timeConstant)));
                 // pack Method
                 switch (packMethod)
@@ -131,10 +131,10 @@ namespace HyperSonicDrivers::files
             case 7:
                 logW("end loop block not-implemented");
                 break;
-            case 8:
+            case 8: // extended 
                 logW("special block 8 not-implemented");
                 break;
-            case 9:
+            case 9: // extended 2
             {
                 assertValid_(m_version >= 0x0114);
                 m_sampleRate = db.data[0] + (db.data[1] << 8) + (db.data[2] << 16) + (db.data[3] << 24);
@@ -180,14 +180,17 @@ namespace HyperSonicDrivers::files
 
         int divisor = 1;
         if (m_bitsDepth == 16) {
-            divisor *= 2;
+            divisor <<= 1;
         }
         if (m_channels == 2) {
-            divisor *= 2;
+            divisor <<= 1;
         }
-
+        
         const int d = buf.size() % divisor;
         for (int i = 0; i < d; i++)
+            buf.push_back(0);
+
+        if (buf.size() % 2 == 1)
             buf.push_back(0);
 
         m_dataSize = static_cast<uint32_t>(buf.size());

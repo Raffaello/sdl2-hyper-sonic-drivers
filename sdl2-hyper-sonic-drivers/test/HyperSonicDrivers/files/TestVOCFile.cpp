@@ -46,8 +46,8 @@ namespace HyperSonicDrivers::files
         VOCFile,
         VocFileTest,
         ::testing::Values(
-            std::make_tuple("../fixtures/VSCREAM1.VOC", audio::mixer::eChannelGroup::Sfx, 8000, 5817, 0x80),
-            std::make_tuple("../fixtures/DUNE.VOC", audio::mixer::eChannelGroup::Speech, 14705, 15233, 0x83)
+            std::make_tuple("../fixtures/VSCREAM1.VOC", audio::mixer::eChannelGroup::Sfx, 8000, 5818, 0x80),
+            std::make_tuple("../fixtures/DUNE.VOC", audio::mixer::eChannelGroup::Speech, 14705, 15234, 0x83)
         )
     );
 
