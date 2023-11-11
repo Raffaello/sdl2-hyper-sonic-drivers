@@ -180,14 +180,17 @@ namespace HyperSonicDrivers::files
 
         int divisor = 1;
         if (m_bitsDepth == 16) {
-            divisor *= 2;
+            divisor << 1;
         }
         if (m_channels == 2) {
-            divisor *= 2;
+            divisor << 1;
         }
-
+        
         const int d = buf.size() % divisor;
         for (int i = 0; i < d; i++)
+            buf.push_back(0);
+
+        if (buf.size() % 2 == 1)
             buf.push_back(0);
 
         m_dataSize = static_cast<uint32_t>(buf.size());
