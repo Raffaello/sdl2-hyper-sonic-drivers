@@ -101,7 +101,7 @@ namespace HyperSonicDrivers::audio::converters
                 inLen -= (stereo ? 2 : 1);
                 ilast0 = icur0;
                 icur0 = *inPtr++;
-                if (stereo)
+                if constexpr (stereo)
                 {
                     ilast1 = icur1;
                     icur1 = *inPtr++;
@@ -114,12 +114,12 @@ namespace HyperSonicDrivers::audio::converters
             while (opos < fracOneLow && obuf < oend)
             {
                 // interpolate
-                int16_t out0 = interpolate(ilast0, icur0, opos);
-                int16_t out1 = stereo ? interpolate(ilast1, icur1, opos) : out0;
+                const int16_t out0 = interpolate(ilast0, icur0, opos);
+                const int16_t out1 = stereo ? interpolate(ilast1, icur1, opos) : out0;
                 // output left channel
                 output_channel(obuf[reverseStereo ? 0 : 1], out0, vol_l);
                 // output right channel
-                output_channel(obuf[reverseStereo ? 0 : 1], out1, vol_r);
+                output_channel(obuf[reverseStereo ? 1 : 0], out1, vol_r);
                 obuf += 2;
 
                 // Increment output position

@@ -39,12 +39,12 @@ int main(int argc, char* argv[])
         delayMillis(100);
     }
 
-   /* drv.play(wavSound);
+    drv.play(wavSound);
     while(drv.isPlaying(wavSound))
     {
         cout << "is playing" << endl;
         delayMillis(1000);
-    }*/
+    }
 
     delayMillis(500);
 
@@ -59,13 +59,13 @@ int main(int argc, char* argv[])
 
     drv.play(wavSound, 150, 127);
     drv.play(vocSound, 255, -127);
-    /*for (int i = 0, sig = +1; i < 3; i++, sig *= -1)
+    for (int i = 0, sig = +1; i < 3; i++, sig *= -1)
     {
         cout << i << ". playing same sound again reversed balance" << endl;
         delayMillis(200);
         drv.play(wavSound, 150, 127 * sig);
         drv.play(vocSound, 255, -127 * sig);
-    }*/
+    }
 
     while(drv.isPlaying())
     {
