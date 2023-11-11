@@ -5,18 +5,18 @@ namespace HyperSonicDrivers::utils
 {
     const char* getVersion()
     {
-        return __SONIC_DRIVERS_VERSION;
+        return __HYPER_SONIC_DRIVERS_VERSION;
     }
     int getVersionMajor()
     {
-        return __SONIC_DRIVERS_VERSION_MAJOR;
+        return __HYPER_SONIC_DRIVERS_VERSION_MAJOR;
     }
     int getVersionMinor()
     {
-        return __SONIC_DRIVERS_VERSION_MINOR;
+        return __HYPER_SONIC_DRIVERS_VERSION_MINOR;
     }
     int getVersionPatch()
     {
-        return __SONIC_DRIVERS_VERSION_PATCH;
+        return __HYPER_SONIC_DRIVERS_VERSION_PATCH;
     }
 }
