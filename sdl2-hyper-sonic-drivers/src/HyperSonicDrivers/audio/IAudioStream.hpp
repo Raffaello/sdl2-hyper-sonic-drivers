@@ -23,5 +23,6 @@ namespace HyperSonicDrivers::audio
         virtual uint32_t getRate() const = 0;
         virtual bool endOfData() const = 0;
         virtual bool isEnded() const { return endOfData(); }
+        //virtual void forward(const uint32_t ms) = 0;
     };
 }

@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <HyperSonicDrivers/drivers/PCMDriver.hpp>
+#include <HyperSonicDrivers/utils/sound.hpp>
 
 namespace HyperSonicDrivers::drivers
 {
@@ -96,6 +97,12 @@ namespace HyperSonicDrivers::drivers
             stop(ch_id, false);
 
         releaseStreams_();
+    }
+
+    void PCMDriver::forward(const uint32_t ms) noexcept
+    {
+        for (const auto& [stream, _] : m_PCMStreams_channels)
+            stream->forward(utils::ms_toPos(ms, stream->getSound()));
     }
 
     void PCMDriver::releaseEndedStreams_() noexcept
