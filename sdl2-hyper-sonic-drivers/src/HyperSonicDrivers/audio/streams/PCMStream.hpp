@@ -19,6 +19,7 @@ namespace HyperSonicDrivers::audio::streams
         bool endOfData() const override;
 
         void forward(const uint32_t bytes) noexcept;
+
         std::shared_ptr<PCMSound>  getSound() const noexcept;
     private:
         std::shared_ptr<PCMSound> m_sound;

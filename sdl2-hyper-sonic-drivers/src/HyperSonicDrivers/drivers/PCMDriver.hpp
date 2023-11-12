@@ -34,7 +34,7 @@ namespace HyperSonicDrivers::drivers
         void stop(const std::shared_ptr<audio::PCMSound>& sound, const bool releaseEndedStreams = true);
         void stop() noexcept;
 
-        void forward(const uint32_t ms) noexcept;
+        void forward(const uint32_t ms) const noexcept;
 
         const uint8_t max_streams;
     private:

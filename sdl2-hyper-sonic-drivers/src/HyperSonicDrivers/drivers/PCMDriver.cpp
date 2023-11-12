@@ -99,7 +99,7 @@ namespace HyperSonicDrivers::drivers
         releaseStreams_();
     }
 
-    void PCMDriver::forward(const uint32_t ms) noexcept
+    void PCMDriver::forward(const uint32_t ms) const noexcept
     {
         for (const auto& [stream, _] : m_PCMStreams_channels)
             stream->forward(utils::ms_toPos(ms, stream->getSound()));
