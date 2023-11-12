@@ -18,16 +18,16 @@ namespace HyperSonicDrivers::files
         virtual ~IPCMFile() = default;
 
         inline int getChannels() const noexcept { return m_channels; };
-        inline uint32_t getSampleRate() const noexcept { return freq; };
-        inline uint8_t getBitsDepth() const noexcept { return bitsDepth; };
+        inline uint32_t getSampleRate() const noexcept { return m_freq; };
+        inline uint8_t getBitsDepth() const noexcept { return m_bitsDepth; };
         inline uint32_t getDataSize() const noexcept { return m_dataSize; };
         inline std::shared_ptr<uint8_t[]> getData() const noexcept { return m_data; };
         inline std::shared_ptr<audio::PCMSound> getSound() const noexcept { return m_sound; };
 
     protected:
         int       m_channels = 0;
-        uint32_t  freq = 0;
-        uint8_t   bitsDepth = 0;
+        uint32_t  m_freq = 0;
+        uint8_t   m_bitsDepth = 0;
         uint32_t  m_dataSize = 0;
         std::shared_ptr<uint8_t[]> m_data;
         std::shared_ptr<audio::PCMSound> m_sound;
