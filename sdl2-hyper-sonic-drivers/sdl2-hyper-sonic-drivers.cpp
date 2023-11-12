@@ -404,7 +404,7 @@ void pcm_sound_append()
     drivers::PCMDriver drv(mixer);
 
     drv.play(s2);
-    while (drv.isActive())
+    while (drv.isPlaying())
     {
         utils::delayMillis(100);
     }
