@@ -81,6 +81,28 @@ namespace HyperSonicDrivers::utils
         EXPECT_EQ(duration_ms(s4), 11025);
         EXPECT_EQ(duration_ms(s5), 5512);
     }
+
+    TEST(utils, ms_toPos)
+    {
+        const uint32_t size = 44100 * 2;
+        auto data = std::make_shared<int16_t[]>(size);
+
+        auto s1 = std::make_shared<PCMSound>(eChannelGroup::Plain, true, 44100, size, data);
+
+        EXPECT_EQ(ms_toPos(0, s1), 0);
+        EXPECT_EQ(ms_toPos(1000, s1), 44100 * 2);
+        EXPECT_EQ(ms_toPos(500, s1), 22050 * 2);
+        EXPECT_EQ(ms_toPos(250, s1), 11025 * 2);
+        EXPECT_EQ(ms_toPos(100, s1), 4410 * 2);
+
+        auto s2 = std::make_shared<PCMSound>(eChannelGroup::Plain, false, 44100, size, data);
+
+        EXPECT_EQ(ms_toPos(0, s2), 0);
+        EXPECT_EQ(ms_toPos(1000, s2), 44100);
+        EXPECT_EQ(ms_toPos(500, s2), 22050);
+        EXPECT_EQ(ms_toPos(250, s2), 11025);
+        EXPECT_EQ(ms_toPos(100, s2), 4410);
+    }
 }
 
 int main(int argc, char** argv)

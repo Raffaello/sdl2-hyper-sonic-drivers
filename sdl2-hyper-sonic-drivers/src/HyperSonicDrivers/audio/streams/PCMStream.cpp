@@ -38,6 +38,12 @@ namespace HyperSonicDrivers::audio::streams
         return m_curPos == m_sound->dataSize;
     }
 
+    void PCMStream::forward(const uint32_t bytes) noexcept
+    {
+        m_curPos += bytes;
+        m_curPos = std::min(m_curPos, m_sound->dataSize);
+    }
+
     std::shared_ptr<PCMSound> PCMStream::getSound() const noexcept
     {
         return m_sound;

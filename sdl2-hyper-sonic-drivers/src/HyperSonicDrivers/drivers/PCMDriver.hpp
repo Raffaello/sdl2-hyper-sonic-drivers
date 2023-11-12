@@ -34,6 +34,10 @@ namespace HyperSonicDrivers::drivers
         void stop(const std::shared_ptr<audio::PCMSound>& sound, const bool releaseEndedStreams = true);
         void stop() noexcept;
 
+        void forward(const uint32_t ms) const noexcept;
+        void forward(const uint32_t ms, const audio::mixer::eChannelGroup group) const noexcept;
+        void forward(const uint32_t ms, const uint8_t channel_id) const noexcept;
+
         const uint8_t max_streams;
     private:
         std::shared_ptr<audio::IMixer> m_mixer;

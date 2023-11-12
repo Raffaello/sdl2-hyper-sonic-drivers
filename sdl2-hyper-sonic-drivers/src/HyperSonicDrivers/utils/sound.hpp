@@ -26,4 +26,5 @@ namespace HyperSonicDrivers::utils
         const std::shared_ptr<audio::PCMSound>& sound2);
 
     uint32_t duration_ms(const std::shared_ptr<audio::PCMSound>& sound);
+    uint32_t ms_toPos(const uint32_t, const std::shared_ptr<audio::PCMSound>& sound);
 }
