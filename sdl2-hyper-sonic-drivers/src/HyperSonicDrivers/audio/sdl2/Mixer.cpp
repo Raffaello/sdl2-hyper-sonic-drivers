@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <ranges>
 #include <cstring>
 #include <cassert>
 #include <HyperSonicDrivers/audio/sdl2/Mixer.hpp>
@@ -86,6 +87,17 @@ namespace HyperSonicDrivers::audio::sdl2
         m_channels[id]->reset();
     }
 
+    void Mixer::reset(const mixer::eChannelGroup group) noexcept
+    {
+        std::scoped_lock lck(m_mutex);
+
+        for (const auto& ch : m_channels)
+        {
+            if (ch->getChannelGroup() == group)
+                ch->reset();
+        }
+    }
+
     void Mixer::pause() noexcept
     {
         std::scoped_lock lck(m_mutex);
@@ -116,7 +128,7 @@ namespace HyperSonicDrivers::audio::sdl2
         m_channels[id]->unpause();
     }
 
-    bool Mixer::isChannelActive(const uint8_t id) const noexcept
+    bool Mixer::isActive(const uint8_t id) const noexcept
     {
         std::scoped_lock lck(m_mutex);
 
@@ -128,6 +140,24 @@ namespace HyperSonicDrivers::audio::sdl2
         std::scoped_lock lck(m_mutex);
 
         return m_channels[id]->isPaused();
+    }
+
+    bool Mixer::isActive() const noexcept
+    {
+        std::scoped_lock lck(m_mutex);
+
+        return std::ranges::any_of(m_channels, [](const auto& ch)
+            { return !ch->isEnded(); });
+    }
+
+    bool Mixer::isActive(const mixer::eChannelGroup group)
+    {
+        std::scoped_lock lck(m_mutex);
+
+        return std::ranges::any_of(m_channels, [group](const auto& ch)
+            { return ch->getChannelGroup() == group && !ch->isEnded(); });
+
+        return false;
     }
 
     bool Mixer::isChannelGroupMuted(const mixer::eChannelGroup group) const noexcept
@@ -195,6 +225,12 @@ namespace HyperSonicDrivers::audio::sdl2
         updateChannelsVolumePan_();
     }
 
+    void Mixer::updateChannelsVolumePan_() noexcept
+    {
+        for (const auto& ch : m_channels)
+            ch->updateVolumePan();
+    }
+
     bool Mixer::init_(SDL_AudioCallback callback, void* userdata)
     {
         m_ready = false;
@@ -206,10 +242,10 @@ namespace HyperSonicDrivers::audio::sdl2
 
         // Get the desired audio specs
         SDL_AudioSpec desired = {
-            .freq = static_cast<int>(m_sampleRate),
+            .freq = static_cast<int>(freq),
             .format = AUDIO_S16,
             .channels = 2,
-            .samples = m_samples,
+            .samples = buffer_size,
             .callback = callback,
             .userdata = userdata
         };
@@ -242,12 +278,6 @@ namespace HyperSonicDrivers::audio::sdl2
         m_ready = true;
 
         return true;
-    }
-
-    void Mixer::updateChannelsVolumePan_() noexcept
-    {
-        for (const auto& ch : m_channels)
-            ch->updateVolumePan();
     }
 
     size_t Mixer::callback(uint8_t* samples, unsigned int len)

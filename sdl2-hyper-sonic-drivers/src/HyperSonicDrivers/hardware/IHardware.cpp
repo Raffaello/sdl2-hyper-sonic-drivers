@@ -6,12 +6,14 @@
 namespace HyperSonicDrivers::hardware
 {
     IHardware::IHardware(const std::shared_ptr<audio::IMixer>& mixer) :
-        m_mixer(mixer), m_output_rate(m_mixer->getOutputRate())
+        m_mixer(mixer)
     {
         if (m_mixer == nullptr)
         {
             utils::throwLogC<std::runtime_error>("mixer is null");
         }
+
+        m_output_rate = m_mixer->freq;
     }
 
     IHardware::~IHardware()

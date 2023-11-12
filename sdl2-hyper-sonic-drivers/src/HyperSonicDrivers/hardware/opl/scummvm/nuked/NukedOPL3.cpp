@@ -17,7 +17,7 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::nuked
             return true;
 
         memset(&_reg, 0, sizeof(_reg));
-        _rate = m_mixer->getOutputRate();
+        _rate = m_mixer->freq;
         OPL3_Reset(chip.get(), _rate);
 
         if (type == OplType::DUAL_OPL2) {

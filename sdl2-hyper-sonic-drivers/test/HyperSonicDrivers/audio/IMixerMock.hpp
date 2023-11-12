@@ -33,6 +33,7 @@ namespace HyperSonicDrivers::audio
 
         void reset() noexcept override {};
         void reset(const uint8_t id) noexcept override {};
+        void reset(const mixer::eChannelGroup group) noexcept override {};
 
         void pause() noexcept override {};
         void pause(const uint8_t id) noexcept override {};
@@ -40,8 +41,10 @@ namespace HyperSonicDrivers::audio
         void unpause() noexcept override {};
         void unpause(const uint8_t id) noexcept override {};
 
-        bool isChannelActive(const uint8_t id) const noexcept override { return true; };
+        bool isActive(const uint8_t id) const noexcept override { return true; };
         bool isPaused(const uint8_t id) const noexcept override { return false; }
+        bool isActive() const noexcept override { return true; };
+        bool isActive(const mixer::eChannelGroup group) override { return true; };
         bool isChannelGroupMuted(const mixer::eChannelGroup group) const noexcept override { return false; };
         void muteChannelGroup(const mixer::eChannelGroup group) noexcept override {};
         void unmuteChannelGroup(const mixer::eChannelGroup group) noexcept override {};
@@ -56,5 +59,7 @@ namespace HyperSonicDrivers::audio
         void setChannelVolumePan(const uint8_t id, const uint8_t volume, const int8_t pan) noexcept override {};
 
         void setMasterVolume(const uint8_t master_volume) noexcept override {};
+
+        void updateChannelsVolumePan_() noexcept override {};
     };
 }
