@@ -86,6 +86,17 @@ namespace HyperSonicDrivers::audio::sdl2
         m_channels[id]->reset();
     }
 
+    void Mixer::reset(const mixer::eChannelGroup group) noexcept
+    {
+        std::scoped_lock lck(m_mutex);
+
+        for (const auto& ch : m_channels)
+        {
+            if (ch->getChannelGroup() == group)
+                ch->reset();
+        }
+    }
+
     void Mixer::pause() noexcept
     {
         std::scoped_lock lck(m_mutex);

@@ -45,6 +45,7 @@ namespace HyperSonicDrivers::audio
 
         virtual void reset() noexcept = 0;
         virtual void reset(const uint8_t id) noexcept = 0;
+        virtual void reset(const mixer::eChannelGroup group) noexcept = 0;
 
         virtual void pause() noexcept = 0;
         virtual void pause(const uint8_t id) noexcept = 0;

@@ -32,6 +32,7 @@ namespace HyperSonicDrivers::audio::sdl2
 
         void reset() noexcept override;
         void reset(const uint8_t id) noexcept override;
+        void reset(const mixer::eChannelGroup group) noexcept override;
 
         void pause() noexcept override;
         void pause(const uint8_t id) noexcept override;
