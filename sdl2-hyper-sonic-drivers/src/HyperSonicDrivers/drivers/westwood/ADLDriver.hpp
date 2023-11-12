@@ -56,7 +56,7 @@ namespace HyperSonicDrivers::drivers::westwood
         void play(const uint8_t track) noexcept override;
         void stop() noexcept override;
 
-        bool isActive() const noexcept override;
+        bool isPlaying() const noexcept override;
     private:
         void initDriver_();
         void startSound_(const uint8_t track, const uint8_t volume);

@@ -10,7 +10,7 @@ namespace HyperSonicDrivers::drivers
         IAudioDriverMock(const std::shared_ptr<devices::IDevice>& device) : IAudioDriver(device) {}
         void play(const uint8_t track) noexcept override {};
         void stop() noexcept override {};
-        bool isActive() const noexcept override { return false; };
+        bool isPlaying() const noexcept override { return false; };
     };
 
     TEST(IAudioDriver, cstor_nullptr)

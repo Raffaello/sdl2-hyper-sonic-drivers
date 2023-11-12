@@ -43,7 +43,7 @@ namespace HyperSonicDrivers::drivers
         void pause() noexcept;
         void resume() noexcept;
 
-        bool isActive() const noexcept override;
+        bool isPlaying() const noexcept override;
 
         bool isPaused() const noexcept;
         inline bool isTempoChanged() const noexcept { return m_midiTempoChanged; }

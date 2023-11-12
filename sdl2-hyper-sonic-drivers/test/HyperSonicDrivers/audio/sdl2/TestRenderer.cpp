@@ -63,7 +63,7 @@ namespace HyperSonicDrivers::audio::sdl2
             drv1.setADLFile(af);
 
             drv1.play(4);
-            while (drv1.isActive())
+            while (drv1.isPlaying())
                 r.renderBuffer(opl);
 
             r.closeOutputFile();

@@ -62,7 +62,7 @@ void adl_test(const OplEmulator emu, const OplType type, std::shared_ptr<audio::
     {
         //spdlog::info("is playing");
         delayMillis(1000);
-    } while (adlDrv.isActive());
+    } while (adlDrv.isPlaying());
 }
 
 int main(int argc, char* argv[])

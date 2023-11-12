@@ -253,7 +253,7 @@ namespace HyperSonicDrivers::drivers::westwood
         stopAllChannels();
     }
 
-    bool ADLDriver::isActive() const noexcept
+    bool ADLDriver::isPlaying() const noexcept
     {
         bool res = false;
         for (int i = 0; i <= NUM_CHANNELS; i++)
