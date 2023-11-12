@@ -173,9 +173,9 @@ namespace HyperSonicDrivers::files
 
         // fmt always before data chunk
         m_expDataChunk = true;
-        m_bitsDepth = static_cast<uint8_t>(m_fmt_chunk.bitsPerSample);
+        bitsDepth = static_cast<uint8_t>(m_fmt_chunk.bitsPerSample);
         m_channels = m_fmt_chunk.channels;
-        m_sampleRate = m_fmt_chunk.samplesPerSec;
+        freq = m_fmt_chunk.samplesPerSec;
 
         return true;
     }

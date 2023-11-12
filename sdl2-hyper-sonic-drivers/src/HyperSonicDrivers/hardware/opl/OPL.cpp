@@ -33,7 +33,7 @@ namespace HyperSonicDrivers::hardware::opl
         setAudioStream(std::make_shared<audio::streams::EmulatedStream>(
             this,
             isStereo(),
-            m_mixer->getOutputRate(),
+            m_mixer->freq,
             setCallbackFrequency(timerFrequency)
         ));
 

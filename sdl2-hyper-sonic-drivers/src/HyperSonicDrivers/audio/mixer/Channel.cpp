@@ -17,7 +17,7 @@ namespace HyperSonicDrivers::audio::mixer
         reset();
         m_group = group;
         m_stream = stream;
-        m_converter = converters::makeIRateConverter(m_stream->getRate(), m_mixer.getOutputRate(), m_stream->isStereo(), reverseStereo);
+        m_converter = converters::makeIRateConverter(m_stream->getRate(), m_mixer.freq, m_stream->isStereo(), reverseStereo);
     }
 
     void Channel::setAudioStream(const mixer::eChannelGroup group, const std::shared_ptr<IAudioStream>& stream,

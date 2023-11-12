@@ -39,7 +39,7 @@ namespace HyperSonicDrivers::audio::sdl2
         void unpause() noexcept override;
         void unpause(const uint8_t id) noexcept override;
 
-        bool isChannelActive(const uint8_t id) const noexcept override;
+        bool isActive(const uint8_t id) const noexcept override;
         bool isPaused(const uint8_t id) const noexcept override;
 
 
@@ -58,9 +58,11 @@ namespace HyperSonicDrivers::audio::sdl2
 
         void setMasterVolume(const uint8_t master_volume) noexcept override;
 
+    protected:
+        void updateChannelsVolumePan_() noexcept override;
+
     private:
         bool init_(SDL_AudioCallback callback, void* userdata);
-        void updateChannelsVolumePan_() noexcept;
 
         size_t callback(uint8_t* samples, unsigned int len);
         static void sdlCallback(void* this_, uint8_t* samples, int len);

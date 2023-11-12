@@ -16,7 +16,7 @@ namespace HyperSonicDrivers::files
         m_version(0)
     {
         m_channels = 1;
-        m_bitsDepth = 8;
+        bitsDepth = 8;
         assertValid_(readHeader());
         assertValid_(readDataBlockHeader());
 
@@ -74,9 +74,9 @@ namespace HyperSonicDrivers::files
                 // channels default = 1
                 // timeConstant = 65536 - (256000000 / (channels * sampleRate);
                 // sampleRate = 256000000 / ((65536 - (timeConstant<<8))*channels)
-                m_sampleRate = 256000000L / ((65536 - (timeConstant << 8)) * m_channels);
+                freq = 256000000L / ((65536 - (timeConstant << 8)) * m_channels);
                 //m_sampleRate = 1000000 / (256 - timeConstant);
-                assertValid_(m_sampleRate == (1000000 / (256 - timeConstant)));
+                assertValid_(freq == (1000000 / (256 - timeConstant)));
                 // pack Method
                 switch (packMethod)
                 {
@@ -137,8 +137,8 @@ namespace HyperSonicDrivers::files
             case 9: // extended 2
             {
                 assertValid_(m_version >= 0x0114);
-                m_sampleRate = db.data[0] + (db.data[1] << 8) + (db.data[2] << 16) + (db.data[3] << 24);
-                m_bitsDepth = db.data[4];
+                freq = db.data[0] + (db.data[1] << 8) + (db.data[2] << 16) + (db.data[3] << 24);
+                bitsDepth = db.data[4];
                 m_channels = db.data[5];
                 uint16_t format = db.data[6] + (db.data[7] << 8);
                 for (int i = 0; i < 4; i++)
@@ -179,7 +179,7 @@ namespace HyperSonicDrivers::files
         }
 
         int divisor = 1;
-        if (m_bitsDepth == 16) {
+        if (bitsDepth == 16) {
             divisor <<= 1;
         }
         if (m_channels == 2) {

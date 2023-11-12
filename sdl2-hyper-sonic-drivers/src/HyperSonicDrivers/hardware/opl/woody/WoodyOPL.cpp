@@ -20,9 +20,9 @@ namespace HyperSonicDrivers::hardware
 
                 stop();
                 if (type == OplType::DUAL_OPL2)
-                    _opl =std::make_unique<SurroundOPL>(m_mixer->getOutputRate());
+                    _opl =std::make_unique<SurroundOPL>(m_mixer->freq);
                 else
-                    _opl = std::make_unique<WoodyEmuOPL>(m_mixer->getOutputRate());
+                    _opl = std::make_unique<WoodyEmuOPL>(m_mixer->freq);
 
                 m_init = _opl != nullptr;
 

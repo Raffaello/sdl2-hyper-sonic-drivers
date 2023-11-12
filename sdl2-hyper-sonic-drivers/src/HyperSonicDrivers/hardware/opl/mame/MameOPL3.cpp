@@ -38,9 +38,9 @@ namespace HyperSonicDrivers::hardware::opl::mame
         _opl = new ymfm::ymf262(_ymfm);
 
         auto rate = _opl->sample_rate(OPL3_INTERNAL_FREQ);
-        _opl->sample_rate(m_mixer->getOutputRate());
+        _opl->sample_rate(m_mixer->freq);
 
-        _chip = ymf262_init(0, OPL3_INTERNAL_FREQ, m_mixer->getOutputRate());
+        _chip = ymf262_init(0, OPL3_INTERNAL_FREQ, m_mixer->freq);
         //_init = _opl != nullptr;
         m_init = _chip != nullptr;
 

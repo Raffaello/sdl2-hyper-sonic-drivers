@@ -26,7 +26,7 @@ namespace HyperSonicDrivers::audio::sdl2
         if (m_buf.empty())
         {
             m_out->save_prepare(stream->getRate(), stream->isStereo());
-            m_buf.resize(m_mixer->getBufferSize());
+            m_buf.resize(m_mixer->buffer_size);
         }
 
         const size_t read = stream->readBuffer(m_buf.data(), m_buf.size());

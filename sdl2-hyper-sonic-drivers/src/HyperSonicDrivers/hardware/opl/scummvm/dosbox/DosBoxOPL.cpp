@@ -36,7 +36,7 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::dosbox
             return false;
 
         dbopl::InitTables();
-        m_rate = m_mixer->getOutputRate();
+        m_rate = m_mixer->freq;
         m_emulator->Setup(m_rate);
 
         if (type == OplType::DUAL_OPL2) {

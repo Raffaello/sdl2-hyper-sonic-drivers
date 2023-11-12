@@ -13,7 +13,7 @@ namespace HyperSonicDrivers::files
         std::shared_ptr<int16_t[]> data;
         uint32_t size = m_dataSize;
 
-        switch (m_bitsDepth)
+        switch (bitsDepth)
         {
         case 8:
             data.reset(audio::converters::convert8to16(m_data.get(), size));
@@ -23,14 +23,14 @@ namespace HyperSonicDrivers::files
             size >>= 1;
             break;
         default:
-            utils::throwLogC<std::invalid_argument>(std::format("bitsDepth = {}, not supported/implemented", m_bitsDepth));
+            utils::throwLogC<std::invalid_argument>(std::format("bitsDepth = {}, not supported/implemented", bitsDepth));
             break;
         }
 
         m_sound = std::make_shared<audio::PCMSound>(
             group,
             m_channels == 2,
-            m_sampleRate,
+            freq,
             size,
             data
         );

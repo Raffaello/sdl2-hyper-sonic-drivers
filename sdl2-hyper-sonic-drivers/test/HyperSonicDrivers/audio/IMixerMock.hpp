@@ -40,7 +40,7 @@ namespace HyperSonicDrivers::audio
         void unpause() noexcept override {};
         void unpause(const uint8_t id) noexcept override {};
 
-        bool isChannelActive(const uint8_t id) const noexcept override { return true; };
+        bool isActive(const uint8_t id) const noexcept override { return true; };
         bool isPaused(const uint8_t id) const noexcept override { return false; }
         bool isChannelGroupMuted(const mixer::eChannelGroup group) const noexcept override { return false; };
         void muteChannelGroup(const mixer::eChannelGroup group) noexcept override {};
@@ -56,5 +56,7 @@ namespace HyperSonicDrivers::audio
         void setChannelVolumePan(const uint8_t id, const uint8_t volume, const int8_t pan) noexcept override {};
 
         void setMasterVolume(const uint8_t master_volume) noexcept override {};
+
+        void updateChannelsVolumePan_() noexcept override {};
     };
 }
