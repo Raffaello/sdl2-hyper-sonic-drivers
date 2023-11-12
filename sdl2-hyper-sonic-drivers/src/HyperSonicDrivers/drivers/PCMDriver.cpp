@@ -105,13 +105,24 @@ namespace HyperSonicDrivers::drivers
             stream->forward(utils::ms_toPos(ms, stream->getSound()));
     }
 
-    void PCMDriver::forward(const uint32_t ms, audio::mixer::eChannelGroup group) const noexcept
+    void PCMDriver::forward(const uint32_t ms, const audio::mixer::eChannelGroup group) const noexcept
     {
         for (const auto& [stream, _] : m_PCMStreams_channels)
         {
             const auto& s = stream->getSound();
             if (s->group == group)
                 stream->forward(utils::ms_toPos(ms, s));
+        }
+    }
+
+    void PCMDriver::forward(const uint32_t ms, const uint8_t channel_id) const noexcept
+    {
+        for (const auto& [stream, ch_id] : m_PCMStreams_channels)
+        {
+            if (ch_id != channel_id)
+                continue;
+
+            stream->forward(utils::ms_toPos(ms, stream->getSound()));
         }
     }
 
