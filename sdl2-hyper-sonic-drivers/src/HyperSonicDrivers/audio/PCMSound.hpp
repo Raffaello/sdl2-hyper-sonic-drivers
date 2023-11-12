@@ -27,8 +27,6 @@ namespace HyperSonicDrivers::audio
             const std::shared_ptr<int16_t[]> &data
         );
 
-        bool append(const PCMSound* sound2) noexcept;
-
         const mixer::eChannelGroup group;
         const bool stereo;
         const uint32_t freq;
