@@ -214,37 +214,42 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::dosbox
 
         if(isStereo())
         {
-            while (length_ > 0)
+            if (m_emulator->opl3Active) // DUAL_OPL2 or OPL3 in OPL3 mode
             {
-                const unsigned int readSamples = std::min<unsigned int>(length_, bufferLength);
-                const unsigned int readSamples2 = (readSamples << 1);
-                if (m_emulator->opl3Active)
+                while (length_ > 0)
                 {
+                    const unsigned int readSamples = std::min<unsigned int>(length_, bufferLength);
+                    const unsigned int readSamples2 = (readSamples << 1);
                     m_emulator->GenerateBlock3(readSamples, tempBuffer.data());
                     for (unsigned int i = 0; i < readSamples2; ++i)
                         buffer[i] = static_cast<int16_t>(tempBuffer[i]);
-                }
-                else
-                {
-                    m_emulator->GenerateBlock2(readSamples, tempBuffer.data());
-                    for (unsigned int i = 0, j =0; i < readSamples; ++i, j+=2)
-                    {
-                        buffer[j] = buffer[j+1] = static_cast<int16_t>(tempBuffer[i]);
-                    }
-                }
 
-                buffer += static_cast<int16_t>(readSamples2);
-                length_ -= readSamples;
+                    buffer += static_cast<int16_t>(readSamples2);
+                    length_ -= readSamples;
+                }
+            }
+            else // OPL3 in OPL2 compatibility mode
+            {
+                while (length_ > 0)
+                {
+                    const unsigned int readSamples = std::min<unsigned int>(length_, bufferLength);
+                    const unsigned int readSamples2 = (readSamples << 1);
+                    m_emulator->GenerateBlock2(readSamples, tempBuffer.data());
+                    for (unsigned int i = 0, j = 0; i < readSamples; ++i, j += 2)
+                        buffer[j] = buffer[j + 1] = static_cast<int16_t>(tempBuffer[i]);
+
+
+                    buffer += static_cast<int16_t>(readSamples2);
+                    length_ -= readSamples;
+                }
             }
         }
-        else
+        else // OPL2
         {
             while (length_ > 0)
             {
                 const unsigned int readSamples = std::min<unsigned int>(length_, bufferLength << 1);
-
                 m_emulator->GenerateBlock2(readSamples, tempBuffer.data());
-
                 for (unsigned int i = 0; i < readSamples; ++i)
                     buffer[i] = static_cast<int16_t>(tempBuffer[i]);
 
