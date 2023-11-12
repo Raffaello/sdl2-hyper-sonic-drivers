@@ -118,8 +118,8 @@ namespace HyperSonicDrivers::audio::mixer
         const float pan = (127.5f + m_pan) / 255.0f;
         // TODO: create different selectable pan laws
         // -3dB pan law
-        m_volL = static_cast<uint16_t>(std::round(sqrt(pan) * vol / ch_max_vol));
-        m_volR = static_cast<uint16_t>(std::round(sqrt(1 - pan) * vol / ch_max_vol));
+        m_volL = static_cast<uint16_t>(std::round(sqrt(1 - pan) * vol / ch_max_vol));
+        m_volR = static_cast<uint16_t>(std::round(sqrt(pan) * vol / ch_max_vol));
 
         // adjust for master volume
         const auto m_vol = m_mixer.getMasterVolume();

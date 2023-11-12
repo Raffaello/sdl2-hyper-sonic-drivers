@@ -117,9 +117,9 @@ namespace HyperSonicDrivers::audio::converters
                 const int16_t out0 = interpolate(ilast0, icur0, opos);
                 const int16_t out1 = stereo ? interpolate(ilast1, icur1, opos) : out0;
                 // output left channel
-                output_channel(obuf[reverseStereo ? 0 : 1], out0, vol_l);
+                output_channel(obuf[reverseStereo ? 1 : 0], out0, vol_l);
                 // output right channel
-                output_channel(obuf[reverseStereo ? 1 : 0], out1, vol_r);
+                output_channel(obuf[reverseStereo ? 0 : 1], out1, vol_r);
                 obuf += 2;
 
                 // Increment output position

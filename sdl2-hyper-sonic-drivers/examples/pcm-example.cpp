@@ -62,7 +62,7 @@ int main(int argc, char* argv[])
     for (int i = 0, sig = +1; i < 3; i++, sig *= -1)
     {
         cout << i << ". playing same sound again reversed balance" << endl;
-        delayMillis(200);
+        delayMillis(500);
         drv.play(wavSound, 150, 127 * sig);
         drv.play(vocSound, 255, -127 * sig);
     }
