@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <ranges>
 #include <cstring>
 #include <cassert>
 #include <HyperSonicDrivers/audio/sdl2/Mixer.hpp>
@@ -145,20 +146,16 @@ namespace HyperSonicDrivers::audio::sdl2
     {
         std::scoped_lock lck(m_mutex);
 
-        for (const auto& ch : m_channels)
-            if (!ch->isEnded())
-                return true;
-
-        return false;
+        return std::ranges::any_of(m_channels, [](const auto& ch)
+            { return !ch->isEnded(); });
     }
 
     bool Mixer::isActive(const mixer::eChannelGroup group)
     {
         std::scoped_lock lck(m_mutex);
 
-        for (const auto& ch : m_channels)
-            if (ch->getChannelGroup() == group && !ch->isEnded())
-                return true;
+        return std::ranges::any_of(m_channels, [group](const auto& ch)
+            { return ch->getChannelGroup() == group && !ch->isEnded(); });
 
         return false;
     }
