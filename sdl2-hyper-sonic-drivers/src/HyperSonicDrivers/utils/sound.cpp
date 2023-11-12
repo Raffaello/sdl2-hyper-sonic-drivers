@@ -67,7 +67,7 @@ namespace HyperSonicDrivers::utils
         uint32_t ms = sound->dataSize;
 
         if (sound->stereo)
-            ms /= 2;
+            ms >>= 1;
 
         return  ms * 1000 / sound->freq;
     }
