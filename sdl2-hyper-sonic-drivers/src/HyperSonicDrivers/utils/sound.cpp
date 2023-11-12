@@ -71,4 +71,14 @@ namespace HyperSonicDrivers::utils
 
         return  ms * 1000 / sound->freq;
     }
+
+    uint32_t ms_toPos(const uint32_t ms, const std::shared_ptr<audio::PCMSound>& sound)
+    {
+        uint32_t res = ms * sound->freq / 1000;
+
+        if (sound->stereo)
+            res <<= 1;
+
+        return res;
+    }
 }
