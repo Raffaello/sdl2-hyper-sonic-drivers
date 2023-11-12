@@ -27,7 +27,7 @@ namespace HyperSonicDrivers::hardware
         FAIL();
     }
 
-    TEST(PCSpeaker, isActive)
+    TEST(PCSpeaker, isPlaying)
     {
         PCSpeaker pcSpeaker(44100, 8);
         pcSpeaker.play(PCSpeaker::eWaveForm::SINE, 440, 1);
