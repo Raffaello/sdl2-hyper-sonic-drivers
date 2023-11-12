@@ -30,7 +30,7 @@ namespace HyperSonicDrivers::drivers
         // TODO: it might not be required
         //virtual void resume() = 0;
 
-        virtual bool isPlaying() const noexcept = 0;
+        virtual bool isActive() const noexcept = 0;
 
         // TODO: it might not be required
         //virtual bool isPaused() const noexcept = 0;

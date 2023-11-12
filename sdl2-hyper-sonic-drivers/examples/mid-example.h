@@ -32,7 +32,7 @@ void mid_test_run(drivers::MIDDriver& midDrv, const std::shared_ptr<audio::MIDI>
     auto start_time = std::chrono::system_clock::now();
     midDrv.setMidi(midi);
     midDrv.play(0);
-    while (midDrv.isPlaying()) {
+    while (midDrv.isActive()) {
         utils::delayMillis(1000);
     }
 

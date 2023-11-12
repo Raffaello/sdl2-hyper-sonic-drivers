@@ -20,14 +20,14 @@ namespace HyperSonicDrivers::drivers
         auto sound = std::make_shared<audio::PCMSound>(audio::mixer::eChannelGroup::Plain, true, 44100, 1, sound_data);
         auto ch_id = drv.play(sound);
 
-        ASSERT_TRUE(drv.isPlaying(sound));
-        ASSERT_TRUE(drv.isPlaying());
+        ASSERT_TRUE(drv.isActive(sound));
+        ASSERT_TRUE(drv.isActive());
         ASSERT_TRUE(ch_id.has_value());
         EXPECT_EQ(ch_id.value(), 0);
 
         drv.stop(ch_id.value());
-        EXPECT_FALSE(drv.isPlaying(sound));
-        EXPECT_FALSE(drv.isPlaying());
+        EXPECT_FALSE(drv.isActive(sound));
+        EXPECT_FALSE(drv.isActive());
     }
 
     TEST(PCMDriver, play_stop1)
@@ -41,14 +41,14 @@ namespace HyperSonicDrivers::drivers
         auto sound = std::make_shared<audio::PCMSound>(audio::mixer::eChannelGroup::Plain, true, 44100, 1, sound_data);
         auto ch_id = drv.play(sound);
 
-        ASSERT_TRUE(drv.isPlaying(sound));
-        ASSERT_TRUE(drv.isPlaying());
+        ASSERT_TRUE(drv.isActive(sound));
+        ASSERT_TRUE(drv.isActive());
         ASSERT_TRUE(ch_id.has_value());
         EXPECT_EQ(ch_id.value(), 0);
 
         drv.stop(sound);
-        EXPECT_FALSE(drv.isPlaying(sound));
-        EXPECT_FALSE(drv.isPlaying());
+        EXPECT_FALSE(drv.isActive(sound));
+        EXPECT_FALSE(drv.isActive());
     }
 
     TEST(PCMDriver, play_stop2)
@@ -62,14 +62,14 @@ namespace HyperSonicDrivers::drivers
         auto sound = std::make_shared<audio::PCMSound>(audio::mixer::eChannelGroup::Plain, true, 44100, 1, sound_data);
         auto ch_id = drv.play(sound);
 
-        ASSERT_TRUE(drv.isPlaying(sound));
-        ASSERT_TRUE(drv.isPlaying());
+        ASSERT_TRUE(drv.isActive(sound));
+        ASSERT_TRUE(drv.isActive());
         ASSERT_TRUE(ch_id.has_value());
         EXPECT_EQ(ch_id.value(), 0);
 
         drv.stop();
-        EXPECT_FALSE(drv.isPlaying(sound));
-        EXPECT_FALSE(drv.isPlaying());
+        EXPECT_FALSE(drv.isActive(sound));
+        EXPECT_FALSE(drv.isActive());
     }
 
     TEST(PCMDriver, play_stop_complex)
@@ -89,14 +89,14 @@ namespace HyperSonicDrivers::drivers
         EXPECT_TRUE(drv.play(sound2).has_value());
         EXPECT_TRUE(drv.play(sound2).has_value());
 
-        ASSERT_TRUE(drv.isPlaying(sound));
-        ASSERT_TRUE(drv.isPlaying());
+        ASSERT_TRUE(drv.isActive(sound));
+        ASSERT_TRUE(drv.isActive());
         ASSERT_TRUE(ch_id.has_value());
         EXPECT_EQ(ch_id.value(), 0);
 
         drv.stop(ch_id.value());
-        EXPECT_FALSE(drv.isPlaying(sound));
-        EXPECT_TRUE(drv.isPlaying());
+        EXPECT_FALSE(drv.isActive(sound));
+        EXPECT_TRUE(drv.isActive());
     }
 }
 

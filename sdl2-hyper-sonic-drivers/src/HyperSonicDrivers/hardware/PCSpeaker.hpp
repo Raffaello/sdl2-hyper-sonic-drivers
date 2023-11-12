@@ -47,7 +47,7 @@ namespace HyperSonicDrivers::hardware
         void play(const eWaveForm waveForm, const int freq, const int32_t length);
         /** Stop the currently playing note after delay ms. */
         void stop(const int32_t delay = 0);
-        bool isPlaying() const noexcept;
+        bool isActive() const noexcept;
         template<typename T> uint32_t readBuffer(T* buffer, uint32_t numSamples);
         uint32_t getRate() const noexcept;
         uint8_t getChannels() const noexcept;

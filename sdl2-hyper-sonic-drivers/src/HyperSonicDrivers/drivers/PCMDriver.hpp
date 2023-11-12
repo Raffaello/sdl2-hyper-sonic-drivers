@@ -23,8 +23,8 @@ namespace HyperSonicDrivers::drivers
         explicit PCMDriver(const std::shared_ptr<audio::IMixer>& mixer, const uint8_t max_channels = 0xFF);
         ~PCMDriver() = default;
 
-        bool isPlaying() const noexcept;
-        bool isPlaying(const std::shared_ptr<audio::PCMSound>& sound) const noexcept;
+        bool isActive() const noexcept;
+        bool isActive(const std::shared_ptr<audio::PCMSound>& sound) const noexcept;
         std::optional<uint8_t> play(
             const std::shared_ptr<audio::PCMSound>& sound,
             const uint8_t volume = audio::mixer::Channel_max_volume,

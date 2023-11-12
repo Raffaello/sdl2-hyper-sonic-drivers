@@ -130,6 +130,28 @@ namespace HyperSonicDrivers::audio::sdl2
         return m_channels[id]->isPaused();
     }
 
+    bool Mixer::isActive() const noexcept
+    {
+        std::scoped_lock lck(m_mutex);
+
+        for (const auto& ch : m_channels)
+            if (!ch->isEnded())
+                return true;
+
+        return false;
+    }
+
+    bool Mixer::isActive(const mixer::eChannelGroup group)
+    {
+        std::scoped_lock lck(m_mutex);
+
+        for (const auto& ch : m_channels)
+            if (ch->getChannelGroup() == group && !ch->isEnded())
+                return true;
+
+        return false;
+    }
+
     bool Mixer::isChannelGroupMuted(const mixer::eChannelGroup group) const noexcept
     {
         return m_group_settings[group2i(group)].mute;

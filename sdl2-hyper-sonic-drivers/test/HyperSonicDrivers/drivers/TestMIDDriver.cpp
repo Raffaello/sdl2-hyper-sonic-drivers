@@ -88,14 +88,14 @@ namespace HyperSonicDrivers::drivers
             MIDDriverMock middrv(device);
             middrv.setMidi(midi);
             middrv.play(0);
-            ASSERT_TRUE(middrv.isPlaying());
+            ASSERT_TRUE(middrv.isActive());
             auto start = utils::getMillis<uint32_t>();
             utils::delayMillis(20);
             middrv.stop();
-            EXPECT_FALSE(middrv.isPlaying());
+            EXPECT_FALSE(middrv.isActive());
             auto stop = utils::getMillis<uint32_t>();
             EXPECT_LE(stop - start, 1 * 1000);
-            EXPECT_FALSE(middrv.isPlaying());
+            EXPECT_FALSE(middrv.isActive());
             EXPECT_TRUE(device->isAcquired());
         }
         EXPECT_FALSE(device->isAcquired());

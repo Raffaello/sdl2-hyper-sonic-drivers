@@ -62,9 +62,9 @@ void playNotes(hardware::PCSpeaker *pcSpeaker, const hardware::PCSpeaker::eWaveF
 {
     auto start = std::chrono::steady_clock::now();
     pcSpeaker->play(waveForm, freq, length);
-    while (pcSpeaker->isPlaying()) { SDL_Delay(10); }
+    while (pcSpeaker->isActive()) { SDL_Delay(10); }
     pcSpeaker->play(waveForm, freq + 183, length * 2);
-    while (pcSpeaker->isPlaying()) { SDL_Delay(10); }
+    while (pcSpeaker->isActive()) { SDL_Delay(10); }
     auto end = std::chrono::steady_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
     std::cout << "Elapsed Time (s) = " << elapsed_seconds.count() << " --- Expected (s) ~=" << length + length * 2 << "\n";
@@ -404,7 +404,7 @@ void pcm_sound_append()
     drivers::PCMDriver drv(mixer);
 
     drv.play(s2);
-    while (drv.isPlaying())
+    while (drv.isActive())
     {
         utils::delayMillis(100);
     }

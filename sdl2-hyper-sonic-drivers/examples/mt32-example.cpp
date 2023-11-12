@@ -44,7 +44,7 @@ int main(int argc, char* argv[])
     drivers::MIDDriver middrv(mt32, eChannelGroup::Music);
     middrv.setMidi(midi);
     middrv.play(0);
-    while (middrv.isPlaying())
+    while (middrv.isActive())
     {
         utils::delayMillis(100);
     }

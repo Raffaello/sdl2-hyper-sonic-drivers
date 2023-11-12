@@ -27,11 +27,11 @@ namespace HyperSonicDrivers::hardware
         FAIL();
     }
 
-    TEST(PCSpeaker, isPlaying)
+    TEST(PCSpeaker, isActive)
     {
         PCSpeaker pcSpeaker(44100, 8);
         pcSpeaker.play(PCSpeaker::eWaveForm::SINE, 440, 1);
-        EXPECT_TRUE(pcSpeaker.isPlaying());
+        EXPECT_TRUE(pcSpeaker.isActive());
     }
 
     TEST(PCSpeaker, readBuffer)
@@ -74,7 +74,7 @@ namespace HyperSonicDrivers::hardware
             double tsum = 0.0;
             uint32_t dsum = 0;
 
-            while (pcSpeaker->isPlaying())
+            while (pcSpeaker->isActive())
             {
                 uint32_t d = this->readbuf();
                 dsum += d;

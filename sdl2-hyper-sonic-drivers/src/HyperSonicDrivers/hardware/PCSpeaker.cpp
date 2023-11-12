@@ -90,7 +90,7 @@ namespace HyperSonicDrivers::hardware
         _setRemainingSamples(delay);
     }
 
-    bool PCSpeaker::isPlaying() const noexcept
+    bool PCSpeaker::isActive() const noexcept
     {
         return _remainingSamples != 0;
     }

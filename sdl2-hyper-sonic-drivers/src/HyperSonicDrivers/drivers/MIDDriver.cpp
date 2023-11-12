@@ -234,7 +234,7 @@ namespace HyperSonicDrivers::drivers
             m_paused = false;
     }
 
-    bool MIDDriver::isPlaying() const noexcept
+    bool MIDDriver::isActive() const noexcept
     {
         return m_isPlaying;
     }

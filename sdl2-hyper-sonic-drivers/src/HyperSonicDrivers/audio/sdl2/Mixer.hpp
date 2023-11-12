@@ -42,6 +42,8 @@ namespace HyperSonicDrivers::audio::sdl2
         bool isActive(const uint8_t id) const noexcept override;
         bool isPaused(const uint8_t id) const noexcept override;
 
+        bool isActive() const noexcept override;
+        bool isActive(const mixer::eChannelGroup group) override;
 
         bool isChannelGroupMuted(const mixer::eChannelGroup group) const noexcept override;;
         void muteChannelGroup(const mixer::eChannelGroup group) noexcept override;
