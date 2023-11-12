@@ -74,9 +74,9 @@ namespace HyperSonicDrivers::files
                 // channels default = 1
                 // timeConstant = 65536 - (256000000 / (channels * sampleRate);
                 // sampleRate = 256000000 / ((65536 - (timeConstant<<8))*channels)
-                m_freq = 256000000L / ((65536 - (timeConstant << 8)) * m_channels);
+                m_sampleRate = 256000000L / ((65536 - (timeConstant << 8)) * m_channels);
                 //m_sampleRate = 1000000 / (256 - timeConstant);
-                assertValid_(m_freq == (1000000 / (256 - timeConstant)));
+                assertValid_(m_sampleRate == (1000000 / (256 - timeConstant)));
                 // pack Method
                 switch (packMethod)
                 {
@@ -137,7 +137,7 @@ namespace HyperSonicDrivers::files
             case 9: // extended 2
             {
                 assertValid_(m_version >= 0x0114);
-                m_freq = db.data[0] + (db.data[1] << 8) + (db.data[2] << 16) + (db.data[3] << 24);
+                m_sampleRate = db.data[0] + (db.data[1] << 8) + (db.data[2] << 16) + (db.data[3] << 24);
                 m_bitsDepth = db.data[4];
                 m_channels = db.data[5];
                 uint16_t format = db.data[6] + (db.data[7] << 8);

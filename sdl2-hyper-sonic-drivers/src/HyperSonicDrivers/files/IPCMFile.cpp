@@ -30,7 +30,7 @@ namespace HyperSonicDrivers::files
         m_sound = std::make_shared<audio::PCMSound>(
             group,
             m_channels == 2,
-            m_freq,
+            m_sampleRate,
             size,
             data
         );
