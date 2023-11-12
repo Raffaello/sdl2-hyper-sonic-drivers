@@ -35,6 +35,7 @@ namespace HyperSonicDrivers::drivers
         void stop() noexcept;
 
         void forward(const uint32_t ms) const noexcept;
+        void forward(const uint32_t ms, audio::mixer::eChannelGroup group) const noexcept;
 
         const uint8_t max_streams;
     private:
