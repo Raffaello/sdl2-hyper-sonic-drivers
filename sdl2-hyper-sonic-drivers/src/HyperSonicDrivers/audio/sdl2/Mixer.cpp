@@ -150,7 +150,7 @@ namespace HyperSonicDrivers::audio::sdl2
             { return !ch->isEnded(); });
     }
 
-    bool Mixer::isActive(const mixer::eChannelGroup group)
+    bool Mixer::isActive(const mixer::eChannelGroup group) const noexcept
     {
         std::scoped_lock lck(m_mutex);
 

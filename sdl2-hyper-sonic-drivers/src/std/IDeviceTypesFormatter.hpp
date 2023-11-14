@@ -27,8 +27,8 @@ namespace std
             case SbPro2:
                 str = "SbPro2";
                 break;
-            case MT32:
-                str = "MT32";
+            case Mt32:
+                str = "Mt32";
                 break;
             }
 
