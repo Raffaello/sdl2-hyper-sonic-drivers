@@ -410,6 +410,58 @@ void pcm_sound_append()
     }
 }
 
+//void adldune2filestest()
+//{
+//    auto mixer = audio::make_mixer<audio::sdl2::Mixer>(8, 44100, 1024);
+//    mixer->init();
+//
+//    auto device = devices::make_device<devices::Adlib, devices::Opl>(mixer);
+//    drivers::westwood::ADLDriver drv(device, audio::mixer::eChannelGroup::Music);
+//    
+//    SDL_InitSubSystem(SDL_INIT_EVENTS);
+//    SDL_InitSubSystem(SDL_INIT_VIDEO);
+//
+//    auto window = SDL_CreateWindow("a", 0, 0, 320, 200, 0);
+//    
+//    for (int f = 0; f <= 0; f++)
+//    {
+//        const std::string fn = "adl/DUNE" + std::to_string(f) + ".ADL";
+//        utils::ILogger::instance->info(std::format("opening file: {}", fn), utils::ILogger::eCategory::Application);
+//        auto adlf = std::make_shared<files::westwood::ADLFile>(fn);
+//        drv.setADLFile(adlf);
+//        for (int i = 0; i < adlf->getNumTracks(); i++)
+//        {
+//            utils::ILogger::instance->info(std::format("playing track: {}", i), utils::ILogger::eCategory::Application);
+//            drv.play(i);
+//            while (drv.isPlaying())
+//            {
+//                utils::delayMillis(200);
+//                SDL_Event e;
+//                while (SDL_PollEvent(&e))
+//                    switch (e.type)
+//                    {
+//                    case SDL_QUIT:
+//                        goto QUIT;
+//                    case SDL_KEYDOWN:
+//                    //case SDL_KEYUP:
+//                        if (e.key.keysym.sym == SDLK_ESCAPE)
+//                            goto QUIT;
+//                        if (e.key.keysym.sym == SDLK_RETURN)
+//                            drv.stop();
+//                        break;
+//
+//                    default:
+//                        std::cout << "event: " << e.type << std::endl;
+//                    }
+//            }
+//            drv.stopAllChannels();
+//            utils::delayMillis(1000);
+//        }
+//    }
+//QUIT:
+//    SDL_DestroyWindow(window);
+//}
+
 int main(int argc, char* argv[])
 {
     //newMixerTest();
@@ -419,8 +471,9 @@ int main(int argc, char* argv[])
     //midi_adlib();
     //testMT32();
 
-    pcm_sound_append();
-    return 0;
+    //pcm_sound_append();
+    //adldune2filestest();
+    //return 0;
     //sdlMixer();
     //SDL_Delay(100);
     //renderMixer();
