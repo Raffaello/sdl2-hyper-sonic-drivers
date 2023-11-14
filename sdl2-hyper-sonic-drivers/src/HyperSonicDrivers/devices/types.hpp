@@ -13,6 +13,6 @@ namespace HyperSonicDrivers::devices
         Adlib,
         SbPro,
         SbPro2,
-        MT32
+        Mt32
     };
 }

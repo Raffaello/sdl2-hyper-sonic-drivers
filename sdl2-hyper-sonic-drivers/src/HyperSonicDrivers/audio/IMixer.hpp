@@ -57,7 +57,7 @@ namespace HyperSonicDrivers::audio
         virtual bool isPaused(const uint8_t id) const noexcept = 0;
 
         virtual bool isActive() const noexcept = 0;
-        virtual bool isActive(const mixer::eChannelGroup group) = 0;
+        virtual bool isActive(const mixer::eChannelGroup group) const noexcept = 0;
 
         virtual bool isChannelGroupMuted(const mixer::eChannelGroup group) const noexcept = 0;
         virtual void muteChannelGroup(const mixer::eChannelGroup group) noexcept = 0;
