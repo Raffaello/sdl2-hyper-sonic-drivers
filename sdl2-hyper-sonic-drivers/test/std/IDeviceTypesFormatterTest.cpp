@@ -6,7 +6,10 @@ namespace std
 {
     TEST(IDeviceTypesFormatter, Music)
     {
-        ASSERT_STRCASEEQ(std::format("{}", HyperSonicDrivers::devices::eDeviceName::Adlib).c_str(), "Adlib");
+        EXPECT_STRCASEEQ(std::format("{}", HyperSonicDrivers::devices::eDeviceName::Adlib).c_str(), "Adlib");
+        EXPECT_STRCASEEQ(std::format("{}", HyperSonicDrivers::devices::eDeviceName::Mt32).c_str(), "Mt32");
+        EXPECT_STRCASEEQ(std::format("{}", HyperSonicDrivers::devices::eDeviceName::SbPro).c_str(), "SbPro");
+        EXPECT_STRCASEEQ(std::format("{}", HyperSonicDrivers::devices::eDeviceName::SbPro2).c_str(), "SbPro2");
     }
 }
 
