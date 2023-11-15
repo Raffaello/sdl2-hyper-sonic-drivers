@@ -20,5 +20,7 @@ namespace HyperSonicDrivers::audio::sdl2
         using IRenderer::renderBuffer;
         void renderFlush(IAudioStream* stream) override;
         using IRenderer::renderFlush;
+
+        void renderBuffer(IAudioStream* stream, drivers::IAudioDriver& drv, const int track) override;
     };
 }

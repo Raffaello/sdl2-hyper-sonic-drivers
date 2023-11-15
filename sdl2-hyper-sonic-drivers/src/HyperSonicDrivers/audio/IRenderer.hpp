@@ -8,6 +8,7 @@
 #include <HyperSonicDrivers/audio/IAudioStream.hpp>
 #include <HyperSonicDrivers/hardware/opl/OPL.hpp>
 #include <HyperSonicDrivers/devices/IDevice.hpp>
+#include <HyperSonicDrivers/drivers/IAudioDriver.hpp>
 #include <HyperSonicDrivers/files/WAVFile.hpp>
 
 namespace HyperSonicDrivers::audio
@@ -27,6 +28,9 @@ namespace HyperSonicDrivers::audio
         inline void renderBuffer(const std::shared_ptr<devices::IDevice>& device) { renderBuffer(device->getHardware()->getAudioStream().get()); };
         virtual void renderFlush(IAudioStream* stream) = 0;
         inline void renderFlush(const std::shared_ptr<devices::IDevice>& device) { renderFlush(device->getHardware()->getAudioStream().get()); };
+
+        virtual void renderBuffer(IAudioStream* stream, drivers::IAudioDriver& drv, const int track) = 0;
+        inline void renderBuffer(const std::shared_ptr<devices::IDevice>& device, drivers::IAudioDriver& drv, const int track) { renderBuffer(device->getHardware()->getAudioStream().get(), drv, track); };
     protected:
         std::shared_ptr<IMixer> m_mixer;
         std::unique_ptr<files::WAVFile> m_out;

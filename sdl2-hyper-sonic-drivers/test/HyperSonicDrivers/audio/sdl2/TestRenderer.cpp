@@ -92,6 +92,42 @@ namespace HyperSonicDrivers::audio::sdl2
             std::make_tuple<>("sbpro2_dosbox", 44100, eDeviceName::SbPro2, OplEmulator::DOS_BOX)
         )
     );
+
+    TEST_P(RendererTest, render_wav2)
+    {
+        const std::string exp_renderer = "../fixtures/test_renderer_" + test_name + ".wav";
+        const std::string rfile = "../fixtures/test_renderer_" + test_name + "_out2.wav";
+
+        if (std::filesystem::exists(rfile))
+            std::filesystem::remove(rfile);
+
+        ASSERT_FALSE(std::filesystem::exists(rfile));
+        {
+            audio::sdl2::Renderer r(freq, 1024);
+            r.openOutputFile(rfile);
+
+            auto drv1 = drivers::westwood::ADLDriver(opl, eChannelGroup::Music);
+            auto af = std::make_shared<files::westwood::ADLFile>("../fixtures/DUNE0.ADL");
+            drv1.setADLFile(af);
+
+            r.renderBuffer(opl, drv1, 4);
+        }
+
+        files::WAVFile w(rfile);
+        auto sound = w.getSound();
+        files::WAVFile wexp(exp_renderer);
+        auto exp_sound = wexp.getSound();
+
+        ASSERT_EQ(sound->dataSize, exp_sound->dataSize);
+        ASSERT_EQ(sound->freq, exp_sound->freq);
+        ASSERT_EQ(sound->stereo, exp_sound->stereo);
+        EXPECT_EQ(sound->freq, freq);
+        EXPECT_EQ(sound->stereo, opl->getHardware()->isStereo());
+        for (uint32_t i = 0; i < sound->dataSize; i++)
+        {
+            EXPECT_EQ(sound->data[i], exp_sound->data[i]);
+        }
+    }
 }
 
 int main(int argc, char** argv)

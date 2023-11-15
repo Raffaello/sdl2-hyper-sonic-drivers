@@ -50,10 +50,21 @@ namespace HyperSonicDrivers::audio::sdl2
         while (true)
         {
             const size_t read = stream->readBuffer(m_buf.data(), m_buf.size());
-            bool silenced = std::ranges::all_of(m_buf, [](const auto i) { return i == 0; });
+            const bool silenced = std::ranges::all_of(m_buf, [](const auto i) { return i == 0; });
             if (silenced)
                 return;
+
             m_out->save_streaming(m_buf.data(), read);
         }
+    }
+
+    void Renderer::renderBuffer(IAudioStream* stream, drivers::IAudioDriver& drv, const int track)
+    {
+        drv.play(track);
+        while (drv.isPlaying())
+            renderBuffer(stream);
+
+        renderFlush(stream);
+        closeOutputFile();
     }
 }
