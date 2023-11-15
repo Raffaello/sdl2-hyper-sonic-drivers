@@ -55,7 +55,7 @@ namespace HyperSonicDrivers::audio::sdl2
                 return true;
 
             // check if it is all silence...
-            if (std::ranges::all_of(m_buf, [](const auto i) { return i == 0; }))
+            if (std::ranges::all_of(m_buf, [](const int16_t sample) { return sample == 0; }))
                 return true;
 
             m_out->save_streaming(m_buf.data(), read);
