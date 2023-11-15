@@ -53,7 +53,6 @@ namespace HyperSonicDrivers::audio::sdl2
             std::filesystem::remove(rfile);
 
         ASSERT_FALSE(std::filesystem::exists(rfile));
-
         {
             audio::sdl2::Renderer r(freq, 1024);
             r.openOutputFile(rfile);
@@ -66,6 +65,7 @@ namespace HyperSonicDrivers::audio::sdl2
             while (drv1.isPlaying())
                 r.renderBuffer(opl);
 
+            r.renderFlush(opl);
             r.closeOutputFile();
         }
 

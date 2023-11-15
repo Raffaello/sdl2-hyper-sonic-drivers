@@ -25,7 +25,8 @@ namespace HyperSonicDrivers::audio
 
         virtual void renderBuffer(IAudioStream* stream) = 0;
         inline void renderBuffer(const std::shared_ptr<devices::IDevice>& device) { renderBuffer(device->getHardware()->getAudioStream().get()); };
-
+        virtual void renderFlush(IAudioStream* stream) = 0;
+        inline void renderFlush(const std::shared_ptr<devices::IDevice>& device) { renderFlush(device->getHardware()->getAudioStream().get()); };
     protected:
         std::shared_ptr<IMixer> m_mixer;
         std::unique_ptr<files::WAVFile> m_out;

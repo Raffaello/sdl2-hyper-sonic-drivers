@@ -1,6 +1,8 @@
 #include <HyperSonicDrivers/audio/sdl2/Renderer.hpp>
 #include <HyperSonicDrivers/audio/sdl2/Mixer.hpp>
 #include <HyperSonicDrivers/utils/ILogger.hpp>
+#include <algorithm>
+#include <ranges>
 
 
 namespace HyperSonicDrivers::audio::sdl2
@@ -23,6 +25,7 @@ namespace HyperSonicDrivers::audio::sdl2
 
     void Renderer::renderBuffer(IAudioStream* stream)
     {
+        // TODO: the loop can be done passing the IAudioDriver and track
         if (m_buf.empty())
         {
             m_out->save_prepare(stream->getRate(), stream->isStereo());
@@ -31,5 +34,26 @@ namespace HyperSonicDrivers::audio::sdl2
 
         const size_t read = stream->readBuffer(m_buf.data(), m_buf.size());
         m_out->save_streaming(m_buf.data(), read);
+    }
+
+    void Renderer::renderFlush(IAudioStream* stream)
+    {
+        // TODO: this can be incorporated in renderBuffer as soon is doing the internal loop checking stream is ended.
+
+        // safety check
+        if (m_buf.empty())
+        {
+            m_out->save_prepare(stream->getRate(), stream->isStereo());
+            m_buf.resize(m_mixer->buffer_size);
+        }
+
+        while (true)
+        {
+            const size_t read = stream->readBuffer(m_buf.data(), m_buf.size());
+            bool silenced = std::ranges::all_of(m_buf, [](const auto i) { return i == 0; });
+            if (silenced)
+                return;
+            m_out->save_streaming(m_buf.data(), read);
+        }
     }
 }
