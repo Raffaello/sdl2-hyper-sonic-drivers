@@ -84,14 +84,6 @@ namespace HyperSonicDrivers::audio::sdl2
             EXPECT_EQ(sound->data[i], exp_sound->data[i]);
         }
     }
-    INSTANTIATE_TEST_SUITE_P(
-        Renderer,
-        RendererTest,
-        ::testing::Values(
-            std::make_tuple<>("adlib_mame2", 44100, eDeviceName::Adlib, OplEmulator::MAME),
-            std::make_tuple<>("sbpro2_dosbox", 44100, eDeviceName::SbPro2, OplEmulator::DOS_BOX)
-        )
-    );
 
     TEST_P(RendererTest, render_wav2)
     {
@@ -128,6 +120,15 @@ namespace HyperSonicDrivers::audio::sdl2
             EXPECT_EQ(sound->data[i], exp_sound->data[i]);
         }
     }
+
+    INSTANTIATE_TEST_SUITE_P(
+        Renderer,
+        RendererTest,
+        ::testing::Values(
+            std::make_tuple<>("adlib_mame2", 44100, eDeviceName::Adlib, OplEmulator::MAME),
+            std::make_tuple<>("sbpro2_dosbox", 44100, eDeviceName::SbPro2, OplEmulator::DOS_BOX)
+        )
+    );
 }
 
 int main(int argc, char** argv)
