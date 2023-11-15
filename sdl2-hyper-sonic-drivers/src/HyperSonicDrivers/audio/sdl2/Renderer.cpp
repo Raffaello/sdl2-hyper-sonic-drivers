@@ -52,8 +52,8 @@ namespace HyperSonicDrivers::audio::sdl2
             if (read == 0)
                 return true;
 
-            const bool silenced = std::ranges::all_of(m_buf, [](const auto i) { return i == 0; });
-            if (silenced)
+            // check if it is all silence...
+            if (std::ranges::all_of(m_buf, [](const auto i) { return i == 0; }))
                 return true;
 
             m_out->save_streaming(m_buf.data(), read);
@@ -62,7 +62,7 @@ namespace HyperSonicDrivers::audio::sdl2
         return false;
     }
 
-    bool Renderer::renderBufferFlush(IAudioStream* stream, drivers::IAudioDriver& drv, const int track)
+    bool Renderer::renderBufferFlush(IAudioStream* stream, drivers::IAudioDriver& drv, const uint8_t track)
     {
         drv.play(track);
         while (drv.isPlaying())

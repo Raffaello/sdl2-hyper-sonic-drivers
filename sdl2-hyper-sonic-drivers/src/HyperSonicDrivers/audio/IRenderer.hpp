@@ -39,8 +39,8 @@ namespace HyperSonicDrivers::audio
         * this is doing the render until the drv is play the track and call the render flush after all
         * it returns the renderFlush returned value
         **/
-        virtual bool renderBufferFlush(IAudioStream* stream, drivers::IAudioDriver& drv, const int track) = 0;
-        inline bool renderBufferFlush(const std::shared_ptr<devices::IDevice>& device, drivers::IAudioDriver& drv, const int track) { return renderBufferFlush(device->getHardware()->getAudioStream().get(), drv, track); };
+        virtual bool renderBufferFlush(IAudioStream* stream, drivers::IAudioDriver& drv, const uint8_t track) = 0;
+        inline bool renderBufferFlush(const std::shared_ptr<devices::IDevice>& device, drivers::IAudioDriver& drv, const uint8_t track) { return renderBufferFlush(device->getHardware()->getAudioStream().get(), drv, track); };
     protected:
         std::shared_ptr<IMixer> m_mixer;
         std::unique_ptr<files::WAVFile> m_out;
