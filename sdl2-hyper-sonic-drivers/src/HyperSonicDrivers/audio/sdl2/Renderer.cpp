@@ -7,6 +7,8 @@
 
 namespace HyperSonicDrivers::audio::sdl2
 {
+    constexpr int MaxRendererFlushIterations = 1000;
+
     Renderer::Renderer(const uint32_t freq, const uint16_t buffer_size, const uint8_t max_channels)
     {
         m_mixer = make_mixer<Mixer>(max_channels, freq, buffer_size);
@@ -35,7 +37,7 @@ namespace HyperSonicDrivers::audio::sdl2
         m_out->save_streaming(m_buf.data(), read);
     }
 
-    void Renderer::renderFlush(IAudioStream* stream)
+    bool Renderer::renderFlush(IAudioStream* stream)
     {
         // safety check
         if (m_buf.empty())
@@ -44,24 +46,28 @@ namespace HyperSonicDrivers::audio::sdl2
             m_buf.resize(m_mixer->buffer_size);
         }
 
-        while (true)
+        for(int i = 0; i < MaxRendererFlushIterations; i++)
         {
             const size_t read = stream->readBuffer(m_buf.data(), m_buf.size());
+            if (read == 0)
+                return true;
+
             const bool silenced = std::ranges::all_of(m_buf, [](const auto i) { return i == 0; });
             if (silenced)
-                return;
+                return true;
 
             m_out->save_streaming(m_buf.data(), read);
         }
+
+        return false;
     }
 
-    void Renderer::renderBuffer(IAudioStream* stream, drivers::IAudioDriver& drv, const int track)
+    bool Renderer::renderBuffer(IAudioStream* stream, drivers::IAudioDriver& drv, const int track)
     {
         drv.play(track);
         while (drv.isPlaying())
             renderBuffer(stream);
 
-        renderFlush(stream);
-        closeOutputFile();
+        return renderFlush(stream);
     }
 }

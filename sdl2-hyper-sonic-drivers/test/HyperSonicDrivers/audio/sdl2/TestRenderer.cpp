@@ -65,7 +65,7 @@ namespace HyperSonicDrivers::audio::sdl2
             while (drv1.isPlaying())
                 r.renderBuffer(opl);
 
-            r.renderFlush(opl);
+            ASSERT_TRUE(r.renderFlush(opl));
             r.closeOutputFile();
         }
 
@@ -102,7 +102,8 @@ namespace HyperSonicDrivers::audio::sdl2
             auto af = std::make_shared<files::westwood::ADLFile>("../fixtures/DUNE0.ADL");
             drv1.setADLFile(af);
 
-            r.renderBuffer(opl, drv1, 4);
+            ASSERT_TRUE(r.renderBuffer(opl, drv1, 4));
+            r.closeOutputFile();
         }
 
         files::WAVFile w(rfile);

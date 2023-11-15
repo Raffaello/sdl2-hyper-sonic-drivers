@@ -26,11 +26,11 @@ namespace HyperSonicDrivers::audio
 
         virtual void renderBuffer(IAudioStream* stream) = 0;
         inline void renderBuffer(const std::shared_ptr<devices::IDevice>& device) { renderBuffer(device->getHardware()->getAudioStream().get()); };
-        virtual void renderFlush(IAudioStream* stream) = 0;
-        inline void renderFlush(const std::shared_ptr<devices::IDevice>& device) { renderFlush(device->getHardware()->getAudioStream().get()); };
+        virtual bool renderFlush(IAudioStream* stream) = 0;
+        inline bool renderFlush(const std::shared_ptr<devices::IDevice>& device) { return renderFlush(device->getHardware()->getAudioStream().get()); };
 
-        virtual void renderBuffer(IAudioStream* stream, drivers::IAudioDriver& drv, const int track) = 0;
-        inline void renderBuffer(const std::shared_ptr<devices::IDevice>& device, drivers::IAudioDriver& drv, const int track) { renderBuffer(device->getHardware()->getAudioStream().get(), drv, track); };
+        virtual bool renderBuffer(IAudioStream* stream, drivers::IAudioDriver& drv, const int track) = 0;
+        inline bool renderBuffer(const std::shared_ptr<devices::IDevice>& device, drivers::IAudioDriver& drv, const int track) { return renderBuffer(device->getHardware()->getAudioStream().get(), drv, track); };
     protected:
         std::shared_ptr<IMixer> m_mixer;
         std::unique_ptr<files::WAVFile> m_out;
