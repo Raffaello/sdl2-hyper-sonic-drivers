@@ -25,7 +25,6 @@ namespace HyperSonicDrivers::audio::sdl2
 
     void Renderer::renderBuffer(IAudioStream* stream)
     {
-        // TODO: the loop can be done passing the IAudioDriver and track
         if (m_buf.empty())
         {
             m_out->save_prepare(stream->getRate(), stream->isStereo());
@@ -38,8 +37,6 @@ namespace HyperSonicDrivers::audio::sdl2
 
     void Renderer::renderFlush(IAudioStream* stream)
     {
-        // TODO: this can be incorporated in renderBuffer as soon is doing the internal loop checking stream is ended.
-
         // safety check
         if (m_buf.empty())
         {
