@@ -102,7 +102,7 @@ namespace HyperSonicDrivers::audio::sdl2
             auto af = std::make_shared<files::westwood::ADLFile>("../fixtures/DUNE0.ADL");
             drv1.setADLFile(af);
 
-            ASSERT_TRUE(r.renderBuffer(opl, drv1, 4));
+            ASSERT_TRUE(r.renderBufferFlush(opl, drv1, 4));
             r.closeOutputFile();
         }
 

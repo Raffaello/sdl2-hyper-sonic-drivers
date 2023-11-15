@@ -15,12 +15,13 @@ namespace HyperSonicDrivers::audio::sdl2
 
         void openOutputFile(const std::filesystem::path& path) override;
         void closeOutputFile() noexcept override;
+        
+        using IRenderer::renderBuffer;
+        using IRenderer::renderFlush;
+        using IRenderer::renderBufferFlush;
 
         void renderBuffer(IAudioStream* stream) override;
-        using IRenderer::renderBuffer;
         bool renderFlush(IAudioStream* stream) override;
-        using IRenderer::renderFlush;
-
-        bool renderBuffer(IAudioStream* stream, drivers::IAudioDriver& drv, const int track) override;
+        bool renderBufferFlush(IAudioStream* stream, drivers::IAudioDriver& drv, const int track) override;
     };
 }

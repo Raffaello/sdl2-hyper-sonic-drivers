@@ -62,7 +62,7 @@ namespace HyperSonicDrivers::audio::sdl2
         return false;
     }
 
-    bool Renderer::renderBuffer(IAudioStream* stream, drivers::IAudioDriver& drv, const int track)
+    bool Renderer::renderBufferFlush(IAudioStream* stream, drivers::IAudioDriver& drv, const int track)
     {
         drv.play(track);
         while (drv.isPlaying())
