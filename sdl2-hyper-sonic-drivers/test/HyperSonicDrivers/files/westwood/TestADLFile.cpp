@@ -56,7 +56,7 @@ namespace HyperSonicDrivers::files::westwood
         ADLFileMock f("../fixtures/DUNE0.ADL");
 
         EXPECT_EQ(f.getVersion(), 2);
-        EXPECT_EQ(f.getNumTracks(), 18);
+        EXPECT_EQ(f.getNumTracks(), 200);
         EXPECT_EQ(f.getNumTrackOffsets(), 52);
         EXPECT_EQ(f.getNumInstrumentOffsets(), 63);
         EXPECT_EQ(f.parentSize(), 14473);
