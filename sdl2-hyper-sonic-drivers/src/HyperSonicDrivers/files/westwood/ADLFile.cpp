@@ -111,6 +111,7 @@ namespace HyperSonicDrivers::files::westwood
 
         readDataFromFile_(m_meta_version.data_offset, m_meta_version.data_header_size);
 
+        // TODO: count_loop_ for version 3 is wrong to be 8 bit i think
         m_num_tracks = count_loop_<uint8_t>(0, m_header);
         m_num_track_offsets = count_loop_<uint16_t>(m_meta_version.offset_start, m_track_offsets);
         m_num_instrument_offsets = count_loop_<uint16_t>(m_meta_version.offset_start, m_instrument_offsets);
@@ -262,6 +263,8 @@ namespace HyperSonicDrivers::files::westwood
     void ADLFile::readHeaderFromFile_(const int header_size, std::function<uint16_t()> read)
     {
         m_header.resize(header_size);
+        // TODO: pass the byte size instead of a function read and read at once,
+        //       and do read in LE when is greter than 1, basically if version 3
         for (int i = 0; i < header_size; i++)
         {
             m_header[i] = read();
