@@ -129,3 +129,96 @@ int main(int argc, char** argv)
 
     return RUN_ALL_TESTS();
 }
+// -----------------------------------------------------------------------------
+// Additional ADL v3 tests (GoogleTest/GoogleMock)
+// These tests expand coverage for the LOREINTR.ADL fixture introduced in ADLv3,
+// focusing on bounds checking, exception behavior, and offset consistency.
+// -----------------------------------------------------------------------------
+namespace HyperSonicDrivers::files::westwood
+{
+    // Verify that every declared track/instrument offset lies within the data buffer.
+    TEST(ADLFile, ADLv3_OffsetsWithinBounds_AllEntries)
+    {
+        ADLFile f("../fixtures/LOREINTR.ADL");
+        const auto dataSize = f.getDataSize();
+
+        for (int idx = 0; idx < f.getNumTrackOffsets(); ++idx)
+        {
+            const auto off = f.getTrackOffset(idx);
+            EXPECT_LT(off, dataSize) << "track offset idx=" << idx;
+        }
+
+        for (int idx = 0; idx < f.getNumInstrumentOffsets(); ++idx)
+        {
+            const auto off = f.getInstrumentOffset(idx);
+            EXPECT_LT(off, dataSize) << "instrument offset idx=" << idx;
+        }
+    }
+
+    // Validate exception behavior on out-of-range indices for v3.
+    TEST(ADLFile, ADLv3_InvalidIndicesThrow)
+    {
+        ADLFile f("../fixtures/LOREINTR.ADL");
+
+        // Index equal to size should be invalid for all tables.
+        EXPECT_THROW(f.getTrack(f.getNumTracks()), std::out_of_range);
+        EXPECT_THROW(f.getTrackOffset(f.getNumTrackOffsets()), std::out_of_range);
+        EXPECT_THROW(f.getInstrumentOffset(f.getNumInstrumentOffsets()), std::out_of_range);
+    }
+
+    // Track table entries should either be a valid index into the offset tables or the 0xFF sentinel.
+    // For valid entries, program offsets must resolve to the corresponding offsets.
+    TEST(ADLFile, ADLv3_TrackTableIndicesOrSentinel)
+    {
+        ADLFile f("../fixtures/LOREINTR.ADL");
+
+        // Probe a spread of entries (covers early, mid, and later indices).
+        const int probes[] = {0, 1, 2, 5, 10, 20, 50, 100, 200};
+        for (int probe : probes)
+        {
+            if (probe >= f.getNumTracks())
+                break;
+
+            const int trackIndex = f.getTrack(probe);
+            if (trackIndex != 0xFF)
+            {
+                EXPECT_LT(trackIndex, f.getNumTrackOffsets())
+                    << "trackIndex " << trackIndex << " not < numTrackOffsets";
+
+                EXPECT_EQ(
+                    f.getProgramOffset(trackIndex, ADLFile::PROG_TYPE::Track),
+                    f.getTrackOffset(trackIndex)
+                );
+                EXPECT_EQ(
+                    f.getProgramOffset(trackIndex, ADLFile::PROG_TYPE::Instrument),
+                    f.getInstrumentOffset(trackIndex)
+                );
+            }
+            else
+            {
+                // Sentinel entries are allowed; presence itself is acceptable.
+                SUCCEED();
+            }
+        }
+    }
+
+    // Parent buffer size should not be smaller than the data section size.
+    TEST(ADLFile, ADLv3_ParentSizeAtLeastDataSize)
+    {
+        ADLFileMock f("../fixtures/LOREINTR.ADL");
+        EXPECT_GE(f.parentSize(), f.getDataSize());
+    }
+
+    // The first track is used elsewhere; ensure it's not a sentinel and the first byte
+    // at the resolved track offset looks like a valid channel nibble (0..15).
+    TEST(ADLFile, ADLv3_FirstTrackNotSentinelAndChannelNibbleRange)
+    {
+        ADLFile f("../fixtures/LOREINTR.ADL");
+        const auto t0 = f.getTrack(0);
+        ASSERT_NE(t0, 0xFF) << "First track must not be sentinel for this validation";
+
+        const auto off0 = f.getTrackOffset(t0);
+        const unsigned char first = static_cast<unsigned char>(f.getData()[off0]);
+        EXPECT_LE(static_cast<int>(first), 15) << "First data byte expected within 0..15";
+    }
+}
