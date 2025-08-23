@@ -37,9 +37,9 @@ namespace HyperSonicDrivers::files::westwood
 
         uint8_t getVersion() const noexcept;
 
-        int getNumTracks() const noexcept;
-        int getNumTrackOffsets() const noexcept;
-        int getNumInstrumentOffsets() const noexcept;
+        uint16_t getNumTracks() const noexcept;
+        int      getNumTrackOffsets() const noexcept;
+        int      getNumInstrumentOffsets() const noexcept;
 
         uint8_t getTrack(const int track) const;
         uint16_t getTrackOffset(const int programId) const;
@@ -62,7 +62,7 @@ namespace HyperSonicDrivers::files::westwood
         void readOffsetsFromFile_(const int num_offsets, std::vector<uint16_t>& vec, const int offset_start) const noexcept;
         void readDataFromFile_(const int data_offsets, const int data_heder_size);
 
-        std::vector<uint8_t> m_header; // TODO: This is wrong for v3 as it is uint16_t instead!
+        std::vector<uint16_t> m_header;
         std::vector<uint16_t> m_track_offsets;
         std::vector<uint16_t> m_instrument_offsets;
         std::shared_ptr<uint8_t[]> m_data;
@@ -72,7 +72,7 @@ namespace HyperSonicDrivers::files::westwood
         template<typename T>
         int count_loop_(const int num_offs, const std::vector<T>& vec);
         void adjust_offsets_(std::vector<uint16_t>& vec);
-        int m_num_tracks = -1;
+        uint16_t m_num_tracks = 0;
         int m_num_track_offsets = -1;
         int m_num_instrument_offsets = -1;
     };

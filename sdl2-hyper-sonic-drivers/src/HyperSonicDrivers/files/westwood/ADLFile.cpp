@@ -159,7 +159,7 @@ namespace HyperSonicDrivers::files::westwood
      *
      * @return int Number of tracks (subsongs).
      */
-    int ADLFile::getNumTracks() const noexcept
+    uint16_t ADLFile::getNumTracks() const noexcept
     {
         return m_num_tracks;
     }
@@ -316,12 +316,8 @@ namespace HyperSonicDrivers::files::westwood
     void ADLFile::readHeaderFromFile_(const int header_size, std::function<uint16_t()> read)
     {
         m_header.resize(header_size);
-        // TODO: pass the byte size instead of a function read and read at once,
-        //       and do read in LE when is greater than 1, basically if version 3
         for (int i = 0; i < header_size; i++)
-        {
             m_header[i] = read();
-        }
 
         assertValid_(m_header.size() == header_size);
     }
