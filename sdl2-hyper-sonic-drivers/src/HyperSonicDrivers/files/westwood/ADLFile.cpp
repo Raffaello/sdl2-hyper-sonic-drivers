@@ -174,32 +174,32 @@ namespace HyperSonicDrivers::files::westwood
      *
      * @return int Number of track/program offsets.
      */
-    int ADLFile::getNumTrackOffsets() const noexcept
+    uint16_t ADLFile::getNumTrackOffsets() const noexcept
     {
         return m_num_track_offsets;
     }
 
-    int ADLFile::getNumInstrumentOffsets() const noexcept
+    uint16_t ADLFile::getNumInstrumentOffsets() const noexcept
     {
         return m_num_instrument_offsets;
     }
 
-    uint8_t ADLFile::getTrack(const int track) const
+    uint16_t ADLFile::getTrack(const uint16_t track) const
     {
         return m_header.at(track);
     }
 
-    uint16_t ADLFile::getTrackOffset(const int programId) const
+    uint16_t ADLFile::getTrackOffset(const uint16_t programId) const
     {
         return m_track_offsets.at(programId);
     }
 
-    uint16_t ADLFile::getInstrumentOffset(const int instrument) const
+    uint16_t ADLFile::getInstrumentOffset(const uint16_t instrument) const
     {
         return m_instrument_offsets.at(instrument);
     }
 
-    uint16_t ADLFile::getProgramOffset(const int progId, const PROG_TYPE prog_type) const
+    uint16_t ADLFile::getProgramOffset(const uint16_t progId, const PROG_TYPE prog_type) const
     {
         switch (prog_type)
         {

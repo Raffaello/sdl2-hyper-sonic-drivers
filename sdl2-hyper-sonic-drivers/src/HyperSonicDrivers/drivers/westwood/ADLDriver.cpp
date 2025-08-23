@@ -82,7 +82,7 @@ namespace HyperSonicDrivers::drivers::westwood
         resetAdLibState_();
     }
 
-    void ADLDriver::startSound_(const uint8_t track, const uint8_t volume)
+    void ADLDriver::startSound_(const uint16_t track, const uint8_t volume)
     {
         uint8_t* trackData = getProgram_(track);
         if (trackData == nullptr) {
@@ -231,7 +231,7 @@ namespace HyperSonicDrivers::drivers::westwood
         }
     }
 
-    void ADLDriver::play(const uint8_t track) noexcept
+    void ADLDriver::play(const uint16_t track) noexcept
     {
         std::scoped_lock lock(m_mutex);
         

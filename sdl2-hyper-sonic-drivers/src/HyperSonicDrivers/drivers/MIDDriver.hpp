@@ -37,7 +37,7 @@ namespace HyperSonicDrivers::drivers
         // this restore the default MidiDriver (scummvm::MidiAdlib, MT32)
         bool resetBankOP2() noexcept;
 
-        void play(const uint8_t track = 0) noexcept override;
+        void play(const uint16_t track = 0) noexcept override;
         void stop() noexcept override;
 
         void pause() noexcept;

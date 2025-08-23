@@ -163,7 +163,7 @@ namespace HyperSonicDrivers::drivers
     //    m_isPlaying = true;
     //}
 
-    void MIDDriver::play(const uint8_t track) noexcept
+    void MIDDriver::play(const uint16_t track) noexcept
     {
         if (m_midi == nullptr)
             return;

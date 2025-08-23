@@ -53,13 +53,13 @@ namespace HyperSonicDrivers::drivers::westwood
         void setOplMusicVolume(const uint8_t volume);
         void setOplSfxVolume(const uint8_t volume);
 
-        void play(const uint8_t track) noexcept override;
+        void play(const uint16_t track) noexcept override;
         void stop() noexcept override;
 
         bool isPlaying() const noexcept override;
     private:
         void initDriver_();
-        void startSound_(const uint8_t track, const uint8_t volume);
+        void startSound_(const uint16_t track, const uint8_t volume);
 
         std::shared_ptr<files::westwood::ADLFile> m_adl_file = nullptr;
 

@@ -22,7 +22,7 @@ namespace HyperSonicDrivers::drivers
         explicit IAudioDriver(const std::shared_ptr<devices::IDevice>& device);
         virtual ~IAudioDriver() = default;
 
-        virtual void play(const uint8_t track) noexcept = 0;
+        virtual void play(const uint16_t track) noexcept = 0;
         virtual void stop() noexcept = 0;
 
         // TODO: it might not be required

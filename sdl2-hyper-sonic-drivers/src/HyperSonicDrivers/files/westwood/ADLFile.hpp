@@ -38,13 +38,13 @@ namespace HyperSonicDrivers::files::westwood
         uint8_t getVersion() const noexcept;
 
         uint16_t getNumTracks() const noexcept;
-        int      getNumTrackOffsets() const noexcept;
-        int      getNumInstrumentOffsets() const noexcept;
+        uint16_t getNumTrackOffsets() const noexcept;
+        uint16_t getNumInstrumentOffsets() const noexcept;
 
-        uint8_t getTrack(const int track) const;
-        uint16_t getTrackOffset(const int programId) const;
-        uint16_t getInstrumentOffset(const int instrument) const;
-        uint16_t getProgramOffset(const int progId, const PROG_TYPE prog_type) const;
+        uint16_t getTrack(const uint16_t track) const;
+        uint16_t getTrackOffset(const uint16_t programId) const;
+        uint16_t getInstrumentOffset(const uint16_t instrument) const;
+        uint16_t getProgramOffset(const uint16_t progId, const PROG_TYPE prog_type) const;
 
         uint32_t getDataSize() const noexcept;
         std::shared_ptr<uint8_t[]> getData() const noexcept;
