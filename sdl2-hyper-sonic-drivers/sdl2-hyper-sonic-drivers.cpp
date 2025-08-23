@@ -1,8 +1,10 @@
 ﻿// sdl2-hyper-sonic-drivers.cpp : Defines the entry point for the application.
-// TODO: delete this file and its target, this is kinda scratch pad
+// TODO: delete this file and its target, this is kind of scratch pad
 
 #include <iostream>
 #include <memory>
+#include <format>
+#include <filesystem>
 
 #include <SDL2/SDL.h>
 
@@ -131,7 +133,7 @@ int pcspkr(const int freq, const uint16_t audio, const int channels,const int ch
     
 
     // TODO try with channels.
-    Mix_Hook(pcSpeaker.callback, &pcSpeaker);
+    Mix_HookMusic(pcSpeaker.callback, &pcSpeaker);
     
     cout << "SQUARE" << endl;
     playNotes(&pcSpeaker, PCSpeaker::eWaveForm::SQUARE, 440, 300);
@@ -412,6 +414,8 @@ void adldune2filestest()
     }
 QUIT:
     SDL_DestroyWindow(window);
+    SDL_QuitSubSystem(SDL_INIT_VIDEO);
+    SDL_QuitSubSystem(SDL_INIT_EVENTS);
 }
 
 void vocdune2filestest()

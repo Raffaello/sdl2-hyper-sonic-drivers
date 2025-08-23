@@ -12,6 +12,7 @@
 #include <spdlog/spdlog.h>
 #include <fmt/color.h>
 
+
 #include <SDL2/SDL.h>
 
 #include <memory>
@@ -52,7 +53,7 @@ void adl_play(const OplEmulator emu, const OplType type, std::shared_ptr<audio::
 
     }
 
-    uint8_t track = 5; // starting from 2
+    uint8_t track = 0;
 
     ADLDriver adlDrv(device, audio::mixer::eChannelGroup::Music);
     adlDrv.setADLFile(adlFile);
@@ -67,13 +68,18 @@ void adl_play(const OplEmulator emu, const OplType type, std::shared_ptr<audio::
         if (!adlDrv.isPlaying())
         {
             adlDrv.play(track);
-            ILogger::instance->info(std::format("Playing track: {}/{}", static_cast<int>(track), adlFile->getNumTracks()), ILogger::eCategory::Application);
+            ILogger::instance->info(fmt::format("Playing track: {}/{}", static_cast<int>(track), adlFile->getNumTracks()), ILogger::eCategory::Application);
         }
         //delayMillis(1000);
         SDL_Event e;
-        while (SDL_PollEvent(&e))
+        while (SDL_WaitEventTimeout(&e, 100))
         {
-            if (e.type == SDL_KEYDOWN)
+            if (e.type == SDL_QUIT)
+            {
+                adlDrv.stopAllChannels();
+                return;
+            }
+            else if (e.type == SDL_KEYDOWN)
             {
                 switch (e.key.keysym.sym)
                 {
@@ -98,6 +104,8 @@ void adl_play(const OplEmulator emu, const OplType type, std::shared_ptr<audio::
                         track--;
                     else
                         track = adlFile->getNumTracks() - 1;
+
+                    break;
                 }
                 }
             }
@@ -108,10 +116,10 @@ void adl_play(const OplEmulator emu, const OplType type, std::shared_ptr<audio::
 
 int main(int argc, char* argv[])
 {
-    if (SDL_Init(SDL_INIT_VIDEO) != 0)
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) != 0)
         return -1;
 
-    auto pWin = SDL_CreateWindow("", 0, 0, 100, 100, 0);
+    auto pWin = SDL_CreateWindow("for Keyboard Input...", 0, 0, 320, 200, 0);
     if (!pWin)
     {
         SDL_Quit();
@@ -123,6 +131,8 @@ int main(int argc, char* argv[])
     if (!mixer->init())
     {
         spdlog::error("can't init mixer");
+        SDL_DestroyWindow(pWin);
+        SDL_Quit();
         return 1;
     }
 

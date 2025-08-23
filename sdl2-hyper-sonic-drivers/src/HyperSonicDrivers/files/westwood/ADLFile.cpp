@@ -111,15 +111,6 @@ namespace HyperSonicDrivers::files::westwood
 
         readDataFromFile_(m_meta_version.data_offset, m_meta_version.data_header_size);
 
-        // TODO: m_header is wrong for v3s
-        /*for (int i = m_meta_version.num_headers - 1; i >= 0; --i)
-        {
-            if (m_header[i] < m_meta_version.num_track_offsets)
-            {
-                m_num_tracks = i;
-                break;
-            }
-        }*/
         m_num_tracks = m_meta_version.num_headers;
         m_num_track_offsets = count_loop_<uint16_t>(m_meta_version.offset_start, m_track_offsets);
         m_num_instrument_offsets = count_loop_<uint16_t>(m_meta_version.offset_start, m_instrument_offsets);
@@ -140,19 +131,6 @@ namespace HyperSonicDrivers::files::westwood
     int ADLFile::getNumTracks() const noexcept
     {
         return m_num_tracks;
-
-        // find last subsong
-        //int numSubSongs = 0;
-        /*for (int i = m_meta_version.num_headers - 1; i >= 0; --i)
-        {
-            if (m_header[i] < m_meta_version.num_track_offsets)
-            {
-                numSubSongs = i;
-                break;
-            }
-        }*/
-
-        //return numSubSongs;
     }
 
     int ADLFile::getNumTrackOffsets() const noexcept
@@ -285,7 +263,7 @@ namespace HyperSonicDrivers::files::westwood
     {
         m_header.resize(header_size);
         // TODO: pass the byte size instead of a function read and read at once,
-        //       and do read in LE when is greter than 1, basically if version 3
+        //       and do read in LE when is greater than 1, basically if version 3
         for (int i = 0; i < header_size; i++)
         {
             m_header[i] = read();
@@ -304,14 +282,14 @@ namespace HyperSonicDrivers::files::westwood
         assertValid_(vec.size() == num_offsets);
     }
 
-    void ADLFile::readDataFromFile_(const int data_offsets, const int data_heder_size)
+    void ADLFile::readDataFromFile_(const int data_offsets, const int data_header_size)
     {
         m_dataSize = size() - data_offsets;
         assertValid_(m_dataSize > 0);
         assertValid_(tell() == data_offsets);
         m_data.reset(new uint8_t[m_dataSize]);
         read(m_data.get(), m_dataSize);
-        m_dataHeaderSize = data_heder_size;
+        m_dataHeaderSize = data_header_size;
     }
 
     void ADLFile::adjust_offsets_(std::vector<uint16_t>& vec)
