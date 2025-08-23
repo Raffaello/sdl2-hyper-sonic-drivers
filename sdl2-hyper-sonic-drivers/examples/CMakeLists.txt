@@ -88,6 +88,18 @@ macro_example(
 )
 
 macro_example(
+    EXE ADLPlay
+    FILE "adl-play.cpp"
+    DEPS hyper-sonic-drivers-static
+    LINKS ${LIB_SDL2main} hyper-sonic-drivers-static spdlog::spdlog SDL2::SDL2
+    FIXTURES 
+      "../test/fixtures/DUNE0.ADL"
+      #"../test/fixtures/EOBSOUND.ADL"
+      #"../test/fixtures/LOREINTR.ADL"
+    NONE
+)
+
+macro_example(
     EXE PCMExample
     FILE "pcm-example.cpp"
     DEPS hyper-sonic-drivers-static
