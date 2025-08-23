@@ -1,4 +1,4 @@
-﻿// sdl2-hyper-sonic-drivers.cpp : Defines the entry point for the application.
+// sdl2-hyper-sonic-drivers.cpp : Defines the entry point for the application.
 // TODO: delete this file and its target, this is kinda scratch pad
 
 #include <iostream>
@@ -336,6 +336,16 @@ void testMT32()
 }
 
 
+/**
+ * @brief Load a WAV fixture, append it to itself, and play the result to completion.
+ *
+ * Initializes an SDL2 mixer, loads "test/fixtures/test_renderer_adlib_mame2.wav" into two sound
+ * objects, concatenates them into a single PCM sound, and plays that combined sound via a
+ * PCMDriver. The function blocks, polling until playback finishes.
+ *
+ * @note This function is a test utility: it uses a hard-coded test fixture path and performs
+ * synchronous waiting while playback is active.
+ */
 void pcm_sound_append()
 {
     auto mixer = audio::make_mixer<audio::sdl2::Mixer>(8, 44100, 1024);
@@ -356,6 +366,24 @@ void pcm_sound_append()
     }
 }
 
+/**
+ * @brief Test harness that plays Westwood ADL music tracks through an Adlib/OPL driver using SDL2.
+ *
+ * This routine initializes an SDL2-backed audio mixer and an Adlib/OPL device, loads a Westwood
+ * ADL file (fixed to "adl/KYRA1A.ADL"), and uses drivers::westwood::ADLDriver to play each
+ * track (tracks are iterated from index 1 to getNumTracks()-1). Each track is played up to three
+ * times. The function creates a small SDL window and pumps SDL events while waiting for playback
+ * to finish; pressing Escape or receiving SDL_QUIT will abort the test, and pressing Return stops
+ * the current track. After completing playback or aborting, the SDL window is destroyed.
+ *
+ * Side effects:
+ * - Initializes SDL event and video subsystems and creates an SDL window.
+ * - Initializes audio mixer and constructs Adlib/OPL device and ADL driver.
+ * - Blocks while tracks are playing (polls events and sleeps).
+ *
+ * Notes:
+ * - File name and iteration counts are hard-coded for this test harness.
+ */
 void adldune2filestest()
 {
     auto mixer = audio::make_mixer<audio::sdl2::Mixer>(8, 44100, 1024);
@@ -414,6 +442,18 @@ QUIT:
     SDL_DestroyWindow(window);
 }
 
+/**
+ * @brief Plays VOC files through an Adlib/OPL-backed PCM driver using SDL for event handling.
+ *
+ * Initializes an SDL-backed audio mixer and Adlib/OPL device, scans the local "voc/" directory,
+ * and plays each VOC file's PCM sound multiple times. While a sound is playing the function
+ * processes SDL events so the user can quit (window close or Escape) or stop the current playback
+ * early (Enter). A small SDL window is created for event delivery and destroyed on exit.
+ *
+ * This is a test/harness routine with side effects: it initializes SDL subsystems, creates an
+ * audio mixer and device, opens a window, iterates the filesystem, and drives playback via a
+ * PCMDriver. It does not return any value.
+ */
 void vocdune2filestest()
 {
     auto mixer = audio::make_mixer<audio::sdl2::Mixer>(8, 44100, 1024);
@@ -466,6 +506,19 @@ QUIT:
     SDL_DestroyWindow(window);
 }
 
+/**
+ * @brief Program entry point that runs selected test routines.
+ *
+ * The main function serves as the test harness entry. It dispatches to various
+ * SDL2/HyperSonicDrivers test routines; currently it invokes adldune2filestest()
+ * and then returns immediately. The function performs global initialization
+ * and teardown only for the test routines it calls (handled by those routines).
+ *
+ * Note: many test calls are present but commented out; uncommenting changes the
+ * executed test sequence.
+ *
+ * @return int Process exit code (0 on normal completion).
+ */
 int main(int argc, char* argv[])
 {
     //newMixerTest();
