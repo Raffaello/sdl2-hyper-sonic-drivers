@@ -74,6 +74,14 @@ namespace HyperSonicDrivers::files::westwood
         EXPECT_EQ(chan, 9);
     }
 
+    /**
+     * @brief Tests ADLFile parsing for a version 3 ADL fixture (LOREINTR.ADL).
+     *
+     * Verifies that the file is recognized as version 3, reports the expected
+     * counts (tracks, track offsets, instrument offsets) and data size, and that
+     * program offsets for a track resolve to the corresponding track and
+     * instrument offsets. Also checks that the first track's data byte equals 9.
+     */
     TEST(ADLFile, ADLv3)
     {
         ADLFile f("../fixtures/LOREINTR.ADL");

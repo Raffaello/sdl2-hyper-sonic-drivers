@@ -91,6 +91,27 @@ namespace HyperSonicDrivers::files::westwood
         V3_DATA_HEADER_SIZE
     };
 
+    /**
+     * @brief Construct an ADLFile by loading and parsing a Westwood ADL file from disk.
+     *
+     * Reads the file header, track offsets, instrument offsets and raw data payload
+     * according to the detected ADL version (V1/V2/V3), validates sizes, computes
+     * counts for tracks/offsets, then closes the file and converts absolute offsets
+     * into data-relative offsets (using 0xFFFF as the sentinel for invalid entries).
+     *
+     * The constructor:
+     * - validates the file meets the minimum size for an ADL file,
+     * - determines the on-disk ADL version and associated metadata,
+     * - reads version-appropriate header entries,
+     * - reads track and instrument offset tables,
+     * - reads the raw data payload and stores its size/header size,
+     * - sets m_num_tracks from the version metadata and computes the number of
+     *   valid track/instrument offsets,
+     * - closes the underlying file handle,
+     * - adjusts offsets to be relative to the in-memory data payload (and maps 0 -> 0xFFFF).
+     *
+     * @param filename Path to the ADL file to open and parse.
+     */
     ADLFile::ADLFile(const std::string& filename) : File(filename)
     {
         assertValid_(size() >= FILE_SIZE_MIN);
@@ -128,11 +149,31 @@ namespace HyperSonicDrivers::files::westwood
         return m_version;
     }
 
+    /**
+     * @brief Return the number of tracks (subsongs) in the ADL file.
+     *
+     * The value is the internally stored track count determined at file load
+     * from the version-specific metadata. For some V3 files the in-memory
+     * header is known to be incorrect, so this returned count reflects the
+     * metadata-derived value rather than any inferred count from the header.
+     *
+     * @return int Number of tracks (subsongs).
+     */
     int ADLFile::getNumTracks() const noexcept
     {
         return m_num_tracks;
     }
 
+    /**
+     * @brief Return the number of program (track) offsets present in the ADL file.
+     *
+     * This value is determined during construction from the file's version-specific
+     * metadata and offset tables. It represents how many valid track/program
+     * offset entries are available (sentinel/invalid entries are counted according
+     * to the parsed offset table).
+     *
+     * @return int Number of track/program offsets.
+     */
     int ADLFile::getNumTrackOffsets() const noexcept
     {
         return m_num_track_offsets;
@@ -259,6 +300,19 @@ namespace HyperSonicDrivers::files::westwood
         }
     }
 
+    /**
+     * @brief Read and populate the in-memory header table from the open file.
+     *
+     * Resizes ADLFile::m_header to header_size and fills it by invoking the supplied
+     * read callback header_size times. The read callback is expected to return the
+     * next header entry (as a 16-bit value) each time it is called. After reading,
+     * the method validates that the header vector length matches header_size.
+     *
+     * @param header_size Number of header entries to read and store into m_header.
+     * @param read A zero-argument callable that returns the next header entry as uint16_t.
+     *             The caller is responsible for using the correct byte-width and endianness
+     *             for the target ADL version.
+     */
     void ADLFile::readHeaderFromFile_(const int header_size, std::function<uint16_t()> read)
     {
         m_header.resize(header_size);

@@ -30,6 +30,32 @@ using files::westwood::ADLFile;
 using drivers::westwood::ADLDriver;
 
 
+/**
+ * @brief Play an ADL file using a chosen OPL emulator/type until the user exits.
+ *
+ * Plays the given ADL file through an OPL device constructed from the specified
+ * emulator and OPL type. The function creates an ADLDriver bound to the
+ * Music channel group and enters an SDL event-driven loop that starts playback
+ * (initial track index is 5) and responds to key presses to control playback.
+ *
+ * Behavior:
+ * - Selects an OPL device based on `type`:
+ *   - OPL2     -> Adlib + Opl
+ *   - DUAL_OPL2-> SbPro  + Opl
+ *   - OPL3     -> SbPro2 + Opl
+ * - If the provided mixer is not ready, logs an error and returns immediately.
+ * - Starts playing the current track when not already playing.
+ * - Key controls (during playback):
+ *   - ESC: stop all channels and return (exit function)
+ *   - RIGHT: stop channels and advance to the next track (wraps to 0)
+ *   - LEFT: stop channels and go to the previous track (wraps to last)
+ *
+ * This function blocks until ESC is pressed.
+ *
+ * @param emu  OPL emulator selection used when constructing the device.
+ * @param type OPL hardware type used to choose the concrete device implementation.
+ * @param filename Path to the ADL file to load and play.
+ */
 void adl_play(const OplEmulator emu, const OplType type, std::shared_ptr<audio::IMixer> mixer, const std::string& filename)
 {
     using devices::make_device;
@@ -114,6 +140,20 @@ void adl_play(const OplEmulator emu, const OplType type, std::shared_ptr<audio::
     } while (true);
 }
 
+/**
+ * @brief Program entry point for the ADL playback demo using SDL2 and OPL emulation.
+ *
+ * Initializes SDL video, creates a minimal SDL window, and starts an SDL-based audio mixer.
+ * Iterates over configured OPL emulator and OPL type combinations, prints a colored header
+ * for each pair, and invokes adl_play to run the ADL playback demo for "DUNE0.ADL".
+ * Cleans up SDL resources before exiting.
+ *
+ * Return codes:
+ *  -  0 : Normal exit after running demos and cleanup.
+ *  -  1 : Mixer initialization failed.
+ *  - -1 : SDL video initialization failed.
+ *  - -2 : SDL window creation failed.
+ */
 int main(int argc, char* argv[])
 {
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) != 0)
