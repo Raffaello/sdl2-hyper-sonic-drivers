@@ -52,7 +52,7 @@ void adl_play(const OplEmulator emu, const OplType type, std::shared_ptr<audio::
 
     }
 
-    uint8_t track = 3; // starting from 2
+    uint8_t track = 5; // starting from 2
 
     ADLDriver adlDrv(device, audio::mixer::eChannelGroup::Music);
     adlDrv.setADLFile(adlFile);
@@ -66,7 +66,7 @@ void adl_play(const OplEmulator emu, const OplType type, std::shared_ptr<audio::
     {
         if (!adlDrv.isPlaying())
         {
-            adlDrv.play(++track);
+            adlDrv.play(track);
             ILogger::instance->info(std::format("Playing track: {}/{}", static_cast<int>(track), adlFile->getNumTracks()), ILogger::eCategory::Application);
         }
         //delayMillis(1000);
@@ -79,12 +79,12 @@ void adl_play(const OplEmulator emu, const OplType type, std::shared_ptr<audio::
                 {
                 case SDLK_ESCAPE:
                 {
-                    adlDrv.stop();
+                    adlDrv.stopAllChannels();
                     return;
                 }
                 case SDLK_RIGHT:
                 {
-                    adlDrv.stop();
+                    adlDrv.stopAllChannels();
                     track++;
                     if (track >= adlFile->getNumTracks())
                         track = 0;
@@ -93,7 +93,7 @@ void adl_play(const OplEmulator emu, const OplType type, std::shared_ptr<audio::
                 }
                 case SDLK_LEFT:
                 {
-                    adlDrv.stop();
+                    adlDrv.stopAllChannels();
                     if (track > 0)
                         track--;
                     else
@@ -108,8 +108,16 @@ void adl_play(const OplEmulator emu, const OplType type, std::shared_ptr<audio::
 
 int main(int argc, char* argv[])
 {
-    //if (SDL_Init(SDL_INIT_AUDIO | SDL_INIT_EVENTS | SDL_INIT_VIDEO) != 0)
-        //return -1;
+    if (SDL_Init(SDL_INIT_VIDEO) != 0)
+        return -1;
+
+    auto pWin = SDL_CreateWindow("", 0, 0, 100, 100, 0);
+    if (!pWin)
+    {
+        SDL_Quit();
+        return -2;
+    }
+
 
     auto mixer = audio::make_mixer<audio::sdl2::Mixer>(8, 44100, 1024);
     if (!mixer->init())
@@ -160,6 +168,7 @@ int main(int argc, char* argv[])
         }
     }
 
-    //SDL_Quit();
+    SDL_DestroyWindow(pWin);
+    SDL_Quit();
     return 0;
 }

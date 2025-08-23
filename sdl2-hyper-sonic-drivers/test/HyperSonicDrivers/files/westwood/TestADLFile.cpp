@@ -20,7 +20,7 @@ namespace HyperSonicDrivers::files::westwood
     {
         ADLFile f("../fixtures/EOBSOUND.ADL");
         EXPECT_EQ(f.getVersion(), 1);
-        EXPECT_EQ(f.getNumTracks(), 15);
+        EXPECT_EQ(f.getNumTracks(), 120);
         EXPECT_EQ(f.getNumTrackOffsets(), 42);
         EXPECT_EQ(f.getNumInstrumentOffsets(), 40);
         EXPECT_EQ(f.getDataSize(), 13019 - 600);
@@ -33,7 +33,7 @@ namespace HyperSonicDrivers::files::westwood
     {
         ADLFileMock f("../fixtures/DUNE19.ADL");
         EXPECT_EQ(f.getVersion(), 2);
-        EXPECT_EQ(f.getNumTracks(), 49);
+        EXPECT_EQ(f.getNumTracks(), 120);
         EXPECT_EQ(f.getNumTrackOffsets(), 72);
         EXPECT_EQ(f.getNumInstrumentOffsets(), 71);
         EXPECT_EQ(f.parentSize(), 7257);
@@ -56,7 +56,7 @@ namespace HyperSonicDrivers::files::westwood
         ADLFileMock f("../fixtures/DUNE0.ADL");
 
         EXPECT_EQ(f.getVersion(), 2);
-        EXPECT_EQ(f.getNumTracks(), 200);
+        EXPECT_EQ(f.getNumTracks(), 120);
         EXPECT_EQ(f.getNumTrackOffsets(), 52);
         EXPECT_EQ(f.getNumInstrumentOffsets(), 63);
         EXPECT_EQ(f.parentSize(), 14473);
@@ -78,7 +78,7 @@ namespace HyperSonicDrivers::files::westwood
     {
         ADLFile f("../fixtures/LOREINTR.ADL");
         EXPECT_EQ(f.getVersion(), 3);
-        EXPECT_EQ(f.getNumTracks(), 30);
+        EXPECT_EQ(f.getNumTracks(), 250);
         EXPECT_EQ(f.getNumTrackOffsets(), 58);
         EXPECT_EQ(f.getNumInstrumentOffsets(), 71);
         EXPECT_EQ(f.getDataSize(), 13812 - 2000);

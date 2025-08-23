@@ -62,7 +62,7 @@ namespace HyperSonicDrivers::files::westwood
         void readOffsetsFromFile_(const int num_offsets, std::vector<uint16_t>& vec, const int offset_start) const noexcept;
         void readDataFromFile_(const int data_offsets, const int data_heder_size);
 
-        std::vector<uint8_t> m_header;
+        std::vector<uint8_t> m_header; // TODO: This is wrong for v3 as it is uint16_t instead!
         std::vector<uint16_t> m_track_offsets;
         std::vector<uint16_t> m_instrument_offsets;
         std::shared_ptr<uint8_t[]> m_data;

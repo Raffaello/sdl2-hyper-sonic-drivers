@@ -111,8 +111,16 @@ namespace HyperSonicDrivers::files::westwood
 
         readDataFromFile_(m_meta_version.data_offset, m_meta_version.data_header_size);
 
-        // TODO: count_loop_ for version 3 is wrong to be 8 bit i think
-        m_num_tracks = count_loop_<uint8_t>(0, m_header);
+        // TODO: m_header is wrong for v3s
+        /*for (int i = m_meta_version.num_headers - 1; i >= 0; --i)
+        {
+            if (m_header[i] < m_meta_version.num_track_offsets)
+            {
+                m_num_tracks = i;
+                break;
+            }
+        }*/
+        m_num_tracks = m_meta_version.num_headers;
         m_num_track_offsets = count_loop_<uint16_t>(m_meta_version.offset_start, m_track_offsets);
         m_num_instrument_offsets = count_loop_<uint16_t>(m_meta_version.offset_start, m_instrument_offsets);
 
@@ -132,6 +140,19 @@ namespace HyperSonicDrivers::files::westwood
     int ADLFile::getNumTracks() const noexcept
     {
         return m_num_tracks;
+
+        // find last subsong
+        //int numSubSongs = 0;
+        /*for (int i = m_meta_version.num_headers - 1; i >= 0; --i)
+        {
+            if (m_header[i] < m_meta_version.num_track_offsets)
+            {
+                numSubSongs = i;
+                break;
+            }
+        }*/
+
+        //return numSubSongs;
     }
 
     int ADLFile::getNumTrackOffsets() const noexcept
