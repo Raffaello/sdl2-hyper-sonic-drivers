@@ -446,132 +446,57 @@ QUIT:
     SDL_QuitSubSystem(SDL_INIT_EVENTS);
 }
 
-/**
- * @brief Plays VOC files through an Adlib/OPL-backed PCM driver using SDL for event handling.
- *
- * Initializes an SDL-backed audio mixer and Adlib/OPL device, scans the local "voc/" directory,
- * and plays each VOC file's PCM sound multiple times. While a sound is playing the function
- * processes SDL events so the user can quit (window close or Escape) or stop the current playback
- * early (Enter). A small SDL window is created for event delivery and destroyed on exit.
- *
- * This is a test/harness routine with side effects: it initializes SDL subsystems, creates an
- * audio mixer and device, opens a window, iterates the filesystem, and drives playback via a
- * PCMDriver. It does not return any value.
- */
-void vocdune2filestest()
-{
-    auto mixer = audio::make_mixer<audio::sdl2::Mixer>(8, 44100, 1024);
-    mixer->init();
-
-void adldune2filestest()
-{
-    auto mixer = audio::make_mixer<audio::sdl2::Mixer>(8, 44100, 1024);
-    mixer->init();
-    //utils::ILogger::instance->setLevelAll(utils::ILogger::eLevel::Debug);
-    auto device = devices::make_device<devices::Adlib, devices::Opl>(mixer);
-    drivers::westwood::ADLDriver drv(device, audio::mixer::eChannelGroup::Music);
-    
-    SDL_InitSubSystem(SDL_INIT_EVENTS);
-    SDL_InitSubSystem(SDL_INIT_VIDEO);
-
-    auto window = SDL_CreateWindow("a", 0, 0, 320, 200, 0);
-    
-    for (int f = 0; f <= 0; f++)
-    {
-        //const std::string fn = "adl/DUNE" + std::to_string(f) + ".ADL";
-        const std::string fn = "adl/KYRA1A.ADL";
-        utils::ILogger::instance->info(std::format("opening file: {}", fn), utils::ILogger::eCategory::Application);
-        auto adlf = std::make_shared<files::westwood::ADLFile>(fn);
-        drv.setADLFile(adlf);
-        for (int i = 1; i < adlf->getNumTracks(); i++)
-        {
-            utils::ILogger::instance->info(std::format("playing track: {}", i), utils::ILogger::eCategory::Application);
-            for (int j = 0; j < 3; j++)
-            {
-                utils::ILogger::instance->info(std::format("times: {}", j), utils::ILogger::eCategory::Application);
-
-                drv.play(i);
-                while (drv.isPlaying())
-                {
-                    utils::delayMillis(200);
-                    SDL_Event e;
-                    while (SDL_PollEvent(&e))
-                        switch (e.type)
-                        {
-                        case SDL_QUIT:
-                            goto QUIT;
-                        case SDL_KEYDOWN:
-                            //case SDL_KEYUP:
-                            if (e.key.keysym.sym == SDLK_ESCAPE)
-                                goto QUIT;
-                            if (e.key.keysym.sym == SDLK_RETURN)
-                                drv.stop();
-                            break;
-
-                        default:
-                            std::cout << "event: " << e.type << std::endl;
-                        }
-                }
-            }
-            drv.stopAllChannels();
-            utils::delayMillis(1000);
-        }
-    }
-QUIT:
-    SDL_DestroyWindow(window);
-}
-
-void vocdune2filestest()
-{
-    auto mixer = audio::make_mixer<audio::sdl2::Mixer>(8, 44100, 1024);
-    mixer->init();
-
-    auto device = devices::make_device<devices::Adlib, devices::Opl>(mixer);
-    drivers::PCMDriver drv(mixer);
-
-    SDL_InitSubSystem(SDL_INIT_EVENTS);
-    SDL_InitSubSystem(SDL_INIT_VIDEO);
-
-    auto window = SDL_CreateWindow("a", 0, 0, 320, 200, 0);
-
-    for (auto const& dir_entry : std::filesystem::directory_iterator{ "voc/" })
-    {
-        const std::string fn = dir_entry.path().string();
-        utils::ILogger::instance->info(std::format("opening file: {}", fn), utils::ILogger::eCategory::Application);
-        auto vocf = std::make_shared<files::VOCFile>(fn);
-
-        for (int j = 0; j < 10; j++)
-        {
-            utils::ILogger::instance->info(std::format("times: {}", j), utils::ILogger::eCategory::Application);
-
-            drv.play(vocf->getSound());
-            while (drv.isPlaying())
-            {
-                //utils::delayMillis(200);
-                SDL_Event e;
-                while (SDL_PollEvent(&e))
-                    switch (e.type)
-                    {
-                    case SDL_QUIT:
-                        goto QUIT;
-                    case SDL_KEYDOWN:
-                        //case SDL_KEYUP:
-                        if (e.key.keysym.sym == SDLK_ESCAPE)
-                            goto QUIT;
-                        if (e.key.keysym.sym == SDLK_RETURN)
-                            drv.stop();
-                        break;
-
-                    default:
-                        std::cout << "event: " << e.type << std::endl;
-                    }
-            }
-        }
-        utils::delayMillis(1000);
-    }
-QUIT:
-    SDL_DestroyWindow(window);
-}
+//void vocdune2filestest()
+//{
+//    auto mixer = audio::make_mixer<audio::sdl2::Mixer>(8, 44100, 1024);
+//    mixer->init();
+//
+//    auto device = devices::make_device<devices::Adlib, devices::Opl>(mixer);
+//    drivers::PCMDriver drv(mixer);
+//
+//    SDL_InitSubSystem(SDL_INIT_EVENTS);
+//    SDL_InitSubSystem(SDL_INIT_VIDEO);
+//
+//    auto window = SDL_CreateWindow("a", 0, 0, 320, 200, 0);
+//
+//    for (auto const& dir_entry : std::filesystem::directory_iterator{ "voc/" })
+//    {
+//        const std::string fn = dir_entry.path().string();
+//        utils::ILogger::instance->info(std::format("opening file: {}", fn), utils::ILogger::eCategory::Application);
+//        auto vocf = std::make_shared<files::VOCFile>(fn);
+//
+//        for (int j = 0; j < 10; j++)
+//        {
+//            utils::ILogger::instance->info(std::format("times: {}", j), utils::ILogger::eCategory::Application);
+//
+//            drv.play(vocf->getSound());
+//            while (drv.isPlaying())
+//            {
+//                //utils::delayMillis(200);
+//                SDL_Event e;
+//                while (SDL_PollEvent(&e))
+//                    switch (e.type)
+//                    {
+//                    case SDL_QUIT:
+//                        goto QUIT;
+//                    case SDL_KEYDOWN:
+//                        //case SDL_KEYUP:
+//                        if (e.key.keysym.sym == SDLK_ESCAPE)
+//                            goto QUIT;
+//                        if (e.key.keysym.sym == SDLK_RETURN)
+//                            drv.stop();
+//                        break;
+//
+//                    default:
+//                        std::cout << "event: " << e.type << std::endl;
+//                    }
+//            }
+//        }
+//        utils::delayMillis(1000);
+//    }
+//QUIT:
+//    SDL_DestroyWindow(window);
+//}
 
 /**
  * @brief Program entry point that runs selected test routines.
