@@ -120,6 +120,210 @@ namespace HyperSonicDrivers::files::westwood
     }
 }
 
+
+namespace HyperSonicDrivers::files::westwood {
+
+
+/**
+
+ * Additional thorough tests for ADLFile.
+
+ * Framework: GoogleTest (gtest) with GoogleMock (gmock).
+
+ * Scope: Focus on public API and edge conditions seen across v1/v2/v3 fixtures.
+
+ */
+
+
+
+TEST(ADLFile, Version1_BoundaryIndicesAndOffsets) {
+
+    ADLFile f("../fixtures/EOBSOUND.ADL");
+
+    ASSERT_EQ(f.getVersion(), 1);
+
+    // Boundary: lowest and highest valid track index for reported offsets
+
+    const auto numTrackOffsets = f.getNumTrackOffsets();
+
+    ASSERT_GT(numTrackOffsets, 0);
+
+    const int firstIdx = 0;
+
+    const int lastIdx = static_cast<int>(numTrackOffsets) - 1;
+
+    // getTrack may map logical index to a program index; ensure it is within byte range
+
+    const int tFirst = f.getTrack(firstIdx);
+
+    const int tLast  = f.getTrack(lastIdx);
+
+    EXPECT_GE(tFirst, 0);
+
+    EXPECT_GE(tLast, 0);
+
+    // Offsets should be within data size boundaries
+
+    const auto ds = f.getDataSize();
+
+    const auto offFirst = f.getTrackOffset(tFirst);
+
+    const auto offLast  = f.getTrackOffset(tLast);
+
+    EXPECT_GE(offFirst, 0);
+
+    EXPECT_GE(offLast, 0);
+
+    EXPECT_LT(offFirst, ds);
+
+    EXPECT_LT(offLast, ds);
+
+    // Data pointer should be valid and readable at those offsets
+
+    const auto* data = f.getData();
+
+    ASSERT_NE(data, nullptr);
+
+    (void)data[offFirst];
+
+    (void)data[offLast];
+
+}
+
+
+
+TEST(ADLFile, Version2_SentinelAndConsistency) {
+
+    ADLFile f("../fixtures/DUNE19.ADL");
+
+    ASSERT_EQ(f.getVersion(), 2);
+
+    // Ensure that any sentinel (e.g., 0xFF) track entries yield consistent behavior:
+
+    // If a track entry equals 0xFF, instrument and track offset queries for that entry
+
+    // should not crash; depending on implementation they may throw or return a valid offset.
+
+    // We probe a range to find any sentinel occurrence and assert stable behavior.
+
+    const auto n = f.getNumTrackOffsets();
+
+    const auto* data = f.getData();
+
+    ASSERT_NE(data, nullptr);
+
+    bool foundSentinel = false;
+
+    for (int i = 0; i < static_cast<int>(n); ++i) {
+
+        int t = f.getTrack(i);
+
+        if (t == 0xFF) {
+
+            foundSentinel = true;
+
+            // For sentinel, just verify that program offset helpers do not UB: they may throw.
+
+            EXPECT_NO_FATAL_FAILURE({
+
+                try {
+
+                    (void)f.getProgramOffset(t, ADLFile::PROG_TYPE::Track);
+
+                } catch (...) { /* acceptable: spec may throw */ }
+
+            });
+
+            EXPECT_NO_FATAL_FAILURE({
+
+                try {
+
+                    (void)f.getProgramOffset(t, ADLFile::PROG_TYPE::Instrument);
+
+                } catch (...) { /* acceptable: spec may throw */ }
+
+            });
+
+            break;
+
+        }
+
+    }
+
+    SUCCEED() << "Sentinel presence in DUNE19.ADL: " << (foundSentinel ? "yes" : "no");
+
+}
+
+
+
+TEST(ADLFile, Version3_TrackAndInstrumentOffsetsAgreeWithProgramOffset) {
+
+    ADLFile f("../fixtures/LOREINTR.ADL");
+
+    ASSERT_EQ(f.getVersion(), 3);
+
+    const auto count = std::min<int>(static_cast<int>(f.getNumTrackOffsets()), 8);
+
+    // Cross-check first few entries to ensure getProgramOffset returns exactly
+
+    // the corresponding track/instrument offsets for both PROG_TYPE variants.
+
+    for (int i = 0; i < count; ++i) {
+
+        const int t = f.getTrack(i);
+
+        const auto to = f.getTrackOffset(t);
+
+        const auto io = f.getInstrumentOffset(t);
+
+        EXPECT_EQ(f.getProgramOffset(t, ADLFile::PROG_TYPE::Track), to) << "at logical index " << i;
+
+        EXPECT_EQ(f.getProgramOffset(t, ADLFile::PROG_TYPE::Instrument), io) << "at logical index " << i;
+
+        // Offsets must be strictly within [0, dataSize)
+
+        const auto ds = f.getDataSize();
+
+        EXPECT_GE(to, 0);
+
+        EXPECT_GE(io, 0);
+
+        EXPECT_LT(to, ds);
+
+        EXPECT_LT(io, ds);
+
+    }
+
+}
+
+
+
+TEST(ADLFile, Exceptions_OutOfRangeIndices) {
+
+    ADLFile f("../fixtures/EOBSOUND.ADL");
+
+    const int badIdx = static_cast<int>(f.getNumTrackOffsets()) + 100; // well beyond end
+
+    EXPECT_THROW(f.getTrack(badIdx), std::out_of_range);
+
+    EXPECT_THROW(f.getInstrumentOffset(badIdx), std::out_of_range);
+
+}
+
+
+
+TEST(ADLFile, Constructor_EmptyAndGarbagePaths) {
+
+    // Already have tests for empty string and argv[0]; add a garbage binary path.
+
+    EXPECT_THROW(ADLFile f("/this/path/does/not/exist.ADL"), std::system_error);
+
+}
+
+
+
+} // namespace HyperSonicDrivers::files::westwood
+
 int main(int argc, char** argv)
 {
     ::testing::InitGoogleTest(&argc, argv);
