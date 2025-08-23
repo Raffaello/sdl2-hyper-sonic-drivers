@@ -4,6 +4,7 @@
 #include <limits>
 #include <bit>
 #include <memory>
+#include <cstring>
 #include <algorithm>
 #include <HyperSonicDrivers/audio/IAudioStream.hpp>
 #include <HyperSonicDrivers/audio/mixer/ChannelGroup.hpp>

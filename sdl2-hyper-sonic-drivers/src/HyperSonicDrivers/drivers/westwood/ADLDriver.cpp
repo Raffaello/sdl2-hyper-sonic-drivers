@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <functional>
 #include <format>
+#include <cstring>
 #include <cassert>
 #include <HyperSonicDrivers/drivers/westwood/ADLDriver.hpp>
 #include <HyperSonicDrivers/utils/algorithms.hpp>
@@ -31,7 +32,7 @@ namespace HyperSonicDrivers::drivers::westwood
         IAudioDriver(opl),
         m_opl(opl->getOpl())
     {
-        memset(m_channels.data(), 0, sizeof(m_channels));
+        std::memset(m_channels.data(), 0, sizeof(m_channels));
         hardware::TimerCallBack cb = std::bind(&ADLDriver::onCallback, this);
         auto p = std::make_shared<hardware::TimerCallBack>(cb);
 
@@ -557,7 +558,7 @@ namespace HyperSonicDrivers::drivers::westwood
         logD(std::format("initChannel({})", (long)(&channel - m_channels.data())));
 
         const int8_t backupEL2 = channel.opExtraLevel2;
-        memset(&channel, 0, sizeof(Channel));
+        std::memset(&channel, 0, sizeof(Channel));
 
         channel.opExtraLevel2 = backupEL2;
         channel.tempo = 0xFF;

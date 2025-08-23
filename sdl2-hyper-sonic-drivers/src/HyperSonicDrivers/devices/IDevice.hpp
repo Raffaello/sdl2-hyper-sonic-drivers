@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <atomic>
 #include <optional>
 #include <HyperSonicDrivers/audio/IMixer.hpp>
 #include <HyperSonicDrivers/drivers/midi/IMidiDriver.hpp>
