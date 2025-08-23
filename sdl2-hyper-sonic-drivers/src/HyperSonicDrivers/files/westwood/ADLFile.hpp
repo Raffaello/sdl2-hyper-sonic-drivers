@@ -16,7 +16,8 @@ namespace HyperSonicDrivers::files::westwood
     public:
         enum class PROG_TYPE
         {
-            Track, Instrument
+            Track,
+            Instrument
         };
 
         typedef struct meta_version_t
