@@ -322,7 +322,7 @@ namespace HyperSonicDrivers::files::westwood
         assertValid_(m_header.size() == header_size);
     }
 
-    void ADLFile::readOffsetsFromFile_(const int num_offsets, std::vector<uint16_t>& vec, const int offset_start) const noexcept
+    void ADLFile::readOffsetsFromFile_(const int num_offsets, std::vector<uint16_t>& vec, const int offset_start) const
     {
         assertValid_(tell() == offset_start);
         vec.resize(num_offsets);

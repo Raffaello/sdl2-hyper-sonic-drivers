@@ -59,7 +59,7 @@ namespace HyperSonicDrivers::files::westwood
         void detectVersion_();
 
         void readHeaderFromFile_(const int header_size, std::function<uint16_t()> read);
-        void readOffsetsFromFile_(const int num_offsets, std::vector<uint16_t>& vec, const int offset_start) const noexcept;
+        void readOffsetsFromFile_(const int num_offsets, std::vector<uint16_t>& vec, const int offset_start) const;
         void readDataFromFile_(const int data_offsets, const int data_header_size);
 
         std::vector<uint16_t> m_header;
