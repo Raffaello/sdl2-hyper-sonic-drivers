@@ -37,14 +37,14 @@ namespace HyperSonicDrivers::files::westwood
 
         uint8_t getVersion() const noexcept;
 
-        int getNumTracks() const noexcept;
-        int getNumTrackOffsets() const noexcept;
-        int getNumInstrumentOffsets() const noexcept;
+        uint16_t getNumTracks() const noexcept;
+        uint16_t getNumTrackOffsets() const noexcept;
+        uint16_t getNumInstrumentOffsets() const noexcept;
 
-        uint8_t getTrack(const int track) const;
-        uint16_t getTrackOffset(const int programId) const;
-        uint16_t getInstrumentOffset(const int instrument) const;
-        uint16_t getProgramOffset(const int progId, const PROG_TYPE prog_type) const;
+        uint16_t getTrack(const uint16_t track) const;
+        uint16_t getTrackOffset(const uint16_t programId) const;
+        uint16_t getInstrumentOffset(const uint16_t instrument) const;
+        uint16_t getProgramOffset(const uint16_t progId, const PROG_TYPE prog_type) const;
 
         uint32_t getDataSize() const noexcept;
         std::shared_ptr<uint8_t[]> getData() const noexcept;
@@ -59,10 +59,10 @@ namespace HyperSonicDrivers::files::westwood
         void detectVersion_();
 
         void readHeaderFromFile_(const int header_size, std::function<uint16_t()> read);
-        void readOffsetsFromFile_(const int num_offsets, std::vector<uint16_t>& vec, const int offset_start) const noexcept;
-        void readDataFromFile_(const int data_offsets, const int data_heder_size);
+        void readOffsetsFromFile_(const int num_offsets, std::vector<uint16_t>& vec, const int offset_start) const;
+        void readDataFromFile_(const int data_offsets, const int data_header_size);
 
-        std::vector<uint8_t> m_header;
+        std::vector<uint16_t> m_header;
         std::vector<uint16_t> m_track_offsets;
         std::vector<uint16_t> m_instrument_offsets;
         std::shared_ptr<uint8_t[]> m_data;
@@ -72,9 +72,9 @@ namespace HyperSonicDrivers::files::westwood
         template<typename T>
         int count_loop_(const int num_offs, const std::vector<T>& vec);
         void adjust_offsets_(std::vector<uint16_t>& vec);
-        int m_num_tracks = -1;
-        int m_num_track_offsets = -1;
-        int m_num_instrument_offsets = -1;
+        uint16_t m_num_tracks = 0;
+        uint16_t m_num_track_offsets = 0;
+        uint16_t m_num_instrument_offsets = 0;
     };
 
     template<typename T>
@@ -82,7 +82,7 @@ namespace HyperSonicDrivers::files::westwood
     {
         int tot = 0;
         constexpr T max_ = std::numeric_limits<T>::max();
-        for (int i = 0; i < vec.size(); ++i)
+        for (size_t i = 0; i < vec.size(); ++i)
         {
             if (vec[i] >= offs_start && vec[i] < max_) {
                 ++tot;

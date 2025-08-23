@@ -1,6 +1,7 @@
 **/out
 /CMakeSettings.json
 /.vs
+/.vscode
 /build
 *.bak
 sdl2-hyper-sonic-drivers/src/HyperSonicDrivers/version.h

@@ -53,13 +53,13 @@ jobs:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
       - name: create build dir
         run: mkdir build
-      - uses: actions/cache@v2
+      - uses: actions/cache@v4
         id: dep-cache
         with:
             path: C:/vcpkg/packages
             key: ${{ runner.os }}-x64-windows-dep-cache-${{ hashFiles('**/*') }}
             restore-keys: ${{ runner.os }}-x64-windows-dep-cache
-      - uses: actions/cache@v2
+      - uses: actions/cache@v4
         id: sonar-cache
         with:
             path: |

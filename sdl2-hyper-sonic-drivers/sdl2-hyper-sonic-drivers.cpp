@@ -1,8 +1,10 @@
-﻿// sdl2-hyper-sonic-drivers.cpp : Defines the entry point for the application.
-// TODO: delete this file and its target, this is kinda scratch pad
+// sdl2-hyper-sonic-drivers.cpp : Defines the entry point for the application.
+// TODO: delete this file and its target, this is kind of scratch pad
 
 #include <iostream>
 #include <memory>
+#include <format>
+#include <filesystem>
 
 #include <SDL2/SDL.h>
 
@@ -336,6 +338,16 @@ void testMT32()
 }
 
 
+/**
+ * @brief Load a WAV fixture, append it to itself, and play the result to completion.
+ *
+ * Initializes an SDL2 mixer, loads "test/fixtures/test_renderer_adlib_mame2.wav" into two sound
+ * objects, concatenates them into a single PCM sound, and plays that combined sound via a
+ * PCMDriver. The function blocks, polling until playback finishes.
+ *
+ * @note This function is a test utility: it uses a hard-coded test fixture path and performs
+ * synchronous waiting while playback is active.
+ */
 void pcm_sound_append()
 {
     auto mixer = audio::make_mixer<audio::sdl2::Mixer>(8, 44100, 1024);
@@ -356,6 +368,24 @@ void pcm_sound_append()
     }
 }
 
+/**
+ * @brief Test harness that plays Westwood ADL music tracks through an Adlib/OPL driver using SDL2.
+ *
+ * This routine initializes an SDL2-backed audio mixer and an Adlib/OPL device, loads a Westwood
+ * ADL file (fixed to "adl/KYRA1A.ADL"), and uses drivers::westwood::ADLDriver to play each
+ * track (tracks are iterated from index 1 to getNumTracks()-1). Each track is played up to three
+ * times. The function creates a small SDL window and pumps SDL events while waiting for playback
+ * to finish; pressing Escape or receiving SDL_QUIT will abort the test, and pressing Return stops
+ * the current track. After completing playback or aborting, the SDL window is destroyed.
+ *
+ * Side effects:
+ * - Initializes SDL event and video subsystems and creates an SDL window.
+ * - Initializes audio mixer and constructs Adlib/OPL device and ADL driver.
+ * - Blocks while tracks are playing (polls events and sleeps).
+ *
+ * Notes:
+ * - File name and iteration counts are hard-coded for this test harness.
+ */
 void adldune2filestest()
 {
     auto mixer = audio::make_mixer<audio::sdl2::Mixer>(8, 44100, 1024);
@@ -412,60 +442,75 @@ void adldune2filestest()
     }
 QUIT:
     SDL_DestroyWindow(window);
+    SDL_QuitSubSystem(SDL_INIT_VIDEO);
+    SDL_QuitSubSystem(SDL_INIT_EVENTS);
 }
 
-void vocdune2filestest()
-{
-    auto mixer = audio::make_mixer<audio::sdl2::Mixer>(8, 44100, 1024);
-    mixer->init();
+//void vocdune2filestest()
+//{
+//    auto mixer = audio::make_mixer<audio::sdl2::Mixer>(8, 44100, 1024);
+//    mixer->init();
+//
+//    auto device = devices::make_device<devices::Adlib, devices::Opl>(mixer);
+//    drivers::PCMDriver drv(mixer);
+//
+//    SDL_InitSubSystem(SDL_INIT_EVENTS);
+//    SDL_InitSubSystem(SDL_INIT_VIDEO);
+//
+//    auto window = SDL_CreateWindow("a", 0, 0, 320, 200, 0);
+//
+//    for (auto const& dir_entry : std::filesystem::directory_iterator{ "voc/" })
+//    {
+//        const std::string fn = dir_entry.path().string();
+//        utils::ILogger::instance->info(std::format("opening file: {}", fn), utils::ILogger::eCategory::Application);
+//        auto vocf = std::make_shared<files::VOCFile>(fn);
+//
+//        for (int j = 0; j < 10; j++)
+//        {
+//            utils::ILogger::instance->info(std::format("times: {}", j), utils::ILogger::eCategory::Application);
+//
+//            drv.play(vocf->getSound());
+//            while (drv.isPlaying())
+//            {
+//                //utils::delayMillis(200);
+//                SDL_Event e;
+//                while (SDL_PollEvent(&e))
+//                    switch (e.type)
+//                    {
+//                    case SDL_QUIT:
+//                        goto QUIT;
+//                    case SDL_KEYDOWN:
+//                        //case SDL_KEYUP:
+//                        if (e.key.keysym.sym == SDLK_ESCAPE)
+//                            goto QUIT;
+//                        if (e.key.keysym.sym == SDLK_RETURN)
+//                            drv.stop();
+//                        break;
+//
+//                    default:
+//                        std::cout << "event: " << e.type << std::endl;
+//                    }
+//            }
+//        }
+//        utils::delayMillis(1000);
+//    }
+//QUIT:
+//    SDL_DestroyWindow(window);
+//}
 
-    auto device = devices::make_device<devices::Adlib, devices::Opl>(mixer);
-    drivers::PCMDriver drv(mixer);
-
-    SDL_InitSubSystem(SDL_INIT_EVENTS);
-    SDL_InitSubSystem(SDL_INIT_VIDEO);
-
-    auto window = SDL_CreateWindow("a", 0, 0, 320, 200, 0);
-
-    for (auto const& dir_entry : std::filesystem::directory_iterator{ "voc/" })
-    {
-        const std::string fn = dir_entry.path().string();
-        utils::ILogger::instance->info(std::format("opening file: {}", fn), utils::ILogger::eCategory::Application);
-        auto vocf = std::make_shared<files::VOCFile>(fn);
-
-        for (int j = 0; j < 10; j++)
-        {
-            utils::ILogger::instance->info(std::format("times: {}", j), utils::ILogger::eCategory::Application);
-
-            drv.play(vocf->getSound());
-            while (drv.isPlaying())
-            {
-                //utils::delayMillis(200);
-                SDL_Event e;
-                while (SDL_PollEvent(&e))
-                    switch (e.type)
-                    {
-                    case SDL_QUIT:
-                        goto QUIT;
-                    case SDL_KEYDOWN:
-                        //case SDL_KEYUP:
-                        if (e.key.keysym.sym == SDLK_ESCAPE)
-                            goto QUIT;
-                        if (e.key.keysym.sym == SDLK_RETURN)
-                            drv.stop();
-                        break;
-
-                    default:
-                        std::cout << "event: " << e.type << std::endl;
-                    }
-            }
-        }
-        utils::delayMillis(1000);
-    }
-QUIT:
-    SDL_DestroyWindow(window);
-}
-
+/**
+ * @brief Program entry point that runs selected test routines.
+ *
+ * The main function serves as the test harness entry. It dispatches to various
+ * SDL2/HyperSonicDrivers test routines; currently it invokes adldune2filestest()
+ * and then returns immediately. The function performs global initialization
+ * and teardown only for the test routines it calls (handled by those routines).
+ *
+ * Note: many test calls are present but commented out; uncommenting changes the
+ * executed test sequence.
+ *
+ * @return int Process exit code (0 on normal completion).
+ */
 int main(int argc, char* argv[])
 {
     //newMixerTest();

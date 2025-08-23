@@ -20,7 +20,7 @@ namespace HyperSonicDrivers::files::westwood
     {
         ADLFile f("../fixtures/EOBSOUND.ADL");
         EXPECT_EQ(f.getVersion(), 1);
-        EXPECT_EQ(f.getNumTracks(), 15);
+        EXPECT_EQ(f.getNumTracks(), 120);
         EXPECT_EQ(f.getNumTrackOffsets(), 42);
         EXPECT_EQ(f.getNumInstrumentOffsets(), 40);
         EXPECT_EQ(f.getDataSize(), 13019 - 600);
@@ -33,7 +33,7 @@ namespace HyperSonicDrivers::files::westwood
     {
         ADLFileMock f("../fixtures/DUNE19.ADL");
         EXPECT_EQ(f.getVersion(), 2);
-        EXPECT_EQ(f.getNumTracks(), 49);
+        EXPECT_EQ(f.getNumTracks(), 120);
         EXPECT_EQ(f.getNumTrackOffsets(), 72);
         EXPECT_EQ(f.getNumInstrumentOffsets(), 71);
         EXPECT_EQ(f.parentSize(), 7257);
@@ -56,7 +56,7 @@ namespace HyperSonicDrivers::files::westwood
         ADLFileMock f("../fixtures/DUNE0.ADL");
 
         EXPECT_EQ(f.getVersion(), 2);
-        EXPECT_EQ(f.getNumTracks(), 18);
+        EXPECT_EQ(f.getNumTracks(), 120);
         EXPECT_EQ(f.getNumTrackOffsets(), 52);
         EXPECT_EQ(f.getNumInstrumentOffsets(), 63);
         EXPECT_EQ(f.parentSize(), 14473);
@@ -74,11 +74,19 @@ namespace HyperSonicDrivers::files::westwood
         EXPECT_EQ(chan, 9);
     }
 
+    /**
+     * @brief Tests ADLFile parsing for a version 3 ADL fixture (LOREINTR.ADL).
+     *
+     * Verifies that the file is recognized as version 3, reports the expected
+     * counts (tracks, track offsets, instrument offsets) and data size, and that
+     * program offsets for a track resolve to the corresponding track and
+     * instrument offsets. Also checks that the first track's data byte equals 9.
+     */
     TEST(ADLFile, ADLv3)
     {
         ADLFile f("../fixtures/LOREINTR.ADL");
         EXPECT_EQ(f.getVersion(), 3);
-        EXPECT_EQ(f.getNumTracks(), 30);
+        EXPECT_EQ(f.getNumTracks(), 250);
         EXPECT_EQ(f.getNumTrackOffsets(), 58);
         EXPECT_EQ(f.getNumInstrumentOffsets(), 71);
         EXPECT_EQ(f.getDataSize(), 13812 - 2000);

@@ -1,4 +1,5 @@
 #include <HyperSonicDrivers/hardware/opl/mame/MameOPL3.hpp>
+#include <cstring>
 
 namespace HyperSonicDrivers::hardware::opl::mame
 {

@@ -91,6 +91,27 @@ namespace HyperSonicDrivers::files::westwood
         V3_DATA_HEADER_SIZE
     };
 
+    /**
+     * @brief Construct an ADLFile by loading and parsing a Westwood ADL file from disk.
+     *
+     * Reads the file header, track offsets, instrument offsets and raw data payload
+     * according to the detected ADL version (V1/V2/V3), validates sizes, computes
+     * counts for tracks/offsets, then closes the file and converts absolute offsets
+     * into data-relative offsets (using 0xFFFF as the sentinel for invalid entries).
+     *
+     * The constructor:
+     * - validates the file meets the minimum size for an ADL file,
+     * - determines the on-disk ADL version and associated metadata,
+     * - reads version-appropriate header entries,
+     * - reads track and instrument offset tables,
+     * - reads the raw data payload and stores its size/header size,
+     * - sets m_num_tracks from the version metadata and computes the number of
+     *   valid track/instrument offsets,
+     * - closes the underlying file handle,
+     * - adjusts offsets to be relative to the in-memory data payload (and maps 0 -> 0xFFFF).
+     *
+     * @param filename Path to the ADL file to open and parse.
+     */
     ADLFile::ADLFile(const std::string& filename) : File(filename)
     {
         assertValid_(size() >= FILE_SIZE_MIN);
@@ -111,7 +132,7 @@ namespace HyperSonicDrivers::files::westwood
 
         readDataFromFile_(m_meta_version.data_offset, m_meta_version.data_header_size);
 
-        m_num_tracks = count_loop_<uint8_t>(0, m_header);
+        m_num_tracks = m_meta_version.num_headers;
         m_num_track_offsets = count_loop_<uint16_t>(m_meta_version.offset_start, m_track_offsets);
         m_num_instrument_offsets = count_loop_<uint16_t>(m_meta_version.offset_start, m_instrument_offsets);
 
@@ -128,37 +149,57 @@ namespace HyperSonicDrivers::files::westwood
         return m_version;
     }
 
-    int ADLFile::getNumTracks() const noexcept
+    /**
+     * @brief Return the number of tracks (subsongs) in the ADL file.
+     *
+     * The value is the internally stored track count determined at file load
+     * from the version-specific metadata. For some V3 files the in-memory
+     * header is known to be incorrect, so this returned count reflects the
+     * metadata-derived value rather than any inferred count from the header.
+     *
+     * @return int Number of tracks (subsongs).
+     */
+    uint16_t ADLFile::getNumTracks() const noexcept
     {
         return m_num_tracks;
     }
 
-    int ADLFile::getNumTrackOffsets() const noexcept
+    /**
+     * @brief Return the number of program (track) offsets present in the ADL file.
+     *
+     * This value is determined during construction from the file's version-specific
+     * metadata and offset tables. It represents how many valid track/program
+     * offset entries are available (sentinel/invalid entries are counted according
+     * to the parsed offset table).
+     *
+     * @return int Number of track/program offsets.
+     */
+    uint16_t ADLFile::getNumTrackOffsets() const noexcept
     {
         return m_num_track_offsets;
     }
 
-    int ADLFile::getNumInstrumentOffsets() const noexcept
+    uint16_t ADLFile::getNumInstrumentOffsets() const noexcept
     {
         return m_num_instrument_offsets;
     }
 
-    uint8_t ADLFile::getTrack(const int track) const
+    uint16_t ADLFile::getTrack(const uint16_t track) const
     {
         return m_header.at(track);
     }
 
-    uint16_t ADLFile::getTrackOffset(const int programId) const
+    uint16_t ADLFile::getTrackOffset(const uint16_t programId) const
     {
         return m_track_offsets.at(programId);
     }
 
-    uint16_t ADLFile::getInstrumentOffset(const int instrument) const
+    uint16_t ADLFile::getInstrumentOffset(const uint16_t instrument) const
     {
         return m_instrument_offsets.at(instrument);
     }
 
-    uint16_t ADLFile::getProgramOffset(const int progId, const PROG_TYPE prog_type) const
+    uint16_t ADLFile::getProgramOffset(const uint16_t progId, const PROG_TYPE prog_type) const
     {
         switch (prog_type)
         {
@@ -259,18 +300,29 @@ namespace HyperSonicDrivers::files::westwood
         }
     }
 
+    /**
+     * @brief Read and populate the in-memory header table from the open file.
+     *
+     * Resizes ADLFile::m_header to header_size and fills it by invoking the supplied
+     * read callback header_size times. The read callback is expected to return the
+     * next header entry (as a 16-bit value) each time it is called. After reading,
+     * the method validates that the header vector length matches header_size.
+     *
+     * @param header_size Number of header entries to read and store into m_header.
+     * @param read A zero-argument callable that returns the next header entry as uint16_t.
+     *             The caller is responsible for using the correct byte-width and endianness
+     *             for the target ADL version.
+     */
     void ADLFile::readHeaderFromFile_(const int header_size, std::function<uint16_t()> read)
     {
         m_header.resize(header_size);
         for (int i = 0; i < header_size; i++)
-        {
             m_header[i] = read();
-        }
 
         assertValid_(m_header.size() == header_size);
     }
 
-    void ADLFile::readOffsetsFromFile_(const int num_offsets, std::vector<uint16_t>& vec, const int offset_start) const noexcept
+    void ADLFile::readOffsetsFromFile_(const int num_offsets, std::vector<uint16_t>& vec, const int offset_start) const
     {
         assertValid_(tell() == offset_start);
         vec.resize(num_offsets);
@@ -280,14 +332,14 @@ namespace HyperSonicDrivers::files::westwood
         assertValid_(vec.size() == num_offsets);
     }
 
-    void ADLFile::readDataFromFile_(const int data_offsets, const int data_heder_size)
+    void ADLFile::readDataFromFile_(const int data_offsets, const int data_header_size)
     {
         m_dataSize = size() - data_offsets;
         assertValid_(m_dataSize > 0);
         assertValid_(tell() == data_offsets);
         m_data.reset(new uint8_t[m_dataSize]);
         read(m_data.get(), m_dataSize);
-        m_dataHeaderSize = data_heder_size;
+        m_dataHeaderSize = data_header_size;
     }
 
     void ADLFile::adjust_offsets_(std::vector<uint16_t>& vec)
