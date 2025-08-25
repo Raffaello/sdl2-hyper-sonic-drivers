@@ -5,7 +5,7 @@ namespace HyperSonicDrivers::drivers::midi::mt32
 {
     constexpr void dead_end()
     {
-        utils::throwLogC<std::invalid_argument>(std::format("can't call this method"));
+        utils::throwLogC<std::invalid_argument>("can't call this method");
     }
 
     MT32Driver::MT32Driver(const std::shared_ptr<devices::MT32>& mt32) :
