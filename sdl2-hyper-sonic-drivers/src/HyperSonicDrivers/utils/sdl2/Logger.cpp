@@ -3,7 +3,6 @@
 #include <SDL2/SDL_log.h>
 #include <SDL2/SDL_error.h>
 
-
 namespace HyperSonicDrivers::utils::sdl2
 {
     constexpr SDL_LogCategory cat2sdl(const Logger::eCategory cat)
@@ -30,7 +29,7 @@ namespace HyperSonicDrivers::utils::sdl2
 
     constexpr SDL_LogPriority level2sdl(const Logger::eLevel level)
     {
-        switch(level)
+        switch (level)
         {
             using enum ILogger::eLevel;
 
@@ -54,13 +53,13 @@ namespace HyperSonicDrivers::utils::sdl2
     }
 
     static SDL_LogOutputFunction default_log_output_function = nullptr;
-    static void* default_log_output_function_userdata = nullptr;
+    static void *default_log_output_function_userdata = nullptr;
 
-    static void log_output(void* userdata, int category, SDL_LogPriority priority, const char* msg)
+    [[maybe_unused]] static void log_output(void *userdata, int category, SDL_LogPriority priority, const char *msg)
     {
         std::string p;
         std::string c;
-        FILE* s = nullptr;
+        FILE *s = nullptr;
 
         switch (category)
         {
@@ -122,7 +121,7 @@ namespace HyperSonicDrivers::utils::sdl2
             break;
         }
 
-        //printf("[%s.%s] %s\n", c.c_str(), p.c_str(), msg);
+        // printf("[%s.%s] %s\n", c.c_str(), p.c_str(), msg);
         fprintf(s, "[%s.%s] %s\n", c.c_str(), p.c_str(), msg);
     }
 
@@ -145,34 +144,34 @@ namespace HyperSonicDrivers::utils::sdl2
     {
         SDL_LogSetPriority(cat2sdl(cat), level2sdl(level));
     }
-  
-    void Logger::trace(const std::string& str, const eCategory cat)
+
+    void Logger::trace(const std::string &str, const eCategory cat)
     {
         SDL_LogVerbose(cat2sdl(cat), str.c_str());
     }
 
-    void Logger::debug(const std::string& str, const eCategory cat)
+    void Logger::debug(const std::string &str, const eCategory cat)
     {
         SDL_LogDebug(cat2sdl(cat), str.c_str());
     }
 
-    void Logger::info(const std::string& str, const eCategory cat)
+    void Logger::info(const std::string &str, const eCategory cat)
     {
         SDL_LogInfo(cat2sdl(cat), str.c_str());
     }
 
-    void Logger::warning(const std::string& str, const eCategory cat)
+    void Logger::warning(const std::string &str, const eCategory cat)
     {
         SDL_LogWarn(cat2sdl(cat), str.c_str());
     }
 
-    void Logger::error(const std::string& str, const eCategory cat)
+    void Logger::error(const std::string &str, const eCategory cat)
     {
         SDL_LogError(cat2sdl(cat), "%s - %s", str.c_str(), SDL_GetError());
         SDL_ClearError();
     }
 
-    void Logger::critical(const std::string& str, const eCategory cat)
+    void Logger::critical(const std::string &str, const eCategory cat)
     {
         SDL_LogCritical(cat2sdl(cat), "%s - %s", str.c_str(), SDL_GetError());
         SDL_ClearError();
@@ -180,7 +179,7 @@ namespace HyperSonicDrivers::utils::sdl2
 
     void Logger::enable()
     {
-        //SDL_LogSetOutputFunction(&log_output, nullptr);
+        // SDL_LogSetOutputFunction(&log_output, nullptr);
         SDL_LogSetOutputFunction(default_log_output_function, default_log_output_function_userdata);
     }
 

@@ -8,7 +8,6 @@
 #include <HyperSonicDrivers/files/File.hpp>
 #include <HyperSonicDrivers/hardware/opl/OPL2instrument.h>
 
-
 namespace HyperSonicDrivers::files::westwood
 {
     class ADLFile : protected File
@@ -22,7 +21,7 @@ namespace HyperSonicDrivers::files::westwood
 
         typedef struct meta_version_t
         {
-            uint8_t  num_headers;
+            uint8_t num_headers;
             uint16_t header_size;
             uint16_t data_offset;
             uint16_t num_track_offsets;
@@ -32,7 +31,7 @@ namespace HyperSonicDrivers::files::westwood
             uint16_t data_header_size;
         } meta_version_t;
 
-        ADLFile(const std::string& filename);
+        ADLFile(const std::string &filename);
         ~ADLFile() override = default;
 
         uint8_t getVersion() const noexcept;
@@ -58,8 +57,8 @@ namespace HyperSonicDrivers::files::westwood
 
         void detectVersion_();
 
-        void readHeaderFromFile_(const int header_size, std::function<uint16_t()> read);
-        void readOffsetsFromFile_(const int num_offsets, std::vector<uint16_t>& vec, const int offset_start) const;
+        void readHeaderFromFile_(const uint16_t header_size, std::function<uint16_t()> read);
+        void readOffsetsFromFile_(const uint16_t num_offsets, std::vector<uint16_t> &vec, const uint32_t offset_start) const;
         void readDataFromFile_(const int data_offsets, const int data_header_size);
 
         std::vector<uint16_t> m_header;
@@ -69,22 +68,23 @@ namespace HyperSonicDrivers::files::westwood
         uint32_t m_dataSize = 0;
         int m_dataHeaderSize = 0;
 
-        template<typename T>
-        int count_loop_(const int num_offs, const std::vector<T>& vec);
-        void adjust_offsets_(std::vector<uint16_t>& vec);
+        template <typename T>
+        int count_loop_(const int num_offs, const std::vector<T> &vec);
+        void adjust_offsets_(std::vector<uint16_t> &vec);
         uint16_t m_num_tracks = 0;
         uint16_t m_num_track_offsets = 0;
         uint16_t m_num_instrument_offsets = 0;
     };
 
-    template<typename T>
-    int ADLFile::count_loop_(const int offs_start, const std::vector<T>& vec)
+    template <typename T>
+    int ADLFile::count_loop_(const int offs_start, const std::vector<T> &vec)
     {
         int tot = 0;
         constexpr T max_ = std::numeric_limits<T>::max();
         for (size_t i = 0; i < vec.size(); ++i)
         {
-            if (vec[i] >= offs_start && vec[i] < max_) {
+            if (vec[i] >= offs_start && vec[i] < max_)
+            {
                 ++tot;
             }
         }
@@ -92,4 +92,3 @@ namespace HyperSonicDrivers::files::westwood
         return tot;
     }
 }
-

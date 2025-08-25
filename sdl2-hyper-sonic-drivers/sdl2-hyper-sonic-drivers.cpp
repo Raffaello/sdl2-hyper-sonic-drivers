@@ -16,17 +16,14 @@
 
 #include <HyperSonicDrivers/hardware/opl/mame/MameOPL3.hpp>
 
-
 #include <HyperSonicDrivers/files/MIDFile.hpp>
 
 #include <HyperSonicDrivers/utils/algorithms.hpp>
-
 
 #include <HyperSonicDrivers/drivers/MIDDriver.hpp>
 
 #include <HyperSonicDrivers/files/dmx/MUSFile.hpp>
 #include <HyperSonicDrivers/files/dmx/OP2File.hpp>
-
 
 #include <HyperSonicDrivers/audio/sdl2/Mixer.hpp>
 #include <HyperSonicDrivers/utils/sdl2/Logger.hpp>
@@ -40,7 +37,6 @@
 #include <HyperSonicDrivers/audio/PCMSound.hpp>
 #include <HyperSonicDrivers/files/VOCFile.hpp>
 
-
 using namespace std;
 using namespace HyperSonicDrivers;
 
@@ -50,7 +46,7 @@ void newMixerTest()
 
     utils::sdl2::Logger::instance->setLevelAll(utils::ILogger::eLevel::Trace);
 
-    //auto mixer = sdl2::Mixer(8, 44100, 1024);
+    // auto mixer = sdl2::Mixer(8, 44100, 1024);
     auto mixer = make_mixer<sdl2::Mixer>(8, 44100, 1024);
     if (!mixer->init())
         return;
@@ -65,9 +61,15 @@ void playNotes(hardware::PCSpeaker *pcSpeaker, const hardware::PCSpeaker::eWaveF
 {
     auto start = std::chrono::steady_clock::now();
     pcSpeaker->play(waveForm, freq, length);
-    while (pcSpeaker->isPlaying()) { SDL_Delay(10); }
+    while (pcSpeaker->isPlaying())
+    {
+        SDL_Delay(10);
+    }
     pcSpeaker->play(waveForm, freq + 183, length * 2);
-    while (pcSpeaker->isPlaying()) { SDL_Delay(10); }
+    while (pcSpeaker->isPlaying())
+    {
+        SDL_Delay(10);
+    }
     auto end = std::chrono::steady_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
     std::cout << "Elapsed Time (s) = " << elapsed_seconds.count() << " --- Expected (s) ~=" << length + length * 2 << "\n";
@@ -77,7 +79,7 @@ void playNotes(hardware::PCSpeaker *pcSpeaker, const hardware::PCSpeaker::eWaveF
 int pcspkr(const int freq, const uint16_t audio, const int channels,const int chunksize)
 {
     using hardware::PCSpeaker;
- 
+
     Mix_Init(0);
     if (Mix_OpenAudio(freq, audio, channels, chunksize) < 0) {
         cerr << Mix_GetError();
@@ -90,7 +92,7 @@ int pcspkr(const int freq, const uint16_t audio, const int channels,const int ch
     int chn;
     int8_t bits = 0;
     bool sig = false;
-    
+
     Mix_QuerySpec(&freq_, &fmt, &chn);
     switch (fmt)
     {
@@ -100,7 +102,7 @@ int pcspkr(const int freq, const uint16_t audio, const int channels,const int ch
         break;
     case AUDIO_F32:
         bits = 32;
-        sig = false; //encoded unsiged 32 bit as float.
+        sig = false; //encoded unsigned 32 bit as float.
         break;
     case AUDIO_S16:
         bits = 16;
@@ -130,23 +132,23 @@ int pcspkr(const int freq, const uint16_t audio, const int channels,const int ch
         << "Channels  : " << (int)pcSpeaker.getChannels() << endl
         << "Bits      : " << (int)pcSpeaker.getBits() << endl
         << "Signed    : " << std::boolalpha << pcSpeaker.getSigned() << std::noboolalpha << endl;
-    
+
 
     // TODO try with channels.
     Mix_Hook(pcSpeaker.callback, &pcSpeaker);
-    
+
     cout << "SQUARE" << endl;
     playNotes(&pcSpeaker, PCSpeaker::eWaveForm::SQUARE, 440, 300);
     SDL_Delay(600);
-    
+
     cout << "SINE" << endl;
     playNotes(&pcSpeaker, PCSpeaker::eWaveForm::SINE, 440, 300);
     SDL_Delay(600);
-    
+
     cout << "SAW" << endl;
     playNotes(&pcSpeaker, PCSpeaker::eWaveForm::SAW, 440, 300);
     SDL_Delay(600);
-    
+
     cout << "TRINAGLE" << endl;
     playNotes(&pcSpeaker, PCSpeaker::eWaveForm::TRIANGLE, 440, 300);
     SDL_Delay(600);
@@ -175,7 +177,7 @@ int teen()
     PCSpeaker pcSpeaker(44100, 8);
     cout << "isPlaying: " << pcSpeaker.isPlaying() << endl
         << "Rate: " << pcSpeaker.getRate() << endl;
-    
+
     const int notes[] = {
         //       A4  A4#   B4  C5   C5#  D5
                 440, 466, 494, 523, 554, 587,
@@ -184,7 +186,7 @@ int teen()
 
 
     const int notes2[] = {
-//       A    A#   B    C    C#   D    D#   E    F    F#   G    G#   
+//       A    A#   B    C    C#   D    D#   E    F    F#   G    G#
         220, 233, 247, 262, 277, 294, 311, 330, 349, 370, 392, 415,  // 3 - 4
         440, 466, 494, 523, 554, 587, 622, 659, 698, 740, 784, 830,  // 4 - 5
         880                                                          // 5
@@ -194,17 +196,17 @@ int teen()
     // 1   1    2   4    1  0.5 0.5, 1   2   1   2    1  2
     const int song2[]    = { 3+12, 6+12, 8+12, 11, 6+12,8+12,6+12, 4+12,3+12, 4+12,3+12, 1+12, 11, 1+12,3+12,1+12, 11,10, 11,10, 11,10, 11,10,10,8,  11,10, 11,10, 11,10, 11,10,10,8 };
     const int songInt2[] = { 2,    4,    6,    8,  4,   4,   6,    4,   6,    4,   6,    6,    6,  4,   4,   4,    4, 6,  4, 6,  4, 6,  4, 4, 4, 8,  4, 6,  4, 6,  4, 6,  4, 4, 4, 16 };
-    
+
     // TODO try with channels.
     Mix_HookMusic(pcSpeaker.callback, &pcSpeaker);
 
     cout << "Pulse" << endl;
-   /* for (int n = 0; n < 8; n++) {
+   / * for (int n = 0; n < 8; n++) {
         cout << "note: " << notes[major[n]] << endl;
         pcSpeaker.play(PCSpeaker::eWaveForm::PULSE, notes[major[n]], 500);
         while (pcSpeaker.isPlaying()) { SDL_Delay(10); }
     }* /
-    
+
     SDL_Delay(500);
     cout << "isPlaying: " << pcSpeaker.isPlaying();
     for (int n = 0; n < 36; n++) {
@@ -246,7 +248,7 @@ int song()
 
 
     const int notes2[] = {
-        //       A    A#   B    C    C#   D    D#   E    F    F#   G    G#   
+        //       A    A#   B    C    C#   D    D#   E    F    F#   G    G#
                 220, 233, 247, 262, 277, 294, 311, 330, 349, 370, 392, 415,  // 3 - 4
                 440, 466, 494, 523, 554, 587, 622, 659, 698, 740, 784, 830,  // 4 - 5
                 880                                                          // 5
@@ -275,12 +277,11 @@ int song()
 }
 */
 
-
 void rendererMIDI()
 {
     // TODO: need to review the MIDDrv as it is time dependant
     //       and it is not good for rendering midi.
-    //       at the moment the simpler thing would be 
+    //       at the moment the simpler thing would be
     //       creating a MIDI_Renderer driver
     //       just to achieve the result, that will skip the
     //       delays.
@@ -289,32 +290,32 @@ void rendererMIDI()
     //       set up the callback for the emulated OPL
     //       that is triggered by the device, to process the next MIDI events.
     //       or something.
+    using audio::mixer::eChannelGroup;
+    using hardware::opl::OPL;
     using hardware::opl::OplEmulator;
     using hardware::opl::OplType;
-    using audio::mixer::eChannelGroup;
     using utils::ILogger;
-    using hardware::opl::OPL;
 
-    //audio::sdl2::Renderer r(44100, 1024);
+    // audio::sdl2::Renderer r(44100, 1024);
 
-    //r.openOutputFile("renderer_midi.wav");
+    // r.openOutputFile("renderer_midi.wav");
 
-    //auto mixer = r.getMixer();
-    //auto op2f = files::dmx::OP2File("test/fixtures/GENMIDI.OP2");
-    //auto midi_adlib = std::make_shared<devices::Adlib>(mixer, audio::mixer::eChannelGroup::Music);
-    //auto mid_drv = drivers::MIDDriver(midi_adlib);
-    //auto mus = files::dmx::MUSFile("test/fixtures/D_E1M1.mus");
-    //mid_drv.play(mus.getMIDI());
-    //auto eo = midi_adlib->getOpl();
+    // auto mixer = r.getMixer();
+    // auto op2f = files::dmx::OP2File("test/fixtures/GENMIDI.OP2");
+    // auto midi_adlib = std::make_shared<devices::Adlib>(mixer, audio::mixer::eChannelGroup::Music);
+    // auto mid_drv = drivers::MIDDriver(midi_adlib);
+    // auto mus = files::dmx::MUSFile("test/fixtures/D_E1M1.mus");
+    // mid_drv.play(mus.getMIDI());
+    // auto eo = midi_adlib->getOpl();
 
     //// TODO: doesn't work, due to the driver internal timing
-    //while (mid_drv.isPlaying())
-    //    r.renderBuffer(eo);
+    // while (mid_drv.isPlaying())
+    //     r.renderBuffer(eo);
 
-    //r.closeOutputFile();
+    // r.closeOutputFile();
 
-    //files::WAVFile w("renderer.wav");
-    //auto sound = w.getSound();
+    // files::WAVFile w("renderer.wav");
+    // auto sound = w.getSound();
 }
 
 void testMT32()
@@ -327,16 +328,15 @@ void testMT32()
     auto mixer = audio::make_mixer<audio::sdl2::Mixer>(8, 44100, 1024);
     if (!mixer->init())
         std::cerr << "can't init mixer" << std::endl;
-    //auto midi_mt32 = devices::make_midi_device<devices::midi::MidiMT32>(mixer, cr, pr);
+    // auto midi_mt32 = devices::make_midi_device<devices::midi::MidiMT32>(mixer, cr, pr);
 
     std::shared_ptr<files::MIDFile> midFile = std::make_shared<files::MIDFile>("test/fixtures/MI_intro.mid");
-    //drivers::MIDDriver midDrv(midi_mt32);
+    // drivers::MIDDriver midDrv(midi_mt32);
 
-    //midDrv.play(midFile->getMIDI());
-    //while (midDrv.isPlaying())
-    //    utils::delayMillis(1000);
+    // midDrv.play(midFile->getMIDI());
+    // while (midDrv.isPlaying())
+    //     utils::delayMillis(1000);
 }
-
 
 /**
  * @brief Load a WAV fixture, append it to itself, and play the result to completion.
@@ -352,12 +352,12 @@ void pcm_sound_append()
 {
     auto mixer = audio::make_mixer<audio::sdl2::Mixer>(8, 44100, 1024);
     files::WAVFile w1("test/fixtures/test_renderer_adlib_mame2.wav");
-    
+
     mixer->init();
     auto s1 = w1.getSound();
     auto s1b = w1.getSound();
-    //auto s2a = utils::makeMono(s1);
-    //auto s2b = utils::makeStereo(s1);
+    // auto s2a = utils::makeMono(s1);
+    // auto s2b = utils::makeStereo(s1);
     auto s2 = utils::append(s1, s1);
     drivers::PCMDriver drv(mixer);
 
@@ -390,18 +390,18 @@ void adldune2filestest()
 {
     auto mixer = audio::make_mixer<audio::sdl2::Mixer>(8, 44100, 1024);
     mixer->init();
-    //utils::ILogger::instance->setLevelAll(utils::ILogger::eLevel::Debug);
+    // utils::ILogger::instance->setLevelAll(utils::ILogger::eLevel::Debug);
     auto device = devices::make_device<devices::Adlib, devices::Opl>(mixer);
     drivers::westwood::ADLDriver drv(device, audio::mixer::eChannelGroup::Music);
-    
+
     SDL_InitSubSystem(SDL_INIT_EVENTS);
     SDL_InitSubSystem(SDL_INIT_VIDEO);
 
     auto window = SDL_CreateWindow("a", 0, 0, 320, 200, 0);
-    
+
     for (int f = 0; f <= 0; f++)
     {
-        //const std::string fn = "adl/DUNE" + std::to_string(f) + ".ADL";
+        // const std::string fn = "adl/DUNE" + std::to_string(f) + ".ADL";
         const std::string fn = "adl/KYRA1A.ADL";
         utils::ILogger::instance->info(std::format("opening file: {}", fn), utils::ILogger::eCategory::Application);
         auto adlf = std::make_shared<files::westwood::ADLFile>(fn);
@@ -424,7 +424,7 @@ void adldune2filestest()
                         case SDL_QUIT:
                             goto QUIT;
                         case SDL_KEYDOWN:
-                            //case SDL_KEYUP:
+                            // case SDL_KEYUP:
                             if (e.key.keysym.sym == SDLK_ESCAPE)
                                 goto QUIT;
                             if (e.key.keysym.sym == SDLK_RETURN)
@@ -446,57 +446,57 @@ QUIT:
     SDL_QuitSubSystem(SDL_INIT_EVENTS);
 }
 
-//void vocdune2filestest()
+// void vocdune2filestest()
 //{
-//    auto mixer = audio::make_mixer<audio::sdl2::Mixer>(8, 44100, 1024);
-//    mixer->init();
+//     auto mixer = audio::make_mixer<audio::sdl2::Mixer>(8, 44100, 1024);
+//     mixer->init();
 //
-//    auto device = devices::make_device<devices::Adlib, devices::Opl>(mixer);
-//    drivers::PCMDriver drv(mixer);
+//     auto device = devices::make_device<devices::Adlib, devices::Opl>(mixer);
+//     drivers::PCMDriver drv(mixer);
 //
-//    SDL_InitSubSystem(SDL_INIT_EVENTS);
-//    SDL_InitSubSystem(SDL_INIT_VIDEO);
+//     SDL_InitSubSystem(SDL_INIT_EVENTS);
+//     SDL_InitSubSystem(SDL_INIT_VIDEO);
 //
-//    auto window = SDL_CreateWindow("a", 0, 0, 320, 200, 0);
+//     auto window = SDL_CreateWindow("a", 0, 0, 320, 200, 0);
 //
-//    for (auto const& dir_entry : std::filesystem::directory_iterator{ "voc/" })
-//    {
-//        const std::string fn = dir_entry.path().string();
-//        utils::ILogger::instance->info(std::format("opening file: {}", fn), utils::ILogger::eCategory::Application);
-//        auto vocf = std::make_shared<files::VOCFile>(fn);
+//     for (auto const& dir_entry : std::filesystem::directory_iterator{ "voc/" })
+//     {
+//         const std::string fn = dir_entry.path().string();
+//         utils::ILogger::instance->info(std::format("opening file: {}", fn), utils::ILogger::eCategory::Application);
+//         auto vocf = std::make_shared<files::VOCFile>(fn);
 //
-//        for (int j = 0; j < 10; j++)
-//        {
-//            utils::ILogger::instance->info(std::format("times: {}", j), utils::ILogger::eCategory::Application);
+//         for (int j = 0; j < 10; j++)
+//         {
+//             utils::ILogger::instance->info(std::format("times: {}", j), utils::ILogger::eCategory::Application);
 //
-//            drv.play(vocf->getSound());
-//            while (drv.isPlaying())
-//            {
-//                //utils::delayMillis(200);
-//                SDL_Event e;
-//                while (SDL_PollEvent(&e))
-//                    switch (e.type)
-//                    {
-//                    case SDL_QUIT:
-//                        goto QUIT;
-//                    case SDL_KEYDOWN:
-//                        //case SDL_KEYUP:
-//                        if (e.key.keysym.sym == SDLK_ESCAPE)
-//                            goto QUIT;
-//                        if (e.key.keysym.sym == SDLK_RETURN)
-//                            drv.stop();
-//                        break;
+//             drv.play(vocf->getSound());
+//             while (drv.isPlaying())
+//             {
+//                 //utils::delayMillis(200);
+//                 SDL_Event e;
+//                 while (SDL_PollEvent(&e))
+//                     switch (e.type)
+//                     {
+//                     case SDL_QUIT:
+//                         goto QUIT;
+//                     case SDL_KEYDOWN:
+//                         //case SDL_KEYUP:
+//                         if (e.key.keysym.sym == SDLK_ESCAPE)
+//                             goto QUIT;
+//                         if (e.key.keysym.sym == SDLK_RETURN)
+//                             drv.stop();
+//                         break;
 //
-//                    default:
-//                        std::cout << "event: " << e.type << std::endl;
-//                    }
-//            }
-//        }
-//        utils::delayMillis(1000);
-//    }
-//QUIT:
-//    SDL_DestroyWindow(window);
-//}
+//                     default:
+//                         std::cout << "event: " << e.type << std::endl;
+//                     }
+//             }
+//         }
+//         utils::delayMillis(1000);
+//     }
+// QUIT:
+//     SDL_DestroyWindow(window);
+// }
 
 /**
  * @brief Program entry point that runs selected test routines.
@@ -511,48 +511,50 @@ QUIT:
  *
  * @return int Process exit code (0 on normal completion).
  */
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
-    //newMixerTest();
-    //testMultiOpl();
-    //testMOplMultiDrv();
-    //rendererMIDI();
-    //midi_adlib();
-    //testMT32();
+    // newMixerTest();
+    // testMultiOpl();
+    // testMOplMultiDrv();
+    // rendererMIDI();
+    // midi_adlib();
+    // testMT32();
 
-    //pcm_sound_append();
+    // pcm_sound_append();
     adldune2filestest();
-    //vocdune2filestest();
-    //return 0;
-    //sdlMixer();
-    //SDL_Delay(100);
-    //renderMixer();
+    // vocdune2filestest();
+    // return 0;
+    // sdlMixer();
+    // SDL_Delay(100);
+    // renderMixer();
 
-    //xmi_parser();
-    //midi_adlib_mus_file_CONCURRENCY_ERROR_ON_SAME_DEVICE();
-    //midi_adlib_mus_op2_file();
-    //midi_adlib_xmi();
+    // xmi_parser();
+    // midi_adlib_mus_file_CONCURRENCY_ERROR_ON_SAME_DEVICE();
+    // midi_adlib_mus_op2_file();
+    // midi_adlib_xmi();
 
-    //rendererMIDI();
+    // rendererMIDI();
     return 0;
 
     SDL_Init(SDL_INIT_TIMER | SDL_INIT_AUDIO);
 
     int numAudioDevices = SDL_GetNumAudioDevices(0);
     cout << "numAudioDevices = " << numAudioDevices << endl;
-    //int numAudioDevices2 = SDL_GetNumAudioDevices(1);
-    //cout << "numAudioDevices2 = " << numAudioDevices2 << endl;
+    // int numAudioDevices2 = SDL_GetNumAudioDevices(1);
+    // cout << "numAudioDevices2 = " << numAudioDevices2 << endl;
 
-    for (int i = 0; i < numAudioDevices; i++) {
+    for (int i = 0; i < numAudioDevices; i++)
+    {
         cout << "Device " << i << " name: " << SDL_GetAudioDeviceName(i, 0) << endl;
     }
 
     int numAudioDrivers = SDL_GetNumAudioDrivers();
     cout << "numAudioDrivers = " << numAudioDrivers << endl;
-    for (int i = 0; i < numAudioDrivers; i++) {
+    for (int i = 0; i < numAudioDrivers; i++)
+    {
         cout << "Driver " << i << " name: " << SDL_GetAudioDriver(i) << endl;
     }
-    
+
     SDL_AudioSpec spec = {};
     spec.callback = NULL;
     spec.channels = 1;
@@ -563,29 +565,27 @@ int main(int argc, char* argv[])
 
     SDL_OpenAudio(&spec, &spec);
 
-    cout << "channels " << (int) spec.channels << endl
-        << "freq " << spec.freq << endl
-        << "format " << (int)spec.format << endl;
+    cout << "channels " << (int)spec.channels << endl
+         << "freq " << spec.freq << endl
+         << "format " << (int)spec.format << endl;
 
     SDL_CloseAudio();
 
-    //drivers::miles::XMidi::readDriver("ALGDIG.ADV");
-    //files::XMIFile f("SPKRDEMO.XMI");
-    //files::ADLFile f("EOBSOUND.ADL");
-    //cout << "ADL VERSION: " << f.getVersion() << endl;
-        
-    
+    // drivers::miles::XMidi::readDriver("ALGDIG.ADV");
+    // files::XMIFile f("SPKRDEMO.XMI");
+    // files::ADLFile f("EOBSOUND.ADL");
+    // cout << "ADL VERSION: " << f.getVersion() << endl;
+
     // TODO: 32 bit audio
-    //pcspkr(44100, AUDIO_S32, 2, 1024);
-    //pcspkr(44100, AUDIO_F32, 2, 1024);
-    //pcspkr(44100, AUDIO_S16, 2, 1024);
-    //pcspkr(44100, AUDIO_S8, 2, 1024);
-    //pcspkr(44100, AUDIO_U16, 2, 1024);
-    //pcspkr(44100, AUDIO_U8, 2, 1024);
+    // pcspkr(44100, AUDIO_S32, 2, 1024);
+    // pcspkr(44100, AUDIO_F32, 2, 1024);
+    // pcspkr(44100, AUDIO_S16, 2, 1024);
+    // pcspkr(44100, AUDIO_S8, 2, 1024);
+    // pcspkr(44100, AUDIO_U16, 2, 1024);
+    // pcspkr(44100, AUDIO_U8, 2, 1024);
 
-    //teen();
-    //song();
-
+    // teen();
+    // song();
 
     SDL_Quit();
     return 0;

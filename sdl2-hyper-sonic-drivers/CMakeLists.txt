@@ -18,6 +18,7 @@ if (WIN32)
     set(LIB_SDL2main SDL2::SDL2main)
 endif()
 
+
 ########################### Static Lib #######################################
 set(LIB_NAME hyper-sonic-drivers-static)
 set(LIB_CONF ${LIB_NAME}-config)
@@ -25,7 +26,20 @@ set(LIB_VER ${LIB_CONF}-version)
 include(CMakePackageConfigHelpers)
 
 add_library(${LIB_NAME} STATIC)
-set_target_properties(${LIB_NAME} PROPERTIES POSITION_INDEPENDENT_CODE ON)
+set_target_properties(${LIB_NAME} PROPERTIES
+     POSITION_INDEPENDENT_CODE ON
+     COMPILE_WARNING_AS_ERROR ON
+)
+# set_property(TARGET ${LIB_NAME} PROPERTY COMPILE_WARNING_AS_ERROR ON)
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    target_compile_options(${LIB_NAME} PRIVATE
+        -Wall 
+        # -Wextra
+        -Wpedantic
+    )
+endif()
+
 install(
     TARGETS ${LIB_NAME}
     EXPORT ${LIB_CONF}
@@ -204,6 +218,8 @@ if(BUILD_EXAMPLES)
     )
     endif()
 endif()
+
+
 
 unset(LIB_NAME)
 unset(LIB_CONF)

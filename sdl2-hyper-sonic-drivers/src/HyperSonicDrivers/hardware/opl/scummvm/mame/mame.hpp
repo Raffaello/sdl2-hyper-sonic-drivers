@@ -94,7 +94,7 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::mame
         int	max_ch;			/* maximum channel                   */
 
         /* Rythm sention */
-        uint8_t rythm;		/* Rythm mode , key flag */
+        uint8_t rhythm;		/* Rythm mode , key flag */
 
         /* time tables */
         int AR_TABLE[76];	/* atttack rate tables				*/

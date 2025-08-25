@@ -7,14 +7,14 @@ namespace HyperSonicDrivers::drivers::midi
     using audio::midi::TO_HIGH;
     using utils::logW;
 
-    void IMidiDriver::send(const audio::midi::MIDIEvent& e) noexcept
+    void IMidiDriver::send(const audio::midi::MIDIEvent &e) noexcept
     {
-        // TODO: sysEx must be reviewed if ok, probably shoudl check
+        // TODO: sysEx must be reviewed if ok, probably should check
         //       also if last byte is meta sysEx end ...
-        using audio::midi::TO_HIGH;
         using audio::midi::MIDI_EVENT_TYPES_HIGH;
+        using audio::midi::TO_HIGH;
 
-        if (TO_HIGH(e.type.high) == MIDI_EVENT_TYPES_HIGH::META_SYSEX)
+        if (TO_HIGH(e.type._.high) == MIDI_EVENT_TYPES_HIGH::META_SYSEX)
             sysEx(e.data.data(), static_cast<uint16_t>(e.data.size()));
         else
             send(e.toUint32());
@@ -28,9 +28,9 @@ namespace HyperSonicDrivers::drivers::midi
         const uint8_t param2 = static_cast<uint8_t>((msg >> 16) & 0xFF);
         const uint8_t param1 = static_cast<uint8_t>((msg >> 8) & 0xFF);
         MIDI_EVENT_type_u cmd;
-        cmd.high = static_cast<uint8_t>((msg >> 4) & 0xF);
+        cmd._.high = static_cast<uint8_t>((msg >> 4) & 0xF);
 
-        send(TO_HIGH(cmd.high), channel, param1, param2);
+        send(TO_HIGH(cmd._.high), channel, param1, param2);
     }
 
     void IMidiDriver::send(uint32_t msg) noexcept
@@ -46,14 +46,14 @@ namespace HyperSonicDrivers::drivers::midi
         {
             using enum audio::midi::MIDI_EVENT_TYPES_HIGH;
 
-        case NOTE_OFF:// Note Off
+        case NOTE_OFF: // Note Off
             noteOff(channel, data1);
             break;
         case NOTE_ON: // Note On
             noteOn(channel, data1, data2);
             break;
         case AFTERTOUCH: // Aftertouch
-            break; // Not supported.
+            break;       // Not supported.
         case CONTROLLER: // Control Change
             controller(channel, TO_CTRL(data1), data2);
             break;
@@ -61,8 +61,8 @@ namespace HyperSonicDrivers::drivers::midi
             programChange(channel, data1);
             break;
         case CHANNEL_AFTERTOUCH: // Channel Pressure
-            break; // Not supported.
-        case PITCH_BEND: // Pitch Bend
+            break;               // Not supported.
+        case PITCH_BEND:         // Pitch Bend
         {
             const auto bend = static_cast<uint16_t>((data1 | (data2 << 7)) - audio::midi::MIDI_PITCH_BEND_DEFAULT);
             pitchBend(channel, bend);
@@ -98,15 +98,15 @@ namespace HyperSonicDrivers::drivers::midi
             ctrl_panPosition(chan, value);
             break;
         case GENERAL_PURPOSE_CONTROLLER_1:
-            //pitchBendFactor(value);
+            // pitchBendFactor(value);
             logW(std::format("pitchBendFactor value {}", value));
             break;
         case GENERAL_PURPOSE_CONTROLLER_2:
-            //detune(value);
+            // detune(value);
             logW(std::format("detune value {}", value));
             break;
         case GENERAL_PURPOSE_CONTROLLER_3:
-            //priority(value);
+            // priority(value);
             logW(std::format("priority value {}", value));
             break;
         case SUSTAIN:
@@ -134,7 +134,7 @@ namespace HyperSonicDrivers::drivers::midi
     {
         if (program > 127)
         {
-            logW(std::format("Progam change value >= 127 -> {}", program));
+            logW(std::format("Program change value >= 127 -> {}", program));
         }
 
         m_channels[chan]->program = program;

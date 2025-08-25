@@ -22,17 +22,17 @@
 using namespace HyperSonicDrivers;
 
 using audio::mixer::eChannelGroup;
-using hardware::opl::OPLFactory;
 using hardware::opl::OplEmulator;
+using hardware::opl::OPLFactory;
 using hardware::opl::OplType;
 
-
-void mid_test_run(drivers::MIDDriver& midDrv, const std::shared_ptr<audio::MIDI>& midi)
+void mid_test_run(drivers::MIDDriver &midDrv, const std::shared_ptr<audio::MIDI> &midi)
 {
     auto start_time = std::chrono::system_clock::now();
     midDrv.setMidi(midi);
     midDrv.play(0);
-    while (midDrv.isPlaying()) {
+    while (midDrv.isPlaying())
+    {
         utils::delayMillis(1000);
     }
 
@@ -41,8 +41,8 @@ void mid_test_run(drivers::MIDDriver& midDrv, const std::shared_ptr<audio::MIDI>
     spdlog::info("Total Running Time: {:%M:%S}", tot_time);
 }
 
-void scummvm_mid_test(const OplEmulator emu, const OplType type, const std::shared_ptr<audio::IMixer>& mixer,
-    const std::shared_ptr<audio::MIDI> midi)
+void scummvm_mid_test(const OplEmulator emu, const OplType type, const std::shared_ptr<audio::IMixer> &mixer,
+                      const std::shared_ptr<audio::MIDI> midi)
 {
 
     std::shared_ptr<devices::IDevice> device;
@@ -69,8 +69,8 @@ void scummvm_mid_test(const OplEmulator emu, const OplType type, const std::shar
     mid_test_run(midDrv, midi);
 }
 
-void mid_test(const OplEmulator emu, const OplType type, const std::shared_ptr<audio::IMixer>& mixer,
-    const std::shared_ptr<audio::MIDI> midi)
+void mid_test(const OplEmulator emu, const OplType type, const std::shared_ptr<audio::IMixer> &mixer,
+              const std::shared_ptr<audio::MIDI> midi)
 {
     auto op2file = files::dmx::OP2File("GENMIDI.OP2");
     std::shared_ptr<devices::IDevice> device;
@@ -103,7 +103,7 @@ void mid_test(const OplEmulator emu, const OplType type, const std::shared_ptr<a
     mid_test_run(midDrv, midi);
 }
 
-int run(const std::shared_ptr<audio::MIDI>& midi, const bool use_opldrv)
+int run(const std::shared_ptr<audio::MIDI> &midi, const bool use_opldrv)
 {
     auto mixer = audio::make_mixer<audio::sdl2::Mixer>(8, 44100, 1024);
     if (!mixer->init())
@@ -114,10 +114,10 @@ int run(const std::shared_ptr<audio::MIDI>& midi, const bool use_opldrv)
 
     // Reproducing MIDI file
     const std::map<OplEmulator, std::string> emus = {
-       { OplEmulator::DOS_BOX, "DOS_BOX" },
-       { OplEmulator::MAME, "MAME" },
-       { OplEmulator::NUKED, "NUKED" },
-       { OplEmulator::WOODY, "WOODY" },
+        {OplEmulator::DOS_BOX, "DOS_BOX"},
+        {OplEmulator::MAME, "MAME"},
+        {OplEmulator::NUKED, "NUKED"},
+        {OplEmulator::WOODY, "WOODY"},
     };
 
     const std::map<OplType, std::string> types = {
@@ -132,24 +132,24 @@ int run(const std::shared_ptr<audio::MIDI>& midi, const bool use_opldrv)
     using enum fmt::color;
 
     const auto colors = {
-        white_smoke, yellow,      aqua,
-        lime_green,  blue_violet, indian_red };
+        white_smoke, yellow, aqua,
+        lime_green, blue_violet, indian_red};
 
-    for (const auto& emu : emus)
+    for (const auto &emu : emus)
     {
-        for (const auto& type : types)
+        for (const auto &type : types)
         {
             try
             {
-                for (const auto& c : colors)
-                    spdlog::info(fmt::format(fg(c), m, emu.second, type.second));
+                for (const auto &c : colors)
+                    spdlog::info(fmt::format(fg(c), fmt::runtime(m), emu.second, type.second));
 
                 if (use_opldrv)
                     mid_test(emu.first, type.first, mixer, midi);
                 else
                     scummvm_mid_test(emu.first, type.first, mixer, midi);
             }
-            catch (const std::exception& e)
+            catch (const std::exception &e)
             {
                 spdlog::default_logger()->error(e.what());
             }
