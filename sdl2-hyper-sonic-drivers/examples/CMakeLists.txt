@@ -14,7 +14,7 @@ macro(macro_example) # ${ARGN} link libraries
     #message("${EXE} - ${FILE} - ${DEPS} - ${LINKS}")
     #message("EXE====${EXAMPLE_EXE}")
     #message("IS NONE: ${EXAMPLE_NONE}")
-    #message("IS CPLIB: ${EXAMPLE_COPY_LIB}")
+    #message("IS Copy_LIB: ${EXAMPLE_COPY_LIB}")
     #message("EXE: ${EXAMPLE_EXE}")
     #message("FILE: ${EXAMPLE_FILE}")
     #message("DEP: ${EXAMPLE_DEPS}")
@@ -73,7 +73,7 @@ macro_example(
     DEPS hyper-sonic-drivers-static
     LINKS
         $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
-        $<TARGET_NAME_IF_EXISTS:SDL2main>
+        # $<TARGET_NAME_IF_EXISTS:SDL2main>
         hyper-sonic-drivers-static spdlog::spdlog
     NONE
 )
@@ -84,7 +84,7 @@ macro_example(
     DEPS hyper-sonic-drivers-static
     LINKS
         $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
-        $<TARGET_NAME_IF_EXISTS:SDL2main>
+        # $<TARGET_NAME_IF_EXISTS:SDL2main>
         hyper-sonic-drivers-static spdlog::spdlog
     FIXTURES 
       "../test/fixtures/DUNE0.ADL"
@@ -99,8 +99,9 @@ macro_example(
     DEPS hyper-sonic-drivers-static
     LINKS
         $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
-        $<TARGET_NAME_IF_EXISTS:SDL2main>
-        hyper-sonic-drivers-static spdlog::spdlog SDL2::SDL2
+        # $<TARGET_NAME_IF_EXISTS:SDL2main>
+        hyper-sonic-drivers-static spdlog::spdlog 
+        # SDL2::SDL2
     FIXTURES 
       "../test/fixtures/DUNE0.ADL"
       #"../test/fixtures/EOBSOUND.ADL"
@@ -114,7 +115,7 @@ macro_example(
     DEPS hyper-sonic-drivers-static
     LINKS
         $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
-        $<TARGET_NAME_IF_EXISTS:SDL2main>
+        # $<TARGET_NAME_IF_EXISTS:SDL2main>
         hyper-sonic-drivers-static spdlog::spdlog
     FIXTURES 
       "../test/fixtures/Wav_868kb.wav"
@@ -128,7 +129,7 @@ macro_example(
     DEPS hyper-sonic-drivers-static
     LINKS
         $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
-        $<TARGET_NAME_IF_EXISTS:SDL2main>
+        # $<TARGET_NAME_IF_EXISTS:SDL2main>
         hyper-sonic-drivers-static spdlog::spdlog
     FIXTURES 
       "../test/fixtures/MI_intro.mid"
@@ -142,7 +143,7 @@ macro_example(
     DEPS hyper-sonic-drivers-static
     LINKS
         $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
-        $<TARGET_NAME_IF_EXISTS:SDL2main>
+        # $<TARGET_NAME_IF_EXISTS:SDL2main>
         hyper-sonic-drivers-static spdlog::spdlog
     FIXTURES 
       "../test/fixtures/D_E1M1.MUS"
@@ -156,7 +157,7 @@ macro_example(
     DEPS hyper-sonic-drivers-static
     LINKS
         $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
-        $<TARGET_NAME_IF_EXISTS:SDL2main>
+        # $<TARGET_NAME_IF_EXISTS:SDL2main>
         hyper-sonic-drivers-static spdlog::spdlog
     FIXTURES 
       "../test/fixtures/MI_intro.mid"

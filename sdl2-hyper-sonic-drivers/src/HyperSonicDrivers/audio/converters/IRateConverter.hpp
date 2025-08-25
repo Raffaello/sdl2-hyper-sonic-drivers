@@ -24,9 +24,9 @@ namespace HyperSonicDrivers::audio::converters
      * the rate conversion code to 65536Hz audio: we need to able to handle
      * 96kHz audio, so we use fewer fractional bits in this code.
      */
-    const int fracBitsLow = std::countl_zero<uint16_t>(0) - 1;
-    const int fracOneLow = (1L << fracBitsLow);
-    const int fracHalfLow = (1L << (fracBitsLow - 1));
+    constexpr int fracBitsLow = std::countl_zero<uint16_t>(0) - 1;
+    constexpr int fracOneLow = (1L << fracBitsLow);
+    constexpr int fracHalfLow = (1L << (fracBitsLow - 1));
 
     constexpr void clampAdd(int16_t &a, int b)
     {

@@ -740,6 +740,10 @@ namespace HyperSonicDrivers::hardware::opl::scummvm::mame
         ENV_CURVE = (int *)malloc(sizeof(int) * (2 * EG_ENT + 1));
         if (ENV_CURVE == nullptr)
         {
+            free(TL_TABLE);
+            free(SIN_TABLE);
+            free(AMS_TABLE);
+            free(VIB_TABLE);
             throwLogC<std::runtime_error>("[OPLOpenTable] Cannot allocate memory");
         }
 

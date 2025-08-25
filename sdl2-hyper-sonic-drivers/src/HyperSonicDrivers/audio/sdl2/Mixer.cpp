@@ -1,11 +1,13 @@
+#include <HyperSonicDrivers/audio/sdl2/Mixer.hpp>
+#include <HyperSonicDrivers/utils/ILogger.hpp>
+
+#include <SDL2/SDL.h> // due to init/quit subsystem
+
 #include <algorithm>
 #include <ranges>
 #include <cstring>
 #include <cassert>
-#include <HyperSonicDrivers/audio/sdl2/Mixer.hpp>
-#include <HyperSonicDrivers/utils/ILogger.hpp>
-
-#include <SDL2/SDL.h>
+#include <bit>
 
 namespace HyperSonicDrivers::audio::sdl2
 {
@@ -241,16 +243,15 @@ namespace HyperSonicDrivers::audio::sdl2
 
         // Get the desired audio specs
         SDL_AudioSpec desired{};
-        desired = {
-            .freq = static_cast<int>(freq),
-            .format = AUDIO_S16,
-            .channels = 2,
-            .samples = buffer_size,
-            .callback = callback,
-            .userdata = userdata,
-        };
 
-        SDL_AudioSpec obtained;
+        desired.freq = static_cast<int>(freq);
+        desired.format = AUDIO_S16;
+        desired.channels = 2;
+        desired.samples = buffer_size;
+        desired.callback = callback;
+        desired.userdata = userdata;
+
+        SDL_AudioSpec obtained{};
         m_device_id = SDL_OpenAudioDevice(nullptr, 0, &desired, &obtained, 0);
         if (m_device_id == 0)
         {

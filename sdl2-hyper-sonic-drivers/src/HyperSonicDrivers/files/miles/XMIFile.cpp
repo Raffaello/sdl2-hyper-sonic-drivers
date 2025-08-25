@@ -321,7 +321,7 @@ namespace HyperSonicDrivers::files::miles
         // sanity check
         if (offs != IFF_evnt.size)
         {
-            logW(std::format("Filename '{}' track {} length mismatch real length {}", m_filename, IFF_evnt.size, offs));
+            logW(std::format("Filename '{}' track {} length mismatch: {} vs real length {}", m_filename, track, IFF_evnt.size, offs));
         }
 
         if (!endTrack)

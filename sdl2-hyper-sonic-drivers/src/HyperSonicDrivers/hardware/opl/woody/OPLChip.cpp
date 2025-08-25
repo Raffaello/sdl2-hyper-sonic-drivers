@@ -359,7 +359,7 @@ namespace HyperSonicDrivers::hardware
                 else
                 {
                     // data written
-                    oplchip[oplnum & 1]->adlib_write(oplchip[oplnum]->index, val, is_second_set);
+                    oplchip[oplnum & 1]->adlib_write(oplchip[oplnum & 1]->index, val, is_second_set);
                 }
             }
 
@@ -370,7 +370,7 @@ namespace HyperSonicDrivers::hardware
                 else if (f < -32767.5)
                     *a = -32768;
                 else
-                    *a = (uint16_t)f;
+                    *a = (int16_t)f;
             }
 
             // ---------------------------------------------------- //
@@ -690,8 +690,8 @@ namespace HyperSonicDrivers::hardware
 
             void OPLChip::adlib_write(uint32_t idx, uint8_t val, uint32_t second_set)
             {
-                //  if (((adlibreg[0x105]&1)==0) && (idx!=5))
-                second_set = 0; // second_set is 0 anyways, but this fixes some warnings
+                if (((adlibreg[0x105] & 1) == 0) && (idx != 5))
+                    second_set = 0; // second_set is 0 anyways, but this fixes some warnings
 
                 idx += second_set; // add 0x100 for second register set
                 uint8_t old_val = adlibreg[idx];

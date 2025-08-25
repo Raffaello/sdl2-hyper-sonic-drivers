@@ -1,4 +1,4 @@
-﻿cmake_minimum_required (VERSION 3.21)
+﻿cmake_minimum_required (VERSION 3.24)
 
 find_package(SDL2 CONFIG REQUIRED)
 find_package(MT32emu CONFIG REQUIRED)
@@ -33,13 +33,16 @@ set_target_properties(${LIB_NAME} PROPERTIES
 )
 # set_property(TARGET ${LIB_NAME} PROPERTY COMPILE_WARNING_AS_ERROR ON)
 
-if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    target_compile_options(${LIB_NAME} PRIVATE
-        -Wall 
-        # -Wextra
-        -Wpedantic
-    )
-endif()
+# if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+target_compile_options(${LIB_NAME}
+    PRIVATE
+        $<$<CXX_COMPILER_ID:GNU>:
+            -Wall
+            # -Wextra
+            -Wpedantic
+        >
+)
+# endif()
 
 install(
     TARGETS ${LIB_NAME}
@@ -200,8 +203,9 @@ target_sources(${LIB_NAME} PRIVATE
 )
 
 target_link_libraries(${LIB_NAME}
-    PUBLIC 
+    PRIVATE
         ${LIB_SDL2}
+    PUBLIC 
         MT32Emu::mt32emu
 )
 if(NOT (WITH_SDL2_STATIC))
