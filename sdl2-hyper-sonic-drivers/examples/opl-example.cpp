@@ -10,6 +10,8 @@
 #include <map>
 #include <string>
 
+#include <SDL2/SDL_main.h>
+
 using namespace HyperSonicDrivers;
 
 using hardware::opl::OplEmulator;

@@ -14,9 +14,10 @@ else()
     set(LIB_SDL2 SDL2::SDL2)
 endif()
 
-if (WIN32)
-    set(LIB_SDL2main SDL2::SDL2main)
-endif()
+# if (WIN32)
+    # set(LIB_SDL2main $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>)
+
+# endif()
 
 
 ########################### Static Lib #######################################
@@ -228,7 +229,8 @@ unset(LIB_VER)
 
 # Add source to this project's executable.
 add_executable(sdl2-hyper-sonic-drivers "sdl2-hyper-sonic-drivers.cpp")
-target_link_libraries(sdl2-hyper-sonic-drivers PRIVATE ${LIB_SDL2main} hyper-sonic-drivers-static)
+target_link_libraries(sdl2-hyper-sonic-drivers 
+    PRIVATE $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main> hyper-sonic-drivers-static)
 
 if(MSVC)
 # @see https://docs.microsoft.com/en-us/cpp/build/reference/compiler-options-listed-by-category?view=vs-2019
