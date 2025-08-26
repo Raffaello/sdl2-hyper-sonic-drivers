@@ -21,6 +21,12 @@
 
 #include <SDL2/SDL_main.h>
 
+#ifdef __GNUC__
+#define FMT_RUNTIME(x) fmt::runtime(x)
+#else
+#define FMT_RUNTIME(x) x
+#endif
+
 using namespace HyperSonicDrivers;
 
 using drivers::westwood::ADLDriver;
@@ -201,7 +207,7 @@ int main(int argc, char *argv[])
             for (const auto &c : {white_smoke, yellow, aqua,
                                   lime_green, blue_violet, indian_red})
             {
-                spdlog::info(fmt::format(fg(c), fmt::runtime(m), emu.second, type.second));
+                spdlog::info(fmt::format(fg(c), FMT_RUNTIME(m), emu.second, type.second));
             }
 
             try

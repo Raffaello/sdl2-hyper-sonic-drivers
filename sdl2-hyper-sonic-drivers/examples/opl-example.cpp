@@ -5,13 +5,18 @@
 #include <HyperSonicDrivers/utils/opl.hpp>
 #include <spdlog/spdlog.h>
 #include <fmt/color.h>
-#include <fmt/format.h>
 #include <memory>
 #include <cstdint>
 #include <map>
 #include <string>
 
 #include <SDL2/SDL_main.h>
+
+#ifdef __GNUC__
+#define FMT_RUNTIME(x) fmt::runtime(x)
+#else
+#define FMT_RUNTIME(x) x
+#endif
 
 using namespace HyperSonicDrivers;
 
@@ -280,7 +285,7 @@ int main(int argc, char *argv[])
             for (auto &c : {fmt::color::white_smoke, fmt::color::yellow, fmt::color::aqua,
                             fmt::color::lime_green, fmt::color::blue_violet, fmt::color::indian_red})
             {
-                spdlog::info(fmt::format(fg(c), fmt::runtime(m), emu.second, type.second));
+                spdlog::info(fmt::format(fg(c), FMT_RUNTIME(m), emu.second, type.second));
             }
             try
             {

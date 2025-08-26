@@ -19,6 +19,12 @@
 #include <fmt/color.h>
 #include <map>
 
+#ifdef __GNUC__
+#define FMT_RUNTIME(x) fmt::runtime(x)
+#else
+#define FMT_RUNTIME(x) x
+#endif
+
 using namespace HyperSonicDrivers;
 
 using audio::mixer::eChannelGroup;
@@ -142,7 +148,7 @@ int run(const std::shared_ptr<audio::MIDI> &midi, const bool use_opldrv)
             try
             {
                 for (const auto &c : colors)
-                    spdlog::info(fmt::format(fg(c), fmt::runtime(m), emu.second, type.second));
+                    spdlog::info(fmt::format(fg(c), FMT_RUNTIME(m), emu.second, type.second));
 
                 if (use_opldrv)
                     mid_test(emu.first, type.first, mixer, midi);
