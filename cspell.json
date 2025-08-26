@@ -28,6 +28,7 @@
         "KEYON",
         "Kyra",
         "Kyrandia",
+        "libgmock",
         "libgtest",
         "libsdl",
         "libspdlog",

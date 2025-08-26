@@ -49,7 +49,7 @@ jobs:
           cmake -DCMAKE_BUILD_TYPE:STRING=Release . && make && sudo make install
       - name: install other dependencies
         run: |
-          sudo apt-get update && sudo apt-get install libspdlog-dev libgtest-dev libsdl2-dev
+          sudo apt-get update && sudo apt-get install libspdlog-dev libgtest-dev libgmock-dev libsdl2-dev
       # - name: fetch vcpkg
       #   run: |
       #     cd /usr/local/share/vcpkg && git fetch
