@@ -5,6 +5,7 @@
 #include <HyperSonicDrivers/utils/opl.hpp>
 #include <spdlog/spdlog.h>
 #include <fmt/color.h>
+#include <fmt/format.h>
 #include <memory>
 #include <cstdint>
 #include <map>

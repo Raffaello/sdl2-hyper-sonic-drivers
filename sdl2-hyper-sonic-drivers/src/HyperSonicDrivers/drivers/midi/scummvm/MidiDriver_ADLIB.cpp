@@ -16,12 +16,12 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
     constexpr const uint8_t g_operator1Offsets[9] = {
         0, 1, 2, 8,
         9, 10, 16, 17,
-        18};
+        18 };
 
     constexpr const uint8_t g_operator2Offsets[9] = {
         3, 4, 5, 11,
         12, 13, 19, 20,
-        21};
+        21 };
 
     constexpr const AdLibSetParams g_setParamTable[] = {
         //   reg,  offs, val1, val2 ?
@@ -46,13 +46,13 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         29, 28, 27, 0,
         3, 4, 7, 8,
         13, 16, 17, 20,
-        21, 30, 31, 0};
+        21, 30, 31, 0 };
 
     constexpr const uint16_t g_maxValTable[16] = {
         0x2FF, 0x1F, 0x7, 0x3F,
         0x0F, 0x0F, 0x0F, 0x3,
         0x3F, 0x0F, 0x0F, 0x0F,
-        0x3, 0x3E, 0x1F, 0};
+        0x3, 0x3E, 0x1F, 0 };
 
     constexpr const uint16_t g_numStepsTable[] = {
         1, 2, 4, 5,
@@ -62,7 +62,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         36, 50, 64, 82,
         100, 136, 160, 192,
         240, 276, 340, 460,
-        600, 860, 1200, 1600};
+        600, 860, 1200, 1600 };
 
     constexpr const uint8_t g_noteFrequencies[] = {
         90, 91, 92, 92, 93, 94, 94, 95,
@@ -82,25 +82,25 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         203, 205, 206, 208, 209, 211, 212, 214,
         215, 217, 218, 220, 222, 223, 225, 226,
         228, 230, 231, 233, 235, 236, 238, 240,
-        242, 243, 245, 247, 249, 251, 252, 254};
+        242, 243, 245, 247, 249, 251, 252, 254 };
 
-    constexpr AdLibChannel *toAdlibPart(IMidiChannel *mc)
+    constexpr AdLibChannel* toAdlibPart(IMidiChannel* mc)
     {
-        return dynamic_cast<AdLibChannel *>(mc);
+        return dynamic_cast<AdLibChannel*>(mc);
     }
 
-    static AdLibChannel *toAdlibPart(const std::unique_ptr<IMidiChannel> &ap)
+    static AdLibChannel* toAdlibPart(const std::unique_ptr<IMidiChannel>& ap)
     {
         return toAdlibPart(ap.get());
     }
 
-    MidiDriver_ADLIB::MidiDriver_ADLIB(const std::shared_ptr<devices::Opl> &opl) : m_opl([&opl]
-                                                                                         {
+    MidiDriver_ADLIB::MidiDriver_ADLIB(const std::shared_ptr<devices::Opl>& opl) : m_opl([&opl]
+        {
             if (opl == nullptr)
                 utils::throwLogC<std::runtime_error>("Device is null ptr");
 
             return opl->getOpl(); }()),
-                                                                                   m_opl3Mode(m_opl->type != OplType::OPL2)
+        m_opl3Mode(m_opl->type != OplType::OPL2)
     {
         using audio::midi::MIDI_MAX_CHANNELS;
         using audio::midi::MIDI_PERCUSSION_CHANNEL;
@@ -114,7 +114,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
             m_channels[i] = std::make_unique<AdLibChannel>(static_cast<uint8_t>(i));
 
         std::ranges::fill(_channelTable2, 0);
-        m_percussion = dynamic_cast<AdLibPercussionChannel *>(m_channels[MIDI_PERCUSSION_CHANNEL].get());
+        m_percussion = dynamic_cast<AdLibPercussionChannel*>(m_channels[MIDI_PERCUSSION_CHANNEL].get());
     }
 
     MidiDriver_ADLIB::~MidiDriver_ADLIB()
@@ -135,7 +135,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
         for (size_t i = 0; i != m_voices.size(); i++)
         {
-            AdLibVoice *voice = &m_voices[i];
+            AdLibVoice* voice = &m_voices[i];
             voice->slot = static_cast<uint8_t>(i);
             voice->_s11a.s10 = &voice->_s10b;
             voice->_s11b.s10 = &voice->_s10a;
@@ -143,7 +143,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
         m_opl->init();
 
-        _regCache = (uint8_t *)calloc(256, 1);
+        _regCache = (uint8_t*)calloc(256, 1);
 
         adlibWrite(8, 0x40);
         adlibWrite(0xBD, 0x00);
@@ -154,7 +154,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         }
         else
         {
-            _regCacheSecondary = (uint8_t *)calloc(256, 1);
+            _regCacheSecondary = (uint8_t*)calloc(256, 1);
             adlibWriteSecondary(5, 1);
         }
 
@@ -174,7 +174,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         // Stop the OPL timer
         m_opl->stop();
 
-        for (auto &v : m_voices)
+        for (auto& v : m_voices)
         {
             if (v.getChannel() != nullptr)
                 mcOff(&v);
@@ -219,16 +219,16 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         if (m_opl3Mode)
             return;
 
-        AdLibChannel *part = toAdlibPart(m_channels[channel]);
+        AdLibChannel* part = toAdlibPart(m_channels[channel]);
         part->pitchBendFactor = range;
-        for (AdLibVoice *voice = part->voice; voice; voice = voice->next)
+        for (AdLibVoice* voice = part->voice; voice; voice = voice->next)
         {
             adlibNoteOn(voice->slot, voice->getNote() /* + part->_transposeEff*/,
-                        (part->pitch * part->pitchBendFactor >> 6) + part->detuneEff);
+                (part->pitch * part->pitchBendFactor >> 6) + part->detuneEff);
         }
     }
 
-    void MidiDriver_ADLIB::sysEx_customInstrument(uint8_t channel, uint32_t type, const uint8_t *instr)
+    void MidiDriver_ADLIB::sysEx_customInstrument(uint8_t channel, uint32_t type, const uint8_t* instr)
     {
         if (m_opl3Mode)
         {
@@ -238,8 +238,11 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
         auto part = getChannel(channel);
 
+#ifdef __GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmultichar"
+#endif
+
         if (part->isPercussion)
         {
             if (type == static_cast<uint32_t>('ADLP'))
@@ -250,7 +253,10 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
             if (type == static_cast<uint32_t>('ADL '))
                 part->setCustomInstr(instr);
         }
+#ifdef __GNUC__
 #pragma GCC diagnostic pop
+#endif
+
     }
 
     void MidiDriver_ADLIB::adlibWrite(uint8_t reg, uint8_t value)
@@ -289,7 +295,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
             if (m_opl3Mode)
                 continue;
 
-            for (auto &voice : m_voices)
+            for (auto& voice : m_voices)
             {
                 if (voice.isFree())
                     continue;
@@ -331,8 +337,8 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
         if (part->isPercussion)
         {
-            const AdLibInstrument *inst = nullptr;
-            const AdLibInstrument *sec = nullptr;
+            const AdLibInstrument* inst = nullptr;
+            const AdLibInstrument* sec = nullptr;
 
             // The custom instruments have priority over the default mapping
             // We do not support custom instruments in OPL3 mode though.
@@ -370,8 +376,8 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         else
         {
             partKeyOn(part, part->getInstr(), note, vol,
-                      part->getInstrSecondary(),
-                      part->pan);
+                part->getInstrSecondary(),
+                part->pan);
         }
 
         logD(std::format("noteOn {} {}", note, vol));
@@ -447,12 +453,12 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         auto part = getChannel(chan);
 
         part->pitch = bend;
-        for (AdLibVoice *voice = part->voice; voice; voice = voice->next)
+        for (AdLibVoice* voice = part->voice; voice; voice = voice->next)
         {
             if (!m_opl3Mode)
             {
                 adlibNoteOn(voice->slot, voice->getNote() /* + _transposeEff*/,
-                            (part->pitch * part->pitchBendFactor >> 6) + part->detuneEff);
+                    (part->pitch * part->pitchBendFactor >> 6) + part->detuneEff);
             }
             else
             {
@@ -461,7 +467,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         }
     }
 
-    void MidiDriver_ADLIB::sysEx(const uint8_t *msg, uint16_t length) noexcept
+    void MidiDriver_ADLIB::sysEx(const uint8_t* msg, uint16_t length) noexcept
     {
     }
 
@@ -473,7 +479,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
             return;
 
         part->modulation = value;
-        for (AdLibVoice *voice = part->voice; voice; voice = voice->next)
+        for (AdLibVoice* voice = part->voice; voice; voice = voice->next)
         {
             if (voice->_s10a.active && voice->_s11a.flag0x40)
                 voice->_s10a.modWheel = part->modulation >> 2;
@@ -487,7 +493,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         auto part = getChannel(chan);
 
         part->volume = value;
-        for (AdLibVoice *voice = part->voice; voice; voice = voice->next)
+        for (AdLibVoice* voice = part->voice; voice; voice = voice->next)
         {
             if (!m_opl3Mode)
             {
@@ -530,10 +536,10 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
             return;
 
         part->pitchBendFactor = value;
-        for (AdLibVoice *voice = part->voice; voice; voice = voice->next)
+        for (AdLibVoice* voice = part->voice; voice; voice = voice->next)
         {
             adlibNoteOn(voice->slot, voice->getNote() /* + _transposeEff*/,
-                        (part->pitch * part->pitchBendFactor >> 6) + part->detuneEff);
+                (part->pitch * part->pitchBendFactor >> 6) + part->detuneEff);
         }
     }
 
@@ -556,10 +562,10 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         }
 
         part->detuneEff = value;
-        for (AdLibVoice *voice = part->voice; voice; voice = voice->next)
+        for (AdLibVoice* voice = part->voice; voice; voice = voice->next)
         {
             adlibNoteOn(voice->slot, voice->getNote() /* + _transposeEff*/,
-                        (part->pitch * part->pitchBendFactor >> 6) + part->detuneEff);
+                (part->pitch * part->pitchBendFactor >> 6) + part->detuneEff);
         }
     }
 
@@ -582,7 +588,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         part->sustain = value;
         if (value != 0)
         {
-            for (AdLibVoice *voice = part->voice; voice; voice = voice->next)
+            for (AdLibVoice* voice = part->voice; voice; voice = voice->next)
             {
                 if (voice->isSustain())
                     mcOff(voice);
@@ -611,9 +617,9 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
     //     _adlibTimerParam = timerParam;
     // }
 
-    void MidiDriver_ADLIB::mcOff(AdLibVoice *voice)
+    void MidiDriver_ADLIB::mcOff(AdLibVoice* voice)
     {
-        AdLibVoice *tmp;
+        AdLibVoice* tmp;
 
         adlibKeyOff(voice->slot);
 
@@ -630,9 +636,9 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         voice->setFree(true);
     }
 
-    void MidiDriver_ADLIB::mcIncStuff(AdLibVoice *voice, Struct10 *s10, Struct11 *s11)
+    void MidiDriver_ADLIB::mcIncStuff(AdLibVoice* voice, Struct10* s10, Struct11* s11)
     {
-        const AdLibChannel *part = toAdlibPart(voice->getChannel());
+        const AdLibChannel* part = toAdlibPart(voice->getChannel());
         const uint8_t code = struct10OnTimer(s10, s11);
 
         if (code & 1)
@@ -644,8 +650,8 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
                 if (!_scummSmallHeader)
                 {
                     adlibSetParam(voice->slot, 0,
-                                  g_volumeTable[g_volumeLookupTable[voice->vol2]
-                                                                   [part->volume >> 2]]);
+                        g_volumeTable[g_volumeLookupTable[voice->vol2]
+                        [part->volume >> 2]]);
                 }
                 else
                 {
@@ -657,8 +663,8 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
                 if (voice->twoChan && !_scummSmallHeader)
                 {
                     adlibSetParam(voice->slot, 13,
-                                  g_volumeTable[g_volumeLookupTable[voice->vol1]
-                                                                   [part->volume >> 2]]);
+                        g_volumeTable[g_volumeLookupTable[voice->vol1]
+                        [part->volume >> 2]]);
                 }
                 else
                 {
@@ -673,7 +679,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
                 break;
             default:
                 adlibSetParam(voice->slot, s11->param,
-                              s10->startValue + s11->modifyVal);
+                    s10->startValue + s11->modifyVal);
                 break;
             }
         }
@@ -692,7 +698,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         }
     }
 
-    uint8_t MidiDriver_ADLIB::struct10OnTimer(Struct10 *s10, Struct11 *s11)
+    uint8_t MidiDriver_ADLIB::struct10OnTimer(Struct10* s10, Struct11* s11)
     {
         uint8_t result = 0;
         int i;
@@ -749,7 +755,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
     void MidiDriver_ADLIB::adlibSetParam(int channel, uint8_t param, int value, bool primary)
     {
-        const AdLibSetParams *as;
+        const AdLibSetParams* as;
         uint8_t reg;
 
         assert(channel >= 0 && channel < 9);
@@ -812,7 +818,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         adlibWrite(reg, val | 0x20);
     }
 
-    void MidiDriver_ADLIB::struct10Setup(Struct10 *s10)
+    void MidiDriver_ADLIB::struct10Setup(Struct10* s10)
     {
         int b, c, d, e, f, g, h;
         uint8_t t;
@@ -931,9 +937,9 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         return _randSeed * a >> 8;
     }
 
-    void MidiDriver_ADLIB::partKeyOff(AdLibChannel *part, uint8_t note)
+    void MidiDriver_ADLIB::partKeyOff(AdLibChannel* part, uint8_t note)
     {
-        for (AdLibVoice *voice = part->voice; voice; voice = voice->next)
+        for (AdLibVoice* voice = part->voice; voice; voice = voice->next)
         {
             if (voice->getNote() == note)
             {
@@ -945,14 +951,14 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         }
     }
 
-    AdLibChannel *MidiDriver_ADLIB::getChannel(const uint8_t channel) const noexcept
+    AdLibChannel* MidiDriver_ADLIB::getChannel(const uint8_t channel) const noexcept
     {
         return toAdlibPart(m_channels[channel]);
     }
 
-    void MidiDriver_ADLIB::partKeyOn(AdLibChannel *part, const AdLibInstrument *instr, uint8_t note, uint8_t velocity, const AdLibInstrument *second, uint8_t pan)
+    void MidiDriver_ADLIB::partKeyOn(AdLibChannel* part, const AdLibInstrument* instr, uint8_t note, uint8_t velocity, const AdLibInstrument* second, uint8_t pan)
     {
-        AdLibVoice *voice;
+        AdLibVoice* voice;
 
         voice = allocateVoice(part->priority);
         if (!voice)
@@ -962,10 +968,10 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         mcKeyOn(voice, instr, note, velocity, second, pan);
     }
 
-    AdLibVoice *MidiDriver_ADLIB::allocateVoice(uint8_t pri)
+    AdLibVoice* MidiDriver_ADLIB::allocateVoice(uint8_t pri)
     {
-        AdLibVoice *ac = nullptr;
-        AdLibVoice *best = nullptr;
+        AdLibVoice* ac = nullptr;
+        AdLibVoice* best = nullptr;
 
         for (int i = 0; i < 9; i++)
         {
@@ -996,7 +1002,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         return best;
     }
 
-    void MidiDriver_ADLIB::linkMc(AdLibChannel *part, AdLibVoice *voice)
+    void MidiDriver_ADLIB::linkMc(AdLibChannel* part, AdLibVoice* voice)
     {
         voice->setFree(false);
         voice->setChannel(part);
@@ -1008,9 +1014,9 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
             voice->next->prev = voice;
     }
 
-    void MidiDriver_ADLIB::mcKeyOn(AdLibVoice *voice, const AdLibInstrument *instr, uint8_t note, uint8_t velocity, const AdLibInstrument *second, uint8_t pan)
+    void MidiDriver_ADLIB::mcKeyOn(AdLibVoice* voice, const AdLibInstrument* instr, uint8_t note, uint8_t velocity, const AdLibInstrument* second, uint8_t pan)
     {
-        const AdLibChannel *part = toAdlibPart(voice->getChannel());
+        const AdLibChannel* part = toAdlibPart(voice->getChannel());
         uint8_t vol1, vol2;
         uint8_t secVol1 = 0, secVol2 = 0;
 
@@ -1122,7 +1128,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         }
     }
 
-    void MidiDriver_ADLIB::adlibSetupChannel(int chan, const AdLibInstrument *instr, uint8_t vol1, uint8_t vol2)
+    void MidiDriver_ADLIB::adlibSetupChannel(int chan, const AdLibInstrument* instr, uint8_t vol1, uint8_t vol2)
     {
         assert(chan >= 0 && chan < 9);
 
@@ -1143,7 +1149,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         adlibWrite((uint8_t)chan + 0xC0, instr->feedback | (m_opl3Mode ? 0x30 : 0));
     }
 
-    void MidiDriver_ADLIB::adlibSetupChannelSecondary(int chan, const AdLibInstrument *instr, uint8_t vol1, uint8_t vol2, uint8_t pan)
+    void MidiDriver_ADLIB::adlibSetupChannelSecondary(int chan, const AdLibInstrument* instr, uint8_t vol1, uint8_t vol2, uint8_t pan)
     {
         assert(chan >= 0 && chan < 9);
         assert(m_opl3Mode);
@@ -1185,10 +1191,10 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         return _regCacheSecondary[reg];
     }
 
-    void MidiDriver_ADLIB::mcInitStuff(AdLibVoice *voice, Struct10 *s10,
-                                       Struct11 *s11, uint8_t flags, const InstrumentExtra *ie)
+    void MidiDriver_ADLIB::mcInitStuff(AdLibVoice* voice, Struct10* s10,
+        Struct11* s11, uint8_t flags, const InstrumentExtra* ie)
     {
-        const AdLibChannel *part = toAdlibPart(voice->getChannel());
+        const AdLibChannel* part = toAdlibPart(voice->getChannel());
         s11->modifyVal = 0;
         s11->flag0x40 = flags & 0x40;
         s10->loop = flags & 0x20;
@@ -1228,7 +1234,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
         struct10Init(s10, ie);
     }
 
-    void MidiDriver_ADLIB::struct10Init(Struct10 *s10, const InstrumentExtra *ie)
+    void MidiDriver_ADLIB::struct10Init(Struct10* s10, const InstrumentExtra* ie)
     {
         s10->active = 1;
         if (!_scummSmallHeader)
@@ -1259,7 +1265,7 @@ namespace HyperSonicDrivers::drivers::midi::scummvm
 
     int MidiDriver_ADLIB::adlibGetRegValueParam(int chan, uint8_t param)
     {
-        const AdLibSetParams *as;
+        const AdLibSetParams* as;
         uint8_t val;
         uint8_t channel;
 

@@ -20,56 +20,56 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-/*
-This file is a digital Adlib emulator for OPL2 and OPL3
-Ken Silverman's official web site: "http://www.advsys.net/ken"
+ /*
+ This file is a digital Adlib emulator for OPL2 and OPL3
+ Ken Silverman's official web site: "http://www.advsys.net/ken"
 
-I'm not sure about a few things in my code:
-- Attack curve.  What function is this anyway?  I chose to use an order-3
-  polynomial to approximate but this doesn't seem right.
-- Attack/Decay/Release constants - my constants may not be exact
-- Some of the drums don't always sound right.  It's pretty hard to guess
-  the exact waveform of drums when you look at random data which is
-  slightly randomized due to digital ADC recording.
-*/
+ I'm not sure about a few things in my code:
+ - Attack curve.  What function is this anyway?  I chose to use an order-3
+   polynomial to approximate but this doesn't seem right.
+ - Attack/Decay/Release constants - my constants may not be exact
+ - Some of the drums don't always sound right.  It's pretty hard to guess
+   the exact waveform of drums when you look at random data which is
+   slightly randomized due to digital ADC recording.
+ */
 
-/*  Changes/additions against original code (by The DOSBox Team):
+ /*  Changes/additions against original code (by The DOSBox Team):
 
-Features added:
-- Timer handling/status word support
-- DualOPL2 mode (second OPL2 chip)
-- OPL3 mode (32 channels, 4-operator modes, stereo panning, 8 waveforms etc.)
-- Allow attackrate/decayrate/releaserate to be always switchable
-- Allow waveform type/feedback/keepsustain to be always switchable
-- LFO effects (tremolo/vibrato)
-- Attempt to imitate step-like envelope function (needed especially when
-  slow-fading operator is used as modulator)
+ Features added:
+ - Timer handling/status word support
+ - DualOPL2 mode (second OPL2 chip)
+ - OPL3 mode (32 channels, 4-operator modes, stereo panning, 8 waveforms etc.)
+ - Allow attackrate/decayrate/releaserate to be always switchable
+ - Allow waveform type/feedback/keepsustain to be always switchable
+ - LFO effects (tremolo/vibrato)
+ - Attempt to imitate step-like envelope function (needed especially when
+   slow-fading operator is used as modulator)
 
-Fixes:
-- Force decay/release level to stay when decay/release are off
-- Force attack rate to zero when attack is off
-- Force sustain level to zero for maximal value of sustainlevel
-- Fixed mode transitions
-- Let modulator progress even if carrier is off
-- Correct keysplit handling
-- Feedback uses average of last two samples as input
-- Additive mode corrected
-- Wave table precision corrected
+ Fixes:
+ - Force decay/release level to stay when decay/release are off
+ - Force attack rate to zero when attack is off
+ - Force sustain level to zero for maximal value of sustainlevel
+ - Fixed mode transitions
+ - Let modulator progress even if carrier is off
+ - Correct keysplit handling
+ - Feedback uses average of last two samples as input
+ - Additive mode corrected
+ - Wave table precision corrected
 
-Other changes:
-- Removed (almost all) dependencies on 32bit float layout
-- Code restructuring/cleanup, added comments to improve readability
-- Put everything into a class for an easier multi-OPL implementation
+ Other changes:
+ - Removed (almost all) dependencies on 32bit float layout
+ - Code restructuring/cleanup, added comments to improve readability
+ - Put everything into a class for an easier multi-OPL implementation
 
-Bugs/missing features:
-- Attack/decay/release curve functions are not totally correct
-- Step-like effects of the envelope not fully correct
-- Percussions are just guesses (CH7+CH8), unknown how good they are
-- When exactly does switching the OPL2-compatibility flag (adlibreg[0x105]&1)
-  have an effect? (seems not-immediate)
-- Optimizations
+ Bugs/missing features:
+ - Attack/decay/release curve functions are not totally correct
+ - Step-like effects of the envelope not fully correct
+ - Percussions are just guesses (CH7+CH8), unknown how good they are
+ - When exactly does switching the OPL2-compatibility flag (adlibreg[0x105]&1)
+   have an effect? (seems not-immediate)
+ - Optimizations
 
-*/
+ */
 
 #include <HyperSonicDrivers/hardware/opl/woody/OPLChip.hpp>
 #include <cstring>
@@ -80,7 +80,7 @@ namespace HyperSonicDrivers::hardware
     {
         namespace woody
         {
-            OPLChip *oplchip[2];
+            OPLChip* oplchip[2];
 
             static double recipsamp;              // inverse of sampling rate
             static int16_t wavtable[WAVPREC * 3]; // wave form table
@@ -98,8 +98,8 @@ namespace HyperSonicDrivers::hardware
             // static double vibval_var4[FIFOSIZE];
 
             // vibrato/trmolo value table pointers
-            static double *vibval1, *vibval2, *vibval3, *vibval4;
-            static double *tremval1, *tremval2, *tremval3, *tremval4;
+            static double* vibval1, * vibval2, * vibval3, * vibval4;
+            static double* tremval1, * tremval2, * tremval3, * tremval4;
 
             // key scale level lookup table
             static const double kslmul[4] = {
@@ -109,7 +109,7 @@ namespace HyperSonicDrivers::hardware
             // frequency multiplicator lookup table
             static const double frqmul[16] = {
                 0.5, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0,
-                8.0, 9.0, 10.0, 10.0, 12.0, 12.0, 15.0, 15.0};
+                8.0, 9.0, 10.0, 10.0, 12.0, 12.0, 15.0, 15.0 };
             // calculated frequency multiplication values (depend on sampling rate)
             constexpr int TOT_nfrqmul = 16;
             static double nfrqmul[TOT_nfrqmul];
@@ -121,14 +121,14 @@ namespace HyperSonicDrivers::hardware
             static const uint8_t modulatorbase[9] = {
                 0, 1, 2,
                 8, 9, 10,
-                16, 17, 18};
+                16, 17, 18 };
 
             // map a register base to a modulator cell number
             static const uint8_t regbase2modcell[22] = {
                 0, 1, 2, 0, 1, 2,
                 0, 0, 3, 4, 5, 3,
                 4, 5, 0, 0, 6, 7,
-                8, 6, 7, 8};
+                8, 6, 7, 8 };
 
             // start of the waveform
             static int waveform[8] = {
@@ -139,7 +139,7 @@ namespace HyperSonicDrivers::hardware
                 0,
                 0,
                 (WAVPREC * 5) >> 2,
-                WAVPREC << 1};
+                WAVPREC << 1 };
 
             // length of the waveform as mask
             static int wavemask[8] = {
@@ -150,7 +150,7 @@ namespace HyperSonicDrivers::hardware
                 WAVPREC - 1,
                 ((WAVPREC * 3) >> 2) - 1,
                 WAVPREC >> 1,
-                WAVPREC - 1};
+                WAVPREC - 1 };
 
             // where the first entry resides
             static double wavestart[8] = {
@@ -161,22 +161,22 @@ namespace HyperSonicDrivers::hardware
                 static_cast<double>(0.0),
                 static_cast<double>(0.0),
                 static_cast<double>(0.0),
-                static_cast<double>(WAVPREC >> 3)};
+                static_cast<double>(WAVPREC >> 3) };
 
             // envelope generator function constants
-            static double attackconst[4] = {1 / 2.82624, 1 / 2.25280, 1 / 1.88416, 1 / 1.59744};
-            static double decrelconst[4] = {1 / 39.28064, 1 / 31.41608, 1 / 26.17344, 1 / 22.44608};
+            static double attackconst[4] = { 1 / 2.82624, 1 / 2.25280, 1 / 1.88416, 1 / 1.59744 };
+            static double decrelconst[4] = { 1 / 39.28064, 1 / 31.41608, 1 / 26.17344, 1 / 22.44608 };
 
             static double generator_add; // should be a chip parameter
 
             // no action, cell is off
-            void processcell_off(celltype * /*ctc*/, const double /*modulator*/, const double /*vib*/, const double /*trem*/)
+            void processcell_off(celltype* /*ctc*/, const double /*modulator*/, const double /*vib*/, const double /*trem*/)
             {
             }
 
             // output level is sustained, mode changes only when cell is turned off (->release)
             // or when the keep-sustained bit is turned off (->sustain_nokeep)
-            void processcell_sustain(celltype *ctc, const double modulator, const double vib, const double trem)
+            void processcell_sustain(celltype* ctc, const double modulator, const double vib, const double trem)
             {
                 // what is the point of using double if it cast to integer?
                 uint32_t i = static_cast<uint32_t>(ctc->t + modulator);
@@ -196,7 +196,7 @@ namespace HyperSonicDrivers::hardware
             }
 
             // cell in release mode, if output level reaches zero the cell is turned off
-            void processcell_release(celltype *ctc, const double modulator, const double vib, const double trem)
+            void processcell_release(celltype* ctc, const double modulator, const double vib, const double trem)
             {
                 // ??? boundary?
                 if (ctc->amp > 0.00000001)
@@ -233,7 +233,7 @@ namespace HyperSonicDrivers::hardware
             // cell in decay mode, if sustain level is reached the output level is
             // either kept (sustain level keep enabled) or the celll is switched
             // into release mode
-            void processcell_decay(celltype *ctc, const double modulator, const double vib, const double trem)
+            void processcell_decay(celltype* ctc, const double modulator, const double vib, const double trem)
             {
                 if (ctc->amp > ctc->sustain_level)
                 {
@@ -278,7 +278,7 @@ namespace HyperSonicDrivers::hardware
 
             // cell in attack mode, if full output level is reached, the cell is
             // switched into decay mode
-            void processcell_attack(celltype *ctc, const double modulator, const double vib, const double trem)
+            void processcell_attack(celltype* ctc, const double modulator, const double vib, const double trem)
             {
                 ctc->amp = ((ctc->a3 * ctc->amp + ctc->a2) * ctc->amp + ctc->a1) * ctc->amp + ctc->a0;
                 if (ctc->amp > 1.0)
@@ -313,7 +313,7 @@ namespace HyperSonicDrivers::hardware
                 //  ctc->val = ctc->amp*ctc->vol*((double)ctc->cur_wform[i&ctc->cur_wmask])*trem;
             }
 
-            typedef void (*cftype_fptr)(celltype *, const double, const double, const double);
+            typedef void (*cftype_fptr)(celltype*, const double, const double, const double);
 
             cftype_fptr cfuncs[6] = {
                 processcell_attack,
@@ -321,7 +321,7 @@ namespace HyperSonicDrivers::hardware
                 processcell_release,
                 processcell_sustain, // sustain phase (keeping level)
                 processcell_release, // sustain_nokeep phase (release-style)
-                processcell_off};
+                processcell_off };
 
             // void adlib_timeout(uintptr_t val) {
             //     if ((val & 1) == 0) {
@@ -363,7 +363,7 @@ namespace HyperSonicDrivers::hardware
                 }
             }
 
-            static void clipit16(double f, int16_t *a)
+            static void clipit16(double f, int16_t* a)
             {
                 if (f > 32766.5)
                     *a = 32767;
@@ -385,7 +385,7 @@ namespace HyperSonicDrivers::hardware
                 return _samplerate;
             }
 
-            void OPLChip::change_attackrate(const uint32_t regbase, celltype *c)
+            void OPLChip::change_attackrate(const uint32_t regbase, celltype* c)
             {
                 int32_t attackrate = adlibreg[ARC_ATTR_DECR + regbase] >> 4;
                 if (attackrate)
@@ -402,7 +402,7 @@ namespace HyperSonicDrivers::hardware
                     c->env_step_a = (1 << (steps <= 12 ? 12 - steps : 0)) - 1;
 
                     int32_t step_num = (step_skip <= 48) ? (4 - (step_skip & 3)) : 0;
-                    static uint8_t step_skip_mask[5] = {0xff, 0xfe, 0xee, 0xba, 0xaa};
+                    static uint8_t step_skip_mask[5] = { 0xff, 0xfe, 0xee, 0xba, 0xaa };
                     c->env_step_skip_a = step_skip_mask[step_num];
                 }
                 else
@@ -417,7 +417,7 @@ namespace HyperSonicDrivers::hardware
                 }
             }
 
-            void OPLChip::change_decayrate(const uint32_t regbase, celltype *c)
+            void OPLChip::change_decayrate(const uint32_t regbase, celltype* c)
             {
                 int32_t decayrate = adlibreg[ARC_ATTR_DECR + regbase] & 15;
                 // decaymul should be 1.0 when decayrate==0
@@ -435,7 +435,7 @@ namespace HyperSonicDrivers::hardware
                 }
             }
 
-            void OPLChip::change_releaserate(const uint32_t regbase, celltype *c)
+            void OPLChip::change_releaserate(const uint32_t regbase, celltype* c)
             {
                 int32_t releaserate = adlibreg[ARC_SUSL_RELR + regbase] & 15;
                 // releasemul should be 1.0 when releaserate==0
@@ -453,7 +453,7 @@ namespace HyperSonicDrivers::hardware
                 }
             }
 
-            void OPLChip::change_sustainlevel(const uint32_t regbase, celltype *c)
+            void OPLChip::change_sustainlevel(const uint32_t regbase, celltype* c)
             {
                 int32_t sustainlevel = adlibreg[ARC_SUSL_RELR + regbase] >> 4;
                 // sustainlevel should be 0.0 when sustainlevel==15 (max)
@@ -467,7 +467,7 @@ namespace HyperSonicDrivers::hardware
                 }
             }
 
-            void OPLChip::change_waveform(const uint32_t regbase, celltype *c)
+            void OPLChip::change_waveform(const uint32_t regbase, celltype* c)
             {
                 // waveform selection
                 c->cur_wmask = wavemask[wave_sel[regbase]];
@@ -478,7 +478,7 @@ namespace HyperSonicDrivers::hardware
                 //  c->t = wavestart[wave_sel[regbase]];
             }
 
-            void OPLChip::change_keepsustain(const uint32_t regbase, celltype *c)
+            void OPLChip::change_keepsustain(const uint32_t regbase, celltype* c)
             {
                 c->sus_keep = (adlibreg[ARC_TVS_KSR_MUL + regbase] & 0x20) > 0;
                 if (c->cf_sel == CF_TYPE_SUS)
@@ -492,14 +492,14 @@ namespace HyperSonicDrivers::hardware
             }
 
             // enable/disable vibrato/tremolo LFO effects
-            void OPLChip::change_vibrato(const uint32_t regbase, celltype *c)
+            void OPLChip::change_vibrato(const uint32_t regbase, celltype* c)
             {
                 c->vibrato = (adlibreg[ARC_TVS_KSR_MUL + regbase] & 0x40) != 0;
                 c->tremolo = (adlibreg[ARC_TVS_KSR_MUL + regbase] & 0x80) != 0;
             }
 
             // change amount of self-feedback
-            void OPLChip::change_feedback(const uint32_t chanbase, celltype *c)
+            void OPLChip::change_feedback(const uint32_t chanbase, celltype* c)
             {
                 int32_t feedback = adlibreg[ARC_FEEDBACK + chanbase] & 14;
                 if (feedback)
@@ -508,7 +508,7 @@ namespace HyperSonicDrivers::hardware
                     c->mfb = 0.0;
             }
 
-            void OPLChip::change_cellfreq(uint32_t chanbase, uint32_t regbase, celltype *c)
+            void OPLChip::change_cellfreq(uint32_t chanbase, uint32_t regbase, celltype* c)
             {
                 // frequency
                 int32_t frn = ((((int32_t)adlibreg[ARC_KON_BNUM + chanbase]) & 3) << 8) + (int32_t)adlibreg[ARC_FREQ_NUM + chanbase];
@@ -529,7 +529,7 @@ namespace HyperSonicDrivers::hardware
                 c->tinc = (double)(frn << oct) * nfrqmul[adlibreg[ARC_TVS_KSR_MUL + regbase] & 15];
                 // 40+a0+b0:
                 double vol_in = (double)((double)(adlibreg[ARC_KSL_OUTLEV + regbase] & 63) +
-                                         (double)kslmul[adlibreg[ARC_KSL_OUTLEV + regbase] >> 6] * ksl[oct][frn >> 6]);
+                    (double)kslmul[adlibreg[ARC_KSL_OUTLEV + regbase] >> 6] * ksl[oct][frn >> 6]);
                 c->vol = (double)(pow(FL2, (double)(vol_in * -0.125 - 14)));
 
                 // cell frequency changed, care about features that depend on it
@@ -538,7 +538,7 @@ namespace HyperSonicDrivers::hardware
                 change_releaserate(regbase, c);
             }
 
-            void OPLChip::cellon(const uint32_t regbase, celltype *c)
+            void OPLChip::cellon(const uint32_t regbase, celltype* c)
             {
                 int32_t wselbase = regbase;
                 if (wselbase >= ARC_SECONDSET)
@@ -554,9 +554,9 @@ namespace HyperSonicDrivers::hardware
             {
                 generator_add = static_cast<double>(INTFREQU) / static_cast<double>(_samplerate);
 
-                memset((void *)adlibreg, 0, sizeof(adlibreg));
-                memset((void *)cell, 0, sizeof(celltype) * MAXCELLS);
-                memset((void *)wave_sel, 0, sizeof(wave_sel));
+                memset((void*)adlibreg, 0, sizeof(adlibreg));
+                memset((void*)cell, 0, sizeof(celltype) * MAXCELLS);
+                memset((void*)wave_sel, 0, sizeof(wave_sel));
 
                 for (int i = 0; i < MAXCELLS; i++)
                 {
@@ -630,7 +630,7 @@ namespace HyperSonicDrivers::hardware
                 {
                     trem_table[i] = static_cast<double>(trem_table_int[i]) * 4.8 / 26.0 / 6.0;                                         // 4.8db
                     trem_table[TREMTAB_SIZE + i] = static_cast<double>(static_cast<int32_t>(trem_table_int[i] / 4)) * 1.2 / 7.5 / 6.0; // 1.2db (?)
-                                                                                                                                       //      trem_table[i]=(double)(trem_table_int[(i)&(~3)])*1.0/13.0/6.0;                  // 1.0db
+                    //      trem_table[i]=(double)(trem_table_int[(i)&(~3)])*1.0/13.0/6.0;                  // 1.0db
 
                     trem_table[i] = pow(FL2, trem_table[i]);
                     trem_table[TREMTAB_SIZE + i] = (double)(pow(FL2, trem_table[TREMTAB_SIZE + i]));
@@ -760,7 +760,7 @@ namespace HyperSonicDrivers::hardware
                         uint32_t chanbase = second_set ? (modcell - 18 + ARC_SECONDSET) : modcell;
 
                         // change tremolo/vibrato and sustain keeping of this cell
-                        celltype *ccellptr = &cell[modcell + ((num < 3) ? 0 : 9)];
+                        celltype* ccellptr = &cell[modcell + ((num < 3) ? 0 : 9)];
                         change_keepsustain(regbase, ccellptr);
                         change_vibrato(regbase, ccellptr);
 
@@ -783,7 +783,7 @@ namespace HyperSonicDrivers::hardware
 
                         // change frequency calculations of this cell as
                         // key scale level and output rate can be changed
-                        celltype *ccellptr = &cell[modcell + ((num < 3) ? 0 : 9)];
+                        celltype* ccellptr = &cell[modcell + ((num < 3) ? 0 : 9)];
                         change_cellfreq(chanbase, base, ccellptr);
                     }
                 }
@@ -800,7 +800,7 @@ namespace HyperSonicDrivers::hardware
                         uint32_t regbase = base + second_set;
 
                         // change attack rate and decay rate of this cell
-                        celltype *ccellptr = &cell[modcell + ((num < 3) ? 0 : 9)];
+                        celltype* ccellptr = &cell[modcell + ((num < 3) ? 0 : 9)];
                         change_attackrate(regbase, ccellptr);
                         change_decayrate(regbase, ccellptr);
                     }
@@ -818,7 +818,7 @@ namespace HyperSonicDrivers::hardware
                         uint32_t regbase = base + second_set;
 
                         // change sustain level and release rate of this cell
-                        celltype *ccellptr = &cell[modcell + ((num < 3) ? 0 : 9)];
+                        celltype* ccellptr = &cell[modcell + ((num < 3) ? 0 : 9)];
                         change_releaserate(regbase, ccellptr);
                         change_sustainlevel(regbase, ccellptr);
                     }
@@ -955,7 +955,7 @@ namespace HyperSonicDrivers::hardware
                         {
                             // wave selection enabled, change waveform
                             wave_sel[base] = val & 3;
-                            celltype *ccellptr = &cell[regbase2modcell[base] + ((num < 3) ? 0 : 9)];
+                            celltype* ccellptr = &cell[regbase2modcell[base] + ((num < 3) ? 0 : 9)];
                             change_waveform(base, ccellptr);
                         }
                     }
@@ -969,10 +969,10 @@ namespace HyperSonicDrivers::hardware
             // be careful with this
             // uses cptr and chanval, outputs into outbufl(/outbufr)
             // for opl3 check if opl3-mode is enabled (which uses stereo panning)
-            void OPLChip::adlib_getsample(int16_t *sndptr, const int32_t numsamples)
+            void OPLChip::adlib_getsample(int16_t* sndptr, const int32_t numsamples)
             {
                 int32_t i, j, endsamples;
-                celltype *cptr;
+                celltype* cptr;
 
                 double outbufl[FIFOSIZE];
 
@@ -990,7 +990,7 @@ namespace HyperSonicDrivers::hardware
                     if (endsamples > FIFOSIZE)
                         endsamples = FIFOSIZE;
 
-                    memset((void *)&outbufl, 0, endsamples * sizeof(double));
+                    memset((void*)&outbufl, 0, endsamples * sizeof(double));
 
                     // calculate vibrato/tremolo lookup tables
                     for (i = 0; i < endsamples; i++)
@@ -1069,8 +1069,10 @@ namespace HyperSonicDrivers::hardware
                                 }
                                 else
                                     vibval2 = val_const;
+#ifdef __GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdangling-pointer"
+#endif
                                 if (cptr[0].tremolo)
                                     tremval1 = trem_lut; // tremolo enabled, use table
                                 else
@@ -1079,13 +1081,15 @@ namespace HyperSonicDrivers::hardware
                                     tremval1 = trem_lut; // tremolo enabled, use table
                                 else
                                     tremval1 = val_const;
+#ifdef __GNUC__
 #pragma GCC diagnostic pop
+#endif
 
                                 // calculate channel output
                                 for (i = 0; i < endsamples; i++)
                                 {
-                                    cfuncs[cptr[0].cf_sel](&cptr[0], (cptr[0].lastval + cptr[0].val) * cptr[0].mfb, vibval1[i], tremval1[i]);
-                                    cfuncs[cptr[9].cf_sel](&cptr[9], cptr[0].val * MODFACTOR, vibval2[i], tremval2[i]);
+                                    cfuncs[cptr[0].cf_sel](&cptr[0], (cptr[0].lastval + cptr[0].val)* cptr[0].mfb, vibval1[i], tremval1[i]);
+                                    cfuncs[cptr[9].cf_sel](&cptr[9], cptr[0].val* MODFACTOR, vibval2[i], tremval2[i]);
 
                                     double chanval = cptr[9].val * 2;
                                     outbufl[i] += chanval;
@@ -1115,8 +1119,11 @@ namespace HyperSonicDrivers::hardware
                             }
                             else
                                 vibval2 = val_const;
+#ifdef __GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdangling-pointer"
+#endif
+
                             if (cptr[0].tremolo)
                                 tremval1 = trem_lut; // tremolo enabled, use table
                             else
@@ -1125,7 +1132,10 @@ namespace HyperSonicDrivers::hardware
                                 tremval2 = trem_lut; // tremolo enabled, use table
                             else
                                 tremval2 = val_const;
+#ifdef __GNUC__
 #pragma GCC diagnostic pop
+#endif
+
                             cptr = &cell[8];
                             if ((cptr[0].vibrato) && (cptr[0].cf_sel != CF_TYPE_OFF))
                             {
@@ -1143,8 +1153,10 @@ namespace HyperSonicDrivers::hardware
                             }
                             else
                                 vibval4 = val_const;
+#ifdef __GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdangling-pointer="
+#endif
                             if (cptr[0].tremolo)
                                 tremval3 = trem_lut; // tremolo enabled, use table
                             else
@@ -1153,7 +1165,9 @@ namespace HyperSonicDrivers::hardware
                                 tremval4 = trem_lut; // tremolo enabled, use table
                             else
                                 tremval4 = val_const;
+#ifdef __GNUC__
 #pragma GCC diagnostic pop
+#endif
                             // calculate channel output
                             for (i = 0; i < endsamples; i++)
                             {
@@ -1228,7 +1242,7 @@ namespace HyperSonicDrivers::hardware
                             for (i = 0; i < endsamples; i++)
                             {
                                 // carrier1
-                                cfuncs[cptr[0].cf_sel](&cptr[0], (cptr[0].lastval + cptr[0].val) * cptr[0].mfb, vibval1[i], tremval1[i]);
+                                cfuncs[cptr[0].cf_sel](&cptr[0], (cptr[0].lastval + cptr[0].val)* cptr[0].mfb, vibval1[i], tremval1[i]);
                                 // carrier2
                                 cfuncs[cptr[9].cf_sel](&cptr[9], 0.0, vibval2[i], tremval2[i]);
 
@@ -1270,9 +1284,9 @@ namespace HyperSonicDrivers::hardware
                             for (i = 0; i < endsamples; i++)
                             {
                                 // modulator
-                                cfuncs[cptr[0].cf_sel](&cptr[0], (cptr[0].lastval + cptr[0].val) * cptr[0].mfb, vibval1[i], tremval1[i]);
+                                cfuncs[cptr[0].cf_sel](&cptr[0], (cptr[0].lastval + cptr[0].val)* cptr[0].mfb, vibval1[i], tremval1[i]);
                                 // carrier
-                                cfuncs[cptr[9].cf_sel](&cptr[9], cptr[0].val * MODFACTOR, vibval2[i], tremval2[i]);
+                                cfuncs[cptr[9].cf_sel](&cptr[9], cptr[0].val* MODFACTOR, vibval2[i], tremval2[i]);
 
                                 double chanval = cptr[9].val;
                                 outbufl[i] += chanval;
