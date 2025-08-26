@@ -6,7 +6,7 @@
 ### Sonar cloud job the cache in $HOME/.sonar doesn't save sub-dirs
 ### so can't be cached.
 
-name: ci-windows
+name: ci-msys2
 on:
   #push:
   #  paths-ignore:
@@ -32,6 +32,8 @@ on:
 
 #permissions: read-all
 
+
+
 jobs:
   build:
     strategy:
@@ -42,59 +44,61 @@ jobs:
             os: [ '2022' ]
     name: Build Windows
     runs-on: windows-${{ matrix.os }}
+    defaults:
+      run:
+        shell: msys2 {0}
     steps:
+      - uses: actions/checkout@v5
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          install: |
+            base-devel mingw-w64-ucrt-x86_64-toolchain
+            git
+            mingw-w64-ucrt-x86_64-gcc
+            mingw-w64-ucrt-x86_64-munt-mt32emu
+            mingw-w64-ucrt-x86_64-SDL2
+            mingw-w64-ucrt-x86_64-gtest
+            mingw-w64-ucrt-x86_64-ninja
+            mingw-w64-ucrt-x86_64-cmake
+            mingw-w64-ucrt-x86_64-spdlog
+
       - name: set-up environment variables
         run: |
-          if ( "${{ matrix.triplet }}".startsWith('x86')) {
-            #echo "ARCH=32" >> $GITHUB_ENV
-            echo "ARCH=32" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-            echo "CMAKE_A=Win32" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          } else {
-            #echo "ARCH=64" >> $GITHUB_ENV
-            echo "ARCH=64" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-            echo "CMAKE_A=x64" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          }
-
-          if ( "${{ matrix.os}}".startsWith('2019')) {
-            echo "VS_PATH=C:\Program Files (x86)\Microsoft Visual Studio\${{ matrix.os}}\Enterprise" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          } else {
-            echo "VS_PATH=C:\Program Files\Microsoft Visual Studio\${{ matrix.os }}\Enterprise" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          }
+          echo "ARCH=64" >> $GITHUB_ENV
+          #echo "CMAKE_A=x64" >> $GITHUB_ENV
       - name: fetch vcpkg
         run: |
-          cd C:\vcpkg
-          git fetch
-      - uses: actions/checkout@v4
+          cd /usr/local/share/vcpkg && git fetch
       - name: create build dir
         run: mkdir build
       - uses: actions/cache@v4
         id: dep-cache
         with:
-            path: C:/vcpkg/packages
-            key: ${{ runner.os }}-${{ matrix.os }}-${{ matrix.triplet }}-dep-cache-${{ hashFiles('**/*') }}
-            restore-keys: ${{ runner.os }}-${{ matrix.os }}-${{ matrix.triplet }}-dep-cache
+            path: build/vcpkg_installed/
+            key: ${{ runner.os }}-${{ matrix.triplet }}-dep-cache-${{ hashFiles('**/*') }}
+            restore-keys: ${{ runner.os }}-${{ matrix.triplet }}-dep-cache
       - name: cmake generator
         run: |
-          . "${{ env.VS_PATH }}\VC\Auxiliary\Build\vcvars${{ env.ARCH }}.bat"
-          cmake -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }} -A ${{ env.CMAKE_A }} -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ..
+          cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ..
         working-directory: build
       - name: cmake build
         run: |
-          . "${{ env.VS_PATH }}\VC\Auxiliary\Build\vcvars${{ env.ARCH }}.bat"
           cmake --build . --config=${{ matrix.build_type }} -j4
         working-directory: build
       - name: CTest
         run: ctest --output-on-failure
         working-directory: build
       - name: cmake install
-        run: cmake --build . --target install --config ${{ matrix.build_type }} -j4
+        run: sudo cmake --build . --target install --config ${{ matrix.build_type }} -j4
         working-directory: build
       - name: cmake package
-        run: cmake --build . --target package --config ${{ matrix.build_type }} -j4
+        run: sudo cmake --build . --target package --config ${{ matrix.build_type }} -j4
         working-directory: build
       - name: Release
         uses: softprops/action-gh-release@v1
-        if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.os == '2022' }}
+        if: startsWith(github.ref, 'refs/tags/')
         with:
             generate_release_notes: true
             prerelease: false
