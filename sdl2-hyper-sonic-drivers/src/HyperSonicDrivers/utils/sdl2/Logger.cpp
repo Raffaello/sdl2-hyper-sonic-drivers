@@ -147,22 +147,22 @@ namespace HyperSonicDrivers::utils::sdl2
 
     void Logger::trace(const std::string &str, const eCategory cat)
     {
-        SDL_LogVerbose(cat2sdl(cat), str.c_str());
+        SDL_LogVerbose(cat2sdl(cat), "%s", str.c_str());
     }
 
     void Logger::debug(const std::string &str, const eCategory cat)
     {
-        SDL_LogDebug(cat2sdl(cat), str.c_str());
+        SDL_LogDebug(cat2sdl(cat), "%s", str.c_str());
     }
 
     void Logger::info(const std::string &str, const eCategory cat)
     {
-        SDL_LogInfo(cat2sdl(cat), str.c_str());
+        SDL_LogInfo(cat2sdl(cat), "%s", str.c_str());
     }
 
     void Logger::warning(const std::string &str, const eCategory cat)
     {
-        SDL_LogWarn(cat2sdl(cat), str.c_str());
+        SDL_LogWarn(cat2sdl(cat), "%s", str.c_str());
     }
 
     void Logger::error(const std::string &str, const eCategory cat)
