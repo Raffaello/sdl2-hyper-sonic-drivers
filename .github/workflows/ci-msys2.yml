@@ -63,14 +63,10 @@ jobs:
             mingw-w64-ucrt-x86_64-ninja
             mingw-w64-ucrt-x86_64-cmake
             mingw-w64-ucrt-x86_64-spdlog
-
       - name: set-up environment variables
         run: |
           echo "ARCH=64" >> $GITHUB_ENV
           #echo "CMAKE_A=x64" >> $GITHUB_ENV
-      - name: fetch vcpkg
-        run: |
-          cd /usr/local/share/vcpkg && git fetch
       - name: create build dir
         run: mkdir build
       - uses: actions/cache@v4
