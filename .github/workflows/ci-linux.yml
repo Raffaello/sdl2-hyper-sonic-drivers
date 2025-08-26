@@ -44,6 +44,7 @@ jobs:
       - name: fetch vcpkg
         run: |
           cd /usr/local/share/vcpkg && git fetch
+          echo $VCPKG_ROOT
       - uses: actions/checkout@v4
       - name: create build dir
         run: mkdir build

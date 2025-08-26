@@ -256,6 +256,7 @@ namespace HyperSonicDrivers::audio::sdl2
         if (m_device_id == 0)
         {
             logE("can't open audio device");
+            SDL_QuitSubSystem(SDL_INIT_AUDIO);
             return false;
         }
 
