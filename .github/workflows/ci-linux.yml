@@ -7,27 +7,35 @@
 
 name: ci-linux
 on:
-  push:
+  # push:
+  #   paths-ignore:
+  #     - '.gitignore'
+  #     - '.gitattributes'
+  #     - 'README.md'
+  #     - 'LICENSE'
+  #   branches-ignore:
+  #     - master
+  release:
+    types: [created]
+  pull_request:
+    branches: [ master ]
     paths-ignore:
+      - 'doc/**'
       - '.gitignore'
       - '.gitattributes'
       - 'README.md'
       - 'LICENSE'
-    branches-ignore:
-      - master
-  release:
-    types:
-      - created
+      - 'wave_generators.r'
 
 jobs:
   build:
-    name: Build Linux
-    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
         triplet: [ x64-linux ]
         build_type: [ Debug, Release ]
+    name: Build Linux
+    runs-on: ubuntu-24.04
     steps:
       - name: set-up environment variables
         run: |
@@ -36,10 +44,10 @@ jobs:
       - name: fetch vcpkg
         run: |
           cd /usr/local/share/vcpkg && git fetch
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: create build dir
         run: mkdir build
-      - uses: actions/cache@v2
+      - uses: actions/cache@v4
         id: dep-cache
         with:
             path: build/vcpkg_installed/
