@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.21)
 
-find_package(spdlog CONFIG REQUIRED)
+find_package(spdlog 1.15 CONFIG REQUIRED)
 
 ### Macro ###
 macro(macro_example) # ${ARGN} link libraries
@@ -72,9 +72,10 @@ macro_example(
     FILE "opl-example.cpp"
     DEPS hyper-sonic-drivers-static
     LINKS
-        $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
-        # $<TARGET_NAME_IF_EXISTS:SDL2main>
-        hyper-sonic-drivers-static spdlog::spdlog
+        PRIVATE
+            $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
+            hyper-sonic-drivers-static
+            spdlog::spdlog
     NONE
 )
 
@@ -83,9 +84,10 @@ macro_example(
     FILE "adl-example.cpp"
     DEPS hyper-sonic-drivers-static
     LINKS
-        $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
-        # $<TARGET_NAME_IF_EXISTS:SDL2main>
-        hyper-sonic-drivers-static spdlog::spdlog
+        PRIVATE
+            $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
+            hyper-sonic-drivers-static
+            spdlog::spdlog
     FIXTURES 
       "../test/fixtures/DUNE0.ADL"
       #"../test/fixtures/EOBSOUND.ADL"
@@ -98,10 +100,10 @@ macro_example(
     FILE "adl-play.cpp"
     DEPS hyper-sonic-drivers-static
     LINKS
-        $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
-        # $<TARGET_NAME_IF_EXISTS:SDL2main>
-        hyper-sonic-drivers-static spdlog::spdlog 
-        # SDL2::SDL2
+        PRIVATE
+            $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
+            hyper-sonic-drivers-static
+            spdlog::spdlog 
     FIXTURES 
       "../test/fixtures/DUNE0.ADL"
       #"../test/fixtures/EOBSOUND.ADL"
@@ -114,10 +116,11 @@ macro_example(
     FILE "pcm-example.cpp"
     DEPS hyper-sonic-drivers-static
     LINKS
-        $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
-        # $<TARGET_NAME_IF_EXISTS:SDL2main>
-        hyper-sonic-drivers-static spdlog::spdlog
-    FIXTURES 
+        PRIVATE
+            $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
+            hyper-sonic-drivers-static
+            spdlog::spdlog
+    FIXTURES
       "../test/fixtures/Wav_868kb.wav"
       "../test/fixtures/DUNE.VOC"
     NONE
@@ -128,10 +131,11 @@ macro_example(
     FILE "mid-example.cpp"
     DEPS hyper-sonic-drivers-static
     LINKS
-        $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
-        # $<TARGET_NAME_IF_EXISTS:SDL2main>
-        hyper-sonic-drivers-static spdlog::spdlog
-    FIXTURES 
+        PRIVATE
+            $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
+            hyper-sonic-drivers-static
+            spdlog::spdlog
+    FIXTURES
       "../test/fixtures/MI_intro.mid"
       #"../test/fixtures/midifile_sample.mid"
     NONE
@@ -142,10 +146,11 @@ macro_example(
     FILE "mus-example.cpp"
     DEPS hyper-sonic-drivers-static
     LINKS
-        $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
-        # $<TARGET_NAME_IF_EXISTS:SDL2main>
-        hyper-sonic-drivers-static spdlog::spdlog
-    FIXTURES 
+        PRIVATE
+            $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
+            hyper-sonic-drivers-static
+            spdlog::spdlog
+    FIXTURES
       "../test/fixtures/D_E1M1.MUS"
       "../test/fixtures/GENMIDI.OP2"
     NONE
@@ -156,10 +161,11 @@ macro_example(
     FILE "mt32-example.cpp"
     DEPS hyper-sonic-drivers-static
     LINKS
-        $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
-        # $<TARGET_NAME_IF_EXISTS:SDL2main>
-        hyper-sonic-drivers-static spdlog::spdlog
-    FIXTURES 
+        PRIVATE
+            $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
+            hyper-sonic-drivers-static
+            spdlog::spdlog
+    FIXTURES
       "../test/fixtures/MI_intro.mid"
     NONE
 )

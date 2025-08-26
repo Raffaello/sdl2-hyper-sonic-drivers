@@ -9,6 +9,7 @@
 #include <cstdint>
 #include <map>
 #include <string>
+#include <type_traits>
 
 #include <SDL2/SDL_main.h>
 
