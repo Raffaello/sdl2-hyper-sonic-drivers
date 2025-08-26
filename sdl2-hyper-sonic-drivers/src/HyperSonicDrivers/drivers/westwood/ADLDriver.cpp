@@ -80,6 +80,23 @@ namespace HyperSonicDrivers::drivers::westwood
         resetAdLibState_();
     }
 
+    inline void ADLDriver::setOplSfxVolumeInternal_(const uint8_t volume)
+    {
+        m_oplSfxVolume = volume;
+
+        for (uint8_t i = 6; i < NUM_CHANNELS; ++i)
+        {
+            Channel &chan = m_channels[i];
+            chan.volumeModifier = volume;
+
+            const uint8_t regOffset = m_regOffset[i];
+
+            // Level Key Scaling / Total Level
+            writeOPL_(0x40 + regOffset, calculateOpLevel1_(chan));
+            writeOPL_(0x43 + regOffset, calculateOpLevel2_(chan));
+        }
+    }
+
     void ADLDriver::startSound_(const uint16_t track, const uint8_t volume)
     {
         uint8_t *trackData = getProgram_(track);
@@ -195,21 +212,7 @@ namespace HyperSonicDrivers::drivers::westwood
         // For now we use the music volume for both sfx and music in Kyra1 and EoB
         // if (m_version < 4)
         if (m_version < 3)
-        {
-            m_oplSfxVolume = volume;
-
-            for (uint8_t i = 6; i < NUM_CHANNELS; ++i)
-            {
-                Channel &chan = m_channels[i];
-                chan.volumeModifier = volume;
-
-                const uint8_t regOffset = m_regOffset[i];
-
-                // Level Key Scaling / Total Level
-                writeOPL_(0x40 + regOffset, calculateOpLevel1_(chan));
-                writeOPL_(0x43 + regOffset, calculateOpLevel2_(chan));
-            }
-        }
+            setOplSfxVolumeInternal_(volume);
     }
 
     void ADLDriver::setOplSfxVolume(const uint8_t volume)
@@ -220,19 +223,7 @@ namespace HyperSonicDrivers::drivers::westwood
 
         const std::scoped_lock lock(m_mutex);
 
-        m_oplSfxVolume = volume;
-
-        for (uint8_t i = 6; i < NUM_CHANNELS; ++i)
-        {
-            Channel &chan = m_channels[i];
-            chan.volumeModifier = volume;
-
-            const uint8_t regOffset = m_regOffset[i];
-
-            // Level Key Scaling / Total Level
-            writeOPL_(0x40 + regOffset, calculateOpLevel1_(chan));
-            writeOPL_(0x43 + regOffset, calculateOpLevel2_(chan));
-        }
+        setOplSfxVolumeInternal_(volume);
     }
 
     void ADLDriver::play(const uint16_t track) noexcept
