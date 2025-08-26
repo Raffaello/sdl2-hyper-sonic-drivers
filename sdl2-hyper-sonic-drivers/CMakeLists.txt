@@ -14,11 +14,6 @@ else()
     set(LIB_SDL2 SDL2::SDL2)
 endif()
 
-# if (WIN32)
-    # set(LIB_SDL2main $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>)
-
-# endif()
-
 
 ########################### Static Lib #######################################
 set(LIB_NAME hyper-sonic-drivers-static)
@@ -31,9 +26,7 @@ set_target_properties(${LIB_NAME} PROPERTIES
      POSITION_INDEPENDENT_CODE ON
      COMPILE_WARNING_AS_ERROR ON
 )
-# set_property(TARGET ${LIB_NAME} PROPERTY COMPILE_WARNING_AS_ERROR ON)
 
-# if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 target_compile_options(${LIB_NAME}
     PRIVATE
         $<$<CXX_COMPILER_ID:GNU>:
@@ -42,7 +35,6 @@ target_compile_options(${LIB_NAME}
             -Wpedantic
         >
 )
-# endif()
 
 install(
     TARGETS ${LIB_NAME}
@@ -224,8 +216,6 @@ if(BUILD_EXAMPLES)
     endif()
 endif()
 
-
-
 unset(LIB_NAME)
 unset(LIB_CONF)
 unset(LIB_VER)
@@ -235,17 +225,6 @@ unset(LIB_VER)
 add_executable(sdl2-hyper-sonic-drivers "sdl2-hyper-sonic-drivers.cpp")
 target_link_libraries(sdl2-hyper-sonic-drivers 
     PRIVATE $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main> hyper-sonic-drivers-static)
-
-if(MSVC)
-# @see https://docs.microsoft.com/en-us/cpp/build/reference/compiler-options-listed-by-category?view=vs-2019
-    #add_compile_options(#/WX
-    #$<$<CONFIG:DEBUG>:"/W4">
-      #  $<$<CONFIG:RELEASE>:/O2 /Ot /GA /GL /Gw>
-    #)
-   
-    ## use static library ...
-    ##add_link_options($<$<CONFIG:Debug>:"/DEBUG">)
-endif()
 
 if(BUILD_TESTING)
     add_subdirectory("test")

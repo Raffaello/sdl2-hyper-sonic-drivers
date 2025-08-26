@@ -49,23 +49,27 @@ jobs:
           cmake -DCMAKE_BUILD_TYPE:STRING=Release . && make && sudo make install
       - name: install other dependencies
         run: |
-          sudo apt-get update && sudo apt-get install libspdlog-dev libgtest-dev libgmock-dev libsdl2-dev
-      # - name: fetch vcpkg
-      #   run: |
-      #     cd /usr/local/share/vcpkg && git fetch
+          sudo apt-get update -y && sudo apt-get install -y \
+            # libspdlog-dev \
+            # libgtest-dev \
+            # libgmock-dev \
+            libsdl2-dev
+      - name: fetch vcpkg
+        run: |
+          cd /usr/local/share/vcpkg && git fetch
       - uses: actions/checkout@v4
       - name: create build dir
         run: mkdir build
-      # - uses: actions/cache@v4
-      #   id: dep-cache
-      #   with:
-      #       path: build/vcpkg_installed/
-      #       key: ${{ runner.os }}-${{ matrix.triplet }}-dep-cache-${{ hashFiles('**/*') }}
-      #       restore-keys: ${{ runner.os }}-${{ matrix.triplet }}-dep-cache
+      - uses: actions/cache@v4
+        id: dep-cache
+        with:
+            path: build/vcpkg_installed/
+            key: ${{ runner.os }}-${{ matrix.triplet }}-dep-cache-${{ hashFiles('**/*') }}
+            restore-keys: ${{ runner.os }}-${{ matrix.triplet }}-dep-cache
       - name: cmake generator
         run: |
-          # cmake -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }} -DCMAKE_TOOLCHAIN_FILE=/usr/local/share/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ..
-          cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ..
+          cmake -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }} -DCMAKE_TOOLCHAIN_FILE=/usr/local/share/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ..
+          # cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ..
         working-directory: build
       - name: cmake build
         run: |

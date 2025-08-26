@@ -19,7 +19,7 @@
 
 #include <SDL2/SDL_main.h>
 
-#ifdef __GNUC__
+#if defined(FMT_VERSION) && FMT_VERSION >= 90000
 #define FMT_RUNTIME(x) fmt::runtime(x)
 #else
 #define FMT_RUNTIME(x) x
