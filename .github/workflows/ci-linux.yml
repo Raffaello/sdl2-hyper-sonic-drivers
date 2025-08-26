@@ -41,11 +41,18 @@ jobs:
         run: |
           echo "ARCH=64" >> $GITHUB_ENV
           #echo "CMAKE_A=x64" >> $GITHUB_ENV
-          echo "VCPKG_ROOT=${VCPKG_INSTALLATION_ROOT}" >> $GITHUB_ENV
+      - name: install MT32Emu
+        run: |
+          cd /tmp
+          git clone https://github.com/munt/munt.git
+          cd munt && cd mt32emu
+          cmake -DCMAKE_BUILD_TYPE:STRING=Release . && make && sudo make install
+      - name: install other dependencies
+        run: |
+          apt-get update && apt-get install libspdlog-dev libgtest-dev libsdl2-dev
       - name: fetch vcpkg
         run: |
           cd /usr/local/share/vcpkg && git fetch
-          echo $VCPKG_ROOT
       - uses: actions/checkout@v4
       - name: create build dir
         run: mkdir build

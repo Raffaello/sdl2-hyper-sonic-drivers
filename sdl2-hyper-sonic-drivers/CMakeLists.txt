@@ -1,7 +1,7 @@
 ﻿cmake_minimum_required (VERSION 3.24)
 
 find_package(SDL2 CONFIG REQUIRED)
-find_package(MT32emu CONFIG REQUIRED)
+find_package(MT32Emu CONFIG REQUIRED)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_DEBUG_POSTFIX d)

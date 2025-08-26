@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <cstddef>
 #include <HyperSonicDrivers/audio/mixer/config.hpp>
 
 namespace HyperSonicDrivers::audio::mixer
