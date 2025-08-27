@@ -56,4 +56,6 @@ int main(int argc, char *argv[])
     {
         utils::delayMillis(100);
     }
+
+    return 0;
 }

@@ -27,17 +27,22 @@ namespace HyperSonicDrivers::audio::sdl2
 
     Mixer::~Mixer()
     {
-        if (m_ready)
-        {
-            SDL_CloseAudioDevice(m_device_id);
-            SDL_QuitSubSystem(SDL_INIT_AUDIO);
-            m_ready = false;
-        }
+        shutdown();
     }
 
     bool Mixer::init()
     {
         return init_(sdlCallback, this);
+    }
+
+    void Mixer::shutdown()
+    {
+        if (isReady())
+        {
+            SDL_CloseAudioDevice(m_device_id);
+            SDL_QuitSubSystem(SDL_INIT_AUDIO);
+            m_ready = false;
+        }
     }
 
     std::optional<uint8_t> Mixer::play(

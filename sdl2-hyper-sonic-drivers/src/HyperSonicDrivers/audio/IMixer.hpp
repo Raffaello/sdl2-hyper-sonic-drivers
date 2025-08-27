@@ -11,8 +11,8 @@
 namespace HyperSonicDrivers::audio
 {
     /**
-    * 16 bit signed, stereo
-    **/
+     * 16 bit signed, stereo
+     **/
     class IMixer
     {
     public:
@@ -21,24 +21,25 @@ namespace HyperSonicDrivers::audio
         const uint16_t buffer_size;
         const uint8_t bitsDepth = 16; // forced to be 16-bits for now
 
-        IMixer(IMixer&) = delete;
-        IMixer& operator=(IMixer&) = delete;
+        IMixer(IMixer &) = delete;
+        IMixer &operator=(IMixer &) = delete;
 
-        IMixer(const uint8_t max_channels, const uint32_t freq, const uint16_t buffer_size/*, const uint8_t bitsDepth*/);
+        IMixer(const uint8_t max_channels, const uint32_t freq, const uint16_t buffer_size /*, const uint8_t bitsDepth*/);
         virtual ~IMixer() = default;
 
         virtual bool init() = 0;
+        virtual void shutdown() = 0;
+
         inline bool isReady() const noexcept { return m_ready; };
 
         /**
-        * returns channel id used to play the stream
-        **/
+         * returns channel id used to play the stream
+         **/
         virtual std::optional<uint8_t> play(
             const mixer::eChannelGroup group,
-            const std::shared_ptr<IAudioStream>& stream,
+            const std::shared_ptr<IAudioStream> &stream,
             const uint8_t vol,
-            const int8_t pan
-        ) = 0;
+            const int8_t pan) = 0;
 
         virtual void suspend() noexcept = 0;
         virtual void resume() noexcept = 0;
@@ -92,11 +93,11 @@ namespace HyperSonicDrivers::audio
                               //       and then check if it is ready before use the mixer
                               //       otherwise can just be removed.
         bool m_reverseStereo = false;
-        
+
         uint8_t m_master_volume = mixer::Mixer_max_volume;
     };
 
-    template<class T, typename... Args>
+    template <class T, typename... Args>
     std::shared_ptr<IMixer> make_mixer(Args... args)
     {
         return std::make_shared<T>(args...);

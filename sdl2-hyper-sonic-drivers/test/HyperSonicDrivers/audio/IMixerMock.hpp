@@ -18,13 +18,14 @@ namespace HyperSonicDrivers::audio
         explicit IMixerMock(const int freq) : IMixer(32, freq, 1024) {};
 
         bool init() override { return true; };
+        void shutdown() override {};
 
         std::optional<uint8_t> play(
             const mixer::eChannelGroup group,
-            const std::shared_ptr<IAudioStream>& stream,
+            const std::shared_ptr<IAudioStream> &stream,
             const uint8_t vol,
-            const int8_t pan
-        ) override {
+            const int8_t pan) override
+        {
             return std::make_optional((++cur_ch) % max_channels);
         };
 
@@ -37,7 +38,7 @@ namespace HyperSonicDrivers::audio
 
         void pause() noexcept override {};
         void pause(const uint8_t id) noexcept override {};
-        
+
         void unpause() noexcept override {};
         void unpause(const uint8_t id) noexcept override {};
 
