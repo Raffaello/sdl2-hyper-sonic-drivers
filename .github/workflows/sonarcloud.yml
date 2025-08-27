@@ -106,7 +106,8 @@ jobs:
         working-directory: build
       - name: cmake build sonar wrapper
         run: |
-          build-wrapper-win-x86-64 --out-dir . cmake --build . --config=Debug -j4
+          echo $PATH
+          ${{ env.HOME }}/sonar/build-wrapper-win-x86/build-wrapper-win-x86-64 --out-dir . cmake --build . --config=Debug -j4
         working-directory: build
       - name: CTest (XML report)
         run: ctest --output-junit report.xml
