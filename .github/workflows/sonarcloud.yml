@@ -114,11 +114,14 @@ jobs:
         run: |
           # ctest --output-junit report.xml
           ctest -T test -T coverage 
-          find . -name *.gcno -exec gcov --preserve-paths {} \;
-          find . -name *.gcda -exec gcov --preserve-paths {} \;
+        working-directory: build
+      - name: gcov gcno
+        run: find . -name *.gcno -exec gcov --preserve-paths {} \;
+        working-directory: build
+      - name: gcov gcda
+        run: find . -name *.gcda -exec gcov --preserve-paths {} \;
         working-directory: build
       - name: Run sonar-scanner
-        # shell: pwsh
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
