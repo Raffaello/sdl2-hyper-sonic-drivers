@@ -114,7 +114,7 @@ jobs:
         run: ctest --output-junit report.xml
         working-directory: build
       - name: Run sonar-scanner
-        shell: ps
+        shell: pwsh
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
