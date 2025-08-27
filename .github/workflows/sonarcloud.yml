@@ -83,7 +83,7 @@ jobs:
         env:
           SONAR_SCANNER_DOWNLOAD_URL: https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-${{ env.SONAR_SCANNER_VERSION }}-windows.zip
         run: |
-          New-Item -Force -ItemType directory -Path ${{ env.HOME }}/sonar
+          mkdir -p ${{ env.HOME }}/sonar
           curl -sSLo ${{ env.HOME }}/sonar/sonar-scanner.zip ${{ env.SONAR_SCANNER_DOWNLOAD_URL }}
           unzip -o ${{ env.HOME }}/sonar/sonar-scanner.zip -d ${{ env.HOME }}/sonar/
           rm ${{ env.HOME }}/sonar/sonar-scanner.zip
