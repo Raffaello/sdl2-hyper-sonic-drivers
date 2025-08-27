@@ -13,7 +13,7 @@
 
 #include <SDL2/SDL_main.h>
 
-#if defined(FMT_VERSION) && FMT_VERSION >= 90000
+#if defined(FMT_VERSION) && FMT_VERSION > 90000
 #define FMT_RUNTIME(x) fmt::runtime(x)
 #else
 #define FMT_RUNTIME(x) x
@@ -31,7 +31,7 @@ using utils::FMoutput;
 using utils::Profm1;
 using utils::Profm2;
 
-void opl_test(const OplEmulator emu, const OplType type, const std::shared_ptr<audio::IMixer> &mixer)
+void opl_test(const OplEmulator emu, const OplType type, const std::shared_ptr<audio::IMixer>& mixer)
 {
     constexpr auto LEFT = 0x10;
     constexpr auto RIGHT = 0x20;
@@ -70,10 +70,10 @@ void opl_test(const OplEmulator emu, const OplType type, const std::shared_ptr<a
     /***************************************
      * Set parameters for the carrier cell *
      ***************************************/
-    /* no amplitude modulation (D7=0), no vibrato (D6=0),
-     * sustained envelope type (D5=1), KSR=0 (D4=0),
-     * frequency multiplier=1 (D4-D0=1)
-     */
+     /* no amplitude modulation (D7=0), no vibrato (D6=0),
+      * sustained envelope type (D5=1), KSR=0 (D4=0),
+      * frequency multiplier=1 (D4-D0=1)
+      */
     fm(0x23, 0x21, opl);
     /* no volume decrease with pitch (D7-D6=0),
      * no attenuation (D5-D0=0)
@@ -87,7 +87,7 @@ void opl_test(const OplEmulator emu, const OplType type, const std::shared_ptr<a
     /*****************************************
      * Set parameters for the modulator cell *
      *****************************************/
-    /* sustained envelope type, frequency multiplier=0    */
+     /* sustained envelope type, frequency multiplier=0    */
     fm(0x20, 0x20, opl);
     /* maximum attenuation, no volume decrease with pitch */
     fm(0x40, 0x3f, opl);
@@ -95,7 +95,7 @@ void opl_test(const OplEmulator emu, const OplType type, const std::shared_ptr<a
     /* Since the modulator signal is attenuated as much as possible, these
      * next two values shouldn't have any effect.
      */
-    /* slow attack and decay */
+     /* slow attack and decay */
     fm(0x60, 0x44, opl);
     /* high sustain level, slow release rate */
     fm(0x80, 0x05, opl);
@@ -257,7 +257,7 @@ bool detect_opl3(const OplEmulator emu, const OplType type, std::shared_ptr<audi
     return utils::detectOPL3(opl);
 }
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
     auto mixer = audio::make_mixer<audio::sdl2::Mixer>(8, 44100, 1024);
     if (!mixer->init())
@@ -279,12 +279,12 @@ int main(int argc, char *argv[])
     };
 
     std::string m = "##### {} {} #####";
-    for (auto &emu : emus)
+    for (auto& emu : emus)
     {
-        for (auto &type : types)
+        for (auto& type : types)
         {
-            for (auto &c : {fmt::color::white_smoke, fmt::color::yellow, fmt::color::aqua,
-                            fmt::color::lime_green, fmt::color::blue_violet, fmt::color::indian_red})
+            for (auto& c : { fmt::color::white_smoke, fmt::color::yellow, fmt::color::aqua,
+                            fmt::color::lime_green, fmt::color::blue_violet, fmt::color::indian_red })
             {
                 spdlog::info(fmt::format(fg(c), FMT_RUNTIME(m), emu.second, type.second));
             }
@@ -322,7 +322,7 @@ int main(int argc, char *argv[])
 
                 opl_test(emu.first, type.first, mixer);
             }
-            catch (const std::exception &e)
+            catch (const std::exception& e)
             {
                 spdlog::default_logger()->error(e.what());
             }

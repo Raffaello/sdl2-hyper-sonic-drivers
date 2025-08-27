@@ -21,7 +21,7 @@
 
 #include <SDL2/SDL_main.h>
 
-#if defined(FMT_VERSION) && FMT_VERSION >= 90000
+#if defined(FMT_VERSION) && FMT_VERSION > 90000
 #define FMT_RUNTIME(x) fmt::runtime(x)
 #else
 #define FMT_RUNTIME(x) x
@@ -62,7 +62,7 @@ using utils::delayMillis;
  * @param type OPL hardware type used to choose the concrete device implementation.
  * @param filename Path to the ADL file to load and play.
  */
-void adl_play(const OplEmulator emu, const OplType type, std::shared_ptr<audio::IMixer> mixer, const std::string &filename)
+void adl_play(const OplEmulator emu, const OplType type, std::shared_ptr<audio::IMixer> mixer, const std::string& filename)
 {
     using devices::make_device;
     using utils::ILogger;
@@ -160,7 +160,7 @@ void adl_play(const OplEmulator emu, const OplType type, std::shared_ptr<audio::
  *  - -1 : SDL video initialization failed.
  *  - -2 : SDL window creation failed.
  */
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) != 0)
         return -1;
@@ -198,14 +198,14 @@ int main(int argc, char *argv[])
 
     spdlog::set_level(spdlog::level::info);
     HyperSonicDrivers::utils::ILogger::instance->setLevelAll(HyperSonicDrivers::utils::ILogger::eLevel::Info);
-    for (const auto &emu : emus)
+    for (const auto& emu : emus)
     {
-        for (const auto &type : types)
+        for (const auto& type : types)
         {
             using enum fmt::color;
 
-            for (const auto &c : {white_smoke, yellow, aqua,
-                                  lime_green, blue_violet, indian_red})
+            for (const auto& c : { white_smoke, yellow, aqua,
+                                  lime_green, blue_violet, indian_red })
             {
                 spdlog::info(fmt::format(fg(c), FMT_RUNTIME(m), emu.second, type.second));
             }
@@ -216,7 +216,7 @@ int main(int argc, char *argv[])
                 // adl_test(emu.first, type.first, mixer, "EOBSOUND.ADL", 1);
                 // adl_test(emu.first, type.first, mixer, "LOREINTR.ADL", 3);
             }
-            catch (const std::exception &e)
+            catch (const std::exception& e)
             {
                 spdlog::default_logger()->error(e.what());
             }

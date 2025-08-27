@@ -19,7 +19,7 @@
 #include <fmt/color.h>
 #include <map>
 
-#if defined(FMT_VERSION) && FMT_VERSION >= 90000
+#if defined(FMT_VERSION) && FMT_VERSION > 90000
 #define FMT_RUNTIME(x) fmt::runtime(x)
 #else
 #define FMT_RUNTIME(x) x
@@ -32,7 +32,7 @@ using hardware::opl::OplEmulator;
 using hardware::opl::OPLFactory;
 using hardware::opl::OplType;
 
-void mid_test_run(drivers::MIDDriver &midDrv, const std::shared_ptr<audio::MIDI> &midi)
+void mid_test_run(drivers::MIDDriver& midDrv, const std::shared_ptr<audio::MIDI>& midi)
 {
     auto start_time = std::chrono::system_clock::now();
     midDrv.setMidi(midi);
@@ -47,8 +47,8 @@ void mid_test_run(drivers::MIDDriver &midDrv, const std::shared_ptr<audio::MIDI>
     spdlog::info("Total Running Time: {:%M:%S}", tot_time);
 }
 
-void scummvm_mid_test(const OplEmulator emu, const OplType type, const std::shared_ptr<audio::IMixer> &mixer,
-                      const std::shared_ptr<audio::MIDI> midi)
+void scummvm_mid_test(const OplEmulator emu, const OplType type, const std::shared_ptr<audio::IMixer>& mixer,
+    const std::shared_ptr<audio::MIDI> midi)
 {
 
     std::shared_ptr<devices::IDevice> device;
@@ -75,8 +75,8 @@ void scummvm_mid_test(const OplEmulator emu, const OplType type, const std::shar
     mid_test_run(midDrv, midi);
 }
 
-void mid_test(const OplEmulator emu, const OplType type, const std::shared_ptr<audio::IMixer> &mixer,
-              const std::shared_ptr<audio::MIDI> midi)
+void mid_test(const OplEmulator emu, const OplType type, const std::shared_ptr<audio::IMixer>& mixer,
+    const std::shared_ptr<audio::MIDI> midi)
 {
     auto op2file = files::dmx::OP2File("GENMIDI.OP2");
     std::shared_ptr<devices::IDevice> device;
@@ -109,7 +109,7 @@ void mid_test(const OplEmulator emu, const OplType type, const std::shared_ptr<a
     mid_test_run(midDrv, midi);
 }
 
-int run(const std::shared_ptr<audio::MIDI> &midi, const bool use_opldrv)
+int run(const std::shared_ptr<audio::MIDI>& midi, const bool use_opldrv)
 {
     auto mixer = audio::make_mixer<audio::sdl2::Mixer>(8, 44100, 1024);
     if (!mixer->init())
@@ -139,15 +139,15 @@ int run(const std::shared_ptr<audio::MIDI> &midi, const bool use_opldrv)
 
     const auto colors = {
         white_smoke, yellow, aqua,
-        lime_green, blue_violet, indian_red};
+        lime_green, blue_violet, indian_red };
 
-    for (const auto &emu : emus)
+    for (const auto& emu : emus)
     {
-        for (const auto &type : types)
+        for (const auto& type : types)
         {
             try
             {
-                for (const auto &c : colors)
+                for (const auto& c : colors)
                     spdlog::info(fmt::format(fg(c), FMT_RUNTIME(m), emu.second, type.second));
 
                 if (use_opldrv)
@@ -155,7 +155,7 @@ int run(const std::shared_ptr<audio::MIDI> &midi, const bool use_opldrv)
                 else
                     scummvm_mid_test(emu.first, type.first, mixer, midi);
             }
-            catch (const std::exception &e)
+            catch (const std::exception& e)
             {
                 spdlog::default_logger()->error(e.what());
             }
