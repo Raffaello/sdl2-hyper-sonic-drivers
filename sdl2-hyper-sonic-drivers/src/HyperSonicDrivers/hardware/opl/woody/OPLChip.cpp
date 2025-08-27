@@ -1160,7 +1160,7 @@ namespace HyperSonicDrivers::hardware
                                 vibval4 = val_const;
 #ifdef __GNUC__
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdangling-pointer="
+#pragma GCC diagnostic ignored "-Wdangling-pointer"
 #endif
                             if (cptr[0].tremolo)
                                 tremval3 = trem_lut; // tremolo enabled, use table
