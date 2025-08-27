@@ -103,7 +103,7 @@ jobs:
           echo "${{ env.HOME }}/sonar/build-wrapper-win-x86" >> $GITHUB_PATH
       - name: cmake generator
         run: |
-          cmake -DCMAKE_BUILD_TYPE=Debug ..
+          cmake -GNinja -DCMAKE_BUILD_TYPE=Debug ..
         working-directory: build
       - name: cmake build sonar wrapper
         run: |
