@@ -103,7 +103,7 @@ jobs:
           echo "${{ env.HOME }}/sonar/build-wrapper-win-x86" >> $GITHUB_PATH
       - name: cmake generator
         run: |
-          cmake -G "MSYS Makefiles" -DCMAKE_BUILD_TYPE=Debug ..
+          cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug ..
         working-directory: build
       - name: cmake build sonar wrapper
         run: |
@@ -113,7 +113,7 @@ jobs:
       - name: CTest (gcov)
         run: |
           # ctest --output-junit report.xml
-          ctest -T test -T coverage
+          ctest -T test
         working-directory: build
       - name: gcov gcno
         run: find . -name *.gcno -exec gcov --preserve-paths {} \;
