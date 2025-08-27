@@ -98,8 +98,8 @@ jobs:
           rm ${{ env.HOME }}/sonar/build-wrapper.zip
       - name: set up PATH
         run: |
-          echo "${{ env.HOME }}/sonar/sonar-scanner-${{ env.SONAR_SCANNER_VERSION }}-windows/bin" | Out-File -Append -FilePath $env:GITHUB_PATH -Encoding utf8
-          echo "${{ env.HOME }}/sonar/build-wrapper-win-x86" | Out-File -Append -FilePath $env:GITHUB_PATH -Encoding utf8
+          echo "${{ env.HOME }}/sonar/sonar-scanner-${{ env.SONAR_SCANNER_VERSION }}-windows/bin" >> $env:GITHUB_PATH
+          echo "${{ env.HOME }}/sonar/build-wrapper-win-x86" >> $env:GITHUB_PATH
       - name: cmake generator
         run: |
           cmake -DCMAKE_BUILD_TYPE=Debug ..
