@@ -690,8 +690,8 @@ namespace HyperSonicDrivers::hardware
 
             void OPLChip::adlib_write(uint32_t idx, uint8_t val, uint32_t second_set)
             {
-                if (((adlibreg[0x105] & 1) == 0) && (idx != 5))
-                    second_set = 0; // second_set is 0 anyways, but this fixes some warnings
+                // if (((adlibreg[0x105] & 1) == 0) && (idx != 5))
+                second_set = 0; // second_set is 0 anyways, but this fixes some warnings
 
                 idx += second_set; // add 0x100 for second register set
                 uint8_t old_val = adlibreg[idx];
@@ -911,8 +911,12 @@ namespace HyperSonicDrivers::hardware
                         if ((val & 32) > (old_val & 32))
                         {
                             // key switched ON
+                            // TODO: looks it is buggy so adding an if guard here
+                            // if (cellbase < MAXCELLS)
+                            // {
                             cellon(modbase, &cell[cellbase]);         // modulator (if 2op)
                             cellon(modbase + 3, &cell[cellbase + 9]); // carrier (if 2op)
+                            // }
                         }
                         else if ((val & 32) < (old_val & 32))
                         {
