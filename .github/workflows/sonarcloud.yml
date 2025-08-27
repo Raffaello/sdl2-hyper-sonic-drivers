@@ -110,8 +110,12 @@ jobs:
           echo $PATH
           ${{ env.HOME }}/sonar/build-wrapper-win-x86/build-wrapper-win-x86-64 --out-dir . cmake --build . --config=Debug -j4
         working-directory: build
-      - name: CTest (XML report)
-        run: ctest --output-junit report.xml
+      - name: CTest (gcov)
+        run: |
+          # ctest --output-junit report.xml
+          ctest -T test -T coverage 
+          find . -name *.gcno -exec gcov --preserve-paths {} \;
+          find . -name *.gcda -exec gcov --preserve-paths {} \;
         working-directory: build
       - name: Run sonar-scanner
         # shell: pwsh
