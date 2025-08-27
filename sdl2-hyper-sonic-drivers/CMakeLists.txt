@@ -33,7 +33,20 @@ target_compile_options(${LIB_NAME}
             -Wall
             # -Wextra
             -Wpedantic
+            $<$<CONFIG:DEBUG>: --coverage>
         >
+)
+
+target_link_options(${LIB_NAME} PRIVATE 
+    $<$<CXX_COMPILER_ID:GNU>:
+        $<$<CONFIG:DEBUG>: --coverage>
+    >
+)
+
+target_link_libraries(${LIB_NAME} PRIVATE
+    $<$<CXX_COMPILER_ID:GNU>:
+        $<$<CONFIG:DEBUG>: gcov>
+    >
 )
 
 install(

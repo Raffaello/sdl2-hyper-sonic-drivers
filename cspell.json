@@ -24,6 +24,7 @@
         "EOBSOUND",
         "EVNT",
         "FMOPL",
+        "gcov",
         "genmidi",
         "gtest",
         "IPCM",
