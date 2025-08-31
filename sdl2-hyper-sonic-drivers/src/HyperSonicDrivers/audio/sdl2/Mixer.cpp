@@ -50,6 +50,7 @@ namespace HyperSonicDrivers::audio::sdl2
         const std::shared_ptr<IAudioStream> &stream,
         const uint8_t vol, const int8_t pan)
     {
+        std::lock_guard lock(m_mutex);
         // find a free channel
         int i = 0;
         for (; i < max_channels; i++)
