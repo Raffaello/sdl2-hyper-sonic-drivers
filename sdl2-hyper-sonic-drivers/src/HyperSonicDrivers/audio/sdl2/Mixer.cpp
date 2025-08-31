@@ -39,9 +39,11 @@ namespace HyperSonicDrivers::audio::sdl2
     {
         if (isReady())
         {
+            suspend();
             SDL_CloseAudioDevice(m_device_id);
             SDL_QuitSubSystem(SDL_INIT_AUDIO);
             m_ready = false;
+            m_device_id = 0;
         }
     }
 
