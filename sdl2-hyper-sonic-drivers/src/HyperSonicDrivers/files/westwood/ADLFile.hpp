@@ -69,7 +69,7 @@ namespace HyperSonicDrivers::files::westwood
         int m_dataHeaderSize = 0;
 
         template <typename T>
-        int count_loop_(const int num_offs, const std::vector<T> &vec);
+        int count_loop_(const int num_offs, const std::vector<T> &vec) const;
         void adjust_offsets_(std::vector<uint16_t> &vec);
         uint16_t m_num_tracks = 0;
         uint16_t m_num_track_offsets = 0;
@@ -77,7 +77,7 @@ namespace HyperSonicDrivers::files::westwood
     };
 
     template <typename T>
-    int ADLFile::count_loop_(const int offs_start, const std::vector<T> &vec)
+    int ADLFile::count_loop_(const int offs_start, const std::vector<T> &vec) const
     {
         int tot = 0;
         constexpr T max_ = std::numeric_limits<T>::max();
