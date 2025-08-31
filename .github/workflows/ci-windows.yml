@@ -84,7 +84,7 @@ jobs:
           cmake --build . --config=${{ matrix.build_type }} -j4
         working-directory: build
       - name: CTest
-        run: ctest --output-on-failure
+        run: ctest -C ${{ matrix.build_type }} --output-on-failure
         working-directory: build
       - name: cmake install
         run: cmake --build . --target install --config ${{ matrix.build_type }} -j4
