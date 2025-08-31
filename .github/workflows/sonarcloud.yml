@@ -38,6 +38,7 @@ jobs:
       SONAR_SERVER_URL: "https://sonarcloud.io"
       BUILD_WRAPPER_OUT_DIR: build # Directory where build-wrapper output will be placed
       HOME: /c
+      SONAR_DIR: C:/sonar
     steps:
       - uses: actions/checkout@v5
       - uses: msys2/setup-msys2@v2
@@ -75,10 +76,10 @@ jobs:
         id: sonar-cache
         with:
             path: |
-             ${{ env.HOME }}/sonar/
+             ${{ env.SONAR_DIR }}/
              # ${{ env.HOME }}/.sonar/sonar-scanner-${{ env.SONAR_SCANNER_VERSION }}-windows
              # ${{ env.HOME }}/.sonar/build-wrapper-win-x86
-            key: ${{ runner.os }}-sonar-cache-${{ hashFiles('**/*') }}
+            key: ${{ runner.os }}-sonar-cache-${{ env.SONAR_SCANNER_VERSION }}
             restore-keys: ${{ runner.os }}-sonar-cache
       - name: Download and set up sonar-scanner
         if: steps.sonar-cache.outputs.cache-hit != 'true'
