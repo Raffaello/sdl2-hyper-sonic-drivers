@@ -1150,7 +1150,7 @@ namespace HyperSonicDrivers::hardware
                             }
                             else
                                 vibval3 = val_const;
-                            if ((cptr[9].vibrato) && (cptr[9].cf_sel == CF_TYPE_OFF))
+                            if ((cptr[9].vibrato) && (cptr[9].cf_sel != CF_TYPE_OFF))
                             {
                                 vibval4 = vibval_var2;
                                 for (i = 0; i < endsamples; i++)
@@ -1226,7 +1226,7 @@ namespace HyperSonicDrivers::hardware
                             }
                             else
                                 vibval1 = val_const;
-                            if ((cptr[9].vibrato) && (cptr[9].cf_sel == CF_TYPE_OFF))
+                            if ((cptr[9].vibrato) && (cptr[9].cf_sel != CF_TYPE_OFF))
                             {
                                 vibval2 = vibval_var2;
                                 for (i = 0; i < endsamples; i++)
