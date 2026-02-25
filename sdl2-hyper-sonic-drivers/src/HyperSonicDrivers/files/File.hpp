@@ -5,6 +5,9 @@
 #include <fstream>
 #include <format>
 
+#include <cstdint>
+#include <cstddef>
+
 namespace HyperSonicDrivers::files
 {
     class File

@@ -1,0 +1,86 @@
+
+### reusable workflow can't be called with a strategy matrix
+### and so are not used as a workflow without a strategy matrix
+### to feed in inputs parameters is useless in my case.
+
+### Sonar cloud job the cache in $HOME/.sonar doesn't save sub-dirs
+### so can't be cached.
+
+name: ci-msys2
+on:
+  release:
+    types: [created]
+  pull_request:
+    branches: [ master ]
+    paths-ignore:
+      - 'doc/**'
+      - '.gitignore'
+      - '.gitattributes'
+      - 'README.md'
+      - 'LICENSE'
+      - 'wave_generators.r'
+
+jobs:
+  build:
+    strategy:
+        fail-fast: false
+        matrix:
+            build_type: [ Debug, Release ]
+            os: [ '2022' ]
+    name: Build Windows
+    runs-on: windows-${{ matrix.os }}
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          install: |
+            base-devel mingw-w64-ucrt-x86_64-toolchain
+            git
+            mingw-w64-ucrt-x86_64-gcc
+            mingw-w64-ucrt-x86_64-munt-mt32emu
+            mingw-w64-ucrt-x86_64-SDL2
+            mingw-w64-ucrt-x86_64-gtest
+            mingw-w64-ucrt-x86_64-ninja
+            mingw-w64-ucrt-x86_64-cmake
+            mingw-w64-ucrt-x86_64-spdlog
+      - name: set-up environment variables
+        run: |
+          echo "ARCH=64" >> $GITHUB_ENV
+          #echo "CMAKE_A=x64" >> $GITHUB_ENV
+      - name: create build dir
+        run: mkdir build
+      - uses: actions/cache@v4
+        id: dep-cache
+        with:
+            path: build/vcpkg_installed/
+            key: ${{ runner.os }}-dep-cache-${{ hashFiles('**/*') }}
+            restore-keys: ${{ runner.os }}-dep-cache
+      - name: cmake generator
+        run: |
+          cmake -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DCMAKE_INSTALL_PREFIX="${{ github.workspace }}/_install"  ..
+        working-directory: build
+      - name: cmake build
+        run: |
+          cmake --build . --config=${{ matrix.build_type }} -j4
+        working-directory: build
+      - name: CTest
+        run: ctest --output-on-failure
+        working-directory: build
+      - name: cmake install
+        run: cmake --build . --target install --config ${{ matrix.build_type }} -j4
+        working-directory: build
+      - name: cmake package
+        run: cmake --build . --target package --config ${{ matrix.build_type }} -j4
+        working-directory: build
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+            generate_release_notes: true
+            prerelease: false
+            files: "build/*.zip"

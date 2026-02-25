@@ -9,19 +9,18 @@ namespace HyperSonicDrivers::files::miles
 
     constexpr int FUNCTION_BEGIN_SIZE = 8;
     constexpr uint8_t FUNCTION_BEGIN[] =
-    { 0x55, 0x8B, 0xEC, 0x1E, 0x56, 0x57, 0x9C, 0xFA };
+        {0x55, 0x8B, 0xEC, 0x1E, 0x56, 0x57, 0x9C, 0xFA};
 
     constexpr int FUNCTION_RETURN_SIZE = 12;
     constexpr uint8_t FUNCTION_RETURN[FUNCTION_RETURN_SIZE] =
-    { 0x80, 0xCF, 0x00, 0x0E, 0xE8, 0xFA, 0xFF, 0x5F, 0x5E, 0x1F, 0x5D, 0xCB };
+        {0x80, 0xCF, 0x00, 0x0E, 0xE8, 0xFA, 0xFF, 0x5F, 0x5E, 0x1F, 0x5D, 0xCB};
 
     const std::map<int, int> FUNCTIONS_RESULT{
-        { (int)AILDriverFile::eDriverFunction::AIL_DESC_DRVR, 8 },
+        {(int)AILDriverFile::eDriverFunction::AIL_DESC_DRVR, 8},
 
     };
 
-
-    AILDriverFile::AILDriverFile(const std::string& filename) : File(filename)
+    AILDriverFile::AILDriverFile(const std::string &filename) : File(filename)
     {
         readHeader();
         readFunctions();
@@ -42,7 +41,7 @@ namespace HyperSonicDrivers::files::miles
         return _ddt.driver_type;
     }
 
-    const char* AILDriverFile::getDataSuffix() const noexcept
+    const char *AILDriverFile::getDataSuffix() const noexcept
     {
         return _ddt.data_suffix;
     }
@@ -64,8 +63,10 @@ namespace HyperSonicDrivers::files::miles
 
     int AILDriverFile::findFunctionIndex(const eDriverFunction func) const noexcept
     {
-        for (int i = 0; i < NUM_DRIVER_FUNCTIONS; i++) {
-            if (_funcs[i].id == static_cast<int>(func)) {
+        for (int i = 0; i < NUM_DRIVER_FUNCTIONS; i++)
+        {
+            if (_funcs[i].id == static_cast<int>(func))
+            {
                 return i;
             }
         }
@@ -80,7 +81,8 @@ namespace HyperSonicDrivers::files::miles
 
     int AILDriverFile::callFunction(const int func_index)
     {
-        if (func_index == -1 || _funcs[func_index].offset == 0) {
+        if (func_index == -1 || _funcs[func_index].offset == 0)
+        {
             throw std::runtime_error("whoops! where the issue here?");
         }
 
@@ -90,7 +92,8 @@ namespace HyperSonicDrivers::files::miles
         uint8_t buf2[FUNCTION_RETURN_SIZE];
 
         read(buf1, FUNCTION_BEGIN_SIZE);
-        for (int i = 0; i < FUNCTION_BEGIN_SIZE; i++) {
+        for (int i = 0; i < FUNCTION_BEGIN_SIZE; i++)
+        {
             assertValid_(buf1[i] == FUNCTION_BEGIN[i]);
         }
 
@@ -110,21 +113,23 @@ namespace HyperSonicDrivers::files::miles
         {
             c1 = readU8();
             c2 = readU8();
-            if (c1 == FUNCTION_RETURN[0] && c2 == FUNCTION_RETURN[1]) {
+            if (c1 == FUNCTION_RETURN[0] && c2 == FUNCTION_RETURN[1])
+            {
                 stop = true;
                 seek(-2, std::fstream::cur);
             }
-            else {
+            else
+            {
                 buf.push_back(c1);
                 buf.push_back(c2);
             }
         }
 
         read(buf2, FUNCTION_RETURN_SIZE);
-        for (int i = 0; i < FUNCTION_RETURN_SIZE; i++) {
+        for (int i = 0; i < FUNCTION_RETURN_SIZE; i++)
+        {
             assertValid_(buf2[i] == FUNCTION_RETURN[i]);
         }
-
 
         return buf[FUNCTIONS_RESULT.at(_funcs[func_index].id)];
     }
@@ -154,12 +159,14 @@ namespace HyperSonicDrivers::files::miles
         seek(res, std::fstream::beg);
 
         read(&_ddt, sizeof(driver_descriptor_table_t));
-        if (_ddt.offset_devname_o != 0) {
+        if (_ddt.offset_devname_o != 0)
+        {
             seek(_ddt.offset_devname_o, std::fstream::beg);
             _deviceName_o = readStringFromFile_();
         }
 
-        if (_ddt.offset_devname_s != 0) {
+        if (_ddt.offset_devname_s != 0)
+        {
             seek(_ddt.offset_devname_s, std::fstream::beg);
             _deviceName_s = readStringFromFile_();
         }
@@ -176,7 +183,8 @@ namespace HyperSonicDrivers::files::miles
         read(_array1_init, ARRAY_INIT_SIZE * sizeof(uint8_t));
         read(_vel_graph, NUM_CHAN * sizeof(uint8_t));
 
-        if (_isStereo) {
+        if (_isStereo)
+        {
             read(_pan_graph, PAN_GRAPH_SIZE * sizeof(uint8_t));
         }
 
@@ -190,7 +198,8 @@ namespace HyperSonicDrivers::files::miles
         read(_op4_base, NUM_VOICES * sizeof(uint8_t));
         read(_alt_voice, NUM_VOICES * sizeof(uint8_t));
 
-        if (_isStereo) {
+        if (_isStereo)
+        {
             // could be DUAL_OPL2 instead of OPL3
             // but i coded that is only OPL3 here...
             read(_alt_op_0, NUM_VOICES * sizeof(uint8_t));
@@ -200,8 +209,5 @@ namespace HyperSonicDrivers::files::miles
             read(_carrier_01, 4 * sizeof(uint8_t));
             read(_carrier_23, 4 * sizeof(uint8_t));
         }
-
-
-        int i = 0;
     }
 }

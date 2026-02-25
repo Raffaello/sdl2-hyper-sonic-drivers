@@ -33,15 +33,14 @@ namespace HyperSonicDrivers::drivers::westwood
     {
     public:
         explicit ADLDriver(
-            const std::shared_ptr<devices::Opl>& opl,
+            const std::shared_ptr<devices::Opl> &opl,
             const audio::mixer::eChannelGroup group,
             const uint8_t volume = 255,
-            const uint8_t pan = 0
-        );
+            const uint8_t pan = 0);
 
         ~ADLDriver() override;
 
-        void setADLFile(const std::shared_ptr<files::westwood::ADLFile>& adl_file) noexcept;
+        void setADLFile(const std::shared_ptr<files::westwood::ADLFile> &adl_file) noexcept;
 
         bool isChannelPlaying(const int channel) const noexcept;
         void stopAllChannels();
@@ -57,8 +56,10 @@ namespace HyperSonicDrivers::drivers::westwood
         void stop() noexcept override;
 
         bool isPlaying() const noexcept override;
+
     private:
         void initDriver_();
+        void setOplSfxVolumeInternal_(const uint8_t volume);
         void startSound_(const uint16_t track, const uint8_t volume);
 
         std::shared_ptr<files::westwood::ADLFile> m_adl_file = nullptr;
@@ -67,22 +68,22 @@ namespace HyperSonicDrivers::drivers::westwood
         uint32_t m_soundDataSize;
 
         // The sound data has two lookup tables:
-        uint8_t* getProgram_(const int progId) const;
-        //const uint8_t* getInstrument_(const int instrumentId) const;
+        uint8_t *getProgram_(const int progId) const;
+        // const uint8_t* getInstrument_(const int instrumentId) const;
         hardware::opl::OPL2instrument_t getOPL2Instrument_(const int instrumentId) const;
-        uint8_t* getProgram_(const int progId, const files::westwood::ADLFile::PROG_TYPE progType) const;
+        uint8_t *getProgram_(const int progId, const files::westwood::ADLFile::PROG_TYPE progType) const;
 
         struct Channel
         {
-            bool lock;	// New to ScummVM
+            bool lock; // New to ScummVM
             uint8_t opExtraLevel2;
-            const uint8_t* dataptr;
+            const uint8_t *dataptr;
             uint8_t duration;
             uint8_t repeatCounter;
             int8_t baseOctave;
             uint8_t priority;
             uint8_t dataptrStackPos;
-            std::array<const uint8_t*, 4> dataptrStack;
+            std::array<const uint8_t *, 4> dataptrStack;
             int8_t baseNote;
             uint8_t slideTempo;
             uint8_t slideTimer;
@@ -102,7 +103,7 @@ namespace HyperSonicDrivers::drivers::westwood
             uint8_t timer;
             uint8_t regAx;
             uint8_t regBx;
-            typedef void (ADLDriver::* Callback)(Channel&);
+            typedef void (ADLDriver::*Callback)(Channel &);
             Callback primaryEffect;
             Callback secondaryEffect;
             uint8_t fractionalSpacing;
@@ -126,28 +127,28 @@ namespace HyperSonicDrivers::drivers::westwood
             uint8_t volumeModifier;
         };
 
-        void primaryEffectSlide_(Channel& channel);
-        void primaryEffectVibrato_(Channel& channel);
-        void secondaryEffect1_(Channel& channel);
+        void primaryEffectSlide_(Channel &channel);
+        void primaryEffectVibrato_(Channel &channel);
+        void secondaryEffect1_(Channel &channel);
 
         void resetAdLibState_();
         void writeOPL_(uint8_t reg, uint8_t val);
-        void initChannel_(Channel& channel);
-        void noteOff_(Channel& channel);
+        void initChannel_(Channel &channel);
+        void noteOff_(Channel &channel);
         void initAdlibChannel_(uint8_t num);
 
         uint16_t getRandomNr_();
-        void setupDuration_(const uint8_t duration, Channel& channel);
+        void setupDuration_(const uint8_t duration, Channel &channel);
 
-        void setupNote_(const uint8_t rawNote, Channel& channel, const bool flag = false);
-        //void setupInstrument_(uint8_t regOffset, const uint8_t* dataptr, Channel& channel);
-        void setupOPL2Instrument_(const uint8_t regOffset, const hardware::opl::OPL2instrument_t& instr, Channel& channel);
-        void noteOn_(Channel& channel);
+        void setupNote_(const uint8_t rawNote, Channel &channel, const bool flag = false);
+        // void setupInstrument_(uint8_t regOffset, const uint8_t* dataptr, Channel& channel);
+        void setupOPL2Instrument_(const uint8_t regOffset, const hardware::opl::OPL2instrument_t &instr, Channel &channel);
+        void noteOn_(Channel &channel);
 
-        void adjustVolume_(Channel& channel);
+        void adjustVolume_(Channel &channel);
 
-        uint8_t calculateOpLevel1_(const Channel& channel);
-        uint8_t calculateOpLevel2_(const Channel& channel);
+        uint8_t calculateOpLevel1_(const Channel &channel);
+        uint8_t calculateOpLevel2_(const Channel &channel);
 
         static uint16_t checkValue_(const int16_t val);
 
@@ -155,78 +156,78 @@ namespace HyperSonicDrivers::drivers::westwood
         // callback, the tempo is added to the timer. This will frequently
         // cause the timer to "wrap around", which is the signal to go ahead
         // and do more stuff.
-        static bool advance_(uint8_t& timer, const uint8_t tempo);
-        const uint8_t* checkDataOffset_(const uint8_t* ptr, long n);
+        static bool advance_(uint8_t &timer, const uint8_t tempo);
+        const uint8_t *checkDataOffset_(const uint8_t *ptr, long n);
 
         void setupPrograms_();
         void executePrograms_();
 
         struct ParserOpcode
         {
-            typedef int (ADLDriver::* POpcode)(Channel& channel, const uint8_t* values);
+            typedef int (ADLDriver::*POpcode)(Channel &channel, const uint8_t *values);
             POpcode function;
-            const char* name;
+            const char *name;
             int values;
         };
 
         static const std::array<ParserOpcode, 75> m_parserOpcodeTable;
         static const int m_parserOpcodeTableSize;
 
-        int update_setRepeat(Channel& channel, const uint8_t* values);
-        int update_checkRepeat(Channel& channel, const uint8_t* values);
-        int update_setupProgram(Channel& channel, const uint8_t* values);
-        int update_setNoteSpacing(Channel& channel, const uint8_t* values);
-        int update_jump(Channel& channel, const uint8_t* values);
-        int update_jumpToSubroutine(Channel& channel, const uint8_t* values);
-        int update_returnFromSubroutine(Channel& channel, const uint8_t* values);
-        int update_setBaseOctave(Channel& channel, const uint8_t* values);
-        int update_stopChannel(Channel& channel, const uint8_t* values);
-        int update_playRest(Channel& channel, const uint8_t* values);
-        int update_writeAdLib(Channel& channel, const uint8_t* values);
-        int update_setupNoteAndDuration(Channel& channel, const uint8_t* values);
-        int update_setBaseNote(Channel& channel, const uint8_t* values);
-        int update_setupSecondaryEffect1(Channel& channel, const uint8_t* values);
-        int update_stopOtherChannel(Channel& channel, const uint8_t* values);
-        int update_waitForEndOfProgram(Channel& channel, const uint8_t* values);
-        int update_setupInstrument(Channel& channel, const uint8_t* values);
-        int update_setupPrimaryEffectSlide(Channel& channel, const uint8_t* values);
-        int update_removePrimaryEffectSlide(Channel& channel, const uint8_t* values);
-        int update_setBaseFreq(Channel& channel, const uint8_t* values);
-        int update_setupPrimaryEffectVibrato(Channel& channel, const uint8_t* values);
-        int update_setPriority(Channel& channel, const uint8_t* values);
-        int update_setBeat(Channel& channel, const uint8_t* values);
-        int update_waitForNextBeat(Channel& channel, const uint8_t* values);
-        int update_setExtraLevel1(Channel& channel, const uint8_t* values);
-        int update_setupDuration(Channel& channel, const uint8_t* values);
-        int update_playNote(Channel& channel, const uint8_t* values);
-        int update_setFractionalNoteSpacing(Channel& channel, const uint8_t* values);
-        int update_setTempo(Channel& channel, const uint8_t* values);
-        int update_removeSecondaryEffect1(Channel& channel, const uint8_t* values);
-        int update_setChannelTempo(Channel& channel, const uint8_t* values);
-        int update_setExtraLevel3(Channel& channel, const uint8_t* values);
-        int update_setExtraLevel2(Channel& channel, const uint8_t* values);
-        int update_changeExtraLevel2(Channel& channel, const uint8_t* values);
-        int update_setAMDepth(Channel& channel, const uint8_t* values);
-        int update_setVibratoDepth(Channel& channel, const uint8_t* values);
-        int update_changeExtraLevel1(Channel& channel, const uint8_t* values);
-        int update_clearChannel(Channel& channel, const uint8_t* values);
-        int update_changeNoteRandomly(Channel& channel, const uint8_t* values);
-        int update_removePrimaryEffectVibrato(Channel& channel, const uint8_t* values);
-        int update_pitchBend(Channel& channel, const uint8_t* values);
-        int update_resetToGlobalTempo(Channel& channel, const uint8_t* values);
-        int update_nop(Channel& channel, const uint8_t* values);
-        int update_setDurationRandomness(Channel& channel, const uint8_t* values);
-        int update_changeChannelTempo(Channel& channel, const uint8_t* values);
-        int updateCallback46(Channel& channel, const uint8_t* values);
-        int update_setupRhythmSection(Channel& channel, const uint8_t* values);
-        int update_playRhythmSection(Channel& channel, const uint8_t* values);
-        int update_removeRhythmSection(Channel& channel, const uint8_t* values);
-        int update_setRhythmLevel2(Channel& channel, const uint8_t* values);
-        int update_changeRhythmLevel1(Channel& channel, const uint8_t* values);
-        int update_setRhythmLevel1(Channel& channel, const uint8_t* values);
-        int update_setSoundTrigger(Channel& channel, const uint8_t* values);
-        int update_setTempoReset(Channel& channel, const uint8_t* values);
-        int updateCallback56(Channel& channel, const uint8_t* values);
+        int update_setRepeat(Channel &channel, const uint8_t *values);
+        int update_checkRepeat(Channel &channel, const uint8_t *values);
+        int update_setupProgram(Channel &channel, const uint8_t *values);
+        int update_setNoteSpacing(Channel &channel, const uint8_t *values);
+        int update_jump(Channel &channel, const uint8_t *values);
+        int update_jumpToSubroutine(Channel &channel, const uint8_t *values);
+        int update_returnFromSubroutine(Channel &channel, const uint8_t *values);
+        int update_setBaseOctave(Channel &channel, const uint8_t *values);
+        int update_stopChannel(Channel &channel, const uint8_t *values);
+        int update_playRest(Channel &channel, const uint8_t *values);
+        int update_writeAdLib(Channel &channel, const uint8_t *values);
+        int update_setupNoteAndDuration(Channel &channel, const uint8_t *values);
+        int update_setBaseNote(Channel &channel, const uint8_t *values);
+        int update_setupSecondaryEffect1(Channel &channel, const uint8_t *values);
+        int update_stopOtherChannel(Channel &channel, const uint8_t *values);
+        int update_waitForEndOfProgram(Channel &channel, const uint8_t *values);
+        int update_setupInstrument(Channel &channel, const uint8_t *values);
+        int update_setupPrimaryEffectSlide(Channel &channel, const uint8_t *values);
+        int update_removePrimaryEffectSlide(Channel &channel, const uint8_t *values);
+        int update_setBaseFreq(Channel &channel, const uint8_t *values);
+        int update_setupPrimaryEffectVibrato(Channel &channel, const uint8_t *values);
+        int update_setPriority(Channel &channel, const uint8_t *values);
+        int update_setBeat(Channel &channel, const uint8_t *values);
+        int update_waitForNextBeat(Channel &channel, const uint8_t *values);
+        int update_setExtraLevel1(Channel &channel, const uint8_t *values);
+        int update_setupDuration(Channel &channel, const uint8_t *values);
+        int update_playNote(Channel &channel, const uint8_t *values);
+        int update_setFractionalNoteSpacing(Channel &channel, const uint8_t *values);
+        int update_setTempo(Channel &channel, const uint8_t *values);
+        int update_removeSecondaryEffect1(Channel &channel, const uint8_t *values);
+        int update_setChannelTempo(Channel &channel, const uint8_t *values);
+        int update_setExtraLevel3(Channel &channel, const uint8_t *values);
+        int update_setExtraLevel2(Channel &channel, const uint8_t *values);
+        int update_changeExtraLevel2(Channel &channel, const uint8_t *values);
+        int update_setAMDepth(Channel &channel, const uint8_t *values);
+        int update_setVibratoDepth(Channel &channel, const uint8_t *values);
+        int update_changeExtraLevel1(Channel &channel, const uint8_t *values);
+        int update_clearChannel(Channel &channel, const uint8_t *values);
+        int update_changeNoteRandomly(Channel &channel, const uint8_t *values);
+        int update_removePrimaryEffectVibrato(Channel &channel, const uint8_t *values);
+        int update_pitchBend(Channel &channel, const uint8_t *values);
+        int update_resetToGlobalTempo(Channel &channel, const uint8_t *values);
+        int update_nop(Channel &channel, const uint8_t *values);
+        int update_setDurationRandomness(Channel &channel, const uint8_t *values);
+        int update_changeChannelTempo(Channel &channel, const uint8_t *values);
+        int updateCallback46(Channel &channel, const uint8_t *values);
+        int update_setupRhythmSection(Channel &channel, const uint8_t *values);
+        int update_playRhythmSection(Channel &channel, const uint8_t *values);
+        int update_removeRhythmSection(Channel &channel, const uint8_t *values);
+        int update_setRhythmLevel2(Channel &channel, const uint8_t *values);
+        int update_changeRhythmLevel1(Channel &channel, const uint8_t *values);
+        int update_setRhythmLevel1(Channel &channel, const uint8_t *values);
+        int update_setSoundTrigger(Channel &channel, const uint8_t *values);
+        int update_setTempoReset(Channel &channel, const uint8_t *values);
+        int updateCallback56(Channel &channel, const uint8_t *values);
 
     private:
         int m_curChannel = 0;
@@ -260,8 +261,8 @@ namespace HyperSonicDrivers::drivers::westwood
         struct QueueEntry
         {
             QueueEntry() : data(0), id(0), volume(0) {}
-            QueueEntry(uint8_t* ptr, uint8_t track, uint8_t vol) : data(ptr), id(track), volume(vol) {}
-            uint8_t* data;
+            QueueEntry(uint8_t *ptr, uint8_t track, uint8_t vol) : data(ptr), id(track), volume(vol) {}
+            uint8_t *data;
             uint8_t id;
             uint8_t volume;
         };
@@ -272,12 +273,12 @@ namespace HyperSonicDrivers::drivers::westwood
         int m_programQueueEnd = 0;
         bool m_retrySounds = false;
 
-        void adjustSfxData(uint8_t* data, int volume);
-        uint8_t* m_sfxPointer = nullptr;
+        void adjustSfxData(uint8_t *data, int volume);
+        uint8_t *m_sfxPointer = nullptr;
         int m_sfxPriority;
         int m_sfxVelocity;
 
-        std::array<Channel, 10>  m_channels;
+        std::array<Channel, 10> m_channels;
 
         uint8_t m_vibratoAndAMDepthBits = 0;
         uint8_t m_rhythmSectionBits = 0;
@@ -285,12 +286,12 @@ namespace HyperSonicDrivers::drivers::westwood
         uint8_t m_curRegOffset = 0;
         uint8_t m_tempo = 0;
 
-        const uint8_t* m_tablePtr1 = nullptr;
-        const uint8_t* m_tablePtr2 = nullptr;
+        const uint8_t *m_tablePtr1 = nullptr;
+        const uint8_t *m_tablePtr2 = nullptr;
 
         static const std::array<uint8_t, 9> m_regOffset;
         static const std::array<uint16_t, 12> m_freqTable;
-        static const std::array<const uint8_t*, 6> _unkTable2;
+        static const std::array<const uint8_t *, 6> _unkTable2;
         static const int m_unkTable2Size;
         static const uint8_t m_unkTable2_1[];
         static const uint8_t m_unkTable2_2[];

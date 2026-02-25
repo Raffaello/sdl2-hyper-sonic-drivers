@@ -8,7 +8,6 @@
 #include <HyperSonicDrivers/utils/endianness.hpp>
 #include <HyperSonicDrivers/utils/ILogger.hpp>
 
-
 namespace HyperSonicDrivers::drivers::westwood
 {
     constexpr int callbacks_per_second = 72;
@@ -17,20 +16,19 @@ namespace HyperSonicDrivers::drivers::westwood
     constexpr int random_seed = 0x1234;
     constexpr int random_inc = 0x9248;
 
+    using utils::logD;
+    using utils::logE;
+    using utils::logW;
     using utils::readBE_uint16;
     using utils::readLE_uint16;
-    using utils::logD;
-    using utils::logW;
-    using utils::logE;
     using utils::throwLogE;
 
     ADLDriver::ADLDriver(
-        const std::shared_ptr<devices::Opl>& opl,
+        const std::shared_ptr<devices::Opl> &opl,
         const audio::mixer::eChannelGroup group,
         const uint8_t volume,
-        const uint8_t pan) :
-        IAudioDriver(opl),
-        m_opl(opl->getOpl())
+        const uint8_t pan) : IAudioDriver(opl),
+                             m_opl(opl->getOpl())
     {
         std::memset(m_channels.data(), 0, sizeof(m_channels));
         hardware::TimerCallBack cb = std::bind(&ADLDriver::onCallback, this);
@@ -47,8 +45,7 @@ namespace HyperSonicDrivers::drivers::westwood
             group,
             volume,
             pan,
-            callbacks_per_second
-        );
+            callbacks_per_second);
 
         stopAllChannels();
         initDriver_();
@@ -61,7 +58,7 @@ namespace HyperSonicDrivers::drivers::westwood
         m_device->release(this);
     }
 
-    void ADLDriver::setADLFile(const std::shared_ptr<files::westwood::ADLFile>& adl_file) noexcept
+    void ADLDriver::setADLFile(const std::shared_ptr<files::westwood::ADLFile> &adl_file) noexcept
     {
         const std::scoped_lock lock(m_mutex);
 
@@ -83,10 +80,28 @@ namespace HyperSonicDrivers::drivers::westwood
         resetAdLibState_();
     }
 
+    inline void ADLDriver::setOplSfxVolumeInternal_(const uint8_t volume)
+    {
+        m_oplSfxVolume = volume;
+
+        for (uint8_t i = 6; i < NUM_CHANNELS; ++i)
+        {
+            Channel &chan = m_channels[i];
+            chan.volumeModifier = volume;
+
+            const uint8_t regOffset = m_regOffset[i];
+
+            // Level Key Scaling / Total Level
+            writeOPL_(0x40 + regOffset, calculateOpLevel1_(chan));
+            writeOPL_(0x43 + regOffset, calculateOpLevel2_(chan));
+        }
+    }
+
     void ADLDriver::startSound_(const uint16_t track, const uint8_t volume)
     {
-        uint8_t* trackData = getProgram_(track);
-        if (trackData == nullptr) {
+        uint8_t *trackData = getProgram_(track);
+        if (trackData == nullptr)
+        {
             return;
         }
         logD(std::format("getProgram[track={}]= {}", track, *trackData));
@@ -115,14 +130,16 @@ namespace HyperSonicDrivers::drivers::westwood
     {
         const std::scoped_lock lock(m_mutex);
 
-        for (int channel = 0; channel <= 9; ++channel) {
+        for (int channel = 0; channel <= 9; ++channel)
+        {
             m_curChannel = channel;
 
-            Channel& chan = m_channels[m_curChannel];
+            Channel &chan = m_channels[m_curChannel];
             chan.priority = 0;
             chan.dataptr = 0;
 
-            if (channel != NUM_CHANNELS) {
+            if (channel != NUM_CHANNELS)
+            {
                 noteOff_(chan);
             }
         }
@@ -157,8 +174,10 @@ namespace HyperSonicDrivers::drivers::westwood
             setupPrograms_();
         executePrograms_();
 
-        if (advance_(m_callbackTimer, m_tempo)) {
-            if (!(--m_beatDivCnt)) {
+        if (advance_(m_callbackTimer, m_tempo))
+        {
+            if (!(--m_beatDivCnt))
+            {
                 m_beatDivCnt = m_beatDivider;
                 ++m_beatCounter;
             }
@@ -178,12 +197,12 @@ namespace HyperSonicDrivers::drivers::westwood
 
         for (uint8_t i = 0; i < 6; ++i)
         {
-            Channel& chan = m_channels[i];
+            Channel &chan = m_channels[i];
             chan.volumeModifier = volume;
 
-            // NOTE: regeOffset table is OplWriter::writeChannel table
+            // NOTE: regOffset table is OplWriter::writeChannel table
             //       thes 3 lines can be replaced using OplWriter::writeChannel
-            const int8_t regOffset = m_regOffset[i];
+            const uint8_t regOffset = m_regOffset[i];
 
             // Level Key Scaling / Total Level
             writeOPL_(0x40 + regOffset, calculateOpLevel1_(chan));
@@ -191,23 +210,9 @@ namespace HyperSonicDrivers::drivers::westwood
         }
 
         // For now we use the music volume for both sfx and music in Kyra1 and EoB
-        //if (m_version < 4)
+        // if (m_version < 4)
         if (m_version < 3)
-        {
-            m_oplSfxVolume = volume;
-
-            for (uint8_t i = 6; i < NUM_CHANNELS; ++i)
-            {
-                Channel& chan = m_channels[i];
-                chan.volumeModifier = volume;
-
-                const int8_t regOffset = m_regOffset[i];
-
-                // Level Key Scaling / Total Level
-                writeOPL_(0x40 + regOffset, calculateOpLevel1_(chan));
-                writeOPL_(0x43 + regOffset, calculateOpLevel2_(chan));
-            }
-        }
+            setOplSfxVolumeInternal_(volume);
     }
 
     void ADLDriver::setOplSfxVolume(const uint8_t volume)
@@ -218,24 +223,13 @@ namespace HyperSonicDrivers::drivers::westwood
 
         const std::scoped_lock lock(m_mutex);
 
-        m_oplSfxVolume = volume;
-
-        for (uint8_t i = 6; i < NUM_CHANNELS; ++i) {
-            Channel& chan = m_channels[i];
-            chan.volumeModifier = volume;
-
-            const int8_t regOffset = m_regOffset[i];
-
-            // Level Key Scaling / Total Level
-            writeOPL_(0x40 + regOffset, calculateOpLevel1_(chan));
-            writeOPL_(0x43 + regOffset, calculateOpLevel2_(chan));
-        }
+        setOplSfxVolumeInternal_(volume);
     }
 
     void ADLDriver::play(const uint16_t track) noexcept
     {
         std::scoped_lock lock(m_mutex);
-        
+
         if (m_adl_file == nullptr)
             return;
 
@@ -263,7 +257,7 @@ namespace HyperSonicDrivers::drivers::westwood
         return res || (m_programQueueStart != m_programQueueEnd);
     }
 
-    uint8_t* ADLDriver::getProgram_(const int progId, const files::westwood::ADLFile::PROG_TYPE progType) const
+    uint8_t *ADLDriver::getProgram_(const int progId, const files::westwood::ADLFile::PROG_TYPE progType) const
     {
         if (m_adl_file == nullptr)
         {
@@ -292,7 +286,7 @@ namespace HyperSonicDrivers::drivers::westwood
         return m_soundData.get() + offset;
     }
 
-    uint8_t* ADLDriver::getProgram_(const int progId) const
+    uint8_t *ADLDriver::getProgram_(const int progId) const
     {
         return getProgram_(progId, files::westwood::ADLFile::PROG_TYPE::Track);
     }
@@ -322,24 +316,26 @@ namespace HyperSonicDrivers::drivers::westwood
     // slideTempo - determines how often the frequency is updated
     // slideStep  - amount the frequency changes each update
     // slideTimer - keeps track of time
-    void ADLDriver::primaryEffectSlide_(Channel& channel)
+    void ADLDriver::primaryEffectSlide_(Channel &channel)
     {
         logD(std::format("Calling primaryEffectSlide (channel: {})", m_curChannel));
 
-        if (m_curChannel >= NUM_CHANNELS) {
+        if (m_curChannel >= NUM_CHANNELS)
+        {
             return;
         }
 
         // Time for next frequency update?
-        if (!advance_(channel.slideTimer, channel.slideTempo)) {
+        if (!advance_(channel.slideTimer, channel.slideTempo))
+        {
             return;
         }
 
         // Extract current frequency, (shifted) octave, and "note on" bit into
         // separate variable so calculations can't overflow into other fields.
         int16_t freq = ((channel.regBx & 0x03) << 8) | channel.regAx;
-        int8_t octave = channel.regBx & 0x1C;
-        int8_t note_on = channel.regBx & 0x20;
+        uint8_t octave = channel.regBx & 0x1C;
+        uint8_t note_on = channel.regBx & 0x20;
 
         // Limit slideStep to prevent integer overflow.
         freq += std::clamp<int16_t>(channel.slideStep, -0x3FF, 0x3FF);
@@ -406,15 +402,17 @@ namespace HyperSonicDrivers::drivers::westwood
     // Note that vibratoTimer is never initialized. Not that it should matter much,
     // but it is a bit sloppy. Also vibratoStepsCountdown should be reset to its
     // initial value in noteOn() but isn't.
-    void ADLDriver::primaryEffectVibrato_(Channel& channel)
+    void ADLDriver::primaryEffectVibrato_(Channel &channel)
     {
         logD(std::format("Calling primaryEffectVibrato (channel: {})", m_curChannel));
-        if (m_curChannel >= NUM_CHANNELS) {
+        if (m_curChannel >= NUM_CHANNELS)
+        {
             return;
         }
 
         // When a new note is played the effect doesn't start immediately.
-        if (channel.vibratoDelayCountdown) {
+        if (channel.vibratoDelayCountdown)
+        {
             --channel.vibratoDelayCountdown;
             return;
         }
@@ -423,7 +421,8 @@ namespace HyperSonicDrivers::drivers::westwood
         if (advance_(channel.vibratoTimer, channel.vibratoTempo))
         {
             // Reverse direction every vibratoNumSteps updates
-            if (!(--channel.vibratoStepsCountdown)) {
+            if (!(--channel.vibratoStepsCountdown))
+            {
                 channel.vibratoStep = -channel.vibratoStep;
                 channel.vibratoStepsCountdown = channel.vibratoNumSteps;
             }
@@ -468,29 +467,33 @@ namespace HyperSonicDrivers::drivers::westwood
     // secondaryEffectPos     - the current index into the data chunk
     // secondaryEffectRegbase - the operation to perform
     // secondaryEffectData    - the offset of the data chunk
-    void ADLDriver::secondaryEffect1_(Channel& channel)
+    void ADLDriver::secondaryEffect1_(Channel &channel)
     {
         logD(std::format("Calling secondaryEffect1 (channel: {})", m_curChannel));
 
-        if (m_curChannel >= NUM_CHANNELS) {
+        if (m_curChannel >= NUM_CHANNELS)
+        {
             return;
         }
 
         if (advance_(channel.secondaryEffectTimer, channel.secondaryEffectTempo))
         {
-            if (--channel.secondaryEffectPos < 0) {
+            if (--channel.secondaryEffectPos < 0)
+            {
                 channel.secondaryEffectPos = channel.secondaryEffectSize;
             }
 
             writeOPL_(channel.secondaryEffectRegbase + m_curRegOffset,
-                m_soundData[channel.secondaryEffectData + channel.secondaryEffectPos]);
+                      m_soundData[channel.secondaryEffectData + channel.secondaryEffectPos]);
         }
     }
 
-    void ADLDriver::adjustSfxData(uint8_t* ptr, int volume) {
+    void ADLDriver::adjustSfxData(uint8_t *ptr, int volume)
+    {
         // Check whether we need to reset the data of an old sfx which has been
         // started.
-        if (m_sfxPointer) {
+        if (m_sfxPointer)
+        {
             m_sfxPointer[1] = m_sfxPriority;
             m_sfxPointer[3] = m_sfxVelocity;
             m_sfxPointer = nullptr;
@@ -509,13 +512,16 @@ namespace HyperSonicDrivers::drivers::westwood
         m_sfxVelocity = ptr[3];
 
         // Adjust the values.
-        if (volume != 0xFF) {
-            if (m_version >= 3) {
+        if (volume != 0xFF)
+        {
+            if (m_version >= 3)
+            {
                 int newVal = ((((ptr[3]) + 63) * volume) >> 8) & 0xFF;
                 ptr[3] = -newVal + 63;
                 ptr[1] = ((ptr[1] * volume) >> 8) & 0xFF;
             }
-            else {
+            else
+            {
                 int newVal = ((m_sfxVelocity << 2) ^ 0xFF) * volume;
                 ptr[3] = (newVal >> 10) ^ 0x3F;
                 ptr[1] = newVal >> 11;
@@ -540,7 +546,8 @@ namespace HyperSonicDrivers::drivers::westwood
         writeOPL_(0xBD, 0x00);
 
         initChannel_(m_channels[NUM_CHANNELS]);
-        for (int loop = 8; loop >= 0; loop--) {
+        for (int loop = 8; loop >= 0; loop--)
+        {
             // Silence the channel
             writeOPL_(0x40 + m_regOffset[loop], 0x3F);
             writeOPL_(0x43 + m_regOffset[loop], 0x3F);
@@ -553,11 +560,11 @@ namespace HyperSonicDrivers::drivers::westwood
         m_opl->writeReg(reg, val);
     }
 
-    void ADLDriver::initChannel_(Channel& channel)
+    void ADLDriver::initChannel_(Channel &channel)
     {
         logD(std::format("initChannel({})", (long)(&channel - m_channels.data())));
 
-        const int8_t backupEL2 = channel.opExtraLevel2;
+        const uint8_t backupEL2 = channel.opExtraLevel2;
         std::memset(&channel, 0, sizeof(Channel));
 
         channel.opExtraLevel2 = backupEL2;
@@ -570,7 +577,7 @@ namespace HyperSonicDrivers::drivers::westwood
         channel.lock = false;
     }
 
-    void ADLDriver::noteOff_(Channel& channel)
+    void ADLDriver::noteOff_(Channel &channel)
     {
         logD(std::format("noteOff({})", (long)(&channel - m_channels.data())));
 
@@ -605,7 +612,7 @@ namespace HyperSonicDrivers::drivers::westwood
         if (m_rhythmSectionBits && chan >= 6)
             return;
 
-        int8_t offset = m_regOffset[chan];
+        uint8_t offset = m_regOffset[chan];
 
         // The channel is cleared: First the attack/delay rate, then the
         // sustain level/release rate, and finally the note is turned off.
@@ -645,10 +652,11 @@ namespace HyperSonicDrivers::drivers::westwood
         return m_rnd;
     }
 
-    void ADLDriver::setupDuration_(const uint8_t duration, Channel& channel)
+    void ADLDriver::setupDuration_(const uint8_t duration, Channel &channel)
     {
         logD(std::format("setupDuration({}, {})", duration, (long)(&channel - m_channels.data())));
-        if (channel.durationRandomness) {
+        if (channel.durationRandomness)
+        {
             channel.duration = duration + (getRandomNr_() & channel.durationRandomness);
             return;
         }
@@ -660,7 +668,7 @@ namespace HyperSonicDrivers::drivers::westwood
     // This function may or may not play the note. It's usually followed by a call
     // to noteOn(), which will always play the current note.
 
-    void ADLDriver::setupNote_(const uint8_t rawNote, Channel& channel, const bool flag)
+    void ADLDriver::setupNote_(const uint8_t rawNote, Channel &channel, const bool flag)
     {
         logD(std::format("setupNote({}, {})", rawNote, (long)(&channel - m_channels.data())));
 
@@ -669,18 +677,20 @@ namespace HyperSonicDrivers::drivers::westwood
 
         channel.rawNote = rawNote;
 
-        uint8_t note = (rawNote & 0x0F) + channel.baseNote;
-        uint8_t octave = ((rawNote + channel.baseOctave) >> 4) & 0x0F;
+        int8_t note = (rawNote & 0x0F) + channel.baseNote;
+        int8_t octave = ((rawNote + channel.baseOctave) >> 4) & 0x0F;
 
         // There are only twelve notes. If we go outside that, we have to
         // adjust the note and octave.
 
-        if (note >= 12) {
+        if (note >= 12)
+        {
             octave += note / 12;
             note %= 12;
         }
-        else if (note < 0) {
-            uint8_t octaves = -(note + 1) / 12 + 1;
+        else if (note < 0)
+        {
+            int8_t octaves = -(note + 1) / 12 + 1;
             octave -= octaves;
             note += 12 * octaves;
         }
@@ -700,16 +710,19 @@ namespace HyperSonicDrivers::drivers::westwood
         // When called from callback 41, the behavior is slightly different:
         // We adjust the frequency, even when channel.pitchBend is 0.
 
-        if (channel.pitchBend || flag) {
-            const uint8_t* table;
+        if (channel.pitchBend || flag)
+        {
+            const uint8_t *table;
             // For safety, limit the values used to index the tables.
             uint8_t indexNote = std::clamp<uint8_t>(static_cast<uint8_t>(rawNote & 0x0F), 0, 11);
 
-            if (channel.pitchBend >= 0) {
+            if (channel.pitchBend >= 0)
+            {
                 table = m_pitchBendTables[indexNote + 2];
                 freq += table[std::clamp(+channel.pitchBend, 0, 31)];
             }
-            else {
+            else
+            {
                 table = m_pitchBendTables[indexNote];
                 freq -= table[std::clamp(-channel.pitchBend, 0, 31)];
             }
@@ -723,11 +736,11 @@ namespace HyperSonicDrivers::drivers::westwood
         writeOPL_(0xB0 + m_curChannel, channel.regBx);
     }
 
-    //void ADLDriver::setupInstrument_(uint8_t regOffset, const uint8_t* dataptr, Channel& channel)
+    // void ADLDriver::setupInstrument_(uint8_t regOffset, const uint8_t* dataptr, Channel& channel)
     //{
-    //    logD(std::format("setupInstrument({}, {}, {})", regOffset, static_cast<const void*>(dataptr), static_cast<long>(&channel - m_channels.data())));
-    //    if (m_curChannel >= NUM_CHANNELS)
-    //        return;
+    //     logD(std::format("setupInstrument({}, {}, {})", regOffset, static_cast<const void*>(dataptr), static_cast<long>(&channel - m_channels.data())));
+    //     if (m_curChannel >= NUM_CHANNELS)
+    //         return;
 
     //    // Safety check: need 11 bytes of data.
     //    if (!checkDataOffset_(dataptr, 11))
@@ -775,7 +788,7 @@ namespace HyperSonicDrivers::drivers::westwood
     //    writeOPL_(0x83 + regOffset, *dataptr++);
     //}
 
-    void ADLDriver::setupOPL2Instrument_(const uint8_t regOffset, const hardware::opl::OPL2instrument_t& instr, Channel& channel)
+    void ADLDriver::setupOPL2Instrument_(const uint8_t regOffset, const hardware::opl::OPL2instrument_t &instr, Channel &channel)
     {
         // Amplitude Modulation / Vibrato / Envelope Generator Type /
         // Keyboard Scaling Rate / Modulator Frequency Multiple
@@ -819,7 +832,7 @@ namespace HyperSonicDrivers::drivers::westwood
 
     // Apart from playing the note, this function also updates the variables for
     // the vibrato primary effect.
-    void ADLDriver::noteOn_(Channel& channel)
+    void ADLDriver::noteOn_(Channel &channel)
     {
         logD(std::format("noteOn({})", (long)(&channel - m_channels.data())));
 
@@ -833,14 +846,14 @@ namespace HyperSonicDrivers::drivers::westwood
 
         // Update vibrato effect variables: vibratoStep is set to a
         // vibratoStepRange+1-bit value proportional to the note's f-number.
-        // Reinitalize delay countdown; vibratoStepsCountdown reinitialization omitted.
-        uint8_t shift = 9 - std::clamp<uint8_t>(channel.vibratoStepRange, 0, 9);
+        // Reinitialize delay countdown; vibratoStepsCountdown reinitialization omitted.
+        int8_t shift = 9 - std::clamp<int8_t>(channel.vibratoStepRange, 0, 9);
         uint16_t freq = ((channel.regBx << 8) | channel.regAx) & 0x3FF;
         channel.vibratoStep = (freq >> shift) & 0xFF;
         channel.vibratoDelayCountdown = channel.vibratoDelay;
     }
 
-    void ADLDriver::adjustVolume_(Channel& channel)
+    void ADLDriver::adjustVolume_(Channel &channel)
     {
         logD(std::format("adjustVolume({})", (long)(&channel - m_channels.data())));
 
@@ -853,16 +866,18 @@ namespace HyperSonicDrivers::drivers::westwood
             writeOPL_(0x40 + m_regOffset[m_curChannel], calculateOpLevel1_(channel));
     }
 
-    uint8_t ADLDriver::calculateOpLevel1_(const Channel& channel)
+    uint8_t ADLDriver::calculateOpLevel1_(const Channel &channel)
     {
-        int8_t value = channel.opLevel1 & 0x3F;
+        uint8_t value = channel.opLevel1 & 0x3F;
 
-        if (channel.twoChan) {
+        if (channel.twoChan)
+        {
             value += channel.opExtraLevel1;
             value += channel.opExtraLevel2;
 
             uint16_t level3 = (channel.opExtraLevel3 ^ 0x3F) * channel.volumeModifier;
-            if (level3) {
+            if (level3)
+            {
                 level3 += 0x3F;
                 level3 >>= 8;
             }
@@ -886,7 +901,7 @@ namespace HyperSonicDrivers::drivers::westwood
             logD("WORKAROUND - total level clipping uint/int bug encountered");
         }
 
-        value = std::clamp<int8_t>(value, 0, 0x3F);
+        value = std::clamp<uint8_t>(value, 0, 0x3F);
 
         if (!channel.volumeModifier)
             value = 0x3F;
@@ -895,15 +910,16 @@ namespace HyperSonicDrivers::drivers::westwood
         return value | (channel.opLevel1 & 0xC0);
     }
 
-    uint8_t ADLDriver::calculateOpLevel2_(const Channel& channel)
+    uint8_t ADLDriver::calculateOpLevel2_(const Channel &channel)
     {
-        int8_t value = channel.opLevel2 & 0x3F;
+        uint8_t value = channel.opLevel2 & 0x3F;
 
         value += channel.opExtraLevel1;
         value += channel.opExtraLevel2;
 
         uint16_t level3 = (channel.opExtraLevel3 ^ 0x3F) * channel.volumeModifier;
-        if (level3) {
+        if (level3)
+        {
             level3 += 0x3F;
             level3 >>= 8;
         }
@@ -913,8 +929,8 @@ namespace HyperSonicDrivers::drivers::westwood
         // See comment in calculateOpLevel1()
         if (value & 0x80)
             logD("WORKAROUND - total level clipping uint/int bug encountered");
-        
-        value = std::clamp<int8_t>(value, 0, 0x3F);
+
+        value = std::clamp<uint8_t>(value, 0, 0x3F);
 
         if (!channel.volumeModifier)
             value = 0x3F;
@@ -928,14 +944,14 @@ namespace HyperSonicDrivers::drivers::westwood
         return std::clamp<int16_t>(val, 0, 0x3F);
     }
 
-    bool ADLDriver::advance_(uint8_t& timer, const uint8_t tempo)
+    bool ADLDriver::advance_(uint8_t &timer, const uint8_t tempo)
     {
         uint8_t old = timer;
         timer += tempo;
         return timer < old;
     }
 
-    const uint8_t* ADLDriver::checkDataOffset_(const uint8_t* ptr, long n)
+    const uint8_t *ADLDriver::checkDataOffset_(const uint8_t *ptr, long n)
     {
         if (ptr)
         {
@@ -949,8 +965,8 @@ namespace HyperSonicDrivers::drivers::westwood
 
     void ADLDriver::setupPrograms_()
     {
-        QueueEntry& entry = m_programQueue[m_programQueueStart];
-        uint8_t* ptr = entry.data;
+        QueueEntry &entry = m_programQueue[m_programQueueStart];
+        uint8_t *ptr = entry.data;
 
         // If there is no program queued, we skip this.
         if (m_programQueueStart == m_programQueueEnd && !ptr)
@@ -980,11 +996,12 @@ namespace HyperSonicDrivers::drivers::westwood
             return;
 
         const int chan = *ptr;
-        if (chan > NUM_CHANNELS || (chan < NUM_CHANNELS && !checkDataOffset_(ptr, 4))) {
+        if (chan > NUM_CHANNELS || (chan < NUM_CHANNELS && !checkDataOffset_(ptr, 4)))
+        {
             return;
         }
 
-        Channel& channel = m_channels[chan];
+        Channel &channel = m_channels[chan];
 
         // Adjust data in case we hit a sound effect.
         adjustSfxData(ptr++, entry.volume);
@@ -1066,7 +1083,8 @@ namespace HyperSonicDrivers::drivers::westwood
 
             for (m_curChannel = NUM_CHANNELS; m_curChannel >= 0; --m_curChannel)
             {
-                if ((m_syncJumpMask & (1 << m_curChannel)) && m_channels[m_curChannel].dataptr && !m_channels[m_curChannel].lock) {
+                if ((m_syncJumpMask & (1 << m_curChannel)) && m_channels[m_curChannel].dataptr && !m_channels[m_curChannel].lock)
+                {
                     break; // don't unlock
                 }
             }
@@ -1076,7 +1094,8 @@ namespace HyperSonicDrivers::drivers::westwood
                 // force unlock
                 for (m_curChannel = NUM_CHANNELS; m_curChannel >= 0; --m_curChannel)
                 {
-                    if (m_syncJumpMask & (1 << m_curChannel)) {
+                    if (m_syncJumpMask & (1 << m_curChannel))
+                    {
                         m_channels[m_curChannel].lock = false;
                     }
                 }
@@ -1085,38 +1104,45 @@ namespace HyperSonicDrivers::drivers::westwood
 
         for (m_curChannel = NUM_CHANNELS; m_curChannel >= 0; --m_curChannel)
         {
-            Channel& channel = m_channels[m_curChannel];
-            const uint8_t*& dataptr = channel.dataptr;
+            Channel &channel = m_channels[m_curChannel];
+            const uint8_t *&dataptr = channel.dataptr;
 
-            if (!dataptr) {
+            if (!dataptr)
+            {
                 continue;
             }
 
-            if (channel.lock && (m_syncJumpMask & (1 << m_curChannel))) {
+            if (channel.lock && (m_syncJumpMask & (1 << m_curChannel)))
+            {
                 continue;
             }
 
-            if (m_curChannel == NUM_CHANNELS) {
+            if (m_curChannel == NUM_CHANNELS)
+            {
                 m_curRegOffset = 0;
             }
-            else {
+            else
+            {
                 m_curRegOffset = m_regOffset[m_curChannel];
             }
 
-            if (channel.tempoReset) {
+            if (channel.tempoReset)
+            {
                 channel.tempo = m_tempo;
             }
 
             int result = 1;
             if (advance_(channel.timer, channel.tempo))
             {
-                if (--channel.duration) {
+                if (--channel.duration)
+                {
                     if (channel.duration == channel.spacing2)
                         noteOff_(channel);
                     if (channel.duration == channel.spacing1 && m_curChannel != 9)
                         noteOff_(channel);
                 }
-                else {
+                else
+                {
                     // Process some opcodes.
                     result = 0;
                 }
@@ -1124,17 +1150,18 @@ namespace HyperSonicDrivers::drivers::westwood
 
             while (result == 0 && dataptr)
             {
-                int8_t opcode = 0xFF;
+                uint8_t opcode = static_cast<uint8_t>(0xFF);
                 // Safety check to avoid illegal access.
                 // Stop channel if not enough data.
-                if (checkDataOffset_(dataptr, 1)) {
+                if (checkDataOffset_(dataptr, 1))
+                {
                     opcode = *dataptr++;
                 }
 
                 if (opcode & 0x80)
                 {
-                    opcode = std::clamp<int8_t>(static_cast<int8_t>(opcode & 0x7F), 0, m_parserOpcodeTableSize - 1);
-                    const ParserOpcode& op = m_parserOpcodeTable[opcode];
+                    opcode = std::clamp<uint8_t>(static_cast<uint8_t>(opcode & 0x7F), 0, m_parserOpcodeTableSize - 1);
+                    const ParserOpcode &op = m_parserOpcodeTable[opcode];
 
                     // Safety check for end of data.
                     if (!checkDataOffset_(dataptr, op.values))
@@ -1151,13 +1178,14 @@ namespace HyperSonicDrivers::drivers::westwood
                 else
                 {
                     // Safety check for end of data.
-                    if (!checkDataOffset_(dataptr, 1)) {
+                    if (!checkDataOffset_(dataptr, 1))
+                    {
                         result = update_stopChannel(channel, dataptr);
                         break;
                     }
 
-                    int8_t duration = *dataptr++;
-                    logD(std::format("Note on opcode {:#04x} (duration: {}) (channel: {})", opcode, duration, m_curChannel));
+                    uint8_t duration = *dataptr++;
+                    logD(std::vformat("Note on opcode {:#04x} (duration: {}) (channel: {})", std::make_format_args(opcode, duration, m_curChannel)));
 
                     setupNote_(opcode, channel);
                     noteOn_(channel);
@@ -1172,11 +1200,13 @@ namespace HyperSonicDrivers::drivers::westwood
 
             if (result == 1)
             {
-                if (channel.primaryEffect) {
+                if (channel.primaryEffect)
+                {
                     (this->*(channel.primaryEffect))(channel);
                 }
 
-                if (channel.secondaryEffect) {
+                if (channel.secondaryEffect)
+                {
                     (this->*(channel.secondaryEffect))(channel);
                 }
             }
@@ -1185,14 +1215,16 @@ namespace HyperSonicDrivers::drivers::westwood
 
     // parser opcodes
 
-    int ADLDriver::update_setRepeat(Channel& channel, const uint8_t* values) {
+    int ADLDriver::update_setRepeat(Channel &channel, const uint8_t *values)
+    {
         channel.repeatCounter = values[0];
         return 0;
     }
 
-    int ADLDriver::update_checkRepeat(Channel& channel, const uint8_t* values)
+    int ADLDriver::update_checkRepeat(Channel &channel, const uint8_t *values)
     {
-        if (--channel.repeatCounter) {
+        if (--channel.repeatCounter)
+        {
             int16_t add = readLE_uint16(values);
 
             // Safety check: ignore jump to invalid address
@@ -1204,16 +1236,16 @@ namespace HyperSonicDrivers::drivers::westwood
         return 0;
     }
 
-    int ADLDriver::update_setupProgram(Channel& channel, const uint8_t* values)
+    int ADLDriver::update_setupProgram(Channel &channel, const uint8_t *values)
     {
         if (values[0] == 0xFF)
             return 0;
 
-        const uint8_t* ptr = getProgram_(values[0]);
+        const uint8_t *ptr = getProgram_(values[0]);
 
         // In case we encounter an invalid program we simply ignore it and do
         // nothing instead. The original did not care about invalid programs and
-        // simply tried to play them anyway... But to avoid crashes due we ingore
+        // simply tried to play them anyway... But to avoid crashes due we ignore
         // them.
         // This, for example, happens in the Lands of Lore intro when Scotia gets
         // the ring in the intro.
@@ -1223,8 +1255,8 @@ namespace HyperSonicDrivers::drivers::westwood
             return 0;
         }
 
-        int8_t chan = *ptr++;
-        int8_t priority = *ptr++;
+        uint8_t chan = *ptr++;
+        uint8_t priority = *ptr++;
 
         // Safety check: ignore programs with invalid channel number.
         if (chan > 9)
@@ -1233,7 +1265,7 @@ namespace HyperSonicDrivers::drivers::westwood
             return 0;
         }
 
-        Channel& channel2 = m_channels[chan];
+        Channel &channel2 = m_channels[chan];
 
         if (priority >= channel2.priority)
         {
@@ -1242,7 +1274,7 @@ namespace HyperSonicDrivers::drivers::westwood
             //
             // This fixes a subtle music bug where the wrong music would
             // play when getting the quill in Kyra 1.
-            const uint8_t* dataptrBackUp = channel.dataptr;
+            const uint8_t *dataptrBackUp = channel.dataptr;
 
             // We keep new tracks from being started for two further iterations of
             // the callback. This assures the correct velocity is used for this
@@ -1269,12 +1301,13 @@ namespace HyperSonicDrivers::drivers::westwood
         return 0;
     }
 
-    int ADLDriver::update_setNoteSpacing(Channel& channel, const uint8_t* values) {
+    int ADLDriver::update_setNoteSpacing(Channel &channel, const uint8_t *values)
+    {
         channel.spacing1 = values[0];
         return 0;
     }
 
-    int ADLDriver::update_jump(Channel& channel, const uint8_t* values)
+    int ADLDriver::update_jump(Channel &channel, const uint8_t *values)
     {
         int16_t add = readLE_uint16(values);
         // Safety check: ignore jump to invalid address
@@ -1293,7 +1326,7 @@ namespace HyperSonicDrivers::drivers::westwood
         return 0;
     }
 
-    int ADLDriver::update_jumpToSubroutine(Channel& channel, const uint8_t* values)
+    int ADLDriver::update_jumpToSubroutine(Channel &channel, const uint8_t *values)
     {
         int16_t add = readLE_uint16(values);
 
@@ -1314,7 +1347,7 @@ namespace HyperSonicDrivers::drivers::westwood
         return 0;
     }
 
-    int ADLDriver::update_returnFromSubroutine(Channel& channel, const uint8_t* values)
+    int ADLDriver::update_returnFromSubroutine(Channel &channel, const uint8_t *values)
     {
         // Safety check: stop track when stack is empty.
         if (!channel.dataptrStackPos)
@@ -1326,12 +1359,14 @@ namespace HyperSonicDrivers::drivers::westwood
         return 0;
     }
 
-    int ADLDriver::update_setBaseOctave(Channel& channel, const uint8_t* values) {
+    int ADLDriver::update_setBaseOctave(Channel &channel, const uint8_t *values)
+    {
         channel.baseOctave = values[0];
         return 0;
     }
 
-    int ADLDriver::update_stopChannel(Channel& channel, const uint8_t* values) {
+    int ADLDriver::update_stopChannel(Channel &channel, const uint8_t *values)
+    {
         channel.priority = 0;
         if (m_curChannel != 9)
             noteOff_(channel);
@@ -1339,29 +1374,33 @@ namespace HyperSonicDrivers::drivers::westwood
         return 2;
     }
 
-    int ADLDriver::update_playRest(Channel& channel, const uint8_t* values) {
+    int ADLDriver::update_playRest(Channel &channel, const uint8_t *values)
+    {
         setupDuration_(values[0], channel);
         noteOff_(channel);
         return values[0] != 0;
     }
 
-    int ADLDriver::update_writeAdLib(Channel& channel, const uint8_t* values) {
+    int ADLDriver::update_writeAdLib(Channel &channel, const uint8_t *values)
+    {
         writeOPL_(values[0], values[1]);
         return 0;
     }
 
-    int ADLDriver::update_setupNoteAndDuration(Channel& channel, const uint8_t* values) {
+    int ADLDriver::update_setupNoteAndDuration(Channel &channel, const uint8_t *values)
+    {
         setupNote_(values[0], channel);
         setupDuration_(values[1], channel);
         return values[1] != 0;
     }
 
-    int ADLDriver::update_setBaseNote(Channel& channel, const uint8_t* values) {
+    int ADLDriver::update_setBaseNote(Channel &channel, const uint8_t *values)
+    {
         channel.baseNote = values[0];
         return 0;
     }
 
-    int ADLDriver::update_setupSecondaryEffect1(Channel& channel, const uint8_t* values)
+    int ADLDriver::update_setupSecondaryEffect1(Channel &channel, const uint8_t *values)
     {
         channel.secondaryEffectTimer = channel.secondaryEffectTempo = values[0];
         channel.secondaryEffectSize = channel.secondaryEffectPos = values[1];
@@ -1393,7 +1432,7 @@ namespace HyperSonicDrivers::drivers::westwood
         return 0;
     }
 
-    int ADLDriver::update_stopOtherChannel(Channel& channel, const uint8_t* values)
+    int ADLDriver::update_stopOtherChannel(Channel &channel, const uint8_t *values)
     {
         // Safety check
         if (values[0] > NUM_CHANNELS)
@@ -1403,9 +1442,9 @@ namespace HyperSonicDrivers::drivers::westwood
         }
 
         // Don't change our own dataptr!
-        const uint8_t* dataptrBackUp = channel.dataptr;
+        const uint8_t *dataptrBackUp = channel.dataptr;
 
-        Channel& channel2 = m_channels[values[0]];
+        Channel &channel2 = m_channels[values[0]];
         channel2.duration = 0;
         channel2.priority = 0;
         channel2.dataptr = nullptr;
@@ -1414,9 +1453,9 @@ namespace HyperSonicDrivers::drivers::westwood
         return 0;
     }
 
-    int ADLDriver::update_waitForEndOfProgram(Channel& channel, const uint8_t* values)
+    int ADLDriver::update_waitForEndOfProgram(Channel &channel, const uint8_t *values)
     {
-        const uint8_t* ptr = getProgram_(values[0]);
+        const uint8_t *ptr = getProgram_(values[0]);
 
         // Safety check in case an invalid program is specified. This would make
         // getProgram return a nullptr and thus cause invalid memory reads.
@@ -1426,7 +1465,7 @@ namespace HyperSonicDrivers::drivers::westwood
             return 0;
         }
 
-        const int8_t chan = *ptr;
+        const uint8_t chan = *ptr;
 
         if (chan > NUM_CHANNELS || m_channels[chan].dataptr == nullptr)
             return 0;
@@ -1435,9 +1474,9 @@ namespace HyperSonicDrivers::drivers::westwood
         return 2;
     }
 
-    int ADLDriver::update_setupInstrument(Channel& channel, const uint8_t* values)
+    int ADLDriver::update_setupInstrument(Channel &channel, const uint8_t *values)
     {
-        //const uint8_t* instrument = getInstrument_(values[0]);
+        // const uint8_t* instrument = getInstrument_(values[0]);
 
         // We add a safety check to avoid setting up invalid instruments. This is
         // not done in the original. However, to avoid crashes due to invalid
@@ -1445,7 +1484,7 @@ namespace HyperSonicDrivers::drivers::westwood
         // This happens, for example, in Hand of Fate when using the swampsnake
         // potion on Zanthia to scare off the rat in the cave in the first chapter
         // of the game.
-        //if (!instrument)
+        // if (!instrument)
         //{
         //    logW(std::format("Invalid instrument {} specified", values[0]));
         //    return 0;
@@ -1455,7 +1494,8 @@ namespace HyperSonicDrivers::drivers::westwood
         return 0;
     }
 
-    int ADLDriver::update_setupPrimaryEffectSlide(Channel& channel, const uint8_t* values) {
+    int ADLDriver::update_setupPrimaryEffectSlide(Channel &channel, const uint8_t *values)
+    {
         channel.slideTempo = values[0];
         channel.slideStep = readBE_uint16(&values[1]);
         channel.primaryEffect = &ADLDriver::primaryEffectSlide_;
@@ -1463,18 +1503,21 @@ namespace HyperSonicDrivers::drivers::westwood
         return 0;
     }
 
-    int ADLDriver::update_removePrimaryEffectSlide(Channel& channel, const uint8_t* values) {
+    int ADLDriver::update_removePrimaryEffectSlide(Channel &channel, const uint8_t *values)
+    {
         channel.primaryEffect = nullptr;
         channel.slideStep = 0;
         return 0;
     }
 
-    int ADLDriver::update_setBaseFreq(Channel& channel, const uint8_t* values) {
+    int ADLDriver::update_setBaseFreq(Channel &channel, const uint8_t *values)
+    {
         channel.baseFreq = values[0];
         return 0;
     }
 
-    int ADLDriver::update_setupPrimaryEffectVibrato(Channel& channel, const uint8_t* values) {
+    int ADLDriver::update_setupPrimaryEffectVibrato(Channel &channel, const uint8_t *values)
+    {
         channel.vibratoTempo = values[0];
         channel.vibratoStepRange = values[1];
         channel.vibratoStepsCountdown = values[2] + 1;
@@ -1484,7 +1527,8 @@ namespace HyperSonicDrivers::drivers::westwood
         return 0;
     }
 
-    int ADLDriver::update_setPriority(Channel& channel, const uint8_t* values) {
+    int ADLDriver::update_setPriority(Channel &channel, const uint8_t *values)
+    {
         channel.priority = values[0];
         return 0;
     }
@@ -1514,17 +1558,20 @@ namespace HyperSonicDrivers::drivers::westwood
     //
     // Note that in theory _beatWaiting could wrap around to zero while waiting,
     // then the rising edge wouldn't trigger. That's probably not a big issue
-    // in practice sice it can only happen for long delays (big _beatDivider and
+    // in practice since it can only happen for long delays (big _beatDivider and
     // waiting on one of the higher bits) but could have been prevented easily.
-    int ADLDriver::update_setBeat(Channel& channel, const uint8_t* values) {
+    int ADLDriver::update_setBeat(Channel &channel, const uint8_t *values)
+    {
         m_beatDivider = m_beatDivCnt = values[0] >> 1;
         m_callbackTimer = 0xFF;
         m_beatCounter = m_beatWaiting = 0;
         return 0;
     }
 
-    int ADLDriver::update_waitForNextBeat(Channel& channel, const uint8_t* values) {
-        if ((m_beatCounter & values[0]) && m_beatWaiting) {
+    int ADLDriver::update_waitForNextBeat(Channel &channel, const uint8_t *values)
+    {
+        if ((m_beatCounter & values[0]) && m_beatWaiting)
+        {
             m_beatWaiting = 0;
             return 0;
         }
@@ -1537,49 +1584,57 @@ namespace HyperSonicDrivers::drivers::westwood
         return 2;
     }
 
-    int ADLDriver::update_setExtraLevel1(Channel& channel, const uint8_t* values) {
+    int ADLDriver::update_setExtraLevel1(Channel &channel, const uint8_t *values)
+    {
         channel.opExtraLevel1 = values[0];
         adjustVolume_(channel);
         return 0;
     }
 
-    int ADLDriver::update_setupDuration(Channel& channel, const uint8_t* values) {
+    int ADLDriver::update_setupDuration(Channel &channel, const uint8_t *values)
+    {
         setupDuration_(values[0], channel);
         return values[0] != 0;
     }
 
-    int ADLDriver::update_playNote(Channel& channel, const uint8_t* values) {
+    int ADLDriver::update_playNote(Channel &channel, const uint8_t *values)
+    {
         setupDuration_(values[0], channel);
         noteOn_(channel);
         return values[0] != 0;
     }
 
-    int ADLDriver::update_setFractionalNoteSpacing(Channel& channel, const uint8_t* values) {
+    int ADLDriver::update_setFractionalNoteSpacing(Channel &channel, const uint8_t *values)
+    {
         channel.fractionalSpacing = values[0] & 7;
         return 0;
     }
 
-    int ADLDriver::update_setTempo(Channel& channel, const uint8_t* values) {
+    int ADLDriver::update_setTempo(Channel &channel, const uint8_t *values)
+    {
         m_tempo = values[0];
         return 0;
     }
 
-    int ADLDriver::update_removeSecondaryEffect1(Channel& channel, const uint8_t* values) {
+    int ADLDriver::update_removeSecondaryEffect1(Channel &channel, const uint8_t *values)
+    {
         channel.secondaryEffect = nullptr;
         return 0;
     }
 
-    int ADLDriver::update_setChannelTempo(Channel& channel, const uint8_t* values) {
+    int ADLDriver::update_setChannelTempo(Channel &channel, const uint8_t *values)
+    {
         channel.tempo = values[0];
         return 0;
     }
 
-    int ADLDriver::update_setExtraLevel3(Channel& channel, const uint8_t* values) {
+    int ADLDriver::update_setExtraLevel3(Channel &channel, const uint8_t *values)
+    {
         channel.opExtraLevel3 = values[0];
         return 0;
     }
 
-    int ADLDriver::update_setExtraLevel2(Channel& channel, const uint8_t* values)
+    int ADLDriver::update_setExtraLevel2(Channel &channel, const uint8_t *values)
     {
         // Safety check
         if (values[0] > NUM_CHANNELS)
@@ -1591,7 +1646,7 @@ namespace HyperSonicDrivers::drivers::westwood
         int channelBackUp = m_curChannel;
 
         m_curChannel = values[0];
-        Channel& channel2 = m_channels[m_curChannel];
+        Channel &channel2 = m_channels[m_curChannel];
         channel2.opExtraLevel2 = values[1];
         adjustVolume_(channel2);
 
@@ -1599,7 +1654,7 @@ namespace HyperSonicDrivers::drivers::westwood
         return 0;
     }
 
-    int ADLDriver::update_changeExtraLevel2(Channel& channel, const uint8_t* values)
+    int ADLDriver::update_changeExtraLevel2(Channel &channel, const uint8_t *values)
     {
         // Safety check
         if (values[0] > NUM_CHANNELS)
@@ -1611,7 +1666,7 @@ namespace HyperSonicDrivers::drivers::westwood
         int channelBackUp = m_curChannel;
 
         m_curChannel = values[0];
-        Channel& channel2 = m_channels[m_curChannel];
+        Channel &channel2 = m_channels[m_curChannel];
         channel2.opExtraLevel2 += values[1];
         adjustVolume_(channel2);
 
@@ -1621,7 +1676,8 @@ namespace HyperSonicDrivers::drivers::westwood
 
     // Apart from initializing to zero, these two functions are the only ones that
     // modify _vibratoAndAMDepthBits.
-    int ADLDriver::update_setAMDepth(Channel& channel, const uint8_t* values) {
+    int ADLDriver::update_setAMDepth(Channel &channel, const uint8_t *values)
+    {
         if (values[0] & 1)
             m_vibratoAndAMDepthBits |= 0x80;
         else
@@ -1631,7 +1687,8 @@ namespace HyperSonicDrivers::drivers::westwood
         return 0;
     }
 
-    int ADLDriver::update_setVibratoDepth(Channel& channel, const uint8_t* values) {
+    int ADLDriver::update_setVibratoDepth(Channel &channel, const uint8_t *values)
+    {
         if (values[0] & 1)
             m_vibratoAndAMDepthBits |= 0x40;
         else
@@ -1641,13 +1698,14 @@ namespace HyperSonicDrivers::drivers::westwood
         return 0;
     }
 
-    int ADLDriver::update_changeExtraLevel1(Channel& channel, const uint8_t* values) {
+    int ADLDriver::update_changeExtraLevel1(Channel &channel, const uint8_t *values)
+    {
         channel.opExtraLevel1 += values[0];
         adjustVolume_(channel);
         return 0;
     }
 
-    int ADLDriver::update_clearChannel(Channel& channel, const uint8_t* values)
+    int ADLDriver::update_clearChannel(Channel &channel, const uint8_t *values)
     {
         // Safety check
         if (values[0] > NUM_CHANNELS)
@@ -1659,10 +1717,10 @@ namespace HyperSonicDrivers::drivers::westwood
         int channelBackUp = m_curChannel;
         m_curChannel = values[0];
         // Don't modify our own dataptr!
-        const uint8_t* dataptrBackUp = channel.dataptr;
+        const uint8_t *dataptrBackUp = channel.dataptr;
 
         // Stop channel
-        Channel& channel2 = m_channels[m_curChannel];
+        Channel &channel2 = m_channels[m_curChannel];
         channel2.duration = channel2.priority = 0;
         channel2.dataptr = 0;
         channel2.opExtraLevel2 = 0;
@@ -1670,7 +1728,7 @@ namespace HyperSonicDrivers::drivers::westwood
         if (m_curChannel != NUM_CHANNELS)
         {
             // Silence channel
-            int8_t regOff = m_regOffset[m_curChannel];
+            uint8_t regOff = m_regOffset[m_curChannel];
 
             // Feedback strength / Connection type
             writeOPL_(0xC0 + m_curChannel, 0x00);
@@ -1690,7 +1748,7 @@ namespace HyperSonicDrivers::drivers::westwood
         return 0;
     }
 
-    int ADLDriver::update_changeNoteRandomly(Channel& channel, const uint8_t* values)
+    int ADLDriver::update_changeNoteRandomly(Channel &channel, const uint8_t *values)
     {
         if (m_curChannel >= NUM_CHANNELS)
             return 0;
@@ -1711,39 +1769,45 @@ namespace HyperSonicDrivers::drivers::westwood
         return 0;
     }
 
-    int ADLDriver::update_removePrimaryEffectVibrato(Channel& channel, const uint8_t* values) {
+    int ADLDriver::update_removePrimaryEffectVibrato(Channel &channel, const uint8_t *values)
+    {
         channel.primaryEffect = nullptr;
         return 0;
     }
 
-    int ADLDriver::update_pitchBend(Channel& channel, const uint8_t* values) {
+    int ADLDriver::update_pitchBend(Channel &channel, const uint8_t *values)
+    {
         channel.pitchBend = (int8_t)values[0];
         setupNote_(channel.rawNote, channel, true);
         return 0;
     }
 
-    int ADLDriver::update_resetToGlobalTempo(Channel& channel, const uint8_t* values) {
+    int ADLDriver::update_resetToGlobalTempo(Channel &channel, const uint8_t *values)
+    {
         channel.tempo = m_tempo;
         return 0;
     }
 
-    int ADLDriver::update_nop(Channel& channel, const uint8_t* values) {
+    int ADLDriver::update_nop(Channel &channel, const uint8_t *values)
+    {
         return 0;
     }
 
-    int ADLDriver::update_setDurationRandomness(Channel& channel, const uint8_t* values) {
+    int ADLDriver::update_setDurationRandomness(Channel &channel, const uint8_t *values)
+    {
         channel.durationRandomness = values[0];
         return 0;
     }
 
-    int ADLDriver::update_changeChannelTempo(Channel& channel, const uint8_t* values)
+    int ADLDriver::update_changeChannelTempo(Channel &channel, const uint8_t *values)
     {
-        channel.tempo = std::clamp<uint8_t>(static_cast<uint8_t>(channel.tempo + values[0]), 1, 255);
+        channel.tempo = std::clamp<uint8_t>(static_cast<uint8_t>(channel.tempo + static_cast<int8_t>(values[0])), 1, 255);
         return 0;
     }
 
-    int ADLDriver::updateCallback46(Channel& channel, const uint8_t* values) {
-        int8_t entry = values[1];
+    int ADLDriver::updateCallback46(Channel &channel, const uint8_t *values)
+    {
+        uint8_t entry = values[1];
 
         // Safety check: prevent illegal table access
         if (entry + 2 > m_unkTable2Size)
@@ -1751,14 +1815,15 @@ namespace HyperSonicDrivers::drivers::westwood
 
         m_tablePtr1 = _unkTable2[entry];
         m_tablePtr2 = _unkTable2[entry + 1];
-        if (values[0] == 2) {
+        if (values[0] == 2)
+        {
             // Frequency
             writeOPL_(0xA0, m_tablePtr2[0]);
         }
         return 0;
     }
 
-    int ADLDriver::update_setupRhythmSection(Channel& channel, const uint8_t* values)
+    int ADLDriver::update_setupRhythmSection(Channel &channel, const uint8_t *values)
     {
         int channelBackUp = m_curChannel;
         int regOffsetBackUp = m_curRegOffset;
@@ -1766,7 +1831,7 @@ namespace HyperSonicDrivers::drivers::westwood
         m_curChannel = 6;
         m_curRegOffset = m_regOffset[6];
 
-        const uint8_t* instrument;
+        // const uint8_t *instrument;
         /*instrument = getInstrument_(values[0]);
         if (instrument != nullptr)
         {
@@ -1835,7 +1900,8 @@ namespace HyperSonicDrivers::drivers::westwood
         return 0;
     }
 
-    int ADLDriver::update_playRhythmSection(Channel& channel, const uint8_t* values) {
+    int ADLDriver::update_playRhythmSection(Channel &channel, const uint8_t *values)
+    {
         // Any instrument that we want to play, and which was already playing,
         // is temporarily keyed off. Instruments that were off already, or
         // which we don't want to play, retain their old on/off status. This is
@@ -1855,7 +1921,8 @@ namespace HyperSonicDrivers::drivers::westwood
         return 0;
     }
 
-    int ADLDriver::update_removeRhythmSection(Channel& channel, const uint8_t* values) {
+    int ADLDriver::update_removeRhythmSection(Channel &channel, const uint8_t *values)
+    {
         m_rhythmSectionBits = 0;
 
         // All the rhythm bits are cleared. The AM and Vibrato depth bits
@@ -1865,38 +1932,44 @@ namespace HyperSonicDrivers::drivers::westwood
         return 0;
     }
 
-    int ADLDriver::update_setRhythmLevel2(Channel& channel, const uint8_t* values) {
-        int8_t ops = values[0], v = values[1];
+    int ADLDriver::update_setRhythmLevel2(Channel &channel, const uint8_t *values)
+    {
+        uint8_t ops = values[0], v = values[1];
 
-        if (ops & 1) {
+        if (ops & 1)
+        {
             m_opExtraLevel2HH = v;
 
             // Channel 7, op1: Level Key Scaling / Total Level
             writeOPL_(0x51, checkValue_(v + m_opLevelHH + m_opExtraLevel1HH + m_opExtraLevel2HH));
         }
 
-        if (ops & 2) {
+        if (ops & 2)
+        {
             m_opExtraLevel2CY = v;
 
             // Channel 8, op2: Level Key Scaling / Total Level
             writeOPL_(0x55, checkValue_(v + m_opLevelCY + m_opExtraLevel1CY + m_opExtraLevel2CY));
         }
 
-        if (ops & 4) {
+        if (ops & 4)
+        {
             m_opExtraLevel2TT = v;
 
             // Channel 8, op1: Level Key Scaling / Total Level
             writeOPL_(0x52, checkValue_(v + m_opLevelTT + m_opExtraLevel1TT + m_opExtraLevel2TT));
         }
 
-        if (ops & 8) {
+        if (ops & 8)
+        {
             m_opExtraLevel2SD = v;
 
             // Channel 7, op2: Level Key Scaling / Total Level
             writeOPL_(0x54, checkValue_(v + m_opLevelSD + m_opExtraLevel1SD + m_opExtraLevel2SD));
         }
 
-        if (ops & 16) {
+        if (ops & 16)
+        {
             m_opExtraLevel2BD = v;
 
             // Channel 6, op2: Level Key Scaling / Total Level
@@ -1906,38 +1979,44 @@ namespace HyperSonicDrivers::drivers::westwood
         return 0;
     }
 
-    int ADLDriver::update_changeRhythmLevel1(Channel& channel, const uint8_t* values) {
-        int8_t ops = values[0], v = values[1];
+    int ADLDriver::update_changeRhythmLevel1(Channel &channel, const uint8_t *values)
+    {
+        uint8_t ops = values[0], v = values[1];
 
-        if (ops & 1) {
+        if (ops & 1)
+        {
             m_opExtraLevel1HH = checkValue_(v + m_opLevelHH + m_opExtraLevel1HH + m_opExtraLevel2HH);
 
             // Channel 7, op1: Level Key Scaling / Total Level
             writeOPL_(0x51, m_opExtraLevel1HH);
         }
 
-        if (ops & 2) {
+        if (ops & 2)
+        {
             m_opExtraLevel1CY = checkValue_(v + m_opLevelCY + m_opExtraLevel1CY + m_opExtraLevel2CY);
 
             // Channel 8, op2: Level Key Scaling / Total Level
             writeOPL_(0x55, m_opExtraLevel1CY);
         }
 
-        if (ops & 4) {
+        if (ops & 4)
+        {
             m_opExtraLevel1TT = checkValue_(v + m_opLevelTT + m_opExtraLevel1TT + m_opExtraLevel2TT);
 
             // Channel 8, op1: Level Key Scaling / Total Level
             writeOPL_(0x52, m_opExtraLevel1TT);
         }
 
-        if (ops & 8) {
+        if (ops & 8)
+        {
             m_opExtraLevel1SD = checkValue_(v + m_opLevelSD + m_opExtraLevel1SD + m_opExtraLevel2SD);
 
             // Channel 7, op2: Level Key Scaling / Total Level
             writeOPL_(0x54, m_opExtraLevel1SD);
         }
 
-        if (ops & 16) {
+        if (ops & 16)
+        {
             m_opExtraLevel1BD = checkValue_(v + m_opLevelBD + m_opExtraLevel1BD + m_opExtraLevel2BD);
 
             // Channel 6, op2: Level Key Scaling / Total Level
@@ -1947,38 +2026,44 @@ namespace HyperSonicDrivers::drivers::westwood
         return 0;
     }
 
-    int ADLDriver::update_setRhythmLevel1(Channel& channel, const uint8_t* values) {
-        int8_t ops = values[0], v = values[1];
+    int ADLDriver::update_setRhythmLevel1(Channel &channel, const uint8_t *values)
+    {
+        uint8_t ops = values[0], v = values[1];
 
-        if (ops & 1) {
+        if (ops & 1)
+        {
             m_opExtraLevel1HH = v;
 
             // Channel 7, op1: Level Key Scaling / Total Level
             writeOPL_(0x51, checkValue_(v + m_opLevelHH + m_opExtraLevel2HH));
         }
 
-        if (ops & 2) {
+        if (ops & 2)
+        {
             m_opExtraLevel1CY = v;
 
             // Channel 8, op2: Level Key Scaling / Total Level
             writeOPL_(0x55, checkValue_(v + m_opLevelCY + m_opExtraLevel2CY));
         }
 
-        if (ops & 4) {
+        if (ops & 4)
+        {
             m_opExtraLevel1TT = v;
 
             // Channel 8, op1: Level Key Scaling / Total Level
             writeOPL_(0x52, checkValue_(v + m_opLevelTT + m_opExtraLevel2TT));
         }
 
-        if (ops & 8) {
+        if (ops & 8)
+        {
             m_opExtraLevel1SD = v;
 
             // Channel 7, op2: Level Key Scaling / Total Level
             writeOPL_(0x54, checkValue_(v + m_opLevelSD + m_opExtraLevel2SD));
         }
 
-        if (ops & 16) {
+        if (ops & 16)
+        {
             m_opExtraLevel1BD = v;
 
             // Channel 6, op2: Level Key Scaling / Total Level
@@ -1988,17 +2073,20 @@ namespace HyperSonicDrivers::drivers::westwood
         return 0;
     }
 
-    int ADLDriver::update_setSoundTrigger(Channel& channel, const uint8_t* values) {
+    int ADLDriver::update_setSoundTrigger(Channel &channel, const uint8_t *values)
+    {
         m_soundTrigger = values[0];
         return 0;
     }
 
-    int ADLDriver::update_setTempoReset(Channel& channel, const uint8_t* values) {
+    int ADLDriver::update_setTempoReset(Channel &channel, const uint8_t *values)
+    {
         channel.tempoReset = values[0];
         return 0;
     }
 
-    int ADLDriver::updateCallback56(Channel& channel, const uint8_t* values) {
+    int ADLDriver::updateCallback56(Channel &channel, const uint8_t *values)
+    {
         channel.unk39 = values[0];
         channel.unk40 = values[1];
         return 0;
@@ -2006,7 +2094,7 @@ namespace HyperSonicDrivers::drivers::westwood
 
     // static res
 
-#define COMMAND(x, n) ADLDriver::ParserOpcode({ &ADLDriver::x, #x, n })
+#define COMMAND(x, n) ADLDriver::ParserOpcode({&ADLDriver::x, #x, n})
 
     const std::array<ADLDriver::ParserOpcode, 75> ADLDriver::m_parserOpcodeTable = {
         // 0
@@ -2120,8 +2208,7 @@ namespace HyperSonicDrivers::drivers::westwood
         // 72
         COMMAND(update_setTempoReset, 1),
         COMMAND(updateCallback56, 2),
-        COMMAND(update_stopChannel, 0)
-    };
+        COMMAND(update_stopChannel, 0)};
 
 #undef COMMAND
 
@@ -2133,28 +2220,25 @@ namespace HyperSonicDrivers::drivers::westwood
     // TODO: this duplicate in OplWriter
     const std::array<uint8_t, 9> ADLDriver::m_regOffset = {
         0x00, 0x01, 0x02, 0x08, 0x09, 0x0A, 0x10, 0x11,
-        0x12
-    };
+        0x12};
 
     // These are the F-Numbers (10 bits) for the notes of the 12-tone scale.
     // However, it does not match the table in the AdLib documentation I've seen.
 
     const std::array<uint16_t, 12> ADLDriver::m_freqTable = {
         0x0134, 0x0147, 0x015A, 0x016F, 0x0184, 0x019C, 0x01B4, 0x01CE, 0x01E9,
-        0x0207, 0x0225, 0x0246
-    };
+        0x0207, 0x0225, 0x0246};
 
     // These tables are currently only used by updateCallback46(), which only ever
     // uses the first element of one of the sub-tables.
 
-    const std::array<const uint8_t*, 6> ADLDriver::_unkTable2 = {
+    const std::array<const uint8_t *, 6> ADLDriver::_unkTable2 = {
         ADLDriver::m_unkTable2_1,
         ADLDriver::m_unkTable2_2,
         ADLDriver::m_unkTable2_1,
         ADLDriver::m_unkTable2_2,
         ADLDriver::m_unkTable2_3,
-        ADLDriver::m_unkTable2_2
-    };
+        ADLDriver::m_unkTable2_2};
 
     const int ADLDriver::m_unkTable2Size = ADLDriver::_unkTable2.size();
 
@@ -2175,10 +2259,9 @@ namespace HyperSonicDrivers::drivers::westwood
         0x1C, 0x1C, 0x1B, 0x1B, 0x1A, 0x1A, 0x19, 0x19,
         0x18, 0x18, 0x17, 0x17, 0x16, 0x16, 0x15, 0x15,
         0x14, 0x14, 0x13, 0x13, 0x12, 0x12, 0x11, 0x11,
-        0x10, 0x10
-    };
+        0x10, 0x10};
 
-    // no don't ask me WHY this table exsits!
+    // no don't ask me WHY this table exists!
     const uint8_t ADLDriver::m_unkTable2_2[] = {
         0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
         0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
@@ -2195,8 +2278,7 @@ namespace HyperSonicDrivers::drivers::westwood
         0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67,
         0x68, 0x69, 0x6A, 0x6B, 0x6C, 0x6D, 0x6E, 0x6F,
         0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77,
-        0x78, 0x79, 0x7A, 0x7B, 0x7C, 0x7D, 0x7E, 0x7F
-    };
+        0x78, 0x79, 0x7A, 0x7B, 0x7C, 0x7D, 0x7E, 0x7F};
 
     const uint8_t ADLDriver::m_unkTable2_3[] = {
         0x40, 0x40, 0x40, 0x3F, 0x3F, 0x3F, 0x3E, 0x3E,
@@ -2215,8 +2297,7 @@ namespace HyperSonicDrivers::drivers::westwood
         0x1E, 0x1D, 0x1D, 0x1D, 0x1C, 0x1C, 0x1C, 0x1B,
         0x1B, 0x1B, 0x1A, 0x1A, 0x1A, 0x19, 0x19, 0x19,
         0x18, 0x18, 0x18, 0x17, 0x17, 0x17, 0x16, 0x16,
-        0x16, 0x15
-    };
+        0x16, 0x15};
 
     // This table is used to modify the frequency of the notes, depending on the
     // note value and the pitch bend value. In theory, we could very well try to
@@ -2224,75 +2305,74 @@ namespace HyperSonicDrivers::drivers::westwood
     //
     const uint8_t ADLDriver::m_pitchBendTables[][32] = {
         // 0
-        { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x08,
-          0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x10,
-          0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x19,
-          0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x20, 0x21 },
+        {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x08,
+         0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x10,
+         0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x19,
+         0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x20, 0x21},
         // 1
-        { 0x00, 0x01, 0x02, 0x03, 0x04, 0x06, 0x07, 0x09,
-          0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x10, 0x11,
-          0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x1A,
-          0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x20, 0x22, 0x24 },
+        {0x00, 0x01, 0x02, 0x03, 0x04, 0x06, 0x07, 0x09,
+         0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x10, 0x11,
+         0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x1A,
+         0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x20, 0x22, 0x24},
         // 2
-        { 0x00, 0x01, 0x02, 0x03, 0x04, 0x06, 0x08, 0x09,
-          0x0A, 0x0C, 0x0D, 0x0E, 0x0F, 0x11, 0x12, 0x13,
-          0x14, 0x15, 0x16, 0x17, 0x19, 0x1A, 0x1C, 0x1D,
-          0x1E, 0x1F, 0x20, 0x21, 0x22, 0x24, 0x25, 0x26 },
+        {0x00, 0x01, 0x02, 0x03, 0x04, 0x06, 0x08, 0x09,
+         0x0A, 0x0C, 0x0D, 0x0E, 0x0F, 0x11, 0x12, 0x13,
+         0x14, 0x15, 0x16, 0x17, 0x19, 0x1A, 0x1C, 0x1D,
+         0x1E, 0x1F, 0x20, 0x21, 0x22, 0x24, 0x25, 0x26},
         // 3
-        { 0x00, 0x01, 0x02, 0x03, 0x04, 0x06, 0x08, 0x0A,
-          0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x11, 0x12, 0x13,
-          0x14, 0x15, 0x16, 0x17, 0x18, 0x1A, 0x1C, 0x1D,
-          0x1E, 0x1F, 0x20, 0x21, 0x23, 0x25, 0x27, 0x28 },
+        {0x00, 0x01, 0x02, 0x03, 0x04, 0x06, 0x08, 0x0A,
+         0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x11, 0x12, 0x13,
+         0x14, 0x15, 0x16, 0x17, 0x18, 0x1A, 0x1C, 0x1D,
+         0x1E, 0x1F, 0x20, 0x21, 0x23, 0x25, 0x27, 0x28},
         // 4
-        { 0x00, 0x01, 0x02, 0x03, 0x04, 0x06, 0x08, 0x0A,
-          0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x11, 0x13, 0x15,
-          0x16, 0x17, 0x18, 0x19, 0x1B, 0x1D, 0x1F, 0x20,
-          0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x28, 0x2A },
+        {0x00, 0x01, 0x02, 0x03, 0x04, 0x06, 0x08, 0x0A,
+         0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x11, 0x13, 0x15,
+         0x16, 0x17, 0x18, 0x19, 0x1B, 0x1D, 0x1F, 0x20,
+         0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x28, 0x2A},
         // 5
-        { 0x00, 0x01, 0x02, 0x03, 0x05, 0x07, 0x09, 0x0B,
-          0x0C, 0x0D, 0x0E, 0x0F, 0x10, 0x11, 0x13, 0x15,
-          0x16, 0x17, 0x18, 0x19, 0x1B, 0x1D, 0x1F, 0x20,
-          0x21, 0x22, 0x23, 0x25, 0x27, 0x29, 0x2B, 0x2D },
+        {0x00, 0x01, 0x02, 0x03, 0x05, 0x07, 0x09, 0x0B,
+         0x0C, 0x0D, 0x0E, 0x0F, 0x10, 0x11, 0x13, 0x15,
+         0x16, 0x17, 0x18, 0x19, 0x1B, 0x1D, 0x1F, 0x20,
+         0x21, 0x22, 0x23, 0x25, 0x27, 0x29, 0x2B, 0x2D},
         // 6
-        { 0x00, 0x01, 0x02, 0x03, 0x05, 0x07, 0x09, 0x0B,
-          0x0C, 0x0D, 0x0E, 0x0F, 0x10, 0x11, 0x13, 0x15,
-          0x16, 0x17, 0x18, 0x1A, 0x1C, 0x1E, 0x21, 0x24,
-          0x25, 0x26, 0x27, 0x29, 0x2B, 0x2D, 0x2F, 0x30 },
+        {0x00, 0x01, 0x02, 0x03, 0x05, 0x07, 0x09, 0x0B,
+         0x0C, 0x0D, 0x0E, 0x0F, 0x10, 0x11, 0x13, 0x15,
+         0x16, 0x17, 0x18, 0x1A, 0x1C, 0x1E, 0x21, 0x24,
+         0x25, 0x26, 0x27, 0x29, 0x2B, 0x2D, 0x2F, 0x30},
         // 7
-        { 0x00, 0x01, 0x02, 0x04, 0x06, 0x08, 0x0A, 0x0C,
-          0x0D, 0x0E, 0x0F, 0x10, 0x11, 0x13, 0x15, 0x18,
-          0x19, 0x1A, 0x1C, 0x1D, 0x1F, 0x21, 0x23, 0x25,
-          0x26, 0x27, 0x29, 0x2B, 0x2D, 0x2F, 0x30, 0x32 },
+        {0x00, 0x01, 0x02, 0x04, 0x06, 0x08, 0x0A, 0x0C,
+         0x0D, 0x0E, 0x0F, 0x10, 0x11, 0x13, 0x15, 0x18,
+         0x19, 0x1A, 0x1C, 0x1D, 0x1F, 0x21, 0x23, 0x25,
+         0x26, 0x27, 0x29, 0x2B, 0x2D, 0x2F, 0x30, 0x32},
         // 8
-        { 0x00, 0x01, 0x02, 0x04, 0x06, 0x08, 0x0A, 0x0D,
-          0x0E, 0x0F, 0x10, 0x11, 0x12, 0x14, 0x17, 0x1A,
-          0x19, 0x1A, 0x1C, 0x1E, 0x20, 0x22, 0x25, 0x28,
-          0x29, 0x2A, 0x2B, 0x2D, 0x2F, 0x31, 0x33, 0x35 },
+        {0x00, 0x01, 0x02, 0x04, 0x06, 0x08, 0x0A, 0x0D,
+         0x0E, 0x0F, 0x10, 0x11, 0x12, 0x14, 0x17, 0x1A,
+         0x19, 0x1A, 0x1C, 0x1E, 0x20, 0x22, 0x25, 0x28,
+         0x29, 0x2A, 0x2B, 0x2D, 0x2F, 0x31, 0x33, 0x35},
         // 9
-        { 0x00, 0x01, 0x03, 0x05, 0x07, 0x09, 0x0B, 0x0E,
-        0x0F, 0x10, 0x12, 0x14, 0x16, 0x18, 0x1A, 0x1B,
-        0x1C, 0x1D, 0x1E, 0x20, 0x22, 0x24, 0x26, 0x29,
-        0x2A, 0x2C, 0x2E, 0x30, 0x32, 0x34, 0x36, 0x39 },
+        {0x00, 0x01, 0x03, 0x05, 0x07, 0x09, 0x0B, 0x0E,
+         0x0F, 0x10, 0x12, 0x14, 0x16, 0x18, 0x1A, 0x1B,
+         0x1C, 0x1D, 0x1E, 0x20, 0x22, 0x24, 0x26, 0x29,
+         0x2A, 0x2C, 0x2E, 0x30, 0x32, 0x34, 0x36, 0x39},
         // 10
-        { 0x00, 0x01, 0x03, 0x05, 0x07, 0x09, 0x0B, 0x0E,
-          0x0F, 0x10, 0x12, 0x14, 0x16, 0x19, 0x1B, 0x1E,
-          0x1F, 0x21, 0x23, 0x25, 0x27, 0x29, 0x2B, 0x2D,
-          0x2E, 0x2F, 0x31, 0x32, 0x34, 0x36, 0x39, 0x3C },
+        {0x00, 0x01, 0x03, 0x05, 0x07, 0x09, 0x0B, 0x0E,
+         0x0F, 0x10, 0x12, 0x14, 0x16, 0x19, 0x1B, 0x1E,
+         0x1F, 0x21, 0x23, 0x25, 0x27, 0x29, 0x2B, 0x2D,
+         0x2E, 0x2F, 0x31, 0x32, 0x34, 0x36, 0x39, 0x3C},
         // 11
-        { 0x00, 0x01, 0x03, 0x05, 0x07, 0x0A, 0x0C, 0x0F,
-          0x10, 0x11, 0x13, 0x15, 0x17, 0x19, 0x1B, 0x1E,
-          0x1F, 0x20, 0x22, 0x24, 0x26, 0x28, 0x2B, 0x2E,
-          0x2F, 0x30, 0x32, 0x34, 0x36, 0x39, 0x3C, 0x3F },
+        {0x00, 0x01, 0x03, 0x05, 0x07, 0x0A, 0x0C, 0x0F,
+         0x10, 0x11, 0x13, 0x15, 0x17, 0x19, 0x1B, 0x1E,
+         0x1F, 0x20, 0x22, 0x24, 0x26, 0x28, 0x2B, 0x2E,
+         0x2F, 0x30, 0x32, 0x34, 0x36, 0x39, 0x3C, 0x3F},
         // 12
-        { 0x00, 0x02, 0x04, 0x06, 0x08, 0x0B, 0x0D, 0x10,
-          0x11, 0x12, 0x14, 0x16, 0x18, 0x1B, 0x1E, 0x21,
-          0x22, 0x23, 0x25, 0x27, 0x29, 0x2C, 0x2F, 0x32,
-          0x33, 0x34, 0x36, 0x38, 0x3B, 0x34, 0x41, 0x44 },
+        {0x00, 0x02, 0x04, 0x06, 0x08, 0x0B, 0x0D, 0x10,
+         0x11, 0x12, 0x14, 0x16, 0x18, 0x1B, 0x1E, 0x21,
+         0x22, 0x23, 0x25, 0x27, 0x29, 0x2C, 0x2F, 0x32,
+         0x33, 0x34, 0x36, 0x38, 0x3B, 0x34, 0x41, 0x44},
         // 13
-        { 0x00, 0x02, 0x04, 0x06, 0x08, 0x0B, 0x0D, 0x11,
-          0x12, 0x13, 0x15, 0x17, 0x1A, 0x1D, 0x20, 0x23,
-          0x24, 0x25, 0x27, 0x29, 0x2C, 0x2F, 0x32, 0x35,
-          0x36, 0x37, 0x39, 0x3B, 0x3E, 0x41, 0x44, 0x47 }
-    };
+        {0x00, 0x02, 0x04, 0x06, 0x08, 0x0B, 0x0D, 0x11,
+         0x12, 0x13, 0x15, 0x17, 0x1A, 0x1D, 0x20, 0x23,
+         0x24, 0x25, 0x27, 0x29, 0x2C, 0x2F, 0x32, 0x35,
+         0x36, 0x37, 0x39, 0x3B, 0x3E, 0x41, 0x44, 0x47}};
 
 }

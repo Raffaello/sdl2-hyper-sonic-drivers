@@ -12,7 +12,6 @@
 #include <spdlog/spdlog.h>
 #include <fmt/color.h>
 
-
 #include <SDL2/SDL.h>
 
 #include <memory>
@@ -20,15 +19,22 @@
 #include <map>
 #include <string>
 
+#include <SDL2/SDL_main.h>
+
+#if defined(FMT_VERSION) && FMT_VERSION > 90000
+#define FMT_RUNTIME(x) fmt::runtime(x)
+#else
+#define FMT_RUNTIME(x) x
+#endif
+
 using namespace HyperSonicDrivers;
 
-using hardware::opl::OPLFactory;
+using drivers::westwood::ADLDriver;
+using files::westwood::ADLFile;
 using hardware::opl::OplEmulator;
+using hardware::opl::OPLFactory;
 using hardware::opl::OplType;
 using utils::delayMillis;
-using files::westwood::ADLFile;
-using drivers::westwood::ADLDriver;
-
 
 /**
  * @brief Play an ADL file using a chosen OPL emulator/type until the user exits.
@@ -76,7 +82,6 @@ void adl_play(const OplEmulator emu, const OplType type, std::shared_ptr<audio::
     case OPL3:
         device = make_device<devices::SbPro2, devices::Opl>(mixer, emu);
         break;
-
     }
 
     uint8_t track = 0;
@@ -84,7 +89,8 @@ void adl_play(const OplEmulator emu, const OplType type, std::shared_ptr<audio::
     ADLDriver adlDrv(device, audio::mixer::eChannelGroup::Music);
     adlDrv.setADLFile(adlFile);
 
-    if(!mixer->isReady()) {
+    if (!mixer->isReady())
+    {
         spdlog::error("mixer not ready yet..");
         return;
     }
@@ -96,7 +102,7 @@ void adl_play(const OplEmulator emu, const OplType type, std::shared_ptr<audio::
             adlDrv.play(track);
             ILogger::instance->info(fmt::format("Playing track: {}/{}", static_cast<int>(track), adlFile->getNumTracks()), ILogger::eCategory::Application);
         }
-        //delayMillis(1000);
+        // delayMillis(1000);
         SDL_Event e;
         while (SDL_WaitEventTimeout(&e, 100))
         {
@@ -166,7 +172,6 @@ int main(int argc, char* argv[])
         return -2;
     }
 
-
     auto mixer = audio::make_mixer<audio::sdl2::Mixer>(8, 44100, 1024);
     if (!mixer->init())
     {
@@ -176,9 +181,8 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-
     const std::map<OplEmulator, std::string> emus = {
-        { OplEmulator::DOS_BOX, "DOS_BOX" },
+        {OplEmulator::DOS_BOX, "DOS_BOX"},
         //{ OplEmulator::MAME, "MAME" },
         //{ OplEmulator::NUKED, "NUKED" },
         //{ OplEmulator::WOODY, "WOODY" },
@@ -200,16 +204,17 @@ int main(int argc, char* argv[])
         {
             using enum fmt::color;
 
-            for (const auto& c : { white_smoke, yellow,      aqua,
-                             lime_green,  blue_violet, indian_red }) {
-                spdlog::info(fmt::format(fg(c), m, emu.second, type.second));
+            for (const auto& c : { white_smoke, yellow, aqua,
+                                  lime_green, blue_violet, indian_red })
+            {
+                spdlog::info(fmt::format(fg(c), FMT_RUNTIME(m), emu.second, type.second));
             }
 
             try
             {
                 adl_play(emu.first, type.first, mixer, "DUNE0.ADL");
-                //adl_test(emu.first, type.first, mixer, "EOBSOUND.ADL", 1);
-                //adl_test(emu.first, type.first, mixer, "LOREINTR.ADL", 3);
+                // adl_test(emu.first, type.first, mixer, "EOBSOUND.ADL", 1);
+                // adl_test(emu.first, type.first, mixer, "LOREINTR.ADL", 3);
             }
             catch (const std::exception& e)
             {

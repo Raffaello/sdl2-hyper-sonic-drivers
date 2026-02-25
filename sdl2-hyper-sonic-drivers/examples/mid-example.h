@@ -19,20 +19,26 @@
 #include <fmt/color.h>
 #include <map>
 
+#if defined(FMT_VERSION) && FMT_VERSION > 90000
+#define FMT_RUNTIME(x) fmt::runtime(x)
+#else
+#define FMT_RUNTIME(x) x
+#endif
+
 using namespace HyperSonicDrivers;
 
 using audio::mixer::eChannelGroup;
-using hardware::opl::OPLFactory;
 using hardware::opl::OplEmulator;
+using hardware::opl::OPLFactory;
 using hardware::opl::OplType;
-
 
 void mid_test_run(drivers::MIDDriver& midDrv, const std::shared_ptr<audio::MIDI>& midi)
 {
     auto start_time = std::chrono::system_clock::now();
     midDrv.setMidi(midi);
     midDrv.play(0);
-    while (midDrv.isPlaying()) {
+    while (midDrv.isPlaying())
+    {
         utils::delayMillis(1000);
     }
 
@@ -114,10 +120,10 @@ int run(const std::shared_ptr<audio::MIDI>& midi, const bool use_opldrv)
 
     // Reproducing MIDI file
     const std::map<OplEmulator, std::string> emus = {
-       { OplEmulator::DOS_BOX, "DOS_BOX" },
-       { OplEmulator::MAME, "MAME" },
-       { OplEmulator::NUKED, "NUKED" },
-       { OplEmulator::WOODY, "WOODY" },
+        {OplEmulator::DOS_BOX, "DOS_BOX"},
+        {OplEmulator::MAME, "MAME"},
+        {OplEmulator::NUKED, "NUKED"},
+        {OplEmulator::WOODY, "WOODY"},
     };
 
     const std::map<OplType, std::string> types = {
@@ -132,8 +138,8 @@ int run(const std::shared_ptr<audio::MIDI>& midi, const bool use_opldrv)
     using enum fmt::color;
 
     const auto colors = {
-        white_smoke, yellow,      aqua,
-        lime_green,  blue_violet, indian_red };
+        white_smoke, yellow, aqua,
+        lime_green, blue_violet, indian_red };
 
     for (const auto& emu : emus)
     {
@@ -142,7 +148,7 @@ int run(const std::shared_ptr<audio::MIDI>& midi, const bool use_opldrv)
             try
             {
                 for (const auto& c : colors)
-                    spdlog::info(fmt::format(fg(c), m, emu.second, type.second));
+                    spdlog::info(fmt::format(fg(c), FMT_RUNTIME(m), emu.second, type.second));
 
                 if (use_opldrv)
                     mid_test(emu.first, type.first, mixer, midi);

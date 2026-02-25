@@ -17,15 +17,22 @@
 #include <map>
 #include <string>
 
+#include <SDL2/SDL_main.h>
+
+#if defined(FMT_VERSION) && FMT_VERSION > 90000
+#define FMT_RUNTIME(x) fmt::runtime(x)
+#else
+#define FMT_RUNTIME(x) x
+#endif
+
 using namespace HyperSonicDrivers;
 
-using hardware::opl::OPLFactory;
+using drivers::westwood::ADLDriver;
+using files::westwood::ADLFile;
 using hardware::opl::OplEmulator;
+using hardware::opl::OPLFactory;
 using hardware::opl::OplType;
 using utils::delayMillis;
-using files::westwood::ADLFile;
-using drivers::westwood::ADLDriver;
-
 
 void adl_test(const OplEmulator emu, const OplType type, std::shared_ptr<audio::IMixer> mixer, const std::string& filename, const uint8_t track)
 {
@@ -46,21 +53,21 @@ void adl_test(const OplEmulator emu, const OplType type, std::shared_ptr<audio::
     case OPL3:
         device = make_device<devices::SbPro2, devices::Opl>(mixer, emu);
         break;
-
     }
 
     ADLDriver adlDrv(device, audio::mixer::eChannelGroup::Music);
     adlDrv.setADLFile(adlFile);
     adlDrv.play(track);
 
-    if(!mixer->isReady()) {
+    if (!mixer->isReady())
+    {
         spdlog::error("mixer not ready yet..");
         return;
     }
 
     do
     {
-        //spdlog::info("is playing");
+        // spdlog::info("is playing");
         delayMillis(1000);
     } while (adlDrv.isPlaying());
 }
@@ -75,10 +82,10 @@ int main(int argc, char* argv[])
     }
 
     const std::map<OplEmulator, std::string> emus = {
-        { OplEmulator::DOS_BOX, "DOS_BOX" },
-        { OplEmulator::MAME, "MAME" },
-        { OplEmulator::NUKED, "NUKED" },
-        { OplEmulator::WOODY, "WOODY" },
+        {OplEmulator::DOS_BOX, "DOS_BOX"},
+        {OplEmulator::MAME, "MAME"},
+        {OplEmulator::NUKED, "NUKED"},
+        {OplEmulator::WOODY, "WOODY"},
     };
 
     const std::map<OplType, std::string> types = {
@@ -97,16 +104,17 @@ int main(int argc, char* argv[])
         {
             using enum fmt::color;
 
-            for (const auto& c : { white_smoke, yellow,      aqua,
-                             lime_green,  blue_violet, indian_red }) {
-                spdlog::info(fmt::format(fg(c), m, emu.second, type.second));
+            for (const auto& c : { white_smoke, yellow, aqua,
+                                  lime_green, blue_violet, indian_red })
+            {
+                spdlog::info(fmt::format(fg(c), FMT_RUNTIME(m), emu.second, type.second));
             }
 
             try
             {
                 adl_test(emu.first, type.first, mixer, "DUNE0.ADL", 4);
-                //adl_test(emu.first, type.first, mixer, "EOBSOUND.ADL", 1);
-                //adl_test(emu.first, type.first, mixer, "LOREINTR.ADL", 3);
+                // adl_test(emu.first, type.first, mixer, "EOBSOUND.ADL", 1);
+                // adl_test(emu.first, type.first, mixer, "LOREINTR.ADL", 3);
             }
             catch (const std::exception& e)
             {

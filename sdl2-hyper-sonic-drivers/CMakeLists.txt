@@ -1,7 +1,7 @@
-﻿cmake_minimum_required (VERSION 3.21)
+﻿cmake_minimum_required (VERSION 3.24)
 
 find_package(SDL2 CONFIG REQUIRED)
-find_package(MT32emu CONFIG REQUIRED)
+find_package(MT32Emu 2.7 CONFIG REQUIRED)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_DEBUG_POSTFIX d)
@@ -14,9 +14,6 @@ else()
     set(LIB_SDL2 SDL2::SDL2)
 endif()
 
-if (WIN32)
-    set(LIB_SDL2main SDL2::SDL2main)
-endif()
 
 ########################### Static Lib #######################################
 set(LIB_NAME hyper-sonic-drivers-static)
@@ -25,7 +22,33 @@ set(LIB_VER ${LIB_CONF}-version)
 include(CMakePackageConfigHelpers)
 
 add_library(${LIB_NAME} STATIC)
-set_target_properties(${LIB_NAME} PROPERTIES POSITION_INDEPENDENT_CODE ON)
+set_target_properties(${LIB_NAME} PROPERTIES
+     POSITION_INDEPENDENT_CODE ON
+     COMPILE_WARNING_AS_ERROR ON
+)
+
+target_compile_options(${LIB_NAME}
+    PRIVATE
+        $<$<CXX_COMPILER_ID:GNU>:
+            -Wall
+            # -Wextra
+            -Wpedantic
+            $<$<CONFIG:DEBUG>: --coverage>
+        >
+)
+
+target_link_options(${LIB_NAME} PRIVATE 
+    $<$<CXX_COMPILER_ID:GNU>:
+        $<$<CONFIG:DEBUG>: --coverage>
+    >
+)
+
+target_link_libraries(${LIB_NAME} PRIVATE
+    $<$<CXX_COMPILER_ID:GNU>:
+        $<$<CONFIG:DEBUG>: gcov>
+    >
+)
+
 install(
     TARGETS ${LIB_NAME}
     EXPORT ${LIB_CONF}
@@ -72,7 +95,8 @@ install(FILES
 )
 
 target_include_directories(${LIB_NAME} PUBLIC
-    $<BUILD_INTERFACE:$<TARGET_FILE_DIR:${LIB_NAME}>>
+    # $<BUILD_INTERFACE:$<TARGET_FILE_DIR:${LIB_NAME}>>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
     $<INSTALL_INTERFACE:static/include>
     $<INSTALL_INTERFACE:static/include/test>
@@ -185,8 +209,9 @@ target_sources(${LIB_NAME} PRIVATE
 )
 
 target_link_libraries(${LIB_NAME}
-    PUBLIC 
+    PRIVATE
         ${LIB_SDL2}
+    PUBLIC 
         MT32Emu::mt32emu
 )
 if(NOT (WITH_SDL2_STATIC))
@@ -212,18 +237,8 @@ unset(LIB_VER)
 
 # Add source to this project's executable.
 add_executable(sdl2-hyper-sonic-drivers "sdl2-hyper-sonic-drivers.cpp")
-target_link_libraries(sdl2-hyper-sonic-drivers PRIVATE ${LIB_SDL2main} hyper-sonic-drivers-static)
-
-if(MSVC)
-# @see https://docs.microsoft.com/en-us/cpp/build/reference/compiler-options-listed-by-category?view=vs-2019
-    #add_compile_options(#/WX
-    #$<$<CONFIG:DEBUG>:"/W4">
-      #  $<$<CONFIG:RELEASE>:/O2 /Ot /GA /GL /Gw>
-    #)
-   
-    ## use static library ...
-    ##add_link_options($<$<CONFIG:Debug>:"/DEBUG">)
-endif()
+target_link_libraries(sdl2-hyper-sonic-drivers 
+    PRIVATE $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main> hyper-sonic-drivers-static)
 
 if(BUILD_TESTING)
     add_subdirectory("test")

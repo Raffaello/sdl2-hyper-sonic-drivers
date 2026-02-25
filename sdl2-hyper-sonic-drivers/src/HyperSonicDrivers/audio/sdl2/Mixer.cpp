@@ -1,21 +1,22 @@
+#include <HyperSonicDrivers/audio/sdl2/Mixer.hpp>
+#include <HyperSonicDrivers/utils/ILogger.hpp>
+
+#include <SDL2/SDL.h> // due to init/quit subsystem
+
 #include <algorithm>
 #include <ranges>
 #include <cstring>
 #include <cassert>
-#include <HyperSonicDrivers/audio/sdl2/Mixer.hpp>
-#include <HyperSonicDrivers/utils/ILogger.hpp>
-
-#include <SDL2/SDL.h>
+#include <bit>
 
 namespace HyperSonicDrivers::audio::sdl2
 {
+    using utils::logE;
     using utils::logI;
     using utils::logW;
-    using utils::logE;
 
     Mixer::Mixer(const uint8_t max_channels,
-        const uint32_t freq, const uint16_t buffer_size) :
-        IMixer(max_channels, freq, buffer_size)
+                 const uint32_t freq, const uint16_t buffer_size) : IMixer(max_channels, freq, buffer_size)
     {
         m_channels.resize(max_channels);
         for (int i = 0; i < max_channels; i++)
@@ -26,12 +27,7 @@ namespace HyperSonicDrivers::audio::sdl2
 
     Mixer::~Mixer()
     {
-        if (m_ready)
-        {
-            SDL_CloseAudioDevice(m_device_id);
-            SDL_QuitSubSystem(SDL_INIT_AUDIO);
-            m_ready = false;
-        }
+        shutdown();
     }
 
     bool Mixer::init()
@@ -39,11 +35,24 @@ namespace HyperSonicDrivers::audio::sdl2
         return init_(sdlCallback, this);
     }
 
+    void Mixer::shutdown()
+    {
+        if (isReady())
+        {
+            suspend();
+            SDL_CloseAudioDevice(m_device_id);
+            SDL_QuitSubSystem(SDL_INIT_AUDIO);
+            m_ready = false;
+            m_device_id = 0;
+        }
+    }
+
     std::optional<uint8_t> Mixer::play(
         const mixer::eChannelGroup group,
-        const std::shared_ptr<IAudioStream>& stream,
-        const uint8_t vol, const int8_t pan
-    ) {
+        const std::shared_ptr<IAudioStream> &stream,
+        const uint8_t vol, const int8_t pan)
+    {
+        std::lock_guard lock(m_mutex);
         // find a free channel
         int i = 0;
         for (; i < max_channels; i++)
@@ -76,7 +85,7 @@ namespace HyperSonicDrivers::audio::sdl2
     {
         std::scoped_lock lck(m_mutex);
 
-        for (const auto& ch : m_channels)
+        for (const auto &ch : m_channels)
             ch->reset();
     }
 
@@ -91,7 +100,7 @@ namespace HyperSonicDrivers::audio::sdl2
     {
         std::scoped_lock lck(m_mutex);
 
-        for (const auto& ch : m_channels)
+        for (const auto &ch : m_channels)
         {
             if (ch->getChannelGroup() == group)
                 ch->reset();
@@ -102,7 +111,7 @@ namespace HyperSonicDrivers::audio::sdl2
     {
         std::scoped_lock lck(m_mutex);
 
-        for (const auto& ch : m_channels)
+        for (const auto &ch : m_channels)
             ch->pause();
     }
 
@@ -117,7 +126,7 @@ namespace HyperSonicDrivers::audio::sdl2
     {
         std::scoped_lock lck(m_mutex);
 
-        for (const auto& ch : m_channels)
+        for (const auto &ch : m_channels)
             ch->unpause();
     }
 
@@ -146,16 +155,16 @@ namespace HyperSonicDrivers::audio::sdl2
     {
         std::scoped_lock lck(m_mutex);
 
-        return std::ranges::any_of(m_channels, [](const auto& ch)
-            { return !ch->isEnded(); });
+        return std::ranges::any_of(m_channels, [](const auto &ch)
+                                   { return !ch->isEnded(); });
     }
 
     bool Mixer::isActive(const mixer::eChannelGroup group) const noexcept
     {
         std::scoped_lock lck(m_mutex);
 
-        return std::ranges::any_of(m_channels, [group](const auto& ch)
-            { return ch->getChannelGroup() == group && !ch->isEnded(); });
+        return std::ranges::any_of(m_channels, [group](const auto &ch)
+                                   { return ch->getChannelGroup() == group && !ch->isEnded(); });
 
         return false;
     }
@@ -227,11 +236,11 @@ namespace HyperSonicDrivers::audio::sdl2
 
     void Mixer::updateChannelsVolumePan_() noexcept
     {
-        for (const auto& ch : m_channels)
+        for (const auto &ch : m_channels)
             ch->updateVolumePan();
     }
 
-    bool Mixer::init_(SDL_AudioCallback callback, void* userdata)
+    bool Mixer::init_(SDL_AudioCallback callback, void *userdata)
     {
         m_ready = false;
         if (SDL_InitSubSystem(SDL_INIT_AUDIO) == -1)
@@ -241,24 +250,25 @@ namespace HyperSonicDrivers::audio::sdl2
         }
 
         // Get the desired audio specs
-        SDL_AudioSpec desired = {
-            .freq = static_cast<int>(freq),
-            .format = AUDIO_S16,
-            .channels = 2,
-            .samples = buffer_size,
-            .callback = callback,
-            .userdata = userdata
-        };
+        SDL_AudioSpec desired{};
 
-        SDL_AudioSpec obtained;
+        desired.freq = static_cast<int>(freq);
+        desired.format = AUDIO_S16;
+        desired.channels = 2;
+        desired.samples = buffer_size;
+        desired.callback = callback;
+        desired.userdata = userdata;
+
+        SDL_AudioSpec obtained{};
         m_device_id = SDL_OpenAudioDevice(nullptr, 0, &desired, &obtained, 0);
         if (m_device_id == 0)
         {
             logE("can't open audio device");
+            SDL_QuitSubSystem(SDL_INIT_AUDIO);
             return false;
         }
 
-        const char* sdlDriverName = SDL_GetCurrentAudioDriver();
+        const char *sdlDriverName = SDL_GetCurrentAudioDriver();
         logI(std::format("Using SDL Audio Driver '{}'", sdlDriverName));
 
         if (obtained.format != desired.format)
@@ -280,11 +290,11 @@ namespace HyperSonicDrivers::audio::sdl2
         return true;
     }
 
-    size_t Mixer::callback(uint8_t* samples, unsigned int len)
+    size_t Mixer::callback(uint8_t *samples, unsigned int len)
     {
         const std::scoped_lock lck(m_mutex);
 
-        int16_t* buf = std::bit_cast<int16_t*>(samples);
+        int16_t *buf = std::bit_cast<int16_t *>(samples);
         // we store stereo, 16-bit samples (div 2 for stereo and 2 from 8 to 16 bits)
         assert(len % 4 == 0);
         //  zero the buf (size of 2ch stereo: len*2 of 16 bits)
@@ -292,7 +302,7 @@ namespace HyperSonicDrivers::audio::sdl2
         len >>= 2;
         // mix all channels
         size_t res = 0;
-        for (const auto& ch : m_channels)
+        for (const auto &ch : m_channels)
         {
             const size_t tmp = ch->mix(buf, len);
 
@@ -304,9 +314,9 @@ namespace HyperSonicDrivers::audio::sdl2
         return res;
     }
 
-    void Mixer::sdlCallback(void* userdata, uint8_t* stream, int len)
+    void Mixer::sdlCallback(void *userdata, uint8_t *stream, int len)
     {
-        Mixer* mixer = reinterpret_cast<Mixer*>(userdata);
+        Mixer *mixer = reinterpret_cast<Mixer *>(userdata);
         assert(mixer != nullptr);
         mixer->callback(stream, len);
     }

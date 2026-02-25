@@ -66,8 +66,7 @@ namespace HyperSonicDrivers::files::westwood
         V1_TRACK_OFFSETS_SIZE,
         V1_NUM_INSTRUMENT_OFFSETS,
         V1_OFFSET_START,
-        V1_DATA_HEADER_SIZE
-    };
+        V1_DATA_HEADER_SIZE};
 
     const ADLFile::meta_version_t mv2 = {
         V2_NUM_HEADER,
@@ -77,8 +76,7 @@ namespace HyperSonicDrivers::files::westwood
         V2_TRACK_OFFSETS_SIZE,
         V2_NUM_INSTRUMENT_OFFSETS,
         V2_OFFSET_START,
-        V2_DATA_HEADER_SIZE
-    };
+        V2_DATA_HEADER_SIZE};
 
     const ADLFile::meta_version_t mv3 = {
         V3_NUM_HEADER,
@@ -88,8 +86,7 @@ namespace HyperSonicDrivers::files::westwood
         V3_TRACK_OFFSETS_SIZE,
         V3_NUM_INSTRUMENT_OFFSETS,
         V3_OFFSET_START,
-        V3_DATA_HEADER_SIZE
-    };
+        V3_DATA_HEADER_SIZE};
 
     /**
      * @brief Construct an ADLFile by loading and parsing a Westwood ADL file from disk.
@@ -112,7 +109,7 @@ namespace HyperSonicDrivers::files::westwood
      *
      * @param filename Path to the ADL file to open and parse.
      */
-    ADLFile::ADLFile(const std::string& filename) : File(filename)
+    ADLFile::ADLFile(const std::string &filename) : File(filename)
     {
         assertValid_(size() >= FILE_SIZE_MIN);
         detectVersion_();
@@ -127,8 +124,7 @@ namespace HyperSonicDrivers::files::westwood
         readOffsetsFromFile_(
             m_meta_version.num_instrument_offsets,
             m_instrument_offsets,
-            m_meta_version.track_offsets_size + m_meta_version.header_size
-        );
+            m_meta_version.track_offsets_size + m_meta_version.header_size);
 
         readDataFromFile_(m_meta_version.data_offset, m_meta_version.data_header_size);
 
@@ -227,7 +223,7 @@ namespace HyperSonicDrivers::files::westwood
     {
         using hardware::opl::OPL2instrument_t;
 
-        const uint8_t* instr = m_data.get() + getInstrumentOffset(instrument);
+        const uint8_t *instr = m_data.get() + getInstrumentOffset(instrument);
         return OPL2instrument_t(
             {
                 .trem_vibr_1 = instr[0],
@@ -245,8 +241,7 @@ namespace HyperSonicDrivers::files::westwood
                 .level_2 = instr[6],
                 .unused = 0,
                 .basenote = 0 /// ???
-            }
-        );
+            });
     }
 
     void ADLFile::detectVersion_()
@@ -255,7 +250,8 @@ namespace HyperSonicDrivers::files::westwood
         // detect version 3
         m_version = 3;
         m_meta_version = mv3;
-        m_read = [this]() {return readLE16(); };
+        m_read = [this]()
+        { return readLE16(); };
         for (int i = 0; i < V1_HEADER_SIZE; i++)
         {
             uint16_t v = readLE16();
@@ -264,10 +260,11 @@ namespace HyperSonicDrivers::files::westwood
             // this will check program offsets (at least 600).
             if ((v >= V3_HEADER_SIZE) && (v < 0xFFFF))
             {
-                //v1,2
+                // v1,2
                 m_version = 2;
                 m_meta_version = mv2;
-                m_read = [this]() {return readU8(); };
+                m_read = [this]()
+                { return readU8(); };
                 break;
             }
         }
@@ -282,7 +279,8 @@ namespace HyperSonicDrivers::files::westwood
             {
                 uint16_t w = readLE16();
                 assertValid_(w >= V1_OFFSET_START || w == 0);
-                if (min_w > w && w > 0) {
+                if (min_w > w && w > 0)
+                {
                     min_w = w;
                 }
             }
@@ -313,7 +311,7 @@ namespace HyperSonicDrivers::files::westwood
      *             The caller is responsible for using the correct byte-width and endianness
      *             for the target ADL version.
      */
-    void ADLFile::readHeaderFromFile_(const int header_size, std::function<uint16_t()> read)
+    void ADLFile::readHeaderFromFile_(const uint16_t header_size, std::function<uint16_t()> read)
     {
         m_header.resize(header_size);
         for (int i = 0; i < header_size; i++)
@@ -322,11 +320,12 @@ namespace HyperSonicDrivers::files::westwood
         assertValid_(m_header.size() == header_size);
     }
 
-    void ADLFile::readOffsetsFromFile_(const int num_offsets, std::vector<uint16_t>& vec, const int offset_start) const
+    void ADLFile::readOffsetsFromFile_(const uint16_t num_offsets, std::vector<uint16_t> &vec, const uint32_t offset_start) const
     {
         assertValid_(tell() == offset_start);
         vec.resize(num_offsets);
-        for (int i = 0; i < num_offsets; i++) {
+        for (int i = 0; i < num_offsets; i++)
+        {
             vec[i] = readLE16();
         }
         assertValid_(vec.size() == num_offsets);
@@ -342,9 +341,9 @@ namespace HyperSonicDrivers::files::westwood
         m_dataHeaderSize = data_header_size;
     }
 
-    void ADLFile::adjust_offsets_(std::vector<uint16_t>& vec)
+    void ADLFile::adjust_offsets_(std::vector<uint16_t> &vec)
     {
-        for (auto& v : vec)
+        for (auto &v : vec)
         {
             if (v == 0)
                 v = 0xFFFF;

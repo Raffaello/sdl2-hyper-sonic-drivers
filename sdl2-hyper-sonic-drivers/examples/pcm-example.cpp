@@ -10,6 +10,8 @@
 
 #include <iostream>
 
+#include <SDL2/SDL_main.h>
+
 using namespace HyperSonicDrivers;
 
 using audio::mixer::eChannelGroup;

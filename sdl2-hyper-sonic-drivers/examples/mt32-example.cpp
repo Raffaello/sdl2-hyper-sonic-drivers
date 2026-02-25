@@ -12,6 +12,14 @@
 
 #include <HyperSonicDrivers/utils/ILogger.hpp>
 
+#include <SDL2/SDL_main.h>
+
+#if defined(FMT_VERSION) && FMT_VERSION > 90000
+#define FMT_RUNTIME(x) fmt::runtime(x)
+#else
+#define FMT_RUNTIME(x) x
+#endif
+
 using namespace HyperSonicDrivers;
 
 int main(int argc, char* argv[])
@@ -48,4 +56,6 @@ int main(int argc, char* argv[])
     {
         utils::delayMillis(100);
     }
+
+    return 0;
 }

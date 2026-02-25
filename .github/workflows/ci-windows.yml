@@ -84,7 +84,7 @@ jobs:
           cmake --build . --config=${{ matrix.build_type }} -j4
         working-directory: build
       - name: CTest
-        run: ctest --output-on-failure
+        run: ctest -C ${{ matrix.build_type }} --output-on-failure
         working-directory: build
       - name: cmake install
         run: cmake --build . --target install --config ${{ matrix.build_type }} -j4
@@ -93,7 +93,7 @@ jobs:
         run: cmake --build . --target package --config ${{ matrix.build_type }} -j4
         working-directory: build
       - name: Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.os == '2022' }}
         with:
             generate_release_notes: true

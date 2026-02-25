@@ -16,7 +16,7 @@
 namespace HyperSonicDrivers::drivers
 {
     /**
-    * This class is a wrapper around different midi drivers and has a embeeded timer processing track
+    * This class is a wrapper around different midi drivers and has a embedded timer processing track
     * to send events to the device
     **/
     class MIDDriver : public IAudioDriver
@@ -52,7 +52,7 @@ namespace HyperSonicDrivers::drivers
         void processTrack(const audio::midi::MIDITrack& track, const uint16_t division);
         // TODO: can be later on moved to public, but not sure the tempoChanged event
         //       would be better using SDL2 custom event 
-        //       or a event queue sub-sytem instead of doing this with a simple boolean
+        //       or a event queue sub-system instead of doing this with a simple boolean
         inline void setTempo(const uint32_t tempo) noexcept { m_midiTempoChanged = true; m_tempo = tempo; }
         bool open_() noexcept;
     private:

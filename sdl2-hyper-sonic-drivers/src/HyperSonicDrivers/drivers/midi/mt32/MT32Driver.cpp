@@ -5,13 +5,12 @@ namespace HyperSonicDrivers::drivers::midi::mt32
 {
     constexpr void dead_end()
     {
-        utils::throwLogC<std::invalid_argument>(std::format("can't call this method"));
+        utils::throwLogC<std::invalid_argument>("can't call this method");
     }
 
-    MT32Driver::MT32Driver(const std::shared_ptr<devices::MT32>& mt32) :
-        IMidiDriver()
+    MT32Driver::MT32Driver(const std::shared_ptr<devices::MT32> &mt32) : IMidiDriver()
     {
-        if(mt32 == nullptr)
+        if (mt32 == nullptr)
             utils::throwLogC<std::runtime_error>("MT32 device is null");
 
         m_mt32 = mt32->getMt32();
@@ -60,7 +59,7 @@ namespace HyperSonicDrivers::drivers::midi::mt32
 
     void MT32Driver::onCallback() noexcept
     {
-        // TODO 
+        // TODO
     }
 
     void MT32Driver::noteOff(const uint8_t chan, const uint8_t note) noexcept
@@ -88,7 +87,7 @@ namespace HyperSonicDrivers::drivers::midi::mt32
         dead_end();
     }
 
-    void MT32Driver::sysEx(const uint8_t* msg, uint16_t length) noexcept
+    void MT32Driver::sysEx(const uint8_t *msg, uint16_t length) noexcept
     {
         m_mt32->getService().playSysex(msg, length);
     }

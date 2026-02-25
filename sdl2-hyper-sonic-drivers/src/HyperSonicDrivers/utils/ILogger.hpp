@@ -61,7 +61,7 @@ namespace HyperSonicDrivers::utils
         //eLevel m_level = eLevel::INFO;
     };
 
-    constexpr void logT(const std::string& msg,
+    inline void logT(const std::string& msg,
         const ILogger::eCategory cat = ILogger::eCategory::Audio,
         const std::source_location& loc =
         std::source_location::current())
@@ -69,7 +69,7 @@ namespace HyperSonicDrivers::utils
         ILogger::instance->trace(std::format("[{}] {}", loc.function_name(), msg), cat);
     }
 
-    constexpr void logD(const std::string& msg,
+    inline void logD(const std::string& msg,
         const ILogger::eCategory cat = ILogger::eCategory::Audio,
         const std::source_location& loc =
         std::source_location::current())
@@ -77,7 +77,7 @@ namespace HyperSonicDrivers::utils
         ILogger::instance->debug(std::format("[{}] {}", loc.function_name(), msg), cat);
     }
 
-    constexpr void logI(const std::string& msg,
+    inline void logI(const std::string& msg,
         const ILogger::eCategory cat = ILogger::eCategory::Audio,
         const std::source_location& loc =
         std::source_location::current())
@@ -85,7 +85,7 @@ namespace HyperSonicDrivers::utils
         ILogger::instance->info(std::format("[{}] {}", loc.function_name(), msg), cat);
     }
 
-    constexpr void logW(const std::string& msg,
+    inline void logW(const std::string& msg,
         const ILogger::eCategory cat = ILogger::eCategory::Audio,
         const std::source_location& loc =
         std::source_location::current())
@@ -93,7 +93,7 @@ namespace HyperSonicDrivers::utils
         ILogger::instance->warning(std::format("[{}] {}", loc.function_name(), msg), cat);
     }
 
-    constexpr void logE(const std::string& msg,
+    inline void logE(const std::string& msg,
         const ILogger::eCategory cat = ILogger::eCategory::Audio,
         const std::source_location& loc =
         std::source_location::current())
@@ -101,7 +101,7 @@ namespace HyperSonicDrivers::utils
         ILogger::instance->error(std::format("[{}] {}", loc.function_name(), msg), cat);
     }
 
-    constexpr void logC(const std::string& msg,
+    inline void logC(const std::string& msg,
         const ILogger::eCategory cat = ILogger::eCategory::Audio,
         const std::source_location& loc =
         std::source_location::current())

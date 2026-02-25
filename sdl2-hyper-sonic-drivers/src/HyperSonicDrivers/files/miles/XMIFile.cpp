@@ -12,12 +12,12 @@ namespace HyperSonicDrivers::files::miles
     using audio::midi::MIDI_META_EVENT;
     using audio::midi::MIDIEvent;
     using audio::midi::MIDITrack;
-    using utils::decode_xmi_VLQ;
     using utils::decode_VLQ;
+    using utils::decode_xmi_VLQ;
 
     using utils::logD;
-    using utils::logW;
     using utils::logE;
+    using utils::logW;
     using utils::throwLogC;
 
     // This first "meta-header" is optional
@@ -36,18 +36,18 @@ namespace HyperSonicDrivers::files::miles
     //             UWORD # of timbre list entries, 0 - 16384
     //           { UBYTE patch number 0 - 127
     //             UBYTE timbre bank 0 - 127 } ...]
-    // 
+    //
     //       [RBRN<len>
     //             UWORD # of branch point offsets, 0 - 127
     //           { UWORD Sequence Branch Index controller value 0 - 127
     //             ULONG controller offset from start of EVNT chunk } ...]
-    // 
+    //
     //         EVNT<len>
     //           { UBYTE interval count(if < 128)
     //             UBYTE <MIDI event>(if > 127) } ...
     //         } ...
     // }
-    XMIFile::XMIFile(const std::string& filename) : IFFFile(filename), File(filename)
+    XMIFile::XMIFile(const std::string &filename) : File(filename), IFFFile(filename)
     {
         uint16_t num_tracks = 0;
         IFF_chunk_header_t header;
@@ -77,9 +77,7 @@ namespace HyperSonicDrivers::files::miles
         _timbre_bank.resize(num_tracks);
         // Create MIDI object
         uint16_t division = 60; // as default track tempo = 500000
-        audio::midi::MIDI_FORMAT format = num_tracks == 1 ?
-            audio::midi::MIDI_FORMAT::SINGLE_TRACK :
-            audio::midi::MIDI_FORMAT::MULTI_TRACK;
+        audio::midi::MIDI_FORMAT format = num_tracks == 1 ? audio::midi::MIDI_FORMAT::SINGLE_TRACK : audio::midi::MIDI_FORMAT::MULTI_TRACK;
 
         _midi = std::make_shared<audio::MIDI>(format, num_tracks, division);
 
@@ -104,7 +102,7 @@ namespace HyperSonicDrivers::files::miles
                     _readRbrn(chunk, track);
                     break;
                 case eIFF_ID::ID_EVNT:
-                    midi_track = _readEvnts(chunk, track);
+                    midi_track = _readEvents(chunk, track);
                     break;
                 default:
                     std::string s(chunk.id.str, 4);
@@ -121,9 +119,9 @@ namespace HyperSonicDrivers::files::miles
         return _midi;
     }
 
-    uint16_t XMIFile::_readFormXdirChunk(const IFF_chunk_header_t& form_xdir) const noexcept
+    uint16_t XMIFile::_readFormXdirChunk(const IFF_chunk_header_t &form_xdir) const noexcept
     {
-        // the FORM<len>XDIR chunk is already read and pass as a paramter
+        // the FORM<len>XDIR chunk is already read and pass as a parameter
         // [  FORM<len>XDIR
         // {
         //     INFO<len>
@@ -144,7 +142,7 @@ namespace HyperSonicDrivers::files::miles
         return num_tracks;
     }
 
-    MIDITrack XMIFile::_readEvnts(const IFF_sub_chunk_header_t& IFF_evnt, const int16_t track) const noexcept
+    MIDITrack XMIFile::_readEvents(const IFF_sub_chunk_header_t &IFF_evnt, const int16_t track) const noexcept
     {
         // { UBYTE interval count(if < 128)
         //     UBYTE <MIDI event>(if > 127) } ...
@@ -157,13 +155,14 @@ namespace HyperSonicDrivers::files::miles
         read(buf.get(), IFF_evnt.size);
 
         // delta time here is stored as abs_time + note duration
-        auto midiEvent_cmp = [](const MIDIEvent& a, const MIDIEvent& b) {
+        auto midiEvent_cmp = [](const MIDIEvent &a, const MIDIEvent &b)
+        {
             return a.delta_time > b.delta_time;
         };
         std::priority_queue<MIDIEvent, std::vector<MIDIEvent>, decltype(midiEvent_cmp)> notes(midiEvent_cmp);
 
         bool endTrack = false;
-        int offs = 0;
+        uint32_t offs = 0;
         // there could be a risk of overflow...
         uint32_t abs_time = 0;
         MIDITrack t;
@@ -171,13 +170,16 @@ namespace HyperSonicDrivers::files::miles
         {
             MIDIEvent e;
 
-            if (buf[offs] < 128) {
+            if (buf[offs] < 128)
+            {
                 // interval count
                 offs += decode_xmi_VLQ(&buf[offs], e.delta_time);
                 // check for overflow:
                 assert(abs_time <= abs_time + e.delta_time);
                 abs_time += e.delta_time;
-            } else {
+            }
+            else
+            {
                 e.delta_time = 0;
             }
 
@@ -205,15 +207,15 @@ namespace HyperSonicDrivers::files::miles
 
             // midi event
             e.type.val = buf[offs++];
-            
+
             // TODO: refactor later as there is quite a lot in common with MIDFile
             //       refactor when loading from a memory buffer rather then from file
             //       (when preload the whole file into memory)
-            switch (static_cast<MIDI_EVENT_TYPES_HIGH>(e.type.high))
+            switch (static_cast<MIDI_EVENT_TYPES_HIGH>(e.type._.high))
             {
             case MIDI_EVENT_TYPES_HIGH::META_SYSEX:
                 // special event
-                switch (static_cast<MIDI_META_EVENT_TYPES_LOW>(e.type.low))
+                switch (static_cast<MIDI_META_EVENT_TYPES_LOW>(e.type._.low))
                 {
                 case MIDI_META_EVENT_TYPES_LOW::SYS_EX0:
                     // sysEx-event
@@ -232,7 +234,8 @@ namespace HyperSonicDrivers::files::miles
                     offs += decode_VLQ(&buf[offs], length);
                     e.data.reserve(length + 1);
                     e.data.push_back(type);
-                    for (int j = 0; j < length; j++) {
+                    for (uint32_t j = 0; j < length; j++)
+                    {
                         e.data.push_back(buf[offs++]);
                     }
 
@@ -266,7 +269,8 @@ namespace HyperSonicDrivers::files::miles
                 throwLogC<std::invalid_argument>("Note OFF event found.");
             }
             break;
-            case MIDI_EVENT_TYPES_HIGH::NOTE_ON: {
+            case MIDI_EVENT_TYPES_HIGH::NOTE_ON:
+            {
                 e.data.reserve(2);
                 e.data.push_back(buf[offs++]);
                 const uint8_t vel = buf[offs++];
@@ -280,13 +284,13 @@ namespace HyperSonicDrivers::files::miles
                 {
                     // TODO: is this ok?
                     // NOTE_OFF
-                    e.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::NOTE_OFF);
-                } 
+                    e.type._.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::NOTE_OFF);
+                }
                 else
                 {
                     noteOff.delta_time += abs_time;
-                    noteOff.type.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::NOTE_OFF);
-                    noteOff.type.low = e.type.low;
+                    noteOff.type._.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::NOTE_OFF);
+                    noteOff.type._.low = e.type._.low;
                     noteOff.data.resize(2);
                     noteOff.data[0] = e.data[0];
                     noteOff.data[1] = 40; // default if no velocity on release
@@ -296,7 +300,7 @@ namespace HyperSonicDrivers::files::miles
                 e.data.push_back(vel);
                 e.data.shrink_to_fit();
             }
-                break;
+            break;
             case MIDI_EVENT_TYPES_HIGH::AFTERTOUCH:
             case MIDI_EVENT_TYPES_HIGH::PITCH_BEND:
             case MIDI_EVENT_TYPES_HIGH::CONTROLLER:
@@ -306,7 +310,7 @@ namespace HyperSonicDrivers::files::miles
                 break;
             default:
                 throwLogC<std::runtime_error>(std::format("MIDFile: midi event {:#04x} not recognized {:#03x} - pos={}.",
-                        e.type.val, std::bit_cast<uint8_t>(e.type.high), static_cast<unsigned long>(tell())));
+                                                          e.type.val, std::bit_cast<uint8_t>(e.type._.high), static_cast<unsigned long>(tell())));
                 break;
             }
 
@@ -317,7 +321,7 @@ namespace HyperSonicDrivers::files::miles
         // sanity check
         if (offs != IFF_evnt.size)
         {
-            logW(std::format("Fileanme '{}' track {} length mismatch real length {}", m_filename, IFF_evnt.size, offs));
+            logW(std::format("Filename '{}' track {} length mismatch: {} vs real length {}", m_filename, track, IFF_evnt.size, offs));
         }
 
         if (!endTrack)
@@ -330,7 +334,7 @@ namespace HyperSonicDrivers::files::miles
         return t;
     }
 
-    void XMIFile::_readTimb(const IFF_sub_chunk_header_t& IFF_timb, const int16_t track)
+    void XMIFile::_readTimb(const IFF_sub_chunk_header_t &IFF_timb, const int16_t track)
     {
         // UWORD # of timbre list entries, 0 - 16384
         // { UBYTE patch number 0 - 127
@@ -344,11 +348,9 @@ namespace HyperSonicDrivers::files::miles
             _timbre_bank[track].push_back(readU8());
         }
         assertValid_(
-            timbre_list_entries == _timbre_patch_numbers[track].size()
-            && timbre_list_entries == _timbre_bank[track].size()
-        );
+            timbre_list_entries == _timbre_patch_numbers[track].size() && timbre_list_entries == _timbre_bank[track].size());
     }
-    void XMIFile::_readRbrn(const IFF_sub_chunk_header_t& IFF_rbrn, const int16_t track)
+    void XMIFile::_readRbrn(const IFF_sub_chunk_header_t &IFF_rbrn, const int16_t track)
     {
         // UWORD # of branch point offsets, 0 - 127
         // { UWORD Sequence Branch Index controller value 0 - 127

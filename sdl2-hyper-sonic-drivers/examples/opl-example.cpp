@@ -9,20 +9,29 @@
 #include <cstdint>
 #include <map>
 #include <string>
+#include <type_traits>
+
+#include <SDL2/SDL_main.h>
+
+#if defined(FMT_VERSION) && FMT_VERSION > 90000
+#define FMT_RUNTIME(x) fmt::runtime(x)
+#else
+#define FMT_RUNTIME(x) x
+#endif
 
 using namespace HyperSonicDrivers;
 
-using hardware::opl::OPLFactory;
 using hardware::opl::OplEmulator;
+using hardware::opl::OPLFactory;
 using hardware::opl::OplType;
 using utils::delayMillis;
 
-using utils::FMoutput;
 using utils::fm;
+using utils::FMoutput;
 using utils::Profm1;
 using utils::Profm2;
 
-void opl_test(const OplEmulator emu, const OplType type, const std::shared_ptr<audio::IMixer>& mixer)
+void opl_test(const OplEmulator emu, const OplType type, const std::shared_ptr<audio::IMixer> &mixer)
 {
     constexpr auto LEFT = 0x10;
     constexpr auto RIGHT = 0x20;
@@ -37,7 +46,7 @@ void opl_test(const OplEmulator emu, const OplType type, const std::shared_ptr<a
     auto opl = OPLFactory::create(emu, type, mixer);
     if (opl == nullptr)
         return;
-    
+
     if (!opl->init())
         return;
     opl->start(nullptr);
@@ -58,9 +67,9 @@ void opl_test(const OplEmulator emu, const OplType type, const std::shared_ptr<a
         fm(0xC0, 1, opl);
     }
 
-   /***************************************
-    * Set parameters for the carrier cell *
-    ***************************************/
+    /***************************************
+     * Set parameters for the carrier cell *
+     ***************************************/
     /* no amplitude modulation (D7=0), no vibrato (D6=0),
      * sustained envelope type (D5=1), KSR=0 (D4=0),
      * frequency multiplier=1 (D4-D0=1)
@@ -78,7 +87,7 @@ void opl_test(const OplEmulator emu, const OplType type, const std::shared_ptr<a
     /*****************************************
      * Set parameters for the modulator cell *
      *****************************************/
-     /* sustained envelope type, frequency multiplier=0    */
+    /* sustained envelope type, frequency multiplier=0    */
     fm(0x20, 0x20, opl);
     /* maximum attenuation, no volume decrease with pitch */
     fm(0x40, 0x3f, opl);
@@ -86,7 +95,7 @@ void opl_test(const OplEmulator emu, const OplType type, const std::shared_ptr<a
     /* Since the modulator signal is attenuated as much as possible, these
      * next two values shouldn't have any effect.
      */
-     /* slow attack and decay */
+    /* slow attack and decay */
     fm(0x60, 0x44, opl);
     /* high sustain level, slow release rate */
     fm(0x80, 0x05, opl);
@@ -96,30 +105,29 @@ void opl_test(const OplEmulator emu, const OplType type, const std::shared_ptr<a
      *************************************************/
 
     spdlog::info("440 Hz tone, values looked up in table.");
-    fm(0xa0, 0x41, opl);  /* 440 Hz */
-    fm(0xb0, 0x32, opl);  /* 440 Hz, block 0, key on */
+    fm(0xa0, 0x41, opl); /* 440 Hz */
+    fm(0xb0, 0x32, opl); /* 440 Hz, block 0, key on */
 
     delayMillis(1000);
 
-    fm(0xb0, 0x12, opl);  /* key off */
-
+    fm(0xb0, 0x12, opl); /* key off */
 
     /******************************************
      * Generate tone from a calculated value. *
      ******************************************/
 
     spdlog::info("440 Hz tone, values calculated.");
-    block = 4;         /* choose block=4 and m=1 */
-    m = 1;             /* m is the frequency multiple number */
-    f = 440;           /* want f=440 Hz */
+    block = 4; /* choose block=4 and m=1 */
+    m = 1;     /* m is the frequency multiple number */
+    f = 440;   /* want f=440 Hz */
     b = 1 << block;
 
     /* This is the equation to calculate frequency number from frequency. */
     fn = (long)f * 1048576 / b / m / 50000L;
 
-    fm(0x23, 0x20 | (m & 0xF), opl);   /* 0x20 sets sustained envelope, low nibble
-                                        * is multiple number
-                                        */
+    fm(0x23, 0x20 | (m & 0xF), opl); /* 0x20 sets sustained envelope, low nibble
+                                      * is multiple number
+                                      */
     fm(0xA0, (fn & 0xFF), opl);
     fm(0xB0, static_cast<uint8_t>(((fn >> 8) & 0x3) + (block << 2) | KEYON), opl);
 
@@ -130,12 +138,12 @@ void opl_test(const OplEmulator emu, const OplType type, const std::shared_ptr<a
      *********************************************************/
 
     spdlog::info("Range of frequencies created by changing block number.");
-    for (block = 0; block <= 7; block++) {
+    for (block = 0; block <= 7; block++)
+    {
         spdlog::info("f={:5d} Hz", (long)440 * (1 << block) / 16);
         fm(0xB0, static_cast<uint8_t>(((fn >> 8) & 0x3) + (block << 2) | KEYON), opl);
         delayMillis(200);
     }
-
 
     /*****************************************************************
      * Generate a range of frequencies by changing frequency number. *
@@ -143,7 +151,8 @@ void opl_test(const OplEmulator emu, const OplType type, const std::shared_ptr<a
 
     spdlog::info("Range of frequencies created by changing frequency number.");
     block = 4;
-    for (fn = 0; fn < 1024; fn++) {
+    for (fn = 0; fn < 1024; fn++)
+    {
         fm(0xA0, (fn & 0xFF), opl);
         fm(0xB0, static_cast<uint8_t>(((fn >> 8) & 0x3) + (block << 2) | KEYON), opl);
         delayMillis(1);
@@ -157,7 +166,7 @@ void opl_test(const OplEmulator emu, const OplType type, const std::shared_ptr<a
 
     spdlog::info("440 Hz again, both channels.");
     block = 4;
-    fn = 577;                /* This number makes 440 Hz when block=4 and m=1 */
+    fn = 577; /* This number makes 440 Hz when block=4 and m=1 */
     fm(0xA0, (fn & 0xFF), opl);
     fm(0xB0, static_cast<uint8_t>(((fn >> 8) & 0x3) + (block << 2) | KEYON), opl);
     delayMillis(1000);
@@ -170,24 +179,24 @@ void opl_test(const OplEmulator emu, const OplType type, const std::shared_ptr<a
              * that uses OPL3 mode.  Everything else is available on the OPL2.
              */
             spdlog::info("Left channel only");
-            fm(0xC0, LEFT | 1, opl);      /* set left channel only, parallel connection */
+            fm(0xC0, LEFT | 1, opl); /* set left channel only, parallel connection */
             delayMillis(1000);
-            
+
             spdlog::info("Right channel only");
-            fm(0xC0, RIGHT | 1, opl);     /* set right channel only, parallel connection */
+            fm(0xC0, RIGHT | 1, opl); /* set right channel only, parallel connection */
             delayMillis(1000);
         }
         else
         {
 
-            fm(0xB0, static_cast<uint8_t>(((fn >> 8) & 0x3) + (block << 2)), opl);       // key off
+            fm(0xB0, static_cast<uint8_t>(((fn >> 8) & 0x3) + (block << 2)), opl); // key off
             delayMillis(1000);
 
             spdlog::info("Left channel only");
             Profm1(0xB0, static_cast<uint8_t>(((fn >> 8) & 0x3) + (block << 2) | KEYON), opl);
             delayMillis(1000);
-            
-            Profm1(0xB0, static_cast<uint8_t>(((fn >> 8) & 0x3) + (block << 2)), opl);   // key off
+
+            Profm1(0xB0, static_cast<uint8_t>(((fn >> 8) & 0x3) + (block << 2)), opl); // key off
             delayMillis(1000);
 
             spdlog::info("Right channel only");
@@ -202,7 +211,7 @@ void opl_test(const OplEmulator emu, const OplType type, const std::shared_ptr<a
     delayMillis(1000);
     fm(0xB0, static_cast<uint8_t>(((fn >> 8) & 0x3) + (block << 2) | KEYON), opl);
     spdlog::info("Attenuated by 3 dB.");
-    fm(0x43, 4, opl);     /* attenuate by 3 dB */
+    fm(0x43, 4, opl); /* attenuate by 3 dB */
     delayMillis(1000);
     fm(0xB0, static_cast<uint8_t>(((fn >> 8) & 0x3) + (block << 2)), opl);
     delayMillis(1000);
@@ -213,7 +222,7 @@ void opl_test(const OplEmulator emu, const OplType type, const std::shared_ptr<a
          * written for the OPL-2, then it won't set the LEFT and RIGHT bits to
          * one, so no sound will be heard.
          */
-        Profm2(5, 0, opl);   /* set back to OPL2 mode */
+        Profm2(5, 0, opl); /* set back to OPL2 mode */
     }
 
     opl->stop();
@@ -248,19 +257,20 @@ bool detect_opl3(const OplEmulator emu, const OplType type, std::shared_ptr<audi
     return utils::detectOPL3(opl);
 }
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
     auto mixer = audio::make_mixer<audio::sdl2::Mixer>(8, 44100, 1024);
     if (!mixer->init())
     {
         spdlog::error("can't init mixer");
+        return 1;
     }
 
     std::map<OplEmulator, std::string> emus = {
-        { OplEmulator::DOS_BOX, "DOS_BOX" },
-        { OplEmulator::MAME, "MAME" },
-        { OplEmulator::NUKED, "NUKED" },
-        { OplEmulator::WOODY, "WOODY" },
+        {OplEmulator::DOS_BOX, "DOS_BOX"},
+        {OplEmulator::MAME, "MAME"},
+        {OplEmulator::NUKED, "NUKED"},
+        {OplEmulator::WOODY, "WOODY"},
     };
 
     std::map<OplType, std::string> types = {
@@ -270,13 +280,14 @@ int main(int argc, char* argv[])
     };
 
     std::string m = "##### {} {} #####";
-    for (auto& emu : emus)
+    for (auto &emu : emus)
     {
-        for (auto& type : types)
+        for (auto &type : types)
         {
-            for (auto& c : { fmt::color::white_smoke, fmt::color::yellow,      fmt::color::aqua,
-                             fmt::color::lime_green,  fmt::color::blue_violet, fmt::color::indian_red }) {
-                spdlog::info(fmt::format(fg(c), m, emu.second, type.second));
+            for (auto &c : {fmt::color::white_smoke, fmt::color::yellow, fmt::color::aqua,
+                            fmt::color::lime_green, fmt::color::blue_violet, fmt::color::indian_red})
+            {
+                spdlog::info(fmt::format(fg(c), FMT_RUNTIME(m), emu.second, type.second));
             }
             try
             {
@@ -289,24 +300,30 @@ int main(int argc, char* argv[])
                 std::string msg;
 
                 msg = fmt::format("detect opl2: {}", opl2);
-                if (opl2) spdlog::info(msg);
-                else spdlog::error(msg);
+                if (opl2)
+                    spdlog::info(msg);
+                else
+                    spdlog::error(msg);
 
                 msg = fmt::format("detect opl3: {}", opl3);
                 if (type.first == OplType::OPL3)
                 {
-                    if (opl3) spdlog::info(msg);
-                    else spdlog::error(msg);
+                    if (opl3)
+                        spdlog::info(msg);
+                    else
+                        spdlog::error(msg);
                 }
-                else {
-                    if (!opl3) spdlog::info(msg);
-                    else spdlog::error(msg);
+                else
+                {
+                    if (!opl3)
+                        spdlog::info(msg);
+                    else
+                        spdlog::error(msg);
                 }
-
 
                 opl_test(emu.first, type.first, mixer);
             }
-            catch (const std::exception& e)
+            catch (const std::exception &e)
             {
                 spdlog::default_logger()->error(e.what());
             }

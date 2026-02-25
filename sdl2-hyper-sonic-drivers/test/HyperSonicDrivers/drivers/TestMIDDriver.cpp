@@ -18,11 +18,11 @@
 
 namespace HyperSonicDrivers::drivers
 {
-    using audio::midi::MIDIEvent;
     using audio::midi::MIDI_EVENT_TYPES_HIGH;
-    using audio::midi::MIDI_META_EVENT_TYPES_LOW;
-    using audio::midi::MIDI_META_EVENT;
     using audio::midi::MIDI_FORMAT;
+    using audio::midi::MIDI_META_EVENT;
+    using audio::midi::MIDI_META_EVENT_TYPES_LOW;
+    using audio::midi::MIDIEvent;
     using utils::ILogger;
 
     TEST(MIDDriver, SEQUENCE_NAME_META_EVENT)
@@ -34,12 +34,12 @@ namespace HyperSonicDrivers::drivers
         // ---
         MIDIEvent e;
         e.delta_time = 0;
-        e.type.high = (uint8_t)MIDI_EVENT_TYPES_HIGH::META_SYSEX;
-        e.type.low = (uint8_t)MIDI_META_EVENT_TYPES_LOW::META;
+        e.type._.high = (uint8_t)MIDI_EVENT_TYPES_HIGH::META_SYSEX;
+        e.type._.low = (uint8_t)MIDI_META_EVENT_TYPES_LOW::META;
         // this can be a parameter
         e.data.push_back((uint8_t)MIDI_META_EVENT::SEQUENCE_NAME);
         std::string s = "sequence_name";
-        e.data.insert(e.data.end(),s.begin(), s.end());
+        e.data.insert(e.data.end(), s.begin(), s.end());
         auto midi_track = audio::midi::MIDITrack();
         midi_track.addEvent(e);
 
@@ -47,7 +47,7 @@ namespace HyperSonicDrivers::drivers
         ::testing::internal::CaptureStderr();
         MIDDriverMock middrv(device);
         middrv.protected_processTrack(midi_track, 0);
-        //auto output = ::testing::internal::GetCapturedStdout();
+        // auto output = ::testing::internal::GetCapturedStdout();
         auto output2 = ::testing::internal::GetCapturedStderr();
 
         EXPECT_TRUE(output2.find("SEQUENCE NAME: " + s) != std::string::npos);
@@ -60,8 +60,8 @@ namespace HyperSonicDrivers::drivers
 
             MIDIEvent e;
             e.delta_time = 0;
-            e.type.high = (uint8_t)MIDI_EVENT_TYPES_HIGH::META_SYSEX;
-            e.type.low = (uint8_t)MIDI_META_EVENT_TYPES_LOW::META;
+            e.type._.high = (uint8_t)MIDI_EVENT_TYPES_HIGH::META_SYSEX;
+            e.type._.low = (uint8_t)MIDI_META_EVENT_TYPES_LOW::META;
 
             // this can be a parameter
             e.data.push_back((uint8_t)MIDI_META_EVENT::SEQUENCE_NAME);
@@ -72,10 +72,9 @@ namespace HyperSonicDrivers::drivers
             auto midi_track = audio::midi::MIDITrack();
             midi_track.addEvent(e);
 
-
             e.delta_time = 1000;
-            e.type.high = (uint8_t)MIDI_EVENT_TYPES_HIGH::PROGRAM_CHANGE;
-            e.type.low = 0;
+            e.type._.high = (uint8_t)MIDI_EVENT_TYPES_HIGH::PROGRAM_CHANGE;
+            e.type._.low = 0;
             e.data.clear();
             e.data.push_back((uint8_t)0);
             e.data.push_back((uint8_t)0);
@@ -99,7 +98,6 @@ namespace HyperSonicDrivers::drivers
             EXPECT_TRUE(device->isAcquired());
         }
         EXPECT_FALSE(device->isAcquired());
-
     }
 
     TEST(MIDDriver, getTempo)
@@ -111,7 +109,8 @@ namespace HyperSonicDrivers::drivers
         EXPECT_FALSE(md.isTempoChanged());
         md.setMidi(mf.getMIDI());
         md.play(0);
-        while (!md.isTempoChanged()) {
+        while (!md.isTempoChanged())
+        {
             utils::delayMillis(10);
         }
         EXPECT_TRUE(md.isTempoChanged());
@@ -121,7 +120,7 @@ namespace HyperSonicDrivers::drivers
     }
 }
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

@@ -14,7 +14,7 @@ macro(macro_example) # ${ARGN} link libraries
     #message("${EXE} - ${FILE} - ${DEPS} - ${LINKS}")
     #message("EXE====${EXAMPLE_EXE}")
     #message("IS NONE: ${EXAMPLE_NONE}")
-    #message("IS CPLIB: ${EXAMPLE_COPY_LIB}")
+    #message("IS Copy_LIB: ${EXAMPLE_COPY_LIB}")
     #message("EXE: ${EXAMPLE_EXE}")
     #message("FILE: ${EXAMPLE_FILE}")
     #message("DEP: ${EXAMPLE_DEPS}")
@@ -71,7 +71,11 @@ macro_example(
     EXE OPLExample
     FILE "opl-example.cpp"
     DEPS hyper-sonic-drivers-static
-    LINKS ${LIB_SDL2main} hyper-sonic-drivers-static spdlog::spdlog
+    LINKS
+        PRIVATE
+            $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
+            hyper-sonic-drivers-static
+            spdlog::spdlog
     NONE
 )
 
@@ -79,7 +83,11 @@ macro_example(
     EXE ADLExample
     FILE "adl-example.cpp"
     DEPS hyper-sonic-drivers-static
-    LINKS ${LIB_SDL2main} hyper-sonic-drivers-static spdlog::spdlog
+    LINKS
+        PRIVATE
+            $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
+            hyper-sonic-drivers-static
+            spdlog::spdlog
     FIXTURES 
       "../test/fixtures/DUNE0.ADL"
       #"../test/fixtures/EOBSOUND.ADL"
@@ -91,7 +99,11 @@ macro_example(
     EXE ADLPlay
     FILE "adl-play.cpp"
     DEPS hyper-sonic-drivers-static
-    LINKS ${LIB_SDL2main} hyper-sonic-drivers-static spdlog::spdlog SDL2::SDL2
+    LINKS
+        PRIVATE
+            $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
+            hyper-sonic-drivers-static
+            spdlog::spdlog 
     FIXTURES 
       "../test/fixtures/DUNE0.ADL"
       #"../test/fixtures/EOBSOUND.ADL"
@@ -103,8 +115,12 @@ macro_example(
     EXE PCMExample
     FILE "pcm-example.cpp"
     DEPS hyper-sonic-drivers-static
-    LINKS ${LIB_SDL2main} hyper-sonic-drivers-static spdlog::spdlog
-    FIXTURES 
+    LINKS
+        PRIVATE
+            $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
+            hyper-sonic-drivers-static
+            spdlog::spdlog
+    FIXTURES
       "../test/fixtures/Wav_868kb.wav"
       "../test/fixtures/DUNE.VOC"
     NONE
@@ -114,8 +130,12 @@ macro_example(
     EXE MIDexample
     FILE "mid-example.cpp"
     DEPS hyper-sonic-drivers-static
-    LINKS ${LIB_SDL2main} hyper-sonic-drivers-static spdlog::spdlog
-    FIXTURES 
+    LINKS
+        PRIVATE
+            $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
+            hyper-sonic-drivers-static
+            spdlog::spdlog
+    FIXTURES
       "../test/fixtures/MI_intro.mid"
       #"../test/fixtures/midifile_sample.mid"
     NONE
@@ -125,8 +145,12 @@ macro_example(
     EXE MUSexample
     FILE "mus-example.cpp"
     DEPS hyper-sonic-drivers-static
-    LINKS ${LIB_SDL2main} hyper-sonic-drivers-static spdlog::spdlog
-    FIXTURES 
+    LINKS
+        PRIVATE
+            $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
+            hyper-sonic-drivers-static
+            spdlog::spdlog
+    FIXTURES
       "../test/fixtures/D_E1M1.MUS"
       "../test/fixtures/GENMIDI.OP2"
     NONE
@@ -136,8 +160,12 @@ macro_example(
     EXE MT32example
     FILE "mt32-example.cpp"
     DEPS hyper-sonic-drivers-static
-    LINKS ${LIB_SDL2main} hyper-sonic-drivers-static spdlog::spdlog
-    FIXTURES 
+    LINKS
+        PRIVATE
+            $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
+            hyper-sonic-drivers-static
+            spdlog::spdlog
+    FIXTURES
       "../test/fixtures/MI_intro.mid"
     NONE
 )

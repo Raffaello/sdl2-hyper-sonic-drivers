@@ -15,17 +15,17 @@ namespace HyperSonicDrivers::audio::sdl2
     {
     public:
         Mixer(const uint8_t max_channels,
-            const uint32_t freq, const uint16_t buffer_size);
+              const uint32_t freq, const uint16_t buffer_size);
         ~Mixer() override;
 
         bool init() override;
+        void shutdown() override;
 
         std::optional<uint8_t> play(
             const mixer::eChannelGroup group,
-            const std::shared_ptr<IAudioStream>& stream,
+            const std::shared_ptr<IAudioStream> &stream,
             const uint8_t vol,
-            const int8_t pan
-        ) override;
+            const int8_t pan) override;
 
         void suspend() noexcept override;
         void resume() noexcept override;
@@ -65,10 +65,10 @@ namespace HyperSonicDrivers::audio::sdl2
         void updateChannelsVolumePan_() noexcept override;
 
     private:
-        bool init_(SDL_AudioCallback callback, void* userdata);
+        bool init_(SDL_AudioCallback callback, void *userdata);
 
-        size_t callback(uint8_t* samples, unsigned int len);
-        static void sdlCallback(void* this_, uint8_t* samples, int len);
+        size_t callback(uint8_t *samples, unsigned int len);
+        static void sdlCallback(void *this_, uint8_t *samples, int len);
 
         SDL_AudioDeviceID m_device_id = 0;
         mutable std::mutex m_mutex;

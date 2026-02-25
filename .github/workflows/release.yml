@@ -16,6 +16,10 @@ on:
 ### NOTE: can't be automatically triggered so publish a draft release,
 ###       it will manually published... GitHub doesn't allow that yet.
 
+permissions:
+  packages: write
+  contents: write
+
 jobs:
   check:
     name: Check Version
@@ -55,7 +59,7 @@ jobs:
       - name: publishVersion
         # if: ${{ github.ref == 'refs/heads/master' }}
         env:
-          GH_TOKEN: ${{ secrets.GH_WORKFLOW }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -e
           VER=$(cat CMakeLists.txt  | grep " VERSION " | cut -d ' ' -f 4)

@@ -7,7 +7,7 @@
 namespace HyperSonicDrivers::audio::midi
 {
     constexpr uint8_t MIDI_MAX_CHANNELS = 16;
-    constexpr uint8_t MIDI_PERCUSSION_CHANNEL = 9; // standard MIDI percussion channel
+    constexpr uint8_t MIDI_PERCUSSION_CHANNEL = 9;       // standard MIDI percussion channel
     constexpr uint16_t MIDI_PITCH_BEND_DEFAULT = 0x2000; // pitch bend default value (zero)
 
     typedef std::vector<uint8_t> midi_vector_t;
@@ -22,10 +22,11 @@ namespace HyperSonicDrivers::audio::midi
     typedef union MIDI_EVENT_type_u
     {
         uint8_t val;
-        struct {
+        struct _
+        {
             uint8_t low : 4;
             uint8_t high : 4;
-        };
+        } _;
     } MIDI_EVENT_type_u;
     static_assert(sizeof(uint8_t) == sizeof(MIDI_EVENT_type_u));
 
@@ -33,7 +34,7 @@ namespace HyperSonicDrivers::audio::midi
     {
         SYS_EX0 = 0x00, // ???
         SYS_EX7 = 0x07, // ???
-        META = 0xF   // MIDI META Event
+        META = 0xF      // MIDI META Event
     };
 
     enum class MIDI_META_EVENT : uint8_t
