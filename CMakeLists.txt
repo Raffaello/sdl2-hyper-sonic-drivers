@@ -38,6 +38,9 @@ option(USE_MT32 "USE MT32Emu" ON)
 option(BUILD_EXAMPLES "build examples" ON)
 include(CTest)
 
+message(STATUS "USE_SDL3: ${USE_SDL3}")
+message(STATUS "USE_MT32: ${USE_MT32}")
+
 ##############################################################################
 
 # Include sub-projects.
