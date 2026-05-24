@@ -192,7 +192,7 @@ std::shared_ptr<audio::MIDI> MUSFile::convertToMidi()
 
     MIDITrack track;
     uint32_t  delta_time = 0;
-    uint32_t  abs_time   = 0;
+    // uint32_t  abs_time   = 0;
 
     channelInit[MUS_PERCUSSION_CHANNEL] = true;
     for (auto& event : _mus)
@@ -209,7 +209,6 @@ std::shared_ptr<audio::MIDI> MUSFile::convertToMidi()
             ce.type._.high = static_cast<uint8_t>(MIDI_EVENT_TYPES_HIGH::CONTROLLER);
             ce.type._.low  = event.desc.e.channel;
             ce.delta_time  = delta_time;
-            // ce.abs_time = abs_time;
             ce.data.push_back(0x07);    // MIDI Channel (a.k.a. Main) Volume
             ce.data.push_back(127);
             track.addEvent(ce);
@@ -282,8 +281,8 @@ std::shared_ptr<audio::MIDI> MUSFile::convertToMidi()
             break;
         }
 
-        delta_time  = event.delta_time;
-        abs_time   += delta_time;
+        delta_time = event.delta_time;
+        // abs_time   += delta_time;
 
         // swap percussion channel with MIDI percussion channel
         switch (event.desc.e.channel)
@@ -301,7 +300,6 @@ std::shared_ptr<audio::MIDI> MUSFile::convertToMidi()
 
         me.data.shrink_to_fit();
         me.delta_time = delta_time;
-        // me.abs_time = abs_time;
         if (!me.data.empty())
             track.addEvent(me);
     }
