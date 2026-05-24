@@ -34,6 +34,7 @@ jobs:
       matrix:
         triplet: [ x64-linux ]
         build_type: [ Debug, Release ]
+        use_mt32: [USE_MT32=ON, USE_MT32=OFF]
     name: Build Linux
     runs-on: ubuntu-24.04
     steps:
@@ -50,9 +51,9 @@ jobs:
       - name: install other dependencies
         run: |
           sudo apt-get update -y && sudo apt-get install -y \
-            # libspdlog-dev \
-            # libgtest-dev \
-            # libgmock-dev \
+            libspdlog-dev \
+            libgtest-dev \
+            libgmock-dev \
             libsdl2-dev
       - name: fetch vcpkg
         run: |
@@ -68,7 +69,7 @@ jobs:
             restore-keys: ${{ runner.os }}-${{ matrix.triplet }}-dep-cache
       - name: cmake generator
         run: |
-          cmake -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }} -DCMAKE_TOOLCHAIN_FILE=/usr/local/share/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ..
+          cmake -D${{ matrix.use_mt32 }} -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }} -DCMAKE_TOOLCHAIN_FILE=/usr/local/share/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ..
           # cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ..
         working-directory: build
       - name: cmake build
