@@ -39,6 +39,7 @@ jobs:
         matrix:
             triplet: [ x64-windows ]
             build_type: [ Debug, Release ]
+            use_mt32: [ON, OFF]
             os: [ '2022' ]
     name: Build Windows
     runs-on: windows-${{ matrix.os }}
@@ -76,7 +77,7 @@ jobs:
       - name: cmake generator
         run: |
           . "${{ env.VS_PATH }}\VC\Auxiliary\Build\vcvars${{ env.ARCH }}.bat"
-          cmake -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }} -A ${{ env.CMAKE_A }} -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ..
+          cmake -DUSE_MT32=${{ matrix.use_mt32 }} -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }} -A ${{ env.CMAKE_A }} -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ..
         working-directory: build
       - name: cmake build
         run: |

@@ -26,6 +26,7 @@ jobs:
         fail-fast: false
         matrix:
             build_type: [ Debug, Release ]
+            use_mt32: [ON, OFF]
             os: [ '2022' ]
     name: Build Windows
     runs-on: windows-${{ matrix.os }}
@@ -62,7 +63,7 @@ jobs:
             restore-keys: ${{ runner.os }}-dep-cache
       - name: cmake generator
         run: |
-          cmake -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DCMAKE_INSTALL_PREFIX="${{ github.workspace }}/_install"  ..
+          cmake -G Ninja -DUSE_MT32=${{ matrix.use_mt32 }} -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DCMAKE_INSTALL_PREFIX="${{ github.workspace }}/_install"  ..
         working-directory: build
       - name: cmake build
         run: |

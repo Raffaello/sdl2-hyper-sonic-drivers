@@ -47,8 +47,7 @@ void mid_test_run(drivers::MIDDriver& midDrv, const std::shared_ptr<audio::MIDI>
     spdlog::info("Total Running Time: {:%M:%S}", tot_time);
 }
 
-void scummvm_mid_test(const OplEmulator emu, const OplType type, const std::shared_ptr<audio::IMixer>& mixer,
-    const std::shared_ptr<audio::MIDI> midi)
+void scummvm_mid_test(const OplEmulator emu, const OplType type, const std::shared_ptr<audio::IMixer>& mixer, const std::shared_ptr<audio::MIDI> midi)
 {
 
     std::shared_ptr<devices::IDevice> device;
@@ -75,10 +74,9 @@ void scummvm_mid_test(const OplEmulator emu, const OplType type, const std::shar
     mid_test_run(midDrv, midi);
 }
 
-void mid_test(const OplEmulator emu, const OplType type, const std::shared_ptr<audio::IMixer>& mixer,
-    const std::shared_ptr<audio::MIDI> midi)
+void mid_test(const OplEmulator emu, const OplType type, const std::shared_ptr<audio::IMixer>& mixer, const std::shared_ptr<audio::MIDI> midi)
 {
-    auto op2file = files::dmx::OP2File("GENMIDI.OP2");
+    auto                              op2file = files::dmx::OP2File("GENMIDI.OP2");
     std::shared_ptr<devices::IDevice> device;
     switch (type)
     {
@@ -121,15 +119,15 @@ int run(const std::shared_ptr<audio::MIDI>& midi, const bool use_opldrv)
     // Reproducing MIDI file
     const std::map<OplEmulator, std::string> emus = {
         {OplEmulator::DOS_BOX, "DOS_BOX"},
-        {OplEmulator::MAME, "MAME"},
-        {OplEmulator::NUKED, "NUKED"},
-        {OplEmulator::WOODY, "WOODY"},
+        {OplEmulator::MAME,    "MAME"   },
+        {OplEmulator::NUKED,   "NUKED"  },
+        {OplEmulator::WOODY,   "WOODY"  },
     };
 
     const std::map<OplType, std::string> types = {
-        {OplType::OPL2, "OPL2"},
+        {OplType::OPL2,      "OPL2"     },
         {OplType::DUAL_OPL2, "DUAL_OPL2"},
-        {OplType::OPL3, "OPL3"},
+        {OplType::OPL3,      "OPL3"     },
     };
 
     const std::string m = "##### {} {} #####";
@@ -138,8 +136,7 @@ int run(const std::shared_ptr<audio::MIDI>& midi, const bool use_opldrv)
     using enum fmt::color;
 
     const auto colors = {
-        white_smoke, yellow, aqua,
-        lime_green, blue_violet, indian_red };
+        white_smoke, yellow, aqua, lime_green, blue_violet, indian_red};
 
     for (const auto& emu : emus)
     {

@@ -1,18 +1,31 @@
 ﻿cmake_minimum_required (VERSION 3.24)
 
-find_package(SDL2 CONFIG REQUIRED)
-find_package(MT32Emu 2.7 CONFIG REQUIRED)
-
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_DEBUG_POSTFIX d)
 
-configure_file("version.h.in" "${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/version.h")
-
-if(WITH_SDL2_STATIC)
-    set(LIB_SDL2 SDL2::SDL2-static)
+if(USE_SDL3)
+    find_package(SDL3 CONFIG REQUIRED)
+    add_compile_definitions(HAS_SDL3=1)
+    set(LIB_SDL SDL3::SDL3)
 else()
-    set(LIB_SDL2 SDL2::SDL2)
+    find_package(SDL2 CONFIG REQUIRED)
+# add_compile_definitions(HAS_SDL2=1)
+    # if(WITH_SDL2_STATIC)
+    #     set(LIB_SDL SDL2::SDL2-static)
+    # else()
+        set(LIB_SDL SDL2::SDL2)
+    # endif()
 endif()
+
+if(USE_MT32)
+    find_package(MT32Emu 2.7 CONFIG REQUIRED)
+    set(LIB_MT32EMU MT32Emu::mt32emu)
+    add_compile_definitions(HAS_MT32_EMU=1)
+else()
+    set(LIB_MT32EMU)
+endif()
+
+configure_file("version.h.in" "${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/version.h")
 
 
 ########################### Static Lib #######################################
@@ -37,7 +50,7 @@ target_compile_options(${LIB_NAME}
         >
 )
 
-target_link_options(${LIB_NAME} PRIVATE 
+target_link_options(${LIB_NAME} PRIVATE
     $<$<CXX_COMPILER_ID:GNU>:
         $<$<CONFIG:DEBUG>: --coverage>
     >
@@ -129,7 +142,7 @@ target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/devices/Adlib.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/devices/SbPro.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/devices/SbPro2.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/devices/MT32.cpp
+    $<$<BOOL:${USE_MT32}>:${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/devices/MT32.cpp>
     # --- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/PCMDriver.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/IAudioDriver.cpp
@@ -149,7 +162,7 @@ target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/midi/opl/OplChannel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/midi/opl/OplVoice.cpp
 
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/midi/mt32/MT32Driver.cpp
+    $<$<BOOL:${USE_MT32}>:${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/midi/mt32/MT32Driver.cpp>
 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/drivers/opl/OplWriter.cpp
     # --- #
@@ -192,8 +205,8 @@ target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/hardware/opl/woody/SurroundOPL.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/hardware/opl/woody/WoodyEmuOPL.cpp
     # --- #
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/hardware/mt32/MT32.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/hardware/mt32/MT32ReportHandler.cpp
+    $<$<BOOL:${USE_MT32}>:${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/hardware/mt32/MT32.cpp>
+    $<$<BOOL:${USE_MT32}>:${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/hardware/mt32/MT32ReportHandler.cpp>
     # --- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/hardware/PCSpeaker.cpp
     # --- #
@@ -210,24 +223,24 @@ target_sources(${LIB_NAME} PRIVATE
 
 target_link_libraries(${LIB_NAME}
     PRIVATE
-        ${LIB_SDL2}
-    PUBLIC 
-        MT32Emu::mt32emu
+        ${LIB_SDL}
+    PUBLIC
+        ${LIB_MT32EMU}
 )
-if(NOT (WITH_SDL2_STATIC))
+# if(NOT (WITH_SDL2_STATIC))
     install(FILES
-        $<TARGET_FILE:SDL2::SDL2>
+        $<TARGET_FILE:${LIB_SDL}>
         DESTINATION static/lib
     )
-endif()
+# endif()
 
 if(BUILD_EXAMPLES)
-    if(NOT (WITH_SDL2_STATIC))
+    # if(NOT (WITH_SDL2_STATIC))
         install(FILES
-            $<TARGET_FILE:SDL2::SDL2>
+            $<TARGET_FILE:${LIB_SDL}>
             DESTINATION "static/examples"
     )
-    endif()
+    # endif()
 endif()
 
 unset(LIB_NAME)
@@ -237,8 +250,8 @@ unset(LIB_VER)
 
 # Add source to this project's executable.
 add_executable(sdl2-hyper-sonic-drivers "sdl2-hyper-sonic-drivers.cpp")
-target_link_libraries(sdl2-hyper-sonic-drivers 
-    PRIVATE $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main> hyper-sonic-drivers-static)
+target_link_libraries(sdl2-hyper-sonic-drivers
+    PRIVATE $<TARGET_NAME_IF_EXISTS:${LIB_SDL}main> hyper-sonic-drivers-static)
 
 if(BUILD_TESTING)
     add_subdirectory("test")

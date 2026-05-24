@@ -156,6 +156,7 @@ macro_example(
     NONE
 )
 
+if(USE_MT32)
 macro_example(
     EXE MT32example
     FILE "mt32-example.cpp"
@@ -169,3 +170,4 @@ macro_example(
       "../test/fixtures/MI_intro.mid"
     NONE
 )
+endif()

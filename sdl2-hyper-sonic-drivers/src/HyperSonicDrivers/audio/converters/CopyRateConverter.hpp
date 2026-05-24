@@ -7,7 +7,6 @@
 #include <HyperSonicDrivers/audio/converters/IRateConverter.hpp>
 
 
-#include <SDL2/SDL_log.h>
 
 namespace HyperSonicDrivers::audio::converters
 {
