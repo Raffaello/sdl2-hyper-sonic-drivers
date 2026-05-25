@@ -44,4 +44,5 @@ message(STATUS "USE_MT32: ${USE_MT32}")
 ##############################################################################
 
 # Include sub-projects.
+add_subdirectory(libs)
 add_subdirectory ("sdl2-hyper-sonic-drivers")

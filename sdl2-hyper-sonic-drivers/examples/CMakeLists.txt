@@ -1,7 +1,5 @@
 cmake_minimum_required (VERSION 3.21)
 
-find_package(spdlog CONFIG REQUIRED)
-
 ### Macro ###
 macro(macro_example) # ${ARGN} link libraries
     set(prefix EXAMPLE)

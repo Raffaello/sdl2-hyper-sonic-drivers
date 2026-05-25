@@ -5,7 +5,6 @@
   "dependencies": [
     "sdl2",
     "gtest",
-    "libmt32emu",
-    "spdlog"
+    "libmt32emu"
   ]
 }

@@ -48,12 +48,6 @@ jobs:
           git clone https://github.com/munt/munt.git
           cd munt && cd mt32emu
           cmake -DCMAKE_BUILD_TYPE:STRING=Release . && make && sudo make install
-      - name: install spdlog
-        run: |
-          cd /tmp
-          git clone https://github.com/gabime/spdlog.git
-          cd spdlog && git checkout v.1.17.0 && mkdir build && cd build
-          cmake .. && cmake --build . && cmake --install .
       - name: install other dependencies
         run: |
           sudo apt-get update -y && sudo apt-get install -y \
