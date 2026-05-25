@@ -32,7 +32,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        triplet: [ x64-linux ]
+        # triplet: [ x64-linux ]
         build_type: [ Debug, Release ]
         use_mt32: [USE_MT32=OFF] # USE_MT32=ON
     name: Build Linux
