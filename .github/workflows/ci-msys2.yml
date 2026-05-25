@@ -48,7 +48,6 @@ jobs:
             mingw-w64-ucrt-x86_64-gtest
             mingw-w64-ucrt-x86_64-ninja
             mingw-w64-ucrt-x86_64-cmake
-            mingw-w64-ucrt-x86_64-spdlog
       - name: set-up environment variables
         run: |
           echo "ARCH=64" >> $GITHUB_ENV
