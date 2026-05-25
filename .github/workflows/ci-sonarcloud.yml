@@ -47,7 +47,6 @@ jobs:
             mingw-w64-ucrt-x86_64-gtest
             mingw-w64-ucrt-x86_64-ninja
             mingw-w64-ucrt-x86_64-cmake
-            mingw-w64-ucrt-x86_64-spdlog
             msys/unzip
             mingw-w64-ucrt-x86_64-python-lxml
             mingw-w64-ucrt-x86_64-python-pip

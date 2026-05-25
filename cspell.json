@@ -28,6 +28,7 @@
         "gcda",
         "gcno",
         "gcov",
+        "gcovr",
         "genmidi",
         "gtest",
         "IPCM",
