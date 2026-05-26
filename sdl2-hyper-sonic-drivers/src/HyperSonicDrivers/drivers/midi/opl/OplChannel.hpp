@@ -7,9 +7,9 @@
 
 namespace HyperSonicDrivers::drivers::midi::opl
 {
-    class OplChannel : public IMidiChannel
-    {
-    public:
-        explicit OplChannel(const uint8_t channel);
-    };
-}
+class OplChannel : public IMidiChannel
+{
+public:
+    explicit OplChannel(const uint8_t channel);
+};
+}    // namespace HyperSonicDrivers::drivers::midi::opl

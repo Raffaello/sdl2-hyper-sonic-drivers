@@ -38,7 +38,7 @@ void adl_test(const OplEmulator emu, const OplType type, std::shared_ptr<audio::
 {
     using devices::make_device;
 
-    auto adlFile = std::make_shared<ADLFile>(filename);
+    auto                          adlFile = std::make_shared<ADLFile>(filename);
     std::shared_ptr<devices::Opl> device;
     switch (type)
     {
@@ -69,7 +69,8 @@ void adl_test(const OplEmulator emu, const OplType type, std::shared_ptr<audio::
     {
         // spdlog::info("is playing");
         delayMillis(1000);
-    } while (adlDrv.isPlaying());
+    }
+    while (adlDrv.isPlaying());
 }
 
 int main(int argc, char* argv[])
@@ -83,15 +84,15 @@ int main(int argc, char* argv[])
 
     const std::map<OplEmulator, std::string> emus = {
         {OplEmulator::DOS_BOX, "DOS_BOX"},
-        {OplEmulator::MAME, "MAME"},
-        {OplEmulator::NUKED, "NUKED"},
-        {OplEmulator::WOODY, "WOODY"},
+        {OplEmulator::MAME,    "MAME"   },
+        {OplEmulator::NUKED,   "NUKED"  },
+        {OplEmulator::WOODY,   "WOODY"  },
     };
 
     const std::map<OplType, std::string> types = {
-        {OplType::OPL2, "OPL2"},
+        {OplType::OPL2,      "OPL2"     },
         {OplType::DUAL_OPL2, "DUAL_OPL2"},
-        {OplType::OPL3, "OPL3"},
+        {OplType::OPL3,      "OPL3"     },
     };
 
     const std::string m = "##### {} {} #####";
@@ -104,8 +105,7 @@ int main(int argc, char* argv[])
         {
             using enum fmt::color;
 
-            for (const auto& c : { white_smoke, yellow, aqua,
-                                  lime_green, blue_violet, indian_red })
+            for (const auto& c : {white_smoke, yellow, aqua, lime_green, blue_violet, indian_red})
             {
                 spdlog::info(fmt::format(fg(c), FMT_RUNTIME(m), emu.second, type.second));
             }

@@ -3,18 +3,18 @@
 
 namespace HyperSonicDrivers::devices
 {
-    using hardware::opl::OplType;
+using hardware::opl::OplType;
 
-    SbPro::SbPro(
-        const std::shared_ptr<audio::IMixer>& mixer,
-        const hardware::opl::OplEmulator emulator,
-        const uint8_t volume, const uint8_t pan) :
-        Opl(mixer, emulator, OplType::DUAL_OPL2, volume, pan)
-    {
-    }
-
-    eDeviceName SbPro::getName() const noexcept
-    {
-        return eDeviceName::SbPro;
-    }
+SbPro::SbPro(
+    const std::shared_ptr<audio::IMixer>& mixer,
+    const hardware::opl::OplEmulator      emulator,
+    const uint8_t                         volume,
+    const uint8_t                         pan) : Opl(mixer, emulator, OplType::DUAL_OPL2, volume, pan)
+{
 }
+
+eDeviceName SbPro::getName() const noexcept
+{
+    return eDeviceName::SbPro;
+}
+}    // namespace HyperSonicDrivers::devices

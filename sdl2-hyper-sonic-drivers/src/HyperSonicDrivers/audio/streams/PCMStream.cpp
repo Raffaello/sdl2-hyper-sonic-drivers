@@ -4,48 +4,48 @@
 
 namespace HyperSonicDrivers::audio::streams
 {
-    using utils::readLE_uint16;
+using utils::readLE_uint16;
 
-    PCMStream::PCMStream(const std::shared_ptr<PCMSound>& sound)
-        : m_sound(sound)
-    {
-    }
-
-    size_t PCMStream::readBuffer(int16_t* buffer, const size_t numSamples)
-    {
-        const size_t rest = (m_sound->dataSize - m_curPos);
-        const size_t remaining = std::min<>(numSamples, rest);
- 
-        for (size_t i = 0; i < remaining; i++)
-            buffer[i] = m_sound->data[m_curPos++];
-
-        assert(m_curPos <= m_sound->dataSize);
-        return remaining;
-    }
-
-    bool PCMStream::isStereo() const
-    {
-        return m_sound->stereo;
-    }
-
-    uint32_t PCMStream::getRate() const
-    {
-        return m_sound->freq;
-    }
-
-    bool PCMStream::endOfData() const
-    {
-        return m_curPos == m_sound->dataSize;
-    }
-
-    void PCMStream::forward(const uint32_t bytes) noexcept
-    {
-        m_curPos += bytes;
-        m_curPos = std::min(m_curPos, m_sound->dataSize);
-    }
-
-    std::shared_ptr<PCMSound> PCMStream::getSound() const noexcept
-    {
-        return m_sound;
-    }
+PCMStream::PCMStream(const std::shared_ptr<PCMSound>& sound)
+    : m_sound(sound)
+{
 }
+
+size_t PCMStream::readBuffer(int16_t* buffer, const size_t numSamples)
+{
+    const size_t rest      = (m_sound->dataSize - m_curPos);
+    const size_t remaining = std::min<>(numSamples, rest);
+
+    for (size_t i = 0; i < remaining; i++)
+        buffer[i] = m_sound->data[m_curPos++];
+
+    assert(m_curPos <= m_sound->dataSize);
+    return remaining;
+}
+
+bool PCMStream::isStereo() const
+{
+    return m_sound->stereo;
+}
+
+uint32_t PCMStream::getRate() const
+{
+    return m_sound->freq;
+}
+
+bool PCMStream::endOfData() const
+{
+    return m_curPos == m_sound->dataSize;
+}
+
+void PCMStream::forward(const uint32_t bytes) noexcept
+{
+    m_curPos += bytes;
+    m_curPos  = std::min(m_curPos, m_sound->dataSize);
+}
+
+std::shared_ptr<PCMSound> PCMStream::getSound() const noexcept
+{
+    return m_sound;
+}
+}    // namespace HyperSonicDrivers::audio::streams

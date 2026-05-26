@@ -6,7 +6,9 @@ namespace HyperSonicDrivers::drivers
 {
 using audio::streams::PCMStream;
 
-PCMDriver::PCMDriver(const std::shared_ptr<audio::IMixer>& mixer, const uint8_t max_channels) : max_streams(std::min(mixer->max_channels, max_channels)), m_mixer(mixer)
+PCMDriver::PCMDriver(const std::shared_ptr<audio::IMixer>& mixer, const uint8_t max_channels)
+    : max_streams(std::min(mixer->max_channels, max_channels)),
+      m_mixer(mixer)
 {
 }
 

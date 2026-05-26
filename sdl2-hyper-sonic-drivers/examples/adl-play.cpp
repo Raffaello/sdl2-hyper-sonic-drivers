@@ -67,7 +67,7 @@ void adl_play(const OplEmulator emu, const OplType type, std::shared_ptr<audio::
     using devices::make_device;
     using utils::ILogger;
 
-    auto adlFile = std::make_shared<ADLFile>(filename);
+    auto                          adlFile = std::make_shared<ADLFile>(filename);
     std::shared_ptr<devices::Opl> device;
     switch (type)
     {
@@ -142,8 +142,8 @@ void adl_play(const OplEmulator emu, const OplType type, std::shared_ptr<audio::
                 }
             }
         }
-
-    } while (true);
+    }
+    while (true);
 }
 
 /**
@@ -204,8 +204,7 @@ int main(int argc, char* argv[])
         {
             using enum fmt::color;
 
-            for (const auto& c : { white_smoke, yellow, aqua,
-                                  lime_green, blue_violet, indian_red })
+            for (const auto& c : {white_smoke, yellow, aqua, lime_green, blue_violet, indian_red})
             {
                 spdlog::info(fmt::format(fg(c), FMT_RUNTIME(m), emu.second, type.second));
             }
