@@ -62,12 +62,6 @@ jobs:
         run: pip install gcovr
       - name: create build dir
         run: mkdir build
-      # - uses: actions/cache@v4
-      #   id: dep-cache
-      #   with:
-      #       path: C:/vcpkg/packages
-      #       key: ${{ runner.os }}-x64-windows-dep-cache-${{ hashFiles('**/*') }}
-      #       restore-keys: ${{ runner.os }}-x64-windows-dep-cache
       - uses: actions/cache@v4
         id: sonar-cache
         with:
@@ -118,6 +112,10 @@ jobs:
       # - name: gcov gcda
       #   run: find . -name *.gcda -exec gcov --preserve-paths {} \;
       #   working-directory: build
+      - name: generate gcovr report
+        run: |
+          gcovr --sonarqube coverage.xml
+        working-directory: build
       - name: Run sonar-scanner
         shell: pwsh
         env:

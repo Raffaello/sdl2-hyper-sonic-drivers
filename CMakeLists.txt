@@ -45,9 +45,10 @@ message(STATUS "GENERATE_CODE_COVERAGE: ${GENERATE_CODE_COVERAGE}")
 ##############################################################################
 
 if (GENERATE_CODE_COVERAGE)
-  add_compile_options(--coverage)
-  add_link_options(--coverage)
-  link_libraries(gcov)
+  if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_compile_options(--coverage)
+    add_link_options(--coverage)
+  endif()
 endif()
 
 # Include sub-projects.
