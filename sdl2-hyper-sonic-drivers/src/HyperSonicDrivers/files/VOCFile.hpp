@@ -43,6 +43,6 @@ private:
 
     bool             readHeader();
     bool             readDataBlockHeader();
-    sub_data_block_t readSubDataBlock(const uint32_t data_block_size, const uint8_t type) const noexcept;
+    sub_data_block_t readSubDataBlock(const uint32_t data_block_size, const uint8_t type) const;
 };
 }    // namespace HyperSonicDrivers::files

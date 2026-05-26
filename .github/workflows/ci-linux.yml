@@ -10,21 +10,21 @@ on:
   release:
     types: [created]
   pull_request:
-    branches: [ master ]
+    branches: [master]
     paths-ignore:
-      - 'doc/**'
-      - '.gitignore'
-      - '.gitattributes'
-      - 'README.md'
-      - 'LICENSE'
-      - 'wave_generators.r'
+      - "doc/**"
+      - ".gitignore"
+      - ".gitattributes"
+      - "README.md"
+      - "LICENSE"
+      - "wave_generators.r"
 
 jobs:
   build:
     strategy:
       fail-fast: false
       matrix:
-        build_type: [ Debug, Release ]
+        build_type: [Debug, Release]
         use_mt32: [USE_MT32=OFF, USE_MT32=ON]
     name: Build Linux
     runs-on: ubuntu-24.04
@@ -39,6 +39,7 @@ jobs:
           git clone https://github.com/munt/munt.git
           cd munt && cd mt32emu
           cmake -DCMAKE_BUILD_TYPE:STRING=Release . && make && sudo make install
+        if: matrix.use_mt32 == 'USE_MT32=ON'
       - name: install other dependencies
         run: |
           sudo apt-get update -y && sudo apt-get install -y \
@@ -69,6 +70,6 @@ jobs:
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
-            generate_release_notes: true
-            prerelease: false
-            files: "build/*.zip"
+          generate_release_notes: true
+          prerelease: false
+          files: "build/*.zip"

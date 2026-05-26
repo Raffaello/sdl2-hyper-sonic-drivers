@@ -1,7 +1,6 @@
 FROM ubuntu:24.04
 
-RUN apt-get -y update && apt-get -y upgrade && apt -y install
-RUN apt -y install \
+RUN apt-get -y update && apt-get -y upgrade && apt -y install \
     libgtest-dev \
     libgmock-dev \
     libsdl2-dev \

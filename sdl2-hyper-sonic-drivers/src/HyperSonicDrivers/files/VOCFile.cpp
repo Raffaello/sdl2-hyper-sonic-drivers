@@ -201,7 +201,7 @@ bool VOCFile::readDataBlockHeader()
     return true;
 }
 
-VOCFile::sub_data_block_t VOCFile::readSubDataBlock(const uint32_t data_block_size, const uint8_t type) const noexcept
+VOCFile::sub_data_block_t VOCFile::readSubDataBlock(const uint32_t data_block_size, const uint8_t type) const
 {
     sub_data_block_t db;
 

@@ -1,7 +1,11 @@
 #include <HyperSonicDrivers/audio/sdl2/Mixer.hpp>
 #include <HyperSonicDrivers/utils/ILogger.hpp>
 
+#ifdef HAS_SDL3
+// #include <SDL3/SDL.h>
+#else
 #include <SDL2/SDL.h>    // due to init/quit subsystem
+#endif
 
 #include <algorithm>
 #include <ranges>

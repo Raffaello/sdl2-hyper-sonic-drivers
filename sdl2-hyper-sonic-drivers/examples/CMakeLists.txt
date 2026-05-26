@@ -71,7 +71,7 @@ macro_example(
     DEPS hyper-sonic-drivers-static
     LINKS
         PRIVATE
-            $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
+            $<TARGET_NAME_IF_EXISTS:${LIB_SDL}main>
             hyper-sonic-drivers-static
             spdlog::spdlog
     NONE
@@ -83,7 +83,7 @@ macro_example(
     DEPS hyper-sonic-drivers-static
     LINKS
         PRIVATE
-            $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
+            $<TARGET_NAME_IF_EXISTS:${LIB_SDL}main>
             hyper-sonic-drivers-static
             spdlog::spdlog
     FIXTURES 
@@ -99,7 +99,7 @@ macro_example(
     DEPS hyper-sonic-drivers-static
     LINKS
         PRIVATE
-            $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
+            $<TARGET_NAME_IF_EXISTS:${LIB_SDL}main>
             hyper-sonic-drivers-static
             spdlog::spdlog 
     FIXTURES 
@@ -115,7 +115,7 @@ macro_example(
     DEPS hyper-sonic-drivers-static
     LINKS
         PRIVATE
-            $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
+            $<TARGET_NAME_IF_EXISTS:${LIB_SDL}main>
             hyper-sonic-drivers-static
             spdlog::spdlog
     FIXTURES
@@ -130,7 +130,7 @@ macro_example(
     DEPS hyper-sonic-drivers-static
     LINKS
         PRIVATE
-            $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
+            $<TARGET_NAME_IF_EXISTS:${LIB_SDL}main>
             hyper-sonic-drivers-static
             spdlog::spdlog
     FIXTURES
@@ -145,7 +145,7 @@ macro_example(
     DEPS hyper-sonic-drivers-static
     LINKS
         PRIVATE
-            $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
+            $<TARGET_NAME_IF_EXISTS:${LIB_SDL}main>
             hyper-sonic-drivers-static
             spdlog::spdlog
     FIXTURES
@@ -161,7 +161,7 @@ macro_example(
     DEPS hyper-sonic-drivers-static
     LINKS
         PRIVATE
-            $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
+            $<TARGET_NAME_IF_EXISTS:${LIB_SDL}main>
             hyper-sonic-drivers-static
             spdlog::spdlog
     FIXTURES

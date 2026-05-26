@@ -1,15 +1,5 @@
 include(FetchContent)
 
-# spdlog
-include(FetchContent)
-
-FetchContent_Declare(
-  spdlog
-  GIT_REPOSITORY https://github.com/gabime/spdlog.git
-  GIT_TAG        v1.17.0)
-
-FetchContent_MakeAvailable(spdlog)
-
 # fmt library (required for spdlog)
 FetchContent_Declare(
   fmt
@@ -18,4 +8,12 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(fmt)
 
+# spdlog
+set(SPDLOG_FMT_EXTERNAL ON)
+FetchContent_Declare(
+  spdlog
+  GIT_REPOSITORY https://github.com/gabime/spdlog.git
+  GIT_TAG        v1.17.0)
+
+FetchContent_MakeAvailable(spdlog)
 target_link_libraries(spdlog PUBLIC fmt::fmt)
