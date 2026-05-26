@@ -3,5 +3,6 @@
 /.vs
 /.vscode
 /build
+/docker_build
 *.bak
 sdl2-hyper-sonic-drivers/src/HyperSonicDrivers/version.h

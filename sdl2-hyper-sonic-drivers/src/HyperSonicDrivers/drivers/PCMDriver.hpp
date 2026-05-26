@@ -11,41 +11,41 @@
 
 namespace HyperSonicDrivers::drivers
 {
-    /**
-     * @brief Managing PCM sound and their playback
-     * @details It is a sort of bridge between Mixer and Sound objects
-     *          so just simplify playing digital sounds.
-     * TODO: should be PCMPlayer instead?
-     */
-    class PCMDriver final
-    {
-    public:
-        explicit PCMDriver(const std::shared_ptr<audio::IMixer>& mixer, const uint8_t max_channels = 0xFF);
-        ~PCMDriver() = default;
+/**
+ * @brief Managing PCM sound and their playback
+ * @details It is a sort of bridge between Mixer and Sound objects
+ *          so just simplify playing digital sounds.
+ * TODO: should be PCMPlayer instead?
+ */
+class PCMDriver final
+{
+public:
+    explicit PCMDriver(const std::shared_ptr<audio::IMixer>& mixer, const uint8_t max_channels = 0xFF);
+    ~PCMDriver() = default;
 
-        bool isPlaying() const noexcept;
-        bool isPlaying(const std::shared_ptr<audio::PCMSound>& sound) const noexcept;
-        std::optional<uint8_t> play(
-            const std::shared_ptr<audio::PCMSound>& sound,
-            const uint8_t volume = audio::mixer::Channel_max_volume,
-            const int8_t pan = 0
-        );
-        void stop(const uint8_t channel_id, const bool releaseEndedStreams = true) noexcept;
-        void stop(const std::shared_ptr<audio::PCMSound>& sound, const bool releaseEndedStreams = true);
-        void stop() noexcept;
+    bool                   isPlaying() const noexcept;
+    bool                   isPlaying(const std::shared_ptr<audio::PCMSound>& sound) const noexcept;
+    std::optional<uint8_t> play(
+        const std::shared_ptr<audio::PCMSound>& sound,
+        const uint8_t                           volume = audio::mixer::Channel_max_volume,
+        const int8_t                            pan    = 0);
+    void stop(const uint8_t channel_id, const bool releaseEndedStreams = true) noexcept;
+    void stop(const std::shared_ptr<audio::PCMSound>& sound, const bool releaseEndedStreams = true);
+    void stop() noexcept;
 
-        void forward(const uint32_t ms) const noexcept;
-        void forward(const uint32_t ms, const audio::mixer::eChannelGroup group) const noexcept;
-        void forward(const uint32_t ms, const uint8_t channel_id) const noexcept;
+    void forward(const uint32_t ms) const noexcept;
+    void forward(const uint32_t ms, const audio::mixer::eChannelGroup group) const noexcept;
+    void forward(const uint32_t ms, const uint8_t channel_id) const noexcept;
 
-        const uint8_t max_streams;
-    private:
-        std::shared_ptr<audio::IMixer> m_mixer;
-        std::map<std::shared_ptr<audio::streams::PCMStream>, uint8_t> m_PCMStreams_channels;
+    const uint8_t max_streams;
 
-        void releaseEndedStreams_() noexcept;
-        void releaseStreams_() noexcept;
+private:
+    std::shared_ptr<audio::IMixer>                                m_mixer;
+    std::map<std::shared_ptr<audio::streams::PCMStream>, uint8_t> m_PCMStreams_channels;
 
-        static bool isPCMStreamPlaying_(const std::shared_ptr<audio::streams::PCMStream>& stream) noexcept;
-    };
-}
+    void releaseEndedStreams_() noexcept;
+    void releaseStreams_() noexcept;
+
+    static bool isPCMStreamPlaying_(const std::shared_ptr<audio::streams::PCMStream>& stream) noexcept;
+};
+}    // namespace HyperSonicDrivers::drivers

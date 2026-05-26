@@ -5,7 +5,7 @@ if(DEFINED ENV{VCPKG_ROOT} AND NOT DEFINED CMAKE_TOOLCHAIN_FILE)
 endif()
 
 
-project ("sdl2-hyper-sonic-drivers" VERSION 0.18.1 DESCRIPTION "SDL2 based Hyper-Sonic Drivers for emulating old soundcards")
+project ("sdl2-hyper-sonic-drivers" VERSION 0.18.2 DESCRIPTION "SDL2 based Hyper-Sonic Drivers for emulating old soundcards")
 include (TestBigEndian)
 TEST_BIG_ENDIAN(IS_BIG_ENDIAN)
 if(IS_BIG_ENDIAN)
@@ -32,11 +32,25 @@ set(CPACK_PACKAGE_DESCRIPTION_SUMMARY ${CMAKE_PROJECT_DESCRIPTION})
 include(CPack)
 
 ################################# Options ####################################
-option(WITH_SDL2_STATIC "linking STATIC LIB with SDL2 STATIC" OFF)
-include(CTest)
+option(USE_SDL3 "USE SDL3" OFF)
+option(USE_MT32 "USE MT32Emu" ON)
+option(GENERATE_CODE_COVERAGE "Generate Code Coverage with gcov" OFF)
 option(BUILD_EXAMPLES "build examples" ON)
+include(CTest)
+
+message(STATUS "USE_SDL3: ${USE_SDL3}")
+message(STATUS "USE_MT32: ${USE_MT32}")
+message(STATUS "GENERATE_CODE_COVERAGE: ${GENERATE_CODE_COVERAGE}")
 
 ##############################################################################
 
+if (GENERATE_CODE_COVERAGE)
+  if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_compile_options(--coverage)
+    add_link_options(--coverage)
+  endif()
+endif()
+
 # Include sub-projects.
+add_subdirectory(libs)
 add_subdirectory ("sdl2-hyper-sonic-drivers")

@@ -1,7 +1,5 @@
 cmake_minimum_required (VERSION 3.21)
 
-find_package(spdlog CONFIG REQUIRED)
-
 ### Macro ###
 macro(macro_example) # ${ARGN} link libraries
     set(prefix EXAMPLE)
@@ -73,7 +71,7 @@ macro_example(
     DEPS hyper-sonic-drivers-static
     LINKS
         PRIVATE
-            $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
+            $<TARGET_NAME_IF_EXISTS:${LIB_SDL}main>
             hyper-sonic-drivers-static
             spdlog::spdlog
     NONE
@@ -85,7 +83,7 @@ macro_example(
     DEPS hyper-sonic-drivers-static
     LINKS
         PRIVATE
-            $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
+            $<TARGET_NAME_IF_EXISTS:${LIB_SDL}main>
             hyper-sonic-drivers-static
             spdlog::spdlog
     FIXTURES 
@@ -101,7 +99,7 @@ macro_example(
     DEPS hyper-sonic-drivers-static
     LINKS
         PRIVATE
-            $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
+            $<TARGET_NAME_IF_EXISTS:${LIB_SDL}main>
             hyper-sonic-drivers-static
             spdlog::spdlog 
     FIXTURES 
@@ -117,7 +115,7 @@ macro_example(
     DEPS hyper-sonic-drivers-static
     LINKS
         PRIVATE
-            $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
+            $<TARGET_NAME_IF_EXISTS:${LIB_SDL}main>
             hyper-sonic-drivers-static
             spdlog::spdlog
     FIXTURES
@@ -132,7 +130,7 @@ macro_example(
     DEPS hyper-sonic-drivers-static
     LINKS
         PRIVATE
-            $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
+            $<TARGET_NAME_IF_EXISTS:${LIB_SDL}main>
             hyper-sonic-drivers-static
             spdlog::spdlog
     FIXTURES
@@ -147,7 +145,7 @@ macro_example(
     DEPS hyper-sonic-drivers-static
     LINKS
         PRIVATE
-            $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
+            $<TARGET_NAME_IF_EXISTS:${LIB_SDL}main>
             hyper-sonic-drivers-static
             spdlog::spdlog
     FIXTURES
@@ -156,16 +154,18 @@ macro_example(
     NONE
 )
 
+if (USE_MT32)
 macro_example(
     EXE MT32example
     FILE "mt32-example.cpp"
     DEPS hyper-sonic-drivers-static
     LINKS
         PRIVATE
-            $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
+            $<TARGET_NAME_IF_EXISTS:${LIB_SDL}main>
             hyper-sonic-drivers-static
             spdlog::spdlog
     FIXTURES
       "../test/fixtures/MI_intro.mid"
     NONE
 )
+endif()

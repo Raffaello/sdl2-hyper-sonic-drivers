@@ -8,83 +8,80 @@
 #include <HyperSonicDrivers/audio/IAudioStream.hpp>
 #include <HyperSonicDrivers/audio/mixer/ChannelGroup.hpp>
 
-
 namespace HyperSonicDrivers::audio::mixer
 {
-    class Channel
-    {
-    public:
-        Channel(Channel&) = delete;
-        Channel(Channel&&) = delete;
-        Channel& operator=(Channel&) = delete;
+class Channel
+{
+public:
+    Channel(Channel&)            = delete;
+    Channel(Channel&&)           = delete;
+    Channel& operator=(Channel&) = delete;
 
-        Channel(IMixer& mixer, const uint8_t id);
-        ~Channel() = default;
+    Channel(IMixer& mixer, const uint8_t id);
+    ~Channel() = default;
 
-        void setAudioStream(const mixer::eChannelGroup group, const std::shared_ptr<IAudioStream>& stream,
-            const bool reverseStereo);
+    void setAudioStream(const mixer::eChannelGroup group, const std::shared_ptr<IAudioStream>& stream, const bool reverseStereo);
 
-        void setAudioStream(const mixer::eChannelGroup group, const std::shared_ptr<IAudioStream>& stream,
-            const uint8_t volume,
-            const int8_t pan,
-            const bool reverseStereo);
+    void setAudioStream(const mixer::eChannelGroup group, const std::shared_ptr<IAudioStream>& stream, const uint8_t volume, const int8_t pan, const bool reverseStereo);
 
-        /**
-         * Mixes the channel's samples into the given buffer.
-         *
-         * @param data buffer where to mix the data
-         * @param len  number of sample *pairs*. So a value of
-         *             10 means that the buffer contains twice 10 sample, each
-         *             16 bits, for a total of 40 bytes.
-         * @return number of sample pairs processed (which can still be silence!)
-         */
-        size_t mix(int16_t* data, size_t len);
+    /**
+     * Mixes the channel's samples into the given buffer.
+     *
+     * @param data buffer where to mix the data
+     * @param len  number of sample *pairs*. So a value of
+     *             10 means that the buffer contains twice 10 sample, each
+     *             16 bits, for a total of 40 bytes.
+     * @return number of sample pairs processed (which can still be silence!)
+     */
+    size_t mix(int16_t* data, size_t len);
 
-        inline bool isEnded() const noexcept { return m_stream == nullptr || m_converter == nullptr ||  m_stream->isEnded(); };
-        inline int getId() const noexcept { return m_id; };
+    inline bool isEnded() const noexcept { return m_stream == nullptr || m_converter == nullptr || m_stream->isEnded(); };
 
-        void pause() noexcept;
-        void unpause() noexcept;
+    inline int getId() const noexcept { return m_id; };
 
-        void reset() noexcept;
+    void pause() noexcept;
+    void unpause() noexcept;
 
-        inline bool isPaused() const noexcept { return m_pause; };
+    void reset() noexcept;
 
-        inline uint8_t getVolume() const noexcept { return m_volume; };
-        inline int8_t getPan() const noexcept { return m_pan; };
+    inline bool isPaused() const noexcept { return m_pause; };
 
-        void setVolume(const uint8_t volume);
-        void setPan(const int8_t pan);
-        void setVolumePan(const uint8_t volume, const uint8_t pan);
+    inline uint8_t getVolume() const noexcept { return m_volume; };
 
-        inline mixer::eChannelGroup getChannelGroup() const noexcept { return m_group; };
+    inline int8_t getPan() const noexcept { return m_pan; };
 
-        void updateVolumePan();
+    void setVolume(const uint8_t volume);
+    void setPan(const int8_t pan);
+    void setVolumePan(const uint8_t volume, const uint8_t pan);
 
-        /**
-         * Queries how long the channel has been playing.
-         */
-        //Timestamp getElapsedTime();
+    inline mixer::eChannelGroup getChannelGroup() const noexcept { return m_group; };
 
-    private:
-        IMixer& m_mixer;
-        const uint8_t m_id;
-        mixer::eChannelGroup m_group = mixer::eChannelGroup::Unknown;
+    void updateVolumePan();
 
-        uint8_t m_volume = 0;
-        int8_t m_pan = 0;
-        bool m_pause = false;
+    /**
+     * Queries how long the channel has been playing.
+     */
+    // Timestamp getElapsedTime();
 
-        uint16_t m_volL = 0;
-        uint16_t m_volR = 0;
+private:
+    IMixer&              m_mixer;
+    const uint8_t        m_id;
+    mixer::eChannelGroup m_group = mixer::eChannelGroup::Unknown;
 
-        //uint32_t m_samplesConsumed;
-        //uint32_t m_samplesDecoded;
-        //uint32_t m_mixerTimeStamp;
-        uint32_t m_pauseStartTime = 0;
-        uint32_t m_pauseTime = 0;
+    uint8_t m_volume = 0;
+    int8_t  m_pan    = 0;
+    bool    m_pause  = false;
 
-        std::unique_ptr<converters::IRateConverter> m_converter;
-        std::shared_ptr<IAudioStream> m_stream;
-    };
-}
+    uint16_t m_volL = 0;
+    uint16_t m_volR = 0;
+
+    // uint32_t m_samplesConsumed;
+    // uint32_t m_samplesDecoded;
+    // uint32_t m_mixerTimeStamp;
+    uint32_t m_pauseStartTime = 0;
+    uint32_t m_pauseTime      = 0;
+
+    std::unique_ptr<converters::IRateConverter> m_converter;
+    std::shared_ptr<IAudioStream>               m_stream;
+};
+}    // namespace HyperSonicDrivers::audio::mixer

@@ -29,8 +29,11 @@
 #include <HyperSonicDrivers/utils/sdl2/Logger.hpp>
 #include <HyperSonicDrivers/devices/Adlib.hpp>
 #include <HyperSonicDrivers/audio/sdl2/Renderer.hpp>
-#include <mt32emu/c_interface/cpp_interface.h>
+
+#ifdef HAS_MT32_EMU
 #include <HyperSonicDrivers/hardware/mt32/MT32.hpp>
+#include <mt32emu/c_interface/cpp_interface.h>
+#endif
 
 #include <HyperSonicDrivers/utils/sound.hpp>
 #include <HyperSonicDrivers/drivers/PCMDriver.hpp>

@@ -4,6 +4,7 @@
 
 namespace HyperSonicDrivers::drivers::opl
 {
+// clang-format off
     static const uint16_t freq_table[] = {                          /* note # */
         345, 365, 387, 410, 435, 460, 488, 517, 547, 580, 615, 651, /*  0 */
         690, 731, 774, 820, 869, 921, 975, 517, 547, 580, 615, 651, /* 12 */
@@ -84,4 +85,5 @@ namespace HyperSonicDrivers::drivers::opl
         116, 117, 117, 118, 118, 119, 119, 120,
         120, 121, 121, 122, 122, 123, 123, 123,
         124, 124, 125, 125, 126, 126, 127, 127 };
-}
+// clang-format on
+}    // namespace HyperSonicDrivers::drivers::opl

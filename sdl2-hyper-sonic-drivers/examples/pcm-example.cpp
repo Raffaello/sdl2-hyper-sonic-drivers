@@ -42,7 +42,7 @@ int main(int argc, char* argv[])
     }
 
     drv.play(wavSound);
-    while(drv.isPlaying(wavSound))
+    while (drv.isPlaying(wavSound))
     {
         cout << "is playing" << endl;
         delayMillis(1000);
@@ -69,7 +69,7 @@ int main(int argc, char* argv[])
         drv.play(vocSound, 255, -127 * sig);
     }
 
-    while(drv.isPlaying())
+    while (drv.isPlaying())
     {
         cout << "is playing" << endl;
         delayMillis(1000);

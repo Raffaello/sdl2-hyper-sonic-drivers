@@ -7,24 +7,17 @@
 
 name: ci-sonar
 on:
-  push:
-    paths-ignore:
-      - 'doc/**'
-      - '.gitignore'
-      - '.gitattributes'
-      - 'README.md'
-      - 'LICENSE'
-      - 'wave_generators.r'
-
+  release:
+    types: [created]
   pull_request:
-  #  branches: [ master ]
+    #  branches: [ master ]
     paths-ignore:
-      - 'doc/**'
-      - '.gitignore'
-      - '.gitattributes'
-      - 'README.md'
-      - 'LICENSE'
-      - 'wave_generators.r'
+      - "doc/**"
+      - ".gitignore"
+      - ".gitattributes"
+      - "README.md"
+      - "LICENSE"
+      - "wave_generators.r"
 
 jobs:
   sonarcloud:
@@ -54,7 +47,6 @@ jobs:
             mingw-w64-ucrt-x86_64-gtest
             mingw-w64-ucrt-x86_64-ninja
             mingw-w64-ucrt-x86_64-cmake
-            mingw-w64-ucrt-x86_64-spdlog
             msys/unzip
             mingw-w64-ucrt-x86_64-python-lxml
             mingw-w64-ucrt-x86_64-python-pip
@@ -70,21 +62,15 @@ jobs:
         run: pip install gcovr
       - name: create build dir
         run: mkdir build
-      # - uses: actions/cache@v4
-      #   id: dep-cache
-      #   with:
-      #       path: C:/vcpkg/packages
-      #       key: ${{ runner.os }}-x64-windows-dep-cache-${{ hashFiles('**/*') }}
-      #       restore-keys: ${{ runner.os }}-x64-windows-dep-cache
       - uses: actions/cache@v4
         id: sonar-cache
         with:
-            path: |
-             ${{ env.HOME }}/sonar
-             # ${{ env.HOME }}/.sonar/sonar-scanner-${{ env.SONAR_SCANNER_VERSION }}-windows
-             # ${{ env.HOME }}/.sonar/build-wrapper-win-x86
-            key: ${{ runner.os }}-sonar-cache-${{ env.SONAR_SCANNER_VERSION }}
-            restore-keys: ${{ runner.os }}-sonar-cache
+          path: |
+            ${{ env.HOME }}/sonar
+            # ${{ env.HOME }}/.sonar/sonar-scanner-${{ env.SONAR_SCANNER_VERSION }}-windows
+            # ${{ env.HOME }}/.sonar/build-wrapper-win-x86
+          key: ${{ runner.os }}-sonar-cache-${{ env.SONAR_SCANNER_VERSION }}
+          restore-keys: ${{ runner.os }}-sonar-cache
       - name: Download and set up sonar-scanner
         if: steps.sonar-cache.outputs.cache-hit != 'true'
         env:
@@ -108,7 +94,7 @@ jobs:
           echo "${{ env.HOME }}/sonar/build-wrapper-win-x86" >> $GITHUB_PATH
       - name: cmake generator
         run: |
-          cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug ..
+          cmake -G Ninja -DGENERATE_CODE_COVERAGE=ON -DCMAKE_BUILD_TYPE=Debug ..
         working-directory: build
       - name: cmake build sonar wrapper
         run: |
@@ -126,6 +112,10 @@ jobs:
       # - name: gcov gcda
       #   run: find . -name *.gcda -exec gcov --preserve-paths {} \;
       #   working-directory: build
+      - name: generate gcovr report
+        run: |
+          gcovr --sonarqube coverage.xml
+        working-directory: build
       - name: Run sonar-scanner
         shell: pwsh
         env:

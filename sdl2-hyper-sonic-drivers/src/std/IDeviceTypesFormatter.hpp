@@ -6,33 +6,35 @@
 
 namespace std
 {
-    template<>
-    struct formatter<HyperSonicDrivers::devices::eDeviceName> : formatter<string_view>
+template <>
+struct formatter<HyperSonicDrivers::devices::eDeviceName> : formatter<string_view>
+{
+    template <typename FormatContext>
+    auto format(HyperSonicDrivers::devices::eDeviceName device_name, FormatContext& fc) const
     {
-        template<typename FormatContext>
-        auto format(HyperSonicDrivers::devices::eDeviceName device_name, FormatContext& fc) const
+        string str;
+
+        switch (device_name)
         {
-            string str;
+            using enum HyperSonicDrivers::devices::eDeviceName;
 
-            switch (device_name)
-            {
-                using enum HyperSonicDrivers::devices::eDeviceName;
-
-            case Adlib:
-                str = "Adlib";
-                break;
-            case SbPro:
-                str = "SbPro";
-                break;
-            case SbPro2:
-                str = "SbPro2";
-                break;
-            case Mt32:
-                str = "Mt32";
-                break;
-            }
-
-            return formatter<std::string_view>::format(str, fc);
+        case Adlib:
+            str = "Adlib";
+            break;
+        case SbPro:
+            str = "SbPro";
+            break;
+        case SbPro2:
+            str = "SbPro2";
+            break;
+#if HAS_MT32_EMU
+        case Mt32:
+            str = "Mt32";
+            break;
+#endif
         }
-    };
-}
+
+        return formatter<std::string_view>::format(str, fc);
+    }
+};
+}    // namespace std

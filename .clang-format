@@ -1,0 +1,164 @@
+---
+Language: Cpp
+AlignConsecutiveAssignments:
+  Enabled: true
+  AcrossEmptyLines: false
+  AcrossComments: false
+  AlignCompound: true
+  PadOperators: true
+
+AlignConsecutiveDeclarations:
+  Enabled: true
+  AcrossEmptyLines: false
+  AcrossComments: false
+  AlignFunctionPointers: true
+  PadOperators: true
+
+AlignConsecutiveMacros:
+  Enabled: true
+  AcrossEmptyLines: false
+  AcrossComments: false
+
+
+AlignConsecutiveShortCaseStatements:
+  Enabled: true
+  AcrossEmptyLines: true
+  AcrossComments: true
+  AlignCaseColons: false
+AlignTrailingComments:
+  Kind: Always
+  MaxEmptyLinesToKeep: 2
+  OverEmptyLines: 1
+# IndentExternBlock: AfterExternBlock
+# BraceWrapping.AfterExternBlock: false
+InsertNewlineAtEOF: true
+MaxEmptyLinesToKeep: 2
+PointerAlignment: Left # Right
+SeparateDefinitionBlocks: Always
+SortIncludes: Never
+SpaceAfterCStyleCast: true
+SpaceAfterLogicalNot: false
+SpaceAroundPointerQualifiers: Default
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeCaseColon: false
+SpaceBeforeSquareBrackets: false
+SpacesBeforeTrailingComments: 4 # ok-ish
+SpacesInLineCommentPrefix:
+  Minimum: 1
+  Maximum: 1
+TabWidth: 4
+UseTab: Never
+IndentCaseLabels: false
+AllowShortIfStatementsOnASingleLine: false
+
+ColumnLimit: 0
+
+BinPackArguments: false
+BinPackParameters: false
+
+AlignArrayOfStructures: Left
+
+# BasedOnStyle:  LLVM
+AccessModifierOffset: -4 # -2
+AlignAfterOpenBracket: Align
+AlignEscapedNewlines: Right
+AlignOperands: AlignAfterOperator
+# AlignTrailingComments: true
+AllowAllParametersOfDeclarationOnNextLine: true
+AllowShortBlocksOnASingleLine: false
+AllowShortCaseLabelsOnASingleLine: false
+# AllowShortFunctionsOnASingleLine: All
+AllowShortLoopsOnASingleLine: false
+
+AlwaysBreakAfterDefinitionReturnType: None
+AlwaysBreakAfterReturnType: None
+AlwaysBreakBeforeMultilineStrings: false
+AlwaysBreakTemplateDeclarations: true # false
+IncludeBlocks: Preserve
+SortUsingDeclarations: Never
+BreakFunctionDefinitionParameters: false
+
+
+
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterCaseLabel: true
+  AfterExternBlock: false
+  AfterClass: true
+  AfterControlStatement: true # false
+  AfterEnum: true # false
+  AfterFunction: true # false
+  AfterNamespace: true # false
+  AfterObjCDeclaration: true # false
+  AfterStruct: true # false
+  AfterUnion: true # false
+  BeforeCatch: true # false
+  BeforeElse: true # false
+  BeforeWhile: true
+  IndentBraces: false # false
+  SplitEmptyFunction: true
+  SplitEmptyRecord: true
+  SplitEmptyNamespace: true
+BreakBeforeBinaryOperators: None
+
+BreakBeforeInheritanceComma: false
+BreakBeforeTernaryOperators: true
+BreakConstructorInitializersBeforeComma: false
+BreakConstructorInitializers: BeforeColon
+# BreakAfterJavaFieldAnnotations: false
+# BreakStringLiterals: true
+# CommentPragmas: "^pragma:"
+CompactNamespaces: false
+ConstructorInitializerAllOnOneLineOrOnePerLine: false
+ConstructorInitializerIndentWidth: 4
+ContinuationIndentWidth: 4
+Cpp11BracedListStyle: true
+DerivePointerAlignment: false
+DisableFormat: false
+ExperimentalAutoDetectBinPacking: false
+FixNamespaceComments: true
+# ForEachMacros:
+#   - foreach
+#   - Q_FOREACH
+#   - BOOST_FOREACH
+IncludeCategories:
+  - Regex: '^"(llvm|llvm-c|clang|clang-c)/'
+    Priority: 2
+  - Regex: '^(<|"(gtest|gmock|isl|json)/)'
+    Priority: 3
+  - Regex: ".*"
+    Priority: 1
+IncludeIsMainRegex: "(Test)?$"
+
+# IndentPPDirectives: None
+IndentWidth: 4 #2
+IndentWrappedFunctionNames: false
+# JavaScriptQuotes: Leave
+# JavaScriptWrapImports: true
+KeepEmptyLinesAtTheStartOfBlocks: true
+MacroBlockBegin: ""
+MacroBlockEnd: ""
+NamespaceIndentation: None
+# ObjCBlockIndentWidth: 2
+# ObjCSpaceAfterProperty: false
+# ObjCSpaceBeforeProtocolList: true
+PenaltyBreakAssignment: 2
+PenaltyBreakBeforeFirstCallParameter: 19
+PenaltyBreakComment: 300
+PenaltyBreakFirstLessLess: 120
+PenaltyBreakString: 1000
+PenaltyExcessCharacter: 1000000
+PenaltyReturnTypeOnItsOwnLine: 60
+ReflowComments: true
+
+SpaceAfterTemplateKeyword: true
+
+SpaceBeforeParens: ControlStatements
+SpaceInEmptyParentheses: false
+
+SpacesInAngles: false
+SpacesInContainerLiterals: true
+SpacesInCStyleCastParentheses: false
+SpacesInParentheses: false
+SpacesInSquareBrackets: false
+Standard: Cpp11

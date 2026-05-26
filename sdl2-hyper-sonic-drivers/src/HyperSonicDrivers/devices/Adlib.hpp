@@ -12,18 +12,17 @@
 
 namespace HyperSonicDrivers::devices
 {
-    class Adlib : public Opl
-    {
-    public:
-        explicit Adlib(
-            const std::shared_ptr<audio::IMixer>& mixer,
-            const hardware::opl::OplEmulator emulator = hardware::opl::OplEmulator::AUTO,
-            const uint8_t volume = 255,
-            const uint8_t pan = 0
-        );
+class Adlib : public Opl
+{
+public:
+    explicit Adlib(
+        const std::shared_ptr<audio::IMixer>& mixer,
+        const hardware::opl::OplEmulator      emulator = hardware::opl::OplEmulator::AUTO,
+        const uint8_t                         volume   = 255,
+        const uint8_t                         pan      = 0);
 
-        ~Adlib() override = default;
+    ~Adlib() override = default;
 
-        eDeviceName getName() const noexcept override;
-    };
-}
+    eDeviceName getName() const noexcept override;
+};
+}    // namespace HyperSonicDrivers::devices

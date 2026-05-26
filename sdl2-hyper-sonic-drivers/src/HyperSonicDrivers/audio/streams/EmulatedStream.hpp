@@ -7,24 +7,30 @@
 
 namespace HyperSonicDrivers::audio::streams
 {
-    class EmulatedStream : public audio::IAudioStream
-    {
-    private:
-        hardware::IHardware * m_hw = nullptr;
-        uint32_t m_nextTick = 0;
-    public:
-        const bool stereo;
-        const uint32_t rate;
-        const uint32_t samplesPerTick;
+class EmulatedStream : public audio::IAudioStream
+{
+private:
+    hardware::IHardware* m_hw       = nullptr;
+    uint32_t             m_nextTick = 0;
 
-        EmulatedStream(
-            hardware::IHardware* hw,
-            const bool stereo, const uint32_t rate, const uint32_t samplesPerTick);
-        ~EmulatedStream() override = default;
+public:
+    const bool     stereo;
+    const uint32_t rate;
+    const uint32_t samplesPerTick;
 
-        size_t readBuffer(int16_t* buffer, const size_t numSamples) override;
-        inline bool isStereo() const noexcept override { return stereo; }
-        uint32_t getRate() const noexcept override { return rate; };
-        bool endOfData() const noexcept override { return false; };
-    };
-}
+    EmulatedStream(
+        hardware::IHardware* hw,
+        const bool           stereo,
+        const uint32_t       rate,
+        const uint32_t       samplesPerTick);
+    ~EmulatedStream() override = default;
+
+    size_t readBuffer(int16_t* buffer, const size_t numSamples) override;
+
+    inline bool isStereo() const noexcept override { return stereo; }
+
+    uint32_t getRate() const noexcept override { return rate; };
+
+    bool endOfData() const noexcept override { return false; };
+};
+}    // namespace HyperSonicDrivers::audio::streams
