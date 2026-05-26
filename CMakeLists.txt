@@ -34,7 +34,6 @@ include(CPack)
 ################################# Options ####################################
 option(USE_SDL3 "USE SDL3" OFF)
 option(USE_MT32 "USE MT32Emu" ON)
-# option(WITH_SDL2_STATIC "linking STATIC LIB with SDL2 STATIC" OFF)
 option(BUILD_EXAMPLES "build examples" ON)
 include(CTest)
 

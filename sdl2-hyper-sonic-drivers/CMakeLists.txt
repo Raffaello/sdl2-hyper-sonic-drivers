@@ -9,12 +9,7 @@ if(USE_SDL3)
     set(LIB_SDL SDL3::SDL3)
 else()
     find_package(SDL2 CONFIG REQUIRED)
-# add_compile_definitions(HAS_SDL2=1)
-    # if(WITH_SDL2_STATIC)
-    #     set(LIB_SDL SDL2::SDL2-static)
-    # else()
-        set(LIB_SDL SDL2::SDL2)
-    # endif()
+    set(LIB_SDL SDL2::SDL2)
 endif()
 
 if(USE_MT32)
@@ -227,20 +222,16 @@ target_link_libraries(${LIB_NAME}
     PUBLIC
         ${LIB_MT32EMU}
 )
-# if(NOT (WITH_SDL2_STATIC))
-    install(FILES
-        $<TARGET_FILE:${LIB_SDL}>
-        DESTINATION static/lib
-    )
-# endif()
+install(FILES
+    $<TARGET_FILE:${LIB_SDL}>
+    DESTINATION static/lib
+)
 
 if(BUILD_EXAMPLES)
-    # if(NOT (WITH_SDL2_STATIC))
-        install(FILES
-            $<TARGET_FILE:${LIB_SDL}>
-            DESTINATION "static/examples"
-    )
-    # endif()
+    install(FILES
+        $<TARGET_FILE:${LIB_SDL}>
+        DESTINATION "static/examples"
+)
 endif()
 
 unset(LIB_NAME)
