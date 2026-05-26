@@ -12,63 +12,75 @@
 #include <HyperSonicDrivers/drivers/IAudioDriver.hpp>
 #include <HyperSonicDrivers/audio/opl/banks/OP2Bank.hpp>
 
-
 namespace HyperSonicDrivers::drivers
 {
-    /**
-    * This class is a wrapper around different midi drivers and has a embedded timer processing track
-    * to send events to the device
-    **/
-    class MIDDriver : public IAudioDriver
+/**
+ * This class is a wrapper around different midi drivers and has a embedded timer processing track
+ * to send events to the device
+ **/
+class MIDDriver : public IAudioDriver
+{
+public:
+    [[deprecated("it will be replaced by another class without thread")]]
+    explicit MIDDriver(
+        const std::shared_ptr<devices::IDevice>& device,
+        const audio::mixer::eChannelGroup        group,
+        const uint8_t                            volume = 255,
+        const uint8_t                            pan    = 0);
+    ~MIDDriver() override;
+
+    void setMidi(const std::shared_ptr<audio::MIDI>& midi) noexcept;
+    // It works only for Opl devices
+    bool loadBankOP2(const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank) noexcept;
+    // this restore the default MidiDriver (scummvm::MidiAdlib, MT32)
+    bool resetBankOP2() noexcept;
+
+    void play(const uint16_t track = 0) noexcept override;
+    void stop() noexcept override;
+
+    void pause() noexcept;
+    void resume() noexcept;
+
+    bool isPlaying() const noexcept override;
+
+    bool isPaused() const noexcept;
+
+    inline bool isTempoChanged() const noexcept { return m_midiTempoChanged; }
+
+    inline uint32_t getTempo() noexcept
     {
-    public:
-        [[deprecated("it will be replaced by another class without thread")]]
-        explicit MIDDriver(
-            const std::shared_ptr<devices::IDevice>& device,
-            const audio::mixer::eChannelGroup group,
-            const uint8_t volume = 255,
-            const uint8_t pan = 0
-        );
-        ~MIDDriver() override;
+        m_midiTempoChanged = false;
+        return m_tempo;
+    }
 
-        void setMidi(const std::shared_ptr<audio::MIDI>& midi) noexcept;
-        // It works only for Opl devices
-        bool loadBankOP2(const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank) noexcept;
-        // this restore the default MidiDriver (scummvm::MidiAdlib, MT32)
-        bool resetBankOP2() noexcept;
+protected:
+    void processTrack(const audio::midi::MIDITrack& track, const uint16_t division);
 
-        void play(const uint16_t track = 0) noexcept override;
-        void stop() noexcept override;
+    // TODO: can be later on moved to public, but not sure the tempoChanged event
+    //       would be better using SDL2 custom event
+    //       or a event queue sub-system instead of doing this with a simple boolean
+    inline void setTempo(const uint32_t tempo) noexcept
+    {
+        m_midiTempoChanged = true;
+        m_tempo            = tempo;
+    }
 
-        void pause() noexcept;
-        void resume() noexcept;
+    bool open_() noexcept;
 
-        bool isPlaying() const noexcept override;
+private:
+    // this is to abstract the specific midi driver implementation
+    std::unique_ptr<drivers::midi::IMidiDriver> m_midiDriver;
+    std::shared_ptr<audio::MIDI>                m_midi;
+    const audio::mixer::eChannelGroup           m_group;
+    const uint8_t                               m_volume;
+    const uint8_t                               m_pan;
 
-        bool isPaused() const noexcept;
-        inline bool isTempoChanged() const noexcept { return m_midiTempoChanged; }
-        inline uint32_t getTempo() noexcept { m_midiTempoChanged = false; return m_tempo; }
-    protected:
-        void processTrack(const audio::midi::MIDITrack& track, const uint16_t division);
-        // TODO: can be later on moved to public, but not sure the tempoChanged event
-        //       would be better using SDL2 custom event 
-        //       or a event queue sub-system instead of doing this with a simple boolean
-        inline void setTempo(const uint32_t tempo) noexcept { m_midiTempoChanged = true; m_tempo = tempo; }
-        bool open_() noexcept;
-    private:
-        // this is to abstract the specific midi driver implementation
-        std::unique_ptr<drivers::midi::IMidiDriver> m_midiDriver;
-        std::shared_ptr<audio::MIDI> m_midi;
-        const audio::mixer::eChannelGroup m_group;
-        const uint8_t m_volume;
-        const uint8_t m_pan;
-        
-        std::jthread m_player;
+    std::jthread m_player;
 
-        std::atomic<bool> m_isPlaying = false;
-        std::atomic<bool> m_force_stop = false;
-        std::atomic<bool> m_paused = false;
-        std::atomic<bool> m_midiTempoChanged = false;
-        std::atomic<uint32_t> m_tempo = 0;
-    };
-}
+    std::atomic<bool>     m_isPlaying        = false;
+    std::atomic<bool>     m_force_stop       = false;
+    std::atomic<bool>     m_paused           = false;
+    std::atomic<bool>     m_midiTempoChanged = false;
+    std::atomic<uint32_t> m_tempo            = 0;
+};
+}    // namespace HyperSonicDrivers::drivers

@@ -34,13 +34,21 @@ include(CPack)
 ################################# Options ####################################
 option(USE_SDL3 "USE SDL3" OFF)
 option(USE_MT32 "USE MT32Emu" ON)
+option(GENERATE_CODE_COVERAGE "Generate Code Coverage with gcov" OFF)
 option(BUILD_EXAMPLES "build examples" ON)
 include(CTest)
 
 message(STATUS "USE_SDL3: ${USE_SDL3}")
 message(STATUS "USE_MT32: ${USE_MT32}")
+message(STATUS "GENERATE_CODE_COVERAGE: ${GENERATE_CODE_COVERAGE}")
 
 ##############################################################################
+
+if (GENERATE_CODE_COVERAGE)
+  add_compile_options(--coverage)
+  add_link_options(--coverage)
+  link_libraries(gcov)
+endif()
 
 # Include sub-projects.
 add_subdirectory(libs)

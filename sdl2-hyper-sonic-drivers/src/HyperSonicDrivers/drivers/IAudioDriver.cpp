@@ -3,12 +3,11 @@
 
 namespace HyperSonicDrivers::drivers
 {
-    IAudioDriver::IAudioDriver(const std::shared_ptr<devices::IDevice>& device) :
-        m_device(device)
+IAudioDriver::IAudioDriver(const std::shared_ptr<devices::IDevice>& device) : m_device(device)
+{
+    if (m_device == nullptr)
     {
-        if (m_device == nullptr)
-        {
-            utils::throwLogC<std::runtime_error>("device is null");
-        }
+        utils::throwLogC<std::runtime_error>("device is null");
     }
 }
+}    // namespace HyperSonicDrivers::drivers
