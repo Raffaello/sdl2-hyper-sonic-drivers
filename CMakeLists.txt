@@ -44,13 +44,6 @@ message(STATUS "GENERATE_CODE_COVERAGE: ${GENERATE_CODE_COVERAGE}")
 
 ##############################################################################
 
-if (GENERATE_CODE_COVERAGE)
-  if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    add_compile_options(--coverage)
-    add_link_options(--coverage)
-  endif()
-endif()
-
 # Include sub-projects.
 add_subdirectory(libs)
 add_subdirectory ("sdl2-hyper-sonic-drivers")
