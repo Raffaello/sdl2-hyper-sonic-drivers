@@ -1,4 +1,3 @@
-#include <HyperSonicDrivers/audio/sdl2/Mixer.hpp>
 #include <HyperSonicDrivers/hardware/opl/OPL.hpp>
 #include <HyperSonicDrivers/hardware/opl/OPLFactory.hpp>
 #include <HyperSonicDrivers/utils/algorithms.hpp>
@@ -17,7 +16,13 @@
 #include <map>
 #include <string>
 
+#if HAS_SDL3
+#include <HyperSonicDrivers/audio/sdl3/Mixer.hpp>
+#include <SDL3/SDL_main.h>
+#else
+#include <HyperSonicDrivers/audio/sdl2/Mixer.hpp>
 #include <SDL2/SDL_main.h>
+#endif
 
 #if defined(FMT_VERSION) && FMT_VERSION > 90000
 #define FMT_RUNTIME(x) fmt::runtime(x)
@@ -75,7 +80,11 @@ void adl_test(const OplEmulator emu, const OplType type, std::shared_ptr<audio::
 
 int main(int argc, char* argv[])
 {
+#if HAS_SDL3
+    auto mixer = audio::make_mixer<audio::sdl3::Mixer>(8, 44100, 1024);
+#else
     auto mixer = audio::make_mixer<audio::sdl2::Mixer>(8, 44100, 1024);
+#endif
     if (!mixer->init())
     {
         spdlog::error("can't init mixer");

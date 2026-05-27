@@ -93,6 +93,7 @@ macro_example(
     NONE
 )
 
+if(NOT USE_SDL3)
 macro_example(
     EXE ADLPlay
     FILE "adl-play.cpp"
@@ -108,6 +109,7 @@ macro_example(
       #"../test/fixtures/LOREINTR.ADL"
     NONE
 )
+endif()
 
 macro_example(
     EXE PCMExample

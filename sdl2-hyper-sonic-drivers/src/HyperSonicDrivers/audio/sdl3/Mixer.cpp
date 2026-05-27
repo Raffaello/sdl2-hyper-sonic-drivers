@@ -1,7 +1,7 @@
-#include <HyperSonicDrivers/audio/sdl2/Mixer.hpp>
+#include <HyperSonicDrivers/audio/sdl3/Mixer.hpp>
 #include <HyperSonicDrivers/utils/ILogger.hpp>
 
-#include <SDL2/SDL.h>    // due to init/quit subsystem
+#include <SDL3/SDL.h>    // due to init/quit subsystem
 
 #include <algorithm>
 #include <ranges>
@@ -9,7 +9,7 @@
 #include <cassert>
 #include <bit>
 
-namespace HyperSonicDrivers::audio::sdl2
+namespace HyperSonicDrivers::audio::sdl3
 {
 using utils::logE;
 using utils::logI;
@@ -33,7 +33,7 @@ Mixer::~Mixer()
 
 bool Mixer::init()
 {
-    return init_(sdlCallback, this);
+    return init_(sdlCallback_, this);
 }
 
 void Mixer::shutdown()
@@ -75,12 +75,20 @@ std::optional<uint8_t> Mixer::play(
 
 void Mixer::suspend() noexcept
 {
-    SDL_PauseAudioDevice(m_device_id, 1);
+    if (!SDL_PauseAudioDevice(m_device_id))
+    {
+        logE(std::format("unable to pause audio device id: {} [{}]", m_device_id, SDL_GetError()));
+        SDL_ClearError();
+    }
 }
 
 void Mixer::resume() noexcept
 {
-    SDL_PauseAudioDevice(m_device_id, 0);
+    if (!SDL_ResumeAudioDevice(m_device_id))
+    {
+        logE(std::format("unable to resume audio device id: {} [{}]", m_device_id, SDL_GetError()));
+        SDL_ClearError();
+    }
 }
 
 void Mixer::reset() noexcept
@@ -240,48 +248,49 @@ void Mixer::updateChannelsVolumePan_() noexcept
         ch->updateVolumePan();
 }
 
-bool Mixer::init_(SDL_AudioCallback callback, void* userdata)
+bool Mixer::init_(SDL_AudioStreamCallback callback, void* userdata)
 {
     m_ready = false;
-    if (SDL_InitSubSystem(SDL_INIT_AUDIO) == -1)
+    if (!SDL_InitSubSystem(SDL_INIT_AUDIO))
     {
-        logE("Can't initialize SDL Audio");
+        logE("Can't initialize SDL3 Audio");
         return false;
     }
 
     // Get the desired audio specs
-    SDL_AudioSpec desired{};
+    SDL_AudioSpec spec{
+        .format   = SDL_AUDIO_S16,
+        .channels = 2,
+        .freq     = static_cast<int>(freq),
+    };
 
-    desired.freq     = static_cast<int>(freq);
-    desired.format   = AUDIO_S16;
-    desired.channels = 2;
-    desired.samples  = buffer_size;
-    desired.callback = callback;
-    desired.userdata = userdata;
+    m_pStream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec, callback, userdata);
+    if (m_pStream == nullptr)
+    {
+        logE(std::format("'can't open audio stream: {}", SDL_GetError()));
+        SDL_ClearError();
+        return false;
+    }
+
+    m_device_id = SDL_GetAudioStreamDevice(m_pStream);
 
     SDL_AudioSpec obtained{};
-    m_device_id = SDL_OpenAudioDevice(nullptr, 0, &desired, &obtained, 0);
-    if (m_device_id == 0)
+    if (!SDL_GetAudioStreamFormat(m_pStream, nullptr, &obtained))
     {
-        logE("can't open audio device");
-        SDL_QuitSubSystem(SDL_INIT_AUDIO);
+        logE("unable to get audio stream format");
         return false;
     }
 
     const char* sdlDriverName = SDL_GetCurrentAudioDriver();
     logI(std::format("Using SDL Audio Driver '{}'", sdlDriverName));
 
-    if (obtained.format != desired.format)
-    {
+    if (spec.format != obtained.format)
         logW("format different");
-    }
-    if (obtained.freq != desired.freq)
+    if (spec.freq != obtained.freq)
+        logW(std::format("freq different: obtained={}, desired={}", spec.freq, obtained.freq));
+    if (spec.channels != obtained.channels)
     {
-        logW(std::format("freq different: obtained={}, desired={}", obtained.freq, desired.freq));
-    }
-    if (obtained.channels != desired.channels)
-    {
-        logW(std::format("channels different: obtained={}, desired={}", obtained.channels, desired.channels));
+        logW(std::format("channels different: obtained={}, desired={}", spec.channels, obtained.channels));
     }
 
     resume();
@@ -290,34 +299,30 @@ bool Mixer::init_(SDL_AudioCallback callback, void* userdata)
     return true;
 }
 
-size_t Mixer::callback(uint8_t* samples, unsigned int len)
+void Mixer::callback_(SDL_AudioStream* stream, int additional_amount, int total_amount)
 {
     const std::scoped_lock lck(m_mutex);
 
-    int16_t* buf = std::bit_cast<int16_t*>(samples);
     // we store stereo, 16-bit samples (div 2 for stereo and 2 from 8 to 16 bits)
-    assert(len % 4 == 0);
+    const int num_samples = total_amount / sizeof(int16_t);
+    // assert(num_samples % 2 == 0);
+    int16_t* buf = SDL_stack_alloc(int16_t, num_samples);
     // zero the buf (size of 2ch stereo: len*2 of 16 bits)
-    memset(buf, 0, len);
-    len >>= 2;
+    memset(buf, 0, total_amount);
+
     // mix all channels
-    size_t res = 0;
     for (const auto& ch : m_channels)
-    {
-        const size_t tmp = ch->mix(buf, len);
+        ch->mix(buf, num_samples / 2);    // stereo
 
-        // TODO: returning a value can be removed
-        if (tmp > res)
-            res = tmp;
-    }
-
-    return res;
+    SDL_PutAudioStreamData(stream, buf, total_amount);
+    SDL_stack_free(buf);
 }
 
-void Mixer::sdlCallback(void* userdata, uint8_t* stream, int len)
+void Mixer::sdlCallback_(void* userdata, SDL_AudioStream* stream, int additional_amount, int total_amount)
 {
     Mixer* mixer = reinterpret_cast<Mixer*>(userdata);
     assert(mixer != nullptr);
-    mixer->callback(stream, len);
+
+    mixer->callback_(stream, additional_amount, total_amount);
 }
-}    // namespace HyperSonicDrivers::audio::sdl2
+}    // namespace HyperSonicDrivers::audio::sdl3

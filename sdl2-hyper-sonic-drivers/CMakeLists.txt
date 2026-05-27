@@ -4,7 +4,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_DEBUG_POSTFIX d)
 
 if(USE_SDL3)
-    find_package(SDL3 CONFIG REQUIRED)
+    find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3)
     add_compile_definitions(HAS_SDL3=1)
     set(LIB_SDL SDL3::SDL3)
 else()
@@ -122,8 +122,12 @@ target_sources(${LIB_NAME} PRIVATE
     # --- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/IMixer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/mixer/Channel.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/sdl2/Mixer.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/sdl2/Renderer.cpp
+    $<IF:$<BOOL:${USE_SDL3}>,
+         ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/sdl3/Mixer.cpp
+        ,${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/sdl2/Mixer.cpp>
+    $<IF:$<BOOL:${USE_SDL3}>,
+         ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/sdl3/Renderer.cpp
+        ,${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/sdl2/Renderer.cpp>
     # --- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/MIDI.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/midi/MIDITrack.cpp
@@ -218,7 +222,9 @@ target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/utils/sound.cpp
     # --- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/utils/ILogger.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/utils/sdl2/Logger.cpp
+    $<IF:$<BOOL:${USE_SDL3}>,
+         ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/utils/sdl3/Logger.cpp
+        ,${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/utils/sdl2/Logger.cpp>
     # --- #
 )
 
@@ -246,9 +252,11 @@ unset(LIB_VER)
 ##############################################################################
 
 # Add source to this project's executable.
-add_executable(sdl2-hyper-sonic-drivers "sdl2-hyper-sonic-drivers.cpp")
-target_link_libraries(sdl2-hyper-sonic-drivers
-    PRIVATE $<TARGET_NAME_IF_EXISTS:${LIB_SDL}main> hyper-sonic-drivers-static)
+if(NOT USE_SDL3)
+    add_executable(sdl2-hyper-sonic-drivers "sdl2-hyper-sonic-drivers.cpp")
+    target_link_libraries(sdl2-hyper-sonic-drivers PRIVATE
+         $<TARGET_NAME_IF_EXISTS:${LIB_SDL}main> hyper-sonic-drivers-static)
+endif()
 
 if(BUILD_TESTING)
     add_subdirectory("test")

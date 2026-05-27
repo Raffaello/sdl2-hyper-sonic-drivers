@@ -8,9 +8,9 @@
 #include <HyperSonicDrivers/audio/IMixer.hpp>
 #include <HyperSonicDrivers/audio/mixer/Channel.hpp>
 
-#include <SDL2/SDL_audio.h>
+#include <SDL3/SDL_audio.h>
 
-namespace HyperSonicDrivers::audio::sdl2
+namespace HyperSonicDrivers::audio::sdl3
 {
 class Mixer : public IMixer
 {
@@ -67,13 +67,14 @@ protected:
     void updateChannelsVolumePan_() noexcept override;
 
 private:
-    bool init_(SDL_AudioCallback callback, void* userdata);
+    bool init_(SDL_AudioStreamCallback callback, void* userdata);
 
-    size_t      callback(uint8_t* samples, unsigned int len);
-    static void sdlCallback(void* this_, uint8_t* samples, int len);
+    void        callback_(SDL_AudioStream* stream, int additional_amount, int total_amount);
+    static void sdlCallback_(void* userdata, SDL_AudioStream* stream, int additional_amount, int total_amount);
 
     SDL_AudioDeviceID                            m_device_id = 0;
+    SDL_AudioStream*                             m_pStream;
     mutable std::mutex                           m_mutex;
     std::vector<std::unique_ptr<mixer::Channel>> m_channels;
 };
-}    // namespace HyperSonicDrivers::audio::sdl2
+}    // namespace HyperSonicDrivers::audio::sdl3
