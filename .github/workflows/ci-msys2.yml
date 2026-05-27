@@ -45,6 +45,7 @@ jobs:
             mingw-w64-ucrt-x86_64-gcc
             mingw-w64-ucrt-x86_64-munt-mt32emu
             mingw-w64-ucrt-x86_64-SDL2
+            mingw-w64-ucrt-x86_64-SDL3
             mingw-w64-ucrt-x86_64-gtest
             mingw-w64-ucrt-x86_64-ninja
             mingw-w64-ucrt-x86_64-cmake
