@@ -15,6 +15,11 @@ Renderer::Renderer(const uint32_t freq, const uint16_t buffer_size, const uint8_
     m_mixer = make_mixer<Mixer>(max_channels, freq, buffer_size);
 }
 
+Renderer::Renderer(const std::shared_ptr<IMixer>& mixer)
+{
+    m_mixer = mixer;
+}
+
 void Renderer::openOutputFile(const std::filesystem::path& path)
 {
     m_out = std::make_unique<files::WAVFile>(path.string(), audio::mixer::eChannelGroup::Unknown, false);

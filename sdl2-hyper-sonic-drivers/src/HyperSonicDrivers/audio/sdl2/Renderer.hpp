@@ -11,6 +11,7 @@ class Renderer : public IRenderer
 {
 public:
     Renderer(const uint32_t freq, const uint16_t buffer_size, const uint8_t max_channels = 1);
+    Renderer(const std::shared_ptr<IMixer>& mixer);
     ~Renderer() override = default;
 
     void openOutputFile(const std::filesystem::path& path) override;
