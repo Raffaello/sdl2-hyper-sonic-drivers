@@ -1,9 +1,9 @@
+#include <HyperSonicDrivers/utils/sdl3/Logger.hpp>
 #include <format>
-#include <HyperSonicDrivers/utils/sdl2/Logger.hpp>
-#include <SDL2/SDL_log.h>
-#include <SDL2/SDL_error.h>
+#include <SDL3/SDL_log.h>
+#include <SDL3/SDL_error.h>
 
-namespace HyperSonicDrivers::utils::sdl2
+namespace HyperSonicDrivers::utils::sdl3
 {
 constexpr SDL_LogCategory cat2sdl(const Logger::eCategory cat)
 {
@@ -47,7 +47,7 @@ constexpr SDL_LogPriority level2sdl(const Logger::eLevel level)
     case Critical:
         return SDL_LOG_PRIORITY_CRITICAL;
     case Off:
-        return SDL_LOG_PRIORITY_CRITICAL;
+        return SDL_LOG_PRIORITY_COUNT;
     }
 }
 
@@ -126,7 +126,7 @@ static void*                 default_log_output_function_userdata = nullptr;
 
 Logger::Logger() : ILogger()
 {
-    SDL_LogGetOutputFunction(&default_log_output_function, &default_log_output_function_userdata);
+    SDL_GetLogOutputFunction(&default_log_output_function, &default_log_output_function_userdata);
     instance = this;
 }
 
@@ -137,12 +137,12 @@ Logger::~Logger()
 
 void Logger::setLevelAll(const eLevel level)
 {
-    SDL_LogSetAllPriority(level2sdl(level));
+    SDL_SetLogPriorities(level2sdl(level));
 }
 
 void Logger::setLevel(const eLevel level, const eCategory cat)
 {
-    SDL_LogSetPriority(cat2sdl(cat), level2sdl(level));
+    SDL_SetLogPriority(cat2sdl(cat), level2sdl(level));
 }
 
 void Logger::trace(const std::string& str, const eCategory cat)
@@ -179,12 +179,13 @@ void Logger::critical(const std::string& str, const eCategory cat)
 
 void Logger::enable()
 {
-    // SDL_LogSetOutputFunction(&log_output, nullptr);
-    SDL_LogSetOutputFunction(default_log_output_function, default_log_output_function_userdata);
+    SDL_SetLogOutputFunction(default_log_output_function, default_log_output_function_userdata);
 }
 
 void Logger::disable()
 {
-    SDL_LogSetOutputFunction(nullptr, nullptr);
+    SDL_SetLogOutputFunction(nullptr, nullptr);
 }
-}    // namespace HyperSonicDrivers::utils::sdl2
+
+
+}    // namespace HyperSonicDrivers::utils::sdl3

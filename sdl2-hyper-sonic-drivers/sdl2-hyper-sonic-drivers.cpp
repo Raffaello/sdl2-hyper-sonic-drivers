@@ -6,7 +6,6 @@
 #include <format>
 #include <filesystem>
 
-#include <SDL2/SDL.h>
 
 #include <HyperSonicDrivers/drivers/westwood/ADLDriver.hpp>
 #include <HyperSonicDrivers/files/miles/XMIFile.hpp>
@@ -25,10 +24,21 @@
 #include <HyperSonicDrivers/files/dmx/MUSFile.hpp>
 #include <HyperSonicDrivers/files/dmx/OP2File.hpp>
 
+#include <HyperSonicDrivers/devices/Adlib.hpp>
+
+#if HAS_SDL3
+#include <HyperSonicDrivers/audio/sdl3/Mixer.hpp>
+#include <HyperSonicDrivers/utils/sdl3/Logger.hpp>
+#include <HyperSonicDrivers/audio/sdl3/Renderer.hpp>
+#include <SDL3/SDL.h>
+
+#else
 #include <HyperSonicDrivers/audio/sdl2/Mixer.hpp>
 #include <HyperSonicDrivers/utils/sdl2/Logger.hpp>
-#include <HyperSonicDrivers/devices/Adlib.hpp>
 #include <HyperSonicDrivers/audio/sdl2/Renderer.hpp>
+#include <SDL2/SDL.h>
+
+#endif
 
 #ifdef HAS_MT32_EMU
 #include <HyperSonicDrivers/hardware/mt32/MT32.hpp>
@@ -47,10 +57,14 @@ void newMixerTest()
 {
     using namespace audio;
 
-    utils::sdl2::Logger::instance->setLevelAll(utils::ILogger::eLevel::Trace);
+    utils::ILogger::instance->setLevelAll(utils::ILogger::eLevel::Trace);
 
-    // auto mixer = sdl2::Mixer(8, 44100, 1024);
-    auto mixer = make_mixer<sdl2::Mixer>(8, 44100, 1024);
+// auto mixer = sdl2::Mixer(8, 44100, 1024);
+#if HAS_SDL3
+    auto mixer = audio::make_mixer<audio::sdl3::Mixer>(8, 44100, 1024);
+#else
+    auto mixer = audio::make_mixer<audio::sdl2::Mixer>(8, 44100, 1024);
+#endif
     if (!mixer->init())
         return;
 
@@ -60,7 +74,7 @@ void newMixerTest()
     utils::logI("OK");
 }
 
-void playNotes(hardware::PCSpeaker *pcSpeaker, const hardware::PCSpeaker::eWaveForm waveForm, const int freq, const int length)
+void playNotes(hardware::PCSpeaker* pcSpeaker, const hardware::PCSpeaker::eWaveForm waveForm, const int freq, const int length)
 {
     auto start = std::chrono::steady_clock::now();
     pcSpeaker->play(waveForm, freq, length);
@@ -73,7 +87,7 @@ void playNotes(hardware::PCSpeaker *pcSpeaker, const hardware::PCSpeaker::eWaveF
     {
         SDL_Delay(10);
     }
-    auto end = std::chrono::steady_clock::now();
+    auto                          end             = std::chrono::steady_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
     std::cout << "Elapsed Time (s) = " << elapsed_seconds.count() << " --- Expected (s) ~=" << length + length * 2 << "\n";
 }
@@ -328,7 +342,11 @@ void testMT32()
     const std::string cr = "mt32_roms/MT32_CONTROL.1987-10-07.v1.07.ROM";
     const std::string pr = "mt32_roms/MT32_PCM.ROM";
 
+#if HAS_SDL3
+    auto mixer = audio::make_mixer<audio::sdl3::Mixer>(8, 44100, 1024);
+#else
     auto mixer = audio::make_mixer<audio::sdl2::Mixer>(8, 44100, 1024);
+#endif
     if (!mixer->init())
         std::cerr << "can't init mixer" << std::endl;
     // auto midi_mt32 = devices::make_midi_device<devices::midi::MidiMT32>(mixer, cr, pr);
@@ -353,15 +371,19 @@ void testMT32()
  */
 void pcm_sound_append()
 {
+#if HAS_SDL3
+    auto mixer = audio::make_mixer<audio::sdl3::Mixer>(8, 44100, 1024);
+#else
     auto mixer = audio::make_mixer<audio::sdl2::Mixer>(8, 44100, 1024);
+#endif
     files::WAVFile w1("test/fixtures/test_renderer_adlib_mame2.wav");
 
     mixer->init();
-    auto s1 = w1.getSound();
+    auto s1  = w1.getSound();
     auto s1b = w1.getSound();
     // auto s2a = utils::makeMono(s1);
     // auto s2b = utils::makeStereo(s1);
-    auto s2 = utils::append(s1, s1);
+    auto               s2 = utils::append(s1, s1);
     drivers::PCMDriver drv(mixer);
 
     drv.play(s2);
@@ -389,12 +411,19 @@ void pcm_sound_append()
  * Notes:
  * - File name and iteration counts are hard-coded for this test harness.
  */
+
+
 void adldune2filestest()
 {
+#if HAS_SDL3
+    // #if HAS_SDL3
+    //     auto mixer = audio::make_mixer<audio::sdl3::Mixer>(8, 44100, 1024);
+    // #else
     auto mixer = audio::make_mixer<audio::sdl2::Mixer>(8, 44100, 1024);
+    // #endif
     mixer->init();
     // utils::ILogger::instance->setLevelAll(utils::ILogger::eLevel::Debug);
-    auto device = devices::make_device<devices::Adlib, devices::Opl>(mixer);
+    auto                         device = devices::make_device<devices::Adlib, devices::Opl>(mixer);
     drivers::westwood::ADLDriver drv(device, audio::mixer::eChannelGroup::Music);
 
     SDL_InitSubSystem(SDL_INIT_EVENTS);
@@ -447,6 +476,7 @@ QUIT:
     SDL_DestroyWindow(window);
     SDL_QuitSubSystem(SDL_INIT_VIDEO);
     SDL_QuitSubSystem(SDL_INIT_EVENTS);
+#endif
 }
 
 // void vocdune2filestest()
@@ -514,7 +544,7 @@ QUIT:
  *
  * @return int Process exit code (0 on normal completion).
  */
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
     // newMixerTest();
     // testMultiOpl();
@@ -559,18 +589,18 @@ int main(int argc, char *argv[])
     }
 
     SDL_AudioSpec spec = {};
-    spec.callback = NULL;
-    spec.channels = 1;
-    spec.format = AUDIO_U8;
-    spec.freq = 22050;
-    spec.samples = 512;
-    spec.silence = 0;
+    spec.callback      = NULL;
+    spec.channels      = 1;
+    spec.format        = AUDIO_U8;
+    spec.freq          = 22050;
+    spec.samples       = 512;
+    spec.silence       = 0;
 
     SDL_OpenAudio(&spec, &spec);
 
-    cout << "channels " << (int)spec.channels << endl
+    cout << "channels " << (int) spec.channels << endl
          << "freq " << spec.freq << endl
-         << "format " << (int)spec.format << endl;
+         << "format " << (int) spec.format << endl;
 
     SDL_CloseAudio();
 

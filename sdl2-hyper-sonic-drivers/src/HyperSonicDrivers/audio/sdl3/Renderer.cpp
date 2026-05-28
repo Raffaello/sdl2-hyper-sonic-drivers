@@ -1,10 +1,10 @@
-#include <HyperSonicDrivers/audio/sdl2/Renderer.hpp>
-#include <HyperSonicDrivers/audio/sdl2/Mixer.hpp>
+#include <HyperSonicDrivers/audio/sdl3/Renderer.hpp>
+#include <HyperSonicDrivers/audio/sdl3/Mixer.hpp>
 #include <HyperSonicDrivers/utils/ILogger.hpp>
 #include <algorithm>
 #include <ranges>
 
-namespace HyperSonicDrivers::audio::sdl2
+namespace HyperSonicDrivers::audio::sdl3
 {
 // MaxRendererFlushIterations defines the maximum number of iterations
 // to attempt flushing the renderer buffer to prevent infinite loops.
@@ -13,14 +13,6 @@ constexpr int MaxRendererFlushIterations = 1000;
 Renderer::Renderer(const uint32_t freq, const uint16_t buffer_size, const uint8_t max_channels)
 {
     m_mixer = make_mixer<Mixer>(max_channels, freq, buffer_size);
-}
-
-Renderer::Renderer(const std::shared_ptr<IMixer>& mixer)
-{
-    if (mixer == nullptr)
-        throw std::invalid_argument("mixer can't be null");
-
-    m_mixer = mixer;
 }
 
 void Renderer::openOutputFile(const std::filesystem::path& path)
@@ -61,8 +53,8 @@ bool Renderer::renderFlush(IAudioStream* stream)
         if (read == 0)
             return true;
 
-        // check if it is all silence (only the just read prefix)
-        if (std::ranges::all_of(m_buf.begin(), m_buf.begin() + static_cast<ptrdiff_t>(read), [](const int16_t sample) { return sample == 0; }))
+        // check if it is all silence...
+        if (std::ranges::all_of(m_buf, [](const int16_t sample) { return sample == 0; }))
             return true;
 
         m_out->save_streaming(m_buf.data(), read);
@@ -79,4 +71,4 @@ bool Renderer::renderBufferFlush(IAudioStream* stream, drivers::IAudioDriver& dr
 
     return renderFlush(stream);
 }
-}    // namespace HyperSonicDrivers::audio::sdl2
+}    // namespace HyperSonicDrivers::audio::sdl3

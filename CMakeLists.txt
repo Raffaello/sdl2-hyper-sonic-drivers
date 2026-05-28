@@ -5,7 +5,7 @@ if(DEFINED ENV{VCPKG_ROOT} AND NOT DEFINED CMAKE_TOOLCHAIN_FILE)
 endif()
 
 
-project ("sdl2-hyper-sonic-drivers" VERSION 0.18.2 DESCRIPTION "SDL2 based Hyper-Sonic Drivers for emulating old soundcards")
+project ("sdl2-hyper-sonic-drivers" VERSION 0.18.3 DESCRIPTION "SDL2 based Hyper-Sonic Drivers for emulating old soundcards")
 include (TestBigEndian)
 TEST_BIG_ENDIAN(IS_BIG_ENDIAN)
 if(IS_BIG_ENDIAN)
@@ -43,13 +43,6 @@ message(STATUS "USE_MT32: ${USE_MT32}")
 message(STATUS "GENERATE_CODE_COVERAGE: ${GENERATE_CODE_COVERAGE}")
 
 ##############################################################################
-
-if (GENERATE_CODE_COVERAGE)
-  if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    add_compile_options(--coverage)
-    add_link_options(--coverage)
-  endif()
-endif()
 
 # Include sub-projects.
 add_subdirectory(libs)

@@ -7,127 +7,127 @@
 
 namespace HyperSonicDrivers::utils
 {
-    class ILogger
+class ILogger
+{
+public:
+    static ILogger* instance;
+
+    enum class eLevel
     {
-    public:
-        static ILogger* instance;
-
-        enum class eLevel
-        {
-            Trace,
-            Debug,
-            Info,
-            Warning,
-            Error,
-            Critical,
-            Off
-        };
-
-        enum class eCategory
-        {
-            Application,
-            System,
-            Error,
-            Video,
-            Audio,
-            Input,
-            Render
-        };
-
-        ILogger(ILogger&) = delete;
-        ILogger(ILogger&&) = delete;
-        ILogger& operator=(ILogger&) = delete;
-
-        ILogger() = default;
-        virtual ~ILogger() = default;
-
-        virtual void setLevelAll(const eLevel level) = 0;
-        virtual void setLevel(const eLevel level, const eCategory cat) = 0;
-
-        virtual void trace(const std::string& str, const eCategory cat) = 0;
-        virtual void debug(const std::string& str, const eCategory cat) = 0;
-        virtual void info(const std::string& str, const eCategory cat) = 0;
-        virtual void warning(const std::string& str, const eCategory cat) = 0;
-        virtual void error(const std::string& str, const eCategory cat) = 0;
-        virtual void critical(const std::string& str, const eCategory cat) = 0;
-
-        void log(const eLevel level, const std::string& str, const eCategory cat);
-
-        virtual void enable() = 0;
-        virtual void disable() = 0;
-
-    protected:
-        // TODO need to add a level for each category?
-        //eLevel m_level = eLevel::INFO;
+        Trace,
+        Debug,
+        Info,
+        Warning,
+        Error,
+        Critical,
+        Off
     };
 
-    inline void logT(const std::string& msg,
-        const ILogger::eCategory cat = ILogger::eCategory::Audio,
-        const std::source_location& loc =
-        std::source_location::current())
+    enum class eCategory
     {
-        ILogger::instance->trace(std::format("[{}] {}", loc.function_name(), msg), cat);
-    }
+        Application,
+        System,
+        Error,
+        Video,
+        Audio,
+        Input,
+        Render
+    };
 
-    inline void logD(const std::string& msg,
-        const ILogger::eCategory cat = ILogger::eCategory::Audio,
-        const std::source_location& loc =
-        std::source_location::current())
-    {
-        ILogger::instance->debug(std::format("[{}] {}", loc.function_name(), msg), cat);
-    }
+    ILogger(ILogger&)            = delete;
+    ILogger(ILogger&&)           = delete;
+    ILogger& operator=(ILogger&) = delete;
 
-    inline void logI(const std::string& msg,
-        const ILogger::eCategory cat = ILogger::eCategory::Audio,
-        const std::source_location& loc =
-        std::source_location::current())
-    {
-        ILogger::instance->info(std::format("[{}] {}", loc.function_name(), msg), cat);
-    }
+    ILogger()          = default;
+    virtual ~ILogger() = default;
 
-    inline void logW(const std::string& msg,
-        const ILogger::eCategory cat = ILogger::eCategory::Audio,
-        const std::source_location& loc =
-        std::source_location::current())
-    {
-        ILogger::instance->warning(std::format("[{}] {}", loc.function_name(), msg), cat);
-    }
+    virtual void setLevelAll(const eLevel level)                   = 0;
+    virtual void setLevel(const eLevel level, const eCategory cat) = 0;
 
-    inline void logE(const std::string& msg,
-        const ILogger::eCategory cat = ILogger::eCategory::Audio,
-        const std::source_location& loc =
-        std::source_location::current())
-    {
-        ILogger::instance->error(std::format("[{}] {}", loc.function_name(), msg), cat);
-    }
+    virtual void trace(const std::string& str, const eCategory cat)    = 0;
+    virtual void debug(const std::string& str, const eCategory cat)    = 0;
+    virtual void info(const std::string& str, const eCategory cat)     = 0;
+    virtual void warning(const std::string& str, const eCategory cat)  = 0;
+    virtual void error(const std::string& str, const eCategory cat)    = 0;
+    virtual void critical(const std::string& str, const eCategory cat) = 0;
 
-    inline void logC(const std::string& msg,
-        const ILogger::eCategory cat = ILogger::eCategory::Audio,
-        const std::source_location& loc =
-        std::source_location::current())
-    {
-        ILogger::instance->critical(std::format("[{}] {}", loc.function_name(), msg), cat);
-    }
+    void log(const eLevel level, const std::string& str, const eCategory cat);
 
-    template<class e>
-    constexpr void throwLogE(
-        const std::string& msg,
-        const ILogger::eCategory cat = ILogger::eCategory::Audio,
-        const std::source_location& loc =
-        std::source_location::current())
-    {
-        logE(msg, cat, loc);
-        throw e(msg);
-    }
+    virtual void enable()  = 0;
+    virtual void disable() = 0;
 
-    template<class e>
-    constexpr void throwLogC(
-        const std::string& msg,
-        const ILogger::eCategory cat = ILogger::eCategory::Audio,
-        const std::source_location& loc =
-        std::source_location::current())
-    {
-        logC(msg, cat, loc);
-        throw e(msg);
-    }
+protected:
+    // TODO need to add a level for each category?
+    // eLevel m_level = eLevel::INFO;
+};
+
+inline void logT(const std::string&          msg,
+                 const ILogger::eCategory    cat = ILogger::eCategory::Audio,
+                 const std::source_location& loc =
+                     std::source_location::current())
+{
+    ILogger::instance->trace(std::format("[{}] {}", loc.function_name(), msg), cat);
 }
+
+inline void logD(const std::string&          msg,
+                 const ILogger::eCategory    cat = ILogger::eCategory::Audio,
+                 const std::source_location& loc =
+                     std::source_location::current())
+{
+    ILogger::instance->debug(std::format("[{}] {}", loc.function_name(), msg), cat);
+}
+
+inline void logI(const std::string&          msg,
+                 const ILogger::eCategory    cat = ILogger::eCategory::Audio,
+                 const std::source_location& loc =
+                     std::source_location::current())
+{
+    ILogger::instance->info(std::format("[{}] {}", loc.function_name(), msg), cat);
+}
+
+inline void logW(const std::string&          msg,
+                 const ILogger::eCategory    cat = ILogger::eCategory::Audio,
+                 const std::source_location& loc =
+                     std::source_location::current())
+{
+    ILogger::instance->warning(std::format("[{}] {}", loc.function_name(), msg), cat);
+}
+
+inline void logE(const std::string&          msg,
+                 const ILogger::eCategory    cat = ILogger::eCategory::Audio,
+                 const std::source_location& loc =
+                     std::source_location::current())
+{
+    ILogger::instance->error(std::format("[{}] {}", loc.function_name(), msg), cat);
+}
+
+inline void logC(const std::string&          msg,
+                 const ILogger::eCategory    cat = ILogger::eCategory::Audio,
+                 const std::source_location& loc =
+                     std::source_location::current())
+{
+    ILogger::instance->critical(std::format("[{}] {}", loc.function_name(), msg), cat);
+}
+
+template <class e>
+constexpr void throwLogE(
+    const std::string&          msg,
+    const ILogger::eCategory    cat = ILogger::eCategory::Audio,
+    const std::source_location& loc =
+        std::source_location::current())
+{
+    logE(msg, cat, loc);
+    throw e(msg);
+}
+
+template <class e>
+constexpr void throwLogC(
+    const std::string&          msg,
+    const ILogger::eCategory    cat = ILogger::eCategory::Audio,
+    const std::source_location& loc =
+        std::source_location::current())
+{
+    logC(msg, cat, loc);
+    throw e(msg);
+}
+}    // namespace HyperSonicDrivers::utils

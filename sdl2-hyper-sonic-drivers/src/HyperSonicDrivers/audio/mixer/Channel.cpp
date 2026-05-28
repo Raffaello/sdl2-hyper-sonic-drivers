@@ -109,7 +109,7 @@ void Channel::updateVolumePan()
         return;
     }
 
-    constexpr float ch_max_vol = static_cast<float>(mixer::Channel_max_volume);
+    constexpr float ch_max_vol = static_cast<float>(mixer::CHANNEL_MAX_VOLUME);
     const uint16_t  vol        = m_volume * m_mixer.getChannelGroupVolume(m_group);
     const float     pan        = (127.5f + m_pan) / 255.0f;
     // TODO: create different selectable pan laws
@@ -119,7 +119,7 @@ void Channel::updateVolumePan()
 
     // adjust for master volume
     const auto m_vol = m_mixer.getMasterVolume();
-    m_volL           = ((m_volL * m_vol) / mixer::Mixer_max_volume);
-    m_volR           = ((m_volR * m_vol) / mixer::Mixer_max_volume);
+    m_volL           = ((m_volL * m_vol) / mixer::MIXER_MAX_VOLUME);
+    m_volR           = ((m_volR * m_vol) / mixer::MIXER_MAX_VOLUME);
 }
 }    // namespace HyperSonicDrivers::audio::mixer
