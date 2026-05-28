@@ -17,6 +17,9 @@ Renderer::Renderer(const uint32_t freq, const uint16_t buffer_size, const uint8_
 
 Renderer::Renderer(const std::shared_ptr<IMixer>& mixer)
 {
+    if (mixer == nullptr)
+        throw std::invalid_argument("mixer can't be null");
+
     m_mixer = mixer;
 }
 
