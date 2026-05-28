@@ -55,12 +55,6 @@ jobs:
           #echo "CMAKE_A=x64" >> $GITHUB_ENV
       - name: create build dir
         run: mkdir build
-      - uses: actions/cache@v4
-        id: dep-cache
-        with:
-          path: build/vcpkg_installed/
-          key: ${{ runner.os }}-dep-cache-${{ hashFiles('**/*') }}
-          restore-keys: ${{ runner.os }}-dep-cache
       - name: cmake generator
         run: |
           cmake -G Ninja -D${{ matrix.use_mt32 }} -D${{ matrix.use_sdl3 }} -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DCMAKE_INSTALL_PREFIX="${{ github.workspace }}/_install"  ..

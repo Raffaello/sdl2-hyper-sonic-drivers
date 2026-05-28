@@ -20,8 +20,9 @@ public:
           const uint32_t freq,
           const uint16_t buffer_size);
 
-    ~Mixer() override = default;
+    ~Mixer() override;
 
+    // void shutdown() override;
     void suspend() noexcept override;
     void resume() noexcept override;
 

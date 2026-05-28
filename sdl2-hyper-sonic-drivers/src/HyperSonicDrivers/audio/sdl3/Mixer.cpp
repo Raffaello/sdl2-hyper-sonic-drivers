@@ -21,6 +21,11 @@ Mixer::Mixer(const uint8_t  max_channels,
 {
 }
 
+Mixer::~Mixer()
+{
+    shutdown();
+}
+
 void Mixer::suspend() noexcept
 {
     if (!SDL_PauseAudioDevice(m_device_id))
@@ -46,9 +51,19 @@ bool Mixer::onInit_()
 
 void Mixer::onShutdown_()
 {
-    SDL_CloseAudioDevice(m_device_id);
+    if (m_pStream != nullptr)
+    {
+        SDL_DestroyAudioStream(m_pStream);
+        m_pStream = nullptr;
+    }
+
+    if (m_device_id != 0)
+    {
+        SDL_CloseAudioDevice(m_device_id);
+        m_device_id = 0;
+    }
+
     SDL_QuitSubSystem(SDL_INIT_AUDIO);
-    m_device_id = 0;
 }
 
 bool Mixer::init_(SDL_AudioStreamCallback callback, void* userdata)
@@ -103,7 +118,7 @@ void Mixer::callback_(SDL_AudioStream* stream, int additional_amount, int total_
     const std::scoped_lock lck(m_mutex);
 
     // we store stereo, 16-bit samples (div 2 for stereo and 2 from 8 to 16 bits)
-    const int num_samples = total_amount / sizeof(int16_t);
+    const int num_samples = additional_amount / sizeof(int16_t);
     // assert(num_samples % 2 == 0);
     int16_t* buf = SDL_stack_alloc(int16_t, num_samples);
     // zero the buf (size of 2ch stereo: len*2 of 16 bits)

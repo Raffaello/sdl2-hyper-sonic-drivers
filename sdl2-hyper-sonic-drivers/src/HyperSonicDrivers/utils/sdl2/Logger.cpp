@@ -47,8 +47,7 @@ constexpr SDL_LogPriority level2sdl(const Logger::eLevel level)
     case Critical:
         return SDL_LOG_PRIORITY_CRITICAL;
     case Off:
-        // not supported
-        throw std::runtime_error("not supported");
+        return SDL_LOG_PRIORITY_CRITICAL;
     }
 }
 

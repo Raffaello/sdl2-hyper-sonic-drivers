@@ -47,7 +47,9 @@ target_compile_options(${LIB_NAME}
 if(GENERATE_CODE_COVERAGE)
     target_compile_options(${LIB_NAME}
         PUBLIC
-                $<$<CONFIG:DEBUG>: --coverage>
+         $<$<CXX_COMPILER_ID:GNU>:
+            $<$<CONFIG:DEBUG>: --coverage>
+        >
     )
 
     target_link_options(${LIB_NAME} PUBLIC

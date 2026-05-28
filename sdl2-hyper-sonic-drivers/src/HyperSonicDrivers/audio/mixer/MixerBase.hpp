@@ -19,7 +19,7 @@ public:
     MixerBase(const uint8_t  max_channels,
               const uint32_t freq,
               const uint16_t buffer_size);
-    ~MixerBase() override;
+    ~MixerBase() override = default;
 
     bool init() override final;
     void shutdown() override final;
@@ -29,9 +29,6 @@ public:
         const std::shared_ptr<IAudioStream>& stream,
         const uint8_t                        vol,
         const int8_t                         pan) override;
-
-    // void suspend() noexcept override;
-    // void resume() noexcept override;
 
     void reset() noexcept override;
     void reset(const uint8_t id) noexcept override;

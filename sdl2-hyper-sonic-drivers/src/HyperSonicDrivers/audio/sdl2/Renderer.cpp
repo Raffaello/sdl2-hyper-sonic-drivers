@@ -58,8 +58,8 @@ bool Renderer::renderFlush(IAudioStream* stream)
         if (read == 0)
             return true;
 
-        // check if it is all silence...
-        if (std::ranges::all_of(m_buf, [](const int16_t sample) { return sample == 0; }))
+        // check if it is all silence (only the just read prefix)
+        if (std::ranges::all_of(m_buf.begin(), m_buf.begin() + static_cast<ptrdiff_t>(read), [](const int16_t sample) { return sample == 0; }))
             return true;
 
         m_out->save_streaming(m_buf.data(), read);

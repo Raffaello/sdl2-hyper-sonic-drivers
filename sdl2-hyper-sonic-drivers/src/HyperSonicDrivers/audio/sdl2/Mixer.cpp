@@ -21,6 +21,11 @@ Mixer::Mixer(const uint8_t  max_channels,
 {
 }
 
+Mixer::~Mixer()
+{
+    shutdown();
+}
+
 void Mixer::suspend() noexcept
 {
     SDL_PauseAudioDevice(m_device_id, 1);
@@ -38,9 +43,13 @@ bool Mixer::onInit_()
 
 void Mixer::onShutdown_()
 {
-    SDL_CloseAudioDevice(m_device_id);
+    if (m_device_id != 0)
+    {
+        SDL_CloseAudioDevice(m_device_id);
+        m_device_id = 0;
+    }
+
     SDL_QuitSubSystem(SDL_INIT_AUDIO);
-    m_device_id = 0;
 }
 
 bool Mixer::init_(SDL_AudioCallback callback, void* userdata)

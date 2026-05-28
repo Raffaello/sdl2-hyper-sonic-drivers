@@ -412,9 +412,10 @@ void pcm_sound_append()
  * - File name and iteration counts are hard-coded for this test harness.
  */
 
-#if !HAS_SDL3
+
 void adldune2filestest()
 {
+#if HAS_SDL3
     // #if HAS_SDL3
     //     auto mixer = audio::make_mixer<audio::sdl3::Mixer>(8, 44100, 1024);
     // #else
@@ -475,8 +476,8 @@ QUIT:
     SDL_DestroyWindow(window);
     SDL_QuitSubSystem(SDL_INIT_VIDEO);
     SDL_QuitSubSystem(SDL_INIT_EVENTS);
-}
 #endif
+}
 
 // void vocdune2filestest()
 //{

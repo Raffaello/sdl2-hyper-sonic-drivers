@@ -1,6 +1,8 @@
 #include <HyperSonicDrivers/audio/mixer/MixerBase.hpp>
 #include <HyperSonicDrivers/utils/ILogger.hpp>
 
+#include <cassert>
+
 namespace HyperSonicDrivers::audio::mixer
 {
 
@@ -18,21 +20,6 @@ MixerBase::MixerBase(const uint8_t  max_channels,
     }
 }
 
-MixerBase::~MixerBase()
-{
-    shutdown();
-}
-
-void MixerBase::shutdown()
-{
-    if (isReady())
-    {
-        m_ready = false;
-        suspend();
-        onShutdown_();
-    }
-}
-
 bool MixerBase::init()
 {
     m_ready = false;
@@ -43,6 +30,16 @@ bool MixerBase::init()
     }
 
     return isReady();
+}
+
+void MixerBase::shutdown()
+{
+    if (isReady())
+    {
+        m_ready = false;
+        suspend();
+        onShutdown_();
+    }
 }
 
 std::optional<uint8_t> MixerBase::play(
@@ -81,7 +78,7 @@ void MixerBase::reset() noexcept
 void MixerBase::reset(const uint8_t id) noexcept
 {
     std::scoped_lock lck(m_mutex);
-
+    assert(id < m_channels.size());
     m_channels[id]->reset();
 }
 
@@ -156,6 +153,7 @@ bool MixerBase::isActive(const mixer::eChannelGroup group) const noexcept
 
 bool MixerBase::isChannelGroupMuted(const mixer::eChannelGroup group) const noexcept
 {
+    assert(group2i(group) < m_group_settings.size());
     return m_group_settings[group2i(group)].mute;
 }
 

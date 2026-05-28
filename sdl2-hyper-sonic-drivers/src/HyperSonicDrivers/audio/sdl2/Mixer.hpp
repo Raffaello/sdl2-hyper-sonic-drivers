@@ -18,7 +18,7 @@ public:
     Mixer(const uint8_t  max_channels,
           const uint32_t freq,
           const uint16_t buffer_size);
-    ~Mixer() override = default;
+    ~Mixer() override;
 
     void suspend() noexcept override;
     void resume() noexcept override;
