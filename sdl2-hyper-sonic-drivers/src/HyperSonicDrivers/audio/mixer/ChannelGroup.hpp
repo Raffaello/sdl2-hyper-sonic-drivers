@@ -24,7 +24,7 @@ constexpr size_t group2i(const mixer::eChannelGroup group)
 
 typedef struct channelGroupSettings_t
 {
-    uint8_t volume        = Channel_max_volume;
+    uint8_t volume        = CHANNEL_MAX_VOLUME;
     int8_t  pan           = 0;        // TODO: not implemented yet
     bool    mute          = false;
     bool    reverseStereo = false;    // TODO: not implemented yet

@@ -95,7 +95,7 @@ protected:
                                                                                              //       otherwise can just be removed.
     bool m_reverseStereo = false;
 
-    uint8_t m_master_volume = mixer::Mixer_max_volume;
+    uint8_t m_master_volume = mixer::MIXER_MAX_VOLUME;
 };
 
 template <class T, typename... Args>

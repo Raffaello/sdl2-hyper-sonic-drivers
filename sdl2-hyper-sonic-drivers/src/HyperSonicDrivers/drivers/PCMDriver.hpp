@@ -27,7 +27,7 @@ public:
     bool                   isPlaying(const std::shared_ptr<audio::PCMSound>& sound) const noexcept;
     std::optional<uint8_t> play(
         const std::shared_ptr<audio::PCMSound>& sound,
-        const uint8_t                           volume = audio::mixer::Channel_max_volume,
+        const uint8_t                           volume = audio::mixer::CHANNEL_MAX_VOLUME,
         const int8_t                            pan    = 0);
     void stop(const uint8_t channel_id, const bool releaseEndedStreams = true) noexcept;
     void stop(const std::shared_ptr<audio::PCMSound>& sound, const bool releaseEndedStreams = true);

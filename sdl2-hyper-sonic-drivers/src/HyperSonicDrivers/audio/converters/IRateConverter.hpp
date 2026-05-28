@@ -38,7 +38,7 @@ constexpr void clampAdd(int16_t& a, int b)
 
 constexpr void output_channel(int16_t& out_buf, const int16_t out, const uint16_t vol)
 {
-    clampAdd(out_buf, (out * static_cast<int>(vol)) / mixer::Mixer_max_volume);
+    clampAdd(out_buf, (out * static_cast<int>(vol)) / mixer::MIXER_MAX_VOLUME);
 }
 
 class IRateConverter
