@@ -53,6 +53,8 @@ macro(macro_example) # ${ARGN} link libraries
         endforeach()
     endif()
 
+    copy_runtime_deps(${EXAMPLE_EXE})
+
     install(FILES
         $<TARGET_FILE:${EXAMPLE_EXE}>
         DESTINATION "static/examples/" # TODO: works only if linked with static

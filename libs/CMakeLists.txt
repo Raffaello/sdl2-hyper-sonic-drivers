@@ -17,3 +17,26 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(spdlog)
 target_link_libraries(spdlog PUBLIC fmt::fmt)
+
+
+# RtAudio
+FetchContent_Declare(
+  rtaudio
+  GIT_REPOSITORY https://github.com/thestk/rtaudio.git
+  GIT_TAG        6.0.1)
+
+FetchContent_MakeAvailable(rtaudio)
+
+function(copy_runtime_deps target)
+    if (WIN32)
+        add_custom_command(
+            TARGET ${target}
+            POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                $<TARGET_RUNTIME_DLLS:${target}>
+                $<TARGET_FILE_DIR:${target}>
+            COMMAND_EXPAND_LISTS
+        )
+    endif()
+endfunction()
+
