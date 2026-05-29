@@ -18,13 +18,13 @@
 #include <map>
 #include <string>
 
-// #if HAS_SDL3
+#if HAS_SDL3
 // #include <HyperSonicDrivers/audio/sdl3/Mixer.hpp>
-// #include <SDL3/SDL_main.h>
-// #else
+#include <SDL3/SDL_main.h>
+#else
 // #include <HyperSonicDrivers/audio/sdl2/Mixer.hpp>
-// #include <SDL2/SDL_main.h>
-// #endif
+#include <SDL2/SDL_main.h>
+#endif
 
 #if defined(FMT_VERSION) && FMT_VERSION > 90000
 #define FMT_RUNTIME(x) fmt::runtime(x)

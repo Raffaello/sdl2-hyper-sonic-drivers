@@ -96,21 +96,21 @@ macro_example(
 )
 
 if(NOT USE_SDL3)
-macro_example(
-    EXE ADLPlay
-    FILE "adl-play.cpp"
-    DEPS hyper-sonic-drivers-static
-    LINKS
-        PRIVATE
-            $<TARGET_NAME_IF_EXISTS:${LIB_SDL}main>
-            hyper-sonic-drivers-static
-            spdlog::spdlog 
-    FIXTURES 
-      "../test/fixtures/DUNE0.ADL"
-      #"../test/fixtures/EOBSOUND.ADL"
-      #"../test/fixtures/LOREINTR.ADL"
-    NONE
-)
+    macro_example(
+        EXE ADLPlay
+        FILE "adl-play.cpp"
+        DEPS hyper-sonic-drivers-static
+        LINKS
+            PRIVATE
+                $<TARGET_NAME_IF_EXISTS:${LIB_SDL}main>
+                hyper-sonic-drivers-static
+                spdlog::spdlog 
+        FIXTURES 
+        "../test/fixtures/DUNE0.ADL"
+        #"../test/fixtures/EOBSOUND.ADL"
+        #"../test/fixtures/LOREINTR.ADL"
+        NONE
+    )
 endif()
 
 macro_example(
