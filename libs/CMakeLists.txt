@@ -20,6 +20,7 @@ target_link_libraries(spdlog PUBLIC fmt::fmt)
 
 
 # RtAudio
+set(RTAUDIO_BUILD_TESTING OFF CACHE BOOL "" FORCE) # Disable RtAudio tests
 FetchContent_Declare(
   rtaudio
   GIT_REPOSITORY https://github.com/thestk/rtaudio.git

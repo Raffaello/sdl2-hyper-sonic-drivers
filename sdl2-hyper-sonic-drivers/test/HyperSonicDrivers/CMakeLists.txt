@@ -47,6 +47,7 @@ macro(macro_test) # ${ARGN} link libraries
     endif()
 
     target_link_libraries(${TEST_EXE} PRIVATE ${TEST_LINKS_PRIVATE})
+    copy_runtime_deps(${TEST_EXE})
 
     #add_test(
     #    NAME ${TEST_EXE}
