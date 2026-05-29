@@ -88,7 +88,7 @@ private:
     const uint8_t                               m_volume;
     const uint8_t                               m_pan;
 
-    // std::jthread m_player;
+    std::jthread m_player;
 
     std::atomic<bool>     m_isPlaying        = false;
     std::atomic<bool>     m_force_stop       = false;
