@@ -128,6 +128,7 @@ Logger::Logger() : ILogger()
 {
     SDL_LogGetOutputFunction(&default_log_output_function, &default_log_output_function_userdata);
     instance = this;
+    setLevel(eLevel::Info);
 }
 
 Logger::~Logger()

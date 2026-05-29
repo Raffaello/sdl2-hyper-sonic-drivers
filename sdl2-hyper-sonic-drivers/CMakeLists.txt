@@ -262,7 +262,7 @@ unset(LIB_VER)
 if(NOT USE_SDL3)
     add_executable(sdl2-hyper-sonic-drivers "sdl2-hyper-sonic-drivers.cpp")
     target_link_libraries(sdl2-hyper-sonic-drivers PRIVATE
-         $<TARGET_NAME_IF_EXISTS:${LIB_SDL}main> hyper-sonic-drivers-static)
+        $<TARGET_NAME_IF_EXISTS:${LIB_SDL}main> hyper-sonic-drivers-static)
 endif()
 
 if(BUILD_TESTING)
