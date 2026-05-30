@@ -23,11 +23,12 @@ target_link_libraries(spdlog PUBLIC fmt::fmt)
 set(RTAUDIO_BUILD_TESTING OFF CACHE BOOL "" FORCE) # Disable RtAudio tests
 set(OLD_CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
 set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_BINARY_DIR} CACHE STRING "" FORCE)
+# set(RTAUDIO_CMAKE_DESTINATION ${CMAKE_CURRENT_BINARY_DIR} CACHE STRING "" FORCE)
 # set(RTAUDIO_BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE) # build static library
 FetchContent_Declare(
   rtaudio
   GIT_REPOSITORY https://github.com/thestk/rtaudio.git
-  GIT_TAG        6.0.1
+  GIT_TAG        e5f0774b2156082ec3db998bd6b2a94b66ade8ac #6.0.2
 )
 
 FetchContent_MakeAvailable(rtaudio)
