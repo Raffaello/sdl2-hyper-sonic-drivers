@@ -15,6 +15,8 @@ else()
   message(STATUS "LITTLE_ENDIAN")
 endif()
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
 ################################ Packages ####################################
 set (CPACK_SYSTEM_NAME ${CMAKE_SYSTEM_NAME})
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
