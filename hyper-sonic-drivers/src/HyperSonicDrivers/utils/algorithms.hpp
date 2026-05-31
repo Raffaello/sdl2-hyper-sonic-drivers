@@ -92,11 +92,8 @@ inline void delayMicro(const unsigned int delaytime)
 #else
     {
         constexpr uint64_t MICROSECONDS = 1'000'000;
-
-        using clock  = std::chrono::steady_clock;
-        using period = clock::period;
-
-        assert(period::den >= MICROSECONDS);
+        using clock                     = std::chrono::steady_clock;
+        assert(clock::period::den >= MICROSECONDS);
 
         const auto start      = clock::now();
         const auto wait_until = start + std::chrono::microseconds(delaytime);
