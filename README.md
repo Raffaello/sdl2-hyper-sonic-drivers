@@ -1,12 +1,12 @@
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/94519cf7a54248bf96e3de83cc3cc897)](https://www.codacy.com/gh/Raffaello/sdl2-hyper-sonic-drivers/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Raffaello/sdl2-hyper-sonic-drivers&amp;utm_campaign=Badge_Grade)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/94519cf7a54248bf96e3de83cc3cc897)](https://www.codacy.com/gh/Raffaello/hyper-sonic-drivers/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Raffaello/hyper-sonic-drivers&amp;utm_campaign=Badge_Grade)
 
-![windows](https://github.com/raffaello/sdl2-hyper-sonic-drivers/actions/workflows/ci-windows.yml/badge.svg?branch=master)
-![linux](https://github.com/raffaello/sdl2-hyper-sonic-drivers/actions/workflows/ci-linux.yml/badge.svg?branch=master)
-![macOS](https://github.com/raffaello/sdl2-hyper-sonic-drivers/actions/workflows/ci-mac.yml/badge.svg?branch=master)
+![windows](https://github.com/raffaello/hyper-sonic-drivers/actions/workflows/ci-windows.yml/badge.svg?branch=master)
+![linux](https://github.com/raffaello/hyper-sonic-drivers/actions/workflows/ci-linux.yml/badge.svg?branch=master)
+![macOS](https://github.com/raffaello/hyper-sonic-drivers/actions/workflows/ci-mac.yml/badge.svg?branch=master)
 
 # Hyper-Sonic Drivers
 
-`sdl2-hyper-sonic-drivers` is a `sdl2` based emulating audio of '90s hardware PCs (adlib, OPL3, ...)
+`hyper-sonic-drivers` is `RtAudio` based, supporting `sdl2` or `sdl3` as alternatives, emulating audio of '90s hardware PCs (adlib, OPL3, ...)
 
 **NOTE:** It can compile also with SDL3 using the cmake option `USE_SDL3`
           (basic integration at the moment)

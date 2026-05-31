@@ -26,6 +26,7 @@ jobs:
       matrix:
         build_type: [Debug, Release]
         use_mt32: [USE_MT32=ON]
+        use_sdl: ["", USE_SDL3=ON, USE_SDL2=ON]
     name: Build Linux
     runs-on: ubuntu-24.04
     steps:
@@ -51,7 +52,7 @@ jobs:
         run: mkdir build
       - name: cmake generator
         run: |
-          cmake -D${{ matrix.use_mt32 }} -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ..
+          cmake -D${{ matrix.use_mt32 }} -D${{ matrix.use_sdl }} -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ..
         working-directory: build
       - name: cmake build
         run: |

@@ -48,13 +48,13 @@ jobs:
             git
             mingw-w64-ucrt-x86_64-gcc
             mingw-w64-ucrt-x86_64-munt-mt32emu
-            mingw-w64-ucrt-x86_64-SDL2
             mingw-w64-ucrt-x86_64-gtest
             mingw-w64-ucrt-x86_64-ninja
             mingw-w64-ucrt-x86_64-cmake
             msys/unzip
             mingw-w64-ucrt-x86_64-python-lxml
             mingw-w64-ucrt-x86_64-python-pip
+            # mingw-w64-ucrt-x86_64-SDL2
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:

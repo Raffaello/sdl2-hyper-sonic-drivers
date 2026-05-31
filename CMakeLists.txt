@@ -57,4 +57,4 @@ message(STATUS "GENERATE_CODE_COVERAGE: ${GENERATE_CODE_COVERAGE}")
 
 # Include sub-projects.
 add_subdirectory(libs)
-add_subdirectory ("sdl2-hyper-sonic-drivers")
+add_subdirectory ("hyper-sonic-drivers")
