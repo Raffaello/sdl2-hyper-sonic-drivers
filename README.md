@@ -13,7 +13,7 @@
 
 **NOTE:** The project now supports also `RtAudio`. The `adl-example` currently uses RtAudio Mixer. SDL2 or 3 are mandatory and required  to build and run.
 
-**NOTE:** On `MSYS2`. `SDL3` is currently preferred because `std::chrono` microseconds timining is not precise at all. MIDI playback is still microseconds timer-based (microseconds polling) instead of interrupt/callback driven.
+**NOTE:** On `MSYS2`. `SDL3` is currently preferred because `std::chrono` microseconds timing is not precise at all. MIDI playback is still microseconds timer-based (microseconds polling) instead of interrupt/callback driven.
 
 reading some old files too as utility and give the capability to render them in digital format
 or play them in real time
