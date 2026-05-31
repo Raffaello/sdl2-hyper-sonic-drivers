@@ -19,10 +19,8 @@
 #include <string>
 
 #if HAS_SDL3
-// #include <HyperSonicDrivers/audio/sdl3/Mixer.hpp>
 #include <SDL3/SDL_main.h>
-#else
-// #include <HyperSonicDrivers/audio/sdl2/Mixer.hpp>
+#elif HAS_SDL2
 #include <SDL2/SDL_main.h>
 #endif
 

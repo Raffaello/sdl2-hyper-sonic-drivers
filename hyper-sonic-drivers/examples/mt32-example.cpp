@@ -14,16 +14,21 @@
 #if HAS_SDL3
 #include <HyperSonicDrivers/audio/sdl3/Mixer.hpp>
 #include <SDL3/SDL_main.h>
-#else
+#define MIXER audio::sdl3::Mixer
+#elif HAS_SDL2
 #include <HyperSonicDrivers/audio/sdl2/Mixer.hpp>
 #include <SDL2/SDL_main.h>
+#define MIXER audio::sdl2::Mixer
+#else
+#include <HyperSonicDrivers/audio/rtaudio/Mixer.hpp>
+#define MIXER audio::rtaudio::Mixer
 #endif
 
-#if defined(FMT_VERSION) && FMT_VERSION > 90000
-#define FMT_RUNTIME(x) fmt::runtime(x)
-#else
-#define FMT_RUNTIME(x) x
-#endif
+// #if defined(FMT_VERSION) && FMT_VERSION > 90000
+// #define FMT_RUNTIME(x) fmt::runtime(x)
+// #else
+// #define FMT_RUNTIME(x) x
+// #endif
 
 using namespace HyperSonicDrivers;
 
@@ -36,11 +41,7 @@ int main(int argc, char* argv[])
     spdlog::warn("the ROM filenames assumed to be fund in the current working directory are:");
     spdlog::warn("MT32_CONTROL.ROM  --- MT32_PCM.ROM");
 
-#if HAS_SDL3
-    auto mixer = audio::make_mixer<audio::sdl3::Mixer>(8, 44100, 1024);
-#else
-    auto mixer = audio::make_mixer<audio::sdl2::Mixer>(8, 44100, 1024);
-#endif
+    auto mixer = audio::make_mixer<MIXER>(8, 44100, 1024);
     if (!mixer->init())
     {
         spdlog::error("can't init mixer");

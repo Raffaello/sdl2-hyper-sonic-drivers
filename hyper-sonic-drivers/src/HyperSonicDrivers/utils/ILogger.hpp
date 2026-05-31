@@ -14,12 +14,12 @@ public:
 
     enum class eLevel
     {
-        Trace,
-        Debug,
-        Info,
-        Warning,
-        Error,
         Critical,
+        Error,
+        Warning,
+        Info,
+        Debug,
+        Trace,
         Off
     };
 

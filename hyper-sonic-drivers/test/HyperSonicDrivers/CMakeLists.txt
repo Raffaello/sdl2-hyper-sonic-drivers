@@ -18,8 +18,8 @@ macro(macro_test) # ${ARGN} link libraries
     #message("LINKS_PRIVATE: ${TEST_LINKS_PRIVATE}")
     add_executable (${TEST_EXE} ${TEST_FILES})
     target_include_directories(${TEST_EXE} PUBLIC
-        ${CMAKE_SOURCE_DIR}/sdl2-hyper-sonic-drivers/src
-        ${CMAKE_SOURCE_DIR}/sdl2-hyper-sonic-drivers/test
+        ${CMAKE_SOURCE_DIR}/hyper-sonic-drivers/src
+        ${CMAKE_SOURCE_DIR}/hyper-sonic-drivers/test
     )
     #target_link_libraries(${TEST_EXE} PRIVATE ${TEST_LINKS})
     target_link_libraries(${TEST_EXE} PRIVATE GTest::gtest GTest::gmock)
@@ -284,7 +284,7 @@ if(USE_SDL3)
             "../fixtures/test_renderer_sbpro2_dosbox.wav"
             "../fixtures/DUNE0.ADL"
     )
-else()
+elseif(USE_SDL2)
     macro_test(
         EXE TestRenderer
         FILES "audio/sdl2/TestRenderer.cpp"

@@ -32,7 +32,7 @@
 #include <HyperSonicDrivers/audio/sdl3/Renderer.hpp>
 #include <SDL3/SDL.h>
 
-#else
+#else if HAS_SDL2
 #include <HyperSonicDrivers/audio/sdl2/Mixer.hpp>
 #include <HyperSonicDrivers/utils/sdl2/Logger.hpp>
 #include <HyperSonicDrivers/audio/sdl2/Renderer.hpp>
