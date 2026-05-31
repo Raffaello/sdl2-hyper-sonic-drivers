@@ -97,9 +97,7 @@ int Mixer::rtAudioCallback_(void*               outputBuffer,
     int16_t* buf   = static_cast<int16_t*>(outputBuffer);
 
     mixer->callback_(buf, nFrames);
-
     return 0;
 }
-
 
 }    // namespace HyperSonicDrivers::audio::rtaudio
