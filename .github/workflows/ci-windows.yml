@@ -71,7 +71,7 @@ jobs:
         id: dep-cache
         with:
           path: C:/vcpkg/packages
-          key: ${{ runner.os }}-${{ matrix.os }}-${{ matrix.triplet }}-dep-cache-${{ hashFiles('**/*') }}
+          key: ${{ runner.os }}-${{ matrix.os }}-${{ matrix.triplet }}-dep-cache--dep-cache-${{ hashFiles('**/vcpkg.json', '**/vcpkg-configuration.json', '**/CMakeLists.txt') }}
           restore-keys: ${{ runner.os }}-${{ matrix.os }}-${{ matrix.triplet }}-dep-cache
       - name: cmake generator
         run: |

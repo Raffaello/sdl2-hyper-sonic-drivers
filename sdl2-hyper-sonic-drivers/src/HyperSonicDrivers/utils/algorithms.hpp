@@ -86,10 +86,7 @@ inline void delayMicro(const unsigned int delaytime)
         // then busy-wait only the last 2 ms for precision.
         constexpr unsigned int BUSYWAIT_MARGIN_US = 2'000u;
         if (delaytime > BUSYWAIT_MARGIN_US)
-        {
-            // SDL_Delay((delaytime - BUSYWAIT_MARGIN_US) / MICROSECONDS);
             delayMillis((delaytime - BUSYWAIT_MARGIN_US) / MICROSECONDS);
-        }
 
         while (SDL_GetPerformanceCounter() < wait_until)
         {
