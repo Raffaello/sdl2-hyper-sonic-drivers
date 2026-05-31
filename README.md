@@ -11,9 +11,9 @@
 **NOTE:** It can compile also with SDL3 using the cmake option `USE_SDL3`
           (basic integration at the moment)
 
-**NOTE:** Now it supports also `RtAudio`, `adl-example` is using RtAudio Mixer, besides SDL2 or SDL3 are required to compile
+**NOTE:** The project now supports also `RtAudio`. The `adl-example` currently uses RtAudio Mixer. SDL2 or 3 are mandatory and required  to build and run.
 
-**NOTE:** in `MSYS2` might be prefered to use `SDL3` due to `std::chrono` not precise at the microseconds. (at the moment playing midi is still based on microseconds timers rather then interrupt/callback)
+**NOTE:** On `MSYS2`. `SDL3` is currently preferred because `std::chrono` microseconds timining is not precise at all. MIDI playback is still microseconds timer-based (microseconds polling) instead of interrupt/callback driven.
 
 reading some old files too as utility and give the capability to render them in digital format
 or play them in real time

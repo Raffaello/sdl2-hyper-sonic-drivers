@@ -7,6 +7,7 @@ namespace HyperSonicDrivers::audio::rtaudio
 {
 
 using utils::logE;
+using utils::logW;
 
 Mixer::Mixer(const uint8_t  max_channels,
              const uint32_t freq,
@@ -88,7 +89,9 @@ int Mixer::rtAudioCallback_(void*               outputBuffer,
                             void*               userData)
 {
     assert(userData != nullptr);
-    assert(status == 0);
+
+    if (status != 0)
+        logW(std::format("RtAudio callback status: {}", status));
 
     Mixer*   mixer = static_cast<Mixer*>(userData);
     int16_t* buf   = static_cast<int16_t*>(outputBuffer);

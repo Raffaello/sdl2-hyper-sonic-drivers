@@ -9,6 +9,7 @@
 #include <string>
 #include <stdexcept>
 #include <limits>
+#include <cassert>
 
 #if HAS_SDL3
 #include <SDL3/SDL_timer.h>
@@ -64,6 +65,8 @@ inline void delayMillis(const unsigned int delaytime)
 
 inline void delayMicro(const unsigned int delaytime)
 {
+    // TODO: create a Timer cross-os class/method instead
+
     // std::this_thread::sleep_for(std::chrono::microseconds(delaytime));
 #if HAS_SDL3
     {
@@ -71,9 +74,22 @@ inline void delayMicro(const unsigned int delaytime)
     }
 #else
     {
-        const static uint64_t perf_freq     = SDL_GetPerformanceFrequency() / 1'000'000;    // microseconds
+        constexpr uint64_t MICROSECONDS = 1'000'000;
+
+        assert(SDL_GetPerformanceCounter() >= MICROSECONDS);
+
+        const static uint64_t perf_freq     = SDL_GetPerformanceFrequency() / MICROSECONDS;    // microseconds
         const uint64_t        current_ticks = SDL_GetPerformanceCounter();
-        const uint64_t        wait_until    = current_ticks + delaytime * perf_freq;
+        const uint64_t        wait_until    = current_ticks + static_cast<uint64_t>(delaytime) * perf_freq;
+
+        // Yield the CPU for the bulk of the wait (e.g. 250 ms MIDI chunks)
+        // then busy-wait only the last 2 ms for precision.
+        constexpr unsigned int BUSYWAIT_MARGIN_US = 2'000u;
+        if (delaytime > BUSYWAIT_MARGIN_US)
+        {
+            // SDL_Delay((delaytime - BUSYWAIT_MARGIN_US) / MICROSECONDS);
+            delayMillis((delaytime - BUSYWAIT_MARGIN_US) / MICROSECONDS);
+        }
 
         while (SDL_GetPerformanceCounter() < wait_until)
         {

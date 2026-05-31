@@ -32,6 +32,10 @@ FetchContent_Declare(
 )
 
 FetchContent_MakeAvailable(rtaudio)
-set(CMAKE_INSTALL_PREFIX ${OLD_CMAKE_INSTALL_PREFIX})
+if(OLD_CMAKE_INSTALL_PREFIX)
+  set(CMAKE_INSTALL_PREFIX ${OLD_CMAKE_INSTALL_PREFIX} CACHE STRING "" FORCE)
+else()
+  unset(CMAKE_INSTALL_PREFIX CACHE)
+endif()
 unset(OLD_CMAKE_INSTALL_PREFIX)
 include(copy_runtime_deps)
