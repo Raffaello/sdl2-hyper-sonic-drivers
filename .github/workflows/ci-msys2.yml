@@ -26,7 +26,7 @@ jobs:
       matrix:
         build_type: [Debug, Release]
         use_mt32: [USE_MT32=ON]
-        use_sdl: ["",USE_SDL3=ON, USE_SDL2=ON]
+        use_sdl: [USE_SDL3=OFF,USE_SDL3=ON, USE_SDL2=ON]
         os: ["2022"]
     name: Build Windows
     runs-on: windows-${{ matrix.os }}
