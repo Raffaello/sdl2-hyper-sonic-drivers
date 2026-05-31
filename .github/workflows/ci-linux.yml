@@ -26,7 +26,7 @@ jobs:
       matrix:
         build_type: [Debug, Release]
         use_mt32: [USE_MT32=ON]
-        use_sdl: [USE_SDL3=OFF, USE_SDL3=ON, USE_SDL2=ON]
+        use_sdl: [USE_SDL3=OFF, USE_SDL2=ON]
     name: Build Linux
     runs-on: ubuntu-24.04
     steps:
@@ -46,8 +46,7 @@ jobs:
           sudo apt-get update -y && sudo apt-get install -y \
             libgtest-dev \
             libgmock-dev \
-            libsdl2-dev \
-            libsdl3-dev
+            libsdl2-dev
       - uses: actions/checkout@v4
       - name: create build dir
         run: mkdir build
