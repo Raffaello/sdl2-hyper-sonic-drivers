@@ -1,6 +1,6 @@
 ﻿cmake_minimum_required (VERSION 3.24)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_DEBUG_POSTFIX d)
 
 if(USE_SDL3)
@@ -131,6 +131,8 @@ target_sources(${LIB_NAME} PRIVATE
     $<IF:$<BOOL:${USE_SDL3}>,
          ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/sdl3/Renderer.cpp
         ,${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/sdl2/Renderer.cpp>
+    
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/rtaudio/Mixer.cpp
     # --- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/MIDI.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/midi/MIDITrack.cpp
@@ -236,7 +238,9 @@ target_link_libraries(${LIB_NAME}
         ${LIB_SDL}
     PUBLIC
         ${LIB_MT32EMU}
+        rtaudio
 )
+
 install(FILES
     $<TARGET_FILE:${LIB_SDL}>
     DESTINATION static/lib
@@ -258,7 +262,7 @@ unset(LIB_VER)
 if(NOT USE_SDL3)
     add_executable(sdl2-hyper-sonic-drivers "sdl2-hyper-sonic-drivers.cpp")
     target_link_libraries(sdl2-hyper-sonic-drivers PRIVATE
-         $<TARGET_NAME_IF_EXISTS:${LIB_SDL}main> hyper-sonic-drivers-static)
+        $<TARGET_NAME_IF_EXISTS:${LIB_SDL}main> hyper-sonic-drivers-static)
 endif()
 
 if(BUILD_TESTING)

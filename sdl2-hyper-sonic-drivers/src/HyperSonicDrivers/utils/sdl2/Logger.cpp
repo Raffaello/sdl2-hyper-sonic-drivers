@@ -54,7 +54,7 @@ constexpr SDL_LogPriority level2sdl(const Logger::eLevel level)
 static SDL_LogOutputFunction default_log_output_function          = nullptr;
 static void*                 default_log_output_function_userdata = nullptr;
 
-[[maybe_unused]] static void log_output(void* userdata, int category, SDL_LogPriority priority, const char* msg)
+[[maybe_unused]] static void log_output([[maybe_unused]] void* userdata, int category, SDL_LogPriority priority, const char* msg)
 {
     std::string p;
     std::string c;
@@ -128,6 +128,7 @@ Logger::Logger() : ILogger()
 {
     SDL_LogGetOutputFunction(&default_log_output_function, &default_log_output_function_userdata);
     instance = this;
+    setLevel(eLevel::Info);
 }
 
 Logger::~Logger()

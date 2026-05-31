@@ -22,7 +22,6 @@ public:
 
     ~Mixer() override;
 
-    // void shutdown() override;
     void suspend() noexcept override;
     void resume() noexcept override;
 

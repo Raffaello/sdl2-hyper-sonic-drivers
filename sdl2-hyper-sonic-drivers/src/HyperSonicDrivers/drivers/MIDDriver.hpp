@@ -30,9 +30,22 @@ public:
     ~MIDDriver() override;
 
     void setMidi(const std::shared_ptr<audio::MIDI>& midi) noexcept;
-    // It works only for Opl devices
+
+    /**
+     * @brief It works only for OPL devices. This will replace the internal IMidiDriver with a specific OplDriver
+     *
+     * @param op2Bank
+     * @return true
+     * @return false
+     */
     bool loadBankOP2(const std::shared_ptr<audio::opl::banks::OP2Bank>& op2Bank) noexcept;
-    // this restore the default MidiDriver (scummvm::MidiAdlib, MT32)
+
+    /**
+     * @brief this restore the default MidiDriver (scummvm::MidiAdlib, MT32)
+     *
+     * @return true
+     * @return false
+     */
     bool resetBankOP2() noexcept;
 
     void play(const uint16_t track = 0) noexcept override;
