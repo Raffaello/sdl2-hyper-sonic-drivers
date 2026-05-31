@@ -284,7 +284,7 @@ if(USE_SDL3)
             "../fixtures/test_renderer_sbpro2_dosbox.wav"
             "../fixtures/DUNE0.ADL"
     )
-else()
+elseif(USE_SDL2)
     macro_test(
         EXE TestRenderer
         FILES "audio/sdl2/TestRenderer.cpp"

@@ -5,7 +5,7 @@ if(DEFINED ENV{VCPKG_ROOT} AND NOT DEFINED CMAKE_TOOLCHAIN_FILE)
 endif()
 
 
-project ("sdl2-hyper-sonic-drivers" VERSION 0.18.4 DESCRIPTION "SDL2 based Hyper-Sonic Drivers for emulating old soundcards")
+project ("hyper-sonic-drivers" VERSION 0.19.0 DESCRIPTION "Hyper-Sonic Drivers for emulating old soundcards")
 include (TestBigEndian)
 TEST_BIG_ENDIAN(IS_BIG_ENDIAN)
 if(IS_BIG_ENDIAN)
@@ -35,13 +35,22 @@ include(CPack)
 
 ################################# Options ####################################
 option(USE_SDL3 "USE SDL3" OFF)
+option(USE_SDL2 "USE_SDL2" OFF)
 option(USE_MT32 "USE MT32Emu" ON)
+option(USE_SPDLOG "USE spdlog" OFF)
 option(GENERATE_CODE_COVERAGE "Generate Code Coverage with gcov" OFF)
 option(BUILD_EXAMPLES "build examples" ON)
 include(CTest)
 
-message(STATUS "USE_SDL3: ${USE_SDL3}")
-message(STATUS "USE_MT32: ${USE_MT32}")
+# SDL3 over SDL2
+if(USE_SDL3)
+  set(USE_SDL2 OFF CACHE BOOL "")
+endif()
+
+message(STATUS "USE_SDL3  : ${USE_SDL3}")
+message(STATUS "USE_SDL2  : ${USE_SDL2}")
+message(STATUS "USE_MT32  : ${USE_MT32}")
+message(STATUS "USE_SPDLOG: ${$USE_SPDLOG}")
 message(STATUS "GENERATE_CODE_COVERAGE: ${GENERATE_CODE_COVERAGE}")
 
 ##############################################################################

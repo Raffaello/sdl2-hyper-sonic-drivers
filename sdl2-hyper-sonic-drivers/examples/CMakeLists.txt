@@ -95,7 +95,7 @@ macro_example(
     NONE
 )
 
-if(NOT USE_SDL3)
+if(USE_SDL2)
     macro_example(
         EXE ADLPlay
         FILE "adl-play.cpp"
@@ -104,7 +104,7 @@ if(NOT USE_SDL3)
             PRIVATE
                 $<TARGET_NAME_IF_EXISTS:${LIB_SDL}main>
                 hyper-sonic-drivers-static
-                spdlog::spdlog 
+                spdlog::spdlog
         FIXTURES 
         "../test/fixtures/DUNE0.ADL"
         #"../test/fixtures/EOBSOUND.ADL"

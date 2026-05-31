@@ -1,8 +1,17 @@
 #include <HyperSonicDrivers/utils/ILogger.hpp>
-#if HAS_SDL3
-#include <HyperSonicDrivers/utils/sdl3/Logger.hpp>    // this one for sure exists for now as everything is built around SDL2,
+
+#if HAS_SPDLOG
+#include <HyperSonicDrivers/utils/spdlog/Logger.hpp>    // TODO if USE_SPDLOG
+#define LOGGER spdlog::Logger
+#elif HAS_SDL3
+#include <HyperSonicDrivers/utils/sdl3/Logger.hpp>
+#define LOGGER sdl3::Logger
+#elif HAS_SDL2
+#include <HyperSonicDrivers/utils/sdl2/Logger.hpp>
+#define LOGGER sdl2::Logger
 #else
-#include <HyperSonicDrivers/utils/sdl2/Logger.hpp>    // this one for sure exists for now as everything is built around SDL2,
+#include <HyperSonicDrivers/utils/Logger.hpp>
+#define LOGGER Logger
 #endif
 // so default logger
 
@@ -36,14 +45,17 @@ void ILogger::log(const eLevel level, const std::string& str, const eCategory ca
     }
 }
 
-#if HAS_SDL3
-static sdl3::Logger g_default_sdl3_logger = sdl3::Logger();
-ILogger*            ILogger::instance     = &g_default_sdl3_logger;
+// #if HAS_SDL3
+// static sdl3::Logger g_default_sdl3_logger = sdl3::Logger();
+// ILogger*            ILogger::instance     = &g_default_sdl3_logger;
 
-#else
-static sdl2::Logger g_default_sdl2_logger = sdl2::Logger();
+// #elif HAS_SDL2
+// static sdl2::Logger g_default_sdl2_logger = sdl2::Logger();
+// ILogger*            ILogger::instance     = &g_default_sdl2_logger;
 
-ILogger* ILogger::instance = &g_default_sdl2_logger;
-#endif
+// #else
+static auto g_default_logger  = LOGGER();
+ILogger*    ILogger::instance = &g_default_logger;
+// #endif
 
 }    // namespace HyperSonicDrivers::utils

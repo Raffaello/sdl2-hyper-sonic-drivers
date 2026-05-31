@@ -3,13 +3,21 @@
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_DEBUG_POSTFIX d)
 
+if(USE_SPDLOG)
+    find_package(spdlog REQUIRED CONFIG)
+    add_compile_definitions(HAS_SPDLOG=1)
+    set(LIB_SPDLOG spdlog::spdlog)
+endif()
+
 if(USE_SDL3)
     find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3)
     add_compile_definitions(HAS_SDL3=1)
     set(LIB_SDL SDL3::SDL3)
-else()
+elseif(USE_SDL2)
     find_package(SDL2 CONFIG REQUIRED)
+    add_compile_definitions(HAS_SDL2=1)
     set(LIB_SDL SDL2::SDL2)
+else()
 endif()
 
 if(USE_MT32)
@@ -72,6 +80,21 @@ install(
     PUBLIC_HEADER DESTINATION static/include
 )
 
+# install(
+#     TARGETS spdlog
+#     EXPORT ${LIB_CONF}
+#     DESTINATION static/lib
+#     PUBLIC_HEADER DESTINATION static/include
+# )
+
+# install(
+#     TARGETS fmt
+#     EXPORT ${LIB_CONF}
+#     DESTINATION static/lib
+#     PUBLIC_HEADER DESTINATION static/include
+# )
+
+
 ## TODO: this is ok, but some includes files i don't want to be "public",
 ##       so it looks like it must be built manually..
 # try defining PUBLIC_HEADER than do an install target (it is at line 31)
@@ -110,12 +133,13 @@ install(FILES
     DESTINATION static/cmake
 )
 
-target_include_directories(${LIB_NAME} PUBLIC
-    # $<BUILD_INTERFACE:$<TARGET_FILE_DIR:${LIB_NAME}>>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
-    $<INSTALL_INTERFACE:static/include>
-    $<INSTALL_INTERFACE:static/include/test>
+target_include_directories(${LIB_NAME}
+    PUBLIC
+        # $<BUILD_INTERFACE:$<TARGET_FILE_DIR:${LIB_NAME}>>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+        $<INSTALL_INTERFACE:static/include>
+        $<INSTALL_INTERFACE:static/include/test>
 #PRIVATE
 #    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
 )
@@ -125,14 +149,11 @@ target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/IMixer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/mixer/Channel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/mixer/MixerBase.cpp
-    $<IF:$<BOOL:${USE_SDL3}>,
-         ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/sdl3/Mixer.cpp
-        ,${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/sdl2/Mixer.cpp>
-    $<IF:$<BOOL:${USE_SDL3}>,
-         ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/sdl3/Renderer.cpp
-        ,${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/sdl2/Renderer.cpp>
-    
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/rtaudio/Mixer.cpp
+    $<$<BOOL:${USE_SDL2}>:${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/sdl2/Mixer.cpp>
+    $<$<BOOL:${USE_SDL2}>:${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/sdl2/Renderer.cpp>
+    $<$<BOOL:${USE_SDL3}>:${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/sdl3/Mixer.cpp>
+    $<$<BOOL:${USE_SDL3}>:${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/sdl3/Renderer.cpp>
     # --- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/MIDI.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/audio/midi/MIDITrack.cpp
@@ -227,30 +248,41 @@ target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/utils/sound.cpp
     # --- #
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/utils/ILogger.cpp
-    $<IF:$<BOOL:${USE_SDL3}>,
-         ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/utils/sdl3/Logger.cpp
-        ,${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/utils/sdl2/Logger.cpp>
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/utils/Logger.cpp
+    $<$<BOOL:${USE_SDL2}>:${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/utils/sdl2/Logger.cpp>
+    $<$<BOOL:${USE_SDL3}>:${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/utils/sdl3/Logger.cpp>
+    $<$<BOOL:${USE_SPDLOG}>:${CMAKE_CURRENT_SOURCE_DIR}/src/HyperSonicDrivers/utils/spdlog/Logger.cpp>
     # --- #
 )
 
 target_link_libraries(${LIB_NAME}
     PRIVATE
         ${LIB_SDL}
+        ${LIB_SPDLOG}
     PUBLIC
         ${LIB_MT32EMU}
         rtaudio
 )
 
-install(FILES
-    $<TARGET_FILE:${LIB_SDL}>
+if(USE_SPDLOG)
+    install(FILES
+    $<TARGET_FILE:${LIB_SPDLOG}
     DESTINATION static/lib
 )
+endif()
 
-if(BUILD_EXAMPLES)
+if(USE_SDL3 OR USE_SDL2)
     install(FILES
         $<TARGET_FILE:${LIB_SDL}>
-        DESTINATION "static/examples"
-)
+        DESTINATION static/lib
+    )
+
+    if(BUILD_EXAMPLES)
+        install(FILES
+            $<TARGET_FILE:${LIB_SDL}>
+            DESTINATION "static/examples"
+    )
+    endif()
 endif()
 
 unset(LIB_NAME)
@@ -259,7 +291,7 @@ unset(LIB_VER)
 ##############################################################################
 
 # Add source to this project's executable.
-if(NOT USE_SDL3)
+if(USE_SDL2)
     add_executable(sdl2-hyper-sonic-drivers "sdl2-hyper-sonic-drivers.cpp")
     target_link_libraries(sdl2-hyper-sonic-drivers PRIVATE
         $<TARGET_NAME_IF_EXISTS:${LIB_SDL}main> hyper-sonic-drivers-static)
